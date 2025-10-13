@@ -1,0 +1,10 @@
+But the geometric error remains nearly flat — 
+meaning that averaging over more frames reduces intra-subject variance
+ but does not necessarily bring the average mesh closer to ground truth.
+
+The averaging helps eliminate stochastic noise, but:
+If all frames are consistently biased (e.g., same nose deformation), 
+the average still carries that bias.
+Therefore, while WBES improves (better separation), 
+the error toward GT doesn't necessarily go down.
+This behavior holds both for meshes and for landmarks.

@@ -1,0 +1,6 @@
+method,pearson_r,spearman_r,n_points
+3DDFAV2_23470_neutral,0.14568881144288298,0.5,3
+3DDFAV3_neutral,-0.9955372663838474,-1.0,3
+Deep3DFace_23470_neutral,-0.9972010227343245,-1.0,3
+SynergyNet_neutral,-0.9996454361051355,-1.0,3
+INORig_23470_neutral,-0.9505320999040247,-0.5,3

@@ -1,0 +1,29 @@
+go to 50 f 1, 10, 50 same geometric + cosine and see correlation e serve un plot come quello e correlazione dovrebbe venire la y = -x pierrman e pierson .
+also fai cosine e wbes geometric vs cosine. inter ocular distance for solving scale. usa landmarks
+
+
+
+allora ho parlato con evangelos e siamo stati 1 ora e mezza hahahahah abbiamo discusso e tutto okay. next step valutare questa cosa della cosine distance tra mesh. ci passera uno script che in teoria funziona gia. questi sono gli appunti presi.
+in poche parole dobbiamo vedere la correlazione che ce tra questa cosine e wbes cosine geometric e geometric cosine. poi dobbiamo fixare la scala dell'errore geometrico usando la inter ocular distance
+
+Perfetto, abbiamo tutto chiaro.
+
+✅ Prossimi step:
+Valutare correlazioni:
+
+Cosine distance tra mesh → confronto con:
+
+WBES
+
+Errore geometrico
+
+Correggere la scala dell’errore geometrico usando la inter-ocular distance (IOD) dai landmark.
+
+Plot a scatter come nel paper:
+
+x: "true error" (es. geometric)
+
+y: "estimated error" (es. cosine)
+
+calcolare Pearson e Spearman ρ
+
