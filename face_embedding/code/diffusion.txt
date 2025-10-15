@@ -1,0 +1,266 @@
+⸻
+
+⚙️ COME SI DEFINISCONO GLI IPERPARAMETRI DI DIFFUSIONNET
+
+DiffusionNet non è una CNN tradizionale — i suoi iperparametri si dividono in due categorie:
+	1.	🔹 Geometrici → determinano la risoluzione e la qualità della rappresentazione della forma
+	2.	🔸 Architetturali → determinano la capacità di apprendimento e la dimensione dell’embedding
+
+Vediamoli uno per uno 👇
+
+⸻
+
+🔹 1. IPERPARAMETRI GEOMETRICI
+
+🧮 k_eig — Numero di autovettori del Laplaciano
+
+Cos’è
+
+È il numero di autofunzioni del Laplaciano discreto che vengono calcolate per costruire la base spettrale.
+
+DiffusionNet sfrutta questi autovettori per rappresentare la geometria come una “Fourier basis” sul dominio della mesh.
+In pratica: più k_eig ⇒ più componenti ad alta frequenza ⇒ più dettagli geometrici catturati.
+
+Effetti
+
+Valore	Effetto	Quando usarlo
+16–32	Molto veloce ma molto “smooth”	per prototipi su point cloud
+64–128	Bilanciato	per mesh organiche (es. volti, corpi)
+256+	Alta risoluzione ma costoso	per modelli complessi o training multi-shape
+
+Formula empirica (funziona bene)
+
+k_{\text{eig}} \approx \sqrt{N_{\text{verts}}}
+Esempio: una mesh da 6890 vertici → sqrt(6890) ≈ 83 → tipicamente scegli k_eig=128.
+
+⸻
+
+⚖️ normalize_positions
+
+Non è un iperparametro, ma è una normalizzazione essenziale:
+	•	centra i vertici sul baricentro
+	•	ridimensiona la mesh per avere raggio unitario
+
+Serve per rendere gli autovalori del Laplaciano confrontabili tra mesh di dimensioni diverse.
+
+💡 Sempre attivo, a meno che tu non voglia studiare effetti di scala (rarissimo).
+
+⸻
+
+🧩 compute_operators(..., cache_dir=...)
+
+Puoi precomputare e salvare i Laplaciani, autovettori, ecc., in una cache.
+Questo è un iperparametro tecnico:
+	•	utile quando lavori su dataset grandi
+	•	irrilevante su singole mesh
+
+⸻
+
+🔸 2. IPERPARAMETRI ARCHITETTURALI
+
+🧱 C_in — Numero di feature in input
+
+Ogni vertice può avere:
+	•	coordinate (x, y, z) → 3 feature (default)
+	•	normali → +3 feature
+	•	HKS o WKS descriptor → +16–128 feature
+
+💡 In pratica:
+
+Caso	C_in
+solo coordinate	3
+coordinate + normali	6
+coordinate + HKS(16)	19
+embedding multi-modal	64+
+
+
+⸻
+
+🌊 C_width — Larghezza del canale interno
+
+È l’equivalente del numero di feature per layer in una CNN.
+
+Effetti:
+
+Valore	Impatto	Uso tipico
+32	leggero e veloce	debug o GPU piccola
+64	bilanciato	shape reconstruction
+128	solido	face embedding o segmentation
+256+	costoso	multi-shape learning o multimodale
+
+💡 Aumentare C_width quadruplica la memoria perché ogni layer elabora [B, V, C_width].
+
+⸻
+
+🎯 C_out — Numero di feature in output
+
+Dipende dal tipo di task:
+
+Task	C_out tipico	Significato
+Embedding non supervisionato	32–128	vettore descrittivo del vertice
+Segmentazione per-vertex	#classi (es. 10)	probabilità di classe
+Face encoder (tipo autoencoder)	64–256	embedding compatto della geometria
+
+💡 Se non addestri, ma vuoi solo ottenere un embedding, scegli C_out=64 o 128.
+
+⸻
+
+🔥 last_activation
+
+Attivazione finale — serve per adattare l’output al tipo di loss.
+
+Attivazione	Uso
+None	per embedding “grezzi”
+torch.nn.functional.log_softmax	per classificazione (CrossEntropyLoss)
+torch.tanh	per normalizzare l’embedding (es. cosine similarity)
+torch.sigmoid	per task binari o mask
+
+
+⸻
+
+🧠 outputs_at
+
+Definisce a quale entità topologica associare l’output:
+	•	'vertices' → classico per embedding facciali, segmentation, ecc.
+	•	'faces' → utile per materiali o campi scalari per faccia
+	•	'edges' → per task tipo orientamento o deformazione (raro)
+
+⸻
+
+⚗️ 3. IPERPARAMETRI DI TRAINING (secondari)
+
+Parametro	Default	Significato
+dropout	False	aggiungi rumore per regolarizzare
+N_block	4	numero di blocchi DiffusionNet impilati
+mlp_hidden_dim	C_width	dimensione dello spazio MLP dopo la diffusione
+batch_norm	True	normalizzazione inter-feature
+
+💡 Aumentare N_block migliora la capacità della rete, ma la complessità cresce linearmente.
+
+⸻
+
+💡 4. COME SCEGLIERLI (strategie pratiche)
+
+🔬 Se fai embedding di volti (6890 vertici)
+
+K_EIG = 128
+C_WIDTH = 128
+C_OUT = 64
+N_BLOCK = 4
+dropout = False
+
+⚙️ Se fai shape segmentation (10 classi)
+
+K_EIG = 64
+C_WIDTH = 128
+C_OUT = 10
+last_activation = log_softmax
+
+⚡ Se vuoi solo testare la rete
+
+K_EIG = 32
+C_WIDTH = 64
+C_OUT = 8
+
+
+⸻
+
+🧮 5. Regole di scaling
+
+Una buona euristica (che puoi anche scrivere in tesi):
+
+Quantità	Scala consigliata
+k_eig	≈ √(n_verts)
+C_width	2 × log₂(k_eig) × 16
+C_out	≤ C_width
+learning_rate	1e-3 (per training)
+batch_size	4–8 (dipende da GPU)
+
+
+⸻
+
+🧩 6. Riassunto concettuale
+
+ ┌──────────────────────────────────────────────────────────┐
+ │        INPUT: vertices (x,y,z) ∈ ℝ³                      │
+ ├──────────────────────────────────────────────────────────┤
+ │ normalize_positions()                                    │
+ │ compute_operators(k_eig)  → L, evals, evecs, gradX/Y     │
+ ├──────────────────────────────────────────────────────────┤
+ │ DiffusionNet(C_in, C_width, C_out)                       │
+ │     └── N_block times diffusion + MLP                    │
+ ├──────────────────────────────────────────────────────────┤
+ │ OUTPUT: per-vertex embedding (ℝ^{C_out})                 │
+ └──────────────────────────────────────────────────────────┘
+
+
+
+Descrizione
+1.
+Allena una DiffusionNet su BFM (C_in=3, C_out=64) con triplet loss tra soggetti
+2.
+Allena un’altra DiffusionNet su FLAME con stesso setup
+3.
+Calcola embedding globali per 100 soggetti su entrambe le topologie
+4.
+Calcola similarità coseno intra-soggetto e inter-soggetto
+5.
+Visualizza in t-SNE / PCA la separazione tra identità
+
+Da quello che dici:
+
+“mi serve solo una cosa che crea un oggetto a partire da un altro”
+
+tu non vuoi una rete discriminativa o classificatrice,
+ma un encoder che proietti le mesh in uno spazio geometrico coerente —
+in modo che mesh simili → embedding vicini.
+
+👉 Quindi sì: serve un training, ma non di classificazione.
+Serve un training auto-supervisionato o contrastivo
+perché la rete deve imparare cosa significa “essere simili” geometricamente.
+
+Senza questo, l’output di DiffusionNet è solo una trasformazione casuale dei vertici.
+
+Strategia
+Descrizione
+Dati richiesti
+Unsupervised / Autoencoder
+la rete ricostruisce la mesh dal proprio embedding → impara a codificare forma
+solo mesh
+Contrastive (SimCLR-style)
+due versioni augmentate della stessa mesh devono avere embedding simili
+solo mesh (senza label)
+Triplet / Cosine Loss supervisionato
+due mesh stesso soggetto vicine, diverse lontane
+gruppi per soggetto (che tu hai!)
+WBES-guided training (ibrido)
+la rete minimizza la distanza embedding per forme a basso errore WBES
+risultati FaceBench
+
+🔁 4️⃣ Variante più “ambiziosa” (e più complessa)
+
+Puoi anche cercare di condividere parzialmente i pesi tra i due encoder:
+	•	stesso backbone (DiffusionNet layers),
+	•	ma operatori geometrici diversi (L, gradX, gradY).
+
+Così provi a “forzare” il modello ad imparare una rappresentazione comune tra topologie —
+una sorta di shared latent manifold.
+
+È l’idea dietro il cross-topology shape embedding:
+
+due reti diverse (una per topologia) → embedding nello stesso spazio metrico.
+
+Concetto
+Spiegazione
+Due encoder diversi ≠ stesse coordinate
+ognuno impara il proprio sistema di riferimento
+C’è offset o rotazione globale
+sì, sempre; non è un problema
+Ciò che conta è la coerenza locale
+embedding simili → soggetti simili
+Si può correggere a posteriori
+via Procrustes o regressione lineare
+Obiettivo finale
+ottenere embedding topologicamente compatibili, non identici
+
+
