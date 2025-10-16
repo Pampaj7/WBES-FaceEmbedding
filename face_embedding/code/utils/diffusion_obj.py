@@ -25,7 +25,7 @@ from diffusion_net.geometry import normalize_positions, compute_operators
 # ==============================================================
 
 # Path alla mesh OBJ di test (qui usiamo una mesh facciale canonica)
-OBJ_PATH = "/Users/pampaj/PycharmProjects/data/face_embedding/data/canonical_face_model.obj"
+OBJ_PATH = "../data/canonical_face_model.obj"
 
 # Numero di autovettori (eigenvectors) del Laplaciano da calcolare.
 # Governa la risoluzione spettrale — più alto = più dettagli geometrici ma più lento.

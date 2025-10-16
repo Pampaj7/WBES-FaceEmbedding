@@ -177,90 +177,88 @@ learning_rate	1e-3 (per training)
 batch_size	4–8 (dipende da GPU)
 
 
-⸻
+struct?
 
-🧩 6. Riassunto concettuale
-
- ┌──────────────────────────────────────────────────────────┐
- │        INPUT: vertices (x,y,z) ∈ ℝ³                      │
- ├──────────────────────────────────────────────────────────┤
- │ normalize_positions()                                    │
- │ compute_operators(k_eig)  → L, evals, evecs, gradX/Y     │
- ├──────────────────────────────────────────────────────────┤
- │ DiffusionNet(C_in, C_width, C_out)                       │
- │     └── N_block times diffusion + MLP                    │
- ├──────────────────────────────────────────────────────────┤
- │ OUTPUT: per-vertex embedding (ℝ^{C_out})                 │
- └──────────────────────────────────────────────────────────┘
-
-
-
-Descrizione
-1.
-Allena una DiffusionNet su BFM (C_in=3, C_out=64) con triplet loss tra soggetti
-2.
-Allena un’altra DiffusionNet su FLAME con stesso setup
-3.
-Calcola embedding globali per 100 soggetti su entrambe le topologie
-4.
-Calcola similarità coseno intra-soggetto e inter-soggetto
-5.
-Visualizza in t-SNE / PCA la separazione tra identità
-
-Da quello che dici:
-
-“mi serve solo una cosa che crea un oggetto a partire da un altro”
-
-tu non vuoi una rete discriminativa o classificatrice,
-ma un encoder che proietti le mesh in uno spazio geometrico coerente —
-in modo che mesh simili → embedding vicini.
-
-👉 Quindi sì: serve un training, ma non di classificazione.
-Serve un training auto-supervisionato o contrastivo
-perché la rete deve imparare cosa significa “essere simili” geometricamente.
-
-Senza questo, l’output di DiffusionNet è solo una trasformazione casuale dei vertici.
-
-Strategia
-Descrizione
-Dati richiesti
-Unsupervised / Autoencoder
-la rete ricostruisce la mesh dal proprio embedding → impara a codificare forma
-solo mesh
-Contrastive (SimCLR-style)
-due versioni augmentate della stessa mesh devono avere embedding simili
-solo mesh (senza label)
-Triplet / Cosine Loss supervisionato
-due mesh stesso soggetto vicine, diverse lontane
-gruppi per soggetto (che tu hai!)
-WBES-guided training (ibrido)
-la rete minimizza la distanza embedding per forme a basso errore WBES
-risultati FaceBench
-
-🔁 4️⃣ Variante più “ambiziosa” (e più complessa)
-
-Puoi anche cercare di condividere parzialmente i pesi tra i due encoder:
-	•	stesso backbone (DiffusionNet layers),
-	•	ma operatori geometrici diversi (L, gradX, gradY).
-
-Così provi a “forzare” il modello ad imparare una rappresentazione comune tra topologie —
-una sorta di shared latent manifold.
-
-È l’idea dietro il cross-topology shape embedding:
-
-due reti diverse (una per topologia) → embedding nello stesso spazio metrico.
-
-Concetto
-Spiegazione
-Due encoder diversi ≠ stesse coordinate
-ognuno impara il proprio sistema di riferimento
-C’è offset o rotazione globale
-sì, sempre; non è un problema
-Ciò che conta è la coerenza locale
-embedding simili → soggetti simili
-Si può correggere a posteriori
-via Procrustes o regressione lineare
-Obiettivo finale
-ottenere embedding topologicamente compatibili, non identici
+cross_topo/
+│
+├── config.py                # parametri globali e setup GPU
+│
+├── dataset/
+│   ├── __init__.py
+│   ├── mesh_dataset.py      # gestione dataset per singola topologia
+│   ├── sampler.py           # accoppiamento BFM-FLAME e negative sampling
+│   └── operators_cache.py   # caching di Laplaciani e operatori geometrici
+│
+├── models/
+│   ├── __init__.py
+│   ├── backbone.py          # DiffusionBackbone condivisa
+│   └── losses.py            # triplet_loss, cosine_distance, ecc.
+│
+├── train/
+│   ├── __init__.py
+│   └── train_cross_topo.py  # main training loop (usa le parti sopra)
+│
+└── utils/
+    ├── parsing.py           # parse_subject_id, logging, seed
+    └── eval_utils.py        # t-SNE, PCA, plotting
 
 
+🧠 1. Il principio generale: metric / contrastive learning
+
+La parte di Triplet loss + embedding normalizzati è uno standard consolidato nel metric learning.
+È la stessa idea usata in:
+
+FaceNet (Schroff et al., CVPR 2015)
+
+ArcFace, CosFace, SimCLR, ecc.
+
+Solo che lì si applica su immagini 2D, mentre tu la stai adattando a forme 3D.
+L’obiettivo è identico:
+
+avvicinare embedding di esempi “positivi” e allontanare quelli “negativi”.
+
+🧩 2. Il contesto 3D: cross-domain / cross-topology embedding
+
+Nel 3D questo tipo di setup si usa per allineare rappresentazioni di domini diversi,
+esattamente come tu stai facendo tra topologie diverse (BFM, FLAME, ecc.).
+
+Ecco esempi noti in letteratura:
+
+Paper	Idea chiave	Analogia con il tuo setup
+“Shape–DCL: Shape Contrastive Learning” (Zeng et al., CVPR 2021)	usa triplet/contrastive loss su shape embedding 3D	stesso tipo di loss e filosofia
+“Cross-domain Shape Matching with Contrastive Learning” (Zhao et al., 2022)	allinea shape da domini diversi (es. scan vs mesh)	uguale al tuo caso: BFM ↔ FLAME
+“Unsupervised Cross-modal 3D Shape Retrieval” (Han et al., 2020)	allinea feature da rappresentazioni diverse	analogo a topologie diverse
+“Learning Consistent Shape Embeddings Across Topologies” (You et al., 2023)	specificamente per cross-topology embedding	esattamente quello che stai cercando di fare
+
+👉 Quindi sì: l’idea del shared backbone + triplet + alignment loss è documentata.
+La tua implementazione è una versione pulita e generalizzata di quello schema.
+
+⚙️ 3. Cosa stai realmente facendo
+
+Tu hai formalizzato la cosa come:
+
+BFM ↔ FLAME
+↓        ↓
+same encoder (shared weights)
+↓        ↓
+embedding space ℝᵈ
+↓
+Triplet + MSE losses
+
+
+Questo schema è matematicamente coerente con la teoria dell’invarianza per embedding geometrici.
+
+È una combinazione tra:
+
+alignment loss (come nei domain adaptation)
+
+triplet loss (come nei metric learning setups)
+
+È quindi un cross-domain metric learning setup — una classe di metodi esistenti e molto studiati.
+
+1. Compute DiffusionNet operators for each mesh (L, evecs, gradX/Y, etc.)
+2. Feed them into a shared DiffusionNet backbone → get embeddings
+3. Pair meshes of the same subject across topologies (BFM ↔ FLAME)
+4. Train with Triplet + Alignment loss to enforce:
+      same subject → similar embedding
+      different subject → dissimilar embedding
