@@ -16,12 +16,12 @@ class GTReadyDataset(Dataset):
     Gestisce automaticamente file corrotti, normalizza la mesh e gli operatori
     per stabilità numerica, e mantiene le matrici sparse (L, gradX, gradY) su CPU.
     """
-
-    def __init__(self, data_dir, ops_dir=None, device="cuda"):
-        self.files = sorted([f for f in os.listdir(data_dir) if f.endswith(".obj")])
+    
+    def __init__(self, data_dir, ops_dir=None):
         self.data_dir = data_dir
         self.ops_dir = ops_dir
-        self.device = device
+        self.files = sorted([f for f in os.listdir(data_dir) if f.endswith(".obj")])
+
 
     def __len__(self):
         return len(self.files)
@@ -131,20 +131,9 @@ class GTReadyDataset(Dataset):
                 print(f"[WARN] NaN/Inf in {name} for {fname}, skipping.")
                 return None
 
-        # === Spostamento su device ===
-        device = torch.device(self.device if torch.cuda.is_available() else "cpu")
-
         # → GPU solo dati compatti
-        V_torch = torch.tensor(V, dtype=torch.float32).contiguous().to(device)  # (N, 3)
-        mass = mass.to(device)
-        evals = evals.to(device)
-        evecs = evecs.to(device)
-
-        # → CPU per operatori pesanti
-        L = L.cpu()
-        gradX = gradX.cpu() if gradX is not None else None
-        gradY = gradY.cpu() if gradY is not None else None
-        F_torch = torch.tensor(F, dtype=torch.long).cpu()
+        V_torch = torch.tensor(V, dtype=torch.float32).contiguous()  # (N, 3)
+        F_torch = torch.tensor(F, dtype=torch.long)
 
         return {
             "verts": V_torch,

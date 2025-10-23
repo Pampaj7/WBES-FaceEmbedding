@@ -1,116 +1,119 @@
-import os
 import sys
-import torch
-import numpy as np
-import trimesh
-from torch.utils.data import DataLoader
-
 # === Add DiffusionNet path ===
 if "/equilibrium/lpampaloni/diffusion-net/src" not in sys.path:
     sys.path.append("/equilibrium/lpampaloni/diffusion-net/src")
 
+import os
+import torch
+import numpy as np
+import igl
+import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.subplots as sp
+
 from diffusion_autoencoder import DiffusionAutoencoder
 from dataset_gtready import GTReadyDataset
 
-# === Config ===
+# === CONFIG ===
+BASE_DIR = "./results_diffusionAE"
+CHECKPOINT = os.path.join(BASE_DIR, "diffusionAE_epoch20.pth")
 DATA_DIR = "../../../datasets/GT_ready/"
 OPS_DIR = os.path.join(DATA_DIR, "operators")
-CKPT_PATH = "results_diffusionAE/diffusionAE_epoch30.pth"
-RECON_DIR = "results_diffusionAE/reconstructions_subset/"
-os.makedirs(RECON_DIR, exist_ok=True)
 
+os.makedirs(BASE_DIR, exist_ok=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# === Load model ===
-model = DiffusionAutoencoder(latent_dim=32).to(device)
-model.load_state_dict(torch.load(CKPT_PATH, map_location=device))
+# === 1. CARICA MODELLO ===
+model = DiffusionAutoencoder(latent_dim=64).to(device)
+model.load_state_dict(torch.load(CHECKPOINT, map_location=device))
 model.eval()
+print(f"✅ Loaded checkpoint: {CHECKPOINT}")
 
-# === Dataset (solo primi 1000 campioni validi) ===
-dataset = GTReadyDataset(DATA_DIR, ops_dir=OPS_DIR, device=device)
-dataset.files = dataset.files[:1000]
+# === 2. CARICA UN ESEMPIO DAL DATASET ===
+dataset = GTReadyDataset(DATA_DIR, ops_dir=OPS_DIR)
+sample = dataset[0]
+V = sample["verts"].to(device)
+mass = sample["mass"].to(device)
+L = sample["L"].to(device)
+evals = sample["evals"].to(device)
+evecs = sample["evecs"].to(device)
+gradX, gradY = sample["gradX"], sample["gradY"]
 
-# ✅ collate_fn personalizzato per evitare batching di tensori sparsi
-loader = DataLoader(
-    dataset,
-    batch_size=1,
-    shuffle=False,
-    num_workers=0,
-    collate_fn=lambda x: [s for s in x if s is not None]
+# === 3. RICOSTRUZIONE ===
+with torch.no_grad():
+    V_rec, z = model(V, mass, L, evals, evecs, gradX, gradY)
+
+V_gt = V.cpu().numpy()
+V_rec = V_rec.cpu().numpy()
+F = sample["faces"].numpy()
+
+# === 4. SALVA MESH SU DISCO ===
+igl.write_triangle_mesh(os.path.join(BASE_DIR, "sample_original.obj"), V_gt, F)
+igl.write_triangle_mesh(os.path.join(BASE_DIR, "sample_reconstructed.obj"), V_rec, F)
+print("💾 Saved sample_original.obj and sample_reconstructed.obj")
+
+# === 5. CALCOLA METRICHE ===
+def chamfer_distance(x, y):
+    x = torch.tensor(x, dtype=torch.float32).unsqueeze(1)
+    y = torch.tensor(y, dtype=torch.float32).unsqueeze(0)
+    dist = torch.sum((x - y)**2, dim=2)
+    min_x, _ = torch.min(dist, dim=1)
+    min_y, _ = torch.min(dist, dim=0)
+    return (min_x.mean() + min_y.mean()).item()
+
+def laplacian_loss(V, L):
+    if L.device != V.device:
+        L = L.to(V.device)
+    LV = torch.sparse.mm(L, V)
+    return torch.mean(torch.norm(LV, dim=1))
+
+chamfer = chamfer_distance(V_gt, V_rec)
+lap_loss = laplacian_loss(torch.tensor(V_rec, device=device), L).item()
+err = np.linalg.norm(V_gt - V_rec, axis=1)
+print(f"📊 Chamfer Distance: {chamfer:.6f}")
+print(f"📊 Mean Vertex Error: {err.mean():.6f} | Max: {err.max():.6f}")
+print(f"📊 Laplacian Smoothness: {lap_loss:.6f}")
+
+np.save(os.path.join(BASE_DIR, "vertex_errors.npy"), err)
+
+# === 6. VISUALIZZAZIONE INTERATTIVA SALVATA IN HTML ===
+def mesh_trace(V, F, color=None, name="mesh"):
+    return go.Mesh3d(
+        x=V[:, 0], y=V[:, 1], z=V[:, 2],
+        i=F[:, 0], j=F[:, 1], k=F[:, 2],
+        intensity=color if color is not None else V[:, 2],
+        colorscale="Viridis", opacity=1.0, showscale=color is not None,
+        name=name
+    )
+
+fig = sp.make_subplots(
+    rows=1, cols=2,
+    specs=[[{'type': 'surface'}, {'type': 'surface'}]],
+    subplot_titles=("Ground Truth", "Reconstructed")
 )
+fig.add_trace(mesh_trace(V_gt, F, name="GT"), row=1, col=1)
+fig.add_trace(mesh_trace(V_rec, F, color=err, name="Reconstruction"), row=1, col=2)
+fig.update_layout(scene_aspectmode="data", height=800)
+html_path = os.path.join(BASE_DIR, "comparison_GT_vs_RECON.html")
+fig.write_html(html_path)
+print(f"💾 Saved interactive comparison: {html_path}")
 
-n_total = 0
-n_skipped_in = 0
-n_skipped_out = 0
-n_saved = 0
+# === 7. DISTRIBUZIONE LATENTE (STATIC PLOT) ===
+z_np = z.cpu().numpy()
+plt.figure(figsize=(6, 6))
+if z_np.ndim == 2 and z_np.shape[1] >= 2:
+    plt.scatter(z_np[:, 0], z_np[:, 1], alpha=0.7, s=8)
+else:
+    plt.hist(z_np.flatten(), bins=30)
+plt.title("Latent Embedding Distribution")
+plt.xlabel("Dim 1"); plt.ylabel("Dim 2")
+plt.grid(True)
+plt.tight_layout()
+latent_plot = os.path.join(BASE_DIR, "latent.png")
+plt.savefig(latent_plot, dpi=200)
+plt.close()
+print(f"💾 Saved latent distribution plot: {latent_plot}")
 
-with torch.no_grad(), torch.amp.autocast("cuda"):
-    for i, batch_list in enumerate(loader):
-        sample = batch_list[0]
-        if sample is None:
-            continue
-        n_total += 1
-
-        # === Input check ===
-        tensors_to_check = [
-            ("verts", sample["verts"]),
-            ("mass", sample["mass"]),
-            ("L", sample["L"]),
-            ("evals", sample["evals"]),
-            ("evecs", sample["evecs"]),
-        ]
-        corrupted = False
-        for name, t in tensors_to_check:
-            if t is None:
-                corrupted = True
-                break
-            if torch.isnan(t).any() or torch.isinf(t).any():
-                print(f"[WARN] NaN/Inf in input {name} for {sample['name']}, skipping.")
-                corrupted = True
-                break
-        if corrupted:
-            n_skipped_in += 1
-            continue
-
-        # === Forward pass ===
-        try:
-            V = sample["verts"].to(device)
-            mass = sample["mass"].to(device)
-            L = sample["L"].to(device)
-            evals = sample["evals"].to(device)
-            evecs = sample["evecs"].to(device)
-            gradX = sample.get("gradX")
-            gradY = sample.get("gradY")
-
-            V_rec, _ = model(V, mass, L, evals, evecs, gradX, gradY)
-        except RuntimeError as e:
-            print(f"[ERROR] Runtime error for {sample['name']}: {e}")
-            n_skipped_out += 1
-            continue
-
-        # === Check output ===
-        if torch.isnan(V_rec).any() or torch.isinf(V_rec).any():
-            print(f"[WARN] NaN/Inf in output for {sample['name']}, skipping save.")
-            n_skipped_out += 1
-            continue
-
-        mean, std = V_rec.mean().item(), V_rec.std().item()
-        vmin, vmax = V_rec.min().item(), V_rec.max().item()
-        print(f"[OK] {sample['name']}: mean={mean:.4f}, std={std:.4f}, range=[{vmin:.3f},{vmax:.3f}]")
-
-        # === Salva mesh solo se sana ===
-        verts_np = V_rec.cpu().numpy()
-        faces_np = sample["faces"].cpu().numpy()
-        mesh = trimesh.Trimesh(vertices=verts_np, faces=faces_np, process=False)
-        mesh.export(os.path.join(RECON_DIR, f"recon_{i:04d}.obj"))
-        n_saved += 1
-
-        if n_saved >= 10:  # solo 10 sane
-            break
-
-print("✅ Reconstruction Summary:")
-print(f"  Total samples processed: {n_total}")
-print(f"  Skipped (invalid input): {n_skipped_in}")
-print(f"  Skipped (invalid output): {n_skipped_out}")
-print(f"  Saved clean reconstructions: {n_saved}")
-print(f"📂 Saved in: {RECON_DIR}")
+print("\n✅ All done! Open these locally:")
+print(f" - {html_path}")
+print(f" - {latent_plot}")
