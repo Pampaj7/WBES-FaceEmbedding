@@ -8,6 +8,9 @@ from torch.utils.data import Dataset
 # === Add DiffusionNet path ===
 if "/equilibrium/lpampaloni/diffusion-net/src" not in sys.path:
     sys.path.append("/equilibrium/lpampaloni/diffusion-net/src")
+# Aggiungi anche il path dell'utente corrente se diverso
+if "/home/pampaj/diffusion-net/src" not in sys.path:
+    sys.path.append("/home/pampaj/diffusion-net/src")
 
 
 class GTReadyDataset(Dataset):
@@ -26,7 +29,7 @@ class GTReadyDataset(Dataset):
     def __len__(self):
         return len(self.files)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx): # this method is critic, here can relay a bug
         fname = self.files[idx]
         mesh_path = os.path.join(self.data_dir, fname)
 
@@ -37,41 +40,47 @@ class GTReadyDataset(Dataset):
             ops_path = mesh_path.replace(".obj", "_ops.pkl")
 
         if not os.path.exists(ops_path):
-            print(f"[WARN] Missing operator file: {ops_path}")
+            # print(f"Warn: Skip {fname}, ops file not found")
             return None
 
         # === Carica mesh ===
         try:
             V, F = igl.read_triangle_mesh(mesh_path)
         except Exception as e:
-            print(f"[WARN] Failed to read mesh {mesh_path}: {e}")
+            # print(f"Warn: Skip {fname}, mesh read error: {e}")
             return None
 
         if V.ndim == 1:
             V = V.reshape(-1, 3)
         elif V.shape[0] == 3 and V.shape[1] != 3:
             V = V.T
+            
+        if V.size == 0 or F.size == 0:
+            return None
 
         # === Normalizza mesh (centra e scala in [-1, 1]) ===
-        V = V - V.mean(axis=0, keepdims=True)
+        V_mean = V.mean(axis=0, keepdims=True)
+        V = V - V_mean
         scale = abs(V).max()
-        if scale > 0:
+        if scale > 1e-6: # Evita divisione per zero se la mesh è degenere
             V = V / scale
+        else:
+            V = V * 0.0 # Imposta a zero se la scala è zero
 
         # === Carica operatori DiffusionNet ===
         try:
             with open(ops_path, "rb") as fp:
                 ops_data = pickle.load(fp)
         except (EOFError, pickle.UnpicklingError) as e:
-            print(f"[WARN] Corrupted operator file skipped: {ops_path} ({e})")
+            # print(f"Warn: Skip {fname}, ops load error: {e}")
             return None
         except Exception as e:
-            print(f"[WARN] Failed to load {ops_path}: {e}")
+            # print(f"Warn: Skip {fname}, generic load error: {e}")
             return None
 
-        required_keys = ["mass", "L", "evals", "evecs"]
+        required_keys = ["mass", "L", "evals", "evecs", "gradX", "gradY"]
         if not all(k in ops_data for k in required_keys):
-            print(f"[WARN] Missing keys in operator file: {ops_path}")
+            # print(f"Warn: Skip {fname}, missing keys in ops file")
             return None
 
         mass = ops_data["mass"]
@@ -80,12 +89,17 @@ class GTReadyDataset(Dataset):
         evecs = ops_data["evecs"]
         gradX = ops_data.get("gradX", None)
         gradY = ops_data.get("gradY", None)
+        
+        if gradX is None or gradY is None:
+            # print(f"Warn: Skip {fname}, missing gradX/gradY")
+            return None
 
         # === Conversione sicura a tensori ===
         def to_tensor_safe(x, dtype=torch.float32):
             if x is None:
                 return None
             if hasattr(x, "is_sparse") and x.is_sparse:
+                # Assicura che i tensori sparsi siano coalesced
                 return x.coalesce().to(dtype)
             return torch.as_tensor(x, dtype=dtype)
 
@@ -99,40 +113,70 @@ class GTReadyDataset(Dataset):
             gradX = to_tensor_safe(gradX)
             gradY = to_tensor_safe(gradY)
         except Exception as e:
-            print(f"[WARN] Tensor conversion failed for {fname}: {e}")
+            # print(f"Warn: Skip {fname}, tensor conversion error: {e}")
             return None
 
-        # === Normalizzazione numerica per stabilità ===
+        # ===================================================================
+        # === numerical normalization ===
+        # ===================================================================
+        
+        # 1. Pulisci NaNs e Inf dagli input
         mass = torch.nan_to_num(mass, nan=1e-6, posinf=1e6, neginf=1e-6)
-        mass = mass / (mass.mean() + 1e-6)
-
-        if L.is_sparse:
-            L_vals = L.coalesce().values()
-            L_max = torch.max(L_vals.abs()) + 1e-6
-            L = torch.sparse_coo_tensor(L.indices(), L_vals / L_max, L.shape)
-        else:
-            L = L / (torch.max(L.abs()) + 1e-6)
-
         evals = torch.nan_to_num(evals, nan=0.0)
-        evals = evals / (evals.max() + 1e-9)
-
         evecs = torch.nan_to_num(evecs, nan=0.0)
-        evecs = evecs / (torch.max(evecs.abs()) + 1e-9)
+        
+        # 2. Trova il fattore di scala spettrale (autovalore massimo)
+        lambda_max = evals.max() + 1e-9
+        
+        # 3. Scala SIA L CHE evals dello STESSO fattore
+        evals = evals / lambda_max
+
+        # 🌟 === CORREZIONE === 🌟
+        # Funzione helper modificata per restituire SEMPRE un tensore coalesced
+        def scale_sparse_tensor(t, scale):
+            if not t.is_sparse:
+                t = torch.nan_to_num(t, nan=0.0)
+                return t / scale
+            
+            t_coalesced = t.coalesce() # Coalesce una volta per leggere in sicurezza
+            vals = t_coalesced.values()
+            vals = torch.nan_to_num(vals, nan=0.0)
+            
+            # Crea il nuovo tensore
+            new_t = torch.sparse_coo_tensor(t_coalesced.indices(), vals / scale, t_coalesced.shape)
+            
+            # Ritorna la versione coalesced del NUOVO tensore
+            return new_t.coalesce()
+        # 🌟 =======================
+
+        L = scale_sparse_tensor(L, lambda_max)
+        
+        # 4. Scala gradX e gradY di sqrt(lambda_max)
+        lambda_max_sqrt = torch.sqrt(lambda_max)
+        gradX = scale_sparse_tensor(gradX, lambda_max_sqrt)
+        gradY = scale_sparse_tensor(gradY, lambda_max_sqrt)
+
+        # ===================================================================
 
         # === Controllo NaN/Inf finale ===
+        # Questo blocco ora funzionerà perché L, gradX, gradY sono coalesced
         tensors_to_check = {
-            "V": torch.tensor(V),
-            "mass": mass,
-            "evals": evals,
-            "evecs": evecs,
+            "V": torch.tensor(V), "mass": mass, "evals": evals, "evecs": evecs
         }
         for name, t in tensors_to_check.items():
             if t is not None and (torch.isnan(t).any() or torch.isinf(t).any()):
-                print(f"[WARN] NaN/Inf in {name} for {fname}, skipping.")
+                # print(f"Warn: Skip {fname}, NaN/Inf detected in {name}")
                 return None
+        
+        # Controlla anche i tensori sparsi
+        if (torch.isnan(L.values()).any() or torch.isinf(L.values()).any() or
+            torch.isnan(gradX.values()).any() or torch.isinf(gradX.values()).any() or
+            torch.isnan(gradY.values()).any() or torch.isinf(gradY.values()).any()):
+            # print(f"Warn: Skip {fname}, NaN/Inf detected in sparse operators")
+            return None
 
-        # → GPU solo dati compatti
-        V_torch = torch.tensor(V, dtype=torch.float32).contiguous()  # (N, 3)
+
+        V_torch = torch.tensor(V, dtype=torch.float32).contiguous()
         F_torch = torch.tensor(F, dtype=torch.long)
 
         return {

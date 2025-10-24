@@ -117,3 +117,57 @@ print(f"💾 Saved latent distribution plot: {latent_plot}")
 print("\n✅ All done! Open these locally:")
 print(f" - {html_path}")
 print(f" - {latent_plot}")
+
+# === 8. GLOBAL LATENT SPACE (PCA Test) ===
+# Questo controlla se l'encoder mappa TUTTE le mesh
+# diverse allo stesso punto (collasso globale).
+
+print("\n🔬 Performing Global Latent Space PCA test...")
+from sklearn.decomposition import PCA
+from tqdm import tqdm
+
+all_latents = []
+N_MESHES_FOR_PCA = 500 # Usa quante ne vuoi
+
+with torch.no_grad():
+    for i in tqdm(range(min(N_MESHES_FOR_PCA, len(dataset)))):
+        sample = dataset[i]
+        
+        # Carica solo i dati necessari per l'encoder
+        V = sample["verts"].to(device)
+        mass = sample["mass"].to(device)
+        L = sample["L"].to(device)
+        evals = sample["evals"].to(device)
+        evecs = sample["evecs"].to(device)
+        gradX, gradY = sample["gradX"], sample["gradY"]
+
+        # 1. Esegui l'encoder
+        _, z = model(V, mass, L, evals, evecs, gradX, gradY)
+        
+        # 2. Ottieni il codice latente GLOBALE (media dei vertici)
+        # z è [N_verts, 64] -> z_global è [1, 64]
+        z_global = z.mean(dim=0) 
+        
+        all_latents.append(z_global.cpu().numpy())
+
+# 3. Esegui PCA
+# all_latents è ora una lista di 500 array [64,]
+X = np.array(all_latents) # Shape [500, 64]
+if np.isnan(X).any():
+    print("[WARN] NaN detected in global latents, skipping PCA.")
+else:
+    pca = PCA(n_components=2)
+    X_2d = pca.fit_transform(X) # Shape [500, 2]
+
+    # 4. Plotta
+    plt.figure(figsize=(6, 6))
+    plt.scatter(X_2d[:, 0], X_2d[:, 1], alpha=0.7, s=10)
+    plt.title(f"Global Latent Space PCA ({N_MESHES_FOR_PCA} meshes)")
+    plt.xlabel("PCA 1"); plt.ylabel("PCA 2")
+    plt.grid(True)
+    plt.tight_layout()
+    global_latent_plot = os.path.join(BASE_DIR, "global_latent_PCA.png")
+    plt.savefig(global_latent_plot, dpi=200)
+    plt.close()
+    print(f"💾 Saved global latent PCA plot: {global_latent_plot}")
+    print(f" - {global_latent_plot}")
