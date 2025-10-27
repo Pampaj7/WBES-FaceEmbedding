@@ -1,0 +1,1 @@
+epoch,train_loss,val_loss,train_l1,val_l1,train_normal,val_normal,train_laplacian,current_lr
