@@ -16,7 +16,7 @@ import plotly.subplots as sp
 import glob # Per trovare l'ultimo checkpoint
 
 from diffusion_autoencoder import DiffusionAutoencoder
-from dataset_gtready import GTReadyDataset # Assicurati sia la versione aggiornata con clamp!
+from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 
 # === CONFIG ===
 BASE_DIR = "./results_diffusionAE"
@@ -34,7 +34,7 @@ else:
         print(f"[ERRORE] Nessun checkpoint trovato in {BASE_DIR}")
         sys.exit(1)
 
-DATA_DIR = "../../../datasets/GT_ready/"
+DATA_DIR = "../../../datasets/GT_ready/npz_data/"
 OPS_DIR = os.path.join(DATA_DIR, "operators")
 SAMPLE_IDX = 0 # Indice del campione da visualizzare
 
@@ -64,7 +64,7 @@ model.eval()
 print(f"✅ Loaded checkpoint: {CHECKPOINT}")
 
 # === 2. CARICA UN ESEMPIO DAL DATASET ===
-dataset = GTReadyDataset(DATA_DIR, ops_dir=OPS_DIR)
+dataset = GTReadyDataset(DATA_DIR)
 if SAMPLE_IDX >= len(dataset):
     print(f"[ERRORE] Indice campione {SAMPLE_IDX} fuori dai limiti (Dataset size: {len(dataset)})")
     sys.exit(1)

@@ -47,15 +47,15 @@ def main():
     EPOCHS = 30
     LR = 1e-4 # Learning rate iniziale
     BATCH_SIZE = 16 # Dimensione batch (accumulazione)
-    N_WORKERS = 10 # Numero worker (prova 8 o 16)
-    PIN_MEMORY = torch.cuda.is_available() # Abilita pin_memory se usi GPU
+    N_WORKERS = 2 # Numero worker (prova 8 o 16)
+    PIN_MEMORY = False # Abilita pin_memory se usi GPU
     VAL_SPLIT = 0.1
     CHECKPOINT_EVERY = 5
 
     # Pesi Loss (configurazione finale)
     W_L1 = 1.0
     W_NORMAL = 1.0
-    W_LAPLACIAN = 0.1
+    W_LAPLACIAN = 0.5
 
     os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -86,14 +86,22 @@ def main():
     print(f"📚 Split: {len(train_set)} train / {len(val_set)} val")
 
     # DataLoaders configurati per la parallelizzazione
-    train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True,
-                              num_workers=N_WORKERS, pin_memory=PIN_MEMORY, collate_fn=collate_skip,
+    train_loader = DataLoader(train_set, 
+                              batch_size=BATCH_SIZE, 
+                              shuffle=True,
+                              num_workers=N_WORKERS, 
+                              pin_memory=PIN_MEMORY, 
+                              collate_fn=collate_skip,
                               persistent_workers=True if N_WORKERS > 0 else False,
-                              prefetch_factor=2 if N_WORKERS > 0 else None)
-    val_loader = DataLoader(val_set, batch_size=1, shuffle=False,
-                            num_workers=max(1, N_WORKERS // 2), pin_memory=PIN_MEMORY, collate_fn=collate_skip,
+                              prefetch_factor=1 if N_WORKERS > 0 else None)
+    
+    val_loader = DataLoader(val_set, 
+                            batch_size=1, 
+                            shuffle=False,
+                            num_workers=max(1, N_WORKERS // 2), 
+                            pin_memory=PIN_MEMORY, collate_fn=collate_skip,
                             persistent_workers=True if N_WORKERS > 0 else False,
-                            prefetch_factor=2 if N_WORKERS > 0 else None)
+                            prefetch_factor=1 if N_WORKERS > 0 else None)
 
     model = DiffusionAutoencoder(latent_dim=LATENT_DIM, width=WIDTH, n_blocks=N_BLOCKS).to(device)
     optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=1e-6)

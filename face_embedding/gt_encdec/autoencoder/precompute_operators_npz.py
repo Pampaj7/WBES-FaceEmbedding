@@ -107,22 +107,22 @@ if __name__ == "__main__":
     # Limita opzionalmente per test
     # files = files[:100]
     
-    files = files[:1000]
+    #files = files[:5000]
+
+    #files_subset = files[:5000] # Prende i primi 5000 (indici 0-4999)
+    #files = files_subset[::-1]   # Inverte la lista (ora va da 4999 a 0)
+
     
-    ##files_subset = files[:1000] # Prende i primi 1000 (indici 0-999)
-    ##files = files_subset[::-1]   # Inverte la lista (ora va da 999 a 0)
-    
-    
-    '''    start_index = 500
-    end_index = 1000 # Lo slice [start:end] esclude 'end', quindi prendiamo fino a 999
+    start_index = 1250
+    end_index = 5000 # Lo slice [start:end] esclude 'end', quindi prendiamo fino a 4999
     if start_index >= len(files):
          print(f"[ERRORE] Start index {start_index} è fuori dai limiti ({len(files)} files)")
          files = [] # Lista vuota se non ci sono file in questo range
     else:
-         files = files[start_index:min(end_index, len(files))] # Prende da 500 a 999
-    '''
+         files = files[start_index:min(end_index, len(files))] # Prende da 2500 a 4999
     
-    """    end_index = 750
+    
+    """    end_index = 5000
     
     if end_index > 0:
          files_subset = files[:min(end_index, len(files))]
