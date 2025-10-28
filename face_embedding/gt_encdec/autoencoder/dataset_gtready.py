@@ -1,192 +1,418 @@
+# dataset_gtready_fixed.py
 import os
 import sys
 import torch
 import igl
 import pickle
+import numpy as np
 from torch.utils.data import Dataset
 
-# === Add DiffusionNet path ===
-if "/equilibrium/lpampaloni/diffusion-net/src" not in sys.path:
-    sys.path.append("/equilibrium/lpampaloni/diffusion-net/src")
-# Aggiungi anche il path dell'utente corrente se diverso
-if "/home/pampaj/diffusion-net/src" not in sys.path:
-    sys.path.append("/home/pampaj/diffusion-net/src")
+# === Add DiffusionNet path (kept your multiple possible paths) ===
+for p in (
+    "/equilibrium/lpampaloni/diffusion-net/src",
+    "/home/pampaj/diffusion-net/src",
+    "/seidenas/users/lpampaloni/diffusion-net/src",
+):
+    if p not in sys.path:
+        sys.path.append(p)
 
+# -------------------------------------------------------------------------
+# Helpers
+# -------------------------------------------------------------------------
+def safe_print(verbose, *args, **kwargs):
+    if verbose:
+        print(*args, **kwargs)
 
+def to_tensor_safe(x, dtype=torch.float32):
+    """
+    Robust conversion to torch tensor:
+    - If x is already a torch Tensor -> cast dtype
+    - If x is a scipy / numpy COO-style tuple/list (indices, values, shape) -> build sparse tensor
+    - If x is a numpy array -> torch.from_numpy
+    - Handles sparse torch tensors by coalescing and casting
+    Returns None on unrecoverable error.
+    """
+    if x is None:
+        return None
+    # Already a torch tensor
+    if isinstance(x, torch.Tensor):
+        try:
+            return x.to(dtype)
+        except Exception:
+            try:
+                return x.float()
+            except Exception:
+                return None
+
+    # Detect (indices, values, shape) pattern from saved PKL/NPZ
+    if isinstance(x, (tuple, list)) and len(x) == 3:
+        inds, vals, shape = x
+        try:
+            # numpy -> torch
+            inds = np.asarray(inds)
+            vals = np.asarray(vals)
+            shape = tuple(int(s) for s in shape)
+            # indices shape normalization: expect (ndim, nnz)
+            if inds.ndim == 2 and inds.shape[0] != shape[0] and inds.shape[1] == 2:
+                # maybe transposed: turn into (2, nnz)
+                inds = inds.T
+            inds_t = torch.from_numpy(inds).long()
+            vals_t = torch.from_numpy(vals).to(dtype)
+            return torch.sparse_coo_tensor(inds_t, vals_t, torch.Size(shape)).coalesce()
+        except Exception:
+            return None
+
+    # numpy array dense
+    if isinstance(x, np.ndarray):
+        try:
+            return torch.from_numpy(x).to(dtype)
+        except Exception:
+            try:
+                return torch.tensor(x, dtype=dtype)
+            except Exception:
+                return None
+
+    # try a final fallback: attempt to build tensor from object
+    try:
+        return torch.as_tensor(x, dtype=dtype)
+    except Exception:
+        return None
+
+def safe_isfinite_tensor(t):
+    """Return False if t is None or contains non-finite entries. Works for sparse/dense."""
+    if t is None:
+        return True
+    try:
+        if isinstance(t, torch.Tensor):
+            if t.is_sparse:
+                vals = t.coalesce().values()
+                return torch.isfinite(vals).all().item()
+            else:
+                return torch.isfinite(t).all().item()
+        else:
+            return True
+    except Exception:
+        return False
+
+def scale_sparse_tensor(t, scale):
+    """Scale dense or sparse tensor values by scalar scale (safe)."""
+    if t is None:
+        return None
+    try:
+        scale_val = scale.item() if isinstance(scale, torch.Tensor) and scale.numel() == 1 else float(scale)
+    except Exception:
+        scale_val = float(scale)
+    scale_val = max(scale_val, 1e-9)
+    if isinstance(t, torch.Tensor) and not t.is_sparse:
+        return torch.nan_to_num(t, nan=0.0, posinf=1e6, neginf=-1e6) / scale_val
+    try:
+        t_c = t.coalesce()
+        vals = torch.nan_to_num(t_c.values(), nan=0.0, posinf=1e6, neginf=-1e6)
+        return torch.sparse_coo_tensor(t_c.indices(), vals / scale_val, t_c.shape).coalesce()
+    except Exception:
+        return None
+
+# -------------------------------------------------------------------------
+# CLASS 1: GTReadyDataset (Legacy - Loads from .obj and .pkl)
+# -------------------------------------------------------------------------
 class GTReadyDataset(Dataset):
     """
-    Dataset per GT_ready: carica mesh e operatori DiffusionNet precomputati (.pkl).
-    Gestisce automaticamente file corrotti, normalizza la mesh e gli operatori
-    per stabilità numerica, e mantiene le matrici sparse (L, gradX, gradY) su CPU.
+    Legacy Dataset for GT_ready: loads mesh (.obj) and precomputed DiffusionNet
+    operators (.pkl). Handles numerical and geometric normalization.
+
+    Params:
+      data_dir: directory with .obj
+      ops_dir: directory with corresponding _ops.pkl files (optional)
+      verbose: bool for logging
     """
-    
-    def __init__(self, data_dir, ops_dir=None):
+    def __init__(self, data_dir, ops_dir=None, verbose=False):
         self.data_dir = data_dir
         self.ops_dir = ops_dir
-        self.files = sorted([f for f in os.listdir(data_dir) if f.endswith(".obj")])
-
+        self.verbose = verbose
+        try:
+            self.files = sorted([f for f in os.listdir(data_dir) if f.endswith(".obj")])
+            if not self.files:
+                safe_print(self.verbose, f"[WARN] No .obj files found in {data_dir}")
+        except Exception as e:
+            safe_print(self.verbose, f"[ERROR] Failed to list files in {data_dir}: {e}")
+            self.files = []
 
     def __len__(self):
         return len(self.files)
 
-    def __getitem__(self, idx): # this method is critic, here can relay a bug
+    def __getitem__(self, idx):
+        if idx < 0 or idx >= len(self.files):
+            raise IndexError(f"Index {idx} out of range for dataset with {len(self.files)} items")
+
         fname = self.files[idx]
         mesh_path = os.path.join(self.data_dir, fname)
 
-        # === Path operatori ===
-        if self.ops_dir:
-            ops_path = os.path.join(self.ops_dir, fname.replace(".obj", "_ops.pkl"))
-        else:
-            ops_path = mesh_path.replace(".obj", "_ops.pkl")
-
+        # Operators path resolution
+        ops_path = os.path.join(self.ops_dir, fname.replace(".obj", "_ops.pkl")) if self.ops_dir else mesh_path.replace(".obj", "_ops.pkl")
         if not os.path.exists(ops_path):
-            # print(f"Warn: Skip {fname}, ops file not found")
-            return None
+            raise RuntimeError(f"Missing ops file: {ops_path}")
 
-        # === Carica mesh ===
+        # Load mesh
         try:
             V, F = igl.read_triangle_mesh(mesh_path)
         except Exception as e:
-            # print(f"Warn: Skip {fname}, mesh read error: {e}")
-            return None
+            raise RuntimeError(f"Failed to read mesh {mesh_path}: {e}")
 
+        # normalize vertex layout
+        if V is None or F is None:
+            raise RuntimeError(f"Empty mesh read for {mesh_path}")
         if V.ndim == 1:
             V = V.reshape(-1, 3)
         elif V.shape[0] == 3 and V.shape[1] != 3:
             V = V.T
-            
         if V.size == 0 or F.size == 0:
-            return None
+            raise RuntimeError(f"Invalid mesh arrays for {mesh_path}")
 
-        # === Normalizza mesh (centra e scala in [-1, 1]) ===
+        # Geometric normalization (center + scale)
         V_mean = V.mean(axis=0, keepdims=True)
         V = V - V_mean
-        scale = abs(V).max()
-        if scale > 1e-6: # Evita divisione per zero se la mesh è degenere
+        scale = np.max(np.abs(V))
+        if scale > 1e-6:
             V = V / scale
         else:
-            V = V * 0.0 # Imposta a zero se la scala è zero
+            V = V * 0.0
 
-        # === Carica operatori DiffusionNet ===
+        # Load operators
         try:
             with open(ops_path, "rb") as fp:
                 ops_data = pickle.load(fp)
-        except (EOFError, pickle.UnpicklingError) as e:
-            # print(f"Warn: Skip {fname}, ops load error: {e}")
-            return None
         except Exception as e:
-            # print(f"Warn: Skip {fname}, generic load error: {e}")
-            return None
+            raise RuntimeError(f"Failed to load ops pickle {ops_path}: {e}")
 
-        required_keys = ["mass", "L", "evals", "evecs", "gradX", "gradY"]
+        required_keys = ["mass", "L", "evals", "evecs"]
         if not all(k in ops_data for k in required_keys):
-            # print(f"Warn: Skip {fname}, missing keys in ops file")
-            return None
+            raise RuntimeError(f"Missing required keys in ops file {ops_path}")
 
         mass = ops_data["mass"]
-        L = ops_data["L"]
+        L_op = ops_data["L"]
         evals = ops_data["evals"]
         evecs = ops_data["evecs"]
         gradX = ops_data.get("gradX", None)
         gradY = ops_data.get("gradY", None)
-        
+
         if gradX is None or gradY is None:
-            # print(f"Warn: Skip {fname}, missing gradX/gradY")
-            return None
+            raise RuntimeError(f"Missing gradients in ops file {ops_path}")
 
-        # === Conversione sicura a tensori ===
-        def to_tensor_safe(x, dtype=torch.float32):
-            if x is None:
-                return None
-            if hasattr(x, "is_sparse") and x.is_sparse:
-                # Assicura che i tensori sparsi siano coalesced
-                return x.coalesce().to(dtype)
-            return torch.as_tensor(x, dtype=dtype)
+        # Convert to tensors safely
+        mass_t = to_tensor_safe(mass)
+        if mass_t is None:
+            raise RuntimeError(f"Failed to convert 'mass' to tensor for {fname}")
+        # flatten mass and if diag matrix given, extract diagonal
+        mass_t = mass_t.flatten()
+        if mass_t.dim() == 2:
+            mass_t = torch.diagonal(mass_t)
 
-        try:
-            mass = to_tensor_safe(mass).flatten()
-            if mass.dim() == 2:
-                mass = torch.diagonal(mass)
-            evals = to_tensor_safe(evals)
-            evecs = to_tensor_safe(evecs)
-            L = to_tensor_safe(L)
-            gradX = to_tensor_safe(gradX)
-            gradY = to_tensor_safe(gradY)
-        except Exception as e:
-            # print(f"Warn: Skip {fname}, tensor conversion error: {e}")
-            return None
+        evals_t = to_tensor_safe(evals)
+        if evals_t is None:
+            raise RuntimeError(f"Failed to convert 'evals' to tensor for {fname}")
 
-        # ===================================================================
-        # === numerical normalization ===
-        # ===================================================================
-        
-        # 1. Pulisci NaNs e Inf dagli input
-        mass = torch.nan_to_num(mass, nan=1e-6, posinf=1e6, neginf=1e-6)
-        evals = torch.nan_to_num(evals, nan=0.0)
-        evecs = torch.nan_to_num(evecs, nan=0.0)
-        
-        # 2. Trova il fattore di scala spettrale (autovalore massimo)
-        lambda_max = evals.max() + 1e-9
-        
-        # 3. Scala SIA L CHE evals dello STESSO fattore
-        evals = evals / lambda_max
+        evecs_t = to_tensor_safe(evecs)
+        if evecs_t is None:
+            raise RuntimeError(f"Failed to convert 'evecs' to tensor for {fname}")
 
-        # 🌟 === CORREZIONE === 🌟
-        # Funzione helper modificata per restituire SEMPRE un tensore coalesced
-        def scale_sparse_tensor(t, scale):
-            if not t.is_sparse:
-                t = torch.nan_to_num(t, nan=0.0)
-                return t / scale
-            
-            t_coalesced = t.coalesce() # Coalesce una volta per leggere in sicurezza
-            vals = t_coalesced.values()
-            vals = torch.nan_to_num(vals, nan=0.0)
-            
-            # Crea il nuovo tensore
-            new_t = torch.sparse_coo_tensor(t_coalesced.indices(), vals / scale, t_coalesced.shape)
-            
-            # Ritorna la versione coalesced del NUOVO tensore
-            return new_t.coalesce()
-        # 🌟 =======================
+        L_t = to_tensor_safe(L_op)
+        if L_t is None:
+            raise RuntimeError(f"Failed to convert 'L' to tensor for {fname}")
 
-        L = scale_sparse_tensor(L, lambda_max)
-        
-        # 4. Scala gradX e gradY di sqrt(lambda_max)
-        lambda_max_sqrt = torch.sqrt(lambda_max)
-        gradX = scale_sparse_tensor(gradX, lambda_max_sqrt)
-        gradY = scale_sparse_tensor(gradY, lambda_max_sqrt)
+        gradX_t = to_tensor_safe(gradX)
+        if gradX_t is None:
+            raise RuntimeError(f"Failed to convert 'gradX' to tensor for {fname}")
 
-        # ===================================================================
+        gradY_t = to_tensor_safe(gradY)
+        if gradY_t is None:
+            raise RuntimeError(f"Failed to convert 'gradY' to tensor for {fname}")
 
-        # === Controllo NaN/Inf finale ===
-        # Questo blocco ora funzionerà perché L, gradX, gradY sono coalesced
-        tensors_to_check = {
-            "V": torch.tensor(V), "mass": mass, "evals": evals, "evecs": evecs
-        }
-        for name, t in tensors_to_check.items():
-            if t is not None and (torch.isnan(t).any() or torch.isinf(t).any()):
-                # print(f"Warn: Skip {fname}, NaN/Inf detected in {name}")
-                return None
-        
-        # Controlla anche i tensori sparsi
-        if (torch.isnan(L.values()).any() or torch.isinf(L.values()).any() or
-            torch.isnan(gradX.values()).any() or torch.isinf(gradX.values()).any() or
-            torch.isnan(gradY.values()).any() or torch.isinf(gradY.values()).any()):
-            # print(f"Warn: Skip {fname}, NaN/Inf detected in sparse operators")
-            return None
+        # Numerical normalization
+        mass_t = torch.nan_to_num(mass_t, nan=1e-6, posinf=1e6, neginf=1e-6)
+        evals_t = torch.nan_to_num(evals_t, nan=0.0, posinf=1e6, neginf=-1e6)
+        evecs_t = torch.nan_to_num(evecs_t, nan=0.0, posinf=1e6, neginf=-1e6)
+        evals_t = torch.clamp(evals_t, min=0.0)
+        lambda_max = float(evals_t.max().item()) + 1e-9
 
+        evals_t = evals_t / lambda_max
+
+        L_scaled = scale_sparse_tensor(L_t, lambda_max)
+        if L_scaled is None:
+            raise RuntimeError(f"Failed scaling L for {fname}")
+        L_t = L_scaled
+
+        lambda_max_clamped = max(lambda_max, 1e-9)
+        lambda_max_sqrt = np.sqrt(lambda_max_clamped)
+
+        gradX_scaled = scale_sparse_tensor(gradX_t, lambda_max_sqrt)
+        if gradX_scaled is None:
+            raise RuntimeError(f"Failed scaling gradX for {fname}")
+        gradX_t = gradX_scaled
+
+        gradY_scaled = scale_sparse_tensor(gradY_t, lambda_max_sqrt)
+        if gradY_scaled is None:
+            raise RuntimeError(f"Failed scaling gradY for {fname}")
+        gradY_t = gradY_scaled
+
+        # Final NaN/Inf checks
+        V_torch_check = torch.tensor(V, dtype=torch.float32)
+        tensors_to_check = {"V": V_torch_check, "mass": mass_t, "evals": evals_t, "evecs": evecs_t}
+        for k, t in tensors_to_check.items():
+            if t is not None and not safe_isfinite_tensor(t):
+                raise RuntimeError(f"Non-finite values detected in {k} for {fname}")
+
+        # Sparse checks for operators
+        if not safe_isfinite_tensor(L_t) or not safe_isfinite_tensor(gradX_t) or not safe_isfinite_tensor(gradY_t):
+            raise RuntimeError(f"Non-finite values in sparse ops for {fname}")
 
         V_torch = torch.tensor(V, dtype=torch.float32).contiguous()
         F_torch = torch.tensor(F, dtype=torch.long)
 
         return {
-            "verts": V_torch,
-            "faces": F_torch,
-            "mass": mass,
-            "L": L,
-            "evals": evals,
-            "evecs": evecs,
-            "gradX": gradX,
-            "gradY": gradY,
-            "name": fname,
+            "verts": V_torch, "faces": F_torch, "mass": mass_t, "L": L_t,
+            "evals": evals_t, "evecs": evecs_t, "gradX": gradX_t, "gradY": gradY_t,
+            "name": fname.replace(".obj", ""),
+        }
+
+# -------------------------------------------------------------------------
+# CLASS 2: GTReadyDatasetNPZ (New - Loads from .npz with robustness fixes)
+# -------------------------------------------------------------------------
+class GTReadyDatasetNPZ(Dataset):
+    """
+    Loads precomputed .npz files with keys like:
+      - verts, faces, mass, evals, evecs
+      - L_indices, L_values, L_shape, gradX_indices, ...
+    """
+    def __init__(self, npz_data_dir, verbose=False):
+        self.data_dir = npz_data_dir
+        self.verbose = verbose
+        try:
+            self.files = sorted([f for f in os.listdir(self.data_dir) if f.endswith(".npz")])
+            if not self.files:
+                raise FileNotFoundError(f"No .npz files found in {self.data_dir}")
+        except Exception as e:
+            safe_print(self.verbose, f"[ERROR] Error listing NPZ directory {self.data_dir}: {e}")
+            self.files = []
+
+    def __len__(self):
+        return len(self.files)
+
+    def coo_dict_to_sparse_tensor(self, data, base_name, dtype=torch.float32):
+        indices_key = f"{base_name}_indices"
+        values_key = f"{base_name}_values"
+        shape_key = f"{base_name}_shape"
+        if not all(k in data for k in (indices_key, values_key, shape_key)):
+            return None
+        try:
+            inds = np.asarray(data[indices_key])
+            vals = np.asarray(data[values_key])
+            shape = tuple(int(s) for s in data[shape_key])
+            # Normalize indices -> expected (ndim, nnz)
+            if inds.ndim == 2 and inds.shape[0] != len(shape) and inds.shape[1] == len(shape):
+                inds = inds.T
+            inds_t = torch.from_numpy(inds).long()
+            vals_t = torch.from_numpy(vals).to(dtype)
+            return torch.sparse_coo_tensor(inds_t, vals_t, torch.Size(shape)).coalesce()
+        except Exception:
+            return None
+
+    def __getitem__(self, idx):
+        if idx < 0 or idx >= len(self.files):
+            raise IndexError(f"Index {idx} out of range for dataset with {len(self.files)} items")
+        fname = self.files[idx]
+        npz_path = os.path.join(self.data_dir, fname)
+
+        try:
+            data = np.load(npz_path, allow_pickle=False)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load npz {npz_path}: {e}")
+
+        try:
+            V_np = data.get("verts", None)
+            F_np = data.get("faces", None)
+            if V_np is None or F_np is None:
+                raise RuntimeError(f"Missing verts/faces in {npz_path}")
+
+            # geometric normalization
+            V = V_np.astype(np.float64)
+            V = V - V.mean(axis=0, keepdims=True)
+            scale = np.max(np.abs(V))
+            if scale > 1e-6:
+                V = V / scale
+            else:
+                V = V * 0.0
+            V_torch = torch.tensor(V, dtype=torch.float32).contiguous()
+            F_torch = torch.tensor(F_np, dtype=torch.long)
+
+            mass_np = data.get("mass", None)
+            evals_np = data.get("evals", None)
+            evecs_np = data.get("evecs", None)
+            if mass_np is None or evals_np is None or evecs_np is None:
+                raise RuntimeError(f"Missing mass/evals/evecs in {npz_path}")
+
+            mass = torch.from_numpy(np.asarray(mass_np)).float().flatten()
+            if mass.dim() == 2:
+                mass = torch.diagonal(mass)
+
+            evals = torch.from_numpy(np.asarray(evals_np)).float()
+            evecs = torch.from_numpy(np.asarray(evecs_np)).float()
+
+            L = self.coo_dict_to_sparse_tensor(data, "L")
+            if L is None:
+                raise RuntimeError(f"Missing or invalid L in {npz_path}")
+            gradX = self.coo_dict_to_sparse_tensor(data, "gradX")
+            if gradX is None:
+                raise RuntimeError(f"Missing or invalid gradX in {npz_path}")
+            gradY = self.coo_dict_to_sparse_tensor(data, "gradY")
+            if gradY is None:
+                raise RuntimeError(f"Missing or invalid gradY in {npz_path}")
+
+        finally:
+            # close if numpy memmap-like object needs it
+            try:
+                if hasattr(data, "close"):
+                    data.close()
+            except Exception:
+                pass
+
+        # Numerical normalization
+        mass = torch.nan_to_num(mass, nan=1e-6, posinf=1e6, neginf=-1e6)
+        evals = torch.nan_to_num(evals, nan=0.0, posinf=1e6, neginf=-1e6)
+        evecs = torch.nan_to_num(evecs, nan=0.0, posinf=1e6, neginf=-1e6)
+        evals = torch.clamp(evals, min=0.0)
+        lambda_max = float(evals.max().item()) + 1e-9
+
+        evals = evals / lambda_max
+
+        L_scaled = scale_sparse_tensor(L, lambda_max)
+        if L_scaled is None:
+            raise RuntimeError(f"Failed scaling L for {fname}")
+        L = L_scaled
+
+        lambda_max_clamped = max(lambda_max, 1e-9)
+        lambda_max_sqrt = np.sqrt(lambda_max_clamped)
+
+        gradX_scaled = scale_sparse_tensor(gradX, lambda_max_sqrt)
+        if gradX_scaled is None:
+            raise RuntimeError(f"Failed scaling gradX for {fname}")
+        gradX = gradX_scaled
+
+        gradY_scaled = scale_sparse_tensor(gradY, lambda_max_sqrt)
+        if gradY_scaled is None:
+            raise RuntimeError(f"Failed scaling gradY for {fname}")
+        gradY = gradY_scaled
+
+        # final checks
+        tensors_to_check = {"V": V_torch, "mass": mass, "evals": evals, "evecs": evecs}
+        for k, t in tensors_to_check.items():
+            if t is not None and not safe_isfinite_tensor(t):
+                raise RuntimeError(f"Non-finite values detected in {k} for {fname}")
+
+        if not safe_isfinite_tensor(L) or not safe_isfinite_tensor(gradX) or not safe_isfinite_tensor(gradY):
+            raise RuntimeError(f"Non-finite values in sparse ops for {fname}")
+
+        return {
+            "verts": V_torch, "faces": F_torch, "mass": mass, "L": L,
+            "evals": evals, "evecs": evecs, "gradX": gradX, "gradY": gradY,
+            "name": fname.replace(".npz", ""),
         }
