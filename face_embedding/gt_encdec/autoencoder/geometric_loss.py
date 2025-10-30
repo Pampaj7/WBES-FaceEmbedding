@@ -2,6 +2,54 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+"""
+pairiwse distance da gt, e poi quelle ricostruite
+Questa funzione di perdita è progettata per valutare la qualità della ricostruzione
+di una mesh 3D in termini di coerenza geometrica locale e globale. Integra tre
+termini distinti — L1, Normale e Laplaciano — ciascuno con un ruolo complementare:
+
+**L1 Loss (Vertex-level error)**
+    - Misura l'errore punto a punto tra i vertici ricostruiti e quelli ground-truth.
+    - È sensibile alla scala e alla traslazione, e garantisce che la rete impari
+      a ricostruire correttamente le posizioni 3D dei vertici nello spazio canonico.
+
+**Normal Loss (Surface orientation consistency)**
+    - Confronta le normali per vertice tra la mesh predetta e quella reale.
+    - È calcolata come *1 - cos(θ)*, dove θ è l’angolo tra le due normali.
+    - Penalizza deviazioni nella direzione delle superfici, quindi cattura
+      la coerenza della forma indipendentemente da piccole traslazioni.
+
+**Laplacian Loss (Cosine Similarity on curvature field)**
+    - È la componente più “geometrica”: misura la similarità tra i campi di curvatura
+      delle due superfici, calcolati come L·V, dove L è il Laplaciano discreto.
+    - Invece del classico MSE su L(V), che è numericamente instabile, usa la
+      *similarità coseno* per confrontare le direzioni delle curvature locali.
+    - Questo la rende **invariante alla scala e alle rotazioni**, ma **sensibile
+      solo alle differenze di forma e curvatura** tra le due mesh.
+    - In pratica, verifica che la “forma locale” (prossimità, concavità, convessità)
+      sia preservata, indipendentemente dalla posizione assoluta nello spazio.
+
+**Sintesi concettuale**
+    - L1 → garantisce accuratezza spaziale globale.
+    - Normal → garantisce coerenza della superficie.
+    - Laplacian Cosine → garantisce consistenza geometrica locale.
+    - La combinazione dei tre produce una misura robusta e bilanciata
+      di ricostruzione geometrica.
+
+**Vantaggio della versione Cosine**
+    - Evita instabilità numeriche (overflow) tipiche delle differenze MSE su L(V),
+      dove piccole variazioni di scala producono errori enormi.
+    - Mantiene stabilità del gradiente e allena la rete a rispettare
+      la *direzione geometrica* delle variazioni locali piuttosto che la loro magnitudine.
+
+**In sintesi**
+    Questa loss non misura semplicemente “quanto” due superfici differiscono,
+    ma *come* differiscono nella struttura geometrica. È quindi una misura
+    di **somiglianza di forma** più che di distanza euclidea pura.
+────────────────────────────────────────────────────────────────────────────
+"""
+
+
 class GeometricLoss(nn.Module):
     """
     Una loss geometrica ibrida per la ricostruzione di mesh. (Versione Pura)
@@ -89,7 +137,6 @@ class GeometricLoss(nn.Module):
                      (self.w_normal * loss_normal) + \
                      (self.w_laplacian * loss_laplacian) # Questa è la loss reale
                      
-        # 🌟 === CORREZIONE LOGGING === 🌟
         loss_breakdown = {
             "loss_total": total_loss.item(),
             "loss_l1": loss_l1.item(),
@@ -97,6 +144,5 @@ class GeometricLoss(nn.Module):
             # Logghiamo la loss Coseno REALE, non l'MSE esplosiva
             "loss_laplacian": loss_laplacian.item(), 
         }
-        # 🌟 =============================
 
         return total_loss, loss_breakdown

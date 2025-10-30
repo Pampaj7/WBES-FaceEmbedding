@@ -21,7 +21,7 @@ from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 # === CONFIG ===
 BASE_DIR = "./results_diffusionAE"
 # 🌟 FIX: Trova l'ultimo checkpoint se epoch20 non esiste
-DEFAULT_CHECKPOINT = os.path.join(BASE_DIR, "diffusionAE_epoch15.pth")
+DEFAULT_CHECKPOINT = os.path.join(BASE_DIR, "diffusionAE_stage2_final.pth")
 CHECKPOINT_PATTERN = os.path.join(BASE_DIR, "diffusionAE_epoch*.pth")
 if os.path.exists(DEFAULT_CHECKPOINT):
     CHECKPOINT = DEFAULT_CHECKPOINT
@@ -52,7 +52,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = DiffusionAutoencoder(
     latent_dim=LATENT_DIM,
     width=WIDTH,
-    n_blocks=N_BLOCKS
+    n_blocks=N_BLOCKS, 
+    stage=2
 ).to(device)
 try:
     model.load_state_dict(torch.load(CHECKPOINT, map_location=device))
@@ -208,7 +209,7 @@ from sklearn.decomposition import PCA
 from tqdm import tqdm
 
 all_latents = []
-N_MESHES_FOR_PCA = min(500, len(dataset)) # Usa max 500 o tutte se meno
+N_MESHES_FOR_PCA = min(1000, len(dataset)) # Usa max 500 o tutte se meno
 
 with torch.no_grad():
     for i in tqdm(range(N_MESHES_FOR_PCA), desc="Encoding meshes for PCA"):

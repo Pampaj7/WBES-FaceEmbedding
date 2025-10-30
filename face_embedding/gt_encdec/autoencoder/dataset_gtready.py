@@ -145,134 +145,103 @@ class GTReadyDataset(Dataset):
             raise IndexError(f"Index {idx} out of range for dataset with {len(self.files)} items")
 
         fname = self.files[idx]
-        mesh_path = os.path.join(self.data_dir, fname)
+        npz_path = os.path.join(self.data_dir, fname)
 
-        # Operators path resolution
-        ops_path = os.path.join(self.ops_dir, fname.replace(".obj", "_ops.pkl")) if self.ops_dir else mesh_path.replace(".obj", "_ops.pkl")
-        if not os.path.exists(ops_path):
-            raise RuntimeError(f"Missing ops file: {ops_path}")
-
-        # Load mesh
         try:
-            V, F = igl.read_triangle_mesh(mesh_path)
+            # --- 1️⃣ Caricamento sicuro dello zip ---
+            try:
+                data = np.load(npz_path, allow_pickle=False)
+            except Exception as e:
+                print(f"[WARN] File NPZ corrotto o non leggibile: {fname} → {e}")
+                return None
+
+            # --- 2️⃣ Lettura campi obbligatori ---
+            V_np = data.get("verts", None)
+            F_np = data.get("faces", None)
+            if V_np is None or F_np is None:
+                print(f"[WARN] Mancano verts/faces in {fname}, skip.")
+                return None
+
+            mass_np = data.get("mass", None)
+            evals_np = data.get("evals", None)
+            evecs_np = data.get("evecs", None)
+            if mass_np is None or evals_np is None or evecs_np is None:
+                print(f"[WARN] Mancano mass/evals/evecs in {fname}, skip.")
+                return None
+
+            # --- 3️⃣ Conversione e normalizzazione geometrica ---
+            V = V_np.astype(np.float64)
+            V = V - V.mean(axis=0, keepdims=True)
+            scale = np.max(np.abs(V))
+            if scale > 1e-6:
+                V = V / scale
+            else:
+                V = V * 0.0
+
+            V_torch = torch.tensor(V, dtype=torch.float32).contiguous()
+            F_torch = torch.tensor(F_np, dtype=torch.long)
+
+            mass = torch.from_numpy(np.asarray(mass_np)).float().flatten()
+            if mass.dim() == 2:
+                mass = torch.diagonal(mass)
+            evals = torch.from_numpy(np.asarray(evals_np)).float()
+            evecs = torch.from_numpy(np.asarray(evecs_np)).float()
+
+            # --- 4️⃣ Costruzione operatori sparsi ---
+            L = self.coo_dict_to_sparse_tensor(data, "L")
+            gradX = self.coo_dict_to_sparse_tensor(data, "gradX")
+            gradY = self.coo_dict_to_sparse_tensor(data, "gradY")
+            if L is None or gradX is None or gradY is None:
+                print(f"[WARN] Operatori sparsi mancanti o invalidi in {fname}, skip.")
+                return None
+
         except Exception as e:
-            raise RuntimeError(f"Failed to read mesh {mesh_path}: {e}")
+            print(f"[WARN] Errore inatteso in {fname}: {e}")
+            return None
+        finally:
+            try:
+                if hasattr(data, "close"):
+                    data.close()
+            except Exception:
+                pass
 
-        # normalize vertex layout
-        if V is None or F is None:
-            raise RuntimeError(f"Empty mesh read for {mesh_path}")
-        if V.ndim == 1:
-            V = V.reshape(-1, 3)
-        elif V.shape[0] == 3 and V.shape[1] != 3:
-            V = V.T
-        if V.size == 0 or F.size == 0:
-            raise RuntimeError(f"Invalid mesh arrays for {mesh_path}")
-
-        # Geometric normalization (center + scale)
-        V_mean = V.mean(axis=0, keepdims=True)
-        V = V - V_mean
-        scale = np.max(np.abs(V))
-        if scale > 1e-6:
-            V = V / scale
-        else:
-            V = V * 0.0
-
-        # Load operators
+        # --- 5️⃣ Normalizzazione numerica ---
         try:
-            with open(ops_path, "rb") as fp:
-                ops_data = pickle.load(fp)
+            mass = torch.nan_to_num(mass, nan=1e-6, posinf=1e6, neginf=-1e6)
+            evals = torch.nan_to_num(evals, nan=0.0, posinf=1e6, neginf=-1e6)
+            evecs = torch.nan_to_num(evecs, nan=0.0, posinf=1e6, neginf=-1e6)
+            evals = torch.clamp(evals, min=0.0)
+            lambda_max = float(evals.max().item()) + 1e-9
+
+            evals = evals / lambda_max
+            L = scale_sparse_tensor(L, lambda_max)
+            gradX = scale_sparse_tensor(gradX, np.sqrt(lambda_max))
+            gradY = scale_sparse_tensor(gradY, np.sqrt(lambda_max))
         except Exception as e:
-            raise RuntimeError(f"Failed to load ops pickle {ops_path}: {e}")
+            print(f"[WARN] Fallita normalizzazione numerica in {fname}: {e}")
+            return None
 
-        required_keys = ["mass", "L", "evals", "evecs"]
-        if not all(k in ops_data for k in required_keys):
-            raise RuntimeError(f"Missing required keys in ops file {ops_path}")
-
-        mass = ops_data["mass"]
-        L_op = ops_data["L"]
-        evals = ops_data["evals"]
-        evecs = ops_data["evecs"]
-        gradX = ops_data.get("gradX", None)
-        gradY = ops_data.get("gradY", None)
-
-        if gradX is None or gradY is None:
-            raise RuntimeError(f"Missing gradients in ops file {ops_path}")
-
-        # Convert to tensors safely
-        mass_t = to_tensor_safe(mass)
-        if mass_t is None:
-            raise RuntimeError(f"Failed to convert 'mass' to tensor for {fname}")
-        # flatten mass and if diag matrix given, extract diagonal
-        mass_t = mass_t.flatten()
-        if mass_t.dim() == 2:
-            mass_t = torch.diagonal(mass_t)
-
-        evals_t = to_tensor_safe(evals)
-        if evals_t is None:
-            raise RuntimeError(f"Failed to convert 'evals' to tensor for {fname}")
-
-        evecs_t = to_tensor_safe(evecs)
-        if evecs_t is None:
-            raise RuntimeError(f"Failed to convert 'evecs' to tensor for {fname}")
-
-        L_t = to_tensor_safe(L_op)
-        if L_t is None:
-            raise RuntimeError(f"Failed to convert 'L' to tensor for {fname}")
-
-        gradX_t = to_tensor_safe(gradX)
-        if gradX_t is None:
-            raise RuntimeError(f"Failed to convert 'gradX' to tensor for {fname}")
-
-        gradY_t = to_tensor_safe(gradY)
-        if gradY_t is None:
-            raise RuntimeError(f"Failed to convert 'gradY' to tensor for {fname}")
-
-        # Numerical normalization
-        mass_t = torch.nan_to_num(mass_t, nan=1e-6, posinf=1e6, neginf=1e-6)
-        evals_t = torch.nan_to_num(evals_t, nan=0.0, posinf=1e6, neginf=-1e6)
-        evecs_t = torch.nan_to_num(evecs_t, nan=0.0, posinf=1e6, neginf=-1e6)
-        evals_t = torch.clamp(evals_t, min=0.0)
-        lambda_max = float(evals_t.max().item()) + 1e-9
-
-        evals_t = evals_t / lambda_max
-
-        L_scaled = scale_sparse_tensor(L_t, lambda_max)
-        if L_scaled is None:
-            raise RuntimeError(f"Failed scaling L for {fname}")
-        L_t = L_scaled
-
-        lambda_max_clamped = max(lambda_max, 1e-9)
-        lambda_max_sqrt = np.sqrt(lambda_max_clamped)
-
-        gradX_scaled = scale_sparse_tensor(gradX_t, lambda_max_sqrt)
-        if gradX_scaled is None:
-            raise RuntimeError(f"Failed scaling gradX for {fname}")
-        gradX_t = gradX_scaled
-
-        gradY_scaled = scale_sparse_tensor(gradY_t, lambda_max_sqrt)
-        if gradY_scaled is None:
-            raise RuntimeError(f"Failed scaling gradY for {fname}")
-        gradY_t = gradY_scaled
-
-        # Final NaN/Inf checks
-        V_torch_check = torch.tensor(V, dtype=torch.float32)
-        tensors_to_check = {"V": V_torch_check, "mass": mass_t, "evals": evals_t, "evecs": evecs_t}
+        # --- 6️⃣ Validazione finale ---
+        tensors_to_check = {"V": V_torch, "mass": mass, "evals": evals, "evecs": evecs}
         for k, t in tensors_to_check.items():
             if t is not None and not safe_isfinite_tensor(t):
-                raise RuntimeError(f"Non-finite values detected in {k} for {fname}")
+                print(f"[WARN] Non-finite values in {k} for {fname}, skip.")
+                return None
+        if not all([
+            safe_isfinite_tensor(L),
+            safe_isfinite_tensor(gradX),
+            safe_isfinite_tensor(gradY),
+        ]):
+            print(f"[WARN] Non-finite sparse ops in {fname}, skip.")
+            return None
 
-        # Sparse checks for operators
-        if not safe_isfinite_tensor(L_t) or not safe_isfinite_tensor(gradX_t) or not safe_isfinite_tensor(gradY_t):
-            raise RuntimeError(f"Non-finite values in sparse ops for {fname}")
-
-        V_torch = torch.tensor(V, dtype=torch.float32).contiguous()
-        F_torch = torch.tensor(F, dtype=torch.long)
-
+        # --- ✅ Tutto ok ---
         return {
-            "verts": V_torch, "faces": F_torch, "mass": mass_t, "L": L_t,
-            "evals": evals_t, "evecs": evecs_t, "gradX": gradX_t, "gradY": gradY_t,
-            "name": fname.replace(".obj", ""),
+            "verts": V_torch, "faces": F_torch, "mass": mass, "L": L,
+            "evals": evals, "evecs": evecs, "gradX": gradX, "gradY": gradY,
+            "name": fname.replace(".npz", ""),
         }
+
 
 # -------------------------------------------------------------------------
 # CLASS 2: GTReadyDatasetNPZ (New - Loads from .npz with robustness fixes)

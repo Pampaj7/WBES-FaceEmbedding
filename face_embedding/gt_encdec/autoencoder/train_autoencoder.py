@@ -14,6 +14,7 @@ from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 import torch.multiprocessing as mp
 import math # Per math.isfinite
+import torch.nn.functional as F
 
 # Importiamo la loss pura, senza dipendenze
 from geometric_loss import GeometricLoss
@@ -44,18 +45,18 @@ def main():
     LATENT_DIM = 256
     WIDTH = 128
     N_BLOCKS = 4
-    EPOCHS = 30
+    EPOCHS = 50
     LR = 1e-4 # Learning rate iniziale
     BATCH_SIZE = 16 # Dimensione batch (accumulazione)
-    N_WORKERS = 2 # Numero worker (prova 8 o 16)
+    N_WORKERS = 0 # Numero worker (prova 8 o 16)
     PIN_MEMORY = False # Abilita pin_memory se usi GPU
     VAL_SPLIT = 0.1
     CHECKPOINT_EVERY = 5
 
     # Pesi Loss (configurazione finale)
-    W_L1 = 1.0
+    W_L1 = 0.3
     W_NORMAL = 1.0
-    W_LAPLACIAN = 0.5
+    W_LAPLACIAN = 0.7
 
     os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -74,7 +75,7 @@ def main():
     dataset = GTReadyDataset(DATA_DIR) # Nuovo modo (usa GTReadyDatasetNPZ importato come GTReadyDataset)
 
     # Limita opzionalmente il dataset (es. per debug)
-    dataset.files = dataset.files[:1000]
+    dataset.files = dataset.files[:3000]
     print(f"🧩 Using subset of {len(dataset.files)} meshes")
 
     n_samples = len(dataset)
@@ -107,7 +108,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=1e-6)
 
     # Scheduler (senza verbose)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, min_lr=1e-7)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, min_lr=1e-7)
     criterion = GeometricLoss(w_l1=W_L1, w_normal=W_NORMAL, w_laplacian=W_LAPLACIAN, device=device).to(device)
 
     # Setup Logging
@@ -152,6 +153,16 @@ def main():
                     V_rec, Z_Global = model(V, mass, L, evals, evecs, faces, gradX, gradY)
                     loss, loss_breakdown = criterion(V_rec, V, faces, L)
 
+                        
+                    # === Metriche di similarità globale (solo per logging qualitativo) ===
+                    try:
+                        cosine_mesh = F.cosine_similarity(V_rec.flatten(), V.flatten(), dim=0).item()
+                        corr_matrix = torch.corrcoef(torch.stack([V_rec.flatten(), V.flatten()]))
+                        corr_mesh = corr_matrix[0, 1].item()
+                    except Exception as e:
+                        cosine_mesh, corr_mesh = float('nan'), float('nan')
+
+    
                     if not torch.isfinite(loss):
                         print(f"\n[ERRORE] Loss non finita campione {sample.get('name', 'N/A')}. Salto."); continue
 
@@ -173,7 +184,10 @@ def main():
                         else: print(f"  Latent_Z:  Contiene NaN/Inf!")
                         print(f"  Loss_Total: {loss_breakdown['loss_total']:.6f}")
                         print(f"  L1(raw): {loss_breakdown['loss_l1']:.6f} | Normal(raw): {loss_breakdown['loss_normal']:.6f} | LapCos(raw): {loss_breakdown['loss_laplacian']:.6f}")
+                        print(f"  Cosine Similarity (mesh): {cosine_mesh:.4f}")
+                        print(f"  Pearson Corr (mesh): {corr_mesh:.4f}")
                         print("-------------------------------------------------")
+
                         printed_epoch_stats = True
 
                 except Exception as e:
@@ -277,7 +291,7 @@ def main():
 
         # Salva checkpoint
         if (epoch + 1) % CHECKPOINT_EVERY == 0 or (epoch + 1) == EPOCHS:
-            ckpt_path = os.path.join(OUT_DIR, f"diffusionAE_epoch{epoch+1}.pth")
+            ckpt_path = os.path.join(OUT_DIR, f"diffusionAE_5000_epoch{epoch+1}.pth")
             try: torch.save(model.state_dict(), ckpt_path); print(f"💾 Saved checkpoint: {ckpt_path}")
             except Exception as e: print(f"[ERRORE] Salvataggio checkpoint fallito: {e}")
 
