@@ -1,0 +1,110 @@
+🚀 Training Latent-Aware Diffusion AE on cuda
+⚙️ Geo loss (L1=0.3, N=1.0, Lap=0.7) | Latent base=0.5
+📊 Valid NPZ count: 4999
+🧬 DiffusionAutoencoder | Z=256, width=128, blocks=4, k_spec=16
+🧬 GeometricLoss Pura (con Cosine Laplacian) creata con pesi: L1=0.3, Normal=1.0, Laplacian=0.7
+📂 Loading GT distance matrix (D_orig)...
+   → Normalized by factor 53.4247
+
+🟢 [Epoch 1/50] Training...
+   ⚖️ Weights: geo=1.000 | latent=0.100 | rank=0.0010 | λ_smooth=0.005 | triplet=0.50
+
+🧩 Batch 000
+   ├─ geo=1.8023
+   ├─ latent=1.9102
+   ├─ rank=0.0594
+   ├─ var=1.8923
+   ├─ triplet=0.0357
+   ├─ smooth=0.0002
+   ├─ total=1.9933
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 025
+   ├─ geo=1.6074
+   ├─ latent=1.6274
+   ├─ rank=0.0206
+   ├─ var=1.5998
+   ├─ triplet=0.0552
+   ├─ smooth=0.0002
+   ├─ total=1.7701
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 050
+   ├─ geo=1.2645
+   ├─ latent=1.5956
+   ├─ rank=0.0168
+   ├─ var=1.5769
+   ├─ triplet=0.0372
+   ├─ smooth=0.0002
+   ├─ total=1.4241
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 075
+   ├─ geo=1.0937
+   ├─ latent=1.5792
+   ├─ rank=0.0154
+   ├─ var=1.5607
+   ├─ triplet=0.0369
+   ├─ smooth=0.0002
+   ├─ total=1.2516
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 100
+   ├─ geo=0.9993
+   ├─ latent=1.5683
+   ├─ rank=0.0145
+   ├─ var=1.5505
+   ├─ triplet=0.0357
+   ├─ smooth=0.0002
+   ├─ total=1.1561
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 125
+   ├─ geo=0.9387
+   ├─ latent=1.5619
+   ├─ rank=0.0150
+   ├─ var=1.5417
+   ├─ triplet=0.0404
+   ├─ smooth=0.0002
+   ├─ total=1.0949
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 150
+   ├─ geo=0.8965
+   ├─ latent=1.5535
+   ├─ rank=0.0147
+   ├─ var=1.5331
+   ├─ triplet=0.0408
+   ├─ smooth=0.0002
+   ├─ total=1.0519
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 175
+   ├─ geo=0.8649
+   ├─ latent=1.5479
+   ├─ rank=0.0144
+   ├─ var=1.5248
+   ├─ triplet=0.0461
+   ├─ smooth=0.0002
+   ├─ total=1.0197
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 200
+   ├─ geo=0.8401
+   ├─ latent=1.5423
+   ├─ rank=0.0147
+   ├─ var=1.5189
+   ├─ triplet=0.0468
+   ├─ smooth=0.0002
+   ├─ total=0.9943
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+
+🧩 Batch 225
+   ├─ geo=0.8195
+   ├─ latent=1.5377
+   ├─ rank=0.0147
+   ├─ var=1.5130
+   ├─ triplet=0.0493
+   ├─ smooth=0.0002
+   ├─ total=0.9733
+   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
