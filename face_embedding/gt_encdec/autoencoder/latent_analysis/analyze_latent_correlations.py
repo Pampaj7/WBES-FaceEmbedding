@@ -12,8 +12,8 @@ except ImportError:
     print("⚠️  scikit-bio non installato: salto Mantel test (pip install scikit-bio)")
 
 # === PATH ===
-DIST_FILE = "results_diffusionAE/dist_matrices_fields/distance_matrices_fields.npz"
-OUT_DIR   = "results_diffusionAE/dist_analysis"
+DIST_FILE = "../results_diffusionAE_latentaware/dist_matrices_fields/distance_matrices_fields.npz"
+OUT_DIR   = "../results_diffusionAE_latentaware/dist_analysis"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # === LOAD DATA ===
@@ -111,8 +111,11 @@ def scatter_plot(D_orig, D_lat, title, out_path, n_bootstrap=200):
     plt.close(fig)
 
 
-scatter_plot(D_orig, D_lat_mean, f"Preservation (Global Latent) — ρ={ρ_mean:.2f}", "scatter_global.png")
-scatter_plot(D_orig, D_lat_field, f"Preservation (Per-vertex Field) — ρ={ρ_field:.2f}", "scatter_field.png")
+scatter_plot(D_orig, D_lat_mean, f"Preservation (Global Latent) — ρ={ρ_mean:.2f}",
+             os.path.join(OUT_DIR, "scatter_global.png"))
+scatter_plot(D_orig, D_lat_field, f"Preservation (Per-vertex Field) — ρ={ρ_field:.2f}",
+             os.path.join(OUT_DIR, "scatter_field.png"))
+
 
 print(f"\n✅ Saved plots and stats in: {OUT_DIR}")
 print(f"   - scatter_global.png")

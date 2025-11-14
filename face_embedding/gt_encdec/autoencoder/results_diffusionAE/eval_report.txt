@@ -1,0 +1,10 @@
+Checkpoint: diffusionAE_5000_epoch45.pth
+Evaluated samples: 1000
+
+Spearman rho: 0.999   [GREEN]
+Diversity ratio (σ_rec/σ_gt): 1.077   [GREEN]
+HF retention mean: 0.976   [GREEN]
+Mean-Face Collapse ratio: 0.0%   [GREEN]
+Alive dims: 100.0%   [GREEN]
+
+Legend: GREEN = ok, YELLOW = borderline, RED = rischio overfitting/colllasso

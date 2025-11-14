@@ -1,13 +1,7 @@
-# train_autoencoder_latentaware.py
-# Latent-Aware Diffusion Autoencoder — Batch Logging, Schedules, Latent Autocontrol
-# Author: Leonardo Pampaloni — 2025
-
+#!/usr/bin/env python3
 import os
 import numpy as np
 from datetime import datetime
-import scipy.stats as st
-import zipfile
-
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
@@ -15,391 +9,330 @@ from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import tqdm
 
+from torch.cuda.amp import autocast, GradScaler
+
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 from diffusion_autoencoder import DiffusionAutoencoder
 from geometric_loss import GeometricLoss
-from latent_loss import varcov_loss, smooth_loss, stress_loss
+from latent_loss import multiscale_distance_loss
+
+from helper import (
+    patch_dataset_with_get_by_name,
+    latent_identity_check,
+    collate_skip,
+    build_name_index_map,
+)
 
 
-# =========================
-# Utils
-# =========================
-def collate_skip(batch):
-    """Drop None samples the dataset may yield."""
-    return [s for s in batch if s is not None]
-
-
-def sample_distance_submatrix(D_full: np.ndarray, rowcol_idx: np.ndarray) -> torch.Tensor:
-    """Return D_full[np.ix_(idx, idx)] as float32 torch tensor."""
-    return torch.tensor(D_full[np.ix_(rowcol_idx, rowcol_idx)], dtype=torch.float32)
-
-
-def build_name_index_map(names_from_npz):
-    """Map filename → index (ignoring .npz suffix)."""
-    mapping = {}
-    for i, nm in enumerate(names_from_npz):
-        nm = str(nm)
-        base = nm[:-4] if nm.endswith(".npz") else nm
-        mapping[base] = i
-    return mapping
-
-
-# =========================
-# Schedules
-# =========================
-def linear_decay(epoch, start, end, total_epochs):
-    t = min(max(epoch, 0), total_epochs)
-    return start + (end - start) * (t / float(total_epochs))
-
-
-def ramp_up(epoch, target, warmup_epochs):
-    if warmup_epochs <= 0:
-        return target
-    return target * min(1.0, (epoch + 1) / float(warmup_epochs))
-
-
-def capped_growth(epoch, start, grow, max_val):
-    return min(max_val, start * (grow ** epoch))
-
-
-# =========================
-# Triplet loss (GT-structured)
-# =========================
-def triplet_loss(Z, D_gt, margin=0.2):
-    """
-    Simple triplet margin loss using GT distances to pick (pos, neg).
-    Z: [B, d] normalized embeddings, D_gt: [B, B] in [0, 1].
-    """
-    n = Z.shape[0]
-    if n < 3:
-        return torch.tensor(0.0, device=Z.device)
-    with torch.no_grad():
-        eye = torch.eye(n, device=Z.device)
-        pos_idx = torch.argmin(D_gt + eye * 1e9, dim=1)  # closest GT
-        neg_idx = torch.argmax(D_gt, dim=1)              # farthest GT
-    dist_lat = torch.cdist(Z, Z, p=2)
-    ap = dist_lat[torch.arange(n), pos_idx]
-    an = dist_lat[torch.arange(n), neg_idx]
-    loss = torch.clamp(ap - an + margin, min=0.0).mean()
-    return loss
-
-
-# =========================
-# Latent identity validation
-# =========================
-def latent_identity_check(model, dataset, D_orig, name_to_idx, device, n_samples=100):
-    """Return pearson/spearman/R² + slope + MAE between GT and latent distances."""
-    model.eval()
-    if len(dataset) == 0:
-        return None
-
-    idxs = np.random.choice(len(dataset), min(n_samples, len(dataset)), replace=False)
-    Z_list, id_list = [], []
-
-    with torch.no_grad():
-        for i in idxs:
-            s = dataset[i]
-            V = s["verts"].to(device)
-            mass, evals, evecs = s["mass"].to(device), s["evals"].to(device), s["evecs"].to(device)
-            faces, L = s["faces"].to(device), s["L"].to(device)
-            gX, gY = s["gradX"].to(device), s["gradY"].to(device)
-            out = model(V, mass, L, evals, evecs, faces, gX, gY)
-
-            if isinstance(out, (tuple, list)):
-                Zg = out[-1]
-            else:
-                continue
-            if Zg.dim() == 1:
-                Zg = Zg.unsqueeze(0)
-
-            Z_list.append(Zg.cpu())
-            base = s["name"][:-4] if s["name"].endswith(".npz") else s["name"]
-            if base in name_to_idx:
-                id_list.append(name_to_idx[base])
-
-    if len(Z_list) < 2 or len(id_list) < 2:
-        return None
-
-    Z = torch.cat(Z_list, dim=0)  # [m, d]
-    Z = Z - Z.mean(dim=0, keepdim=True)
-    Z = Z / (Z.norm(dim=1, keepdim=True) + 1e-8)
-
-    D_lat = torch.cdist(Z, Z, p=2).cpu().numpy()
-    D_lat = (D_lat - D_lat.min()) / (D_lat.max() - D_lat.min() + 1e-8)
-
-    idx_array = np.array(id_list)
-    D_gt = D_orig[np.ix_(idx_array, idx_array)]
-    D_gt = (D_gt - D_gt.min()) / (D_gt.max() - D_gt.min() + 1e-8)
-
-    mask = np.triu_indices_from(D_gt, k=1)
-    x, y = D_gt[mask], D_lat[mask]
-
-    pear = st.pearsonr(x, y)[0]
-    spear = st.spearmanr(x, y)[0]
-    r2 = np.corrcoef(x, y)[0, 1] ** 2
-
-    # slope via polyfit (no sklearn dependency)
-    slope = float(np.polyfit(x, y, 1)[0])
-    mae = float(np.mean(np.abs(x - y)))
-
-    print(f"   🔎 Latent Identity → ρ_P={pear:.3f}, ρ_S={spear:.3f}, R²={r2:.3f}, slope={slope:.3f}, MAE={mae:.4f}")
-    return {"pearson": pear, "spearman": spear, "r2": r2, "slope": slope, "mae": mae}
-
-
-# =========================
+# ============================================================
 # Main
-# =========================
+# ============================================================
 def main():
-    torch.multiprocessing.set_start_method("spawn", force=True)
+    try:
+        torch.multiprocessing.set_start_method("spawn", force=False)
+    except RuntimeError:
+        pass
 
-    DATA_DIR = "../../../datasets/GT_ready/npz_data/"
-    DIST_PATH = "latent_analysis/dist_matrices_fields/D_orig_gt_normalized.npz"
-    OUT_DIR = "./results_diffusionAE_latentaware/"
+    # === CONFIG ===
+    DATA_DIR = "../../../datasets/GT_ready/npz_data_cropped_23470_with_ops/"
+    DIST_PATH = (
+        "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/"
+        "gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/"
+        "normalized_matrix_distances.npz"
+    )
+
+    OUT_DIR = "./results_diffusionAE_latentaware_v4/"
     os.makedirs(OUT_DIR, exist_ok=True)
 
     LATENT_DIM = 256
     WIDTH = 128
     N_BLOCKS = 4
     EPOCHS = 50
+
     LR = 1e-4
-    BATCH_SIZE = 4
+    BATCH_SIZE = 8
     VAL_SPLIT = 0.1
     CHECKPOINT_EVERY = 5
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # geo components
-    W_L1, W_NORMAL, W_LAPLACIAN = 0.3, 1.0, 0.7
+    # Geometric loss weights
+    W_L1, W_NORMAL, W_LAPLACIAN = 0.1, 0.3, 0.2
+    GEO_W = 1.0
+    LAT_W = 1.0
 
-    # schedules and weights
-    GEO_W_START, GEO_W_END, GEO_W_EPOCHS = 1.0, 0.1, 8
-    RANK_W_START, RANK_W_MAX, RANK_W_GROW = 1e-3, 0.2, 1.6
-    LAMBDA_SMOOTH = 0.005
-    TRIPLET_WEIGHT = 0.50
+    ENABLE_LATENT_LOSSES = False
 
-    # latent scheduling with autocontrol
-    latent_base = 0.5
-    LAT_W_WARMUP = 5
-    TARGET_LATENT_FRAC = 0.70  # desired ratio L_lat / geo
+    use_amp = torch.cuda.is_available()
+    scaler = GradScaler() if use_amp else None
 
     print(f"🚀 Training Latent-Aware Diffusion AE on {DEVICE}")
-    print(f"⚙️ Geo loss (L1={W_L1}, N={W_NORMAL}, Lap={W_LAPLACIAN}) | Latent base={latent_base}")
 
-    # ---------- Dataset ----------
+    # === Dataset ===
     dataset = GTReadyDataset(DATA_DIR)
+    dataset = patch_dataset_with_get_by_name(dataset)
 
     valid_files = []
     skipped_csv = os.path.join(OUT_DIR, "skipped_files.csv")
-    with open(skipped_csv, "w") as f:
-        f.write("filename,error\n")
+    with open(skipped_csv, "w") as ff:
+        ff.write("filename,error\n")
 
-    for f in dataset.files[:5000]:
-        path = f if os.path.isabs(f) else os.path.join(DATA_DIR, f)
+    for f in dataset.files[:1000]:
+        path = os.path.join(DATA_DIR, f)
         try:
             with np.load(path) as data:
                 _ = data.files
             valid_files.append(f)
-        except (zipfile.BadZipFile, OSError, EOFError, ValueError) as e:
+        except Exception as e:
             with open(skipped_csv, "a") as ff:
                 ff.write(f"{f},{e}\n")
-            print(f"[WARN] Skipping corrupted file: {f} ({e})")
 
     dataset.files = valid_files
     print(f"📊 Valid NPZ count: {len(dataset.files)}")
-    if len(dataset.files) == 0:
-        raise RuntimeError("❌ No valid .npz files found. Cannot start training.")
 
+    # === Split ===
     n_val = int(len(dataset) * VAL_SPLIT)
     n_train = len(dataset) - n_val
     train_set, val_set = random_split(dataset, [n_train, n_val])
 
-    train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True, num_workers=0, collate_fn=collate_skip)
-    val_loader = DataLoader(val_set, batch_size=1, shuffle=False, collate_fn=collate_skip)
+    train_loader = DataLoader(
+        train_set, batch_size=BATCH_SIZE, shuffle=True,
+        num_workers=0, collate_fn=collate_skip
+    )
+    val_loader = DataLoader(
+        val_set, batch_size=1, shuffle=False,
+        collate_fn=collate_skip
+    )
 
-    # ---------- Model/Loss/Opt ----------
-    model = DiffusionAutoencoder(latent_dim=LATENT_DIM, width=WIDTH, n_blocks=N_BLOCKS).to(DEVICE)
+    # === Model ===
+    model = DiffusionAutoencoder(
+        latent_dim=LATENT_DIM,
+        width=WIDTH,
+        n_blocks=N_BLOCKS
+    ).to(DEVICE)
+
     geom_loss = GeometricLoss(W_L1, W_NORMAL, W_LAPLACIAN, device=DEVICE).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LR, weight_decay=1e-6)
-    scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=3, min_lr=1e-7)
 
-    # ---------- GT distance matrix ----------
-    print("📂 Loading GT distance matrix (D_orig)...")
-    D_pack = np.load(DIST_PATH)
-    D_orig = D_pack["D_orig"]
-    norm_factor = np.max(D_orig[D_orig > 0]) if np.any(D_orig > 0) else 1.0
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.5, patience=3, min_lr=1e-7
+    )
+
+    # === Load GT matrix ===
+    print("📂 Loading GT distance matrix...")
+    D_pack = np.load(DIST_PATH, allow_pickle=True)
+    D_orig = D_pack["D_orig"].astype(np.float64)
+    norm_factor = np.max(D_orig[D_orig > 0])
     D_orig = D_orig / norm_factor
-    print(f"   → Normalized by factor {norm_factor:.4f}")
+    name_to_idx = build_name_index_map(D_pack["names"])
 
-    name_to_idx = build_name_index_map([str(x) for x in D_pack["names"]])
+    # === STRICT subset ===
+    FIXED_N = min(100, len(dataset.files))
+    fixed_names = dataset.files[:FIXED_N]
 
-    # ---------- Logging ----------
+    fixed_idx = []
+    for nm in fixed_names:
+        base = nm[:-4] if nm.endswith(".npz") else nm
+        if base in name_to_idx:
+            fixed_idx.append(name_to_idx[base])
+    fixed_idx = np.array(fixed_idx)
+
+    if len(fixed_idx) >= 2:
+        D_ref = D_orig[np.ix_(fixed_idx, fixed_idx)]
+    else:
+        fixed_names = None
+        D_ref = None
+        print("⚠️ STRICT validation disabled.")
+
+    # === Logger ===
     run_name = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_dir = os.path.join(OUT_DIR, "runs", run_name)
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir=log_dir)
 
     log_csv = os.path.join(OUT_DIR, "train_log.csv")
-    log_batches_csv = os.path.join(OUT_DIR, "train_batches.csv")
     with open(log_csv, "w") as f:
-        f.write("epoch,total,geo,lat,rank,var,triplet,smooth,pearson,spearman,r2,slope,mae,lr,geo_w,lat_w,rank_w\n")
-    with open(log_batches_csv, "w") as f:
-        f.write("epoch,batch,geo,rank,var,triplet,smooth,L_lat,total,geo_w,latent_w,rank_w,lambda_smooth,triplet_w\n")
+        f.write(
+            "epoch,train_total,train_geo,train_lat,val_geo,"
+            "pearson,spearman,r2,slope,lr\n"
+        )
 
-    # =========================
-    # Training
-    # =========================
+    # ============================================================
+    # TRAINING LOOP
+    # ============================================================
+    best_val_metric = -np.inf
+    best_ckpt_path = os.path.join(OUT_DIR, "latentaware_best.pth")
+
     for epoch in range(EPOCHS):
         model.train()
-
-        geo_weight = linear_decay(epoch, GEO_W_START, GEO_W_END, GEO_W_EPOCHS)
-        latent_w = ramp_up(epoch, latent_base, LAT_W_WARMUP)
-        rank_weight = capped_growth(epoch, RANK_W_START, RANK_W_GROW, RANK_W_MAX)
-
-        print(f"\n🟢 [Epoch {epoch+1}/{EPOCHS}] Training...")
-        print(f"   ⚖️ Weights: geo={geo_weight:.3f} | latent={latent_w:.3f} | rank={rank_weight:.4f} | λ_smooth={LAMBDA_SMOOTH:.3f} | triplet={TRIPLET_WEIGHT:.2f}")
-
-        total, geo, lat, rank, var, trip, smooth = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        total = geo = lat = 0.0
         n_batches = 0
 
-        pbar = tqdm(train_loader, desc=f"Train {epoch+1}", ncols=120)
+        pbar = tqdm(train_loader, desc=f"Train {epoch+1}", ncols=140)
+
         for b_idx, batch_list in enumerate(pbar):
+
             if len(batch_list) == 0:
                 continue
+
             optimizer.zero_grad(set_to_none=True)
 
-            geo_loss_accum, Zg_list, batch_names, smooth_accum = 0.0, [], [], 0.0
+            geo_loss_accum = 0.0
+            Zg_list = []
+            batch_names = []     # <--- IMPORTANTISSIMO
 
+            # ===== forward per sample =====
             for sample in batch_list:
                 V = sample["verts"].to(DEVICE)
-                mass, evals, evecs = sample["mass"].to(DEVICE), sample["evals"].to(DEVICE), sample["evecs"].to(DEVICE)
-                faces, L = sample["faces"].to(DEVICE), sample["L"].to(DEVICE)
-                gX, gY = sample["gradX"].to(DEVICE), sample["gradY"].to(DEVICE)
+                mass = sample["mass"].to(DEVICE)
+                evals = sample["evals"].to(DEVICE)
+                evecs = sample["evecs"].to(DEVICE)
+                faces = sample["faces"].to(DEVICE)
+                L = sample["L"].to(DEVICE)
+                gX = sample["gradX"].to(DEVICE)
+                gY = sample["gradY"].to(DEVICE)
 
                 out = model(V, mass, L, evals, evecs, faces, gX, gY)
-                if isinstance(out, (tuple, list)) and len(out) == 3:
-                    V_rec, Z_field, Z_global = out
-                else:
-                    V_rec, Z_global = out if isinstance(out, (tuple, list)) else (out, None)
-                    Z_field = None
+                V_rec, Z_global = out
 
                 L_geo, _ = geom_loss(V_rec, V, faces, L)
-                geo_loss_accum += L_geo
+                geo_loss_accum += L_geo / len(batch_list)
 
-                if Z_global is not None and Z_global.dim() == 1:
+                if Z_global.dim() == 1:
                     Z_global = Z_global.unsqueeze(0)
-                if Z_global is not None:
-                    Zg_list.append(Z_global)
-                batch_names.append(sample.get("name", ""))
+                Zg_list.append(Z_global)
 
-                if Z_field is not None:
-                    smooth_accum += smooth_loss(Z_field, L) / max(Z_field.shape[0], 1)
+                batch_names.append(sample["name"])   # <--- SALVO I NOMI
 
-            if len(Zg_list) == 0:
-                continue
+            # ===== LATENT LOSS =====
+            L_lat = torch.tensor(0.0, device=DEVICE)
 
-            Zg_batch = torch.cat(Zg_list, dim=0)             # [B, d]
-            Zg_batch = Zg_batch - Zg_batch.mean(dim=0, keepdim=True)
-            Zg_batch = Zg_batch / (Zg_batch.norm(dim=1, keepdim=True) + 1e-8)
+            if ENABLE_LATENT_LOSSES:
 
-            idx_batch = [name_to_idx[nm[:-4] if nm.endswith(".npz") else nm]
-                         for nm in batch_names if (nm[:-4] if nm.endswith(".npz") else nm) in name_to_idx]
+                Zg = torch.cat(Zg_list, dim=0)
+                B = Zg.shape[0]
 
-            if len(idx_batch) < 2:
-                continue
-            D_batch = sample_distance_submatrix(D_orig, np.asarray(idx_batch)).to(DEVICE)
+                idxs = []
+                for nm in batch_names:
+                    base = nm[:-4] if nm.endswith(".npz") else nm
+                    if base in name_to_idx:
+                        idxs.append(name_to_idx[base])
 
-            L_rank = stress_loss(Zg_batch, D_batch)
-            L_var = varcov_loss(Zg_batch)
-            L_trip = triplet_loss(Zg_batch, D_batch, margin=0.2)
-            L_smooth = smooth_accum / max(len(batch_list), 1)
+                if len(idxs) == B:
+                    idxs = np.array(idxs)
+                    D_gt_sub = D_orig[np.ix_(idxs, idxs)]
+                    D_gt_sub = torch.tensor(D_gt_sub, dtype=torch.float32, device=DEVICE)
 
-            L_lat = rank_weight * L_rank + L_var + LAMBDA_SMOOTH * L_smooth + TRIPLET_WEIGHT * L_trip
-            L_geo_batch = geo_loss_accum / len(batch_list)
-            L_total = geo_weight * L_geo_batch + latent_w * L_lat
+                    L_lat = multiscale_distance_loss(Zg, D_gt_sub)
 
-            if not torch.isfinite(L_total):
-                continue
+            # ===== TOTAL LOSS =====
+            L_total = GEO_W * geo_loss_accum + LAT_W * L_lat
 
-            L_total.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optimizer.step()
+            if use_amp:
+                scaler.scale(L_total).backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                L_total.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                optimizer.step()
 
-            # accumulate
-            total += float(L_total)
-            geo += float(L_geo_batch)
-            lat += float(L_lat)
-            rank += float(L_rank)
-            var += float(L_var)
-            trip += float(L_trip)
-            smooth += float(L_smooth)
+            total += float(L_total.detach())
+            geo += float(geo_loss_accum.detach())
+            lat += float(L_lat.detach())
             n_batches += 1
 
-            # CSV per-batch
-            with open(log_batches_csv, "a") as f:
-                f.write(
-                    f"{epoch+1},{b_idx},"
-                    f"{float(L_geo_batch):.6f},{float(L_rank):.6f},{float(L_var):.6f},"
-                    f"{float(L_trip):.6f},{float(L_smooth):.6f},{float(L_lat):.6f},"
-                    f"{float(L_total):.6f},{geo_weight:.3f},{latent_w:.3f},{rank_weight:.4f},{LAMBDA_SMOOTH:.3f},{TRIPLET_WEIGHT:.2f}\n"
-                )
+        # ===== metrics epoch =====
+        train_total = total / n_batches
+        train_geo = geo / n_batches
+        train_lat = lat / n_batches
 
-            # pretty print every 25 batches
-            if b_idx % 25 == 0:
-                print(
-                    f"\n🧩 Batch {b_idx:03d}\n"
-                    f"   ├─ geo={geo/n_batches:.4f}\n"
-                    f"   ├─ latent={lat/n_batches:.4f}\n"
-                    f"   ├─ rank={rank/n_batches:.4f}\n"
-                    f"   ├─ var={var/n_batches:.4f}\n"
-                    f"   ├─ triplet={trip/n_batches:.4f}\n"
-                    f"   ├─ smooth={smooth/n_batches:.4f}\n"
-                    f"   ├─ total={total/n_batches:.4f}\n"
-                    f"   └─ weights: geo_w={geo_weight:.3f}, latent_w={latent_w:.3f}, rank_w={rank_weight:.4f}"
-                )
+        # ===================== VALIDATION =====================
+        model.eval()
+        val_geo = 0.0
 
-        # latent autocontrol: keep latent/geo near target
-        if n_batches > 0:
-            geo_avg = geo / n_batches
-            lat_avg = lat / n_batches
-            ratio = lat_avg / (geo_avg + 1e-8)
-            if ratio < TARGET_LATENT_FRAC * 0.95:
-                latent_base *= 1.05
-            elif ratio > TARGET_LATENT_FRAC * 1.05:
-                latent_base *= 0.98
-            latent_base = float(np.clip(latent_base, 0.2, 1.5))
+        with torch.no_grad():
+            for val_sample in val_loader:
+                s = val_sample[0]
+                V = s["verts"].to(DEVICE)
+                mass = s["mass"].to(DEVICE)
+                evals = s["evals"].to(DEVICE)
+                evecs = s["evecs"].to(DEVICE)
+                faces = s["faces"].to(DEVICE)
+                L = s["L"].to(DEVICE)
+                gX = s["gradX"].to(DEVICE)
+                gY = s["gradY"].to(DEVICE)
 
-        # end-of-epoch logs
-        train_total = total / max(n_batches, 1)
-        train_geo = geo / max(n_batches, 1)
-        train_lat = lat / max(n_batches, 1)
-        train_rank = rank / max(n_batches, 1)
-        train_var = var / max(n_batches, 1)
-        train_trip = trip / max(n_batches, 1)
-        train_smooth = smooth / max(n_batches, 1)
+                out = model(V, mass, L, evals, evecs, faces, gX, gY)
+                V_rec = out[0]
+                Lg, _ = geom_loss(V_rec, V, faces, L)
+                val_geo += float(Lg)
 
-        print(f"✅ [Epoch {epoch+1}] Train → total={train_total:.4f} | geo={train_geo:.4f} | "
-              f"latent={train_lat:.4f} | rank={train_rank:.4f} | var={train_var:.4f} | triplet={train_trip:.4f}")
+        val_geo /= max(1, len(val_loader))
 
-        # validation identity
-        stats = latent_identity_check(model, val_set, D_orig, name_to_idx, DEVICE) or {}
-        scheduler.step(train_total)
-        current_lr = optimizer.param_groups[0]["lr"]
+        # STRICT latent validation
+        stats = latent_identity_check(
+            model, dataset, fixed_names, fixed_idx, D_ref, DEVICE
+        )
 
+        #scheduler.step(train_total)
+
+        lr = optimizer.param_groups[0]["lr"]
+
+
+        # === LOGGING ===
         with open(log_csv, "a") as f:
             f.write(
                 f"{epoch+1},{train_total:.6f},{train_geo:.6f},{train_lat:.6f},"
-                f"{train_rank:.6f},{train_var:.6f},{train_trip:.6f},{train_smooth:.6f},"
-                f"{stats.get('pearson', np.nan):.4f},{stats.get('spearman', np.nan):.4f},{stats.get('r2', np.nan):.4f},"
-                f"{stats.get('slope', np.nan):.4f},{stats.get('mae', np.nan):.6f},{current_lr:.1e},"
-                f"{geo_weight:.3f},{latent_w:.3f},{rank_weight:.4f}\n"
+                f"{val_geo:.6f},"
+                f"{(stats['pearson'] if stats else np.nan):.4f},"
+                f"{(stats['spearman'] if stats else np.nan):.4f},"
+                f"{(stats['r2'] if stats else np.nan):.4f},"
+                f"{(stats['slope'] if stats else np.nan):.4f},"
+                f"{lr:.1e}\n"
             )
 
-        if (epoch + 1) % CHECKPOINT_EVERY == 0 or (epoch + 1) == EPOCHS:
-            ckpt = os.path.join(OUT_DIR, f"latentaware_epoch{epoch+1}.pth")
-            torch.save(model.state_dict(), ckpt)
-            print(f"💾 Saved checkpoint: {ckpt}")
+        metric = stats["pearson"] if stats else -val_geo
 
-    writer.close()
-    print("✅ Training complete.")
+        if metric > best_val_metric:
+            best_val_metric = metric
+            torch.save(
+                {
+                    "epoch": epoch+1,
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "best_metric": best_val_metric,
+                },
+                best_ckpt_path
+            )
+            print(f"💾 New BEST checkpoint → Pearson={metric:.4f}")
+        else:
+            print(f"⚠️ No improvement (metric={metric:.4f})")
+
+        # === CHECKPOINT OGNI 5 EPOCH ===
+        if (epoch + 1) % CHECKPOINT_EVERY == 0:
+            ckpt_path = os.path.join(OUT_DIR, f"ckpt_epoch{epoch+1}.pth")
+            torch.save({
+                "epoch": epoch+1,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+            }, ckpt_path)
+            print(f"💾 Saved checkpoint at epoch {epoch+1} → {ckpt_path}")
+            
+    # === ALWAYS SAVE LAST CHECKPOINT ===
+    last_ckpt_path = os.path.join(OUT_DIR, "latentaware_last.pth")
+    torch.save(
+        {
+            "epoch": epoch+1,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+        },
+        last_ckpt_path
+    )
+    
+    print(f"\n🏆 Training completed.")
+    print(f"Best checkpoint: {best_ckpt_path}")
+    print(f"Last checkpoint: {last_ckpt_path}")
 
 
 if __name__ == "__main__":

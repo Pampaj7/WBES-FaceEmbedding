@@ -1,7 +1,7 @@
 import os, numpy as np, matplotlib.pyplot as plt
 
-IN = "dist_matrices_fields/distance_matrices_fields.npz"
-OUT_DIR = "dist_analysis/subject_views"
+IN = "../results_diffusionAE_latentaware/dist_matrices_fields/distance_matrices_fields.npz"
+OUT_DIR = "../results_diffusionAE_latentaware/dist_analysis/subject_views"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 data = np.load(IN, allow_pickle=True)

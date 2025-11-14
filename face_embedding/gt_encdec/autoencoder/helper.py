@@ -1,69 +1,135 @@
-# build_gt_distance_npz_normalized.py
-# Compute normalized pairwise Euclidean distances for GT meshes
-# Uses same normalization as GTReadyDatasetNPZ
-# Author: Leonardo Pampaloni — 2025
-
 import os
 import numpy as np
+from datetime import datetime
+import scipy.stats as st
+import zipfile
+
+import torch
+import torch.optim as optim
+from torch.utils.data import DataLoader, random_split
+from torch.utils.tensorboard import SummaryWriter
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import tqdm
-from scipy.spatial.distance import cdist
+import torch.nn.functional as F
 
-GT_DIR = "../../../datasets/GT_ready/npz_data"
-OUT = "latent_analysis/dist_matrices_fields/D_orig_gt_normalized.npz"
-BLOCK = 200       # number of meshes per block (controls memory)
-DTYPE = np.float32
+from torch.cuda.amp import autocast, GradScaler
 
-def load_normalized_verts(path):
-    """Load verts from .npz, apply centering and scale normalization."""
-    d = np.load(path)
-    V = d["verts"].astype(DTYPE)
-    V = V - V.mean(axis=0, keepdims=True)
-    scale = np.max(np.abs(V))
-    if scale > 1e-6:
-        V = V / scale
-    else:
-        V = np.zeros_like(V)
-    return V.flatten()
+from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
+from diffusion_autoencoder import DiffusionAutoencoder
+from geometric_loss import GeometricLoss
+from latent_loss import varcov_loss, smooth_loss, stress_loss_with_scale, hard_negative_mining_loss, distortion_regularizer, \
+    percentile_matching_loss, multiscale_distance_loss, curriculum_distance_mask
 
-def main():
-    names = sorted([f for f in os.listdir(GT_DIR) if f.endswith(".npz")])
-    N = len(names)
-    print(f"📦 Found {N} meshes — computing NxN distance matrix with normalization (block size {BLOCK}).")
+# ============================================================
+# Utilities (clean)
+# ============================================================
+def collate_skip(batch):
+    return [s for s in batch if s is not None]
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    tmp_path = OUT.replace(".npz", "_tmp.dat")
 
-    # Initialize on-disk memmap matrix
-    D = np.memmap(tmp_path, dtype=DTYPE, mode="w+", shape=(N, N))
-    D[:] = 0
+def sample_distance_submatrix(D_full: np.ndarray, rowcol_idx: np.ndarray) -> torch.Tensor:
+    return torch.tensor(D_full[np.ix_(rowcol_idx, rowcol_idx)], dtype=torch.float32)
 
-    # Block-wise computation to avoid RAM overflow
-    for i0 in tqdm(range(0, N, BLOCK), desc="Outer blocks"):
-        i1 = min(N, i0 + BLOCK)
-        X_block = [load_normalized_verts(os.path.join(GT_DIR, names[i])) for i in range(i0, i1)]
-        X_block = np.stack(X_block, dtype=DTYPE)
 
-        for j0 in range(i0, N, BLOCK):
-            j1 = min(N, j0 + BLOCK)
-            Y_block = [load_normalized_verts(os.path.join(GT_DIR, names[j])) for j in range(j0, j1)]
-            Y_block = np.stack(Y_block, dtype=DTYPE)
+def build_name_index_map(names_from_npz):
+    mapping = {}
+    for i, nm in enumerate(names_from_npz):
+        if isinstance(nm, bytes):
+            try:
+                nm = nm.decode('utf-8')
+            except Exception:
+                nm = str(nm)
+        nm = str(nm)
+        base = nm[:-4] if nm.endswith(".npz") else nm
+        mapping[base] = i
+    return mapping
 
-            # Compute pairwise Euclidean distances between normalized meshes
-            D_block = cdist(X_block, Y_block, metric="euclidean").astype(DTYPE)
-            D[i0:i1, j0:j1] = D_block
-            D[j0:j1, i0:i1] = D_block.T
-            D.flush()
-            del Y_block, D_block
 
-        del X_block
+# ============================================================
+# STRICT LATENT CHECK (CORRETTA, DETERMINISTICA)
+# ============================================================
+def latent_identity_check(model, dataset, fixed_names, fixed_idx, D_ref, device):
+    """
+    Strict evaluation:
+    - stesso subset fisso ogni volta
+    - stesso ordine dei soggetti
+    - pairwise L2 tra vettori latenti
+    - Pearson e Spearman affidabili
+    """
+    if fixed_names is None or D_ref is None or len(fixed_idx) < 2:
+        return None
 
-    # Compress to .npz for later use
-    print("💾 Saving compressed NPZ (this may take a few minutes)...")
-    np.savez_compressed(OUT, D_orig=np.array(D), names=np.array(names))
-    del D
-    os.remove(tmp_path)
-    print(f"✅ Saved {OUT} | D shape={(N, N)})")
+    model.eval()
+    Z_list = []
 
-if __name__ == "__main__":
-    main()
+    with torch.no_grad():
+        for nm in fixed_names:
+            s = dataset.get_by_name(nm)
+            if s is None:
+                continue
+
+            V = s["verts"].to(device)
+            mass = s["mass"].to(device)
+            L = s["L"].to(device)
+            evals = s["evals"].to(device)
+            evecs = s["evecs"].to(device)
+            faces = s["faces"].to(device)
+            gX = s["gradX"].to(device)
+            gY = s["gradY"].to(device)
+
+            out = model(V, mass, L, evals, evecs, faces, gX, gY)
+            Zg = out[-1]
+            if Zg.dim() == 1:
+                Zg = Zg.unsqueeze(0)
+
+            Z_list.append(Zg.cpu().numpy())
+
+    if len(Z_list) < 2:
+        return None
+
+    Z = np.vstack(Z_list)  # shape (N, latent_dim)
+
+    diff = Z[:, None, :] - Z[None, :, :]
+    D_lat = np.sqrt((diff**2).sum(-1) + 1e-8)
+
+    mask = np.triu_indices_from(D_lat, k=1)
+    x = D_ref[mask]
+    y = D_lat[mask]
+
+    if x.std() < 1e-12 or y.std() < 1e-12:
+        return None
+
+    pear = st.pearsonr(x, y)[0]
+    spear = st.spearmanr(x, y)[0]
+    r2 = np.corrcoef(x, y)[0, 1] ** 2
+    slope = float(np.polyfit(x, y, 1)[0])
+
+    print(f"   🔎 Latent Identity STRICT → "
+          f"ρ_P={pear:.3f}, ρ_S={spear:.3f}, R²={r2:.3f}, slope={slope:.3f}")
+
+    return {
+        "pearson": pear,
+        "spearman": spear,
+        "r2": r2,
+        "slope": slope,
+    }
+
+
+# ============================================================
+# Patch per supportare get_by_name nel dataset
+# ============================================================
+def patch_dataset_with_get_by_name(dataset):
+    mapping = {}
+    for i, f in enumerate(dataset.files):
+        base = f[:-4] if f.endswith(".npz") else f
+        mapping[base] = i
+
+    def get_by_name(name):
+        base = name[:-4] if name.endswith(".npz") else name
+        if base not in mapping:
+            return None
+        return dataset[mapping[base]]
+
+    dataset.get_by_name = get_by_name
+    return dataset
+

@@ -164,3 +164,139 @@ def latent_loss_combined(z_global, Z_field, D_orig_batch, L,
         "varcov": L_varcov.detach(),
         "smooth": L_smooth.detach(),
     }
+
+
+
+def stress_loss_with_scale(Z: torch.Tensor, D: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
+    """Stress loss con penalty per scale mismatch."""
+    B = Z.size(0)
+    if B < 2:
+        return torch.tensor(0.0, device=Z.device, dtype=Z.dtype)
+
+    diff = Z[:, None, :] - Z[None, :, :]
+    Dz = torch.sqrt((diff * diff).sum(dim=-1) + eps)
+
+    device = D.device
+    eye = torch.eye(B, dtype=torch.bool, device=device)
+    Dz = Dz.masked_fill(eye, 0.0)
+    Dn = D.masked_fill(eye, 0.0)
+
+    off = ~eye
+    mean_Dz = Dz[off].mean().clamp_min(eps)
+    mean_Dn = Dn[off].mean().clamp_min(eps)
+    
+    Dz_norm = Dz / mean_Dz
+    Dn_norm = Dn / mean_Dn
+
+    shape_loss = F.smooth_l1_loss(Dz_norm[off], Dn_norm[off], reduction="mean")
+    scale_ratio = mean_Dz / mean_Dn
+    scale_penalty = (scale_ratio - 1.0) ** 2
+    
+    total = shape_loss + 0.1 * scale_penalty
+    return torch.nan_to_num(total, nan=0.0, posinf=10.0).clamp_max(10.0)
+
+
+def hard_negative_mining_loss(Z: torch.Tensor, D_gt: torch.Tensor, top_k: int = 20) -> torch.Tensor:
+    """Focus on worst pairs - FIXED: normalize before MSE."""
+    B = Z.size(0)
+    if B < 2:
+        return torch.tensor(0.0, device=Z.device)
+    
+    with torch.no_grad():
+        diff = Z[:, None, :] - Z[None, :, :]
+        D_lat = torch.sqrt((diff ** 2).sum(-1) + 1e-8)
+        
+        D_lat_n = (D_lat - D_lat.min()) / (D_lat.max() - D_lat.min() + 1e-8)
+        D_gt_n = (D_gt - D_gt.min()) / (D_gt.max() - D_gt.min() + 1e-8)
+        
+        error = torch.abs(D_lat_n - D_gt_n)
+        
+        mask = ~torch.eye(B, dtype=torch.bool, device=Z.device)
+        error_flat = error[mask]
+        D_lat_flat = D_lat[mask]
+        D_gt_flat = D_gt[mask]
+        
+        k = min(top_k, len(error_flat))
+        hard_idx = torch.topk(error_flat, k=k).indices
+    
+    # FIX: normalize before computing loss
+    D_lat_norm = (D_lat_flat - D_lat_flat.min()) / (D_lat_flat.max() - D_lat_flat.min() + 1e-8)
+    D_gt_norm = (D_gt_flat - D_gt_flat.min()) / (D_gt_flat.max() - D_gt_flat.min() + 1e-8)
+    
+    loss = F.mse_loss(D_lat_norm[hard_idx], D_gt_norm[hard_idx])
+    return loss
+
+
+def distortion_regularizer(D_lat: torch.Tensor, D_gt: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
+    """Penalizza distorsioni non-uniformi - FIXED: clipping."""
+    mask = ~torch.eye(D_lat.size(0), dtype=torch.bool, device=D_lat.device)
+    ratio = D_lat[mask] / (D_gt[mask] + eps)
+    ratio = ratio.clamp(0.01, 100.0)
+    distortion = ratio.std()
+    return distortion
+
+
+def percentile_matching_loss(D_lat: torch.Tensor, D_gt: torch.Tensor, 
+                             percentiles: list = [10, 25, 50, 75, 90]) -> torch.Tensor:
+    """Forza percentili a matchare."""
+    loss = torch.tensor(0.0, device=D_lat.device)
+    
+    mask = ~torch.eye(D_lat.size(0), dtype=torch.bool, device=D_lat.device)
+    lat_flat = D_lat[mask]
+    gt_flat = D_gt[mask]
+    
+    for p in percentiles:
+        qt_lat = torch.quantile(lat_flat, p / 100.0)
+        qt_gt = torch.quantile(gt_flat, p / 100.0)
+        loss += (qt_lat - qt_gt) ** 2
+    
+    return loss / len(percentiles)
+
+
+def multiscale_distance_loss(Z: torch.Tensor, D_gt: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+    """
+    Multi-scale loss: cosine (angoli) + Euclidean (magnitudine).
+    Immune a curse of dimensionality perché usa distanza angolare.
+    """
+    B = Z.size(0)
+    if B < 2:
+        return torch.tensor(0.0, device=Z.device)
+    
+    # Cosine distance - cattura struttura angolare
+    Z_norm = F.normalize(Z, p=2, dim=1)
+    cos_sim = torch.mm(Z_norm, Z_norm.T)
+    D_cos = 1.0 - cos_sim
+    
+    # Euclidean chord distance
+    diff = Z_norm[:, None, :] - Z_norm[None, :, :]
+    D_euc = torch.sqrt((diff ** 2).sum(-1) + eps)
+    
+    # Combination: 70% angular, 30% magnitude
+    D_lat = 0.7 * D_cos + 0.3 * D_euc
+    
+    # Normalize
+    mask = ~torch.eye(B, dtype=torch.bool, device=Z.device)
+    D_lat_flat = D_lat[mask]
+    D_gt_flat = D_gt[mask]
+    
+    D_lat_n = (D_lat_flat - D_lat_flat.min()) / (D_lat_flat.max() - D_lat_flat.min() + eps)
+    D_gt_n = (D_gt_flat - D_gt_flat.min()) / (D_gt_flat.max() - D_gt_flat.min() + eps)
+    
+    return F.smooth_l1_loss(D_lat_n, D_gt_n)
+
+
+def curriculum_distance_mask(D_gt: torch.Tensor, epoch: int, max_epochs: int = 15) -> torch.Tensor:
+    """
+    Curriculum learning: early epochs focus on nearby pairs.
+    Progressively include distant pairs.
+    """
+    # Distance threshold grows from 0.3 to 1.0 over first 15 epochs
+    max_dist = min(1.0, 0.3 + epoch * (0.7 / max_epochs))
+    
+    # Create mask for valid distances
+    mask = D_gt <= max_dist
+    # Always keep diagonal masked out
+    mask = mask & ~torch.eye(D_gt.size(0), dtype=torch.bool, device=D_gt.device)
+    
+    return mask, max_dist
+
