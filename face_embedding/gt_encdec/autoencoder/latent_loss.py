@@ -300,3 +300,27 @@ def curriculum_distance_mask(D_gt: torch.Tensor, epoch: int, max_epochs: int = 1
     
     return mask, max_dist
 
+def scale_loss(Z: torch.Tensor, target_mean: float = 1.0, eps: float = 1e-6) -> torch.Tensor:
+    """
+    Penalizza se la distanza media off-diagonal in latent space
+    è troppo lontana da target_mean.
+
+    Non guarda la GT, serve solo a fissare una scala assoluta sensata.
+    """
+    B = Z.size(0)
+    if B < 2:
+        return Z.new_tensor(0.0)
+
+    # pairwise distances
+    diff = Z[:, None, :] - Z[None, :, :]
+    Dz = torch.sqrt((diff * diff).sum(dim=-1) + eps)
+
+    # off-diagonal mask
+    eye = torch.eye(B, dtype=torch.bool, device=Z.device)
+    off = ~eye
+
+    mean_dist = Dz[off].mean().clamp_min(eps)
+
+    # L2 su (mean_dist - target)
+    loss = (mean_dist - target_mean).pow(2)
+    return loss

@@ -118,11 +118,16 @@ def latent_identity_check(model, dataset, fixed_names, fixed_idx, D_ref, device)
 # ============================================================
 # Patch per supportare get_by_name nel dataset
 # ============================================================
+def get_by_name_global(dataset, name):
+    base = name[:-4] if name.endswith(".npz") else name
+    for idx, fname in enumerate(dataset.files):
+        if fname.startswith(base):
+            return dataset[idx]
+    return None
+
 def patch_dataset_with_get_by_name(dataset):
-    mapping = {}
-    for i, f in enumerate(dataset.files):
-        base = f[:-4] if f.endswith(".npz") else f
-        mapping[base] = i
+    dataset.get_by_name = lambda name: get_by_name_global(dataset, name)
+    return dataset
 
     def get_by_name(name):
         base = name[:-4] if name.endswith(".npz") else name

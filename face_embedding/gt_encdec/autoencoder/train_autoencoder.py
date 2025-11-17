@@ -35,11 +35,11 @@ def main():
 
     # 🌟 2. Aggiorna DATA_DIR per puntare alla cartella NPZ
     # DATA_DIR = "../../../datasets/GT_ready/" # Vecchio path (.obj)
-    DATA_DIR = "../../../datasets/GT_ready/npz_data/" # Nuovo path (.npz)
+    DATA_DIR = "../../../datasets/GT_ready/npz_data_cropped_23470_with_ops/" # Nuovo path (.npz)
     # 🌟 3. Rimuovi OPS_DIR (non più necessario con NPZ)
     # OPS_DIR = os.path.join(DATA_DIR, "operators") # Rimosso
 
-    OUT_DIR = "./results_diffusionAE/"
+    OUT_DIR = "howwwwwwwww"
 
     # --- IPERPARAMETRI ---
     LATENT_DIM = 256

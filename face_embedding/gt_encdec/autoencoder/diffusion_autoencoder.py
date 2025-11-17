@@ -138,6 +138,66 @@ class DiffusionAutoencoder(nn.Module):
         return V_rec, Z_global
 
 
+class DiffusionEncoderOnly(nn.Module):
+    """
+    Versione ridotta SOLO-ENCODER:
+    - NESSUN decoder
+    - NESSUNA ricostruzione
+    - Z_per_vertex → Z_global via mean pooling
+    - Ideale per esperimenti di metric-learning e analisi del latent space
+    
+    Obiettivo:
+    verificare se lo spazio latente può imparare identità e correlazioni
+    SENZA la pressione della loss geometrica che tende a collassare i latenti.
+    """
+
+    def __init__(self, latent_dim=256, width=128, n_blocks=4, dropout=0.1):
+        super().__init__()
+        self.latent_dim = latent_dim
+
+        print(f"🧬 DiffusionEncoderOnly | Z={latent_dim}, width={width}, blocks={n_blocks}")
+
+        # ------------------------------------------------------------
+        # ENCODER → produce Z_per_vertex (molto ricco, molto locale)
+        # ------------------------------------------------------------
+        self.encoder = DiffusionNet(
+            C_in=3,
+            C_out=latent_dim,
+            C_width=width,
+            N_block=n_blocks,
+            with_gradient_features=True,
+            dropout=0.0,
+        )
+
+        # ------------------------------------------------------------
+        # BOTTLENECK → regolarizza il campo latente per-vertex
+        # ------------------------------------------------------------
+        self.vertex_bottleneck = nn.Sequential(
+            nn.Linear(latent_dim, latent_dim // 2),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(latent_dim // 2, latent_dim),
+        )
+
+    def forward(self, V, mass, L, evals, evecs, faces, gradX, gradY):
+        # 1. Encoder → campi latenti locali
+        Z_per_vertex = self.encoder(
+            V, mass, L, evals, evecs,
+            faces=faces, gradX=gradX, gradY=gradY
+        )
+
+        # 2. Bottleneck → regolarizzazione
+        Z_per_vertex = self.vertex_bottleneck(Z_per_vertex)
+
+        # (opzionale: rumore leggero per evitare collapse)
+        Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
+
+        # 3. Z_global = mean pooling dei latenti vertex-wise
+        Z_global = Z_per_vertex.mean(dim=0, keepdim=True)
+
+        # Ritorniamo solo embedding, niente mesh
+        return Z_global
+    
 """
 --------------------------------------------------------------------------------
 NOTE ON LATENT REPRESENTATIONS (Z_per_vertex vs Z_global)
