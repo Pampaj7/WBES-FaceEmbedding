@@ -32,8 +32,8 @@ from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 
 # === CONFIG ===
 DATA_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/GT_ready/npz_data_cropped_23470_with_ops"
-CHECKPOINT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/results_diffusionAE_latentaware/latentaware_epoch50.pth"
-OUTPUT_HTML = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/results_diffusionAE_latentaware/error_map_visualization.html"
+CHECKPOINT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/test_safe_latent/diffusionAE_epoch50.pth"
+OUTPUT_HTML = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/test_safe_latent/error_map_visualization.html"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 LATENT_DIM = 256
@@ -43,7 +43,8 @@ N_BLOCKS = 4
 # === LOAD MODEL & DATA ===
 model = DiffusionAutoencoder(latent_dim=LATENT_DIM, width=WIDTH, n_blocks=N_BLOCKS).to(DEVICE)
 ckpt = torch.load(CHECKPOINT, map_location=DEVICE)
-model.load_state_dict(ckpt["model_state_dict"])
+model.load_state_dict(ckpt)   # perché ckpt è già lo state_dict
+
 model.eval()
 
 dataset = GTReadyDataset(DATA_DIR)
