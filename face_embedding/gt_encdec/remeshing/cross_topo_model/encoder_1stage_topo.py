@@ -42,7 +42,7 @@ DIST_PATH = (
     "normalized_matrix_distances.npz"
 )
 
-OUT_DIR = "encoder_stage1_multitopo"
+OUT_DIR = "encoder_stage1_multitopo_second_try"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # Model
@@ -60,9 +60,8 @@ GRAD_CLIP = 1.0
 
 # Loss weights
 LAMBDA_STRESS = 0.3   # preserva struttura globale (tra soggetti)
-LAMBDA_SLOPE  = 1.0   # fissa scala globale
 LAMBDA_ID     = 0.1   # forza stesso soggetto (topologie diverse) vicino
-LAMBDA_SMOOTH = 0.00  # regolarizza campo per-vertex (topology-agnostic)
+LAMBDA_METRIC = 0.1   # inizia conservativo
 
 # Varianti attese nel dataset (se ci sono meno non importa)
 VARIANT_RE = re.compile(r"^(id\d+)_.*_(original|remesh|crop|noisy)\.npz$")
@@ -180,6 +179,12 @@ def eval_latent_structure(
     ss_res = ((lat - (slope * gt + intercept)) ** 2).sum()
     ss_tot = ((lat - lat.mean()) ** 2).sum() + 1e-12
     r2 = 1.0 - ss_res / ss_tot
+    intra_vals_np = np.array(intra_vals)
+
+    intra_mean   = float(intra_vals_np.mean())
+    intra_median = float(np.median(intra_vals_np))
+    intra_p90    = float(np.percentile(intra_vals_np, 90))
+    intra_max    = float(intra_vals_np.max())
 
     return {
         "pearson": float(pearson),
@@ -187,8 +192,10 @@ def eval_latent_structure(
         "r2": float(r2),
         "slope": float(slope),
         "intercept": float(intercept),
-        "intra_mean": float(np.mean(intra_vals)),
-        "intra_median": float(np.median(intra_vals)),
+        "intra_mean": intra_mean,
+        "intra_median": intra_median,
+        "intra_p90": intra_p90,
+        "intra_max": intra_max,
     }
 
 # ============================================================
@@ -203,6 +210,7 @@ def main():
     dataset = GTReadyDataset(DATA_DIR)
     subj_map = build_subject_map(dataset)
     subjects = sorted(subj_map.keys())
+    
     rng_eval = np.random.default_rng(EVAL_SEED)
     eval_subjects = rng_eval.choice(
         subjects,
@@ -254,8 +262,9 @@ def main():
 
     with open(log_csv, "w") as f:
         f.write(
-            "epoch,loss,stress,id,slope,smooth,lr,"
-            "pearson,spearman,r2,fit_slope,intra_mean\n"
+            "epoch,loss,stress,id,metric,lr,"
+            "pearson,spearman,r2,fit_slope,fit_intercept,"
+            "intra_mean,intra_median,intra_p90,intra_max\n"
         )
 
 
@@ -399,43 +408,17 @@ def main():
             else:
                 loss_stress = torch.tensor(0.0, device=DEVICE)
 
-            # -------------------------------------------------------
-            # (C) Slope / scale loss: force inter-subject distance ~ 1
-            # -------------------------------------------------------
-            if len(keep) >= 2:
-                dist_lat = torch.cdist(Z_batch, Z_batch, p=2)
-                off = ~torch.eye(dist_lat.size(0), dtype=torch.bool, device=DEVICE)
-
-                inter_mean = dist_lat[off].mean()
-                loss_slope = (inter_mean - 1.0) ** 2
-
-                # sanity ratio: intra / inter
-                ratio_intra_inter = intra_mean / (inter_mean.item() + 1e-8)
-            else:
-                loss_slope = torch.tensor(0.0, device=DEVICE)
-                inter_mean = torch.tensor(0.0, device=DEVICE)
-                ratio_intra_inter = 0.0
 
 
-            # -------------------------------------------------------
-            # (D) Per-vertex smooth regularizer (topology-agnostic)
-            # -------------------------------------------------------
-            if len(subj_Zfields) > 0:
-                loss_smooth = torch.stack(
-                    [smooth_loss(Zf, L) for Zf, L in zip(subj_Zfields, subj_Ls)]
-                ).mean()
-            else:
-                loss_smooth = torch.tensor(0.0, device=DEVICE)
 
             # -------------------------------------------------------
             # TOTAL
             # -------------------------------------------------------
             loss = (
                 LAMBDA_STRESS * loss_stress +
-                LAMBDA_SLOPE  * loss_slope +
-                LAMBDA_ID     * loss_id +
-                LAMBDA_SMOOTH * loss_smooth
+                LAMBDA_ID     * loss_id 
             )
+
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP)
@@ -448,12 +431,11 @@ def main():
                 loss=f"{loss.item():.4f}",
                 stress=f"{loss_stress.item():.4f}",
                 id=f"{loss_id.item():.4f}",
-                slope=f"{loss_slope.item():.4f}",
                 zmean=f"{z_norm_mean:.2f}",
                 zstd=f"{z_norm_std:.2f}",
                 intra=f"{intra_mean:.2f}",
-                ratio=f"{ratio_intra_inter:.2f}",
             )
+
 
 
         # epoch end
@@ -492,19 +474,24 @@ def main():
                 )
 
         with open(log_csv, "a") as f:
-            f.write(
-                f"{epoch+1},{epoch_loss:.6f},"
-                f"{float(loss_stress.item()):.6f},"
-                f"{float(loss_id.item()):.6f},"
-                f"{float(loss_slope.item()):.6f},"
-                f"{float(loss_smooth.item()):.6f},"
-                f"{lr_now:.2e},"
-                f"{metrics['pearson']:.4f}," if metrics else "nan,"
-                f"{metrics['spearman']:.4f}," if metrics else "nan,"
-                f"{metrics['r2']:.4f}," if metrics else "nan,"
-                f"{metrics['slope']:.4f}," if metrics else "nan,"
-                f"{metrics['intra_mean']:.6f}\n" if metrics else "nan\n"
-            )
+            if metrics is not None:
+                f.write(
+                    f"{epoch+1},"
+                    f"{epoch_loss:.6f},"
+                    f"{loss_stress.item():.6f},"
+                    f"{loss_id.item():.6f},"
+                    f"{lr_now:.2e},"
+                    f"{metrics['pearson']:.4f},"
+                    f"{metrics['spearman']:.4f},"
+                    f"{metrics['r2']:.4f},"
+                    f"{metrics['slope']:.4f},"
+                    f"{metrics['intercept']:.4f},"
+                    f"{metrics['intra_mean']:.6f},"
+                    f"{metrics['intra_median']:.6f},"
+                    f"{metrics['intra_p90']:.6f},"
+                    f"{metrics['intra_max']:.6f}\n"
+                )
+
 
             
         if ((epoch + 1) % 5 == 0) or (epoch + 1 == EPOCHS):
