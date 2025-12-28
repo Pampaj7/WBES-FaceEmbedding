@@ -11,8 +11,8 @@ if "/equilibrium/lpampaloni/diffusion-net/src" not in sys.path:
 from diffusion_net.geometry import compute_operators
 
 # === CONFIG ===
-INPUT_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/GT_ready/npz_data_cropped"
-OUTPUT_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/GT_ready/npz_data_cropped_23470_with_ops"
+INPUT_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500"
+OUTPUT_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops"
 K_EIG = 128
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -64,7 +64,7 @@ def process_npz(filename):
 
 if __name__ == "__main__":
     files = sorted(f for f in os.listdir(INPUT_DIR) if f.endswith(".npz"))
-    files = files[::-1]
+    #files = files[::-1]
     n_cores = 4  # puoi mettere mp.cpu_count() per usare tutti
 
     print(f"🚀 Uso {n_cores} core")

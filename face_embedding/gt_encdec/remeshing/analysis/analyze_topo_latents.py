@@ -8,12 +8,12 @@ from sklearn.manifold import TSNE
 # ============================================================
 # CONFIG
 # ============================================================
-RESULTS_DIR = "results_topo_variants"
+RESULTS_DIR = "2stage"
 LAT_GLOBAL_PATH = os.path.join(RESULTS_DIR, "latents_global.npy")
 LAT_MEAN_PATH   = os.path.join(RESULTS_DIR, "latents_mean.npy")
 META_PATH       = os.path.join(RESULTS_DIR, "meta.npy")
 
-OUT_DIR = "analysis_topo_latents"
+OUT_DIR = "2stage"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MAX_SUBJECTS = 40   # filtra soggetti id0000 ... id0039

@@ -41,25 +41,20 @@ except Exception:
 # ============================================================
 # DECODER-ONLY MODEL (PER-VERTEX LATENTS)
 # ============================================================
-class DecoderOnlyPerVertex(nn.Module):
+class DecoderOnlyZeroLatent(nn.Module):
     """
-    Decoder-only:
+    Decoder-only con Z=0
     - Nessun encoder
-    - Z_per_vertex è UN PARAMETRO ottimizzabile
-    - Decoder identico a quello del tuo AE
-    - Input: [Z_per_vertex, evecs]
+    - Nessun parametro latente
+    - Per ogni mesh: input = [zeros, evecs]
+    - Testa se il decoder usa davvero i latenti
     """
 
-    def __init__(self, num_vertices, latent_dim=256, width=128, n_blocks=4, k_spec=16):
+    def __init__(self, latent_dim=256, width=128, n_blocks=4, k_spec=16):
         super().__init__()
 
         self.latent_dim = latent_dim
         self.k_spec = k_spec
-
-        # Parametri per-vertex: [N_verts, latent_dim]
-        self.Z_per_vertex = nn.Parameter(
-            torch.randn(num_vertices, latent_dim) * 0.01
-        )
 
         # Decoder identico al tuo AE
         cin_decoder = latent_dim + k_spec
@@ -83,8 +78,11 @@ class DecoderOnlyPerVertex(nn.Module):
     def forward(self, ops):
         S = self._take_or_pad_evecs(ops["evecs"], self.k_spec)
 
-        # concatenazione identica al tuo AE
-        Z_in = torch.cat([self.Z_per_vertex, S], dim=1)
+        # Z=0 → replicato per ogni vertice
+        N = S.shape[0]
+        Z = torch.zeros(N, self.latent_dim, device=S.device)
+
+        Z_in = torch.cat([Z, S], dim=1)
 
         V_rec = self.decoder(
             Z_in,
@@ -98,6 +96,7 @@ class DecoderOnlyPerVertex(nn.Module):
         )
 
         return V_rec
+
 
 
 # ============================================================
@@ -198,8 +197,7 @@ def main():
     # ============================================================
     # MODEL
     # ============================================================
-    model = DecoderOnlyPerVertex(
-        num_vertices=NUM_VERTS,
+    model = DecoderOnlyZeroLatent(
         latent_dim=LATENT_DIM,
         width=WIDTH,
         n_blocks=N_BLOCKS,
@@ -339,16 +337,14 @@ def main():
 
             # ================= DEBUG BATCH-LEVEL =================
             if batch_idx % DEBUG_EVERY == 0:
-                with torch.no_grad():
-                    z_mean = model.Z_per_vertex.mean().item()
-                    z_std = model.Z_per_vertex.std().item()
                 print(
                     f"\n--- DEBUG epoch {epoch+1} batch {batch_idx} ---\n"
                     f"geo_loss_batch={geo_loss_batch.item():.6f} | "
                     f"L1={avg_l1:.4f} | N={avg_norm:.4f} | Lap={avg_lapl:.4f}\n"
-                    f"Z_per_vertex: mean={z_mean:.5f}, std={z_std:.5f}\n"
+                    f"(Z=0 fixed for all vertices)\n"
                     "---------------------------------------------"
                 )
+
 
             # ================= PREVIEW SALVATAGGIO =================
             if (

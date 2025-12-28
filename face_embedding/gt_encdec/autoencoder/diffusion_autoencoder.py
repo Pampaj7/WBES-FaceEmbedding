@@ -140,15 +140,15 @@ class DiffusionAutoencoder(nn.Module):
 
 class DiffusionEncoderOnly(nn.Module):
     """
-    Versione ridotta SOLO-ENCODER:
-    - NESSUN decoder
-    - NESSUNA ricostruzione
+    Encoder-only:
+    - NO decoder
+    - NO reconstruction
     - Z_per_vertex → Z_global via mean pooling
-    - Ideale per esperimenti di metric-learning e analisi del latent space
-    
-    Obiettivo:
-    verificare se lo spazio latente può imparare identità e correlazioni
-    SENZA la pressione della loss geometrica che tende a collassare i latenti.
+    - Ideal for metric-learning experiments and latent space analysis.
+
+    Goal:
+    Learn a latent space that preserves subject-wise structure
+    without the pressure of a geometric reconstruction loss.
     """
 
     def __init__(self, latent_dim=256, width=128, n_blocks=4, dropout=0.1):
@@ -158,7 +158,7 @@ class DiffusionEncoderOnly(nn.Module):
         print(f"🧬 DiffusionEncoderOnly | Z={latent_dim}, width={width}, blocks={n_blocks}")
 
         # ------------------------------------------------------------
-        # ENCODER → produce Z_per_vertex (molto ricco, molto locale)
+        # ENCODER → vertex-wise latent field
         # ------------------------------------------------------------
         self.encoder = DiffusionNet(
             C_in=3,
@@ -170,7 +170,7 @@ class DiffusionEncoderOnly(nn.Module):
         )
 
         # ------------------------------------------------------------
-        # BOTTLENECK → regolarizza il campo latente per-vertex
+        # BOTTLENECK → regularization of per-vertex latents
         # ------------------------------------------------------------
         self.vertex_bottleneck = nn.Sequential(
             nn.Linear(latent_dim, latent_dim // 2),
@@ -179,24 +179,46 @@ class DiffusionEncoderOnly(nn.Module):
             nn.Linear(latent_dim // 2, latent_dim),
         )
 
-    def forward(self, V, mass, L, evals, evecs, faces, gradX, gradY):
-        # 1. Encoder → campi latenti locali
+    def forward(
+        self,
+        V,
+        mass,
+        L,
+        evals,
+        evecs,
+        faces,
+        gradX,
+        gradY,
+        return_per_vertex: bool = False,
+        add_noise: bool = True,
+    ):
+        """
+        If return_per_vertex == False (default):
+            returns Z_global  ∈ R^{1 × latent_dim}
+        If return_per_vertex == True:
+            returns (Z_per_vertex, Z_global)
+        """
+        # 1. Encoder → per-vertex latents
         Z_per_vertex = self.encoder(
             V, mass, L, evals, evecs,
             faces=faces, gradX=gradX, gradY=gradY
-        )
+        )  # (N_verts, latent_dim)
 
-        # 2. Bottleneck → regolarizzazione
+        # 2. Bottleneck
         Z_per_vertex = self.vertex_bottleneck(Z_per_vertex)
 
-        # (opzionale: rumore leggero per evitare collapse)
-        Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
+        # 3. Optional noise (for training only)
+        if add_noise:
+            Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
 
-        # 3. Z_global = mean pooling dei latenti vertex-wise
-        Z_global = Z_per_vertex.mean(dim=0, keepdim=True)
+        # 4. Global pooling
+        Z_global = Z_per_vertex.mean(dim=0, keepdim=True)  # (1, latent_dim)
 
-        # Ritorniamo solo embedding, niente mesh
+        if return_per_vertex:
+            return Z_per_vertex, Z_global
+
         return Z_global
+
     
 """
 --------------------------------------------------------------------------------

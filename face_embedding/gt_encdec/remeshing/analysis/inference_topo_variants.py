@@ -27,10 +27,10 @@ DATA_DIR = (
     "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/"
     "npz_data_topo_500_withops"
 )
-ENCODER_CKPT = "../../autoencoder/encoder_only/encoder_only_epoch50.pth"
-DECODER_CKPT = "../../autoencoder/stage2_frozen/stage2_decoder_epoch50.pth"
+ENCODER_CKPT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_stage1_multitopo/encoder_stage1_epoch50.pth"
+DECODER_CKPT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/cross_topo_model/stage2_frozen/stage2_decoder_epoch50.pth"
 
-OUT_DIR = "results_topo_variants"
+OUT_DIR = "2stage"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 RECONS_DIR = os.path.join(OUT_DIR, "recon_npz")
@@ -41,7 +41,7 @@ LATENTS_MEAN_PATH   = os.path.join(OUT_DIR, "latents_mean.npy")
 META_PATH           = os.path.join(OUT_DIR, "meta.npy")
 
 fname_re = re.compile(r"^(id\d+_GTready)_(original|remesh|crop|noisy)\.npz$")
-NUM_LIMIT = 2000
+NUM_LIMIT = 200
 
 
 # ============================

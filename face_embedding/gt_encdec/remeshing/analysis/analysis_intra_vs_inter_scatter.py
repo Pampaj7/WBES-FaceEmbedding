@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 # ============================================================
 # CONFIG
 # ============================================================
-RESULTS_DIR = "results_topo_variants"
+RESULTS_DIR = "2stage"
 
 LATENTS_PATH = os.path.join(RESULTS_DIR, "latents_global.npy")
 META_PATH    = os.path.join(RESULTS_DIR, "meta.npy")
 
-OUT_DIR = "analysis_intra_vs_inter"
+OUT_DIR = "2stage"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # usa solo questi soggetti (None = tutti)
-MAX_SUBJECTS = None
+MAX_SUBJECTS = 200
 
 # per l'inter-subject: controlliamo la topologia
 INTER_VARIANT = "original"

@@ -209,17 +209,40 @@ def main():
     # ----------------------------
     dataset = GTReadyDataset(DATA_DIR)
     subj_map = build_subject_map(dataset)
-    subjects = sorted(subj_map.keys())
-    
-    rng_eval = np.random.default_rng(EVAL_SEED)
-    eval_subjects = rng_eval.choice(
-        subjects,
-        size=min(EVAL_SUBJECTS, len(subjects)),
-        replace=False
+    subjects = sorted(map(str, subj_map.keys()))
+
+    # ----------------------------
+    # Train / Eval split (BY SUBJECT)
+    # ----------------------------
+    rng = np.random.default_rng(EVAL_SEED)
+
+    subjects = np.array(subjects, dtype=str)
+    n_total = len(subjects)
+    n_eval = int(0.2 * n_total)   # 20% eval
+
+    eval_subjects = rng.choice(subjects, size=n_eval, replace=False)
+    train_subjects = np.array(
+        [s for s in subjects if s not in set(eval_subjects)],
+        dtype=str
     )
 
-    print(f"Subjects: {len(subjects)} | Meshes: {len(dataset.files)}")
-    print(f"Example subject variants count: {len(subj_map[subjects[0]])}")
+    # forza liste ordinate (riproducibilità)
+    eval_subjects = sorted(eval_subjects.tolist())
+    train_subjects = sorted(train_subjects.tolist())
+
+    # ----------------------------
+    # HARD CHECKS (NO LEAKAGE)
+    # ----------------------------
+    overlap = set(train_subjects) & set(eval_subjects)
+    print(f"❌ OVERLAP train/eval: {len(overlap)}")
+    if overlap:
+        print("Example overlap:", list(overlap)[:5])
+        raise RuntimeError("Train/Eval leakage detected!")
+
+    print(f"Train subjects: {len(train_subjects)}")
+    print(f"Eval subjects : {len(eval_subjects)}")
+    print(f"Total subjects: {len(subjects)} | Meshes: {len(dataset.files)}")
+    print(f"Example subject variants: {len(subj_map[train_subjects[0]])}")
 
     # ----------------------------
     # Load GT distance matrix (between subjects)
@@ -262,7 +285,7 @@ def main():
 
     with open(log_csv, "w") as f:
         f.write(
-            "epoch,loss,stress,id,metric,lr,"
+            "epoch,loss,stress,id,lr,"
             "pearson,spearman,r2,fit_slope,fit_intercept,"
             "intra_mean,intra_median,intra_p90,intra_max\n"
         )
@@ -279,8 +302,7 @@ def main():
         rng = np.random.default_rng(epoch + 123)
 
         # shuffle subjects each epoch
-        perm = rng.permutation(len(subjects))
-        subjects_shuf = [subjects[i] for i in perm]
+        subjects_shuf = rng.permutation(train_subjects)
 
         epoch_loss = 0.0
         n_steps = 0
