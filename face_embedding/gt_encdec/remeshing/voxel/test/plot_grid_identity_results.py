@@ -9,7 +9,7 @@ from pathlib import Path
 # -------------------------------------------------
 
 GRID_CSV = Path("grid_identity_results.csv")
-CHAMFER_CSV = Path("chamfer_identity_results.csv")  # opzionale
+CHAMFER_CSV = Path("chamfer_identity_results.csv")
 
 OUT_DIR = Path("plots")
 OUT_DIR.mkdir(exist_ok=True)
@@ -17,103 +17,138 @@ OUT_DIR.mkdir(exist_ok=True)
 sns.set(style="whitegrid", font_scale=1.2)
 
 # -------------------------------------------------
-# LOAD
+# UTILS
 # -------------------------------------------------
 
-df = pd.read_csv(GRID_CSV)
+def compute_ratio(df):
+    intra = df[
+        (df.subject_A == df.subject_B) &
+        (df.variant_A != "original") &
+        (df.variant_B == "original")
+    ][["subject_A", "variant_A", "distance"]]
 
-intra = df[df.subject_A == df.subject_B]
-inter = df[df.subject_A != df.subject_B]
+    intra = intra.rename(columns={"distance": "intra_dist"})
 
-print("INTRA mean:", intra.distance.mean(), "std:", intra.distance.std())
-print("INTER mean:", inter.distance.mean(), "std:", inter.distance.std())
-print("Ratio median:", df.ratio.median())
+    merged = df.merge(
+        intra,
+        on=["subject_A", "variant_A"],
+        how="inner"   
+    )
 
-# -------------------------------------------------
-# 1️⃣ KDE: INTRA vs INTER
-# -------------------------------------------------
+    merged["ratio"] = merged["distance"] / merged["intra_dist"]
+    return merged
 
-plt.figure(figsize=(7, 5))
-sns.kdeplot(intra.distance, label="Intra-subject", fill=True)
-sns.kdeplot(inter.distance, label="Inter-subject", fill=True)
-plt.xlabel("Distance")
-plt.ylabel("Density")
-plt.title("Grid-based Identity Distance")
-plt.legend()
-plt.tight_layout()
-plt.savefig(OUT_DIR / "kde_intra_vs_inter.png", dpi=200)
-plt.close()
 
-# -------------------------------------------------
-# 2️⃣ Ratio distribution
-# -------------------------------------------------
 
-plt.figure(figsize=(6, 5))
-sns.histplot(df.ratio, bins=40, kde=True)
-plt.axvline(1.0, color="red", linestyle="--", label="Chance")
-plt.xlabel("Inter / Intra ratio")
-plt.ylabel("Count")
-plt.title("Ratio distribution")
-plt.legend()
-plt.tight_layout()
-plt.savefig(OUT_DIR / "ratio_distribution.png", dpi=200)
-plt.close()
+def make_kde(df, title, outname):
+    intra = df[df.subject_A == df.subject_B]
+    inter = df[df.subject_A != df.subject_B]
 
-# -------------------------------------------------
-# 3️⃣ Cross-topology boxplot
-# -------------------------------------------------
+    plt.figure(figsize=(7, 5))
+    sns.kdeplot(intra.distance, label="Intra-subject", fill=True)
+    sns.kdeplot(inter.distance, label="Inter-subject", fill=True)
+    plt.xlabel("Distance")
+    plt.ylabel("Density")
+    plt.title(title)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(OUT_DIR / outname, dpi=200)
+    plt.close()
 
-if "variant_A" in df.columns and "variant_B" in df.columns:
+
+def make_ratio_plot(df, title, outname):
+    plt.figure(figsize=(6, 5))
+    sns.histplot(df.ratio.dropna(), bins=40, kde=True)
+    plt.axvline(1.0, color="red", linestyle="--", label="Chance")
+    plt.xlabel("Inter / Intra ratio")
+    plt.ylabel("Count")
+    plt.title(title)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(OUT_DIR / outname, dpi=200)
+    plt.close()
+
+
+def make_boxplot(df, title, outname, ylabel):
+    df = df[df.subject_A != df.subject_B].copy()
     df["variant_pair"] = df.variant_A + " vs " + df.variant_B
 
     plt.figure(figsize=(10, 5))
-    sns.boxplot(
-        data=df[df.subject_A != df.subject_B],
-        x="variant_pair",
-        y="distance"
-    )
+    sns.boxplot(data=df, x="variant_pair", y="distance")
     plt.xticks(rotation=30)
-    plt.ylabel("Distance")
-    plt.title("Grid distance across topology pairs")
+    plt.ylabel(ylabel)
+    plt.title(title)
     plt.tight_layout()
-    plt.savefig(OUT_DIR / "boxplot_cross_topology.png", dpi=200)
-    plt.close()
-
-# -------------------------------------------------
-# 4️⃣ Chamfer vs Grid (AGGREGATED, SAFE)
-# -------------------------------------------------
-
-if CHAMFER_CSV.exists():
-    df_ch = pd.read_csv(CHAMFER_CSV)
-
-    def summarize(df):
-        intra = df[df.subject_A == df.subject_B]["distance"]
-        inter = df[df.subject_A != df.subject_B]["distance"]
-        return intra.mean(), inter.mean()
-
-    g_intra, g_inter = summarize(df)
-    c_intra, c_inter = summarize(df_ch)
-
-    plt.figure(figsize=(6, 6))
-
-    plt.scatter(c_intra, g_intra, s=120, label="Intra-subject")
-    plt.scatter(c_inter, g_inter, s=120, label="Inter-subject")
-
-    plt.plot(
-        [min(c_intra, c_inter), max(c_intra, c_inter)],
-        [min(g_intra, g_inter), max(g_intra, g_inter)],
-        linestyle="--",
-        color="gray",
-        alpha=0.6,
-    )
-
-    plt.xlabel("Chamfer distance (mean)")
-    plt.ylabel("Grid-based distance (mean)")
-    plt.title("Chamfer vs Grid (aggregated comparison)")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(OUT_DIR / "scatter_chamfer_vs_grid_aggregated.png", dpi=200)
+    plt.savefig(OUT_DIR / outname, dpi=200)
     plt.close()
 
 
-print(f"✅ Plots saved to {OUT_DIR.resolve()}")
+# -------------------------------------------------
+# GRID
+# -------------------------------------------------
+
+df_grid = pd.read_csv(GRID_CSV)
+
+print("\n[GRID]")
+print("INTRA mean:", df_grid[df_grid.subject_A == df_grid.subject_B].distance.mean())
+print("INTER mean:", df_grid[df_grid.subject_A != df_grid.subject_B].distance.mean())
+
+make_kde(
+    df_grid,
+    title="Grid — Intra vs Inter",
+    outname="kde_grid_intra_vs_inter.png"
+)
+
+make_boxplot(
+    df_grid,
+    title="Grid — Cross-topology (inter-subject)",
+    outname="boxplot_grid_cross_topology.png",
+    ylabel="Grid Distance"
+)
+
+if "ratio" not in df_grid.columns:
+    df_grid = compute_ratio(df_grid)
+
+make_ratio_plot(
+    df_grid,
+    title="Grid — Ratio Distribution",
+    outname="ratio_grid_distribution.png"
+)
+
+# -------------------------------------------------
+# CHAMFER
+# -------------------------------------------------
+
+df_ch = pd.read_csv(CHAMFER_CSV)
+
+print("\n[CHAMFER]")
+print("INTRA mean:", df_ch[df_ch.subject_A == df_ch.subject_B].distance.mean())
+print("INTER mean:", df_ch[df_ch.subject_A != df_ch.subject_B].distance.mean())
+
+make_kde(
+    df_ch,
+    title="Chamfer — Intra vs Inter",
+    outname="kde_chamfer_intra_vs_inter.png"
+)
+
+make_boxplot(
+    df_ch,
+    title="Chamfer — Cross-topology (inter-subject)",
+    outname="boxplot_chamfer_cross_topology.png",
+    ylabel="Chamfer Distance"
+)
+
+df_ch = compute_ratio(df_ch)
+
+make_ratio_plot(
+    df_ch,
+    title="Chamfer — Ratio Distribution",
+    outname="ratio_chamfer_distribution.png"
+)
+
+# -------------------------------------------------
+# DONE
+# -------------------------------------------------
+
+print("\n✅ ALL PLOTS GENERATED")
+print(f"📁 Output dir: {OUT_DIR.resolve()}")

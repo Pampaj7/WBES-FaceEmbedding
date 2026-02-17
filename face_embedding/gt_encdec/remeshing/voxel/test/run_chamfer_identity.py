@@ -2,10 +2,11 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import random
 from tqdm import tqdm
 
 import open3d as o3d
+from joblib import Parallel, delayed
+import multiprocessing
 
 # ============================================================
 # CONFIG
@@ -15,16 +16,21 @@ DATA_CANON = Path(
     "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/data_CANONICAL"
 )
 
-OUT_CSV = Path("chamfer_identity_results.csv")
+GRID_CSV = Path("grid_identity_results.csv")
+OUT_CSV  = Path("chamfer_identity_results.csv")
 
-N_SUBJECTS = 50          # subset size
-N_INTER_PER_SUBJ = 5     # B random per A
-
-USE_ICP = True           # rigid ICP (reviewer-friendly)
+USE_ICP   = True        # ICP only for inter-subject
 ICP_ITERS = 20
+N_POINTS  = 8000        # 3000 for fast debug, 8000–10000 final
 
-random.seed(42)
-np.random.seed(42)
+N_JOBS = max(1, multiprocessing.cpu_count() - 1)
+
+# ============================================================
+# GLOBAL CACHES (per process)
+# ============================================================
+
+_mesh_cache = {}
+_pcd_cache  = {}
 
 # ============================================================
 # UTILS
@@ -43,12 +49,33 @@ def load_mesh(subject_id, variant):
     return mesh
 
 
-def chamfer_distance(mesh_A, mesh_B, n_points=10000):
+def get_mesh(subject_id, variant):
+    key = (subject_id, variant)
+    if key not in _mesh_cache:
+        _mesh_cache[key] = load_mesh(subject_id, variant)
+    return _mesh_cache[key]
+
+
+def get_pcd(mesh, key):
+    if key not in _pcd_cache:
+        _pcd_cache[key] = mesh.sample_points_uniformly(N_POINTS)
+    return _pcd_cache[key]
+
+
+def chamfer_distance(mesh_A, mesh_B, cache_key_A=None, cache_key_B=None):
     """
-    Symmetric Chamfer distance using point sampling.
+    Symmetric Chamfer distance via point sampling.
+    Uses cached point clouds when possible.
     """
-    pcd_A = mesh_A.sample_points_uniformly(n_points)
-    pcd_B = mesh_B.sample_points_uniformly(n_points)
+    if cache_key_A is not None:
+        pcd_A = get_pcd(mesh_A, cache_key_A)
+    else:
+        pcd_A = mesh_A.sample_points_uniformly(N_POINTS)
+
+    if cache_key_B is not None:
+        pcd_B = get_pcd(mesh_B, cache_key_B)
+    else:
+        pcd_B = mesh_B.sample_points_uniformly(N_POINTS)
 
     d_AB = np.asarray(pcd_A.compute_point_cloud_distance(pcd_B))
     d_BA = np.asarray(pcd_B.compute_point_cloud_distance(pcd_A))
@@ -60,8 +87,8 @@ def rigid_icp(source, target):
     """
     Rigid ICP alignment (no scaling).
     """
-    pcd_src = source.sample_points_uniformly(10000)
-    pcd_tgt = target.sample_points_uniformly(10000)
+    pcd_src = source.sample_points_uniformly(N_POINTS)
+    pcd_tgt = target.sample_points_uniformly(N_POINTS)
 
     reg = o3d.pipelines.registration.registration_icp(
         pcd_src,
@@ -79,78 +106,56 @@ def rigid_icp(source, target):
 
 
 # ============================================================
+# WORKER
+# ============================================================
+
+def process_row(row):
+    sid_A = row.subject_A
+    sid_B = row.subject_B
+    va    = row.variant_A
+    vb    = row.variant_B
+
+    mesh_A = get_mesh(sid_A, va)
+    mesh_B = get_mesh(sid_B, vb)
+
+    # ICP ONLY for inter-subject
+    if USE_ICP and sid_A != sid_B:
+        mesh_A = rigid_icp(mesh_A, mesh_B)
+        d = chamfer_distance(mesh_A, mesh_B)
+    else:
+        key_A = (sid_A, va)
+        key_B = (sid_B, vb)
+        d = chamfer_distance(mesh_A, mesh_B, key_A, key_B)
+
+    return {
+        "subject_A": sid_A,
+        "subject_B": sid_B,
+        "variant_A": va,
+        "variant_B": vb,
+        "distance": d,
+    }
+
+
+# ============================================================
 # MAIN
 # ============================================================
 
 def main():
-    subjects = sorted(
-        p.stem.replace("_original", "")
-        for p in DATA_CANON.glob("*_original.npz")
+    print("🚀 Running parallel Chamfer evaluation (aligned to Grid)")
+    print(f"🧠 Using {N_JOBS} CPU workers")
+
+    df_grid = pd.read_csv(GRID_CSV)
+
+    rows = Parallel(n_jobs=N_JOBS, backend="loky")(
+        delayed(process_row)(row)
+        for _, row in tqdm(df_grid.iterrows(), total=len(df_grid))
     )
 
-    subjects = subjects[:N_SUBJECTS]
-    print(f"📦 Using {len(subjects)} subjects")
-
-    rows = []
-
-    for sid_A in tqdm(subjects, desc="Subjects A"):
-        mesh_A_orig = load_mesh(sid_A, "original")
-        mesh_A_rem  = load_mesh(sid_A, "remesh")
-        mesh_A_crop = load_mesh(sid_A, "crop")
-
-        # ----------------------------
-        # INTRA-subject
-        # ----------------------------
-        for var, mesh_A_var in [
-            ("remesh", mesh_A_rem),
-            ("crop",   mesh_A_crop),
-        ]:
-            mA = mesh_A_var
-            mB = mesh_A_orig
-
-            if USE_ICP:
-                mA = rigid_icp(mA, mB)
-
-            d = chamfer_distance(mA, mB)
-
-            rows.append({
-                "subject_A": sid_A,
-                "subject_B": sid_A,
-                "variant_A": var,
-                "variant_B": "original",
-                "distance": d,
-            })
-
-        # ----------------------------
-        # INTER-subject
-        # ----------------------------
-        others = [s for s in subjects if s != sid_A]
-        Bs = random.sample(others, N_INTER_PER_SUBJ)
-
-        for sid_B in Bs:
-            mesh_B = load_mesh(sid_B, "original")
-
-            mA = mesh_A_orig
-            mB = mesh_B
-
-            if USE_ICP:
-                mA = rigid_icp(mA, mB)
-
-            d = chamfer_distance(mA, mB)
-
-            rows.append({
-                "subject_A": sid_A,
-                "subject_B": sid_B,
-                "variant_A": "original",
-                "variant_B": "original",
-                "distance": d,
-            })
-
-    df = pd.DataFrame(rows)
-    df.to_csv(OUT_CSV, index=False)
+    df_ch = pd.DataFrame(rows)
+    df_ch.to_csv(OUT_CSV, index=False)
 
     print(f"\n✅ Saved Chamfer results to {OUT_CSV.resolve()}")
-    print("Rows:", len(df))
+    print("Rows:", len(df_ch))
 
 
 # ============================================================
