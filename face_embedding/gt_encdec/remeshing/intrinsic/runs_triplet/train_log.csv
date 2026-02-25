@@ -1,0 +1,1 @@
+epoch,loss,triplet,intra,active_frac,n_triplets,dist_ap,dist_an,lr,spearman,pearson,nn_match,intra_eval,n_eval

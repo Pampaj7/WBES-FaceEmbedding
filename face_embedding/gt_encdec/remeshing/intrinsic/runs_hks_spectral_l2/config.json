@@ -1,0 +1,17 @@
+{
+  "data_dir": "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops",
+  "dist_npz": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz",
+  "out_dir": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/runs_hks_spectral_l2",
+  "device": "cuda",
+  "seed": 1234,
+  "max_subjects": 300,
+  "n_hks": 16,
+  "hks_k_high": 50,
+  "proj_k": 32,
+  "eps": 1e-06,
+  "hks_times_mode": "autoscale",
+  "no_standardize_hks": false,
+  "l2_normalize_embedding": true,
+  "abs_coeffs": true,
+  "fix_evec_sign": true
+}

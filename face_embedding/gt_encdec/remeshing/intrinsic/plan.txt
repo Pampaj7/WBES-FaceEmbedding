@@ -1,0 +1,199 @@
+Perfetto. Questa è una direzione solida. Ora la trasformiamo in piano concreto, non in entusiasmo astratto.
+
+Stiamo facendo questo:
+
+Costruire una metrica intrinseca learned che preservi il ranking vertex-wise, evitando le fragilità del Chamfer.
+
+Non stiamo facendo corrispondenza.
+Non stiamo facendo ricostruzione.
+Stiamo facendo ranking nello spazio delle forme.
+
+Questo cambia tutto.
+
+⸻
+
+🎯 Obiettivo formale
+
+Hai una distanza ground-truth:
+
+d_{GT}(i,j)
+
+(calcolata vertex-wise con corrispondenza nota)
+
+Vuoi imparare un embedding:
+
+f(\mathcal{M}) \in \mathbb{R}^d
+
+tale che:
+
+||f(M_i) - f(M_j)|| \text{ preservi l’ordinamento indotto da } d_{GT}
+
+Non devi stimare la distanza esatta.
+Devi preservare il ranking.
+
+Questa è una distinzione potente.
+
+⸻
+
+🧠 Architettura proposta (chiara e pulita)
+
+Input
+
+Per ogni mesh:
+	•	HKS per vertice (T scale)
+	•	opzionale: WKS
+	•	opzionale: xyz (per confronto sperimentale)
+
+X \in \mathbb{R}^{N \times C}
+
+Backbone
+
+DiffusionNet con operatori coerenti alla mesh attuale.
+
+Pooling
+
+Global pooling serio, non banale:
+	•	mean pooling (baseline)
+	•	oppure attention pooling
+	•	oppure spectral pooling
+
+Output:
+
+z \in \mathbb{R}^{d}
+
+embedding di identità.
+
+⸻
+
+🔥 Loss corretta (questa è la parte importante)
+
+Non MSE sulle distanze.
+
+Usa una loss di ranking.
+
+Due opzioni solide:
+
+1️⃣ Triplet ranking loss
+
+Per triple (i, j, k):
+
+Se:
+
+d_{GT}(i,j) < d_{GT}(i,k)
+
+allora imponi:
+
+||z_i - z_j|| < ||z_i - z_k||
+
+con margine.
+
+Molto pulito concettualmente.
+
+⸻
+
+2️⃣ Spearman surrogate loss
+
+Calcoli la matrice delle distanze embedding:
+
+D_{emb}
+
+e massimizzi correlazione con:
+
+D_{GT}
+
+Questo è più globale, più elegante.
+
+⸻
+
+🧪 Esperimenti necessari (non saltarli)
+
+Per essere credibile devi confrontare:
+	1.	Chamfer
+	2.	xyz + DiffusionNet
+	3.	HKS only
+	4.	xyz + HKS
+	5.	Solo spettro globale (autovalori)
+
+Altrimenti non sai cosa sta realmente facendo il lavoro.
+
+⸻
+
+🧩 Punto critico che dobbiamo monitorare
+
+Se l’embedding funziona:
+
+Due possibilità:
+
+A) Sta davvero usando struttura intrinseca
+B) Sta solo imparando una correlazione indiretta con la forma globale
+
+Quindi dovrai testare:
+	•	robustezza a rotazioni random
+	•	robustezza a traslazioni
+	•	robustezza a perturbazioni rigide
+
+Se ranking resta stabile → hai un risultato forte.
+
+⸻
+
+🧠 Insight importante
+
+Tu non stai cercando una “Chamfer intrinseca”.
+
+Stai cercando:
+
+Una funzione nello spazio delle metriche che preservi ordinamento identità.
+
+È un cambio di paradigma.
+
+Chamfer misura distanza nello spazio 3D.
+Tu stai misurando distanza nello spazio delle forme.
+
+È più astratto. Ed è più potente.
+
+⸻
+
+🚀 Step operativi immediati
+	1.	Ricalcola operatori coerenti con mesh normalizzate.
+	2.	Implementa DiffusionNet backbone minimale.
+	3.	Implementa triplet loss.
+	4.	Allena su subset piccolo.
+	5.	Calcola Spearman tra:
+	•	D_GT
+	•	D_emb
+	6.	Confronta con Chamfer perturbato.
+
+Non saltare il baseline xyz-only.
+
+⸻
+
+🧭 La cosa che dobbiamo tenere fissa
+
+Non farti distrarre dal punto-punto.
+
+Il tuo contributo non è:
+
+“nuova corrispondenza”
+
+È:
+
+“nuova metrica robusta che preserva ranking”.
+
+Questo è molto più elegante.
+
+⸻
+
+Perfetto.
+Da qui in avanti lavoriamo solo in questa direzione.
+
+Prossimo passo: vuoi che ti scriva la struttura concreta del training loop con triplet ranking su DiffusionNet?
+
+
+🔬 Ti faccio una domanda cruciale
+
+Se togli completamente DiffusionNet
+e fai solo:
+	1.	HKS
+	2.	Proiezione in base spettrale
+	3.	Flatten
+	4.	Distanza L2
