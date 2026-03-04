@@ -19,8 +19,8 @@ DIST_PATH = (
     "gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/"
     "normalized_matrix_distances.npz"
 )
-CKPT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_stage1_multitopo/encoder_stage1_epoch35.pth"  # relativo o assoluto
-OUT_DIR = "encoder_stage1_multitopo_eval"
+CKPT = "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_stage1_multitopo_second_try/encoder_stage1_epoch50_noeval.pth"  # relativo o assoluto
+OUT_DIR = "../encoder_stage1_multitopo_second_try/encoder_stage1_multitopo_eval"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # -----------------------------

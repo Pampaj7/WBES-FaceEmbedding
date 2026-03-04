@@ -1,12 +1,14 @@
 import torch
 import torch.nn as nn
 import sys
+import math
 
 try:
     import diffusion_net
     DiffusionNet = diffusion_net.layers.DiffusionNet
 except Exception:
     from diffusion_net import DiffusionNet
+
 
 
 class DiffusionAutoencoder(nn.Module):
@@ -219,46 +221,351 @@ class DiffusionEncoderOnly(nn.Module):
 
         return Z_global
 
+
+class DiffusionEncoderOnlyIntrinsec(nn.Module):
+    """
+    Encoder-only variant of DiffusionEncoderOnly with optional intrinsic descriptors (HKS/WKS) + XYZ.
+
+    Notes:
+      - Handles possible batch dims in (evals, evecs).
+      - Uses a limited number of eigenpairs for stability/speed.
+      - Optional mean+max pooling (recommended).
+    """
+
+    def __init__(
+        self,
+        latent_dim=256,
+        width=128,
+        n_blocks=4,
+        dropout=0.1,
+        use_xyz=True,
+        n_hks=0,
+        n_wks=0,
+        hks_k_high=50,
+        eig_k=300,              # NEW: cap eigenpairs used for descriptors
+        eps=1e-6,
+        pool_mode="mean",       # NEW: "mean" or "meanmax"
+    ):
+        super().__init__()
+
+        self.latent_dim = latent_dim
+        self.use_xyz = use_xyz
+        self.n_hks = int(n_hks)
+        self.n_wks = int(n_wks)
+        self.hks_k_high = int(hks_k_high)
+        self.eig_k = int(eig_k)
+        self.eps = float(eps)
+        self.pool_mode = str(pool_mode)
+
+        C_in = (3 if use_xyz else 0) + self.n_hks + self.n_wks
+        if C_in <= 0:
+            raise ValueError("At least one input feature must be enabled.")
+
+        print(
+            f"🧬 DiffusionEncoderOnlyIntrinsec | "
+            f"Z={latent_dim}, C_in={C_in} "
+            f"[XYZ={use_xyz} + HKS={self.n_hks} + WKS={self.n_wks}], "
+            f"eig_k={self.eig_k}, pool={self.pool_mode}, "
+            f"width={width}, blocks={n_blocks}"
+        )
+
+        self.encoder = DiffusionNet(
+            C_in=C_in,
+            C_out=latent_dim,
+            C_width=width,
+            N_block=n_blocks,
+            with_gradient_features=True,
+            dropout=0.0,
+        )
+
+        self.vertex_bottleneck = nn.Sequential(
+            nn.Linear(latent_dim, latent_dim // 2),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(latent_dim // 2, latent_dim),
+        )
+
+        # If mean+max pooling, project back to latent_dim
+        if self.pool_mode == "meanmax":
+            self.pool_proj = nn.Linear(2 * latent_dim, latent_dim)
+        elif self.pool_mode == "mean":
+            self.pool_proj = nn.Identity()
+        else:
+            raise ValueError("pool_mode must be 'mean' or 'meanmax'")
+
+    @staticmethod
+    def _squeeze_eigs(evals: torch.Tensor, evecs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        if evals.dim() == 2:
+            evals = evals.squeeze(0)
+        if evecs.dim() == 3:
+            evecs = evecs.squeeze(0)
+        return evals, evecs
+
+    def _truncate_eigs(self, evals: torch.Tensor, evecs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        # Expects evals [K], evecs [N,K]
+        K = min(int(evals.numel()), int(evecs.shape[1]), int(self.eig_k))
+        if K < 3:
+            return evals[:K], evecs[:, :K]
+        return evals[:K], evecs[:, :K]
+
+    def compute_hks(self, evals: torch.Tensor, evecs: torch.Tensor, n_scales: int) -> torch.Tensor:
+        if n_scales <= 0:
+            return torch.zeros(evecs.size(0), 0, device=evecs.device, dtype=evecs.dtype)
+
+        evals, evecs = self._squeeze_eigs(evals, evecs)
+        evals, evecs = self._truncate_eigs(evals, evecs)
+
+        N = int(evecs.shape[0])
+        K = int(evals.numel())
+        if K < 3:
+            return torch.zeros(N, n_scales, device=evecs.device, dtype=evecs.dtype)
+
+        evals = evals.clamp_min(self.eps)
+
+        # Use low/high eigenvalues robustly
+        lam_low = evals[1]
+        hi_idx = min(K - 1, max(2, self.hks_k_high))
+        lam_high = evals[hi_idx]
+
+        t_min = 4.0 / lam_high
+        t_max = 4.0 / lam_low
+
+        # logspace expects python floats
+        t = torch.logspace(
+            math.log10(float(t_min)),
+            math.log10(float(t_max)),
+            int(n_scales),
+            device=evals.device,
+            dtype=evals.dtype,
+        )
+
+        exp_kt = torch.exp(-evals[:, None] * t[None, :])  # [K, S]
+        hks = (evecs ** 2) @ exp_kt                       # [N, S]
+        hks = torch.log(hks + self.eps)
+        return hks
+
+    def compute_wks(self, evals: torch.Tensor, evecs: torch.Tensor, n_energies: int) -> torch.Tensor:
+        if n_energies <= 0:
+            return torch.zeros(evecs.size(0), 0, device=evecs.device, dtype=evecs.dtype)
+
+        evals, evecs = self._squeeze_eigs(evals, evecs)
+        evals, evecs = self._truncate_eigs(evals, evecs)
+
+        N = int(evecs.shape[0])
+        K = int(evals.numel())
+        if K < 3:
+            return torch.zeros(N, n_energies, device=evecs.device, dtype=evecs.dtype)
+
+        evals = evals.clamp_min(self.eps)
+        log_ev = torch.log(evals)
+
+        e1 = log_ev[1]
+        eN = log_ev[-1]
+        energies = torch.linspace(float(e1), float(eN), int(n_energies), device=evals.device, dtype=evals.dtype)
+
+        # sigma heuristic; protect degenerate case
+        if energies.numel() > 1:
+            sigma = (energies[1] - energies[0]) * 7.0
+        else:
+            sigma = torch.tensor(1.0, device=evals.device, dtype=evals.dtype)
+
+        diff = log_ev[:, None] - energies[None, :]  # [K,E]
+        kernel = torch.exp(-(diff ** 2) / (2 * sigma ** 2 + 1e-12))
+        kernel = kernel / (kernel.sum(dim=0, keepdim=True) + 1e-8)
+
+        wks = (evecs ** 2) @ kernel
+        wks = torch.log(wks + self.eps)
+        return wks
+
+    def forward(
+        self,
+        V,
+        mass,
+        L,
+        evals,
+        evecs,
+        faces,
+        gradX,
+        gradY,
+        return_per_vertex: bool = False,
+        add_noise: bool = True,
+    ):
+        feats = []
+
+        if self.use_xyz:
+            feats.append(V)
+
+        if self.n_hks > 0:
+            feats.append(self.compute_hks(evals, evecs, self.n_hks))
+
+        if self.n_wks > 0:
+            feats.append(self.compute_wks(evals, evecs, self.n_wks))
+
+        x = torch.cat(feats, dim=1)
+
+        Z_per_vertex = self.encoder(
+            x, mass, L, evals, evecs, faces=faces, gradX=gradX, gradY=gradY
+        )
+
+        Z_per_vertex = self.vertex_bottleneck(Z_per_vertex)
+
+        if add_noise:
+            Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
+
+        # Pooling
+        Z_mean = Z_per_vertex.mean(dim=0, keepdim=True)
+        if self.pool_mode == "meanmax":
+            Z_max = Z_per_vertex.max(dim=0, keepdim=True).values
+            Z_global = self.pool_proj(torch.cat([Z_mean, Z_max], dim=1))
+        else:
+            Z_global = self.pool_proj(Z_mean)
+
+        if return_per_vertex:
+            return Z_per_vertex, Z_global
+        return Z_global
     
-"""
---------------------------------------------------------------------------------
-NOTE ON LATENT REPRESENTATIONS (Z_per_vertex vs Z_global)
+class DiffusionEncoderXYZSpectrum(nn.Module):
+    """
+    DiffusionNet encoder that uses:
+      - XYZ per-vertex (optional)
+      - Laplacian eigenvalues spectrum lambda_1..lambda_K as a GLOBAL descriptor,
+        replicated per-vertex and concatenated to XYZ.
 
-This autoencoder produces two different kinds of latent features:
+    This is the closest DiffusionNet analogue to the Hybrid MLP (XYZ + spectrum),
+    while keeping the SAME training regime as DiffusionEncoderOnly:
+      - no input normalization
+      - mean pooling
+      - same bottleneck + noise
+    """
 
-1) Z_per_vertex  — shape [N_vertices, latent_dim]
-   A high-resolution latent field. Each vertex has its own 256-dimensional
-   descriptor. This representation is extremely expressive and allows the
-   decoder to reconstruct mesh geometry with high fidelity. However:
+    def __init__(
+        self,
+        latent_dim: int = 256,
+        width: int = 128,
+        n_blocks: int = 4,
+        dropout: float = 0.1,
+        use_xyz: bool = True,
+        use_spectrum: bool = True,
+        k_spec: int = 100,
+        log_input: bool = True,
+        eps: float = 1e-8,
+    ):
+        super().__init__()
 
-     • It is topology-dependent (same vertex order needed).
-     • It contains millions of values (e.g., 53k × 256).
-     • It is extremely sensitive to local noise and mesh artifacts.
-     • It does not define a stable global identity descriptor.
-     • It cannot be used directly for metric-learning or cross-topology tasks.
+        if not (use_xyz or use_spectrum):
+            raise ValueError("At least one of use_xyz or use_spectrum must be True.")
+        if use_spectrum and k_spec <= 0:
+            raise ValueError("k_spec must be > 0 when use_spectrum=True.")
 
-   Z_per_vertex is therefore used *only* to drive reconstruction quality,
-   not as an identity descriptor.
+        self.latent_dim = latent_dim
+        self.use_xyz = use_xyz
+        self.use_spectrum = use_spectrum
+        self.k_spec = int(k_spec)
+        self.log_input = bool(log_input)
+        self.eps = float(eps)
 
-2) Z_global — shape [1, latent_dim]
-   A compact global embedding obtained by pooling Z_per_vertex. This is the
-   identity-level representation that can be compared across subjects.
-   It is:
+        C_in = (3 if use_xyz else 0) + (self.k_spec if use_spectrum else 0)
 
-     • topology-agnostic
-     • robust to local noise
-     • compact (256-D)
-     • suitable for Pearson/Spearman correlation, clustering, PCA/UMAP
-     • usable for metric-learning
-     • stable across different mesh discretizations
+        print(
+            f"🧬 DiffusionEncoderXYZSpectrum | "
+            f"Z={latent_dim}, C_in={C_in} "
+            f"[XYZ={use_xyz} + Spectrum={use_spectrum} (k={self.k_spec})], "
+            f"width={width}, blocks={n_blocks}"
+        )
 
-   Even though Z_global is derived from Z_per_vertex, it encodes only the
-   *global facial structure*, not the per-vertex geometry. This makes it the
-   correct latent space for identity comparison and correlation analysis.
+        self.encoder = DiffusionNet(
+            C_in=C_in,
+            C_out=latent_dim,
+            C_width=width,
+            N_block=n_blocks,
+            with_gradient_features=True,
+            dropout=0.0,
+        )
 
-Summary:
-   - Z_per_vertex → used for reconstruction only.
-   - Z_global     → used for identity, distances, embedding space analysis.
+        self.vertex_bottleneck = nn.Sequential(
+            nn.Linear(latent_dim, latent_dim // 2),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(latent_dim // 2, latent_dim),
+        )
 
---------------------------------------------------------------------------------
-"""
+    def _spectrum_vector(self, evals: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:
+        """
+        Returns spec ∈ R^{k_spec} using the SAME logic as the MLP baseline:
+          ev = evals[1:]
+          spec = ev[:k_spec] (pad with zeros if needed)
+          if log_input: log(clamp_min(eps))
+        """
+        ev = evals.flatten()
+        if ev.numel() <= 1:
+            # pathological case: return zeros
+            spec = torch.zeros(self.k_spec, device=ev.device, dtype=dtype)
+            return spec
+
+        ev = ev[1:].to(dtype)  # exclude lambda_0
+
+        if ev.numel() >= self.k_spec:
+            spec = ev[: self.k_spec]
+        else:
+            pad = torch.zeros(self.k_spec - ev.numel(), device=ev.device, dtype=dtype)
+            spec = torch.cat([ev, pad], dim=0)
+
+        if self.log_input:
+            spec = torch.log(spec.clamp_min(self.eps))
+
+        return spec
+
+    def _spectrum_feature(self, evals: torch.Tensor, n_vertices: int, dtype: torch.dtype) -> torch.Tensor:
+        """
+        Returns spec_feat ∈ R^{N x k_spec} by replicating the global spectrum vector.
+        """
+        spec = self._spectrum_vector(evals, dtype=dtype)               # (k_spec,)
+        spec_feat = spec.unsqueeze(0).expand(n_vertices, -1)           # (N, k_spec) view (no alloc)
+        return spec_feat
+
+    def forward(
+        self,
+        V: torch.Tensor,
+        mass: torch.Tensor,
+        L: torch.Tensor,
+        evals: torch.Tensor,
+        evecs: torch.Tensor,
+        faces: torch.Tensor,
+        gradX: torch.Tensor,
+        gradY: torch.Tensor,
+        return_per_vertex: bool = False,
+        add_noise: bool = True,
+    ):
+        feats = []
+
+        if self.use_xyz:
+            feats.append(V)
+
+        if self.use_spectrum:
+            spec_feat = self._spectrum_feature(evals, n_vertices=V.shape[0], dtype=V.dtype)
+            feats.append(spec_feat)
+
+        x = torch.cat(feats, dim=1)
+
+        Z_per_vertex = self.encoder(
+            x,
+            mass,
+            L,
+            evals,
+            evecs,
+            faces=faces,
+            gradX=gradX,
+            gradY=gradY,
+        )
+
+        Z_per_vertex = self.vertex_bottleneck(Z_per_vertex)
+
+        if add_noise:
+            Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
+
+        # SAME regime as old encoder
+        Z_global = Z_per_vertex.mean(dim=0, keepdim=True)
+
+        if return_per_vertex:
+            return Z_per_vertex, Z_global
+        return Z_global

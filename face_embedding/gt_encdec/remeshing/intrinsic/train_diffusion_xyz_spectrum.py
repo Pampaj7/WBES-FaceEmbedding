@@ -20,7 +20,7 @@ sys.path.append(
 )
 
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
-from diffusion_autoencoder import DiffusionEncoderXYZSpectrum
+from diffusion_autoencoder import DiffusionEncoderXYZSpectrum, DiffusionEncoderOnlyIntrinsec
 from latent_loss import stress_loss
 
 
@@ -37,13 +37,226 @@ if torch.cuda.is_available():
 
 RUNS_ROOT = Path("runs_diffusion_xyz_spectrum")
 
+# ============================================================
+# ARGPARSE
+# ============================================================
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--use_xyz", action="store_true")
+    parser.add_argument("--use_spectrum", action="store_true")
+    parser.add_argument(
+    "--model",
+    type=str,
+    default="xyz_spectrum",
+    choices=["xyz_spectrum", "hkswks"],
+    help="Which encoder to train",
+    )
+
+    # Args usati solo da xyz_spectrum (li hai già, li lasci)
+    # --use_spectrum --k_spec --log_input
+
+    # Args usati solo da hkswks
+    parser.add_argument("--n_hks", type=int, default=16)
+    parser.add_argument("--n_wks", type=int, default=16)
+    parser.add_argument("--eig_k", type=int, default=300)
+    parser.add_argument("--pool_mode", type=str, default="meanmax", choices=["mean", "meanmax"])
+    
+    parser.add_argument("--k_spec", type=int, default=100)
+    parser.add_argument("--log_input", action="store_true")
+    parser.add_argument("--eps", type=float, default=1e-8)
+
+    parser.add_argument("--latent_dim", type=int, default=256)
+    parser.add_argument("--width", type=int, default=128)
+    parser.add_argument("--n_blocks", type=int, default=4)
+    parser.add_argument("--dropout", type=float, default=0.1)
+
+    parser.add_argument("--epochs", type=int, default=50)
+    parser.add_argument("--batch_subjects", type=int, default=4)
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--weight_decay", type=float, default=1e-6)
+    parser.add_argument("--grad_clip", type=float, default=1.0)
+
+    parser.add_argument("--lambda_stress", type=float, default=0.3)
+    parser.add_argument("--lambda_id", type=float, default=0.1)
+
+    parser.add_argument("--max_meshes_per_subject_train", type=int, default=0)
+    parser.add_argument("--max_meshes_per_subject_eval", type=int, default=0)
+
+    parser.add_argument("--lambda_rank", type=float, default=0.3)
+    parser.add_argument("--rank_margin", type=float, default=0.05)
+    parser.add_argument("--rank_pairs", type=int, default=2048)
+    parser.add_argument("--rank_tau", type=float, default=0.02)
+    parser.add_argument("--rank_hard_frac", type=float, default=0.7)
+    
+    parser.add_argument("--seed", type=int, default=1234)
+    parser.add_argument("--save_every", type=int, default=5)
+    parser.add_argument("--eval_every", type=int, default=1)
+
+    # Preflight checks (fail-fast)
+    parser.add_argument("--preflight", action="store_true", help="Run preflight checks before training")
+    parser.add_argument("--preflight_samples", type=int, default=500, help="How many meshes to sample for preflight")
+    parser.add_argument("--preflight_subjects", type=int, default=300, help="How many subjects for GT-alignment baseline")
+    parser.add_argument("--preflight_eps_range", type=float, default=1e-3, help="Range threshold to consider a channel 'almost constant' across meshes")
+    parser.add_argument("--preflight_dead_frac_warn", type=float, default=0.30, help="Warn if fraction of constant channels exceeds this")
+    parser.add_argument("--preflight_dead_frac_stop", type=float, default=0.50, help="Stop if fraction of constant channels exceeds this")
+    
+    return parser.parse_args()
+
+
+def seed_everything(seed: int) -> None:
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
+# ============================================================
+# CONFIG PATHS
+# ============================================================
+
+DATA_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops"
+
+DIST_PATH = (
+    "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/"
+    "gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/"
+    "normalized_matrix_distances.npz"
+)
+
+VARIANT_RE = re.compile(r"^(id\d+)_.*\.npz$")
+
+
+# ============================================================
+# SUBJECT GROUPING
+# ============================================================
+
+def build_subject_map(dataset):
+    subj_to_idxs = {}
+    for idx, fname in enumerate(dataset.files):
+        m = VARIANT_RE.match(fname)
+        subj = fname.split("_")[0] if m is None else m.group(1)
+        subj_to_idxs.setdefault(subj, []).append(idx)
+    return subj_to_idxs
+
+def pairwise_rank_loss(
+    D_lat: torch.Tensor,
+    D_gt: torch.Tensor,
+    n_pairs: int = 2048,
+    margin: float = 0.05,
+    tau: float = 0.02,
+    hard_frac: float = 0.7,
+) -> torch.Tensor:
+    """
+    Spearman-surrogate ranking loss on distances (robust + "hard" sampling).
+
+    Goal:
+      Preserve relative ordering of distances:
+        if D_gt[i,j] > D_gt[i,k] + tau  =>  D_lat[i,j] > D_lat[i,k] + margin
+
+    Key improvements vs naive version:
+      1) Ambiguity filtering (tau): ignores nearly-equal GT comparisons that are mostly noise.
+      2) Hard sampling (hard_frac): often compares a "far" vs a "near" target for the same anchor,
+         increasing signal when batch size is small.
+
+    Args:
+      D_lat, D_gt: [B,B] symmetric, diagonal ~0
+      n_pairs: number of constraints sampled
+      margin: hinge margin in latent distance units
+      tau: GT separation threshold (in GT distance units, your D_gt is ~[0,1])
+      hard_frac: fraction of constraints built with hard (near vs far) sampling.
+                remaining constraints are random (for coverage).
+
+    Returns:
+      Scalar tensor loss.
+    """
+    B = int(D_gt.size(0))
+    if B < 3:
+        return torch.zeros((), device=D_gt.device, dtype=D_gt.dtype)
+
+    device = D_gt.device
+    dtype = D_gt.dtype
+
+    # How many hard vs random constraints
+    n_hard = int(round(float(n_pairs) * float(hard_frac)))
+    n_rand = int(n_pairs) - n_hard
+
+    losses = []
+
+    # ----------------------------
+    # (A) Hard constraints
+    # ----------------------------
+    if n_hard > 0:
+        # pick anchors
+        i = torch.randint(0, B, (n_hard,), device=device)
+
+        # For each anchor, select a "near" k and a "far" j using GT distances.
+        # We'll avoid self by masking the diagonal to -inf / +inf.
+        # d: [n_hard, B]
+        d = D_gt[i]  # gather rows
+
+        # mask self
+        idx = torch.arange(B, device=device).unsqueeze(0)  # [1,B]
+        self_mask = idx == i.unsqueeze(1)
+        d_near = d.masked_fill(self_mask, float("inf"))
+        d_far = d.masked_fill(self_mask, float("-inf"))
+
+        # choose among top-k extremes (adds some stochasticity)
+        # k_candidates and j_candidates are indices in [0,B)
+        k_top = min(3, B - 1)  # near candidates
+        j_top = min(3, B - 1)  # far candidates
+
+        k_candidates = torch.topk(d_near, k=k_top, largest=False).indices  # [n_hard,k_top]
+        j_candidates = torch.topk(d_far, k=j_top, largest=True).indices    # [n_hard,j_top]
+
+        kk = torch.randint(0, k_top, (n_hard,), device=device)
+        jj = torch.randint(0, j_top, (n_hard,), device=device)
+        k = k_candidates[torch.arange(n_hard, device=device), kk]
+        j = j_candidates[torch.arange(n_hard, device=device), jj]
+
+        # Ensure j != k (rare but possible when B small and candidates overlap)
+        j = torch.where(j == k, (j + 1) % B, j)
+
+        dgj = D_gt[i, j]
+        dgk = D_gt[i, k]
+        dlj = D_lat[i, j]
+        dlk = D_lat[i, k]
+
+        mask = dgj > (dgk + tau)
+        if mask.any():
+            losses.append(torch.relu(margin - (dlj[mask] - dlk[mask])).mean())
+
+    # ----------------------------
+    # (B) Random constraints (coverage)
+    # ----------------------------
+    if n_rand > 0:
+        i = torch.randint(0, B, (n_rand,), device=device)
+        j = torch.randint(0, B, (n_rand,), device=device)
+        k = torch.randint(0, B, (n_rand,), device=device)
+
+        # avoid trivial equal indices
+        j = torch.where(j == i, (j + 1) % B, j)
+        k = torch.where(k == i, (k + 2) % B, k)
+        k = torch.where(k == j, (k + 1) % B, k)
+
+        dgj = D_gt[i, j]
+        dgk = D_gt[i, k]
+        dlj = D_lat[i, j]
+        dlk = D_lat[i, k]
+
+        mask = dgj > (dgk + tau)
+        if mask.any():
+            losses.append(torch.relu(margin - (dlj[mask] - dlk[mask])).mean())
+
+    if not losses:
+        return torch.zeros((), device=device, dtype=dtype)
+
+    return torch.stack(losses).mean()
 def _slug(x: str) -> str:
     x = x.strip().lower()
     x = re.sub(r"[^a-z0-9._-]+", "-", x)
     x = re.sub(r"-+", "-", x).strip("-")
     return x
-
 
 def make_run_dir(args: argparse.Namespace) -> Path:
     """
@@ -105,88 +318,6 @@ def make_run_dir(args: argparse.Namespace) -> Path:
 
     return run_dir
 
-
-# ============================================================
-# ARGPARSE
-# ============================================================
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument("--use_xyz", action="store_true")
-    parser.add_argument("--use_spectrum", action="store_true")
-
-    parser.add_argument("--k_spec", type=int, default=100)
-    parser.add_argument("--log_input", action="store_true")
-    parser.add_argument("--eps", type=float, default=1e-8)
-
-    parser.add_argument("--latent_dim", type=int, default=256)
-    parser.add_argument("--width", type=int, default=128)
-    parser.add_argument("--n_blocks", type=int, default=4)
-    parser.add_argument("--dropout", type=float, default=0.1)
-
-    parser.add_argument("--epochs", type=int, default=50)
-    parser.add_argument("--batch_subjects", type=int, default=4)
-    parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--weight_decay", type=float, default=1e-6)
-    parser.add_argument("--grad_clip", type=float, default=1.0)
-
-    parser.add_argument("--lambda_stress", type=float, default=0.3)
-    parser.add_argument("--lambda_id", type=float, default=0.1)
-
-    parser.add_argument("--max_meshes_per_subject_train", type=int, default=0)
-    parser.add_argument("--max_meshes_per_subject_eval", type=int, default=0)
-
-    parser.add_argument("--seed", type=int, default=1234)
-    parser.add_argument("--save_every", type=int, default=5)
-    parser.add_argument("--eval_every", type=int, default=1)
-
-    # Preflight checks (fail-fast)
-    parser.add_argument("--preflight", action="store_true", help="Run preflight checks before training")
-    parser.add_argument("--preflight_samples", type=int, default=500, help="How many meshes to sample for preflight")
-    parser.add_argument("--preflight_subjects", type=int, default=300, help="How many subjects for GT-alignment baseline")
-    parser.add_argument("--preflight_eps_range", type=float, default=1e-3, help="Range threshold to consider a channel 'almost constant' across meshes")
-    parser.add_argument("--preflight_dead_frac_warn", type=float, default=0.30, help="Warn if fraction of constant channels exceeds this")
-    parser.add_argument("--preflight_dead_frac_stop", type=float, default=0.50, help="Stop if fraction of constant channels exceeds this")
-    
-    return parser.parse_args()
-
-
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
-# ============================================================
-# CONFIG PATHS
-# ============================================================
-
-DATA_DIR = "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops"
-
-DIST_PATH = (
-    "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/"
-    "gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/"
-    "normalized_matrix_distances.npz"
-)
-
-VARIANT_RE = re.compile(r"^(id\d+)_.*\.npz$")
-
-
-# ============================================================
-# SUBJECT GROUPING
-# ============================================================
-
-def build_subject_map(dataset):
-    subj_to_idxs = {}
-    for idx, fname in enumerate(dataset.files):
-        m = VARIANT_RE.match(fname)
-        subj = fname.split("_")[0] if m is None else m.group(1)
-        subj_to_idxs.setdefault(subj, []).append(idx)
-    return subj_to_idxs
-
-
 def pick_mesh_indices(
     idxs: Sequence[int],
     max_meshes: int,
@@ -206,7 +337,6 @@ def _rankdata(a: np.ndarray) -> np.ndarray:
     ranks[order] = np.arange(len(a), dtype=np.float64)
     return ranks
 
-
 def _spearman(x: np.ndarray, y: np.ndarray) -> float:
     xr = _rankdata(x)
     yr = _rankdata(y)
@@ -214,12 +344,10 @@ def _spearman(x: np.ndarray, y: np.ndarray) -> float:
         return float("nan")
     return float(np.corrcoef(xr, yr)[0, 1])
 
-
 def _pearson(x: np.ndarray, y: np.ndarray) -> float:
     if x.std() < 1e-12 or y.std() < 1e-12:
         return float("nan")
     return float(np.corrcoef(x, y)[0, 1])
-
 
 def spectrum_vector_from_evals(
     evals: torch.Tensor,
@@ -251,7 +379,6 @@ def spectrum_vector_from_evals(
         spec = torch.log(spec.clamp_min(eps))
 
     return spec
-
 
 @torch.inference_mode()
 def preflight_spectrum_sanity(
@@ -350,7 +477,6 @@ def preflight_spectrum_sanity(
     out["json_path"] = str(json_path)
 
     return out
-
 
 @torch.inference_mode()
 def preflight_gt_alignment_baseline(
@@ -457,9 +583,6 @@ def preflight_gt_alignment_baseline(
         json.dump(out, f, indent=2, sort_keys=True)
     out["json_path"] = str(json_path)
     return out
-# ============================================================
-# EVAL
-# ============================================================
 
 @torch.inference_mode()
 def eval_latent_structure(
@@ -558,30 +681,44 @@ def eval_latent_structure(
         "n_eval": int(len(kept)),
     }
 
-
-
-# ============================================================
-# MAIN
-# ============================================================
-
 def main():
     args = parse_args()
     seed_everything(args.seed)
 
-    if not (args.use_xyz or args.use_spectrum):
-        raise ValueError("Enable at least one input source: --use_xyz and/or --use_spectrum")
-
+    # ------------------------------------------------------------
+    # Basic run setup
+    # ------------------------------------------------------------
     run_dir = make_run_dir(args)
     log_csv = run_dir / "train_log.csv"
 
     print(f"Device={DEVICE}")
     print(f"Run dir: {run_dir}")
-    print(f"XYZ={args.use_xyz} Spectrum={args.use_spectrum} k={args.k_spec} log={args.log_input}")
+    print(f"Model={args.model}")
 
+    # Model-specific sanity (inputs)
+    if args.model == "xyz_spectrum":
+        if not (args.use_xyz or args.use_spectrum):
+            raise ValueError("For --model xyz_spectrum enable --use_xyz and/or --use_spectrum")
+        print(
+            f"Inputs: XYZ={args.use_xyz} Spectrum={args.use_spectrum} "
+            f"k={args.k_spec} log={args.log_input}"
+        )
+    elif args.model == "hkswks":
+        if not (args.use_xyz or args.n_hks > 0 or args.n_wks > 0):
+            raise ValueError("For --model hkswks enable --use_xyz and/or set --n_hks/--n_wks > 0")
+        print(
+            f"Inputs: XYZ={args.use_xyz} HKS={args.n_hks} WKS={args.n_wks} "
+            f"eig_k={args.eig_k} pool={args.pool_mode}"
+        )
+    else:
+        raise RuntimeError(f"Unknown model: {args.model}")
+
+    # ------------------------------------------------------------
+    # Dataset + GT
+    # ------------------------------------------------------------
     dataset = GTReadyDataset(DATA_DIR)
     subj_map = build_subject_map(dataset)
 
-    # Load GT distances
     D_pack = np.load(DIST_PATH, allow_pickle=True)
     D_orig = D_pack["D_orig"].astype(np.float64)
     D_orig /= np.max(D_orig[D_orig > 0])
@@ -593,7 +730,6 @@ def main():
         if re.search(r"(id\d{4})", n)
     }
 
-    # Use only subjects that exist in the GT distance matrix.
     subjects = sorted([s for s in subj_map.keys() if s in name_to_idx])
     if len(subjects) < 6:
         raise RuntimeError(f"Need at least 6 subjects overlapping GT matrix, found {len(subjects)}")
@@ -604,76 +740,106 @@ def main():
     eval_subjects = sorted(rng_split.choice(subjects, n_eval, replace=False).tolist())
     train_subjects = sorted([s for s in subjects if s not in set(eval_subjects)])
 
-    # ============================================================
-    # PREFLIGHT CHECKS (fail-fast)
-    # ============================================================
+    # ------------------------------------------------------------
+    # Preflight (only meaningful for xyz_spectrum for now)
+    # ------------------------------------------------------------
     if args.preflight:
-        print("\n🧪 Running preflight checks...")
+        if args.model != "xyz_spectrum":
+            print("\n⚠️  Preflight currently supports only --model xyz_spectrum. Skipping preflight.\n")
+        else:
+            print("\n🧪 Running preflight checks...")
 
-        sanity = preflight_spectrum_sanity(
-            dataset=dataset,
-            run_dir=run_dir,
+            sanity = preflight_spectrum_sanity(
+                dataset=dataset,
+                run_dir=run_dir,
+                k_spec=args.k_spec,
+                log_input=args.log_input,
+                eps=args.eps,
+                n_meshes=args.preflight_samples,
+                seed=args.seed,
+                eps_range=args.preflight_eps_range,
+                dead_frac_warn=args.preflight_dead_frac_warn,
+                dead_frac_stop=args.preflight_dead_frac_stop,
+            )
+            print(
+                "Preflight spectrum sanity:",
+                {k: sanity[k] for k in ["status", "almost_constant_fraction", "almost_constant_channels", "range_p99_p1_median"] if k in sanity},
+            )
+
+            if sanity.get("status") == "stop":
+                print("\n⛔ PREFLIGHT STOP:", sanity.get("reason", "Unknown reason"))
+                print(f"See: {sanity.get('json_path','(missing)')}")
+                raise SystemExit(2)
+
+            align = preflight_gt_alignment_baseline(
+                dataset=dataset,
+                subj_map=subj_map,
+                subjects=subjects,
+                name_to_idx=name_to_idx,
+                D_orig=D_orig,
+                run_dir=run_dir,
+                k_spec=args.k_spec,
+                log_input=args.log_input,
+                eps=args.eps,
+                n_subjects=args.preflight_subjects,
+                seed=args.seed + 123,
+            )
+            print(
+                "Preflight GT alignment (spectrum-only):",
+                {k: align.get(k) for k in ["status", "spearman_l2", "spearman_cos", "pearson_l2", "pearson_cos", "n_subjects_used"]},
+            )
+
+            if align.get("status") == "ok":
+                rho = align.get("spearman_l2", float("nan"))
+                if isinstance(rho, (float, int)) and not np.isnan(rho) and abs(rho) < 0.05:
+                    print("\n⚠️  PREFLIGHT WARNING: spectrum-only baseline has ~0 correlation with D_orig.")
+                    print("   This often means your target is extrinsic or spectrum scaling carries little signal.\n")
+
+    # ------------------------------------------------------------
+    # Build model (switch by CLI)
+    # ------------------------------------------------------------
+    if args.model == "xyz_spectrum":
+        model = DiffusionEncoderXYZSpectrum(
+            latent_dim=args.latent_dim,
+            width=args.width,
+            n_blocks=args.n_blocks,
+            dropout=args.dropout,
+            use_xyz=args.use_xyz,
+            use_spectrum=args.use_spectrum,
             k_spec=args.k_spec,
             log_input=args.log_input,
             eps=args.eps,
-            n_meshes=args.preflight_samples,
-            seed=args.seed,
-            eps_range=args.preflight_eps_range,
-            dead_frac_warn=args.preflight_dead_frac_warn,
-            dead_frac_stop=args.preflight_dead_frac_stop,
-        )
-        print("Preflight spectrum sanity:", {k: sanity[k] for k in ["status","almost_constant_fraction","almost_constant_channels","range_p99_p1_median"] if k in sanity})
+        ).to(DEVICE)
 
-        if sanity.get("status") == "stop":
-            print("\n⛔ PREFLIGHT STOP:", sanity.get("reason", "Unknown reason"))
-            print(f"See: {sanity.get('json_path','(missing)')}")
-            raise SystemExit(2)
-
-        align = preflight_gt_alignment_baseline(
-            dataset=dataset,
-            subj_map=subj_map,
-            subjects=subjects,
-            name_to_idx=name_to_idx,
-            D_orig=D_orig,
-            run_dir=run_dir,
-            k_spec=args.k_spec,
-            log_input=args.log_input,
+    elif args.model == "hkswks":
+        model = DiffusionEncoderOnlyIntrinsec(
+            latent_dim=args.latent_dim,
+            width=args.width,
+            n_blocks=args.n_blocks,
+            dropout=args.dropout,
+            use_xyz=args.use_xyz,
+            n_hks=args.n_hks,
+            n_wks=args.n_wks,
+            eig_k=args.eig_k,
             eps=args.eps,
-            n_subjects=args.preflight_subjects,
-            seed=args.seed + 123,
-        )
-        print("Preflight GT alignment (spectrum-only):", {k: align.get(k) for k in ["status","spearman_l2","spearman_cos","pearson_l2","pearson_cos","n_subjects_used"]})
+            pool_mode=args.pool_mode,
+        ).to(DEVICE)
 
-        # No hard stop on alignment by default: it's informative, not definitive.
-        if align.get("status") == "ok":
-            rho = align.get("spearman_l2", float("nan"))
-            if isinstance(rho, (float, int)) and not np.isnan(rho) and abs(rho) < 0.05:
-                print("\n⚠️  PREFLIGHT WARNING: spectrum-only baseline has ~0 correlation with D_orig.")
-                print("   This often means your target is extrinsic or spectrum scaling carries little signal.\n")
-                
-    model = DiffusionEncoderXYZSpectrum(
-        latent_dim=args.latent_dim,
-        width=args.width,
-        n_blocks=args.n_blocks,
-        dropout=args.dropout,
-        use_xyz=args.use_xyz,
-        use_spectrum=args.use_spectrum,
-        k_spec=args.k_spec,
-        log_input=args.log_input,
-        eps=args.eps,
-    ).to(DEVICE)
+    else:
+        raise RuntimeError(f"Unknown model: {args.model}")
 
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=args.lr,
-        weight_decay=args.weight_decay
-    )
-
+    # ------------------------------------------------------------
+    # Optim
+    # ------------------------------------------------------------
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = ReduceLROnPlateau(optimizer, mode="min", patience=3)
 
+    # ------------------------------------------------------------
+    # Logging
+    # ------------------------------------------------------------
     with open(log_csv, "w", encoding="utf-8") as f:
         f.write(
-            "epoch,loss,stress,lr,"
+            "epoch,loss,stress,rank,lr,"
             "spearman_l2,spearman_cos,spearman_l2_unit,spearman_l2_z,"
             "pearson_l2,pearson_cos,pearson_l2_unit,pearson_l2_z,"
             "intra,n_eval\n"
@@ -692,6 +858,13 @@ def main():
         "n_eval": 0,
     }
 
+    best_spearman = -1e9
+    best_epoch = -1
+    best_ckpt_path = run_dir / "checkpoints" / "best_by_spearman.pth"
+
+    # ------------------------------------------------------------
+    # Train loop
+    # ------------------------------------------------------------
     for epoch in range(1, args.epochs + 1):
         model.train()
         rng = np.random.default_rng(args.seed + 999 + epoch)
@@ -699,6 +872,7 @@ def main():
 
         epoch_loss = 0.0
         epoch_stress = 0.0
+        epoch_rank = 0.0
         n_steps = 0
 
         pbar = tqdm(
@@ -708,7 +882,7 @@ def main():
         )
 
         for start in pbar:
-            batch_subjects = subjects_shuf[start:start + args.batch_subjects]
+            batch_subjects = subjects_shuf[start : start + args.batch_subjects]
             if len(batch_subjects) < 2:
                 continue
 
@@ -759,11 +933,22 @@ def main():
             D_batch = torch.tensor(
                 D_orig[np.ix_(idx_np, idx_np)],
                 device=DEVICE,
-                dtype=Z_batch.dtype
+                dtype=Z_batch.dtype,
             )
 
             loss_stress = stress_loss(Z_batch, D_batch)
-            loss = args.lambda_stress * loss_stress
+
+            D_lat = torch.cdist(Z_batch, Z_batch, p=2)
+            loss_rank = pairwise_rank_loss(
+                D_lat,
+                D_batch,
+                n_pairs=args.rank_pairs,
+                margin=args.rank_margin,
+                tau=args.rank_tau,
+                hard_frac=args.rank_hard_frac,
+            )
+
+            loss = args.lambda_stress * loss_stress + args.lambda_rank * loss_rank
 
             loss.backward()
             if args.grad_clip > 0:
@@ -772,17 +957,21 @@ def main():
 
             loss_item = float(loss.item())
             stress_item = float(loss_stress.item())
+            rank_item = float(loss_rank.item())
+
             epoch_loss += loss_item
             epoch_stress += stress_item
+            epoch_rank += rank_item
             n_steps += 1
 
-            pbar.set_postfix(loss=f"{loss_item:.4f}", stress=f"{stress_item:.4f}")
+            pbar.set_postfix(loss=f"{loss_item:.4f}", stress=f"{stress_item:.4f}", rank=f"{rank_item:.4f}")
 
         if n_steps == 0:
             raise RuntimeError("No valid optimization step in epoch. Check split/settings.")
 
         epoch_loss /= n_steps
         epoch_stress /= n_steps
+        epoch_rank /= n_steps
 
         scheduler.step(epoch_loss)
         lr_now = optimizer.param_groups[0]["lr"]
@@ -808,6 +997,7 @@ def main():
             {
                 "loss": epoch_loss,
                 "stress": epoch_stress,
+                "rank": epoch_rank,
                 "lr": lr_now,
                 "spearman_l2": metrics["spearman_l2"],
                 "spearman_cos": metrics["spearman_cos"],
@@ -817,9 +1007,31 @@ def main():
             }
         )
 
+        # Save best checkpoint by spearman_l2_z
+        if do_eval:
+            score = float(metrics.get("spearman_l2_z", float("nan")))
+            if not np.isnan(score) and score > best_spearman:
+                best_spearman = score
+                best_epoch = epoch
+                torch.save(
+                    {
+                        "epoch": epoch,
+                        "state_dict": model.state_dict(),
+                        "optimizer": optimizer.state_dict(),
+                        "args": vars(args),
+                        "best_spearman_l2_z": best_spearman,
+                    },
+                    best_ckpt_path,
+                )
+                (run_dir / "best_by_spearman.txt").write_text(
+                    f"best_epoch={best_epoch}\nbest_spearman_l2_z={best_spearman}\n",
+                    encoding="utf-8",
+                )
+                print(f"🏁 New best spearman_l2_z={best_spearman:.4f} @ epoch {best_epoch} -> {best_ckpt_path}")
+
         with open(log_csv, "a", encoding="utf-8") as f:
             f.write(
-                f"{epoch},{epoch_loss:.6f},{epoch_stress:.6f},{lr_now:.2e},"
+                f"{epoch},{epoch_loss:.6f},{epoch_stress:.6f},{epoch_rank:.6f},{lr_now:.2e},"
                 f"{metrics['spearman_l2']:.6f},{metrics['spearman_cos']:.6f},"
                 f"{metrics['spearman_l2_unit']:.6f},{metrics['spearman_l2_z']:.6f},"
                 f"{metrics['pearson_l2']:.6f},{metrics['pearson_cos']:.6f},"
@@ -841,6 +1053,7 @@ def main():
 
     print("✅ DONE.")
     print(f"Saved in: {run_dir}")
+    print(f"Best spearman_l2_z={best_spearman:.4f} at epoch {best_epoch} -> {best_ckpt_path}")
 
 
 if __name__ == "__main__":
