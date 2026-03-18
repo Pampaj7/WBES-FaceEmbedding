@@ -1,0 +1,42 @@
+# OS / editor
+.DS_Store
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local datasets and notes
+/BFM_to_FLAME/
+/datasets/
+/WBES/raw_data/
+/WBES/results/
+/WBES/results_landmarks/
+/WBES/z_notes.txt
+
+# Local experiment artifacts
+/face_embedding/gt_encdec/autoencoder/AAAAAAAAAAA/
+/face_embedding/gt_encdec/autoencoder/latent_analysis/D_tmp.dat
+/face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/
+/face_embedding/gt_encdec/autoencoder/debug_outputs/
+/face_embedding/gt_encdec/autoencoder/decoder_only_experiment/
+/face_embedding/gt_encdec/autoencoder/encoder_only/
+/face_embedding/gt_encdec/autoencoder/results_diffusionAE/
+/face_embedding/gt_encdec/autoencoder/results_diffusionAE_latentaware/
+/face_embedding/gt_encdec/autoencoder/stage2_frozen/
+/face_embedding/gt_encdec/autoencoder/test_safe_latent/
+/face_embedding/gt_encdec/remeshing/analysis/
+/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_intrinsic/
+/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_pos_invariant_results/
+/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_stage1_multitopo/
+/face_embedding/gt_encdec/remeshing/cross_topo_model/encoder_stage1_multitopo_second_try/
+/face_embedding/gt_encdec/remeshing/cross_topo_model/stage2_frozen/
+/face_embedding/gt_encdec/remeshing/intrinsic/PERTURBATED_twotower/
+/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/rigid_ft/
+/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/teacher_student_retry/
+/face_embedding/gt_encdec/remeshing/intrinsic/xyz_baseline/
+/face_embedding/gt_encdec/remeshing/voxel/board_diary.txt
+/face_embedding/gt_encdec/remeshing/voxel/laplace_beltrami/lb_plots/
+/face_embedding/gt_encdec/remeshing/voxel/test/*.csv
+/face_embedding/gt_encdec/remeshing/voxel/test/*.html
+/face_embedding/gt_encdec/remeshing/voxel/test/grid_cache/
