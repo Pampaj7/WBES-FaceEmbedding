@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-import os
-import re
 import argparse
 import json
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List
 
 import numpy as np
 import torch
@@ -22,6 +20,17 @@ sys.path.append(
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 from diffusion_autoencoder import DiffusionEncoderXYZSpectrum, DiffusionEncoderOnlyIntrinsec
 from latent_loss import stress_loss
+from intrinsic_utils import (
+    SUBJECT_RE_ANY,
+    build_subject_map,
+    load_gt_distance_matrix,
+    pairwise_rank_loss,
+    preflight_gt_alignment_baseline,
+    preflight_spectrum_sanity,
+    sample_mesh_indices,
+    seed_everything,
+    slugify_token,
+)
 
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -104,14 +113,6 @@ def parse_args():
     
     return parser.parse_args()
 
-
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
 # ============================================================
 # CONFIG PATHS
 # ============================================================
@@ -123,140 +124,6 @@ DIST_PATH = (
     "gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/"
     "normalized_matrix_distances.npz"
 )
-
-VARIANT_RE = re.compile(r"^(id\d+)_.*\.npz$")
-
-
-# ============================================================
-# SUBJECT GROUPING
-# ============================================================
-
-def build_subject_map(dataset):
-    subj_to_idxs = {}
-    for idx, fname in enumerate(dataset.files):
-        m = VARIANT_RE.match(fname)
-        subj = fname.split("_")[0] if m is None else m.group(1)
-        subj_to_idxs.setdefault(subj, []).append(idx)
-    return subj_to_idxs
-
-def pairwise_rank_loss(
-    D_lat: torch.Tensor,
-    D_gt: torch.Tensor,
-    n_pairs: int = 2048,
-    margin: float = 0.05,
-    tau: float = 0.02,
-    hard_frac: float = 0.7,
-) -> torch.Tensor:
-    """
-    Spearman-surrogate ranking loss on distances (robust + "hard" sampling).
-
-    Goal:
-      Preserve relative ordering of distances:
-        if D_gt[i,j] > D_gt[i,k] + tau  =>  D_lat[i,j] > D_lat[i,k] + margin
-
-    Key improvements vs naive version:
-      1) Ambiguity filtering (tau): ignores nearly-equal GT comparisons that are mostly noise.
-      2) Hard sampling (hard_frac): often compares a "far" vs a "near" target for the same anchor,
-         increasing signal when batch size is small.
-
-    Args:
-      D_lat, D_gt: [B,B] symmetric, diagonal ~0
-      n_pairs: number of constraints sampled
-      margin: hinge margin in latent distance units
-      tau: GT separation threshold (in GT distance units, your D_gt is ~[0,1])
-      hard_frac: fraction of constraints built with hard (near vs far) sampling.
-                remaining constraints are random (for coverage).
-
-    Returns:
-      Scalar tensor loss.
-    """
-    B = int(D_gt.size(0))
-    if B < 3:
-        return torch.zeros((), device=D_gt.device, dtype=D_gt.dtype)
-
-    device = D_gt.device
-    dtype = D_gt.dtype
-
-    # How many hard vs random constraints
-    n_hard = int(round(float(n_pairs) * float(hard_frac)))
-    n_rand = int(n_pairs) - n_hard
-
-    losses = []
-
-    # ----------------------------
-    # (A) Hard constraints
-    # ----------------------------
-    if n_hard > 0:
-        # pick anchors
-        i = torch.randint(0, B, (n_hard,), device=device)
-
-        # For each anchor, select a "near" k and a "far" j using GT distances.
-        # We'll avoid self by masking the diagonal to -inf / +inf.
-        # d: [n_hard, B]
-        d = D_gt[i]  # gather rows
-
-        # mask self
-        idx = torch.arange(B, device=device).unsqueeze(0)  # [1,B]
-        self_mask = idx == i.unsqueeze(1)
-        d_near = d.masked_fill(self_mask, float("inf"))
-        d_far = d.masked_fill(self_mask, float("-inf"))
-
-        # choose among top-k extremes (adds some stochasticity)
-        # k_candidates and j_candidates are indices in [0,B)
-        k_top = min(3, B - 1)  # near candidates
-        j_top = min(3, B - 1)  # far candidates
-
-        k_candidates = torch.topk(d_near, k=k_top, largest=False).indices  # [n_hard,k_top]
-        j_candidates = torch.topk(d_far, k=j_top, largest=True).indices    # [n_hard,j_top]
-
-        kk = torch.randint(0, k_top, (n_hard,), device=device)
-        jj = torch.randint(0, j_top, (n_hard,), device=device)
-        k = k_candidates[torch.arange(n_hard, device=device), kk]
-        j = j_candidates[torch.arange(n_hard, device=device), jj]
-
-        # Ensure j != k (rare but possible when B small and candidates overlap)
-        j = torch.where(j == k, (j + 1) % B, j)
-
-        dgj = D_gt[i, j]
-        dgk = D_gt[i, k]
-        dlj = D_lat[i, j]
-        dlk = D_lat[i, k]
-
-        mask = dgj > (dgk + tau)
-        if mask.any():
-            losses.append(torch.relu(margin - (dlj[mask] - dlk[mask])).mean())
-
-    # ----------------------------
-    # (B) Random constraints (coverage)
-    # ----------------------------
-    if n_rand > 0:
-        i = torch.randint(0, B, (n_rand,), device=device)
-        j = torch.randint(0, B, (n_rand,), device=device)
-        k = torch.randint(0, B, (n_rand,), device=device)
-
-        # avoid trivial equal indices
-        j = torch.where(j == i, (j + 1) % B, j)
-        k = torch.where(k == i, (k + 2) % B, k)
-        k = torch.where(k == j, (k + 1) % B, k)
-
-        dgj = D_gt[i, j]
-        dgk = D_gt[i, k]
-        dlj = D_lat[i, j]
-        dlk = D_lat[i, k]
-
-        mask = dgj > (dgk + tau)
-        if mask.any():
-            losses.append(torch.relu(margin - (dlj[mask] - dlk[mask])).mean())
-
-    if not losses:
-        return torch.zeros((), device=device, dtype=dtype)
-
-    return torch.stack(losses).mean()
-def _slug(x: str) -> str:
-    x = x.strip().lower()
-    x = re.sub(r"[^a-z0-9._-]+", "-", x)
-    x = re.sub(r"-+", "-", x).strip("-")
-    return x
 
 def make_run_dir(args: argparse.Namespace) -> Path:
     """
@@ -305,7 +172,7 @@ def make_run_dir(args: argparse.Namespace) -> Path:
         f"__{h}"
     )
 
-    run_dir = RUNS_ROOT / _slug(name)
+    run_dir = RUNS_ROOT / slugify_token(name)
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "checkpoints").mkdir(exist_ok=True)
 
@@ -317,272 +184,6 @@ def make_run_dir(args: argparse.Namespace) -> Path:
     (run_dir / "run_started.txt").write_text(datetime.now().isoformat(), encoding="utf-8")
 
     return run_dir
-
-def pick_mesh_indices(
-    idxs: Sequence[int],
-    max_meshes: int,
-    rng: Optional[np.random.Generator],
-) -> List[int]:
-    if max_meshes <= 0 or len(idxs) <= max_meshes:
-        return list(idxs)
-    if rng is None:
-        return list(idxs[:max_meshes])
-    picked = rng.choice(np.asarray(idxs), size=max_meshes, replace=False)
-    return [int(i) for i in picked.tolist()]
-
-def _rankdata(a: np.ndarray) -> np.ndarray:
-    a = np.asarray(a)
-    order = a.argsort(kind="mergesort")
-    ranks = np.empty_like(order, dtype=np.float64)
-    ranks[order] = np.arange(len(a), dtype=np.float64)
-    return ranks
-
-def _spearman(x: np.ndarray, y: np.ndarray) -> float:
-    xr = _rankdata(x)
-    yr = _rankdata(y)
-    if xr.std() < 1e-12 or yr.std() < 1e-12:
-        return float("nan")
-    return float(np.corrcoef(xr, yr)[0, 1])
-
-def _pearson(x: np.ndarray, y: np.ndarray) -> float:
-    if x.std() < 1e-12 or y.std() < 1e-12:
-        return float("nan")
-    return float(np.corrcoef(x, y)[0, 1])
-
-def spectrum_vector_from_evals(
-    evals: torch.Tensor,
-    k_spec: int,
-    log_input: bool,
-    eps: float,
-    dtype: torch.dtype,
-) -> torch.Tensor:
-    """
-    EXACTLY matches DiffusionEncoderXYZSpectrum._spectrum_vector():
-      ev = evals.flatten()[1:]
-      spec = ev[:k_spec] padded with zeros
-      if log_input: log(clamp_min(eps))
-    Returns: spec [k_spec]
-    """
-    ev = evals.flatten()
-    if ev.numel() <= 1:
-        return torch.zeros(k_spec, device=ev.device, dtype=dtype)
-
-    ev = ev[1:].to(dtype)
-
-    if ev.numel() >= k_spec:
-        spec = ev[:k_spec]
-    else:
-        pad = torch.zeros(k_spec - ev.numel(), device=ev.device, dtype=dtype)
-        spec = torch.cat([ev, pad], dim=0)
-
-    if log_input:
-        spec = torch.log(spec.clamp_min(eps))
-
-    return spec
-
-@torch.inference_mode()
-def preflight_spectrum_sanity(
-    dataset,
-    run_dir: Path,
-    k_spec: int,
-    log_input: bool,
-    eps: float,
-    n_meshes: int,
-    seed: int,
-    eps_range: float,
-    dead_frac_warn: float,
-    dead_frac_stop: float,
-) -> Dict[str, object]:
-    """
-    Sanity check for *your* spectrum:
-    - Because spectrum is replicated per-vertex, per-vertex std is always 0 (not useful).
-    - So we check per-channel variation ACROSS meshes.
-    - We log per-channel p1/p50/p99 across sampled meshes and mark channels with (p99-p1) < eps_range as 'almost constant'.
-    """
-    pre_dir = run_dir / "preflight"
-    pre_dir.mkdir(parents=True, exist_ok=True)
-
-    rng = np.random.default_rng(seed)
-    n_total = len(dataset)
-    n_take = min(int(n_meshes), n_total)
-    idxs = rng.choice(np.arange(n_total), size=n_take, replace=False)
-
-    specs = []
-    for i in idxs:
-        sample = dataset[int(i)]
-        spec = spectrum_vector_from_evals(
-            sample["evals"],
-            k_spec=k_spec,
-            log_input=log_input,
-            eps=eps,
-            dtype=torch.float32,
-        )
-        specs.append(spec.detach().cpu().numpy())
-
-    S = np.stack(specs, axis=0)  # [N,k]
-    # per-channel distribution across meshes
-    mean = S.mean(axis=0)
-    std = S.std(axis=0)
-    p1 = np.percentile(S, 1, axis=0)
-    p50 = np.percentile(S, 50, axis=0)
-    p99 = np.percentile(S, 99, axis=0)
-    rng99 = p99 - p1
-
-    const_mask = rng99 < float(eps_range)
-    const_frac = float(const_mask.mean())
-
-    # write CSV
-    csv_path = pre_dir / "preflight_spectrum_stats.csv"
-    with open(csv_path, "w", encoding="utf-8") as f:
-        f.write("channel,mean,std,p1,p50,p99,p99_minus_p1,is_almost_constant\n")
-        for c in range(S.shape[1]):
-            f.write(
-                f"{c},{mean[c]:.8e},{std[c]:.8e},{p1[c]:.8e},{p50[c]:.8e},{p99[c]:.8e},{rng99[c]:.8e},{int(const_mask[c])}\n"
-            )
-
-    out = {
-        "n_meshes_sampled": int(n_take),
-        "k_spec_effective": int(S.shape[1]),
-        "log_input": bool(log_input),
-        "eps": float(eps),
-        "eps_range": float(eps_range),
-        "almost_constant_channels": int(const_mask.sum()),
-        "almost_constant_fraction": float(const_frac),
-        "range_p99_p1_min": float(rng99.min()),
-        "range_p99_p1_median": float(np.median(rng99)),
-        "range_p99_p1_max": float(rng99.max()),
-        "csv_path": str(csv_path),
-        "status": "ok",
-    }
-
-    # warn/stop policy
-    if const_frac > dead_frac_stop:
-        out["status"] = "stop"
-        out["reason"] = (
-            f"Too many spectrum channels are almost constant across meshes "
-            f"(fraction={const_frac:.2f} > stop={dead_frac_stop:.2f}). "
-            f"This usually means your spectrum carries little discriminative signal "
-            f"(or is overly squashed by log/scale)."
-        )
-    elif const_frac > dead_frac_warn:
-        out["status"] = "warn"
-        out["reason"] = (
-            f"Many spectrum channels are almost constant across meshes "
-            f"(fraction={const_frac:.2f} > warn={dead_frac_warn:.2f})."
-        )
-
-    json_path = pre_dir / "preflight_spectrum_stats.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2, sort_keys=True)
-    out["json_path"] = str(json_path)
-
-    return out
-
-@torch.inference_mode()
-def preflight_gt_alignment_baseline(
-    dataset,
-    subj_map: Dict[str, List[int]],
-    subjects: Sequence[str],
-    name_to_idx: Dict[str, int],
-    D_orig: np.ndarray,
-    run_dir: Path,
-    k_spec: int,
-    log_input: bool,
-    eps: float,
-    n_subjects: int,
-    seed: int,
-) -> Dict[str, object]:
-    """
-    Baseline: build one embedding per subject using ONLY the spectrum vector.
-    - For each subject, average spec vectors over a few meshes (here: all available indices, could subsample if huge).
-    - Then compute D_embed in embedding space (L2 and cosine) and correlate with D_orig.
-    """
-    pre_dir = run_dir / "preflight"
-    pre_dir.mkdir(parents=True, exist_ok=True)
-
-    rng = np.random.default_rng(seed)
-    subs = list(subjects)
-    if len(subs) > n_subjects:
-        subs = rng.choice(np.asarray(subs), size=int(n_subjects), replace=False).tolist()
-        subs = sorted([str(s) for s in subs])
-
-    # build subject embeddings
-    kept = []
-    Em = []
-
-    for subj in subs:
-        if subj not in subj_map or subj not in name_to_idx:
-            continue
-        idxs = subj_map[subj]
-        if not idxs:
-            continue
-
-        # average spectrum across that subject's meshes (robust + cheap)
-        specs = []
-        for idx in idxs:
-            sample = dataset[int(idx)]
-            spec = spectrum_vector_from_evals(
-                sample["evals"],
-                k_spec=k_spec,
-                log_input=log_input,
-                eps=eps,
-                dtype=torch.float32,
-            )
-            specs.append(spec)
-
-        if not specs:
-            continue
-        spec_mean = torch.stack(specs, dim=0).mean(dim=0)  # [k]
-        kept.append(subj)
-        Em.append(spec_mean.detach().cpu().numpy())
-
-    if len(kept) < 6:
-        out = {"status": "skip", "reason": f"Too few subjects for baseline ({len(kept)})."}
-        json_path = pre_dir / "preflight_gt_alignment.json"
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(out, f, indent=2, sort_keys=True)
-        return out
-
-    E = np.stack(Em, axis=0)  # [N,k]
-    idx = np.array([name_to_idx[s] for s in kept], dtype=int)
-    D_gt = D_orig[np.ix_(idx, idx)]
-
-    # upper triangle
-    iu = np.triu_indices(D_gt.shape[0], 1)    
-    gt = D_gt[iu]
-
-    # L2 distances
-    # (vectorized cdist)
-    diff = E[:, None, :] - E[None, :, :]
-    D_l2 = np.sqrt((diff * diff).sum(axis=-1) + 1e-12)
-    l2 = D_l2[iu]
-
-    # cosine distances
-    En = E / (np.linalg.norm(E, axis=1, keepdims=True) + 1e-12)
-    D_cos = 1.0 - (En @ En.T)
-    cos = D_cos[iu]
-
-    out = {
-        "status": "ok",
-        "n_subjects_used": int(len(kept)),
-        "k_spec": int(k_spec),
-        "log_input": bool(log_input),
-        "eps": float(eps),
-        "pearson_l2": _pearson(gt, l2),
-        "spearman_l2": _spearman(gt, l2),
-        "pearson_cos": _pearson(gt, cos),
-        "spearman_cos": _spearman(gt, cos),
-        "note": (
-            "This measures whether your *spectrum-only* embedding already aligns with D_orig. "
-            "If correlations are ~0, either spectrum is not informative for D_orig or scaling is off."
-        ),
-    }
-
-    json_path = pre_dir / "preflight_gt_alignment.json"
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(out, f, indent=2, sort_keys=True)
-    out["json_path"] = str(json_path)
-    return out
 
 @torch.inference_mode()
 def eval_latent_structure(
@@ -599,7 +200,11 @@ def eval_latent_structure(
     intra_vals: List[float] = []
 
     for subj in eval_subjects:
-        idxs = pick_mesh_indices(subj_map[subj], max_meshes_per_subject_eval, None)
+        idxs = sample_mesh_indices(
+            subj_map[subj],
+            max_meshes=max_meshes_per_subject_eval,
+            rng=None,
+        )
         if not idxs:
             continue
 
@@ -717,18 +322,8 @@ def main():
     # Dataset + GT
     # ------------------------------------------------------------
     dataset = GTReadyDataset(DATA_DIR)
-    subj_map = build_subject_map(dataset)
-
-    D_pack = np.load(DIST_PATH, allow_pickle=True)
-    D_orig = D_pack["D_orig"].astype(np.float64)
-    D_orig /= np.max(D_orig[D_orig > 0])
-
-    names = [str(n) for n in D_pack["names"]]
-    name_to_idx = {
-        re.search(r"(id\d{4})", n).group(1): i
-        for i, n in enumerate(names)
-        if re.search(r"(id\d{4})", n)
-    }
+    subj_map = build_subject_map(dataset.files, subject_re=SUBJECT_RE_ANY)
+    D_orig, name_to_idx = load_gt_distance_matrix(DIST_PATH, dtype=np.float64)
 
     subjects = sorted([s for s in subj_map.keys() if s in name_to_idx])
     if len(subjects) < 6:
@@ -892,10 +487,10 @@ def main():
             subj_gt_idx: List[int] = []
 
             for subj in batch_subjects:
-                idxs = pick_mesh_indices(
+                idxs = sample_mesh_indices(
                     subj_map[subj],
-                    args.max_meshes_per_subject_train,
-                    rng,
+                    max_meshes=args.max_meshes_per_subject_train,
+                    rng=rng,
                 )
                 if not idxs:
                     continue

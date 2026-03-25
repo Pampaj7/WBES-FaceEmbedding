@@ -10,6 +10,361 @@ except Exception:
     from diffusion_net import DiffusionNet
 
 
+class TwoTowerGatedRobust(nn.Module):
+    """
+    Two-tower encoder for robustness:
+      - Tower A (extrinsic): DiffusionNet on XYZ -> per-vertex features -> mean+max pooling -> z_xyz
+      - Tower B (intrinsic prior): MLP on Laplacian eigenvalues (global spectrum) -> z_spec
+      - Fusion: dimension-wise gating:
+            g = sigmoid(MLP([z_xyz, z_spec])) in [0,1]^latent_dim
+            z = g * z_xyz + (1-g) * z_spec
+
+    Returns:
+      - Z_global: (1, latent_dim)
+      - (optional) gate_info dict for logging/debug
+    """
+
+    def __init__(
+        self,
+        latent_dim: int = 256,
+        width: int = 128,
+        n_blocks: int = 4,
+        dropout: float = 0.1,
+        k_spec: int = 300,
+        log_spec: bool = True,
+        eps: float = 1e-8,
+        pool_mode: str = "meanmax",   # "mean" or "meanmax"
+        xyz_feature_dropout: float = 0.0,  # dropout applied to z_xyz before gating (forces spec usage)
+    ):
+        super().__init__()
+
+        self.latent_dim = int(latent_dim)
+        self.k_spec = int(k_spec)
+        self.log_spec = bool(log_spec)
+        self.eps = float(eps)
+        self.pool_mode = str(pool_mode)
+        self.xyz_feature_dropout = float(xyz_feature_dropout)
+
+        if self.k_spec <= 0:
+            raise ValueError("k_spec must be > 0")
+        if self.pool_mode not in ("mean", "meanmax"):
+            raise ValueError("pool_mode must be 'mean' or 'meanmax'")
+
+        print(
+            f"🧬 TwoTowerGatedRobust | Z={latent_dim}, width={width}, blocks={n_blocks}, "
+            f"k_spec={k_spec}, pool={self.pool_mode}, xyz_feat_drop={self.xyz_feature_dropout}"
+        )
+
+        # ----------------------------
+        # Tower A: DiffusionNet on XYZ
+        # ----------------------------
+        self.xyz_encoder = DiffusionNet(
+            C_in=3,
+            C_out=latent_dim,
+            C_width=width,
+            N_block=n_blocks,
+            with_gradient_features=True,
+            dropout=0.0,
+        )
+
+        self.xyz_vertex_bottleneck = nn.Sequential(
+            nn.Linear(latent_dim, latent_dim // 2),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(latent_dim // 2, latent_dim),
+        )
+
+        # If mean+max pooling, project 2*latent_dim -> latent_dim
+        if self.pool_mode == "meanmax":
+            self.xyz_pool_proj = nn.Linear(2 * latent_dim, latent_dim)
+        else:
+            self.xyz_pool_proj = nn.Identity()
+
+        self.xyz_feat_drop = nn.Dropout(self.xyz_feature_dropout) if self.xyz_feature_dropout > 0 else nn.Identity()
+
+        # ----------------------------
+        # Tower B: Spectrum MLP (global)
+        # ----------------------------
+        self.spec_mlp = nn.Sequential(
+            nn.Linear(self.k_spec, width),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(width, latent_dim),
+        )
+
+        # ----------------------------
+        # Gate MLP + fusion
+        # ----------------------------
+        self.gate_mlp = nn.Sequential(
+            nn.Linear(2 * latent_dim, width),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(width, latent_dim),
+        )
+
+    def _spectrum_vector(self, evals: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:
+        """
+        spec ∈ R^{k_spec}:
+          ev = evals[1:]
+          spec = ev[:k_spec] (pad zeros)
+          optionally log(clamp_min(eps))
+        """
+        ev = evals.flatten()
+        if ev.numel() <= 1:
+            return torch.zeros(self.k_spec, device=ev.device, dtype=dtype)
+
+        ev = ev[1:].to(dtype)  # drop lambda_0
+
+        if ev.numel() >= self.k_spec:
+            spec = ev[: self.k_spec]
+        else:
+            pad = torch.zeros(self.k_spec - ev.numel(), device=ev.device, dtype=dtype)
+            spec = torch.cat([ev, pad], dim=0)
+
+        if self.log_spec:
+            spec = torch.log(spec.clamp_min(self.eps))
+
+        return spec
+
+    def _pool_xyz(self, Z_per_vertex: torch.Tensor) -> torch.Tensor:
+        """
+        Returns z_xyz ∈ R^{1 x latent_dim} using mean or mean+max pooling.
+        """
+        z_mean = Z_per_vertex.mean(dim=0, keepdim=True)  # (1, D)
+        if self.pool_mode == "meanmax":
+            z_max = Z_per_vertex.max(dim=0, keepdim=True).values
+            z = self.xyz_pool_proj(torch.cat([z_mean, z_max], dim=1))
+        else:
+            z = self.xyz_pool_proj(z_mean)
+        return z
+
+    def forward(
+        self,
+        V: torch.Tensor,
+        mass: torch.Tensor,
+        L: torch.Tensor,
+        evals: torch.Tensor,
+        evecs: torch.Tensor,
+        faces: torch.Tensor,
+        gradX: torch.Tensor,
+        gradY: torch.Tensor,
+        return_gate_info: bool = False,
+        add_noise: bool = True,
+    ):
+        # ----------------------------
+        # Tower A forward (XYZ)
+        # ----------------------------
+        Z_xyz_per_vertex = self.xyz_encoder(
+            V, mass, L, evals, evecs, faces=faces, gradX=gradX, gradY=gradY
+        )
+        Z_xyz_per_vertex = self.xyz_vertex_bottleneck(Z_xyz_per_vertex)
+
+        if add_noise:
+            Z_xyz_per_vertex = Z_xyz_per_vertex + 0.01 * torch.randn_like(Z_xyz_per_vertex)
+
+        z_xyz = self._pool_xyz(Z_xyz_per_vertex)  # (1, D)
+        z_xyz = self.xyz_feat_drop(z_xyz)
+
+        # ----------------------------
+        # Tower B forward (Spectrum)
+        # ----------------------------
+        spec = self._spectrum_vector(evals, dtype=V.dtype).unsqueeze(0)  # (1, K)
+        z_spec = self.spec_mlp(spec)  # (1, D)
+
+        # ----------------------------
+        # Gating + fusion
+        # ----------------------------
+        gate_logits = self.gate_mlp(torch.cat([z_xyz, z_spec], dim=1))  # (1, D)
+        g = torch.sigmoid(gate_logits)                                  # (1, D)
+
+        Z_global = g * z_xyz + (1.0 - g) * z_spec                       # (1, D)
+
+        if return_gate_info:
+            gate_info = {
+                "g_mean": g.mean().detach(),
+                "g_p10": g.quantile(0.10).detach(),
+                "g_p90": g.quantile(0.90).detach(),
+            }
+            return Z_global, gate_info
+
+        return Z_global
+
+class TwoTowerConcat(nn.Module):
+    """
+    Two-tower encoder (concat fusion):
+      - Tower A (extrinsic): DiffusionNet on XYZ -> per-vertex -> pooling -> z_xyz
+      - Tower B (intrinsic): MLP on Laplacian eigenvalues (global spectrum) -> z_spec
+      - Fusion: z = fuse([z_xyz, z_spec])  where fuse: R^{2D} -> R^{D}
+
+    Returns:
+      - Z_global: (1, latent_dim)
+      - (optional) gate_info dict (NaNs; no gate in this model)
+    """
+
+    def __init__(
+        self,
+        latent_dim: int = 256,
+        width: int = 128,
+        n_blocks: int = 4,
+        dropout: float = 0.1,
+        k_spec: int = 300,
+        log_spec: bool = True,
+        eps: float = 1e-8,
+        pool_mode: str = "meanmax",        # "mean" or "meanmax"
+        xyz_feature_dropout: float = 0.0,  # dropout applied to z_xyz before fusion (forces spec usage)
+        fuse_mode: str = "mlp",            # "linear" or "mlp"
+    ):
+        super().__init__()
+
+        self.latent_dim = int(latent_dim)
+        self.k_spec = int(k_spec)
+        self.log_spec = bool(log_spec)
+        self.eps = float(eps)
+        self.pool_mode = str(pool_mode)
+        self.xyz_feature_dropout = float(xyz_feature_dropout)
+        self.fuse_mode = str(fuse_mode)
+
+        if self.k_spec <= 0:
+            raise ValueError("k_spec must be > 0")
+        if self.pool_mode not in ("mean", "meanmax"):
+            raise ValueError("pool_mode must be 'mean' or 'meanmax'")
+        if self.fuse_mode not in ("linear", "mlp"):
+            raise ValueError("fuse_mode must be 'linear' or 'mlp'")
+
+        print(
+            f"🧬 TwoTowerConcat | Z={latent_dim}, width={width}, blocks={n_blocks}, "
+            f"k_spec={k_spec}, pool={self.pool_mode}, xyz_feat_drop={self.xyz_feature_dropout}, "
+            f"fuse={self.fuse_mode}"
+        )
+
+        # ----------------------------
+        # Tower A: DiffusionNet on XYZ
+        # ----------------------------
+        self.xyz_encoder = DiffusionNet(
+            C_in=3,
+            C_out=latent_dim,
+            C_width=width,
+            N_block=n_blocks,
+            with_gradient_features=True,
+            dropout=0.0,
+        )
+
+        self.xyz_vertex_bottleneck = nn.Sequential(
+            nn.Linear(latent_dim, latent_dim // 2),
+            nn.Dropout(dropout),
+            nn.ReLU(inplace=True),
+            nn.Linear(latent_dim // 2, latent_dim),
+        )
+
+        # If mean+max pooling, project 2*latent_dim -> latent_dim
+        if self.pool_mode == "meanmax":
+            self.xyz_pool_proj = nn.Linear(2 * latent_dim, latent_dim)
+        else:
+            self.xyz_pool_proj = nn.Identity()
+
+        self.xyz_feat_drop = nn.Dropout(self.xyz_feature_dropout) if self.xyz_feature_dropout > 0 else nn.Identity()
+
+        # ----------------------------
+        # Tower B: Spectrum MLP (global)
+        # ----------------------------
+        self.spec_mlp = nn.Sequential(
+            nn.Linear(self.k_spec, width),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(width, latent_dim),
+        )
+
+        # ----------------------------
+        # Fusion: concat -> latent
+        # ----------------------------
+        if self.fuse_mode == "linear":
+            self.fuse = nn.Linear(2 * latent_dim, latent_dim)
+        else:
+            self.fuse = nn.Sequential(
+                nn.Linear(2 * latent_dim, width),
+                nn.ReLU(inplace=True),
+                nn.Dropout(dropout),
+                nn.Linear(width, latent_dim),
+            )
+
+    def _spectrum_vector(self, evals: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:
+        """
+        spec ∈ R^{k_spec}:
+          ev = evals[1:]
+          spec = ev[:k_spec] (pad zeros)
+          optionally log(clamp_min(eps))
+        """
+        ev = evals.flatten()
+        if ev.numel() <= 1:
+            return torch.zeros(self.k_spec, device=ev.device, dtype=dtype)
+
+        ev = ev[1:].to(dtype)  # drop lambda_0
+
+        if ev.numel() >= self.k_spec:
+            spec = ev[: self.k_spec]
+        else:
+            pad = torch.zeros(self.k_spec - ev.numel(), device=ev.device, dtype=dtype)
+            spec = torch.cat([ev, pad], dim=0)
+
+        if self.log_spec:
+            spec = torch.log(spec.clamp_min(self.eps))
+
+        return spec
+
+    def _pool_xyz(self, Z_per_vertex: torch.Tensor) -> torch.Tensor:
+        """Returns z_xyz ∈ R^{1 x latent_dim} using mean or mean+max pooling."""
+        z_mean = Z_per_vertex.mean(dim=0, keepdim=True)  # (1, D)
+        if self.pool_mode == "meanmax":
+            z_max = Z_per_vertex.max(dim=0, keepdim=True).values
+            z = self.xyz_pool_proj(torch.cat([z_mean, z_max], dim=1))
+        else:
+            z = self.xyz_pool_proj(z_mean)
+        return z
+
+    def forward(
+        self,
+        V: torch.Tensor,
+        mass: torch.Tensor,
+        L: torch.Tensor,
+        evals: torch.Tensor,
+        evecs: torch.Tensor,
+        faces: torch.Tensor,
+        gradX: torch.Tensor,
+        gradY: torch.Tensor,
+        return_gate_info: bool = False,
+        add_noise: bool = True,
+    ):
+        # ----------------------------
+        # Tower A forward (XYZ)
+        # ----------------------------
+        Z_xyz_per_vertex = self.xyz_encoder(
+            V, mass, L, evals, evecs, faces=faces, gradX=gradX, gradY=gradY
+        )
+        Z_xyz_per_vertex = self.xyz_vertex_bottleneck(Z_xyz_per_vertex)
+
+        if add_noise:
+            Z_xyz_per_vertex = Z_xyz_per_vertex + 0.01 * torch.randn_like(Z_xyz_per_vertex)
+
+        z_xyz = self._pool_xyz(Z_xyz_per_vertex)  # (1, D)
+        z_xyz = self.xyz_feat_drop(z_xyz)
+
+        # ----------------------------
+        # Tower B forward (Spectrum)
+        # ----------------------------
+        spec = self._spectrum_vector(evals, dtype=V.dtype).unsqueeze(0)  # (1, K)
+        z_spec = self.spec_mlp(spec)  # (1, D)
+
+        # ----------------------------
+        # Concat fusion
+        # ----------------------------
+        Z_global = self.fuse(torch.cat([z_xyz, z_spec], dim=1))  # (1, D)
+
+        if return_gate_info:
+            nan = torch.tensor(float("nan"), device=Z_global.device, dtype=Z_global.dtype)
+            gate_info = {"g_mean": nan, "g_p10": nan, "g_p90": nan}
+            return Z_global, gate_info
+
+        return Z_global
 
 class DiffusionAutoencoder(nn.Module):
     """
@@ -139,7 +494,6 @@ class DiffusionAutoencoder(nn.Module):
 
         return V_rec, Z_global
 
-
 class DiffusionEncoderOnly(nn.Module):
     """
     Encoder-only:
@@ -220,7 +574,6 @@ class DiffusionEncoderOnly(nn.Module):
             return Z_per_vertex, Z_global
 
         return Z_global
-
 
 class DiffusionEncoderOnlyIntrinsec(nn.Module):
     """

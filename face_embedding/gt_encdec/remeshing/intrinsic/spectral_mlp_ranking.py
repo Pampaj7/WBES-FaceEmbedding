@@ -22,7 +22,6 @@ import math
 import argparse
 import csv
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -45,9 +44,17 @@ if str(AUTOENCODER_DIR) not in sys.path:
 
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset  # noqa: E402
 from latent_loss import stress_loss  # noqa: E402
-
-
-SUBJECT_RE = re.compile(r"(id\d{4})", re.IGNORECASE)
+from intrinsic_utils import (
+    build_subject_map,
+    load_gt_distance_matrix,
+    nn_match_rate,
+    pearson_corr,
+    sample_mesh_indices,
+    seed_everything,
+    spearman_corr,
+    spectrum_vector_from_evals,
+    split_subjects,
+)
 
 
 class VertexMLPPool(nn.Module):
@@ -127,7 +134,6 @@ class SpectralMLP(nn.Module):
 
     def forward(self, x_spec: torch.Tensor) -> torch.Tensor:
         return self.net(x_spec)
-
 
 class MultiModalFusionMLP(nn.Module):
     """
@@ -305,110 +311,8 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
-def extract_subject_id(name: str) -> Optional[str]:
-    m = SUBJECT_RE.search(name)
-    return m.group(1).lower() if m else None
-
-
-def build_subject_map(files: Sequence[str]) -> Dict[str, List[int]]:
-    out: Dict[str, List[int]] = {}
-    for idx, fname in enumerate(files):
-        sid = extract_subject_id(fname)
-        if sid is None:
-            continue
-        out.setdefault(sid, []).append(idx)
-    return out
-
-
-def split_subjects(
-    subjects: Sequence[str],
-    val_fraction: float,
-    seed: int,
-    max_subjects: int,
-) -> Tuple[List[str], List[str]]:
-    arr = np.array(sorted(subjects), dtype=object)
-    rng = np.random.default_rng(seed)
-
-    if max_subjects > 0 and len(arr) > max_subjects:
-        pick = rng.choice(len(arr), size=max_subjects, replace=False)
-        arr = arr[np.sort(pick)]
-
-    if len(arr) < 6:
-        raise ValueError(f"Need at least 6 subjects, found {len(arr)}")
-
-    rng.shuffle(arr)
-    n_eval = int(round(val_fraction * len(arr)))
-    n_eval = max(3, n_eval)
-    n_eval = min(n_eval, len(arr) - 3)
-
-    eval_subj = sorted(arr[:n_eval].tolist())
-    train_subj = sorted(arr[n_eval:].tolist())
-    return train_subj, eval_subj
-
-
-def load_gt_distance_matrix(path: str) -> Tuple[np.ndarray, Dict[str, int]]:
-    pack = np.load(path, allow_pickle=True)
-    if "D_orig" not in pack or "names" not in pack:
-        raise KeyError(f"{path} must contain D_orig and names. Found: {pack.files}")
-
-    D = pack["D_orig"].astype(np.float32)
-    mask = D > 0
-    if mask.any():
-        D = D / float(D[mask].max())
-
-    name_to_idx: Dict[str, int] = {}
-    for i, n in enumerate(pack["names"]):
-        if isinstance(n, bytes):
-            n = n.decode("utf-8", errors="ignore")
-        sid = extract_subject_id(str(n))
-        if sid is not None:
-            name_to_idx[sid] = i
-
-    if not name_to_idx:
-        raise RuntimeError(f"Could not parse subject ids from names in {path}")
-    return D, name_to_idx
-
-
-def get_spectral_vector(
-    evals: torch.Tensor,
-    k_spec: int,
-    log_input: bool,
-    eps: float,
-) -> torch.Tensor:
-    ev = evals.flatten().float()
-    if ev.numel() > 1:
-        ev = ev[1:]  # exclude lambda_0
-
-    if ev.numel() >= k_spec:
-        x = ev[:k_spec]
-    else:
-        x = torch.cat([ev, torch.zeros(k_spec - ev.numel(), dtype=ev.dtype)], dim=0)
-
-    if log_input:
-        x = torch.log(x.clamp_min(eps))
-    return x
-
-
 def get_xyz_vector(verts: torch.Tensor) -> torch.Tensor:
     return verts.float().reshape(-1)
-
-
-def sample_mesh_indices(
-    idxs: Sequence[int],
-    max_meshes: int,
-    rng: np.random.Generator,
-) -> List[int]:
-    if max_meshes <= 0 or len(idxs) <= max_meshes:
-        return [int(i) for i in idxs]
-    picked = rng.choice(np.asarray(idxs), size=max_meshes, replace=False)
-    return [int(i) for i in picked.tolist()]
 
 
 def precompute_mesh_features(
@@ -480,11 +384,12 @@ def precompute_mesh_features(
             # Global spectrum (eigenvalues)
             # -------------------------
             if use_spec:
-                entry["spec"] = get_spectral_vector(
+                entry["spec"] = spectrum_vector_from_evals(
                     evals=sample["evals"],
                     k_spec=k_spec,
                     log_input=log_input,
                     eps=eps,
+                    dtype=torch.float32,
                 ).cpu()
 
             # -------------------------
@@ -638,46 +543,6 @@ def apply_norm_stats(
             if use_hkswks and "hkswks" in e:
                 e["hkswks"] = (e["hkswks"] - stats["hkswks_mean"]) / stats["hkswks_std"]
 
-
-def rankdata_average_ties(values: np.ndarray) -> np.ndarray:
-    order = np.argsort(values, kind="mergesort")
-    sorted_vals = values[order]
-    ranks = np.empty(values.shape[0], dtype=np.float64)
-
-    i = 0
-    while i < sorted_vals.shape[0]:
-        j = i + 1
-        while j < sorted_vals.shape[0] and sorted_vals[j] == sorted_vals[i]:
-            j += 1
-        ranks[order[i:j]] = 0.5 * (i + j - 1)
-        i = j
-    return ranks
-
-
-def pearson_corr(x: np.ndarray, y: np.ndarray) -> float:
-    if x.size < 2 or y.size < 2:
-        return float("nan")
-    if np.std(x) < 1e-12 or np.std(y) < 1e-12:
-        return float("nan")
-    return float(np.corrcoef(x, y)[0, 1])
-
-
-def spearman_corr(x: np.ndarray, y: np.ndarray) -> float:
-    rx = rankdata_average_ties(np.asarray(x))
-    ry = rankdata_average_ties(np.asarray(y))
-    return pearson_corr(rx, ry)
-
-
-def nearest_neighbor_match_rate(D_gt: torch.Tensor, D_emb: torch.Tensor) -> float:
-    n = D_gt.shape[0]
-    if n < 2:
-        return float("nan")
-    eye = torch.eye(n, dtype=torch.bool, device=D_gt.device)
-    nn_gt = D_gt.masked_fill(eye, float("inf")).argmin(dim=1)
-    nn_emb = D_emb.masked_fill(eye, float("inf")).argmin(dim=1)
-    return float((nn_gt == nn_emb).float().mean().item())
-
-
 def ranking_hinge_loss(
     Z: torch.Tensor,
     D_gt: torch.Tensor,
@@ -802,7 +667,7 @@ def evaluate_ranking(
         "n_subjects_eval": len(subj_ids),
         "spearman": spearman_corr(gt_vals, em_vals),
         "pearson": pearson_corr(gt_vals, em_vals),
-        "nn_match": nearest_neighbor_match_rate(D_gt, D_emb),
+        "nn_match": nn_match_rate(D_gt, D_emb),
         "intra_mean": float(np.mean(intra_vals)) if intra_vals else float("nan"),
     }
 

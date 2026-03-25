@@ -48,15 +48,16 @@ for p in (str(THIS_DIR), str(AUTOENCODER_DIR)):
         sys.path.append(p)
 
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset  # noqa: E402
-from sweep_intrinsic_spectral_configs import (  # noqa: E402
-    SweepConfig,
-    build_mesh_embedding,
+from sweep_intrinsic_spectral_configs import SweepConfig, build_mesh_embedding  # noqa: E402
+from intrinsic_utils import (  # noqa: E402
     build_subject_map,
     load_gt_distance_matrix,
     nn_match_rate,
     pairwise_distance_matrix,
     pearson_corr,
+    seed_everything,
     spearman_corr,
+    split_subjects,
     upper_triangular_values,
 )
 
@@ -126,30 +127,6 @@ def parse_args() -> argparse.Namespace:
         help="Optional existing train_log.csv to parse instead of launching training.",
     )
     return parser.parse_args()
-
-
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
-def split_subjects(subjects: Sequence[str], val_fraction: float, seed: int) -> Tuple[List[str], List[str]]:
-    arr = np.array(sorted(subjects), dtype=object)
-    if arr.size < 6:
-        raise RuntimeError(f"Need >=6 subjects, got {arr.size}")
-
-    rng = np.random.default_rng(seed)
-    rng.shuffle(arr)
-
-    n_val = int(round(val_fraction * arr.size))
-    n_val = max(3, n_val)
-    n_val = min(n_val, arr.size - 3)
-
-    val_subj = sorted(arr[:n_val].tolist())
-    train_subj = sorted(arr[n_val:].tolist())
-    return train_subj, val_subj
 
 
 def build_subject_mesh_embeddings(
@@ -613,7 +590,7 @@ def main() -> None:
         json.dump(rows_sorted, f, indent=2)
 
     with open(out_dir / "two_path_config.json", "w", encoding="utf-8") as f:
-        json.dump(vars(args), f, indent=2)
+        json.dump(vars(args), f, indent=2+
 
     print("")
     print(f"path-B status: {status_b}")

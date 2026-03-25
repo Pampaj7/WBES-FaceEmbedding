@@ -143,7 +143,7 @@ def parse_args() -> argparse.Namespace:
         "--noise_modes",
         type=str,
         default="jitter,rigid,outliers",
-        help="Comma-separated perturbation modes",
+        help="Comma-separated perturbation modes from: jitter,rigid,rotation,translation,outliers",
     )
     p.add_argument(
         "--noise_mode_weights",
@@ -151,7 +151,7 @@ def parse_args() -> argparse.Namespace:
         default="",
         help=(
             "Optional comma-separated mode weights for noisy training batches, "
-            "e.g. 'jitter=1,rigid=6,outliers=1'. Unspecified modes default to 1."
+            "e.g. 'translation=6,rotation=2,jitter=1,outliers=1'. Unspecified modes default to 1."
         ),
     )
     p.add_argument("--outlier_frac", type=float, default=0.02)

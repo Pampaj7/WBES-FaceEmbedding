@@ -1,0 +1,1 @@
+Initialized weights from /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/rigid_ft/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn1_pn0.85_s1.0e-03-5.0e-02_seed1234__b725f567/checkpoints/best_by_auc.pth (epoch 20)

@@ -1,0 +1,98 @@
+
+Preload samples:   0%|          | 0/110 [00:00<?, ?it/s]
+Preload samples:   1%|          | 1/110 [00:00<00:54,  2.02it/s]
+Preload samples:   5%|▍         | 5/110 [00:00<00:16,  6.36it/s]
+Preload samples:   7%|▋         | 8/110 [00:01<00:13,  7.49it/s]
+Preload samples:   8%|▊         | 9/110 [00:01<00:12,  7.79it/s]
+Preload samples:  11%|█         | 12/110 [00:01<00:11,  8.50it/s]
+Preload samples:  12%|█▏        | 13/110 [00:01<00:11,  8.26it/s]
+Preload samples:  14%|█▎        | 15/110 [00:01<00:09,  9.66it/s]
+Preload samples:  15%|█▌        | 17/110 [00:02<00:10,  8.47it/s]
+Preload samples:  16%|█▋        | 18/110 [00:02<00:10,  8.52it/s]
+Preload samples:  17%|█▋        | 19/110 [00:02<00:10,  8.39it/s]
+Preload samples:  18%|█▊        | 20/110 [00:02<00:11,  8.15it/s]
+Preload samples:  20%|██        | 22/110 [00:02<00:10,  8.45it/s]
+Preload samples:  22%|██▏       | 24/110 [00:02<00:09,  9.24it/s]
+Preload samples:  23%|██▎       | 25/110 [00:03<00:10,  8.29it/s]
+Preload samples:  25%|██▍       | 27/110 [00:03<00:09,  8.88it/s]
+Preload samples:  25%|██▌       | 28/110 [00:03<00:09,  8.39it/s]
+Preload samples:  27%|██▋       | 30/110 [00:03<00:07, 10.71it/s]
+Preload samples:  29%|██▉       | 32/110 [00:03<00:09,  8.39it/s]
+Preload samples:  31%|███       | 34/110 [00:04<00:07, 10.31it/s]
+Preload samples:  33%|███▎      | 36/110 [00:04<00:08,  8.81it/s]
+Preload samples:  35%|███▍      | 38/110 [00:04<00:08,  8.89it/s]
+Preload samples:  36%|███▋      | 40/110 [00:04<00:07,  9.25it/s]
+Preload samples:  38%|███▊      | 42/110 [00:05<00:08,  8.48it/s]
+Preload samples:  40%|████      | 44/110 [00:05<00:07,  8.42it/s]
+Preload samples:  41%|████      | 45/110 [00:05<00:08,  8.06it/s]
+Preload samples:  44%|████▎     | 48/110 [00:05<00:08,  7.38it/s]
+Preload samples:  45%|████▌     | 50/110 [00:05<00:06,  8.82it/s]
+Preload samples:  47%|████▋     | 52/110 [00:06<00:07,  7.54it/s]
+Preload samples:  49%|████▉     | 54/110 [00:06<00:06,  9.20it/s]
+Preload samples:  51%|█████     | 56/110 [00:06<00:06,  7.79it/s]
+Preload samples:  53%|█████▎    | 58/110 [00:06<00:05,  9.28it/s]
+Preload samples:  55%|█████▍    | 60/110 [00:07<00:06,  7.60it/s]
+Preload samples:  56%|█████▋    | 62/110 [00:07<00:05,  8.87it/s]
+Preload samples:  58%|█████▊    | 64/110 [00:07<00:05,  7.77it/s]
+Preload samples:  60%|██████    | 66/110 [00:07<00:04,  9.37it/s]
+Preload samples:  62%|██████▏   | 68/110 [00:08<00:04,  8.68it/s]
+Preload samples:  65%|██████▍   | 71/110 [00:08<00:03,  9.83it/s]
+Preload samples:  66%|██████▋   | 73/110 [00:08<00:03, 10.19it/s]
+Preload samples:  68%|██████▊   | 75/110 [00:08<00:03, 10.01it/s]
+Preload samples:  70%|███████   | 77/110 [00:08<00:02, 11.11it/s]
+Preload samples:  72%|███████▏  | 79/110 [00:09<00:03, 10.14it/s]
+Preload samples:  74%|███████▎  | 81/110 [00:09<00:02, 10.02it/s]
+Preload samples:  75%|███████▌  | 83/110 [00:09<00:03,  8.86it/s]
+Preload samples:  76%|███████▋  | 84/110 [00:09<00:02,  8.94it/s]
+Preload samples:  78%|███████▊  | 86/110 [00:09<00:02,  9.61it/s]
+Preload samples:  80%|████████  | 88/110 [00:10<00:02,  8.44it/s]
+Preload samples:  82%|████████▏ | 90/110 [00:10<00:02,  9.82it/s]
+Preload samples:  84%|████████▎ | 92/110 [00:10<00:02,  8.13it/s]
+Preload samples:  85%|████████▌ | 94/110 [00:10<00:01,  9.13it/s]
+Preload samples:  87%|████████▋ | 96/110 [00:11<00:01,  8.31it/s]
+Preload samples:  88%|████████▊ | 97/110 [00:11<00:01,  8.42it/s]
+Preload samples:  89%|████████▉ | 98/110 [00:11<00:01,  8.31it/s]
+Preload samples:  91%|█████████ | 100/110 [00:11<00:01,  9.71it/s]
+Preload samples:  93%|█████████▎| 102/110 [00:11<00:01,  7.99it/s]
+Preload samples:  95%|█████████▍| 104/110 [00:12<00:00,  7.36it/s]
+Preload samples:  95%|█████████▌| 105/110 [00:12<00:00,  7.59it/s]
+Preload samples:  98%|█████████▊| 108/110 [00:12<00:00,  7.90it/s]
+Preload samples: 100%|██████████| 110/110 [00:12<00:00,  8.65it/s]
+
+Cache Chamfer verts to cuda:   0%|          | 0/110 [00:00<?, ?it/s]
+Cache Chamfer verts to cuda:   1%|          | 1/110 [00:00<00:29,  3.67it/s]
+                                                                            
+
+🧬 DiffusionEncoderOnly | Z=256, width=128, blocks=4
+Checkpoint: /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/rigid_ft/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn1_pn0.85_s1.0e-03-5.0e-02_seed1234__b725f567/checkpoints/best_by_auc.pth
+Root output dir: /equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/FaceVerse/faceverse_ranking_vs_gt_sigma_sweep_neutral_full_b725f567_noicp
+GT dist matrix: /equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz
+Selected subjects: 110
+Samples kept: 110
+Pairs kept: 5995
+Aggregated sweep CSV: /equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/FaceVerse/faceverse_ranking_vs_gt_sigma_sweep_neutral_full_b725f567_noicp/sigma_sweep_summary.csv
+[jitter sigma=0.000000] latent_sp=0.5450 chamfer_sp=0.6392 delta=-0.0941
+[jitter sigma=0.020000] latent_sp=0.5439 chamfer_sp=0.6492 delta=-0.1053
+[jitter sigma=0.050000] latent_sp=0.5410 chamfer_sp=0.6477 delta=-0.1067
+[jitter sigma=0.100000] latent_sp=0.5343 chamfer_sp=0.5806 delta=-0.0463
+[jitter sigma=0.150000] latent_sp=0.5250 chamfer_sp=0.4831 delta=0.0418
+[jitter sigma=0.200000] latent_sp=0.5097 chamfer_sp=0.3806 delta=0.1291
+[translation sigma=0.000000] latent_sp=0.5450 chamfer_sp=0.6392 delta=-0.0941
+[translation sigma=0.020000] latent_sp=0.4908 chamfer_sp=0.6372 delta=-0.1464
+[translation sigma=0.050000] latent_sp=0.4134 chamfer_sp=0.6331 delta=-0.2197
+[translation sigma=0.100000] latent_sp=0.2823 chamfer_sp=0.6212 delta=-0.3389
+[translation sigma=0.150000] latent_sp=0.1874 chamfer_sp=0.6025 delta=-0.4150
+[translation sigma=0.200000] latent_sp=0.1262 chamfer_sp=0.5773 delta=-0.4511
+[rotation sigma=0.000000] latent_sp=0.5450 chamfer_sp=0.6392 delta=-0.0941
+[rotation sigma=0.020000] latent_sp=0.5334 chamfer_sp=0.6360 delta=-0.1026
+[rotation sigma=0.050000] latent_sp=0.5231 chamfer_sp=0.6302 delta=-0.1071
+[rotation sigma=0.100000] latent_sp=0.4994 chamfer_sp=0.6116 delta=-0.1122
+[rotation sigma=0.150000] latent_sp=0.4685 chamfer_sp=0.5820 delta=-0.1135
+[rotation sigma=0.200000] latent_sp=0.4327 chamfer_sp=0.5441 delta=-0.1114
+[mixed sigma=0.000000] latent_sp=0.5450 chamfer_sp=0.6392 delta=-0.0941
+[mixed sigma=0.020000] latent_sp=0.4974 chamfer_sp=0.6396 delta=-0.1422
+[mixed sigma=0.050000] latent_sp=0.4284 chamfer_sp=0.6271 delta=-0.1986
+[mixed sigma=0.100000] latent_sp=0.3077 chamfer_sp=0.5553 delta=-0.2476
+[mixed sigma=0.150000] latent_sp=0.2169 chamfer_sp=0.4718 delta=-0.2549
+[mixed sigma=0.200000] latent_sp=0.1552 chamfer_sp=0.3920 delta=-0.2369
+

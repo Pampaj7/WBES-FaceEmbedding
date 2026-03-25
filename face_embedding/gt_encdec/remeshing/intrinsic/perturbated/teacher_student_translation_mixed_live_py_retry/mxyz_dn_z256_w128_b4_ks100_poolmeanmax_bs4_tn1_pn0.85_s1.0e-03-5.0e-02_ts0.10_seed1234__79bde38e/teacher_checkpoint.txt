@@ -1,0 +1,4 @@
+Teacher checkpoint: /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/xyz_baseline/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn0_pn0.00_s1.0e-04-3.0e-02_seed1234__d5cbb737/checkpoints/best_by_clean.pth
+Teacher model: xyz_dn
+Teacher epoch: 46
+lambda_teacher: 0.100000

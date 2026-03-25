@@ -1,110 +1,4369 @@
 🚀 Training Latent-Aware Diffusion AE on cuda
-⚙️ Geo loss (L1=0.3, N=1.0, Lap=0.7) | Latent base=0.5
-📊 Valid NPZ count: 4999
+⚙️ Geo loss (L1=0.3, N=1.0, Lap=0.7) | Latent=0.5
+📊 Valid NPZ count: 1000
 🧬 DiffusionAutoencoder | Z=256, width=128, blocks=4, k_spec=16
 🧬 GeometricLoss Pura (con Cosine Laplacian) creata con pesi: L1=0.3, Normal=1.0, Laplacian=0.7
 📂 Loading GT distance matrix (D_orig)...
+D_orig min=0.000, max=53.425, mean=14.624
    → Normalized by factor 53.4247
 
 🟢 [Epoch 1/50] Training...
-   ⚖️ Weights: geo=1.000 | latent=0.100 | rank=0.0010 | λ_smooth=0.005 | triplet=0.50
+   ⚖️ Weights: geo=1.000 | latent=0.100 | rank=0.0010 | λ_smooth=0.030
 
 🧩 Batch 000
-   ├─ geo=1.8023
-   ├─ latent=1.9102
-   ├─ rank=0.0594
-   ├─ var=1.8923
-   ├─ triplet=0.0357
-   ├─ smooth=0.0002
-   ├─ total=1.9933
+   ├─ geo=1.8101
+   ├─ latent=1.7871
+   ├─ rank=0.0352
+   ├─ var=1.7871
+   ├─ smooth=0.0000
+   ├─ total=1.9888
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 025
-   ├─ geo=1.6074
-   ├─ latent=1.6274
-   ├─ rank=0.0206
-   ├─ var=1.5998
-   ├─ triplet=0.0552
-   ├─ smooth=0.0002
-   ├─ total=1.7701
+   ├─ geo=1.7499
+   ├─ latent=1.6375
+   ├─ rank=0.0217
+   ├─ var=1.6374
+   ├─ smooth=0.0000
+   ├─ total=1.9137
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 050
-   ├─ geo=1.2645
-   ├─ latent=1.5956
-   ├─ rank=0.0168
-   ├─ var=1.5769
-   ├─ triplet=0.0372
-   ├─ smooth=0.0002
-   ├─ total=1.4241
+   ├─ geo=1.4554
+   ├─ latent=1.5990
+   ├─ rank=0.0194
+   ├─ var=1.5989
+   ├─ smooth=0.0000
+   ├─ total=1.6153
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 075
-   ├─ geo=1.0937
-   ├─ latent=1.5792
-   ├─ rank=0.0154
-   ├─ var=1.5607
-   ├─ triplet=0.0369
-   ├─ smooth=0.0002
-   ├─ total=1.2516
+   ├─ geo=1.2325
+   ├─ latent=1.5736
+   ├─ rank=0.0189
+   ├─ var=1.5736
+   ├─ smooth=0.0000
+   ├─ total=1.3898
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 100
-   ├─ geo=0.9993
-   ├─ latent=1.5683
-   ├─ rank=0.0145
-   ├─ var=1.5505
-   ├─ triplet=0.0357
-   ├─ smooth=0.0002
-   ├─ total=1.1561
+   ├─ geo=1.1064
+   ├─ latent=1.5524
+   ├─ rank=0.0201
+   ├─ var=1.5524
+   ├─ smooth=0.0000
+   ├─ total=1.2617
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 125
-   ├─ geo=0.9387
-   ├─ latent=1.5619
-   ├─ rank=0.0150
-   ├─ var=1.5417
-   ├─ triplet=0.0404
-   ├─ smooth=0.0002
-   ├─ total=1.0949
+   ├─ geo=1.0263
+   ├─ latent=1.5206
+   ├─ rank=0.0235
+   ├─ var=1.5206
+   ├─ smooth=0.0000
+   ├─ total=1.1784
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 150
-   ├─ geo=0.8965
-   ├─ latent=1.5535
-   ├─ rank=0.0147
-   ├─ var=1.5331
-   ├─ triplet=0.0408
-   ├─ smooth=0.0002
-   ├─ total=1.0519
+   ├─ geo=0.9709
+   ├─ latent=1.4900
+   ├─ rank=0.0261
+   ├─ var=1.4900
+   ├─ smooth=0.0000
+   ├─ total=1.1199
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 175
-   ├─ geo=0.8649
-   ├─ latent=1.5479
-   ├─ rank=0.0144
-   ├─ var=1.5248
-   ├─ triplet=0.0461
-   ├─ smooth=0.0002
-   ├─ total=1.0197
+   ├─ geo=0.9299
+   ├─ latent=1.4544
+   ├─ rank=0.0289
+   ├─ var=1.4544
+   ├─ smooth=0.0000
+   ├─ total=1.0753
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
 
 🧩 Batch 200
-   ├─ geo=0.8401
-   ├─ latent=1.5423
-   ├─ rank=0.0147
-   ├─ var=1.5189
-   ├─ triplet=0.0468
-   ├─ smooth=0.0002
-   ├─ total=0.9943
+   ├─ geo=0.8979
+   ├─ latent=1.4261
+   ├─ rank=0.0331
+   ├─ var=1.4260
+   ├─ smooth=0.0000
+   ├─ total=1.0405
    └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+✅ [Epoch 1] Train → total=1.0126 | geo=0.8729 | rank=0.0368 | var=1.3976 | smooth=0.0000
+🔍 [Epoch 1] Validation → geo=0.6598 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.846, ρ_S=0.777, R²=0.716
 
-🧩 Batch 225
-   ├─ geo=0.8195
-   ├─ latent=1.5377
-   ├─ rank=0.0147
-   ├─ var=1.5130
-   ├─ triplet=0.0493
-   ├─ smooth=0.0002
-   ├─ total=0.9733
-   └─ weights: geo_w=1.000, latent_w=0.100, rank_w=0.0010
+🟢 [Epoch 2/50] Training...
+   ⚖️ Weights: geo=0.887 | latent=0.200 | rank=0.0015 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.6622
+   ├─ latent=1.1143
+   ├─ rank=0.0215
+   ├─ var=1.1143
+   ├─ smooth=0.0000
+   ├─ total=0.8106
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 025
+   ├─ geo=0.6546
+   ├─ latent=1.1181
+   ├─ rank=0.0695
+   ├─ var=1.1180
+   ├─ smooth=0.0000
+   ├─ total=0.8046
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 050
+   ├─ geo=0.6491
+   ├─ latent=1.1065
+   ├─ rank=0.0752
+   ├─ var=1.1064
+   ├─ smooth=0.0000
+   ├─ total=0.7974
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 075
+   ├─ geo=0.6434
+   ├─ latent=1.0952
+   ├─ rank=0.0827
+   ├─ var=1.0951
+   ├─ smooth=0.0000
+   ├─ total=0.7901
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 100
+   ├─ geo=0.6370
+   ├─ latent=1.0856
+   ├─ rank=0.0796
+   ├─ var=1.0855
+   ├─ smooth=0.0000
+   ├─ total=0.7824
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 125
+   ├─ geo=0.6293
+   ├─ latent=1.0836
+   ├─ rank=0.0826
+   ├─ var=1.0835
+   ├─ smooth=0.0000
+   ├─ total=0.7752
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 150
+   ├─ geo=0.6211
+   ├─ latent=1.0785
+   ├─ rank=0.0853
+   ├─ var=1.0784
+   ├─ smooth=0.0000
+   ├─ total=0.7670
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 175
+   ├─ geo=0.6120
+   ├─ latent=1.0747
+   ├─ rank=0.0872
+   ├─ var=1.0746
+   ├─ smooth=0.0000
+   ├─ total=0.7581
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+
+🧩 Batch 200
+   ├─ geo=0.6020
+   ├─ latent=1.0736
+   ├─ rank=0.0885
+   ├─ var=1.0735
+   ├─ smooth=0.0000
+   ├─ total=0.7490
+   └─ weights: geo_w=0.887, latent_w=0.200, rank_w=0.0015
+✅ [Epoch 2] Train → total=0.7395 | geo=0.5916 | rank=0.0902 | var=1.0721 | smooth=0.0000
+🔍 [Epoch 2] Validation → geo=0.4898 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.790, ρ_S=0.721, R²=0.623
+
+🟢 [Epoch 3/50] Training...
+   ⚖️ Weights: geo=0.775 | latent=0.300 | rank=0.0023 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.4879
+   ├─ latent=1.0845
+   ├─ rank=0.3795
+   ├─ var=1.0836
+   ├─ smooth=0.0000
+   ├─ total=0.7035
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 025
+   ├─ geo=0.4762
+   ├─ latent=1.0468
+   ├─ rank=0.1008
+   ├─ var=1.0466
+   ├─ smooth=0.0000
+   ├─ total=0.6831
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 050
+   ├─ geo=0.4632
+   ├─ latent=1.0480
+   ├─ rank=0.0974
+   ├─ var=1.0477
+   ├─ smooth=0.0000
+   ├─ total=0.6734
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 075
+   ├─ geo=0.4544
+   ├─ latent=1.0499
+   ├─ rank=0.0996
+   ├─ var=1.0497
+   ├─ smooth=0.0000
+   ├─ total=0.6671
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 100
+   ├─ geo=0.4448
+   ├─ latent=1.0520
+   ├─ rank=0.0995
+   ├─ var=1.0518
+   ├─ smooth=0.0000
+   ├─ total=0.6603
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 125
+   ├─ geo=0.4349
+   ├─ latent=1.0574
+   ├─ rank=0.1014
+   ├─ var=1.0571
+   ├─ smooth=0.0000
+   ├─ total=0.6542
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 150
+   ├─ geo=0.4270
+   ├─ latent=1.0560
+   ├─ rank=0.1027
+   ├─ var=1.0558
+   ├─ smooth=0.0000
+   ├─ total=0.6477
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 175
+   ├─ geo=0.4188
+   ├─ latent=1.0549
+   ├─ rank=0.1021
+   ├─ var=1.0546
+   ├─ smooth=0.0000
+   ├─ total=0.6410
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+
+🧩 Batch 200
+   ├─ geo=0.4106
+   ├─ latent=1.0531
+   ├─ rank=0.1025
+   ├─ var=1.0529
+   ├─ smooth=0.0000
+   ├─ total=0.6342
+   └─ weights: geo_w=0.775, latent_w=0.300, rank_w=0.0023
+✅ [Epoch 3] Train → total=0.6296 | geo=0.4052 | rank=0.1009 | var=1.0518 | smooth=0.0000
+🔍 [Epoch 3] Validation → geo=0.3625 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.716, R²=0.617
+
+🟢 [Epoch 4/50] Training...
+   ⚖️ Weights: geo=0.662 | latent=0.400 | rank=0.0034 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.3704
+   ├─ latent=1.0427
+   ├─ rank=0.0669
+   ├─ var=1.0424
+   ├─ smooth=0.0000
+   ├─ total=0.6624
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 025
+   ├─ geo=0.3551
+   ├─ latent=1.0411
+   ├─ rank=0.1011
+   ├─ var=1.0408
+   ├─ smooth=0.0000
+   ├─ total=0.6517
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 050
+   ├─ geo=0.3487
+   ├─ latent=1.0455
+   ├─ rank=0.0954
+   ├─ var=1.0451
+   ├─ smooth=0.0000
+   ├─ total=0.6492
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 075
+   ├─ geo=0.3391
+   ├─ latent=1.0460
+   ├─ rank=0.1016
+   ├─ var=1.0457
+   ├─ smooth=0.0000
+   ├─ total=0.6431
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 100
+   ├─ geo=0.3337
+   ├─ latent=1.0453
+   ├─ rank=0.1055
+   ├─ var=1.0450
+   ├─ smooth=0.0000
+   ├─ total=0.6392
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 125
+   ├─ geo=0.3276
+   ├─ latent=1.0448
+   ├─ rank=0.1031
+   ├─ var=1.0445
+   ├─ smooth=0.0000
+   ├─ total=0.6350
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 150
+   ├─ geo=0.3233
+   ├─ latent=1.0448
+   ├─ rank=0.0997
+   ├─ var=1.0444
+   ├─ smooth=0.0000
+   ├─ total=0.6321
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 175
+   ├─ geo=0.3190
+   ├─ latent=1.0446
+   ├─ rank=0.0994
+   ├─ var=1.0443
+   ├─ smooth=0.0000
+   ├─ total=0.6292
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+
+🧩 Batch 200
+   ├─ geo=0.3167
+   ├─ latent=1.0446
+   ├─ rank=0.0969
+   ├─ var=1.0443
+   ├─ smooth=0.0000
+   ├─ total=0.6276
+   └─ weights: geo_w=0.662, latent_w=0.400, rank_w=0.0034
+✅ [Epoch 4] Train → total=0.6256 | geo=0.3137 | rank=0.0965 | var=1.0440 | smooth=0.0000
+🔍 [Epoch 4] Validation → geo=0.2885 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.781, ρ_S=0.711, R²=0.610
+
+🟢 [Epoch 5/50] Training...
+   ⚖️ Weights: geo=0.550 | latent=0.500 | rank=0.0051 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2845
+   ├─ latent=1.0472
+   ├─ rank=0.0455
+   ├─ var=1.0470
+   ├─ smooth=0.0000
+   ├─ total=0.6801
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 025
+   ├─ geo=0.2827
+   ├─ latent=1.0542
+   ├─ rank=0.0878
+   ├─ var=1.0538
+   ├─ smooth=0.0000
+   ├─ total=0.6826
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 050
+   ├─ geo=0.2795
+   ├─ latent=1.0539
+   ├─ rank=0.0935
+   ├─ var=1.0534
+   ├─ smooth=0.0000
+   ├─ total=0.6807
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 075
+   ├─ geo=0.2756
+   ├─ latent=1.0511
+   ├─ rank=0.0978
+   ├─ var=1.0506
+   ├─ smooth=0.0000
+   ├─ total=0.6771
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 100
+   ├─ geo=0.2747
+   ├─ latent=1.0494
+   ├─ rank=0.1006
+   ├─ var=1.0489
+   ├─ smooth=0.0000
+   ├─ total=0.6758
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 125
+   ├─ geo=0.2742
+   ├─ latent=1.0471
+   ├─ rank=0.1008
+   ├─ var=1.0466
+   ├─ smooth=0.0000
+   ├─ total=0.6744
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 150
+   ├─ geo=0.2720
+   ├─ latent=1.0463
+   ├─ rank=0.1000
+   ├─ var=1.0458
+   ├─ smooth=0.0000
+   ├─ total=0.6727
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 175
+   ├─ geo=0.2697
+   ├─ latent=1.0461
+   ├─ rank=0.0982
+   ├─ var=1.0456
+   ├─ smooth=0.0000
+   ├─ total=0.6714
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+
+🧩 Batch 200
+   ├─ geo=0.2678
+   ├─ latent=1.0454
+   ├─ rank=0.0971
+   ├─ var=1.0449
+   ├─ smooth=0.0000
+   ├─ total=0.6700
+   └─ weights: geo_w=0.550, latent_w=0.500, rank_w=0.0051
+✅ [Epoch 5] Train → total=0.6688 | geo=0.2661 | rank=0.1000 | var=1.0443 | smooth=0.0000
+🔍 [Epoch 5] Validation → geo=0.2423 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.716, R²=0.618
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch5.pth
+
+🟢 [Epoch 6/50] Training...
+   ⚖️ Weights: geo=0.438 | latent=0.500 | rank=0.0076 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2401
+   ├─ latent=1.0715
+   ├─ rank=0.1885
+   ├─ var=1.0701
+   ├─ smooth=0.0000
+   ├─ total=0.6408
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 025
+   ├─ geo=0.2455
+   ├─ latent=1.0406
+   ├─ rank=0.0936
+   ├─ var=1.0399
+   ├─ smooth=0.0000
+   ├─ total=0.6277
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 050
+   ├─ geo=0.2423
+   ├─ latent=1.0445
+   ├─ rank=0.1020
+   ├─ var=1.0437
+   ├─ smooth=0.0000
+   ├─ total=0.6283
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 075
+   ├─ geo=0.2407
+   ├─ latent=1.0445
+   ├─ rank=0.0963
+   ├─ var=1.0438
+   ├─ smooth=0.0000
+   ├─ total=0.6276
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 100
+   ├─ geo=0.2402
+   ├─ latent=1.0451
+   ├─ rank=0.0941
+   ├─ var=1.0444
+   ├─ smooth=0.0000
+   ├─ total=0.6276
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 125
+   ├─ geo=0.2396
+   ├─ latent=1.0447
+   ├─ rank=0.0947
+   ├─ var=1.0439
+   ├─ smooth=0.0000
+   ├─ total=0.6271
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 150
+   ├─ geo=0.2396
+   ├─ latent=1.0438
+   ├─ rank=0.0948
+   ├─ var=1.0431
+   ├─ smooth=0.0000
+   ├─ total=0.6267
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 175
+   ├─ geo=0.2379
+   ├─ latent=1.0432
+   ├─ rank=0.0974
+   ├─ var=1.0424
+   ├─ smooth=0.0000
+   ├─ total=0.6257
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+
+🧩 Batch 200
+   ├─ geo=0.2372
+   ├─ latent=1.0427
+   ├─ rank=0.0972
+   ├─ var=1.0420
+   ├─ smooth=0.0000
+   ├─ total=0.6251
+   └─ weights: geo_w=0.438, latent_w=0.500, rank_w=0.0076
+✅ [Epoch 6] Train → total=0.6246 | geo=0.2366 | rank=0.0994 | var=1.0415 | smooth=0.0000
+🔍 [Epoch 6] Validation → geo=0.2423 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.784, ρ_S=0.715, R²=0.615
+
+🟢 [Epoch 7/50] Training...
+   ⚖️ Weights: geo=0.325 | latent=0.500 | rank=0.0114 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2397
+   ├─ latent=1.0599
+   ├─ rank=0.0959
+   ├─ var=1.0588
+   ├─ smooth=0.0000
+   ├─ total=0.6079
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 025
+   ├─ geo=0.2299
+   ├─ latent=1.0379
+   ├─ rank=0.0843
+   ├─ var=1.0370
+   ├─ smooth=0.0000
+   ├─ total=0.5937
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 050
+   ├─ geo=0.2272
+   ├─ latent=1.0366
+   ├─ rank=0.0949
+   ├─ var=1.0356
+   ├─ smooth=0.0000
+   ├─ total=0.5922
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 075
+   ├─ geo=0.2286
+   ├─ latent=1.0375
+   ├─ rank=0.0929
+   ├─ var=1.0364
+   ├─ smooth=0.0000
+   ├─ total=0.5930
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 100
+   ├─ geo=0.2290
+   ├─ latent=1.0385
+   ├─ rank=0.0937
+   ├─ var=1.0374
+   ├─ smooth=0.0000
+   ├─ total=0.5937
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 125
+   ├─ geo=0.2270
+   ├─ latent=1.0390
+   ├─ rank=0.0942
+   ├─ var=1.0379
+   ├─ smooth=0.0000
+   ├─ total=0.5933
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 150
+   ├─ geo=0.2264
+   ├─ latent=1.0396
+   ├─ rank=0.0948
+   ├─ var=1.0385
+   ├─ smooth=0.0000
+   ├─ total=0.5934
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 175
+   ├─ geo=0.2244
+   ├─ latent=1.0399
+   ├─ rank=0.1004
+   ├─ var=1.0387
+   ├─ smooth=0.0000
+   ├─ total=0.5929
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+
+🧩 Batch 200
+   ├─ geo=0.2232
+   ├─ latent=1.0393
+   ├─ rank=0.1038
+   ├─ var=1.0381
+   ├─ smooth=0.0000
+   ├─ total=0.5922
+   └─ weights: geo_w=0.325, latent_w=0.500, rank_w=0.0114
+✅ [Epoch 7] Train → total=0.5918 | geo=0.2227 | rank=0.1022 | var=1.0376 | smooth=0.0000
+🔍 [Epoch 7] Validation → geo=0.2096 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.619
+
+🟢 [Epoch 8/50] Training...
+   ⚖️ Weights: geo=0.213 | latent=0.500 | rank=0.0171 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2087
+   ├─ latent=1.0453
+   ├─ rank=0.1192
+   ├─ var=1.0432
+   ├─ smooth=0.0000
+   ├─ total=0.5670
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 025
+   ├─ geo=0.2237
+   ├─ latent=1.0377
+   ├─ rank=0.1031
+   ├─ var=1.0359
+   ├─ smooth=0.0000
+   ├─ total=0.5664
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 050
+   ├─ geo=0.2161
+   ├─ latent=1.0383
+   ├─ rank=0.0932
+   ├─ var=1.0367
+   ├─ smooth=0.0000
+   ├─ total=0.5651
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 075
+   ├─ geo=0.2156
+   ├─ latent=1.0368
+   ├─ rank=0.0981
+   ├─ var=1.0352
+   ├─ smooth=0.0000
+   ├─ total=0.5642
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 100
+   ├─ geo=0.2153
+   ├─ latent=1.0362
+   ├─ rank=0.0999
+   ├─ var=1.0345
+   ├─ smooth=0.0000
+   ├─ total=0.5639
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 125
+   ├─ geo=0.2157
+   ├─ latent=1.0360
+   ├─ rank=0.1010
+   ├─ var=1.0343
+   ├─ smooth=0.0000
+   ├─ total=0.5639
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 150
+   ├─ geo=0.2167
+   ├─ latent=1.0355
+   ├─ rank=0.0997
+   ├─ var=1.0338
+   ├─ smooth=0.0000
+   ├─ total=0.5638
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 175
+   ├─ geo=0.2157
+   ├─ latent=1.0350
+   ├─ rank=0.1001
+   ├─ var=1.0333
+   ├─ smooth=0.0000
+   ├─ total=0.5633
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+
+🧩 Batch 200
+   ├─ geo=0.2172
+   ├─ latent=1.0352
+   ├─ rank=0.0995
+   ├─ var=1.0335
+   ├─ smooth=0.0000
+   ├─ total=0.5637
+   └─ weights: geo_w=0.213, latent_w=0.500, rank_w=0.0171
+✅ [Epoch 8] Train → total=0.5633 | geo=0.2159 | rank=0.1010 | var=1.0332 | smooth=0.0000
+🔍 [Epoch 8] Validation → geo=0.2063 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.790, ρ_S=0.721, R²=0.624
+
+🟢 [Epoch 9/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0256 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2044
+   ├─ latent=1.0293
+   ├─ rank=0.0331
+   ├─ var=1.0285
+   ├─ smooth=0.0000
+   ├─ total=0.5351
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 025
+   ├─ geo=0.2041
+   ├─ latent=1.0347
+   ├─ rank=0.0836
+   ├─ var=1.0326
+   ├─ smooth=0.0000
+   ├─ total=0.5378
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 050
+   ├─ geo=0.2081
+   ├─ latent=1.0394
+   ├─ rank=0.0919
+   ├─ var=1.0370
+   ├─ smooth=0.0000
+   ├─ total=0.5405
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 075
+   ├─ geo=0.2058
+   ├─ latent=1.0416
+   ├─ rank=0.0967
+   ├─ var=1.0391
+   ├─ smooth=0.0000
+   ├─ total=0.5414
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 100
+   ├─ geo=0.2061
+   ├─ latent=1.0394
+   ├─ rank=0.0970
+   ├─ var=1.0369
+   ├─ smooth=0.0000
+   ├─ total=0.5403
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 125
+   ├─ geo=0.2051
+   ├─ latent=1.0377
+   ├─ rank=0.0930
+   ├─ var=1.0354
+   ├─ smooth=0.0000
+   ├─ total=0.5394
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 150
+   ├─ geo=0.2068
+   ├─ latent=1.0366
+   ├─ rank=0.0943
+   ├─ var=1.0342
+   ├─ smooth=0.0000
+   ├─ total=0.5390
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 175
+   ├─ geo=0.2071
+   ├─ latent=1.0354
+   ├─ rank=0.0956
+   ├─ var=1.0330
+   ├─ smooth=0.0000
+   ├─ total=0.5384
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+
+🧩 Batch 200
+   ├─ geo=0.2076
+   ├─ latent=1.0344
+   ├─ rank=0.0961
+   ├─ var=1.0320
+   ├─ smooth=0.0000
+   ├─ total=0.5380
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0256
+✅ [Epoch 9] Train → total=0.5377 | geo=0.2081 | rank=0.0958 | var=1.0312 | smooth=0.0000
+🔍 [Epoch 9] Validation → geo=0.2155 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.785, ρ_S=0.715, R²=0.616
+
+🟢 [Epoch 10/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0384 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2136
+   ├─ latent=1.0318
+   ├─ rank=0.1644
+   ├─ var=1.0254
+   ├─ smooth=0.0000
+   ├─ total=0.5372
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 025
+   ├─ geo=0.2092
+   ├─ latent=1.0316
+   ├─ rank=0.1092
+   ├─ var=1.0274
+   ├─ smooth=0.0000
+   ├─ total=0.5367
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 050
+   ├─ geo=0.2082
+   ├─ latent=1.0296
+   ├─ rank=0.0921
+   ├─ var=1.0261
+   ├─ smooth=0.0000
+   ├─ total=0.5356
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 075
+   ├─ geo=0.2075
+   ├─ latent=1.0297
+   ├─ rank=0.0947
+   ├─ var=1.0260
+   ├─ smooth=0.0000
+   ├─ total=0.5356
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 100
+   ├─ geo=0.2069
+   ├─ latent=1.0295
+   ├─ rank=0.0953
+   ├─ var=1.0258
+   ├─ smooth=0.0000
+   ├─ total=0.5354
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 125
+   ├─ geo=0.2058
+   ├─ latent=1.0320
+   ├─ rank=0.0977
+   ├─ var=1.0282
+   ├─ smooth=0.0000
+   ├─ total=0.5366
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 150
+   ├─ geo=0.2046
+   ├─ latent=1.0314
+   ├─ rank=0.0965
+   ├─ var=1.0277
+   ├─ smooth=0.0000
+   ├─ total=0.5361
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 175
+   ├─ geo=0.2045
+   ├─ latent=1.0311
+   ├─ rank=0.0945
+   ├─ var=1.0275
+   ├─ smooth=0.0000
+   ├─ total=0.5360
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+
+🧩 Batch 200
+   ├─ geo=0.2046
+   ├─ latent=1.0314
+   ├─ rank=0.0950
+   ├─ var=1.0277
+   ├─ smooth=0.0000
+   ├─ total=0.5361
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0384
+✅ [Epoch 10] Train → total=0.5362 | geo=0.2052 | rank=0.0969 | var=1.0276 | smooth=0.0000
+🔍 [Epoch 10] Validation → geo=0.1850 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.783, ρ_S=0.714, R²=0.613
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch10.pth
+
+🟢 [Epoch 11/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1827
+   ├─ latent=1.0296
+   ├─ rank=0.0968
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5331
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1987
+   ├─ latent=1.0275
+   ├─ rank=0.0724
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5336
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1981
+   ├─ latent=1.0299
+   ├─ rank=0.0899
+   ├─ var=1.0254
+   ├─ smooth=0.0000
+   ├─ total=0.5348
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.2000
+   ├─ latent=1.0321
+   ├─ rank=0.0926
+   ├─ var=1.0274
+   ├─ smooth=0.0000
+   ├─ total=0.5360
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.2012
+   ├─ latent=1.0333
+   ├─ rank=0.0961
+   ├─ var=1.0285
+   ├─ smooth=0.0000
+   ├─ total=0.5368
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.2014
+   ├─ latent=1.0333
+   ├─ rank=0.0994
+   ├─ var=1.0284
+   ├─ smooth=0.0000
+   ├─ total=0.5368
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.2013
+   ├─ latent=1.0328
+   ├─ rank=0.0986
+   ├─ var=1.0279
+   ├─ smooth=0.0000
+   ├─ total=0.5365
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.2000
+   ├─ latent=1.0325
+   ├─ rank=0.1007
+   ├─ var=1.0275
+   ├─ smooth=0.0000
+   ├─ total=0.5363
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1997
+   ├─ latent=1.0320
+   ├─ rank=0.0995
+   ├─ var=1.0271
+   ├─ smooth=0.0000
+   ├─ total=0.5360
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 11] Train → total=0.5358 | geo=0.1992 | rank=0.0990 | var=1.0269 | smooth=0.0000
+🔍 [Epoch 11] Validation → geo=0.1937 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.784, ρ_S=0.715, R²=0.615
+
+🟢 [Epoch 12/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1984
+   ├─ latent=1.0425
+   ├─ rank=0.2352
+   ├─ var=1.0307
+   ├─ smooth=0.0000
+   ├─ total=0.5411
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1943
+   ├─ latent=1.0294
+   ├─ rank=0.0993
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5341
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1942
+   ├─ latent=1.0299
+   ├─ rank=0.1079
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5344
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1933
+   ├─ latent=1.0296
+   ├─ rank=0.1012
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5341
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1937
+   ├─ latent=1.0294
+   ├─ rank=0.0963
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5341
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1927
+   ├─ latent=1.0297
+   ├─ rank=0.0982
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5341
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1935
+   ├─ latent=1.0301
+   ├─ rank=0.1005
+   ├─ var=1.0251
+   ├─ smooth=0.0000
+   ├─ total=0.5344
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1948
+   ├─ latent=1.0299
+   ├─ rank=0.0990
+   ├─ var=1.0250
+   ├─ smooth=0.0000
+   ├─ total=0.5344
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1933
+   ├─ latent=1.0298
+   ├─ rank=0.0998
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5342
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 12] Train → total=0.5341 | geo=0.1923 | rank=0.0979 | var=1.0249 | smooth=0.0000
+🔍 [Epoch 12] Validation → geo=0.1894 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.785, ρ_S=0.717, R²=0.617
+
+🟢 [Epoch 13/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1925
+   ├─ latent=1.0238
+   ├─ rank=0.0104
+   ├─ var=1.0232
+   ├─ smooth=0.0000
+   ├─ total=0.5311
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1857
+   ├─ latent=1.0285
+   ├─ rank=0.0939
+   ├─ var=1.0238
+   ├─ smooth=0.0000
+   ├─ total=0.5328
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1865
+   ├─ latent=1.0288
+   ├─ rank=0.0956
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5331
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1963
+   ├─ latent=1.0287
+   ├─ rank=0.0942
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1948
+   ├─ latent=1.0290
+   ├─ rank=0.0941
+   ├─ var=1.0243
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1921
+   ├─ latent=1.0290
+   ├─ rank=0.0948
+   ├─ var=1.0243
+   ├─ smooth=0.0000
+   ├─ total=0.5337
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1905
+   ├─ latent=1.0291
+   ├─ rank=0.0972
+   ├─ var=1.0242
+   ├─ smooth=0.0000
+   ├─ total=0.5336
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1902
+   ├─ latent=1.0291
+   ├─ rank=0.0971
+   ├─ var=1.0243
+   ├─ smooth=0.0000
+   ├─ total=0.5336
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1896
+   ├─ latent=1.0291
+   ├─ rank=0.0953
+   ├─ var=1.0244
+   ├─ smooth=0.0000
+   ├─ total=0.5335
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 13] Train → total=0.5336 | geo=0.1900 | rank=0.0981 | var=1.0243 | smooth=0.0000
+🔍 [Epoch 13] Validation → geo=0.2098 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.620
+
+🟢 [Epoch 14/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.2078
+   ├─ latent=1.0269
+   ├─ rank=0.0845
+   ├─ var=1.0227
+   ├─ smooth=0.0000
+   ├─ total=0.5342
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1797
+   ├─ latent=1.0282
+   ├─ rank=0.0902
+   ├─ var=1.0237
+   ├─ smooth=0.0000
+   ├─ total=0.5321
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1777
+   ├─ latent=1.0285
+   ├─ rank=0.0938
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5320
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1771
+   ├─ latent=1.0313
+   ├─ rank=0.0934
+   ├─ var=1.0267
+   ├─ smooth=0.0000
+   ├─ total=0.5334
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1808
+   ├─ latent=1.0322
+   ├─ rank=0.0968
+   ├─ var=1.0274
+   ├─ smooth=0.0000
+   ├─ total=0.5342
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1815
+   ├─ latent=1.0315
+   ├─ rank=0.0954
+   ├─ var=1.0268
+   ├─ smooth=0.0000
+   ├─ total=0.5339
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1849
+   ├─ latent=1.0311
+   ├─ rank=0.0943
+   ├─ var=1.0264
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1847
+   ├─ latent=1.0311
+   ├─ rank=0.0973
+   ├─ var=1.0263
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1843
+   ├─ latent=1.0308
+   ├─ rank=0.0956
+   ├─ var=1.0261
+   ├─ smooth=0.0000
+   ├─ total=0.5338
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 14] Train → total=0.5338 | geo=0.1847 | rank=0.0961 | var=1.0258 | smooth=0.0000
+🔍 [Epoch 14] Validation → geo=0.1987 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.617
+
+🟢 [Epoch 15/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1953
+   ├─ latent=1.0281
+   ├─ rank=0.0657
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5336
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1784
+   ├─ latent=1.0294
+   ├─ rank=0.0857
+   ├─ var=1.0251
+   ├─ smooth=0.0000
+   ├─ total=0.5325
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1770
+   ├─ latent=1.0295
+   ├─ rank=0.0905
+   ├─ var=1.0250
+   ├─ smooth=0.0000
+   ├─ total=0.5325
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1799
+   ├─ latent=1.0299
+   ├─ rank=0.0902
+   ├─ var=1.0254
+   ├─ smooth=0.0000
+   ├─ total=0.5329
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1799
+   ├─ latent=1.0296
+   ├─ rank=0.0903
+   ├─ var=1.0251
+   ├─ smooth=0.0000
+   ├─ total=0.5328
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1808
+   ├─ latent=1.0293
+   ├─ rank=0.0868
+   ├─ var=1.0250
+   ├─ smooth=0.0000
+   ├─ total=0.5327
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1822
+   ├─ latent=1.0316
+   ├─ rank=0.0875
+   ├─ var=1.0273
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1836
+   ├─ latent=1.0312
+   ├─ rank=0.0900
+   ├─ var=1.0267
+   ├─ smooth=0.0000
+   ├─ total=0.5340
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1832
+   ├─ latent=1.0309
+   ├─ rank=0.0901
+   ├─ var=1.0264
+   ├─ smooth=0.0000
+   ├─ total=0.5338
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 15] Train → total=0.5337 | geo=0.1828 | rank=0.0924 | var=1.0262 | smooth=0.0000
+🔍 [Epoch 15] Validation → geo=0.1840 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.784, ρ_S=0.715, R²=0.614
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch15.pth
+
+🟢 [Epoch 16/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1837
+   ├─ latent=1.0257
+   ├─ rank=0.0344
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1837
+   ├─ latent=1.0306
+   ├─ rank=0.1089
+   ├─ var=1.0252
+   ├─ smooth=0.0000
+   ├─ total=0.5337
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1776
+   ├─ latent=1.0296
+   ├─ rank=0.1003
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5326
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1775
+   ├─ latent=1.0296
+   ├─ rank=0.1019
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5325
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1756
+   ├─ latent=1.0296
+   ├─ rank=0.0980
+   ├─ var=1.0247
+   ├─ smooth=0.0000
+   ├─ total=0.5324
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1752
+   ├─ latent=1.0298
+   ├─ rank=0.1002
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5324
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1751
+   ├─ latent=1.0294
+   ├─ rank=0.0976
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5322
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1764
+   ├─ latent=1.0292
+   ├─ rank=0.0962
+   ├─ var=1.0244
+   ├─ smooth=0.0000
+   ├─ total=0.5322
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1784
+   ├─ latent=1.0291
+   ├─ rank=0.0960
+   ├─ var=1.0243
+   ├─ smooth=0.0000
+   ├─ total=0.5324
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 16] Train → total=0.5323 | geo=0.1776 | rank=0.0955 | var=1.0243 | smooth=0.0000
+🔍 [Epoch 16] Validation → geo=0.1668 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.617
+
+🟢 [Epoch 17/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1681
+   ├─ latent=1.0291
+   ├─ rank=0.0801
+   ├─ var=1.0251
+   ├─ smooth=0.0000
+   ├─ total=0.5314
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1831
+   ├─ latent=1.0292
+   ├─ rank=0.0987
+   ├─ var=1.0242
+   ├─ smooth=0.0000
+   ├─ total=0.5329
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1806
+   ├─ latent=1.0288
+   ├─ rank=0.0930
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5324
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1761
+   ├─ latent=1.0295
+   ├─ rank=0.1017
+   ├─ var=1.0244
+   ├─ smooth=0.0000
+   ├─ total=0.5324
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1742
+   ├─ latent=1.0303
+   ├─ rank=0.1010
+   ├─ var=1.0252
+   ├─ smooth=0.0000
+   ├─ total=0.5326
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1735
+   ├─ latent=1.0297
+   ├─ rank=0.0960
+   ├─ var=1.0249
+   ├─ smooth=0.0000
+   ├─ total=0.5322
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1743
+   ├─ latent=1.0297
+   ├─ rank=0.0970
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5323
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1732
+   ├─ latent=1.0294
+   ├─ rank=0.0971
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5320
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1727
+   ├─ latent=1.0293
+   ├─ rank=0.0964
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5319
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 17] Train → total=0.5319 | geo=0.1729 | rank=0.0960 | var=1.0244 | smooth=0.0000
+🔍 [Epoch 17] Validation → geo=0.1677 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.617
+
+🟢 [Epoch 18/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1684
+   ├─ latent=1.0253
+   ├─ rank=0.0558
+   ├─ var=1.0225
+   ├─ smooth=0.0000
+   ├─ total=0.5295
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1676
+   ├─ latent=1.0292
+   ├─ rank=0.0879
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5314
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1664
+   ├─ latent=1.0286
+   ├─ rank=0.0882
+   ├─ var=1.0242
+   ├─ smooth=0.0000
+   ├─ total=0.5309
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1678
+   ├─ latent=1.0287
+   ├─ rank=0.0967
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1662
+   ├─ latent=1.0291
+   ├─ rank=0.1024
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1664
+   ├─ latent=1.0292
+   ├─ rank=0.1029
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1672
+   ├─ latent=1.0289
+   ├─ rank=0.1005
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1701
+   ├─ latent=1.0289
+   ├─ rank=0.1009
+   ├─ var=1.0238
+   ├─ smooth=0.0000
+   ├─ total=0.5315
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1702
+   ├─ latent=1.0288
+   ├─ rank=0.1007
+   ├─ var=1.0238
+   ├─ smooth=0.0000
+   ├─ total=0.5314
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 18] Train → total=0.5315 | geo=0.1699 | rank=0.1003 | var=1.0239 | smooth=0.0000
+🔍 [Epoch 18] Validation → geo=0.1691 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.618
+
+🟢 [Epoch 19/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1692
+   ├─ latent=1.0288
+   ├─ rank=0.1238
+   ├─ var=1.0227
+   ├─ smooth=0.0000
+   ├─ total=0.5313
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1734
+   ├─ latent=1.0318
+   ├─ rank=0.1170
+   ├─ var=1.0260
+   ├─ smooth=0.0000
+   ├─ total=0.5332
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1751
+   ├─ latent=1.0301
+   ├─ rank=0.1100
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5325
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1721
+   ├─ latent=1.0293
+   ├─ rank=0.1046
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5319
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1697
+   ├─ latent=1.0293
+   ├─ rank=0.1069
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5316
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1680
+   ├─ latent=1.0295
+   ├─ rank=0.1077
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5315
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1663
+   ├─ latent=1.0292
+   ├─ rank=0.1052
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1655
+   ├─ latent=1.0292
+   ├─ rank=0.1033
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1650
+   ├─ latent=1.0293
+   ├─ rank=0.1050
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5312
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 19] Train → total=0.5311 | geo=0.1648 | rank=0.1052 | var=1.0241 | smooth=0.0000
+🔍 [Epoch 19] Validation → geo=0.1564 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.788, ρ_S=0.720, R²=0.622
+
+🟢 [Epoch 20/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1583
+   ├─ latent=1.0285
+   ├─ rank=0.0854
+   ├─ var=1.0242
+   ├─ smooth=0.0000
+   ├─ total=0.5301
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1603
+   ├─ latent=1.0293
+   ├─ rank=0.0945
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5307
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1603
+   ├─ latent=1.0283
+   ├─ rank=0.0865
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5302
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1588
+   ├─ latent=1.0295
+   ├─ rank=0.0945
+   ├─ var=1.0248
+   ├─ smooth=0.0000
+   ├─ total=0.5306
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1596
+   ├─ latent=1.0293
+   ├─ rank=0.0962
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5306
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1606
+   ├─ latent=1.0291
+   ├─ rank=0.0934
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5306
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1610
+   ├─ latent=1.0293
+   ├─ rank=0.0939
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5307
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1607
+   ├─ latent=1.0294
+   ├─ rank=0.0972
+   ├─ var=1.0246
+   ├─ smooth=0.0000
+   ├─ total=0.5308
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1607
+   ├─ latent=1.0294
+   ├─ rank=0.0973
+   ├─ var=1.0245
+   ├─ smooth=0.0000
+   ├─ total=0.5308
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 20] Train → total=0.5307 | geo=0.1608 | rank=0.0962 | var=1.0245 | smooth=0.0000
+🔍 [Epoch 20] Validation → geo=0.1615 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.619
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch20.pth
+
+🟢 [Epoch 21/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1581
+   ├─ latent=1.0277
+   ├─ rank=0.0956
+   ├─ var=1.0229
+   ├─ smooth=0.0000
+   ├─ total=0.5297
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1539
+   ├─ latent=1.0297
+   ├─ rank=0.1179
+   ├─ var=1.0238
+   ├─ smooth=0.0000
+   ├─ total=0.5303
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1539
+   ├─ latent=1.0295
+   ├─ rank=0.1181
+   ├─ var=1.0236
+   ├─ smooth=0.0000
+   ├─ total=0.5301
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1554
+   ├─ latent=1.0294
+   ├─ rank=0.1091
+   ├─ var=1.0239
+   ├─ smooth=0.0000
+   ├─ total=0.5302
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1550
+   ├─ latent=1.0290
+   ├─ rank=0.1055
+   ├─ var=1.0237
+   ├─ smooth=0.0000
+   ├─ total=0.5300
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1550
+   ├─ latent=1.0293
+   ├─ rank=0.1058
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5302
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1549
+   ├─ latent=1.0294
+   ├─ rank=0.1055
+   ├─ var=1.0241
+   ├─ smooth=0.0000
+   ├─ total=0.5302
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1562
+   ├─ latent=1.0293
+   ├─ rank=0.1058
+   ├─ var=1.0240
+   ├─ smooth=0.0000
+   ├─ total=0.5303
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1598
+   ├─ latent=1.0290
+   ├─ rank=0.1028
+   ├─ var=1.0238
+   ├─ smooth=0.0000
+   ├─ total=0.5305
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 21] Train → total=0.5305 | geo=0.1601 | rank=0.1017 | var=1.0238 | smooth=0.0000
+🔍 [Epoch 21] Validation → geo=0.1677 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.622
+
+🟢 [Epoch 22/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1650
+   ├─ latent=1.0303
+   ├─ rank=0.1168
+   ├─ var=1.0244
+   ├─ smooth=0.0000
+   ├─ total=0.5316
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1627
+   ├─ latent=1.0280
+   ├─ rank=0.0979
+   ├─ var=1.0231
+   ├─ smooth=0.0000
+   ├─ total=0.5303
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1581
+   ├─ latent=1.0281
+   ├─ rank=0.0980
+   ├─ var=1.0232
+   ├─ smooth=0.0000
+   ├─ total=0.5299
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1590
+   ├─ latent=1.0277
+   ├─ rank=0.1042
+   ├─ var=1.0225
+   ├─ smooth=0.0000
+   ├─ total=0.5298
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1603
+   ├─ latent=1.0273
+   ├─ rank=0.1000
+   ├─ var=1.0223
+   ├─ smooth=0.0000
+   ├─ total=0.5297
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1609
+   ├─ latent=1.0272
+   ├─ rank=0.0998
+   ├─ var=1.0222
+   ├─ smooth=0.0000
+   ├─ total=0.5297
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1604
+   ├─ latent=1.0270
+   ├─ rank=0.0987
+   ├─ var=1.0220
+   ├─ smooth=0.0000
+   ├─ total=0.5295
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1624
+   ├─ latent=1.0266
+   ├─ rank=0.0948
+   ├─ var=1.0218
+   ├─ smooth=0.0000
+   ├─ total=0.5295
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1615
+   ├─ latent=1.0266
+   ├─ rank=0.0936
+   ├─ var=1.0219
+   ├─ smooth=0.0000
+   ├─ total=0.5294
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 22] Train → total=0.5294 | geo=0.1607 | rank=0.0953 | var=1.0219 | smooth=0.0000
+🔍 [Epoch 22] Validation → geo=0.1600 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.618
+
+🟢 [Epoch 23/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1563
+   ├─ latent=1.0294
+   ├─ rank=0.2040
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5303
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1533
+   ├─ latent=1.0256
+   ├─ rank=0.1119
+   ├─ var=1.0200
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1542
+   ├─ latent=1.0256
+   ├─ rank=0.1077
+   ├─ var=1.0202
+   ├─ smooth=0.0000
+   ├─ total=0.5282
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1545
+   ├─ latent=1.0252
+   ├─ rank=0.0981
+   ├─ var=1.0203
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1545
+   ├─ latent=1.0253
+   ├─ rank=0.1016
+   ├─ var=1.0202
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1543
+   ├─ latent=1.0252
+   ├─ rank=0.1011
+   ├─ var=1.0201
+   ├─ smooth=0.0000
+   ├─ total=0.5280
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1558
+   ├─ latent=1.0252
+   ├─ rank=0.1034
+   ├─ var=1.0200
+   ├─ smooth=0.0000
+   ├─ total=0.5282
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1555
+   ├─ latent=1.0250
+   ├─ rank=0.1032
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5280
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1553
+   ├─ latent=1.0249
+   ├─ rank=0.1036
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5280
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 23] Train → total=0.5281 | geo=0.1565 | rank=0.1024 | var=1.0197 | smooth=0.0000
+🔍 [Epoch 23] Validation → geo=0.1654 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.622
+
+🟢 [Epoch 24/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1618
+   ├─ latent=1.0244
+   ├─ rank=0.1062
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5284
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1564
+   ├─ latent=1.0232
+   ├─ rank=0.0886
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5272
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1537
+   ├─ latent=1.0238
+   ├─ rank=0.0959
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1525
+   ├─ latent=1.0237
+   ├─ rank=0.0959
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5271
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1536
+   ├─ latent=1.0245
+   ├─ rank=0.0983
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5276
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1563
+   ├─ latent=1.0248
+   ├─ rank=0.0985
+   ├─ var=1.0199
+   ├─ smooth=0.0000
+   ├─ total=0.5280
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1569
+   ├─ latent=1.0249
+   ├─ rank=0.1005
+   ├─ var=1.0199
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1567
+   ├─ latent=1.0249
+   ├─ rank=0.1004
+   ├─ var=1.0199
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1563
+   ├─ latent=1.0249
+   ├─ rank=0.0998
+   ├─ var=1.0199
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 24] Train → total=0.5279 | geo=0.1554 | rank=0.0985 | var=1.0198 | smooth=0.0000
+🔍 [Epoch 24] Validation → geo=0.1519 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.618
+
+🟢 [Epoch 25/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1526
+   ├─ latent=1.0259
+   ├─ rank=0.1503
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5282
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1613
+   ├─ latent=1.0245
+   ├─ rank=0.1062
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5284
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1560
+   ├─ latent=1.0244
+   ├─ rank=0.0974
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5278
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1545
+   ├─ latent=1.0248
+   ├─ rank=0.1071
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5278
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1535
+   ├─ latent=1.0245
+   ├─ rank=0.1027
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5276
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1528
+   ├─ latent=1.0244
+   ├─ rank=0.1028
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1533
+   ├─ latent=1.0244
+   ├─ rank=0.1037
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1526
+   ├─ latent=1.0245
+   ├─ rank=0.1043
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1529
+   ├─ latent=1.0244
+   ├─ rank=0.1032
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 25] Train → total=0.5275 | geo=0.1527 | rank=0.1033 | var=1.0192 | smooth=0.0000
+🔍 [Epoch 25] Validation → geo=0.1431 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.620
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch25.pth
+
+🟢 [Epoch 26/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1437
+   ├─ latent=1.0211
+   ├─ rank=0.0473
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5249
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1545
+   ├─ latent=1.0231
+   ├─ rank=0.0749
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5270
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1525
+   ├─ latent=1.0229
+   ├─ rank=0.0753
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1507
+   ├─ latent=1.0237
+   ├─ rank=0.0892
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1512
+   ├─ latent=1.0243
+   ├─ rank=0.0902
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1517
+   ├─ latent=1.0243
+   ├─ rank=0.0891
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1532
+   ├─ latent=1.0243
+   ├─ rank=0.0894
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1532
+   ├─ latent=1.0243
+   ├─ rank=0.0901
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1541
+   ├─ latent=1.0243
+   ├─ rank=0.0912
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5276
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 26] Train → total=0.5276 | geo=0.1550 | rank=0.0907 | var=1.0198 | smooth=0.0000
+🔍 [Epoch 26] Validation → geo=0.1463 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.721, R²=0.623
+
+🟢 [Epoch 27/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1484
+   ├─ latent=1.0287
+   ├─ rank=0.1534
+   ├─ var=1.0211
+   ├─ smooth=0.0000
+   ├─ total=0.5292
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1529
+   ├─ latent=1.0236
+   ├─ rank=0.0855
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5271
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1510
+   ├─ latent=1.0236
+   ├─ rank=0.0851
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1514
+   ├─ latent=1.0248
+   ├─ rank=0.0940
+   ├─ var=1.0201
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1513
+   ├─ latent=1.0246
+   ├─ rank=0.0960
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5274
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1517
+   ├─ latent=1.0245
+   ├─ rank=0.0965
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5274
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1519
+   ├─ latent=1.0244
+   ├─ rank=0.0980
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5274
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1517
+   ├─ latent=1.0244
+   ├─ rank=0.0972
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1510
+   ├─ latent=1.0243
+   ├─ rank=0.0973
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 27] Train → total=0.5272 | geo=0.1508 | rank=0.0963 | var=1.0194 | smooth=0.0000
+🔍 [Epoch 27] Validation → geo=0.1543 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.718, R²=0.619
+
+🟢 [Epoch 28/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1570
+   ├─ latent=1.0200
+   ├─ rank=0.0367
+   ├─ var=1.0182
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1541
+   ├─ latent=1.0234
+   ├─ rank=0.0874
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5271
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1612
+   ├─ latent=1.0241
+   ├─ rank=0.0992
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5282
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1589
+   ├─ latent=1.0245
+   ├─ rank=0.1023
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5281
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1593
+   ├─ latent=1.0241
+   ├─ rank=0.0971
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5280
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1578
+   ├─ latent=1.0239
+   ├─ rank=0.0931
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1565
+   ├─ latent=1.0240
+   ├─ rank=0.0945
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5276
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1563
+   ├─ latent=1.0241
+   ├─ rank=0.0969
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1563
+   ├─ latent=1.0242
+   ├─ rank=0.0980
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 28] Train → total=0.5277 | geo=0.1557 | rank=0.0969 | var=1.0193 | smooth=0.0000
+🔍 [Epoch 28] Validation → geo=0.1588 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.619
+
+🟢 [Epoch 29/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1616
+   ├─ latent=1.0245
+   ├─ rank=0.1187
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5284
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1513
+   ├─ latent=1.0243
+   ├─ rank=0.1105
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5273
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1493
+   ├─ latent=1.0240
+   ├─ rank=0.1055
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1469
+   ├─ latent=1.0241
+   ├─ rank=0.1025
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1457
+   ├─ latent=1.0238
+   ├─ rank=0.0975
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1450
+   ├─ latent=1.0243
+   ├─ rank=0.1036
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5266
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1455
+   ├─ latent=1.0242
+   ├─ rank=0.1039
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1459
+   ├─ latent=1.0243
+   ├─ rank=0.1032
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1458
+   ├─ latent=1.0243
+   ├─ rank=0.1023
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 29] Train → total=0.5267 | geo=0.1463 | rank=0.1010 | var=1.0191 | smooth=0.0000
+🔍 [Epoch 29] Validation → geo=0.1453 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.719, R²=0.620
+
+🟢 [Epoch 30/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1402
+   ├─ latent=1.0217
+   ├─ rank=0.0745
+   ├─ var=1.0180
+   ├─ smooth=0.0000
+   ├─ total=0.5249
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1442
+   ├─ latent=1.0237
+   ├─ rank=0.1036
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1430
+   ├─ latent=1.0241
+   ├─ rank=0.1089
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1424
+   ├─ latent=1.0242
+   ├─ rank=0.1066
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1426
+   ├─ latent=1.0241
+   ├─ rank=0.1066
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1426
+   ├─ latent=1.0240
+   ├─ rank=0.1041
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1439
+   ├─ latent=1.0240
+   ├─ rank=0.1036
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1471
+   ├─ latent=1.0259
+   ├─ rank=0.1030
+   ├─ var=1.0207
+   ├─ smooth=0.0000
+   ├─ total=0.5276
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1487
+   ├─ latent=1.0257
+   ├─ rank=0.1024
+   ├─ var=1.0206
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 30] Train → total=0.5277 | geo=0.1488 | rank=0.1042 | var=1.0204 | smooth=0.0000
+🔍 [Epoch 30] Validation → geo=0.1414 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.617
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch30.pth
+
+🟢 [Epoch 31/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1418
+   ├─ latent=1.0190
+   ├─ rank=0.0168
+   ├─ var=1.0182
+   ├─ smooth=0.0000
+   ├─ total=0.5237
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1445
+   ├─ latent=1.0237
+   ├─ rank=0.1025
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1452
+   ├─ latent=1.0238
+   ├─ rank=0.0979
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1465
+   ├─ latent=1.0237
+   ├─ rank=0.0982
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1462
+   ├─ latent=1.0235
+   ├─ rank=0.0946
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1478
+   ├─ latent=1.0244
+   ├─ rank=0.0969
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5270
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1491
+   ├─ latent=1.0244
+   ├─ rank=0.0953
+   ├─ var=1.0197
+   ├─ smooth=0.0000
+   ├─ total=0.5271
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1486
+   ├─ latent=1.0243
+   ├─ rank=0.0958
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5270
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1482
+   ├─ latent=1.0242
+   ├─ rank=0.0958
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 31] Train → total=0.5269 | geo=0.1486 | rank=0.0951 | var=1.0194 | smooth=0.0000
+🔍 [Epoch 31] Validation → geo=0.1473 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.619
+
+🟢 [Epoch 32/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1474
+   ├─ latent=1.0304
+   ├─ rank=0.2269
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5300
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1436
+   ├─ latent=1.0257
+   ├─ rank=0.1247
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5272
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1437
+   ├─ latent=1.0247
+   ├─ rank=0.1088
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1437
+   ├─ latent=1.0244
+   ├─ rank=0.1045
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5266
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1435
+   ├─ latent=1.0246
+   ├─ rank=0.1086
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1441
+   ├─ latent=1.0249
+   ├─ rank=0.1124
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1445
+   ├─ latent=1.0250
+   ├─ rank=0.1138
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1446
+   ├─ latent=1.0247
+   ├─ rank=0.1112
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5268
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1442
+   ├─ latent=1.0246
+   ├─ rank=0.1081
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 32] Train → total=0.5266 | geo=0.1442 | rank=0.1059 | var=1.0191 | smooth=0.0000
+🔍 [Epoch 32] Validation → geo=0.1576 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.619
+
+🟢 [Epoch 33/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1540
+   ├─ latent=1.0214
+   ├─ rank=0.0589
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1448
+   ├─ latent=1.0235
+   ├─ rank=0.0896
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1435
+   ├─ latent=1.0238
+   ├─ rank=0.0877
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1458
+   ├─ latent=1.0235
+   ├─ rank=0.0844
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1465
+   ├─ latent=1.0238
+   ├─ rank=0.0884
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1455
+   ├─ latent=1.0238
+   ├─ rank=0.0904
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1449
+   ├─ latent=1.0238
+   ├─ rank=0.0925
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1443
+   ├─ latent=1.0238
+   ├─ rank=0.0923
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1442
+   ├─ latent=1.0239
+   ├─ rank=0.0940
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 33] Train → total=0.5263 | geo=0.1439 | rank=0.0932 | var=1.0192 | smooth=0.0000
+🔍 [Epoch 33] Validation → geo=0.1398 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.786, ρ_S=0.717, R²=0.617
+
+🟢 [Epoch 34/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1395
+   ├─ latent=1.0275
+   ├─ rank=0.1890
+   ├─ var=1.0181
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1412
+   ├─ latent=1.0248
+   ├─ rank=0.1085
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1453
+   ├─ latent=1.0259
+   ├─ rank=0.1169
+   ├─ var=1.0201
+   ├─ smooth=0.0000
+   ├─ total=0.5275
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1453
+   ├─ latent=1.0257
+   ├─ rank=0.1176
+   ├─ var=1.0198
+   ├─ smooth=0.0000
+   ├─ total=0.5274
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1446
+   ├─ latent=1.0253
+   ├─ rank=0.1130
+   ├─ var=1.0197
+   ├─ smooth=0.0000
+   ├─ total=0.5271
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1438
+   ├─ latent=1.0251
+   ├─ rank=0.1097
+   ├─ var=1.0197
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1436
+   ├─ latent=1.0251
+   ├─ rank=0.1090
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5269
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1428
+   ├─ latent=1.0250
+   ├─ rank=0.1080
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5268
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1422
+   ├─ latent=1.0251
+   ├─ rank=0.1090
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 34] Train → total=0.5267 | geo=0.1423 | rank=0.1084 | var=1.0196 | smooth=0.0000
+🔍 [Epoch 34] Validation → geo=0.1348 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.785, ρ_S=0.716, R²=0.616
+
+🟢 [Epoch 35/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1331
+   ├─ latent=1.0232
+   ├─ rank=0.1001
+   ├─ var=1.0181
+   ├─ smooth=0.0000
+   ├─ total=0.5249
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1420
+   ├─ latent=1.0243
+   ├─ rank=0.1125
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1428
+   ├─ latent=1.0237
+   ├─ rank=0.1014
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1420
+   ├─ latent=1.0230
+   ├─ rank=0.0885
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1414
+   ├─ latent=1.0237
+   ├─ rank=0.0961
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1424
+   ├─ latent=1.0238
+   ├─ rank=0.0961
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1420
+   ├─ latent=1.0240
+   ├─ rank=0.0957
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1416
+   ├─ latent=1.0242
+   ├─ rank=0.0986
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1415
+   ├─ latent=1.0242
+   ├─ rank=0.0986
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 35] Train → total=0.5263 | geo=0.1415 | rank=0.0990 | var=1.0193 | smooth=0.0000
+🔍 [Epoch 35] Validation → geo=0.1320 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.620
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch35.pth
+
+🟢 [Epoch 36/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1363
+   ├─ latent=1.0253
+   ├─ rank=0.0672
+   ├─ var=1.0219
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1441
+   ├─ latent=1.0237
+   ├─ rank=0.0933
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1423
+   ├─ latent=1.0236
+   ├─ rank=0.0942
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1424
+   ├─ latent=1.0240
+   ├─ rank=0.1010
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1422
+   ├─ latent=1.0244
+   ├─ rank=0.1033
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1423
+   ├─ latent=1.0246
+   ├─ rank=0.1012
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1417
+   ├─ latent=1.0244
+   ├─ rank=0.0998
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5264
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1416
+   ├─ latent=1.0242
+   ├─ rank=0.0979
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1411
+   ├─ latent=1.0243
+   ├─ rank=0.1007
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 36] Train → total=0.5261 | geo=0.1409 | rank=0.0976 | var=1.0192 | smooth=0.0000
+🔍 [Epoch 36] Validation → geo=0.1374 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.787, ρ_S=0.718, R²=0.620
+
+🟢 [Epoch 37/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1388
+   ├─ latent=1.0245
+   ├─ rank=0.1255
+   ├─ var=1.0182
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1431
+   ├─ latent=1.0240
+   ├─ rank=0.1004
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1404
+   ├─ latent=1.0236
+   ├─ rank=0.0976
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5258
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1414
+   ├─ latent=1.0237
+   ├─ rank=0.0964
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1429
+   ├─ latent=1.0238
+   ├─ rank=0.0993
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1420
+   ├─ latent=1.0239
+   ├─ rank=0.0986
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1413
+   ├─ latent=1.0238
+   ├─ rank=0.0970
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1431
+   ├─ latent=1.0236
+   ├─ rank=0.0945
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1427
+   ├─ latent=1.0237
+   ├─ rank=0.0967
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 37] Train → total=0.5261 | geo=0.1423 | rank=0.0965 | var=1.0189 | smooth=0.0000
+🔍 [Epoch 37] Validation → geo=0.1410 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.788, ρ_S=0.719, R²=0.621
+
+🟢 [Epoch 38/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1402
+   ├─ latent=1.0274
+   ├─ rank=0.1422
+   ├─ var=1.0203
+   ├─ smooth=0.0000
+   ├─ total=0.5277
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1401
+   ├─ latent=1.0261
+   ├─ rank=0.1159
+   ├─ var=1.0203
+   ├─ smooth=0.0000
+   ├─ total=0.5270
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1444
+   ├─ latent=1.0256
+   ├─ rank=0.1122
+   ├─ var=1.0200
+   ├─ smooth=0.0000
+   ├─ total=0.5272
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1428
+   ├─ latent=1.0249
+   ├─ rank=0.1082
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1410
+   ├─ latent=1.0249
+   ├─ rank=0.1069
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5265
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1398
+   ├─ latent=1.0247
+   ├─ rank=0.1071
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1391
+   ├─ latent=1.0247
+   ├─ rank=0.1085
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1383
+   ├─ latent=1.0246
+   ├─ rank=0.1084
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1377
+   ├─ latent=1.0246
+   ├─ rank=0.1094
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 38] Train → total=0.5260 | geo=0.1373 | rank=0.1080 | var=1.0191 | smooth=0.0000
+🔍 [Epoch 38] Validation → geo=0.1344 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.790, ρ_S=0.721, R²=0.624
+
+🟢 [Epoch 39/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1388
+   ├─ latent=1.0200
+   ├─ rank=0.0313
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5239
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1340
+   ├─ latent=1.0234
+   ├─ rank=0.0940
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5251
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1338
+   ├─ latent=1.0239
+   ├─ rank=0.1038
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5253
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1334
+   ├─ latent=1.0241
+   ├─ rank=0.1066
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1342
+   ├─ latent=1.0239
+   ├─ rank=0.1035
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1357
+   ├─ latent=1.0240
+   ├─ rank=0.1035
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1356
+   ├─ latent=1.0243
+   ├─ rank=0.1053
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1361
+   ├─ latent=1.0242
+   ├─ rank=0.1037
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1360
+   ├─ latent=1.0243
+   ├─ rank=0.1042
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 39] Train → total=0.5258 | geo=0.1366 | rank=0.1039 | var=1.0191 | smooth=0.0000
+🔍 [Epoch 39] Validation → geo=0.1516 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.792, ρ_S=0.723, R²=0.628
+
+🟢 [Epoch 40/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1489
+   ├─ latent=1.0203
+   ├─ rank=0.0237
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5251
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1387
+   ├─ latent=1.0223
+   ├─ rank=0.0796
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5250
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1355
+   ├─ latent=1.0231
+   ├─ rank=0.0922
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5251
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1359
+   ├─ latent=1.0232
+   ├─ rank=0.0922
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5252
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1371
+   ├─ latent=1.0238
+   ├─ rank=0.0999
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1365
+   ├─ latent=1.0238
+   ├─ rank=0.1005
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1371
+   ├─ latent=1.0238
+   ├─ rank=0.0984
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1362
+   ├─ latent=1.0237
+   ├─ rank=0.0966
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1359
+   ├─ latent=1.0236
+   ├─ rank=0.0963
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 40] Train → total=0.5253 | geo=0.1356 | rank=0.0947 | var=1.0188 | smooth=0.0000
+🔍 [Epoch 40] Validation → geo=0.1393 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.792, ρ_S=0.723, R²=0.628
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch40.pth
+
+🟢 [Epoch 41/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1385
+   ├─ latent=1.0201
+   ├─ rank=0.0345
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5239
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1336
+   ├─ latent=1.0243
+   ├─ rank=0.0968
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1321
+   ├─ latent=1.0240
+   ├─ rank=0.0995
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5252
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1331
+   ├─ latent=1.0239
+   ├─ rank=0.1004
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5253
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1340
+   ├─ latent=1.0239
+   ├─ rank=0.1012
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5253
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1345
+   ├─ latent=1.0242
+   ├─ rank=0.1014
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1350
+   ├─ latent=1.0240
+   ├─ rank=0.0974
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1353
+   ├─ latent=1.0239
+   ├─ rank=0.0963
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1350
+   ├─ latent=1.0240
+   ├─ rank=0.0969
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 41] Train → total=0.5255 | geo=0.1350 | rank=0.0988 | var=1.0191 | smooth=0.0000
+🔍 [Epoch 41] Validation → geo=0.1330 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.792, ρ_S=0.723, R²=0.627
+
+🟢 [Epoch 42/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1300
+   ├─ latent=1.0201
+   ├─ rank=0.0308
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1336
+   ├─ latent=1.0235
+   ├─ rank=0.0949
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5251
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1350
+   ├─ latent=1.0230
+   ├─ rank=0.0873
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5250
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1339
+   ├─ latent=1.0229
+   ├─ rank=0.0872
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5248
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1333
+   ├─ latent=1.0234
+   ├─ rank=0.0909
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5250
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1336
+   ├─ latent=1.0235
+   ├─ rank=0.0908
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5251
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1338
+   ├─ latent=1.0240
+   ├─ rank=0.0942
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1340
+   ├─ latent=1.0240
+   ├─ rank=0.0961
+   ├─ var=1.0192
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1344
+   ├─ latent=1.0239
+   ├─ rank=0.0965
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 42] Train → total=0.5253 | geo=0.1342 | rank=0.0958 | var=1.0190 | smooth=0.0000
+🔍 [Epoch 42] Validation → geo=0.1312 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.790, ρ_S=0.721, R²=0.624
+
+🟢 [Epoch 43/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1329
+   ├─ latent=1.0208
+   ├─ rank=0.0466
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5237
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1327
+   ├─ latent=1.0261
+   ├─ rank=0.1051
+   ├─ var=1.0208
+   ├─ smooth=0.0000
+   ├─ total=0.5263
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1369
+   ├─ latent=1.0247
+   ├─ rank=0.0920
+   ├─ var=1.0201
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1357
+   ├─ latent=1.0243
+   ├─ rank=0.0961
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1343
+   ├─ latent=1.0244
+   ├─ rank=0.0958
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1351
+   ├─ latent=1.0244
+   ├─ rank=0.0988
+   ├─ var=1.0195
+   ├─ smooth=0.0000
+   ├─ total=0.5257
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1348
+   ├─ latent=1.0245
+   ├─ rank=0.1017
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5258
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1345
+   ├─ latent=1.0246
+   ├─ rank=0.1013
+   ├─ var=1.0196
+   ├─ smooth=0.0000
+   ├─ total=0.5258
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1341
+   ├─ latent=1.0244
+   ├─ rank=0.1006
+   ├─ var=1.0194
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 43] Train → total=0.5255 | geo=0.1339 | rank=0.0995 | var=1.0193 | smooth=0.0000
+🔍 [Epoch 43] Validation → geo=0.1383 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.788, ρ_S=0.719, R²=0.621
+
+🟢 [Epoch 44/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1389
+   ├─ latent=1.0199
+   ├─ rank=0.0244
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5238
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1390
+   ├─ latent=1.0245
+   ├─ rank=0.1028
+   ├─ var=1.0193
+   ├─ smooth=0.0000
+   ├─ total=0.5261
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1406
+   ├─ latent=1.0239
+   ├─ rank=0.1005
+   ├─ var=1.0189
+   ├─ smooth=0.0000
+   ├─ total=0.5260
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1375
+   ├─ latent=1.0236
+   ├─ rank=0.0986
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5256
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1367
+   ├─ latent=1.0237
+   ├─ rank=0.0992
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1361
+   ├─ latent=1.0237
+   ├─ rank=0.1007
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1352
+   ├─ latent=1.0238
+   ├─ rank=0.1016
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1347
+   ├─ latent=1.0238
+   ├─ rank=0.1011
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5254
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1346
+   ├─ latent=1.0240
+   ├─ rank=0.1044
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5255
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 44] Train → total=0.5254 | geo=0.1345 | rank=0.1010 | var=1.0189 | smooth=0.0000
+🔍 [Epoch 44] Validation → geo=0.1367 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.790, ρ_S=0.721, R²=0.624
+
+🟢 [Epoch 45/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1395
+   ├─ latent=1.0245
+   ├─ rank=0.0964
+   ├─ var=1.0197
+   ├─ smooth=0.0000
+   ├─ total=0.5262
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1231
+   ├─ latent=1.0241
+   ├─ rank=0.1111
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5244
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1205
+   ├─ latent=1.0234
+   ├─ rank=0.0993
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5238
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1202
+   ├─ latent=1.0243
+   ├─ rank=0.1065
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5242
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1198
+   ├─ latent=1.0244
+   ├─ rank=0.1109
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5242
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1200
+   ├─ latent=1.0242
+   ├─ rank=0.1090
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5241
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1195
+   ├─ latent=1.0241
+   ├─ rank=0.1086
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5240
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1192
+   ├─ latent=1.0241
+   ├─ rank=0.1089
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5240
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1190
+   ├─ latent=1.0240
+   ├─ rank=0.1079
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5239
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 45] Train → total=0.5238 | geo=0.1186 | rank=0.1074 | var=1.0186 | smooth=0.0000
+🔍 [Epoch 45] Validation → geo=0.1146 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.788, ρ_S=0.719, R²=0.621
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch45.pth
+
+🟢 [Epoch 46/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1170
+   ├─ latent=1.0194
+   ├─ rank=0.0296
+   ├─ var=1.0180
+   ├─ smooth=0.0000
+   ├─ total=0.5214
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1216
+   ├─ latent=1.0233
+   ├─ rank=0.0953
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5238
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1189
+   ├─ latent=1.0230
+   ├─ rank=0.0867
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5234
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1189
+   ├─ latent=1.0234
+   ├─ rank=0.0957
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5236
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1185
+   ├─ latent=1.0232
+   ├─ rank=0.0918
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5234
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1178
+   ├─ latent=1.0237
+   ├─ rank=0.0970
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5236
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1175
+   ├─ latent=1.0236
+   ├─ rank=0.0976
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5236
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1174
+   ├─ latent=1.0235
+   ├─ rank=0.0962
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5235
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1175
+   ├─ latent=1.0234
+   ├─ rank=0.0949
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5234
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 46] Train → total=0.5236 | geo=0.1175 | rank=0.0997 | var=1.0187 | smooth=0.0000
+🔍 [Epoch 46] Validation → geo=0.1157 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.623
+
+🟢 [Epoch 47/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1137
+   ├─ latent=1.0198
+   ├─ rank=0.0137
+   ├─ var=1.0191
+   ├─ smooth=0.0000
+   ├─ total=0.5213
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1134
+   ├─ latent=1.0233
+   ├─ rank=0.0897
+   ├─ var=1.0188
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1133
+   ├─ latent=1.0237
+   ├─ rank=0.1000
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5232
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1135
+   ├─ latent=1.0236
+   ├─ rank=0.1003
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5231
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1133
+   ├─ latent=1.0233
+   ├─ rank=0.0966
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1131
+   ├─ latent=1.0233
+   ├─ rank=0.0961
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1134
+   ├─ latent=1.0233
+   ├─ rank=0.0967
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1133
+   ├─ latent=1.0231
+   ├─ rank=0.0922
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1139
+   ├─ latent=1.0231
+   ├─ rank=0.0941
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 47] Train → total=0.5230 | geo=0.1140 | rank=0.0950 | var=1.0185 | smooth=0.0000
+🔍 [Epoch 47] Validation → geo=0.1163 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.623
+
+🟢 [Epoch 48/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1164
+   ├─ latent=1.0301
+   ├─ rank=0.2225
+   ├─ var=1.0190
+   ├─ smooth=0.0000
+   ├─ total=0.5267
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1114
+   ├─ latent=1.0242
+   ├─ rank=0.1165
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5232
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1122
+   ├─ latent=1.0232
+   ├─ rank=0.0984
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1133
+   ├─ latent=1.0234
+   ├─ rank=0.1006
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1129
+   ├─ latent=1.0230
+   ├─ rank=0.0938
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1130
+   ├─ latent=1.0229
+   ├─ rank=0.0924
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1128
+   ├─ latent=1.0231
+   ├─ rank=0.0947
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1128
+   ├─ latent=1.0231
+   ├─ rank=0.0962
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1127
+   ├─ latent=1.0232
+   ├─ rank=0.0965
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 48] Train → total=0.5229 | geo=0.1126 | rank=0.0985 | var=1.0184 | smooth=0.0000
+🔍 [Epoch 48] Validation → geo=0.1103 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.623
+
+🟢 [Epoch 49/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1108
+   ├─ latent=1.0236
+   ├─ rank=0.1112
+   ├─ var=1.0180
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1119
+   ├─ latent=1.0245
+   ├─ rank=0.1181
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5235
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1129
+   ├─ latent=1.0240
+   ├─ rank=0.1114
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5233
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1125
+   ├─ latent=1.0238
+   ├─ rank=0.1063
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5232
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1120
+   ├─ latent=1.0237
+   ├─ rank=0.1046
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1128
+   ├─ latent=1.0236
+   ├─ rank=0.1037
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5231
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1126
+   ├─ latent=1.0237
+   ├─ rank=0.1053
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5231
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1126
+   ├─ latent=1.0240
+   ├─ rank=0.1067
+   ├─ var=1.0186
+   ├─ smooth=0.0000
+   ├─ total=0.5232
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1127
+   ├─ latent=1.0239
+   ├─ rank=0.1041
+   ├─ var=1.0187
+   ├─ smooth=0.0000
+   ├─ total=0.5232
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 49] Train → total=0.5231 | geo=0.1126 | rank=0.1034 | var=1.0186 | smooth=0.0000
+🔍 [Epoch 49] Validation → geo=0.1133 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.788, ρ_S=0.719, R²=0.622
+
+🟢 [Epoch 50/50] Training...
+   ⚖️ Weights: geo=0.100 | latent=0.500 | rank=0.0500 | λ_smooth=0.030
+
+🧩 Batch 000
+   ├─ geo=0.1117
+   ├─ latent=1.0191
+   ├─ rank=0.0196
+   ├─ var=1.0181
+   ├─ smooth=0.0000
+   ├─ total=0.5207
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 025
+   ├─ geo=0.1119
+   ├─ latent=1.0233
+   ├─ rank=0.1002
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 050
+   ├─ geo=0.1120
+   ├─ latent=1.0231
+   ├─ rank=0.0964
+   ├─ var=1.0183
+   ├─ smooth=0.0000
+   ├─ total=0.5228
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 075
+   ├─ geo=0.1122
+   ├─ latent=1.0234
+   ├─ rank=0.0996
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 100
+   ├─ geo=0.1120
+   ├─ latent=1.0238
+   ├─ rank=0.1049
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5231
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 125
+   ├─ geo=0.1119
+   ├─ latent=1.0237
+   ├─ rank=0.1046
+   ├─ var=1.0185
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 150
+   ├─ geo=0.1128
+   ├─ latent=1.0235
+   ├─ rank=0.1020
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 175
+   ├─ geo=0.1127
+   ├─ latent=1.0234
+   ├─ rank=0.0991
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5230
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+
+🧩 Batch 200
+   ├─ geo=0.1126
+   ├─ latent=1.0233
+   ├─ rank=0.0987
+   ├─ var=1.0184
+   ├─ smooth=0.0000
+   ├─ total=0.5229
+   └─ weights: geo_w=0.100, latent_w=0.500, rank_w=0.0500
+✅ [Epoch 50] Train → total=0.5229 | geo=0.1123 | rank=0.0990 | var=1.0184 | smooth=0.0000
+🔍 [Epoch 50] Validation → geo=0.1088 | latent=0.0000
+   🔎 Latent Identity → ρ_P=0.789, ρ_S=0.720, R²=0.622
+💾 Saved checkpoint: ./results_diffusionAE_latentaware/latentaware_epoch50.pth
+✅ Training complete.

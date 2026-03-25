@@ -30,7 +30,7 @@ class PerturbationParams:
 
 
 def parse_noise_modes(text: str) -> List[str]:
-    allowed = {"jitter", "rigid", "outliers"}
+    allowed = {"jitter", "rigid", "rotation", "translation", "outliers"}
     modes = [tok.strip().lower() for tok in text.split(",") if tok.strip()]
     if not modes:
         raise ValueError("noise_modes must contain at least one mode")
@@ -59,7 +59,7 @@ def parse_noise_mode_weights(text: str, noise_modes: Sequence[str]) -> List[floa
             continue
         if "=" not in token:
             raise ValueError(
-                "noise_mode_weights must use mode=weight entries, e.g. 'jitter=1,rigid=6,outliers=1'"
+                "noise_mode_weights must use mode=weight entries, e.g. 'jitter=1,translation=6,rotation=2,outliers=1'"
             )
         mode, raw_weight = token.split("=", 1)
         mode = mode.strip().lower()
@@ -138,42 +138,50 @@ def apply_xyz_perturbation(
         noise = sigma * torch.randn(V.shape, device=device, dtype=dtype)
         return V + noise
 
-    if mode == "rigid":
-        axis = torch.randn(3, device=device, dtype=dtype)
-        axis = axis / (axis.norm() + 1e-12)
-
-        angle_max = math.radians(
-            rigid_angle_max_deg_from_sigma(
-                sigma=sigma,
-                rigid_rot_deg=rigid_rot_deg,
-                rigid_rot_deg_min=rigid_rot_deg_min,
-            )
-        )
-        angle = (2.0 * torch.rand((), device=device, dtype=dtype) - 1.0) * angle_max
-
-        ax, ay, az = axis[0], axis[1], axis[2]
-        z0 = torch.zeros((), device=device, dtype=dtype)
-        K = torch.stack(
-            [
-                torch.stack([z0, -az, ay]),
-                torch.stack([az, z0, -ax]),
-                torch.stack([-ay, ax, z0]),
-            ],
-            dim=0,
-        )
-        I = torch.eye(3, device=device, dtype=dtype)
-        sin_a = torch.sin(angle)
-        cos_a = torch.cos(angle)
-        R = I + sin_a * K + (1.0 - cos_a) * (K @ K)
-
-        trans_axis_std = rigid_trans_axis_std_from_sigma(
-            sigma=sigma,
-            rigid_trans_scale=rigid_trans_scale,
-            rigid_trans_scale_min=rigid_trans_scale_min,
-        )
-        trans = trans_axis_std * torch.randn((1, 3), device=device, dtype=dtype)
+    if mode in {"rigid", "rotation", "translation"}:
         center = V.mean(dim=0, keepdim=True)
-        return (V - center) @ R.transpose(0, 1) + center + trans
+
+        if mode in {"rigid", "rotation"}:
+            axis = torch.randn(3, device=device, dtype=dtype)
+            axis = axis / (axis.norm() + 1e-12)
+
+            angle_max = math.radians(
+                rigid_angle_max_deg_from_sigma(
+                    sigma=sigma,
+                    rigid_rot_deg=rigid_rot_deg,
+                    rigid_rot_deg_min=rigid_rot_deg_min,
+                )
+            )
+            angle = (2.0 * torch.rand((), device=device, dtype=dtype) - 1.0) * angle_max
+
+            ax, ay, az = axis[0], axis[1], axis[2]
+            z0 = torch.zeros((), device=device, dtype=dtype)
+            K = torch.stack(
+                [
+                    torch.stack([z0, -az, ay]),
+                    torch.stack([az, z0, -ax]),
+                    torch.stack([-ay, ax, z0]),
+                ],
+                dim=0,
+            )
+            I = torch.eye(3, device=device, dtype=dtype)
+            sin_a = torch.sin(angle)
+            cos_a = torch.cos(angle)
+            R = I + sin_a * K + (1.0 - cos_a) * (K @ K)
+            V_out = (V - center) @ R.transpose(0, 1) + center
+        else:
+            V_out = V
+
+        if mode in {"rigid", "translation"}:
+            trans_axis_std = rigid_trans_axis_std_from_sigma(
+                sigma=sigma,
+                rigid_trans_scale=rigid_trans_scale,
+                rigid_trans_scale_min=rigid_trans_scale_min,
+            )
+            trans = trans_axis_std * torch.randn((1, 3), device=device, dtype=dtype)
+            V_out = V_out + trans
+
+        return V_out
 
     if mode == "outliers":
         n_verts = int(V.shape[0])

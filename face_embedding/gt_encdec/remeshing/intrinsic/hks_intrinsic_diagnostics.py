@@ -13,10 +13,9 @@ import argparse
 import csv
 import json
 import math
-import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -31,9 +30,15 @@ if str(AUTOENCODER_DIR) not in sys.path:
 
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset  # noqa: E402
 from diffusion_autoencoder import DiffusionEncoderOnlyIntrinsec  # noqa: E402
-
-
-SUBJECT_RE = re.compile(r"(id\d{4})", re.IGNORECASE)
+from intrinsic_utils import (
+    build_subject_map,
+    load_gt_distance_matrix,
+    pearson_corr,
+    sample_mesh_indices,
+    seed_everything,
+    spearman_corr,
+    upper_triangular_values,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -79,28 +84,6 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
-def extract_subject_id(name: str) -> Optional[str]:
-    m = SUBJECT_RE.search(name)
-    return m.group(1).lower() if m else None
-
-
-def build_subject_map(files: Sequence[str]) -> Dict[str, List[int]]:
-    out: Dict[str, List[int]] = {}
-    for idx, fname in enumerate(files):
-        sid = extract_subject_id(fname)
-        if sid is None:
-            continue
-        out.setdefault(sid, []).append(idx)
-    return out
-
-
 def choose_subjects(
     all_subjects: Sequence[str],
     gt_name_to_idx: Dict[str, int],
@@ -113,37 +96,6 @@ def choose_subjects(
     rng = np.random.default_rng(seed)
     picked = rng.choice(np.asarray(overlap, dtype=object), size=max_subjects, replace=False)
     return sorted(picked.tolist())
-
-
-def pick_mesh_indices(idxs: Sequence[int], max_meshes: int, seed: int) -> List[int]:
-    if max_meshes <= 0 or len(idxs) <= max_meshes:
-        return list(idxs)
-    rng = np.random.default_rng(seed)
-    picked = rng.choice(np.asarray(idxs), size=max_meshes, replace=False)
-    return [int(i) for i in picked.tolist()]
-
-
-def load_gt_distance_matrix(path: str) -> Tuple[np.ndarray, Dict[str, int]]:
-    pack = np.load(path, allow_pickle=True)
-    if "D_orig" not in pack or "names" not in pack:
-        raise KeyError(f"{path} must contain D_orig and names. Found: {pack.files}")
-
-    D = pack["D_orig"].astype(np.float64)
-    mask = D > 0
-    if mask.any():
-        D = D / float(D[mask].max())
-
-    name_to_idx: Dict[str, int] = {}
-    for i, n in enumerate(pack["names"]):
-        if isinstance(n, bytes):
-            n = n.decode("utf-8", errors="ignore")
-        sid = extract_subject_id(str(n))
-        if sid is not None:
-            name_to_idx[sid] = i
-
-    if not name_to_idx:
-        raise RuntimeError("Could not parse subject ids from GT matrix names")
-    return D, name_to_idx
 
 
 def to_device_tensor(x: torch.Tensor, device: torch.device) -> torch.Tensor:
@@ -208,45 +160,11 @@ def take_or_pad_vec(x: torch.Tensor, k: int) -> torch.Tensor:
     return torch.cat([x, pad], dim=0)
 
 
-def rankdata_average_ties(values: np.ndarray) -> np.ndarray:
-    order = np.argsort(values, kind="mergesort")
-    sorted_vals = values[order]
-    ranks = np.empty(values.shape[0], dtype=np.float64)
-
-    i = 0
-    while i < sorted_vals.shape[0]:
-        j = i + 1
-        while j < sorted_vals.shape[0] and sorted_vals[j] == sorted_vals[i]:
-            j += 1
-        ranks[order[i:j]] = 0.5 * (i + j - 1)
-        i = j
-    return ranks
-
-
-def pearson_corr(x: np.ndarray, y: np.ndarray) -> float:
-    if x.size < 2 or y.size < 2:
-        return float("nan")
-    if np.std(x) < 1e-12 or np.std(y) < 1e-12:
-        return float("nan")
-    return float(np.corrcoef(x, y)[0, 1])
-
-
-def spearman_corr(x: np.ndarray, y: np.ndarray) -> float:
-    rx = rankdata_average_ties(np.asarray(x))
-    ry = rankdata_average_ties(np.asarray(y))
-    return pearson_corr(rx, ry)
-
-
 def pairwise_l2_matrix(X: np.ndarray) -> np.ndarray:
     X = np.asarray(X, dtype=np.float64)
     x2 = np.sum(X * X, axis=1, keepdims=True)
     d2 = np.maximum(x2 + x2.T - 2.0 * (X @ X.T), 0.0)
     return np.sqrt(d2)
-
-
-def upper_triangular_values(M: np.ndarray) -> np.ndarray:
-    iu = np.triu_indices(M.shape[0], k=1)
-    return M[iu]
 
 
 def collect_hks_and_spectrum(
@@ -270,7 +188,7 @@ def collect_hks_and_spectrum(
     total_mesh_failed = 0
 
     for s_idx, sid in enumerate(tqdm(subjects, desc="Collect HKS+Spectrum", dynamic_ncols=True)):
-        mesh_idxs = pick_mesh_indices(
+        mesh_idxs = sample_mesh_indices(
             idxs=subject_map[sid],
             max_meshes=max_meshes_per_subject,
             seed=seed + 1000 + s_idx,
@@ -459,7 +377,7 @@ def step3_latent_pca(
     subj_ids: List[str] = []
 
     for s_idx, sid in enumerate(tqdm(subjects, desc="Step3 latent extraction", dynamic_ncols=True)):
-        mesh_idxs = pick_mesh_indices(
+        mesh_idxs = sample_mesh_indices(
             idxs=subject_map[sid],
             max_meshes=max_meshes_per_subject,
             seed=args.seed + 9000 + s_idx,
@@ -650,7 +568,7 @@ def main() -> None:
     if not subject_map:
         raise RuntimeError("No valid subject ids parsed from dataset files")
 
-    gt_matrix, gt_name_to_idx = load_gt_distance_matrix(args.dist_npz)
+    gt_matrix, gt_name_to_idx = load_gt_distance_matrix(args.dist_npz, dtype=np.float64)
     subjects = choose_subjects(
         all_subjects=sorted(subject_map.keys()),
         gt_name_to_idx=gt_name_to_idx,

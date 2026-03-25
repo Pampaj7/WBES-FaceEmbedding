@@ -1,0 +1,66 @@
+started_at: 2026-03-23T16:54:32.432096
+cwd: /equilibrium/lpampaloni/WBES-FaceEmbedding
+python: /home/lpampaloni/miniconda3/envs/3d/bin/python
+conda_env: 3d
+
+command:
+/home/lpampaloni/miniconda3/envs/3d/bin/python /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py --model xyz_dn --init_checkpoint /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/rigid_ft/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn1_pn0.85_s1.0e-03-5.0e-02_seed1234__b725f567/checkpoints/best_by_auc.pth --teacher_checkpoint /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/xyz_baseline/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn0_pn0.00_s1.0e-04-3.0e-02_seed1234__d5cbb737/checkpoints/best_by_clean.pth --lambda_teacher 0.10 --noise_modes translation,rotation,jitter --noise_mode_weights translation=6,rotation=2,jitter=1 --runs_root /equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/teacher_student_translation_mixed_live_py_retry --device cuda --epochs 20 --batch_subjects 4 --latent_dim 256 --width 128 --n_blocks 4 --dropout 0.1 --max_meshes_per_subject_train 5 --max_meshes_per_subject_eval 5 --max_subjects_eval_train 16 --preload_eval_samples_train --preload_eval_workers_train 2 --p_noise 0.85 --sigma_min 1e-3 --sigma_max 5e-2 --rigid_rot_deg 20.0 --rigid_rot_deg_min 1.0 --rigid_trans_scale 0.05 --rigid_trans_scale_min 0.002 --sigma_min_eval 1e-4 --sigma_max_eval 2e-1 --n_sigma_eval 6 --eval_mode fixed --lr 3e-5 --save_every 5 --eval_every 2
+
+parsed_args:
+{
+  "batch_subjects": 4,
+  "data_dir": "/equilibrium/lpampaloni/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops",
+  "device": "cuda",
+  "dist_npz": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz",
+  "dropout": 0.1,
+  "eig_k": 300,
+  "epochs": 20,
+  "eps": 1e-08,
+  "eval_every": 2,
+  "eval_mode": "fixed",
+  "grad_clip": 1.0,
+  "init_checkpoint": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/rigid_ft/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn1_pn0.85_s1.0e-03-5.0e-02_seed1234__b725f567/checkpoints/best_by_auc.pth",
+  "k_spec": 100,
+  "lambda_id": 0.1,
+  "lambda_smooth": 0.01,
+  "lambda_teacher": 0.1,
+  "latent_dim": 256,
+  "log_spec": false,
+  "lr": 3e-05,
+  "max_meshes_per_subject_eval": 5,
+  "max_meshes_per_subject_train": 5,
+  "max_subjects_eval_train": 16,
+  "model": "xyz_dn",
+  "n_blocks": 4,
+  "n_hks": 0,
+  "n_sigma_eval": 6,
+  "n_wks": 0,
+  "noise_mode_weights": "translation=6,rotation=2,jitter=1",
+  "noise_modes": "translation,rotation,jitter",
+  "outlier_frac": 0.02,
+  "outlier_scale": 6.0,
+  "p_noise": 0.85,
+  "pool_mode": "meanmax",
+  "preload_eval_samples_train": true,
+  "preload_eval_workers_train": 2,
+  "rigid_rot_deg": 20.0,
+  "rigid_rot_deg_min": 1.0,
+  "rigid_trans_scale": 0.05,
+  "rigid_trans_scale_min": 0.002,
+  "runs_root": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/perturbated/teacher_student_translation_mixed_live_py_retry",
+  "save_every": 5,
+  "seed": 1234,
+  "sigma_max": 0.05,
+  "sigma_max_eval": 0.2,
+  "sigma_min": 0.001,
+  "sigma_min_eval": 0.0001,
+  "teacher_checkpoint": "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/xyz_baseline/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn0_pn0.00_s1.0e-04-3.0e-02_seed1234__d5cbb737/checkpoints/best_by_clean.pth",
+  "train_latent_noise": true,
+  "use_id_loss": false,
+  "use_smooth_loss": false,
+  "use_spectrum": true,
+  "use_xyz": true,
+  "weight_decay": 1e-06,
+  "width": 128,
+  "xyz_feature_dropout": 0.0
+}

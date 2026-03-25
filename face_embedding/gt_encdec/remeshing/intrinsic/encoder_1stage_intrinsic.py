@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from tqdm import tqdm
 import sys
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 sys.path.append(
     "/equilibrium/lpampaloni/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder"
@@ -17,6 +17,7 @@ sys.path.append(
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset
 from diffusion_autoencoder import DiffusionEncoderOnlyIntrinsec, DiffusionEncoderXYZSpectrum
 from latent_loss import stress_loss
+from intrinsic_utils import SUBJECT_RE_ANY, build_subject_map, sample_mesh_indices
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 if torch.cuda.is_available():
@@ -79,35 +80,6 @@ DIST_PATH = (
 
 OUT_DIR = "encoder_stage1_intrinsic_controlled"
 os.makedirs(OUT_DIR, exist_ok=True)
-
-VARIANT_RE = re.compile(r"^(id\d+)_.*\.npz$")
-
-
-# ============================================================
-# SUBJECT GROUPING
-# ============================================================
-
-def build_subject_map(dataset):
-    subj_to_idxs = {}
-    for idx, fname in enumerate(dataset.files):
-        m = VARIANT_RE.match(fname)
-        subj = fname.split("_")[0] if m is None else m.group(1)
-        subj_to_idxs.setdefault(subj, []).append(idx)
-    return subj_to_idxs
-
-
-def pick_mesh_indices(
-    idxs: Sequence[int],
-    max_meshes: int,
-    rng: Optional[np.random.Generator],
-) -> List[int]:
-    if max_meshes <= 0 or len(idxs) <= max_meshes:
-        return list(idxs)
-    if rng is None:
-        return list(idxs[:max_meshes])
-    picked = rng.choice(np.asarray(idxs), size=max_meshes, replace=False)
-    return [int(i) for i in picked.tolist()]
-
 
 class SampleAccessor:
     """
@@ -189,7 +161,7 @@ def eval_latent_structure(
     intra_vals: List[float] = []
 
     for subj in eval_subjects:
-        idxs = pick_mesh_indices(
+        idxs = sample_mesh_indices(
             subj_map[subj],
             max_meshes=max_meshes_per_subject_eval,
             rng=None,
@@ -320,7 +292,7 @@ def main():
         cache_device_tensors=args.cache_device_tensors,
     )
 
-    subj_map = build_subject_map(dataset)
+    subj_map = build_subject_map(dataset.files, subject_re=SUBJECT_RE_ANY)
     subjects = sorted(subj_map.keys())
 
     rng = np.random.default_rng(12345)
@@ -403,7 +375,7 @@ def main():
             subj_stats: Dict[str, Tuple[torch.Tensor, torch.Tensor]] = {}
 
             for subj in batch_subjects:
-                idxs = pick_mesh_indices(
+                idxs = sample_mesh_indices(
                     subj_map[subj],
                     max_meshes=args.max_meshes_per_subject_train,
                     rng=rng,

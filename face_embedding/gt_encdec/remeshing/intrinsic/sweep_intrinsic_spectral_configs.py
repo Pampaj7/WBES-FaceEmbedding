@@ -24,13 +24,12 @@ import csv
 import json
 import math
 import os
-import re
 import sys
 import time
 from dataclasses import dataclass, asdict
 from itertools import product
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -47,9 +46,16 @@ if str(AUTOENCODER_DIR) not in sys.path:
     sys.path.append(str(AUTOENCODER_DIR))
 
 from dataset_gtready import GTReadyDatasetNPZ as GTReadyDataset  # noqa: E402
-
-
-SUBJECT_RE = re.compile(r"(id\d{4})", re.IGNORECASE)
+from intrinsic_utils import (
+    build_subject_map,
+    load_gt_distance_matrix,
+    nn_match_rate,
+    pairwise_distance_matrix,
+    pearson_corr,
+    seed_everything,
+    spearman_corr,
+    upper_triangular_values,
+)
 
 
 @dataclass(frozen=True)
@@ -129,51 +135,6 @@ def parse_bool_list01(text: str) -> List[bool]:
             continue
         vals.append(tok in ("1", "true", "True", "yes", "y"))
     return vals
-
-
-def seed_everything(seed: int) -> None:
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-
-
-def extract_subject_id(name: str) -> Optional[str]:
-    m = SUBJECT_RE.search(name)
-    return m.group(1).lower() if m else None
-
-
-def build_subject_map(files: Sequence[str]) -> Dict[str, List[int]]:
-    out: Dict[str, List[int]] = {}
-    for idx, fname in enumerate(files):
-        sid = extract_subject_id(fname)
-        if sid is None:
-            continue
-        out.setdefault(sid, []).append(idx)
-    return out
-
-
-def load_gt_distance_matrix(path: str) -> Tuple[np.ndarray, Dict[str, int]]:
-    pack = np.load(path, allow_pickle=True)
-    if "D_orig" not in pack or "names" not in pack:
-        raise KeyError(f"{path} must contain D_orig and names. Found: {pack.files}")
-
-    D = pack["D_orig"].astype(np.float32)
-    mask = D > 0
-    if mask.any():
-        D = D / float(D[mask].max())
-
-    name_to_idx: Dict[str, int] = {}
-    for i, n in enumerate(pack["names"]):
-        if isinstance(n, bytes):
-            n = n.decode("utf-8", errors="ignore")
-        sid = extract_subject_id(str(n))
-        if sid is not None:
-            name_to_idx[sid] = i
-
-    if not name_to_idx:
-        raise RuntimeError("Could not parse subject ids from GT matrix names")
-    return D, name_to_idx
 
 
 def canonicalize_evec_sign(evecs: torch.Tensor, mass: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
@@ -303,58 +264,6 @@ def coeff_to_embedding(coeff: torch.Tensor, embed_type: str, svd_k: int) -> torc
             out = torch.cat([out, torch.zeros(svd_k - k, device=s.device, dtype=s.dtype)], dim=0)
         return out
     raise ValueError(f"Unknown embed_type: {embed_type}")
-
-
-def pairwise_distance_matrix(Z: torch.Tensor, mode: str) -> torch.Tensor:
-    if mode == "l2":
-        return torch.cdist(Z, Z, p=2)
-    if mode == "cosine":
-        Zn = torch.nn.functional.normalize(Z, dim=1)
-        sim = (Zn @ Zn.T).clamp(-1.0, 1.0)
-        return (1.0 - sim).clamp_min(0.0)
-    raise ValueError(f"Unknown distance mode: {mode}")
-
-
-def rankdata_average_ties(values: np.ndarray) -> np.ndarray:
-    order = np.argsort(values, kind="mergesort")
-    sorted_vals = values[order]
-    ranks = np.empty(values.shape[0], dtype=np.float64)
-
-    i = 0
-    while i < sorted_vals.shape[0]:
-        j = i + 1
-        while j < sorted_vals.shape[0] and sorted_vals[j] == sorted_vals[i]:
-            j += 1
-        ranks[order[i:j]] = 0.5 * (i + j - 1)
-        i = j
-    return ranks
-
-
-def pearson_corr(x: np.ndarray, y: np.ndarray) -> float:
-    if x.size < 2 or y.size < 2:
-        return float("nan")
-    if np.std(x) < 1e-12 or np.std(y) < 1e-12:
-        return float("nan")
-    return float(np.corrcoef(x, y)[0, 1])
-
-
-def spearman_corr(x: np.ndarray, y: np.ndarray) -> float:
-    return pearson_corr(rankdata_average_ties(x), rankdata_average_ties(y))
-
-
-def upper_triangular_values(M: torch.Tensor) -> torch.Tensor:
-    iu = torch.triu_indices(M.shape[0], M.shape[1], offset=1, device=M.device)
-    return M[iu[0], iu[1]]
-
-
-def nn_match_rate(D_gt: torch.Tensor, D_emb: torch.Tensor) -> float:
-    n = D_gt.shape[0]
-    if n < 2:
-        return float("nan")
-    eye = torch.eye(n, dtype=torch.bool, device=D_gt.device)
-    nn_gt = D_gt.masked_fill(eye, float("inf")).argmin(dim=1)
-    nn_em = D_emb.masked_fill(eye, float("inf")).argmin(dim=1)
-    return float((nn_gt == nn_em).float().mean().item())
 
 
 def descriptor_tokens(descriptor: str) -> Tuple[bool, bool, bool]:
