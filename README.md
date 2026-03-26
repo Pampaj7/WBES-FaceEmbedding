@@ -1,226 +1,258 @@
 # WBES Face Embedding
 
-**WBES Face Embedding** is a research-oriented framework for **identity-aware evaluation and representation of 3D face reconstructions**.
-The project combines **geometric evaluation**, **statistical identity metrics**, and **learning-based face embeddings** to study how identity information emerges from single- and multi-frame 3D face data.
+<p align="center">
+  <img alt="Research code" src="https://img.shields.io/badge/status-research_code-8a5a44">
+  <img alt="Domain" src="https://img.shields.io/badge/domain-3D_face_analysis-1f6f8b">
+  <img alt="Focus" src="https://img.shields.io/badge/focus-identity_aware_evaluation-cb6d51">
+  <img alt="Backbone" src="https://img.shields.io/badge/backbone-DiffusionNet-2f855a">
+</p>
 
-This repository currently contains:
+<p align="center">
+  Research code for identity-aware evaluation and representation learning on 3D face meshes.
+</p>
 
-* a **validated application of the WBES metric** (used in a Master’s thesis),
-* an **ongoing Face Embedding pipeline** based on geometric deep learning.
+<p align="center">
+  <img src="WBES/plots/wbes_density_grid.png" alt="WBES density grid" width="84%">
+</p>
 
-> ⚠️ **Status**: under active development.
-> Some components are research prototypes and subject to change.
+## Overview
 
----
+This repository studies a simple but important question:
 
-## FaceBench — Full Evaluation Pipeline (Private, CHOP Internal)
+> Can a 3D face reconstruction be geometrically accurate and still fail to preserve identity?
 
-In addition to the WBES and Face Embedding work, this project builds on **FaceBench**: a complete, end-to-end **3D face reconstruction evaluation pipeline** developed during my work at **CHOP (Children’s Hospital of Philadelphia)**.
+The codebase tackles that question from two complementary directions:
 
-> 🔒 **Note**: FaceBench is currently **private/proprietary** and used internally at CHOP. This repository references its concepts and outputs, but does not include the full codebase.
+- `WBES`: a statistical evaluation pipeline that measures identity separability using within-subject and between-subject distances.
+- `face_embedding`: DiffusionNet-based models that learn identity-sensitive embeddings directly from 3D meshes.
 
-### Why FaceBench exists
+The repository also contains topology-robustness experiments, remeshing utilities, operator precomputation, and a vendored `BFM_to_FLAME` conversion utility.
 
-Existing evaluation scripts and toolboxes often suffer from recurring problems:
+## Visual Snapshot
 
-* tight coupling to specific data formats or frameworks,
-* hidden dependencies / cache artifacts ("it works on my machine"),
-* manual and fragile parallelization for large-scale runs,
-* inconsistent metric parameterization across experiments.
+<table>
+  <tr>
+    <td align="center">
+      <img src="WBES/plots/wbse_vs_f_lineplot.png" alt="WBES vs F" width="100%">
+      <br>
+      <sub>WBES trends as more frames are averaged</sub>
+    </td>
+    <td align="center">
+      <img src="WBES/utils/landmarks_on_mesh.png" alt="Landmarks on mesh" width="100%">
+      <br>
+      <sub>Landmark-based topology alignment support</sub>
+    </td>
+  </tr>
+</table>
 
-FaceBench was designed to fix this by prioritizing:
+## What Is In This Repo
 
-* **Modularity**: swappable components (cropping, alignment, correspondence, metrics, correction).
-* **Transparency**: no implicit state or opaque caching.
-* **Reproducibility**: explicit, versionable configurations.
-* **Scalability**: automated parallel execution across subjects with available hardware.
+### 1. WBES: identity-aware evaluation
 
-### Architectural highlights
+WBES stands for Within- and Between-subject Effect Size.
 
-* **Pure-function components** (stateless functions; easy to test and compose)
-* **Dataclass-based configuration** (typed configs, explicit parameters)
-* **Automatic parallel execution** (subject-level evaluation without user-written multiprocessing)
-* **Extensibility** (new modules can be plugged in without rewriting the core)
+The idea is:
 
-### What FaceBench evaluates
+- low within-subject variability is good
+- high between-subject variability is good
+- the larger the gap, the better identity is preserved
 
-A typical evaluation pipeline can include (optionally):
+This branch contains:
 
-1. **Cropping** (e.g., inter-ocular normalized point-based crop)
-2. **Rigid alignment** (landmark-based Procrustes or ICP, with optional pre-alignment)
-3. **Non-rigid warping** (elastic landmark deformation or non-rigid ICP)
-4. **Correspondence** (e.g., Chamfer NN or identity mapping when topology matches)
-5. **Distance computation** (P2P, P2Tri, landmark error, etc.)
-6. **Optional topology-aware correction**
-7. **Visualization & reporting** (error maps, interactive 3D views, result tables)
+- mesh-level WBES
+- landmark-level WBES
+- geometry-vs-identity correlation analyses
+- plotting utilities for result interpretation
 
-FaceBench is the evaluation backbone used to generate the geometric signals that WBES and the embedding work build upon.
+Main area:
 
----
+- [`WBES/`](WBES)
 
-## Motivation
+### 2. 3D face embedding on meshes
 
-Evaluating 3D face reconstruction methods is traditionally done using **purely geometric metrics** (e.g. Chamfer distance).
-However, low geometric error does **not guarantee correct identity preservation**.
+This branch explores learned mesh representations using DiffusionNet-style encoders.
 
-This project addresses a core question:
+It includes:
 
-> *Can we quantify how well a reconstruction preserves subject identity, independently of pure geometry?*
+- a baseline autoencoder
+- encoder-only variants
+- intrinsic descriptor variants based on HKS/WKS
+- spectrum-aware encoders
+- latent analysis and ranking scripts
 
-To answer this, we introduce **WBES (Within- and Between-subject Effect Size)** and extend it towards **learned face embeddings** operating directly on 3D meshes.
+Main area:
 
----
+- [`face_embedding/gt_encdec/`](face_embedding/gt_encdec)
 
-## Part I — WBES: Identity-Aware Evaluation (Stable)
+### 3. Topology robustness
 
-### What is WBES?
+The repository does not only ask whether identity is preserved across subjects.
+It also asks whether identity structure survives:
 
-**WBES (Within- and Between-subject Effect Size)** is a statistical metric designed to measure **identity separability** in 3D face data.
+- remeshing
+- decimation
+- cropping
+- noisy perturbations
+- topology changes
 
-It compares:
+This is the role of the REMESH dataset generation scripts and the `intrinsic/robustness` package.
 
-* **within-subject variability** (same identity, different frames),
-* **between-subject variability** (different identities),
+## Why This Repo Is Interesting
 
-and quantifies how well identities are separated as the number of frames increases.
-
-Intuitively:
-
-* good reconstructions → **low within**, **high between**
-* poor identity preservation → overlap between the two
-
----
-
-### WBES Pipeline (PCD Application)
-
-The WBES pipeline operates on **per-subject averaged meshes**, computed from multiple reconstructed frames.
-
-High-level steps:
-
-1. Multi-frame 3D reconstructions per subject
-2. Mesh alignment, cropping, and normalization
-3. Per-subject mesh averaging
-4. Pairwise distance computation
-5. WBES evaluation and analysis
-
-This pipeline has been **fully implemented, tested, and used** in the author’s Master’s thesis.
-
----
-
-### Key Properties
-
-* Works **without ground-truth identity labels**
-* Scales with the number of frames
-* Independent of reconstruction method
-* Compatible with different mesh topologies (with proper alignment)
-
----
-
-### Results (Summary)
-
-WBES experiments show that:
-
-* identity separability **improves with more frames**, even without ground truth,
-* geometric error alone is insufficient to explain identity preservation,
-* some methods with low Chamfer error exhibit **poor identity consistency**.
-
-These results motivate the second part of the project.
-
----
-
-## Part II — Face Embedding on 3D Meshes (Ongoing)
-
-### Goal
-
-Move from *identity evaluation* to **identity representation**.
-
-The objective is to learn a **compact embedding space** where:
-
-* samples of the same subject cluster together,
-* different identities are well separated,
-* the structure reflects underlying geometric morphology.
-
----
-
-### Approach
-
-The current approach uses **DiffusionNet-based autoencoders** operating directly on meshes:
-
-* **Encoder**
-  Produces:
-
-  * per-vertex latent fields (local geometry),
-  * global latent vectors (identity descriptors).
-
-* **Decoder**
-  Reconstructs the original mesh geometry.
-
-* **Losses**
-  Combine:
-
-  * geometric reconstruction losses,
-  * latent regularization losses (e.g. stress, scale, structure preservation).
-
-This setup allows disentangling:
-
-* *geometric fidelity* vs
-* *identity structure in latent space*.
-
----
-
-### Current Research Questions
-
-* How much identity structure emerges **without supervision**?
-* What is the trade-off between perfect reconstruction and meaningful embeddings?
-* How stable are identity embeddings across different topologies (BFM / FLAME)?
-* Can latent distances correlate with WBES and geometric metrics?
-
-These questions are **actively investigated** in this repository.
-
----
-
-## Repository Structure (High-Level)
-
-```
-wbes-face-embedding/
-│
-├── wbes_pipeline/        # WBES evaluation pipeline (stable)
-├── face_embedding/       # DiffusionNet-based embedding models (research)
-├── latent_analysis/      # Correlation & embedding analysis
-├── visualization/       # 3D and statistical visualizations
-├── datasets/             # (ignored) large mesh datasets
-└── results/              # experiment outputs
+Many 3D face pipelines optimize geometry first and treat identity as a side effect.
+This repository flips that perspective.
+
+It is built around the idea that:
+
+- geometry alone is not enough,
+- identity should be measured explicitly,
+- and learned representations should be tested under topology variation, not only clean canonical meshes.
+
+That makes the project relevant if you work on:
+
+- 3D face reconstruction
+- identity-preserving generation
+- geometric deep learning
+- spectral mesh learning
+- robust representation learning
+
+## Repository Map
+
+```text
+WBES-FaceEmbedding/
+├── WBES/
+│   ├── code/                 # WBES pipelines, plots, correlation scripts
+│   ├── utils/                # landmark indices, topology indices, helpers
+│   ├── results/              # saved WBES outputs
+│   ├── results_landmarks/    # landmark-only WBES outputs
+│   └── plots/                # generated figures
+├── datasets/
+│   ├── GT_ready/             # aligned/canonical mesh assets
+│   ├── REMESH/               # topology-variant dataset assets
+│   ├── FaceVerse/            # FaceVerse-specific utilities
+│   └── *.py                  # conversion, cropping, remeshing, preview tools
+├── face_embedding/
+│   └── gt_encdec/
+│       ├── alignment/        # GT-ready mesh preparation
+│       ├── autoencoder/      # baseline model zoo + latent analysis
+│       ├── mse/              # pairwise geometric baselines
+│       └── remeshing/        # cross-topology, intrinsic, voxel experiments
+├── BFM_to_FLAME/             # bundled external conversion utility
+├── CODEBASE_GUIDE.md         # detailed codebase documentation
+└── tmp/                      # local exploratory artifacts
 ```
 
-Large datasets and trained models are intentionally **not included**.
+## Key Files
 
----
+If you only read a handful of files, start here:
 
-## Status & Disclaimer
+- [`CODEBASE_GUIDE.md`](CODEBASE_GUIDE.md)
+- [`WBES/utils/WBES_helper.py`](WBES/utils/WBES_helper.py)
+- [`WBES/code/WBES_pipeline.py`](WBES/code/WBES_pipeline.py)
+- [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
+- [`datasets/expand_remesh_topologies.py`](datasets/expand_remesh_topologies.py)
+- [`face_embedding/gt_encdec/autoencoder/dataset_gtready.py`](face_embedding/gt_encdec/autoencoder/dataset_gtready.py)
+- [`face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
+- [`face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`](face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py)
+- [`face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py`](face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py)
+- [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
 
-* WBES pipeline: **stable and validated**
-* Face Embedding models: **experimental**
-* Code is research-driven, not packaged as a production library
-* APIs may change as experiments evolve
+## Current Code Reality
 
----
+This is research code, not a packaged library.
+
+That means:
+
+- some scripts are stable, others are exploratory
+- data and experiment outputs often live next to source code
+- several scripts assume local absolute paths
+- large datasets are intentionally not versioned in git
+- there is no single root-level environment file yet
+
+The repository is still very useful, but it should be approached as an active research workspace.
+
+## Results Already Present In The Repo
+
+The current checkout already contains:
+
+- stored WBES CSVs and plots
+- landmark WBES outputs
+- geometry-vs-WBES correlation summaries
+- baseline autoencoder evaluation artifacts
+- saved intrinsic robustness runs and logs
+
+Some concrete examples extracted from local artifacts:
+
+- mesh-level WBES improves strongly from `F=1` to larger frame groups for methods such as `3DDFAV3`, `Deep3DFace`, `FaceVerse`, `Smirk`, and `SynergyNet`
+- geometric error changes are much smaller than WBES changes, which supports the core thesis of the project
+- the stored baseline autoencoder evaluation reports very high rank preservation and no obvious mean-face collapse
+- a saved intrinsic `xyz_dn` robustness run stays very stable across the tested perturbation grid
+
+For the detailed artifact-backed summary, see:
+
+- [`CODEBASE_GUIDE.md`](CODEBASE_GUIDE.md)
+
+## Quick Start
+
+There is no single command that runs the whole repository.
+Instead, the practical workflow is:
+
+1. Prepare aligned GT-ready meshes
+2. Convert meshes to NPZ
+3. Precompute DiffusionNet operators
+4. Run either:
+   - WBES evaluation
+   - baseline embedding training
+   - topology robustness experiments
+
+Good entry points:
+
+- mesh preview and QA:
+  - [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
+- topology generation:
+  - [`datasets/remesh.py`](datasets/remesh.py)
+  - [`datasets/expand_remesh_topologies.py`](datasets/expand_remesh_topologies.py)
+- operator precomputation:
+  - [`face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`](face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py)
+- WBES:
+  - [`WBES/code/WBES_pipeline.py`](WBES/code/WBES_pipeline.py)
+  - [`WBES/code/WBES_pipeline_landmarks.py`](WBES/code/WBES_pipeline_landmarks.py)
+- robustness training:
+  - [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
+
+## Documentation
+
+If you want the full technical walkthrough, read:
+
+- [`CODEBASE_GUIDE.md`](CODEBASE_GUIDE.md)
+
+That guide includes:
+
+- actual dataset/output counts from the current checkout
+- file-format conventions
+- directory-by-directory explanations
+- stored-results snapshots
+- code-level notes for the most important modules
+- a deep dive on:
+  - [`diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
+  - [`train_twotower_dn_spec_robust.py`](face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py)
+
+## External Context
+
+Part of the conceptual background for this repo comes from FaceBench, an internal end-to-end evaluation pipeline developed during work at CHOP.
+
+Important note:
+
+- FaceBench itself is not included here
+- this repository contains the WBES and mesh-embedding research code built around that broader evaluation perspective
 
 ## Author
 
-**Leonardo Pampaloni**
-AI Engineer & Researcher
-University of Florence (MICC)
-Former AI Research Intern @ CHOP (USA)
-
-Research interests:
-
-* 3D face reconstruction
-* geometric deep learning
-* identity-aware metrics
-* Green AI & efficiency
-
----
+Leonardo Pampaloni  
+AI Engineer and Researcher  
+University of Florence (MICC)  
+Former AI Research Intern at CHOP
 
 ## Citation
 
-If you use ideas or parts of this project, please cite the corresponding thesis or contact the author.
+If you use ideas, code, or results from this repository in academic work, cite the relevant thesis/paper if available, or contact the author for the correct reference.
