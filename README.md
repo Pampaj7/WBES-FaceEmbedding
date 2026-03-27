@@ -3,12 +3,13 @@
 <p align="center">
   <img alt="Research code" src="https://img.shields.io/badge/status-research_code-8a5a44">
   <img alt="Domain" src="https://img.shields.io/badge/domain-3D_face_analysis-1f6f8b">
-  <img alt="Focus" src="https://img.shields.io/badge/focus-identity_aware_evaluation-cb6d51">
+  <img alt="Focus" src="https://img.shields.io/badge/focus-face_embeddings-cb6d51">
+  <img alt="Validation" src="https://img.shields.io/badge/validation-WBES-b56a4a">
   <img alt="Backbone" src="https://img.shields.io/badge/backbone-DiffusionNet-2f855a">
 </p>
 
 <p align="center">
-  Research code for identity-aware evaluation and representation learning on 3D face meshes.
+  Research code for identity-sensitive 3D face embeddings on meshes, with WBES used to verify whether geometry really preserves identity.
 </p>
 
 <p align="center">
@@ -17,16 +18,27 @@
 
 ## Overview
 
-This repository studies a simple but important question:
+This repository is mainly about one problem:
 
-> Can a 3D face reconstruction be geometrically accurate and still fail to preserve identity?
+> How do we learn 3D face embeddings that preserve identity, not just geometry, and keep working when mesh topology changes?
 
-The codebase tackles that question from two complementary directions:
+The codebase tackles that problem in three connected layers:
 
-- `WBES`: a statistical evaluation pipeline that measures identity separability using within-subject and between-subject distances.
-- `face_embedding`: DiffusionNet-based models that learn identity-sensitive embeddings directly from 3D meshes.
+- `face_embedding`: the main modeling branch, with DiffusionNet-based encoders, autoencoders, latent analysis, and spectral variants.
+- `face_embedding/.../remeshing/intrinsic/robustness`: the strongest robustness branch, where embeddings are stress-tested under remeshing, perturbations, and topology shifts.
+- `WBES`: the evaluation branch that measures whether identity separability is actually preserved.
 
-The repository also contains topology-robustness experiments, remeshing utilities, operator precomputation, and a vendored `BFM_to_FLAME` conversion utility.
+The repository also contains GT-ready alignment, remeshing utilities, operator precomputation, and a vendored `BFM_to_FLAME` conversion utility.
+
+## If You Only Read One Part
+
+The technical center of gravity is:
+
+- [`face_embedding/gt_encdec/autoencoder/dataset_gtready.py`](face_embedding/gt_encdec/autoencoder/dataset_gtready.py)
+- [`face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
+- [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
+
+That is where the repo stops being "metrics around 3D faces" and becomes a real mesh-embedding research codebase.
 
 ## Visual Snapshot
 
@@ -47,9 +59,45 @@ The repository also contains topology-robustness experiments, remeshing utilitie
 
 ## What Is In This Repo
 
-### 1. WBES: identity-aware evaluation
+### 1. Face embedding: the core modeling branch
+
+This is where most of the modeling work lives.
+
+It includes:
+
+- baseline DiffusionNet autoencoders
+- encoder-only identity embeddings
+- intrinsic descriptor variants based on HKS/WKS
+- spectrum-aware encoders
+- latent extraction and ranking analysis
+- reusable model definitions shared across multiple experiments
+
+Main area:
+
+- [`face_embedding/gt_encdec/`](face_embedding/gt_encdec)
+
+### 2. Topology robustness: where the embedding story gets interesting
+
+The repository does not only ask whether embeddings work on clean canonical meshes.
+It asks whether identity structure survives:
+
+- remeshing
+- decimation
+- cropping
+- noisy perturbations
+- topology changes
+
+This is the role of the REMESH generation scripts and the `intrinsic/robustness` package.
+
+The most structured current path is:
+
+- [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/)
+
+### 3. WBES: identity-aware evaluation
 
 WBES stands for Within- and Between-subject Effect Size.
+
+Its role here is important, but secondary to the embedding code: it is the branch that checks whether identity separability is really there.
 
 The idea is:
 
@@ -68,49 +116,21 @@ Main area:
 
 - [`WBES/`](WBES)
 
-### 2. 3D face embedding on meshes
-
-This branch explores learned mesh representations using DiffusionNet-style encoders.
-
-It includes:
-
-- a baseline autoencoder
-- encoder-only variants
-- intrinsic descriptor variants based on HKS/WKS
-- spectrum-aware encoders
-- latent analysis and ranking scripts
-
-Main area:
-
-- [`face_embedding/gt_encdec/`](face_embedding/gt_encdec)
-
-### 3. Topology robustness
-
-The repository does not only ask whether identity is preserved across subjects.
-It also asks whether identity structure survives:
-
-- remeshing
-- decimation
-- cropping
-- noisy perturbations
-- topology changes
-
-This is the role of the REMESH dataset generation scripts and the `intrinsic/robustness` package.
-
 ## Why This Repo Is Interesting
 
 Many 3D face pipelines optimize geometry first and treat identity as a side effect.
-This repository flips that perspective.
+This repository flips that perspective and puts the embedding question first.
 
 It is built around the idea that:
 
-- geometry alone is not enough,
-- identity should be measured explicitly,
-- and learned representations should be tested under topology variation, not only clean canonical meshes.
+- the interesting part is not only reconstructing a face mesh,
+- it is learning a representation that keeps subject identity,
+- and then testing whether that representation survives topology variation instead of overfitting a single clean mesh layout.
 
 That makes the project relevant if you work on:
 
 - 3D face reconstruction
+- 3D face embedding / retrieval
 - identity-preserving generation
 - geometric deep learning
 - spectral mesh learning
@@ -120,23 +140,23 @@ That makes the project relevant if you work on:
 
 ```text
 WBES-FaceEmbedding/
+├── face_embedding/
+│   └── gt_encdec/
+│       ├── alignment/        # GT-ready mesh preparation
+│       ├── autoencoder/      # core model zoo + latent analysis
+│       ├── mse/              # pairwise geometric baselines
+│       └── remeshing/        # robustness, intrinsic, cross-topology work
+├── datasets/
+│   ├── GT_ready/             # aligned/canonical mesh assets
+│   ├── REMESH/               # topology-variant dataset assets
+│   ├── FaceVerse/            # FaceVerse-specific utilities
+│   └── *.py                  # conversion, cropping, remeshing, preview tools
 ├── WBES/
 │   ├── code/                 # WBES pipelines, plots, correlation scripts
 │   ├── utils/                # landmark indices, topology indices, helpers
 │   ├── results/              # saved WBES outputs
 │   ├── results_landmarks/    # landmark-only WBES outputs
 │   └── plots/                # generated figures
-├── datasets/
-│   ├── GT_ready/             # aligned/canonical mesh assets
-│   ├── REMESH/               # topology-variant dataset assets
-│   ├── FaceVerse/            # FaceVerse-specific utilities
-│   └── *.py                  # conversion, cropping, remeshing, preview tools
-├── face_embedding/
-│   └── gt_encdec/
-│       ├── alignment/        # GT-ready mesh preparation
-│       ├── autoencoder/      # baseline model zoo + latent analysis
-│       ├── mse/              # pairwise geometric baselines
-│       └── remeshing/        # cross-topology, intrinsic, voxel experiments
 ├── BFM_to_FLAME/             # bundled external conversion utility
 ├── CODEBASE_GUIDE.md         # detailed codebase documentation
 └── tmp/                      # local exploratory artifacts
@@ -147,15 +167,16 @@ WBES-FaceEmbedding/
 If you only read a handful of files, start here:
 
 - [`CODEBASE_GUIDE.md`](CODEBASE_GUIDE.md)
-- [`WBES/utils/WBES_helper.py`](WBES/utils/WBES_helper.py)
-- [`WBES/code/WBES_pipeline.py`](WBES/code/WBES_pipeline.py)
-- [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
-- [`datasets/expand_remesh_topologies.py`](datasets/expand_remesh_topologies.py)
 - [`face_embedding/gt_encdec/autoencoder/dataset_gtready.py`](face_embedding/gt_encdec/autoencoder/dataset_gtready.py)
 - [`face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
 - [`face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`](face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py)
+- [`face_embedding/gt_encdec/autoencoder/train_autoencoder.py`](face_embedding/gt_encdec/autoencoder/train_autoencoder.py)
 - [`face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py`](face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py)
 - [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
+- [`datasets/expand_remesh_topologies.py`](datasets/expand_remesh_topologies.py)
+- [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
+- [`WBES/utils/WBES_helper.py`](WBES/utils/WBES_helper.py)
+- [`WBES/code/WBES_pipeline.py`](WBES/code/WBES_pipeline.py)
 
 ## Current Code Reality
 
@@ -175,18 +196,18 @@ The repository is still very useful, but it should be approached as an active re
 
 The current checkout already contains:
 
+- baseline autoencoder evaluation artifacts
+- saved intrinsic robustness runs and logs
 - stored WBES CSVs and plots
 - landmark WBES outputs
 - geometry-vs-WBES correlation summaries
-- baseline autoencoder evaluation artifacts
-- saved intrinsic robustness runs and logs
 
 Some concrete examples extracted from local artifacts:
 
-- mesh-level WBES improves strongly from `F=1` to larger frame groups for methods such as `3DDFAV3`, `Deep3DFace`, `FaceVerse`, `Smirk`, and `SynergyNet`
-- geometric error changes are much smaller than WBES changes, which supports the core thesis of the project
 - the stored baseline autoencoder evaluation reports very high rank preservation and no obvious mean-face collapse
 - a saved intrinsic `xyz_dn` robustness run stays very stable across the tested perturbation grid
+- mesh-level WBES improves strongly from `F=1` to larger frame groups for methods such as `3DDFAV3`, `Deep3DFace`, `FaceVerse`, `Smirk`, and `SynergyNet`
+- geometric error changes are much smaller than WBES changes, which supports the core thesis of the project
 
 For the detailed artifact-backed summary, see:
 
@@ -200,25 +221,30 @@ Instead, the practical workflow is:
 1. Prepare aligned GT-ready meshes
 2. Convert meshes to NPZ
 3. Precompute DiffusionNet operators
-4. Run either:
-   - WBES evaluation
-   - baseline embedding training
+4. Run the face embedding branch:
+   - baseline autoencoder / encoder training
+   - latent analysis
    - topology robustness experiments
+5. Use WBES when you want an explicit identity-separability readout
 
 Good entry points:
 
-- mesh preview and QA:
-  - [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
+- operator precomputation:
+  - [`face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`](face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py)
+- baseline embedding:
+  - [`face_embedding/gt_encdec/autoencoder/dataset_gtready.py`](face_embedding/gt_encdec/autoencoder/dataset_gtready.py)
+  - [`face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
+  - [`face_embedding/gt_encdec/autoencoder/train_autoencoder.py`](face_embedding/gt_encdec/autoencoder/train_autoencoder.py)
+- robustness training:
+  - [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
 - topology generation:
   - [`datasets/remesh.py`](datasets/remesh.py)
   - [`datasets/expand_remesh_topologies.py`](datasets/expand_remesh_topologies.py)
-- operator precomputation:
-  - [`face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`](face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py)
+- mesh preview and QA:
+  - [`datasets/render_mesh_preview.py`](datasets/render_mesh_preview.py)
 - WBES:
   - [`WBES/code/WBES_pipeline.py`](WBES/code/WBES_pipeline.py)
   - [`WBES/code/WBES_pipeline_landmarks.py`](WBES/code/WBES_pipeline_landmarks.py)
-- robustness training:
-  - [`face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`](face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py)
 
 ## Documentation
 
@@ -233,9 +259,10 @@ That guide includes:
 - directory-by-directory explanations
 - stored-results snapshots
 - code-level notes for the most important modules
-- a deep dive on:
+- a deep dive on the face-embedding core:
   - [`diffusion_autoencoder.py`](face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py)
   - [`train_twotower_dn_spec_robust.py`](face_embedding/gt_encdec/remeshing/intrinsic/train_twotower_dn_spec_robust.py)
+- plus the WBES branch that validates the identity story quantitatively
 
 ## External Context
 

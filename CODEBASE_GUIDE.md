@@ -1,6 +1,6 @@
 # WBES-FaceEmbedding Codebase Guide
 
-Last updated from the current checkout on 2026-03-26.
+Last updated from the current checkout on 2026-03-27.
 
 This document is a practical guide to the repository as it exists on disk, not just as it is described in the README. The repo is a research workspace, not a cleanly packaged library. Code, datasets, experiment outputs, ad hoc utilities, and third-party material all live together.
 
@@ -14,14 +14,16 @@ The main goal of this guide is to help a new contributor answer five questions q
 
 ## 1. Executive Summary
 
-At a high level, this repository combines two related research tracks:
+At a high level, this repository has one clear technical center and one clear evaluation branch:
 
-- `WBES`: identity-aware evaluation of 3D face reconstructions using within-subject and between-subject effect size metrics.
-- `face_embedding`: learning-based identity representations directly from 3D meshes, mostly using DiffusionNet-based models and topology-robust experiments.
+- `face_embedding`: the main modeling branch, where 3D face identity embeddings are learned directly from meshes using DiffusionNet-style architectures, spectral variants, and robustness experiments.
+- `WBES`: the evaluation branch, used to measure whether identity separability is actually preserved.
 
 There is also a third, more isolated component:
 
 - `BFM_to_FLAME`: a vendored external project used for topology/model conversion between Basel Face Model and FLAME.
+
+If you only have time to understand one subtree, read `face_embedding/gt_encdec/` first. That is where most of the architecture decisions, representation-learning work, and topology-robust identity experiments live. `WBES/` matters, but mostly as the quantitative lens used to validate the embedding story.
 
 This is not a single end-to-end application with one orchestrator. It is closer to a research lab notebook in code form:
 
@@ -34,9 +36,9 @@ This is not a single end-to-end application with one orchestrator. It is closer 
 The best way to understand the repo is to treat it as four layers:
 
 1. Data preparation and topology generation
-2. WBES evaluation and plotting
+2. Operator precomputation and dataset adaptation
 3. Mesh embedding / latent-space learning
-4. Cross-topology robustness experiments
+4. Topology robustness plus WBES-based validation
 
 ## 2. Current Checkout Snapshot
 
@@ -91,6 +93,8 @@ This mismatch matters: some experimental branches may assume all variants have o
 ### 2.3 Stored Results Snapshot
 
 The repository already contains enough saved artifacts to extract a few concrete observations.
+
+The most important narrative point is that the model-side artifacts under `face_embedding/` already show strong embedding behavior, and the WBES artifacts then provide an independent evaluation view of the same identity-preservation question.
 
 #### WBES trends visible in stored CSVs
 
@@ -267,7 +271,7 @@ This area is mostly script-driven. There is no central package entry point. The 
 
 ## 3.3 `face_embedding/`
 
-This is the mesh embedding and learning area.
+This is the mesh embedding and learning area, and it is the real center of gravity of the repository.
 
 Main subtree:
 
@@ -281,6 +285,7 @@ Important subareas:
 - `remeshing/`: topology robustness, cross-topology, intrinsic, and voxel experiments
 
 This is the densest part of the repo in terms of model experimentation.
+If someone asks where the main technical substance is, this is the answer.
 
 ## 3.4 `datasets/`
 
@@ -344,19 +349,26 @@ The GT data is cropped to a canonical face region and then used to generate topo
 
 DiffusionNet spectral operators are precomputed and stored into enriched `.npz` files.
 
-### 4.5 Two research branches
+### 4.5 Main modeling branch
 
-Branch A:
+The core branch is:
 
-- evaluate identity separability using WBES on mesh averages or landmark subsets
-
-Branch B:
-
-- train mesh encoders / autoencoders and analyze the latent space
+- train mesh encoders / autoencoders
+- build identity-sensitive latent spaces
+- compare latent structure against geometric structure
 
 ### 4.6 Robustness branch
 
-A newer branch studies whether embeddings remain meaningful when topology changes, noise is added, or geometry is perturbed.
+The most interesting extension is that the repo does not stop at clean canonical meshes.
+It studies whether embeddings remain meaningful when topology changes, noise is added, or geometry is perturbed.
+
+### 4.7 Evaluation branch
+
+WBES then acts as the explicit evaluation layer:
+
+- quantify within-subject versus between-subject separation
+- compare identity separability against geometric error
+- check whether better geometry actually implies better identity
 
 ## 5. Data Contracts and File Formats
 
@@ -794,6 +806,7 @@ This is a foundational script for the GT pipeline, but it is tied to a local env
 ## 6.4 `face_embedding/gt_encdec/autoencoder/`
 
 This is the baseline learning branch for mesh embeddings and reconstruction.
+It is also one of the most important directories in the whole repo.
 
 ### What this area contains
 
@@ -1743,42 +1756,44 @@ If someone needs to become productive in this codebase quickly, this is the best
 
 1. `README.md`
 2. `CODEBASE_GUIDE.md` (this file)
-3. `WBES/utils/WBES_helper.py`
-4. `WBES/code/WBES_pipeline.py`
-5. `datasets/render_mesh_preview.py`
-6. `datasets/expand_remesh_topologies.py`
-7. `face_embedding/gt_encdec/autoencoder/dataset_gtready.py`
-8. `face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`
-9. `face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`
-10. `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`
+3. `datasets/expand_remesh_topologies.py`
+4. `face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`
+5. `face_embedding/gt_encdec/autoencoder/dataset_gtready.py`
+6. `face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`
+7. `face_embedding/gt_encdec/autoencoder/train_autoencoder.py`
+8. `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`
+9. `WBES/utils/WBES_helper.py`
+10. `WBES/code/WBES_pipeline.py`
 
 This order moves from:
 
 - conceptual overview
-- to evaluation
-- to data format infrastructure
+- to data and operator infrastructure
 - to model code
 - to robustness experiments
+- to evaluation
 
 ## 14. What Is Actually Core to the Research Question
 
 If you strip away plots, outputs, and side experiments, the conceptual core of the repo is:
 
-### 14.1 Identity-aware evaluation
-
-- compute within-subject versus between-subject distances
-- express separability as effect size
-- compare that signal with geometric error
-
-### 14.2 Geometry-aware learned representation
+### 14.1 Geometry-aware learned representation
 
 - encode 3D face meshes directly
 - reconstruct or embed them
 - analyze whether latent spaces preserve identity structure
 
-### 14.3 Topology robustness
+This is where most of the architectural complexity and most of the reusable research code live.
+
+### 14.2 Topology robustness
 
 - see whether identity representations survive remeshing, cropping, decimation, and perturbation
+
+### 14.3 Identity-aware evaluation
+
+- compute within-subject versus between-subject distances
+- express separability as effect size
+- compare that signal with geometric error
 
 Everything else is either:
 
@@ -1842,18 +1857,16 @@ This is not required to use the repo, but it would make the codebase much easier
 
 ## 17. Bottom Line
 
-This repository is best understood as a research platform for studying identity in 3D face data across two complementary axes:
-
-- explicit evaluation with WBES
-- learned representation with mesh encoders
+This repository is best understood as a research platform centered on learning identity-preserving 3D face embeddings, with WBES used as a quantitative check on whether those representations are meaningful.
 
 The cleanest operational path through the repo today is:
 
 1. understand the dataset formats,
 2. use the preprocessing scripts in `datasets/`,
-3. read `WBES_helper.py` and the WBES pipelines,
-4. read the autoencoder dataset/model code,
-5. focus on `intrinsic/robustness/` if you want the most organized current experimental branch.
+3. read the operator precompute and dataset adapter code,
+4. read the autoencoder / encoder model code,
+5. focus on `intrinsic/robustness/` for the most organized current experimental branch,
+6. use `WBES/` to evaluate the identity story from the metric side.
 
 If you treat the repo like a polished package, it will feel inconsistent.
 If you treat it like an active research workspace with several generations of experiments, it becomes coherent.
