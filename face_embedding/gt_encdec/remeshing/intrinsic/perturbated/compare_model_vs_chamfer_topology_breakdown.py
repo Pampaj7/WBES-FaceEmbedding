@@ -47,6 +47,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=-1, help="Negative => use checkpoint/config seed")
     p.add_argument("--max_subjects", type=int, default=16, help="0 = all overlapping subjects")
     p.add_argument(
+        "--topology_labels",
+        type=str,
+        default="",
+        help="Optional comma-separated topology labels to keep, e.g. crop,noisy,original,remesh",
+    )
+    p.add_argument(
         "--max_meshes_per_subject_eval",
         type=int,
         default=2,
@@ -193,10 +199,12 @@ def _collect_clean_embeddings_and_vertices(
 ) -> tuple[torch.Tensor, List[torch.Tensor]]:
     latent_vectors: List[torch.Tensor] = []
     vertex_sets: List[torch.Tensor] = []
+    sample_total = len(sample_records)
+    sample_log_step = base._progress_log_step(sample_total)
 
     model.eval()
     with torch.no_grad():
-        for record in sample_records:
+        for sample_index, record in enumerate(sample_records, start=1):
             sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
             sample_d = base.sample_to_device(sample, device=device)
             V_in = sample_d["verts"]
@@ -209,6 +217,11 @@ def _collect_clean_embeddings_and_vertices(
             )
             latent_vectors.append(z.squeeze(0))
             vertex_sets.append(V_in.contiguous())
+            if sample_index == 1 or sample_index == sample_total or sample_index % sample_log_step == 0:
+                print(
+                    f"Topology breakdown: encoded {sample_index}/{sample_total} samples",
+                    flush=True,
+                )
 
     return torch.stack(latent_vectors, dim=0), vertex_sets
 
@@ -541,6 +554,20 @@ def main() -> None:
         eval_subjects=target_subjects,
         sample_cache=sample_cache,
     )
+    requested_topology_labels = base._parse_topology_labels(cli_args.topology_labels)
+    if requested_topology_labels:
+        sample_records = base._filter_sample_records_by_topology_labels(
+            sample_records=sample_records,
+            topology_labels=requested_topology_labels,
+        )
+    active_eval_plan = base._eval_plan_from_sample_records(sample_records)
+    active_subjects = sorted(active_eval_plan.keys())
+    print(
+        f"Prepared topology-breakdown subset: subjects={len(active_subjects)} "
+        f"samples={len(sample_records)} "
+        f"topologies={sorted({rec.topology_label for rec in sample_records})}",
+        flush=True,
+    )
     pair_ctx = base.build_pair_eval_context(
         sample_records=sample_records,
         name_to_idx=gt_name_to_idx,
@@ -551,12 +578,22 @@ def main() -> None:
     )
     if pair_ctx.mesh_pair_count <= 0:
         raise RuntimeError("No valid mesh-pairs found for the selected subset and pair mode")
+    print(
+        f"Prepared topology-breakdown pair context: subject_pairs={pair_ctx.subject_pair_count} "
+        f"mesh_pairs={pair_ctx.mesh_pair_count}",
+        flush=True,
+    )
 
     model = base.build_model(args=model_args, device=device)
     checkpoint_bundle = base.load_checkpoint_bundle(checkpoint_path)
     model.load_state_dict(checkpoint_bundle["state_dict"], strict=True)
     model.eval()
 
+    print(
+        f"Starting topology-breakdown embedding and chamfer collection "
+        f"for {len(pair_ctx.sample_records)} samples and {pair_ctx.mesh_pair_count} mesh pairs",
+        flush=True,
+    )
     Z, vertex_sets = _collect_clean_embeddings_and_vertices(
         model=model,
         dataset=dataset,
@@ -580,8 +617,9 @@ def main() -> None:
         pair_j=pair_ctx.pair_j_cpu,
         batch_pairs=int(cli_args.chamfer_batch_pairs),
         progress_desc="topology breakdown chamfer pairs",
-        show_progress=False,
+        show_progress=True,
     )
+    print("Finished topology-breakdown embedding and chamfer collection", flush=True)
 
     sample_topology_labels = np.asarray([rec.topology_label for rec in pair_ctx.sample_records], dtype=object)
     sample_subject_ids = np.asarray([rec.subject_id for rec in pair_ctx.sample_records], dtype=object)
@@ -677,8 +715,8 @@ def main() -> None:
                 "topology_pair_mode": str(cli_args.topology_pair_mode),
                 "ordered_topology_pairs": bool(cli_args.ordered_topology_pairs),
                 "mesh_pair_level": bool(cli_args.mesh_pair_level),
-                "selected_subjects": list(target_subjects),
-                "eval_plan_summary": base.summarize_eval_plan(eval_plan),
+                "selected_subjects": list(active_subjects),
+                "eval_plan_summary": base.summarize_eval_plan(active_eval_plan),
                 "sample_eval_summary": base.summarize_sample_records(sample_records),
                 "pair_context": {
                     "n_subjects": int(pair_ctx.n_subjects),

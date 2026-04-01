@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -7,11 +8,16 @@ import math
 from pathlib import Path
 from typing import Dict, List, Sequence
 
-import compare_model_vs_chamfer_rankings as base
+import numpy as np
 
+import compare_model_vs_chamfer_rankings_faceverse as faceverse_base
+
+
+benchmark_base = faceverse_base.base
+THIS_DIR = Path(__file__).resolve().parent
 
 ALLOWED_SWEEP_SCENARIOS = ("jitter", "translation", "rotation", "mixed")
-CLEAN_SPEC = base.ScenarioSpec(
+CLEAN_SPEC = benchmark_base.ScenarioSpec(
     name="clean",
     jitter_sigma=0.0,
     rotation_sigma=0.0,
@@ -20,114 +26,43 @@ CLEAN_SPEC = base.ScenarioSpec(
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(
-        description=(
-            "Run the model-vs-Chamfer ranking benchmark over a progressive sigma sweep "
-            "without changing the original single-run script."
-        )
+    parser = faceverse_base.build_arg_parser()
+    parser.description = (
+        "Run the FaceVerse GT ranking benchmark over a progressive sigma sweep while "
+        "preserving the same model/Chamfer evaluation protocol."
     )
-    p.add_argument(
-        "--model_path",
-        type=str,
-        required=True,
-        help="Run directory or explicit checkpoint path for the model to evaluate",
-    )
-    p.add_argument(
-        "--checkpoint_selector",
-        type=str,
-        default="best_by_auc",
-        choices=("best_by_auc", "best_by_clean", "latest"),
-        help="Checkpoint selection when --model_path points to a run directory",
-    )
-    p.add_argument("--config_json", type=str, default="", help="Optional explicit config.json path")
-    p.add_argument("--out_dir", type=str, default="", help="Optional output directory")
-    p.add_argument("--device", type=str, default="cuda")
-
-    p.add_argument("--data_dir", type=str, default="", help="Override dataset path")
-    p.add_argument("--dist_npz", type=str, default="", help="Override GT distance matrix path")
-    p.add_argument("--subject_split", type=str, default="eval", choices=("eval", "train", "all"))
-    p.add_argument("--eval_fraction", type=float, default=0.2)
-    p.add_argument("--seed", type=int, default=-1, help="Negative => use checkpoint/config seed")
-    p.add_argument("--max_subjects", type=int, default=16, help="0 = all overlapping subjects")
-    p.add_argument(
-        "--topology_labels",
-        type=str,
-        default="",
-        help="Optional comma-separated topology labels to keep, e.g. crop,noisy,original,remesh",
-    )
-    p.add_argument(
-        "--max_meshes_per_subject_eval",
-        type=int,
-        default=2,
-        help="Max meshes per subject for this ranking probe",
-    )
-    p.add_argument(
-        "--preload_eval_samples",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Preload selected meshes before evaluation",
-    )
-    p.add_argument("--preload_workers", type=int, default=4, help="Workers for sample preloading")
-
-    p.add_argument("--pair_mode", type=str, default="cross_topology", choices=base.ALLOWED_PAIR_MODES)
-    p.add_argument(
-        "--aggregation_level",
-        type=str,
-        default="subject_pair_mean",
-        choices=base.ALLOWED_AGGREGATION_LEVELS,
-    )
-
-    p.add_argument("--rigid_rot_deg", type=float, default=-1.0, help="Override rigid rotation slope in degrees")
-    p.add_argument("--rigid_trans_scale", type=float, default=-1.0, help="Override rigid translation slope")
-    p.add_argument("--rigid_rot_deg_min", type=float, default=-1.0, help="Override rigid minimum angle")
-    p.add_argument("--rigid_trans_scale_min", type=float, default=-1.0, help="Override rigid minimum translation")
-
-    p.add_argument("--chamfer_batch_pairs", type=int, default=64, help="Pair batch size for Chamfer evaluation")
-    p.add_argument(
-        "--chamfer_cache_verts",
-        type=str,
-        default="auto",
-        choices=("off", "auto", "force"),
-        help="Cache Chamfer vertices on eval device when beneficial",
-    )
-    p.add_argument(
-        "--chamfer_cache_verts_max_mb",
-        type=float,
-        default=256.0,
-        help="Device-cache limit in auto mode",
-    )
-
-    p.add_argument(
+    parser.set_defaults(chamfer_use_icp=False)
+    parser.add_argument(
         "--sweep_scenarios",
         type=str,
         default="jitter,translation,rotation,mixed",
         help="Comma-separated scenarios from: jitter,translation,rotation,mixed",
     )
-    p.add_argument(
+    parser.add_argument(
         "--sigma_values",
         type=str,
         default="0.00,0.02,0.05,0.10,0.15,0.20",
         help="Comma-separated sigma values for the sweep",
     )
-    p.add_argument(
+    parser.add_argument(
         "--include_clean_once",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Compute the clean baseline once and reuse it across the sweep",
     )
-    p.add_argument(
+    parser.add_argument(
         "--progressive_output_layout",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Store a dedicated subdirectory for each scenario/sigma run",
     )
-    p.add_argument(
+    parser.add_argument(
         "--summary_filename",
         type=str,
         default="sigma_sweep_summary.csv",
         help="Filename for the aggregated sweep CSV written at the root output directory",
     )
-    return p.parse_args()
+    return parser.parse_args()
 
 
 def _parse_sweep_scenarios(text: str) -> List[str]:
@@ -186,16 +121,16 @@ def _sigma_token(value: float) -> str:
     return text.replace("-", "m").replace(".", "p")
 
 
-def _build_scenario_spec(name: str, sigma: float) -> base.ScenarioSpec:
+def _build_scenario_spec(name: str, sigma: float):
     sigma = float(sigma)
     if name == "jitter":
-        return base.ScenarioSpec(name=name, jitter_sigma=sigma, rotation_sigma=0.0, translation_sigma=0.0)
+        return benchmark_base.ScenarioSpec(name=name, jitter_sigma=sigma, rotation_sigma=0.0, translation_sigma=0.0)
     if name == "translation":
-        return base.ScenarioSpec(name=name, jitter_sigma=0.0, rotation_sigma=0.0, translation_sigma=sigma)
+        return benchmark_base.ScenarioSpec(name=name, jitter_sigma=0.0, rotation_sigma=0.0, translation_sigma=sigma)
     if name == "rotation":
-        return base.ScenarioSpec(name=name, jitter_sigma=0.0, rotation_sigma=sigma, translation_sigma=0.0)
+        return benchmark_base.ScenarioSpec(name=name, jitter_sigma=0.0, rotation_sigma=sigma, translation_sigma=0.0)
     if name == "mixed":
-        return base.ScenarioSpec(name=name, jitter_sigma=sigma, rotation_sigma=sigma, translation_sigma=sigma)
+        return benchmark_base.ScenarioSpec(name=name, jitter_sigma=sigma, rotation_sigma=sigma, translation_sigma=sigma)
     raise ValueError(f"Unsupported sweep scenario: {name}")
 
 
@@ -224,15 +159,14 @@ def _format_float(value: object) -> str:
 
 
 def _write_json(path: Path, payload: dict) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, allow_nan=True)
-        f.write("\n")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2, allow_nan=True)
+        handle.write("\n")
 
 
 def _build_default_out_dir(
-    run_dir: Path,
     checkpoint_path: Path,
-    cli_args: argparse.Namespace,
+    cli_args,
     target_subjects: Sequence[str],
     max_meshes_per_subject_eval: int,
     sweep_scenarios: Sequence[str],
@@ -240,12 +174,14 @@ def _build_default_out_dir(
 ) -> Path:
     scenario_token = "-".join(sweep_scenarios)
     sigma_token = "-".join(_sigma_token(value) for value in sigma_values)
-    slug = base.slugify_token(
+    align_token = "icp" if bool(cli_args.chamfer_use_icp) else "noicp"
+    slug = benchmark_base.slugify_token(
         f"{checkpoint_path.stem}_split-{cli_args.subject_split}_pairs-{cli_args.pair_mode}_"
         f"agglvl-{cli_args.aggregation_level}_subjects-{len(target_subjects)}_"
-        f"meshes-{int(max_meshes_per_subject_eval)}_sweep-{scenario_token}_sigmas-{sigma_token}"
+        f"meshes-{int(max_meshes_per_subject_eval)}_align-{align_token}_"
+        f"sweep-{scenario_token}_sigmas-{sigma_token}"
     )
-    return run_dir / "perturbation_ranking_vs_chamfer_sigma_sweep" / slug
+    return THIS_DIR / "faceverse_ranking_vs_gt_sigma_sweep" / slug
 
 
 def _resolve_item_paths(
@@ -263,7 +199,6 @@ def _resolve_item_paths(
             item_out_dir / "ranking_summary.csv",
             item_out_dir / "ranking_summary.md",
         )
-
     return (
         root_out_dir,
         root_out_dir / f"{label}__ranking_summary.json",
@@ -276,16 +211,19 @@ def _build_payload(
     *,
     checkpoint_path: Path,
     run_dir: Path,
-    cli_args: argparse.Namespace,
+    cli_args,
     model_args,
     device,
     target_subjects: Sequence[str],
+    inference_filter_summary: Dict[str, object],
+    gt_filter_summary: Dict[str, object],
+    gt_dist_summary: Dict[str, object],
     eval_plan,
     sample_records,
     pair_ctx,
     chamfer_cache_stats: Dict[str, object],
     params,
-    scenario_spec: base.ScenarioSpec,
+    scenario_spec,
     sigma: float,
     include_clean_once: bool,
     clean_row: Dict[str, object] | None,
@@ -297,7 +235,9 @@ def _build_payload(
         "checkpoint_selector": str(cli_args.checkpoint_selector),
         "device": str(device),
         "data_dir": str(model_args.data_dir),
-        "dist_npz": str(model_args.dist_npz),
+        "gt_mesh_dir": str(Path(cli_args.gt_mesh_dir).expanduser().resolve()),
+        "dist_npz": str(Path(cli_args.dist_npz).expanduser().resolve()),
+        "reference_metric": "gt_vertex_mean_l2",
         "subject_split": str(cli_args.subject_split),
         "eval_fraction": float(cli_args.eval_fraction),
         "seed": int(model_args.seed),
@@ -306,8 +246,11 @@ def _build_payload(
         "pair_mode": str(cli_args.pair_mode),
         "aggregation_level": str(cli_args.aggregation_level),
         "selected_subjects": list(target_subjects),
-        "eval_plan_summary": base.summarize_eval_plan(eval_plan),
-        "sample_eval_summary": base.summarize_sample_records(sample_records),
+        "inference_filter_summary": dict(inference_filter_summary),
+        "gt_filter_summary": dict(gt_filter_summary),
+        "gt_distance_matrix_summary": dict(gt_dist_summary),
+        "eval_plan_summary": benchmark_base.summarize_eval_plan(eval_plan),
+        "sample_eval_summary": benchmark_base.summarize_sample_records(sample_records),
         "pair_context": {
             "n_subjects": int(pair_ctx.n_subjects),
             "n_samples": int(pair_ctx.n_samples),
@@ -315,6 +258,14 @@ def _build_payload(
             "n_mesh_pairs": int(pair_ctx.mesh_pair_count),
             "n_subject_pairs": int(pair_ctx.subject_pair_count),
             "n_topology_labels": int(pair_ctx.n_topology_labels),
+        },
+        "chamfer_protocol": {
+            "use_icp": bool(cli_args.chamfer_use_icp),
+            "alignment_stage": "precomputed_clean_pairs" if bool(cli_args.chamfer_use_icp) else "none",
+            "icp_points": int(cli_args.icp_points),
+            "icp_max_correspondence_distance": float(cli_args.icp_max_correspondence_distance),
+            "icp_max_iteration": int(cli_args.icp_max_iteration),
+            "icp_workers": int(cli_args.icp_workers),
         },
         "chamfer_cache_verts": dict(chamfer_cache_stats),
         "perturbation_params": {
@@ -327,7 +278,7 @@ def _build_payload(
             "scenario": str(scenario_spec.name),
             "sigma": float(sigma),
             "include_clean_once": bool(include_clean_once),
-            "scenario_parameters": base._describe_scenario(scenario_spec, params=params),
+            "scenario_parameters": benchmark_base._describe_scenario(scenario_spec, params=params),
         },
         "clean_baseline": dict(clean_row) if clean_row is not None else None,
         "rows": [dict(row) for row in rows_for_outputs],
@@ -338,7 +289,7 @@ def _build_summary_row(
     *,
     scenario_name: str,
     sigma: float,
-    scenario_spec: base.ScenarioSpec,
+    scenario_spec,
     result_row: Dict[str, object],
     clean_row: Dict[str, object] | None,
     params,
@@ -347,7 +298,7 @@ def _build_summary_row(
     csv_path: Path,
     md_path: Path,
 ) -> dict:
-    desc = base._describe_scenario(scenario_spec, params=params)
+    desc = benchmark_base._describe_scenario(scenario_spec, params=params)
     clean_latent = float(clean_row["latent_spearman"]) if clean_row is not None else float("nan")
     clean_chamfer = float(clean_row["chamfer_spearman"]) if clean_row is not None else float("nan")
     return {
@@ -367,8 +318,12 @@ def _build_summary_row(
         "model_beats_chamfer": bool(result_row["model_beats_chamfer"]),
         "clean_latent_spearman": clean_latent,
         "clean_chamfer_spearman": clean_chamfer,
-        "latent_drop_vs_clean": clean_latent - float(result_row["latent_spearman"]) if clean_row is not None else float("nan"),
-        "chamfer_drop_vs_clean": clean_chamfer - float(result_row["chamfer_spearman"]) if clean_row is not None else float("nan"),
+        "latent_drop_vs_clean": (
+            clean_latent - float(result_row["latent_spearman"]) if clean_row is not None else float("nan")
+        ),
+        "chamfer_drop_vs_clean": (
+            clean_chamfer - float(result_row["chamfer_spearman"]) if clean_row is not None else float("nan")
+        ),
         "n_subjects": int(result_row["n_subjects"]),
         "n_samples": int(result_row["n_samples"]),
         "n_pairs": int(result_row["n_pairs"]),
@@ -411,8 +366,8 @@ def _write_sweep_summary_csv(path: Path, rows: Sequence[dict]) -> None:
         "output_csv",
         "output_md",
     ]
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=header)
+    with open(path, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=header)
         writer.writeheader()
         for row in rows:
             writer.writerow(
@@ -453,41 +408,65 @@ def main() -> None:
     sweep_scenarios = _parse_sweep_scenarios(cli_args.sweep_scenarios)
     sigma_values = _parse_sigma_values(cli_args.sigma_values)
 
-    run_dir, checkpoint_path = base._resolve_run_dir_and_checkpoint(
+    run_dir, checkpoint_path = benchmark_base._resolve_run_dir_and_checkpoint(
         cli_args.model_path,
         selector=str(cli_args.checkpoint_selector),
     )
-    base_args = base.merge_run_args(checkpoint_path, explicit_config_json=cli_args.config_json)
-    model_args = base._resolve_runtime_args(cli_args, base_args)
-    params = base.PerturbationParams.from_namespace(model_args)
-
-    base.seed_everything(int(model_args.seed))
-    device = base._resolve_device(cli_args.device)
-
-    dataset = base.GTReadyDataset(model_args.data_dir)
-    gt_matrix, gt_name_to_idx = base.load_gt_distance_matrix(
-        model_args.dist_npz,
-        subject_re=base.SUBJECT_RE_ANY,
-        dtype=base.np.float64,
+    model_args = benchmark_base._resolve_runtime_args(
+        cli_args,
+        benchmark_base.merge_run_args(checkpoint_path, explicit_config_json=cli_args.config_json),
     )
-    subject_map = base.build_subject_map(dataset.files, subject_re=base.SUBJECT_RE_ANY)
-    subjects = sorted([sid for sid in subject_map.keys() if sid in gt_name_to_idx])
-    _, _, target_subjects = base._select_subject_subset(
-        subjects=subjects,
+    params = benchmark_base.PerturbationParams.from_namespace(model_args)
+
+    benchmark_base.seed_everything(int(model_args.seed))
+    device = benchmark_base._resolve_device(cli_args.device)
+
+    dataset = benchmark_base.GTReadyDataset(model_args.data_dir)
+    inference_subject_map, inference_filter_summary = faceverse_base._build_faceverse_inference_subject_map(
+        files=dataset.files,
+        pattern=str(cli_args.pattern),
+        subject_ids=cli_args.subject_ids,
+        pose_ids=cli_args.pose_ids,
+    )
+
+    gt_subject_paths, gt_filter_summary = faceverse_base._resolve_gt_subject_paths(
+        gt_mesh_dir=str(cli_args.gt_mesh_dir),
+        gt_pattern=str(cli_args.gt_pattern),
+        subject_ids=cli_args.subject_ids,
+        pose_ids=cli_args.pose_ids,
+        dist_npz=str(cli_args.dist_npz),
+        recompute_gt_dist=bool(cli_args.recompute_gt_dist),
+    )
+
+    overlapping_subjects = sorted(set(inference_subject_map.keys()) & set(gt_subject_paths.keys()))
+    if not overlapping_subjects:
+        raise RuntimeError("No overlapping FaceVerse subjects between inference data and original GT meshes")
+
+    _, _, target_subjects = benchmark_base._select_subject_subset(
+        subjects=overlapping_subjects,
         subject_split=str(cli_args.subject_split),
         eval_fraction=float(cli_args.eval_fraction),
         seed=int(model_args.seed),
         max_subjects=int(cli_args.max_subjects),
     )
+    if not target_subjects:
+        raise RuntimeError("No FaceVerse subjects remained after subject selection")
 
-    eval_plan = base.build_eval_plan(
-        subj_map=subject_map,
+    gt_matrix, gt_name_to_idx, gt_dist_summary = faceverse_base._resolve_faceverse_gt_distance_matrix(
+        gt_subject_paths=gt_subject_paths,
+        out_path=Path(cli_args.dist_npz).expanduser().resolve(),
+        recompute=bool(cli_args.recompute_gt_dist),
+        workers=int(cli_args.gt_workers),
+    )
+
+    eval_plan = benchmark_base.build_eval_plan(
+        subj_map=inference_subject_map,
         eval_subjects=target_subjects,
         max_meshes_per_subject_eval=int(model_args.max_meshes_per_subject_eval),
         seed=int(model_args.seed),
     )
     sample_cache = (
-        base.preload_eval_samples(
+        benchmark_base.preload_eval_samples(
             dataset=dataset,
             eval_plan=eval_plan,
             workers=int(cli_args.preload_workers),
@@ -496,7 +475,7 @@ def main() -> None:
         else None
     )
     if sample_cache is not None:
-        sample_cache, chamfer_cache_stats = base.maybe_cache_chamfer_vertices_on_device(
+        sample_cache, chamfer_cache_stats = benchmark_base.maybe_cache_chamfer_vertices_on_device(
             sample_cache=sample_cache,
             device=device,
             cache_mode=str(cli_args.chamfer_cache_verts),
@@ -512,27 +491,13 @@ def main() -> None:
             "reason": "no_preloaded_samples",
         }
 
-    sample_records = base.build_sample_eval_records(
+    sample_records = benchmark_base.build_sample_eval_records(
         dataset=dataset,
         eval_plan=eval_plan,
         eval_subjects=target_subjects,
         sample_cache=sample_cache,
     )
-    requested_topology_labels = base._parse_topology_labels(cli_args.topology_labels)
-    if requested_topology_labels:
-        sample_records = base._filter_sample_records_by_topology_labels(
-            sample_records=sample_records,
-            topology_labels=requested_topology_labels,
-        )
-    active_eval_plan = base._eval_plan_from_sample_records(sample_records)
-    active_subjects = sorted(active_eval_plan.keys())
-    print(
-        f"Prepared sigma-sweep subset: subjects={len(active_subjects)} "
-        f"samples={len(sample_records)} "
-        f"topologies={sorted({rec.topology_label for rec in sample_records})}",
-        flush=True,
-    )
-    pair_ctx = base.build_pair_eval_context(
+    pair_ctx = benchmark_base.build_pair_eval_context(
         sample_records=sample_records,
         name_to_idx=gt_name_to_idx,
         gt_matrix=gt_matrix,
@@ -541,15 +506,37 @@ def main() -> None:
         aggregation_level=str(cli_args.aggregation_level),
     )
     if pair_ctx.pair_count <= 0:
-        raise RuntimeError("No valid evaluation pairs found for the selected subset and pair mode")
-    print(
-        f"Prepared sigma-sweep pair context: subject_pairs={pair_ctx.subject_pair_count} "
-        f"mesh_pairs={pair_ctx.mesh_pair_count}",
-        flush=True,
-    )
+        raise RuntimeError(
+            "No valid FaceVerse evaluation pairs found for the selected subset. "
+            f"pair_mode={cli_args.pair_mode!r} aggregation_level={cli_args.aggregation_level!r}"
+        )
 
-    model = base.build_model(args=model_args, device=device)
-    checkpoint_bundle = base.load_checkpoint_bundle(checkpoint_path)
+    pairwise_icp_transforms: np.ndarray | None = None
+    if bool(cli_args.chamfer_use_icp):
+        clean_icp_point_sets: List[np.ndarray] = []
+        for record in pair_ctx.sample_records:
+            sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
+            clean_icp_point_sets.append(
+                faceverse_base._sample_vertices_for_icp(
+                    sample["verts"],
+                    n_points=int(cli_args.icp_points),
+                    seed=int(model_args.seed) * 1_000_003 + int(record.dataset_idx),
+                )
+            )
+        pairwise_icp_transforms = faceverse_base._precompute_pairwise_icp_transforms(
+            icp_point_sets=clean_icp_point_sets,
+            pair_i=pair_ctx.pair_i_cpu,
+            pair_j=pair_ctx.pair_j_cpu,
+            batch_pairs=int(cli_args.chamfer_batch_pairs),
+            icp_workers=int(cli_args.icp_workers),
+            icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
+            icp_max_iteration=int(cli_args.icp_max_iteration),
+            progress_desc="clean pairwise ICP",
+            show_progress=True,
+        )
+
+    model = benchmark_base.build_model(args=model_args, device=device)
+    checkpoint_bundle = benchmark_base.load_checkpoint_bundle(checkpoint_path)
     model.load_state_dict(checkpoint_bundle["state_dict"], strict=True)
     model.eval()
 
@@ -557,7 +544,6 @@ def main() -> None:
         Path(cli_args.out_dir).expanduser().resolve()
         if cli_args.out_dir
         else _build_default_out_dir(
-            run_dir=run_dir,
             checkpoint_path=checkpoint_path,
             cli_args=cli_args,
             target_subjects=target_subjects,
@@ -570,9 +556,8 @@ def main() -> None:
 
     clean_row = None
     if cli_args.include_clean_once:
-        print("Starting sigma-sweep clean baseline", flush=True)
         clean_row = _finalize_result(
-            base._evaluate_scenario(
+            faceverse_base._evaluate_scenario(
                 model=model,
                 dataset=dataset,
                 pair_ctx=pair_ctx,
@@ -583,15 +568,15 @@ def main() -> None:
                 scenario_index=0,
                 base_seed=int(model_args.seed),
                 chamfer_batch_pairs=int(cli_args.chamfer_batch_pairs),
+                chamfer_use_icp=bool(cli_args.chamfer_use_icp),
+                pairwise_icp_transforms=pairwise_icp_transforms,
+                icp_workers=int(cli_args.icp_workers),
+                icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
+                icp_max_iteration=int(cli_args.icp_max_iteration),
+                show_chamfer_pair_progress=bool(cli_args.chamfer_pair_progress),
             )
         )
-        print(
-            f"Finished sigma-sweep clean baseline: latent_sp={clean_row['latent_spearman']:.4f} "
-            f"chamfer_sp={clean_row['chamfer_spearman']:.4f}",
-            flush=True,
-        )
 
-    # Keep one RNG stream per scenario so different sigmas stay directly comparable.
     scenario_index_lookup = {name: idx + 1 for idx, name in enumerate(sweep_scenarios)}
     summary_rows: List[dict] = []
 
@@ -599,12 +584,11 @@ def main() -> None:
         scenario_index = int(scenario_index_lookup[scenario_name])
         for sigma in sigma_values:
             scenario_spec = _build_scenario_spec(scenario_name, sigma)
-            print(f"Starting sigma-sweep scenario={scenario_name} sigma={sigma:.4f}", flush=True)
             if clean_row is not None and _is_zero_sigma(sigma):
                 result_row = _clone_clean_as_scenario(clean_row, scenario_name=scenario_name)
             else:
                 result_row = _finalize_result(
-                    base._evaluate_scenario(
+                    faceverse_base._evaluate_scenario(
                         model=model,
                         dataset=dataset,
                         pair_ctx=pair_ctx,
@@ -615,14 +599,14 @@ def main() -> None:
                         scenario_index=scenario_index,
                         base_seed=int(model_args.seed),
                         chamfer_batch_pairs=int(cli_args.chamfer_batch_pairs),
+                        chamfer_use_icp=bool(cli_args.chamfer_use_icp),
+                        pairwise_icp_transforms=pairwise_icp_transforms,
+                        icp_workers=int(cli_args.icp_workers),
+                        icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
+                        icp_max_iteration=int(cli_args.icp_max_iteration),
+                        show_chamfer_pair_progress=bool(cli_args.chamfer_pair_progress),
                     )
                 )
-            print(
-                f"Finished sigma-sweep scenario={scenario_name} sigma={sigma:.4f}: "
-                f"latent_sp={result_row['latent_spearman']:.4f} "
-                f"chamfer_sp={result_row['chamfer_spearman']:.4f}",
-                flush=True,
-            )
 
             label = f"{scenario_name}_sigma{_sigma_token(sigma)}"
             item_out_dir, json_path, csv_path, md_path = _resolve_item_paths(
@@ -632,7 +616,7 @@ def main() -> None:
             )
 
             rows_for_outputs: List[dict] = []
-            scenarios_for_outputs: List[base.ScenarioSpec] = []
+            scenarios_for_outputs: List[benchmark_base.ScenarioSpec] = []
             if clean_row is not None and not _is_zero_sigma(sigma):
                 rows_for_outputs.append(dict(clean_row))
                 scenarios_for_outputs.append(CLEAN_SPEC)
@@ -645,8 +629,11 @@ def main() -> None:
                 cli_args=cli_args,
                 model_args=model_args,
                 device=device,
-                target_subjects=active_subjects,
-                eval_plan=active_eval_plan,
+                target_subjects=target_subjects,
+                inference_filter_summary=inference_filter_summary,
+                gt_filter_summary=gt_filter_summary,
+                gt_dist_summary=gt_dist_summary,
+                eval_plan=eval_plan,
                 sample_records=sample_records,
                 pair_ctx=pair_ctx,
                 chamfer_cache_stats=chamfer_cache_stats,
@@ -658,8 +645,8 @@ def main() -> None:
                 rows_for_outputs=rows_for_outputs,
             )
             _write_json(json_path, payload)
-            base._write_summary_csv(csv_path, rows=rows_for_outputs, params=params, scenarios=scenarios_for_outputs)
-            base._write_summary_md(md_path, rows=rows_for_outputs, params=params, scenarios=scenarios_for_outputs)
+            faceverse_base._write_summary_csv(csv_path, rows=rows_for_outputs, params=params, scenarios=scenarios_for_outputs)
+            faceverse_base._write_summary_md(md_path, rows=rows_for_outputs, params=params, scenarios=scenarios_for_outputs)
 
             summary_rows.append(
                 _build_summary_row(
@@ -682,6 +669,7 @@ def main() -> None:
 
     print(f"Checkpoint: {checkpoint_path}")
     print(f"Root output dir: {root_out_dir}")
+    print(f"GT dist matrix: {Path(cli_args.dist_npz).expanduser().resolve()}")
     print(f"Selected subjects: {len(target_subjects)}")
     print(f"Samples kept: {pair_ctx.n_samples}")
     print(f"Pairs kept: {pair_ctx.pair_count}")

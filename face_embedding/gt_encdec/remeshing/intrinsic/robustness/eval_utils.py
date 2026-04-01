@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import math
+import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -591,6 +592,18 @@ def compute_pairwise_chamfer_values(
         shape_groups.setdefault(key, []).append(int(pair_idx))
 
     total_batches = int(sum(math.ceil(len(indices) / pair_batch) for indices in shape_groups.values()))
+    progress_label = str(progress_desc).strip() or "Chamfer pairs"
+    processed_pairs = 0
+    processed_batches = 0
+    progress_start_time = time.time()
+    progress_interval_s = 10.0
+    next_progress_time = progress_start_time + progress_interval_s
+    use_tqdm = bool(show_progress and total_batches > 1 and sys.stdout.isatty() and sys.stderr.isatty())
+    if show_progress:
+        print(
+            f"{progress_label}: starting {n_pairs} pairs in {total_batches} batches",
+            flush=True,
+        )
     pair_pbar = (
         tqdm(
             total=total_batches,
@@ -599,7 +612,7 @@ def compute_pairwise_chamfer_values(
             leave=False,
             position=2,
         )
-        if show_progress and total_batches > 1
+        if use_tqdm
         else None
     )
 
@@ -618,13 +631,67 @@ def compute_pairwise_chamfer_values(
             )
             batch_values = symmetric_chamfer_same_shape_batch(X=X_batch, Y=Y_batch)
             values[np.asarray(batch_pair_indices, dtype=np.int64)] = batch_values.detach().cpu().numpy()
+            processed_pairs += len(batch_pair_indices)
+            processed_batches += 1
 
             if pair_pbar is not None:
                 pair_pbar.update(1)
                 pair_pbar.set_postfix(shape=f"{shape_key[0]}x{shape_key[1]}", done=f"{stop}/{group_total}")
+            if show_progress:
+                now = time.time()
+                should_log = (
+                    processed_batches == 1
+                    or processed_batches == total_batches
+                    or now >= next_progress_time
+                )
+                if should_log:
+                    elapsed_s = max(now - progress_start_time, 1.0e-9)
+                    pairs_per_s = float(processed_pairs) / elapsed_s
+                    eta_s = (
+                        float(n_pairs - processed_pairs) / pairs_per_s
+                        if pairs_per_s > 0.0
+                        else float("inf")
+                    )
+                    if eta_s >= 3600.0:
+                        eta_text = f"{eta_s / 3600.0:.1f}h"
+                    elif eta_s >= 60.0:
+                        eta_text = f"{eta_s / 60.0:.1f}m"
+                    else:
+                        eta_text = f"{eta_s:.1f}s"
+                    if elapsed_s >= 3600.0:
+                        elapsed_text = f"{elapsed_s / 3600.0:.1f}h"
+                    elif elapsed_s >= 60.0:
+                        elapsed_text = f"{elapsed_s / 60.0:.1f}m"
+                    else:
+                        elapsed_text = f"{elapsed_s:.1f}s"
+                    while next_progress_time <= now:
+                        next_progress_time += progress_interval_s
+                    progress_pct = 100.0 * (float(processed_pairs) / float(n_pairs))
+                    batch_pct = 100.0 * (float(processed_batches) / float(total_batches))
+                    shape_text = f"{shape_key[0]}x{shape_key[1]}"
+                    print(
+                        f"{progress_label}: {progress_pct:.1f}% pairs "
+                        f"({processed_pairs}/{n_pairs}) | "
+                        f"{batch_pct:.1f}% batches ({processed_batches}/{total_batches}) | "
+                        f"shape={shape_text} | rate={pairs_per_s:.1f} pairs/s | "
+                        f"eta={eta_text} | elapsed={elapsed_text}",
+                        flush=True,
+                    )
 
     if pair_pbar is not None:
         pair_pbar.close()
+    if show_progress:
+        elapsed_s = time.time() - progress_start_time
+        if elapsed_s >= 3600.0:
+            elapsed_text = f"{elapsed_s / 3600.0:.1f}h"
+        elif elapsed_s >= 60.0:
+            elapsed_text = f"{elapsed_s / 60.0:.1f}m"
+        else:
+            elapsed_text = f"{elapsed_s:.1f}s"
+        print(
+            f"{progress_label}: completed {n_pairs} pairs in {elapsed_text}",
+            flush=True,
+        )
     return values
 
 

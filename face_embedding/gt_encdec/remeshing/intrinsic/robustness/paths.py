@@ -29,3 +29,8 @@ def ensure_autoencoder_dir_on_syspath() -> None:
 
 
 ensure_autoencoder_dir_on_syspath()
+
+from path_setup import ensure_diffusion_net_on_syspath  # noqa: E402
+
+
+ensure_diffusion_net_on_syspath()

@@ -100,6 +100,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=-1, help="Negative => use checkpoint/config seed")
     p.add_argument("--max_subjects", type=int, default=16, help="0 = all overlapping subjects")
     p.add_argument(
+        "--topology_labels",
+        type=str,
+        default="",
+        help="Optional comma-separated topology labels to keep, e.g. crop,noisy,original,remesh",
+    )
+    p.add_argument(
         "--max_meshes_per_subject_eval",
         type=int,
         default=2,
@@ -230,6 +236,49 @@ def _resolve_runtime_args(cli_args: argparse.Namespace, base_args: Dict[str, obj
     args.setdefault("rigid_trans_scale_min", 0.0)
     args.setdefault("sigma_max", 0.05)
     return SimpleNamespace(**args)
+
+
+def _parse_topology_labels(text: str) -> List[str]:
+    labels: List[str] = []
+    seen = set()
+    for raw in str(text).split(","):
+        label = raw.strip().lower()
+        if not label:
+            continue
+        if label not in seen:
+            labels.append(label)
+            seen.add(label)
+    return labels
+
+
+def _filter_sample_records_by_topology_labels(
+    sample_records: Sequence[object],
+    topology_labels: Sequence[str],
+) -> List[object]:
+    allowed = {str(label).strip().lower() for label in topology_labels if str(label).strip()}
+    if not allowed:
+        return list(sample_records)
+
+    present = sorted({str(rec.topology_label).lower() for rec in sample_records})
+    missing = [label for label in sorted(allowed) if label not in present]
+    if missing:
+        raise ValueError(
+            f"Requested topology labels not found in selected sample set: {missing}. "
+            f"Available={present}"
+        )
+
+    filtered = [rec for rec in sample_records if str(rec.topology_label).lower() in allowed]
+    if not filtered:
+        raise RuntimeError(f"No samples left after topology filter {sorted(allowed)}")
+    return filtered
+
+
+def _eval_plan_from_sample_records(sample_records: Sequence[object]) -> Dict[str, List[int]]:
+    plan: Dict[str, List[int]] = {}
+    for rec in sample_records:
+        sid = str(rec.subject_id)
+        plan.setdefault(sid, []).append(int(rec.dataset_idx))
+    return {sid: sorted(set(indices)) for sid, indices in sorted(plan.items())}
 
 
 def _select_subject_subset(
@@ -386,6 +435,12 @@ def _describe_scenario(scenario: ScenarioSpec, params: PerturbationParams) -> Di
     }
 
 
+def _progress_log_step(total: int, target_updates: int = 10) -> int:
+    total_i = max(1, int(total))
+    target_i = max(1, int(target_updates))
+    return max(1, math.ceil(total_i / target_i))
+
+
 @torch.no_grad()
 def _evaluate_scenario(
     model: torch.nn.Module,
@@ -401,8 +456,10 @@ def _evaluate_scenario(
 ) -> Dict[str, object]:
     latent_vectors: List[torch.Tensor] = []
     full_vertex_sets: List[torch.Tensor] = []
+    sample_total = len(pair_ctx.sample_records)
+    sample_log_step = _progress_log_step(sample_total)
 
-    for record in pair_ctx.sample_records:
+    for sample_index, record in enumerate(pair_ctx.sample_records, start=1):
         sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
         sample_d = sample_to_device(sample, device=device)
         pert_seed = _scenario_seed(base_seed=base_seed, scenario_index=scenario_index, dataset_idx=int(record.dataset_idx))
@@ -416,6 +473,11 @@ def _evaluate_scenario(
         )
         latent_vectors.append(z.squeeze(0))
         full_vertex_sets.append(V_in.contiguous())
+        if sample_index == 1 or sample_index == sample_total or sample_index % sample_log_step == 0:
+            print(
+                f"Scenario {scenario.name}: encoded {sample_index}/{sample_total} samples",
+                flush=True,
+            )
 
     Z = torch.stack(latent_vectors, dim=0)
     latent_values = torch.linalg.vector_norm(
@@ -427,6 +489,11 @@ def _evaluate_scenario(
         pair_ctx=pair_ctx,
     )
 
+    print(
+        f"Scenario {scenario.name}: computing Chamfer over {pair_ctx.mesh_pair_count} mesh pairs "
+        f"(batch_pairs={int(chamfer_batch_pairs)})",
+        flush=True,
+    )
     chamfer_values_np = aggregate_pair_observations(
         compute_pairwise_chamfer_values(
             vertex_sets=full_vertex_sets,
@@ -434,9 +501,13 @@ def _evaluate_scenario(
             pair_j=pair_ctx.pair_j_cpu,
             batch_pairs=int(chamfer_batch_pairs),
             progress_desc=f"{scenario.name} chamfer pairs",
-            show_progress=False,
+            show_progress=True,
         ),
         pair_ctx=pair_ctx,
+    )
+    print(
+        f"Scenario {scenario.name}: finished Chamfer over {pair_ctx.mesh_pair_count} mesh pairs",
+        flush=True,
     )
 
     gt_vals = np.asarray(pair_ctx.gt_vals, dtype=np.float64)
@@ -601,6 +672,20 @@ def main() -> None:
         eval_subjects=target_subjects,
         sample_cache=sample_cache,
     )
+    requested_topology_labels = _parse_topology_labels(cli_args.topology_labels)
+    if requested_topology_labels:
+        sample_records = _filter_sample_records_by_topology_labels(
+            sample_records=sample_records,
+            topology_labels=requested_topology_labels,
+        )
+    active_eval_plan = _eval_plan_from_sample_records(sample_records)
+    active_subjects = sorted(active_eval_plan.keys())
+    print(
+        f"Prepared sample subset: subjects={len(active_subjects)} "
+        f"samples={len(sample_records)} "
+        f"topologies={sorted({rec.topology_label for rec in sample_records})}",
+        flush=True,
+    )
     pair_ctx = build_pair_eval_context(
         sample_records=sample_records,
         name_to_idx=gt_name_to_idx,
@@ -611,6 +696,12 @@ def main() -> None:
     )
     if pair_ctx.pair_count <= 0:
         raise RuntimeError("No valid evaluation pairs found for the selected subset and pair mode")
+    print(
+        f"Prepared pair context: subject_pairs={pair_ctx.subject_pair_count} "
+        f"mesh_pairs={pair_ctx.mesh_pair_count} "
+        f"aggregation={cli_args.aggregation_level}",
+        flush=True,
+    )
 
     model = build_model(args=model_args, device=device)
     checkpoint_bundle = load_checkpoint_bundle(checkpoint_path)
@@ -619,6 +710,10 @@ def main() -> None:
 
     rows: List[dict] = []
     for scenario_index, scenario in enumerate(scenarios):
+        print(
+            f"Starting scenario {scenario_index + 1}/{len(scenarios)}: {scenario.name}",
+            flush=True,
+        )
         result = _evaluate_scenario(
             model=model,
             dataset=dataset,
@@ -635,6 +730,13 @@ def main() -> None:
         result["delta_pearson"] = float(result["latent_pearson"] - result["chamfer_pearson"])
         result["model_beats_chamfer"] = bool(result["latent_spearman"] > result["chamfer_spearman"])
         rows.append(result)
+        print(
+            f"Finished scenario {scenario.name}: "
+            f"latent_sp={result['latent_spearman']:.4f} "
+            f"chamfer_sp={result['chamfer_spearman']:.4f} "
+            f"delta={result['delta_spearman']:.4f}",
+            flush=True,
+        )
 
     out_dir = (
         Path(cli_args.out_dir).expanduser().resolve()
@@ -663,8 +765,8 @@ def main() -> None:
         "max_meshes_per_subject_eval": int(model_args.max_meshes_per_subject_eval),
         "pair_mode": str(cli_args.pair_mode),
         "aggregation_level": str(cli_args.aggregation_level),
-        "selected_subjects": list(target_subjects),
-        "eval_plan_summary": summarize_eval_plan(eval_plan),
+        "selected_subjects": list(active_subjects),
+        "eval_plan_summary": summarize_eval_plan(active_eval_plan),
         "sample_eval_summary": summarize_sample_records(sample_records),
         "pair_context": {
             "n_subjects": int(pair_ctx.n_subjects),

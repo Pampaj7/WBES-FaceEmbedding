@@ -121,6 +121,7 @@ def build_model(args: object, device: torch.device) -> nn.Module:
             width=getattr(args, "width"),
             n_blocks=getattr(args, "n_blocks"),
             dropout=getattr(args, "dropout"),
+            pool_mode=getattr(args, "pool_mode"),
         )
     elif model_name == "intrinsic_dn":
         if int(getattr(args, "eig_k")) <= 0:
