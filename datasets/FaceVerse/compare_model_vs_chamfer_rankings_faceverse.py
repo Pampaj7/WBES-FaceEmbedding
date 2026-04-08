@@ -44,7 +44,8 @@ DEFAULT_GT_DIST_NPZ = (
     / "gt_distance_matrix"
     / "faceverse_detail_pose01_vertex_mean_l2_normalized.npz"
 )
-FACEVERSE_STEM_RE = re.compile(r"^(?P<subject>\d+)_(?P<pose>\d+)$")
+FACEVERSE_STEM_RE = re.compile(r"^(?P<subject>\d+)_(?P<pose>\d+)(?:_(?P<variant>.+))?$")
+ALLOWED_ICP_ALIGNMENT_STAGES = ("precomputed_clean_pairs", "perturbed_pairs")
 
 _GT_VERT_LIST: list[np.ndarray] | None = None
 
@@ -182,6 +183,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Align source and target with rigid ICP before computing Chamfer",
+    )
+    parser.add_argument(
+        "--icp_alignment_stage",
+        type=str,
+        default="precomputed_clean_pairs",
+        choices=ALLOWED_ICP_ALIGNMENT_STAGES,
+        help=(
+            "When ICP is enabled, either reuse transforms estimated on clean pairs or "
+            "re-estimate them after perturbing the meshes in each scenario."
+        ),
     )
     parser.add_argument(
         "--icp_points",
@@ -678,6 +689,28 @@ def _resolve_icp_workers(workers: int) -> int:
     return max(1, min(8, os.cpu_count() or 1))
 
 
+def _resolve_icp_alignment_stage(use_icp: bool, alignment_stage: str) -> str:
+    if not bool(use_icp):
+        return "none"
+    stage = str(alignment_stage)
+    if stage not in ALLOWED_ICP_ALIGNMENT_STAGES:
+        raise ValueError(
+            f"Unsupported ICP alignment stage {stage!r}; allowed={list(ALLOWED_ICP_ALIGNMENT_STAGES)}"
+        )
+    return stage
+
+
+def _alignment_stage_token(use_icp: bool, alignment_stage: str) -> str:
+    stage = _resolve_icp_alignment_stage(use_icp=use_icp, alignment_stage=alignment_stage)
+    if stage == "none":
+        return "noicp"
+    if stage == "precomputed_clean_pairs":
+        return "icpclean"
+    if stage == "perturbed_pairs":
+        return "icpperturbed"
+    raise ValueError(f"Unsupported resolved alignment stage: {stage!r}")
+
+
 def _precompute_pairwise_icp_transforms(
     icp_point_sets: Sequence[np.ndarray],
     pair_i: Sequence[int] | np.ndarray,
@@ -850,7 +883,9 @@ def _evaluate_scenario(
     base_seed: int,
     chamfer_batch_pairs: int,
     chamfer_use_icp: bool,
+    icp_alignment_stage: str,
     pairwise_icp_transforms: np.ndarray | None,
+    icp_points: int,
     icp_workers: int,
     icp_max_correspondence_distance: float,
     icp_max_iteration: int,
@@ -858,6 +893,11 @@ def _evaluate_scenario(
 ) -> Dict[str, object]:
     latent_vectors: List[torch.Tensor] = []
     full_vertex_sets: List[torch.Tensor] = []
+    scenario_icp_point_sets: List[np.ndarray] = []
+    resolved_alignment_stage = _resolve_icp_alignment_stage(
+        use_icp=bool(chamfer_use_icp),
+        alignment_stage=icp_alignment_stage,
+    )
 
     for record in pair_ctx.sample_records:
         sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
@@ -877,6 +917,14 @@ def _evaluate_scenario(
         )
         latent_vectors.append(z.squeeze(0))
         full_vertex_sets.append(V_in.contiguous())
+        if resolved_alignment_stage == "perturbed_pairs":
+            scenario_icp_point_sets.append(
+                _sample_vertices_for_icp(
+                    V_in,
+                    n_points=int(icp_points),
+                    seed=pert_seed,
+                )
+            )
 
     Z = torch.stack(latent_vectors, dim=0)
     latent_values = torch.linalg.vector_norm(
@@ -888,6 +936,20 @@ def _evaluate_scenario(
         pair_ctx=pair_ctx,
     )
 
+    scenario_pairwise_icp_transforms = pairwise_icp_transforms
+    if resolved_alignment_stage == "perturbed_pairs":
+        scenario_pairwise_icp_transforms = _precompute_pairwise_icp_transforms(
+            icp_point_sets=scenario_icp_point_sets,
+            pair_i=pair_ctx.pair_i_cpu,
+            pair_j=pair_ctx.pair_j_cpu,
+            batch_pairs=int(chamfer_batch_pairs),
+            icp_workers=int(icp_workers),
+            icp_max_correspondence_distance=float(icp_max_correspondence_distance),
+            icp_max_iteration=int(icp_max_iteration),
+            progress_desc=f"{scenario.name} perturbed-pair ICP",
+            show_progress=bool(show_chamfer_pair_progress),
+        )
+
     chamfer_mesh_values = _compute_pairwise_icp_chamfer_values(
         vertex_sets=full_vertex_sets,
         icp_point_sets=None,
@@ -895,7 +957,7 @@ def _evaluate_scenario(
         pair_j=pair_ctx.pair_j_cpu,
         batch_pairs=int(chamfer_batch_pairs),
         use_icp=bool(chamfer_use_icp),
-        pair_transforms=pairwise_icp_transforms,
+        pair_transforms=scenario_pairwise_icp_transforms,
         icp_workers=int(icp_workers),
         icp_max_correspondence_distance=float(icp_max_correspondence_distance),
         icp_max_iteration=int(icp_max_iteration),
@@ -1111,8 +1173,13 @@ def main() -> None:
             f"pair_mode={cli_args.pair_mode!r} aggregation_level={cli_args.aggregation_level!r}"
         )
 
+    resolved_alignment_stage = _resolve_icp_alignment_stage(
+        use_icp=bool(cli_args.chamfer_use_icp),
+        alignment_stage=str(cli_args.icp_alignment_stage),
+    )
+
     pairwise_icp_transforms: np.ndarray | None = None
-    if bool(cli_args.chamfer_use_icp):
+    if resolved_alignment_stage == "precomputed_clean_pairs":
         clean_icp_point_sets: List[np.ndarray] = []
         for record in pair_ctx.sample_records:
             sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
@@ -1154,7 +1221,9 @@ def main() -> None:
             base_seed=int(base_args.seed),
             chamfer_batch_pairs=int(cli_args.chamfer_batch_pairs),
             chamfer_use_icp=bool(cli_args.chamfer_use_icp),
+            icp_alignment_stage=str(cli_args.icp_alignment_stage),
             pairwise_icp_transforms=pairwise_icp_transforms,
+            icp_points=int(cli_args.icp_points),
             icp_workers=int(cli_args.icp_workers),
             icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
             icp_max_iteration=int(cli_args.icp_max_iteration),
@@ -1173,7 +1242,9 @@ def main() -> None:
         / base.slugify_token(
             f"{checkpoint_path.stem}_split-{cli_args.subject_split}_pairs-{cli_args.pair_mode}_"
             f"agglvl-{cli_args.aggregation_level}_subjects-{len(target_subjects)}_"
-            f"meshes-{int(base_args.max_meshes_per_subject_eval)}_scenarios-{'-'.join(spec.name for spec in scenarios)}"
+            f"meshes-{int(base_args.max_meshes_per_subject_eval)}_"
+            f"align-{_alignment_stage_token(bool(cli_args.chamfer_use_icp), str(cli_args.icp_alignment_stage))}_"
+            f"scenarios-{'-'.join(spec.name for spec in scenarios)}"
         )
     )
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1210,7 +1281,7 @@ def main() -> None:
         },
         "chamfer_protocol": {
             "use_icp": bool(cli_args.chamfer_use_icp),
-            "alignment_stage": "precomputed_clean_pairs" if bool(cli_args.chamfer_use_icp) else "none",
+            "alignment_stage": str(resolved_alignment_stage),
             "icp_points": int(cli_args.icp_points),
             "icp_max_correspondence_distance": float(cli_args.icp_max_correspondence_distance),
             "icp_max_iteration": int(cli_args.icp_max_iteration),

@@ -10,6 +10,9 @@ import torch
 from tqdm import tqdm
 
 # === PATH alla libreria DiffusionNet ===
+DIFFUSION_NET_SRC = os.environ.get("WBES_DIFFUSION_NET_SRC", "").strip()
+if DIFFUSION_NET_SRC and DIFFUSION_NET_SRC not in sys.path:
+    sys.path.append(DIFFUSION_NET_SRC)
 if "/equilibrium/lpampaloni/diffusion-net/src" not in sys.path:
     sys.path.append("/equilibrium/lpampaloni/diffusion-net/src")
 from diffusion_net.geometry import compute_operators

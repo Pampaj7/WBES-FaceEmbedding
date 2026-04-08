@@ -174,7 +174,10 @@ def _build_default_out_dir(
 ) -> Path:
     scenario_token = "-".join(sweep_scenarios)
     sigma_token = "-".join(_sigma_token(value) for value in sigma_values)
-    align_token = "icp" if bool(cli_args.chamfer_use_icp) else "noicp"
+    align_token = faceverse_base._alignment_stage_token(
+        bool(cli_args.chamfer_use_icp),
+        str(cli_args.icp_alignment_stage),
+    )
     slug = benchmark_base.slugify_token(
         f"{checkpoint_path.stem}_split-{cli_args.subject_split}_pairs-{cli_args.pair_mode}_"
         f"agglvl-{cli_args.aggregation_level}_subjects-{len(target_subjects)}_"
@@ -261,7 +264,12 @@ def _build_payload(
         },
         "chamfer_protocol": {
             "use_icp": bool(cli_args.chamfer_use_icp),
-            "alignment_stage": "precomputed_clean_pairs" if bool(cli_args.chamfer_use_icp) else "none",
+            "alignment_stage": str(
+                faceverse_base._resolve_icp_alignment_stage(
+                    bool(cli_args.chamfer_use_icp),
+                    str(cli_args.icp_alignment_stage),
+                )
+            ),
             "icp_points": int(cli_args.icp_points),
             "icp_max_correspondence_distance": float(cli_args.icp_max_correspondence_distance),
             "icp_max_iteration": int(cli_args.icp_max_iteration),
@@ -511,8 +519,13 @@ def main() -> None:
             f"pair_mode={cli_args.pair_mode!r} aggregation_level={cli_args.aggregation_level!r}"
         )
 
+    resolved_alignment_stage = faceverse_base._resolve_icp_alignment_stage(
+        use_icp=bool(cli_args.chamfer_use_icp),
+        alignment_stage=str(cli_args.icp_alignment_stage),
+    )
+
     pairwise_icp_transforms: np.ndarray | None = None
-    if bool(cli_args.chamfer_use_icp):
+    if resolved_alignment_stage == "precomputed_clean_pairs":
         clean_icp_point_sets: List[np.ndarray] = []
         for record in pair_ctx.sample_records:
             sample = sample_cache[int(record.dataset_idx)] if sample_cache is not None else dataset[int(record.dataset_idx)]
@@ -569,7 +582,9 @@ def main() -> None:
                 base_seed=int(model_args.seed),
                 chamfer_batch_pairs=int(cli_args.chamfer_batch_pairs),
                 chamfer_use_icp=bool(cli_args.chamfer_use_icp),
+                icp_alignment_stage=str(cli_args.icp_alignment_stage),
                 pairwise_icp_transforms=pairwise_icp_transforms,
+                icp_points=int(cli_args.icp_points),
                 icp_workers=int(cli_args.icp_workers),
                 icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
                 icp_max_iteration=int(cli_args.icp_max_iteration),
@@ -600,7 +615,9 @@ def main() -> None:
                         base_seed=int(model_args.seed),
                         chamfer_batch_pairs=int(cli_args.chamfer_batch_pairs),
                         chamfer_use_icp=bool(cli_args.chamfer_use_icp),
+                        icp_alignment_stage=str(cli_args.icp_alignment_stage),
                         pairwise_icp_transforms=pairwise_icp_transforms,
+                        icp_points=int(cli_args.icp_points),
                         icp_workers=int(cli_args.icp_workers),
                         icp_max_correspondence_distance=float(cli_args.icp_max_correspondence_distance),
                         icp_max_iteration=int(cli_args.icp_max_iteration),
