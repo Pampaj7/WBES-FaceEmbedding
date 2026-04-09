@@ -1,9 +1,13 @@
+import math
+import sys
+
 import torch
 import torch.nn as nn
-import sys
-import math
+
+from path_setup import ensure_diffusion_net_on_syspath
 
 try:
+    ensure_diffusion_net_on_syspath()
     import diffusion_net
     DiffusionNet = diffusion_net.layers.DiffusionNet
 except Exception:
@@ -507,11 +511,12 @@ class DiffusionEncoderOnly(nn.Module):
     without the pressure of a geometric reconstruction loss.
     """
 
-    def __init__(self, latent_dim=256, width=128, n_blocks=4, dropout=0.1):
+    def __init__(self, latent_dim=256, width=128, n_blocks=4, dropout=0.1, pool_mode="mean"):
         super().__init__()
         self.latent_dim = latent_dim
+        self.pool_mode = str(pool_mode)
 
-        print(f"🧬 DiffusionEncoderOnly | Z={latent_dim}, width={width}, blocks={n_blocks}")
+        print(f"🧬 DiffusionEncoderOnly | Z={latent_dim}, width={width}, blocks={n_blocks}, pool={self.pool_mode}")
 
         # ------------------------------------------------------------
         # ENCODER → vertex-wise latent field
@@ -534,6 +539,13 @@ class DiffusionEncoderOnly(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(latent_dim // 2, latent_dim),
         )
+
+        if self.pool_mode == "meanmax":
+            self.pool_proj = nn.Linear(2 * latent_dim, latent_dim)
+        elif self.pool_mode == "mean":
+            self.pool_proj = nn.Identity()
+        else:
+            raise ValueError("pool_mode must be 'mean' or 'meanmax'")
 
     def forward(
         self,
@@ -568,7 +580,12 @@ class DiffusionEncoderOnly(nn.Module):
             Z_per_vertex = Z_per_vertex + 0.01 * torch.randn_like(Z_per_vertex)
 
         # 4. Global pooling
-        Z_global = Z_per_vertex.mean(dim=0, keepdim=True)  # (1, latent_dim)
+        Z_mean = Z_per_vertex.mean(dim=0, keepdim=True)
+        if self.pool_mode == "meanmax":
+            Z_max = Z_per_vertex.max(dim=0, keepdim=True).values
+            Z_global = self.pool_proj(torch.cat([Z_mean, Z_max], dim=1))
+        else:
+            Z_global = self.pool_proj(Z_mean)
 
         if return_per_vertex:
             return Z_per_vertex, Z_global

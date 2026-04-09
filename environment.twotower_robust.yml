@@ -1,0 +1,21 @@
+name: wbes-twotower-robust
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - scipy
+  - scikit-learn
+  - tqdm
+  - tensorboard
+  - pytorch=2.5.*
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - igl
+  - pip:
+      - potpourri3d
+      - robust-laplacian

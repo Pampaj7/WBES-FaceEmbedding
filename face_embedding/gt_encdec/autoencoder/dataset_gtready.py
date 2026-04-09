@@ -6,15 +6,9 @@ import igl
 import pickle
 import numpy as np
 from torch.utils.data import Dataset
+from path_setup import ensure_diffusion_net_on_syspath
 
-# === Add DiffusionNet path (kept your multiple possible paths) ===
-for p in (
-    "/equilibrium/lpampaloni/diffusion-net/src",
-    "/home/pampaj/diffusion-net/src",
-    "/seidenas/users/lpampaloni/diffusion-net/src",
-):
-    if p not in sys.path:
-        sys.path.append(p)
+ensure_diffusion_net_on_syspath()
 
 # -------------------------------------------------------------------------
 # Helpers
