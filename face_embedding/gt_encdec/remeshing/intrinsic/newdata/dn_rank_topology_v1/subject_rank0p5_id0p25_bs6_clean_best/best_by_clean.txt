@@ -1,0 +1,2 @@
+best_epoch=90
+best_spearman_clean=0.8361761233418986

@@ -1,0 +1,112 @@
+Preload samples:   0%|          | 0/600 [00:00<?, ?it/s]/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/autoencoder/dataset_gtready.py:278: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:760.)
+  return torch.sparse_coo_tensor(inds_t, vals_t, torch.Size(shape)).coalesce()
+Preload samples:   0%|          | 3/600 [00:00<00:20, 29.38it/s]Preload samples:   2%|▏         | 9/600 [00:00<00:12, 45.63it/s]Preload samples:   2%|▏         | 14/600 [00:00<00:14, 39.38it/s]Preload samples:   3%|▎         | 20/600 [00:00<00:13, 43.76it/s]Preload samples:   4%|▍         | 26/600 [00:00<00:12, 44.69it/s]Preload samples:   5%|▌         | 32/600 [00:00<00:13, 40.97it/s]Preload samples:   6%|▋         | 38/600 [00:00<00:13, 42.71it/s]Preload samples:   7%|▋         | 44/600 [00:01<00:12, 45.50it/s]Preload samples:   8%|▊         | 49/600 [00:01<00:12, 45.44it/s]Preload samples:   9%|▉         | 54/600 [00:01<00:12, 45.27it/s]Preload samples:  10%|▉         | 59/600 [00:01<00:12, 44.31it/s]Preload samples:  11%|█         | 64/600 [00:01<00:12, 42.61it/s]Preload samples:  12%|█▏        | 69/600 [00:01<00:12, 41.17it/s]Preload samples:  12%|█▏        | 74/600 [00:01<00:12, 40.91it/s]Preload samples:  13%|█▎        | 80/600 [00:01<00:11, 44.63it/s]Preload samples:  14%|█▍        | 85/600 [00:01<00:11, 44.90it/s]Preload samples:  15%|█▌        | 90/600 [00:02<00:11, 44.64it/s]Preload samples:  16%|█▌        | 95/600 [00:02<00:11, 43.62it/s]Preload samples:  17%|█▋        | 100/600 [00:02<00:11, 43.53it/s]Preload samples:  18%|█▊        | 105/600 [00:02<00:11, 42.09it/s]Preload samples:  18%|█▊        | 110/600 [00:02<00:12, 40.79it/s]Preload samples:  19%|█▉        | 116/600 [00:02<00:11, 43.69it/s]Preload samples:  20%|██        | 122/600 [00:02<00:11, 41.40it/s]Preload samples:  21%|██▏       | 128/600 [00:02<00:11, 42.00it/s]Preload samples:  22%|██▏       | 134/600 [00:03<00:10, 44.14it/s]Preload samples:  23%|██▎       | 140/600 [00:03<00:11, 41.45it/s]Preload samples:  24%|██▍       | 146/600 [00:03<00:10, 41.32it/s]Preload samples:  25%|██▌       | 152/600 [00:03<00:10, 44.76it/s]Preload samples:  26%|██▌       | 157/600 [00:03<00:09, 45.47it/s]Preload samples:  27%|██▋       | 162/600 [00:03<00:09, 44.81it/s]Preload samples:  28%|██▊       | 167/600 [00:03<00:09, 43.37it/s]Preload samples:  29%|██▊       | 172/600 [00:03<00:09, 43.23it/s]Preload samples:  30%|██▉       | 177/600 [00:04<00:09, 42.34it/s]Preload samples:  30%|███       | 182/600 [00:04<00:10, 40.78it/s]Preload samples:  31%|███▏      | 188/600 [00:04<00:09, 41.56it/s]Preload samples:  32%|███▏      | 194/600 [00:04<00:09, 42.65it/s]Preload samples:  33%|███▎      | 200/600 [00:04<00:09, 41.12it/s]Preload samples:  34%|███▍      | 206/600 [00:04<00:09, 42.14it/s]Preload samples:  35%|███▌      | 212/600 [00:04<00:08, 43.29it/s]Preload samples:  36%|███▋      | 218/600 [00:05<00:09, 42.28it/s]Preload samples:  37%|███▋      | 224/600 [00:05<00:08, 42.39it/s]Preload samples:  38%|███▊      | 230/600 [00:05<00:08, 43.47it/s]Preload samples:  39%|███▉      | 236/600 [00:05<00:08, 42.07it/s]Preload samples:  40%|████      | 242/600 [00:05<00:08, 41.63it/s]Preload samples:  41%|████▏     | 248/600 [00:05<00:08, 43.24it/s]Preload samples:  42%|████▏     | 254/600 [00:05<00:08, 41.68it/s]Preload samples:  43%|████▎     | 260/600 [00:06<00:08, 42.18it/s]Preload samples:  44%|████▍     | 266/600 [00:06<00:07, 43.89it/s]Preload samples:  45%|████▌     | 272/600 [00:06<00:07, 42.16it/s]Preload samples:  46%|████▋     | 278/600 [00:06<00:07, 41.36it/s]Preload samples:  47%|████▋     | 284/600 [00:06<00:07, 44.34it/s]Preload samples:  48%|████▊     | 289/600 [00:06<00:06, 45.36it/s]Preload samples:  49%|████▉     | 294/600 [00:06<00:06, 45.10it/s]Preload samples:  50%|████▉     | 299/600 [00:06<00:06, 43.56it/s]Preload samples:  51%|█████     | 304/600 [00:07<00:06, 43.73it/s]Preload samples:  52%|█████▏    | 309/600 [00:07<00:07, 38.17it/s]Preload samples:  52%|█████▏    | 314/600 [00:07<00:07, 39.76it/s]Preload samples:  53%|█████▎    | 320/600 [00:07<00:06, 40.94it/s]Preload samples:  54%|█████▍    | 326/600 [00:07<00:06, 42.68it/s]Preload samples:  55%|█████▌    | 332/600 [00:07<00:06, 40.45it/s]Preload samples:  56%|█████▋    | 338/600 [00:07<00:06, 43.27it/s]Preload samples:  57%|█████▋    | 343/600 [00:08<00:05, 44.73it/s]Preload samples:  58%|█████▊    | 348/600 [00:08<00:05, 44.50it/s]Preload samples:  59%|█████▉    | 353/600 [00:08<00:05, 43.09it/s]Preload samples:  60%|█████▉    | 359/600 [00:08<00:05, 44.59it/s]Preload samples:  61%|██████    | 364/600 [00:08<00:05, 42.51it/s]Preload samples:  62%|██████▏   | 369/600 [00:08<00:05, 40.76it/s]Preload samples:  62%|██████▏   | 374/600 [00:08<00:05, 41.50it/s]Preload samples:  63%|██████▎   | 379/600 [00:08<00:05, 43.43it/s]Preload samples:  64%|██████▍   | 384/600 [00:08<00:04, 43.59it/s]Preload samples:  65%|██████▍   | 389/600 [00:09<00:05, 41.81it/s]Preload samples:  66%|██████▌   | 395/600 [00:09<00:04, 44.34it/s]Preload samples:  67%|██████▋   | 400/600 [00:09<00:04, 41.96it/s]Preload samples:  68%|██████▊   | 405/600 [00:09<00:04, 40.14it/s]Preload samples:  68%|██████▊   | 410/600 [00:09<00:04, 41.75it/s]Preload samples:  69%|██████▉   | 416/600 [00:09<00:04, 42.72it/s]Preload samples:  70%|███████   | 422/600 [00:09<00:04, 41.63it/s]Preload samples:  71%|███████▏  | 428/600 [00:10<00:04, 42.70it/s]Preload samples:  72%|███████▏  | 434/600 [00:10<00:03, 43.33it/s]Preload samples:  73%|███████▎  | 440/600 [00:10<00:03, 41.75it/s]Preload samples:  74%|███████▍  | 446/600 [00:10<00:03, 42.66it/s]Preload samples:  75%|███████▌  | 452/600 [00:10<00:03, 42.91it/s]Preload samples:  76%|███████▋  | 458/600 [00:10<00:03, 41.38it/s]Preload samples:  77%|███████▋  | 464/600 [00:10<00:03, 44.05it/s]Preload samples:  78%|███████▊  | 469/600 [00:10<00:02, 45.15it/s]Preload samples:  79%|███████▉  | 474/600 [00:11<00:02, 45.09it/s]Preload samples:  80%|███████▉  | 479/600 [00:11<00:02, 43.36it/s]Preload samples:  81%|████████  | 484/600 [00:11<00:02, 42.86it/s]Preload samples:  82%|████████▏ | 489/600 [00:11<00:02, 41.50it/s]Preload samples:  82%|████████▏ | 494/600 [00:11<00:02, 40.73it/s]Preload samples:  83%|████████▎ | 500/600 [00:11<00:02, 42.80it/s]Preload samples:  84%|████████▍ | 505/600 [00:11<00:02, 44.24it/s]Preload samples:  85%|████████▌ | 510/600 [00:11<00:02, 43.72it/s]Preload samples:  86%|████████▌ | 515/600 [00:12<00:01, 43.23it/s]Preload samples:  87%|████████▋ | 520/600 [00:12<00:01, 42.45it/s]Preload samples:  88%|████████▊ | 525/600 [00:12<00:01, 41.24it/s]Preload samples:  88%|████████▊ | 530/600 [00:12<00:01, 39.58it/s]Preload samples:  89%|████████▉ | 536/600 [00:12<00:01, 42.83it/s]Preload samples:  90%|█████████ | 541/600 [00:12<00:01, 44.06it/s]Preload samples:  91%|█████████ | 546/600 [00:12<00:01, 43.39it/s]Preload samples:  92%|█████████▏| 551/600 [00:12<00:01, 42.57it/s]Preload samples:  93%|█████████▎| 556/600 [00:13<00:01, 42.46it/s]Preload samples:  94%|█████████▎| 561/600 [00:13<00:00, 41.53it/s]Preload samples:  94%|█████████▍| 566/600 [00:13<00:00, 39.61it/s]Preload samples:  95%|█████████▌| 572/600 [00:13<00:00, 43.45it/s]Preload samples:  96%|█████████▌| 577/600 [00:13<00:00, 43.64it/s]Preload samples:  97%|█████████▋| 582/600 [00:13<00:00, 43.79it/s]Preload samples:  98%|█████████▊| 587/600 [00:13<00:00, 42.75it/s]Preload samples:  99%|█████████▊| 592/600 [00:13<00:00, 43.49it/s]Preload samples: 100%|█████████▉| 597/600 [00:13<00:00, 41.93it/s]Preload samples: 100%|██████████| 600/600 [00:14<00:00, 42.40it/s]
+Prepared nICP-correspondence subset: subjects=100 samples=600 topologies=['crop', 'down8k', 'noisy', 'original', 'remesh', 'up60k']
+Prepared nICP-correspondence pair context: subject_pairs=4950 mesh_pairs=148500
+🧬 DiffusionEncoderOnly | Z=256, width=128, blocks=4, pool=meanmax
+Starting nICP-correspondence scenario 1/5: clean
+Scenario clean: encoded 1/600 samples
+Scenario clean: encoded 60/600 samples
+Scenario clean: encoded 120/600 samples
+Scenario clean: encoded 180/600 samples
+Scenario clean: encoded 240/600 samples
+Scenario clean: encoded 300/600 samples
+Scenario clean: encoded 360/600 samples
+Scenario clean: encoded 420/600 samples
+Scenario clean: encoded 480/600 samples
+Scenario clean: encoded 540/600 samples
+Scenario clean: encoded 600/600 samples
+Scenario clean: computing nICP-correspondence metric over 148500 mesh pairs (nicp_points=128)
+clean nicp correspondence pairs: 0.0% pairs (1/148500) | rate=0.0 pairs/s | eta=7406.5h | elapsed=3.0m
+clean nicp correspondence pairs: 2.9% pairs (4286/148500) | rate=23.8 pairs/s | eta=1.7h | elapsed=3.0m
+clean nicp correspondence pairs: 67.8% pairs (100640/148500) | rate=529.7 pairs/s | eta=1.5m | elapsed=3.2m
+clean nicp correspondence pairs: 100.0% pairs (148500/148500) | rate=761.7 pairs/s | eta=0.0s | elapsed=3.2m
+clean nicp correspondence pairs: completed 148500 pairs in 3.2m
+Scenario clean: finished nICP-correspondence metric over 148500 mesh pairs
+Finished scenario clean: latent_sp=0.7506 nicp_corr_sp=0.1614 delta=0.5892 total_pair_s_mean=0.009752
+Starting nICP-correspondence scenario 2/5: jitter
+Scenario jitter: encoded 1/600 samples
+Scenario jitter: encoded 60/600 samples
+Scenario jitter: encoded 120/600 samples
+Scenario jitter: encoded 180/600 samples
+Scenario jitter: encoded 240/600 samples
+Scenario jitter: encoded 300/600 samples
+Scenario jitter: encoded 360/600 samples
+Scenario jitter: encoded 420/600 samples
+Scenario jitter: encoded 480/600 samples
+Scenario jitter: encoded 540/600 samples
+Scenario jitter: encoded 600/600 samples
+Scenario jitter: computing nICP-correspondence metric over 148500 mesh pairs (nicp_points=128)
+jitter nicp correspondence pairs: 0.0% pairs (1/148500) | rate=0.0 pairs/s | eta=7343.9h | elapsed=3.0m
+jitter nicp correspondence pairs: 12.6% pairs (18668/148500) | rate=103.7 pairs/s | eta=20.9m | elapsed=3.0m
+jitter nicp correspondence pairs: 76.7% pairs (113875/148500) | rate=599.3 pairs/s | eta=57.8s | elapsed=3.2m
+jitter nicp correspondence pairs: 100.0% pairs (148500/148500) | rate=766.9 pairs/s | eta=0.0s | elapsed=3.2m
+jitter nicp correspondence pairs: completed 148500 pairs in 3.2m
+Scenario jitter: finished nICP-correspondence metric over 148500 mesh pairs
+Finished scenario jitter: latent_sp=0.6752 nicp_corr_sp=0.1108 delta=0.5644 total_pair_s_mean=0.009671
+Starting nICP-correspondence scenario 3/5: translation
+Scenario translation: encoded 1/600 samples
+Scenario translation: encoded 60/600 samples
+Scenario translation: encoded 120/600 samples
+Scenario translation: encoded 180/600 samples
+Scenario translation: encoded 240/600 samples
+Scenario translation: encoded 300/600 samples
+Scenario translation: encoded 360/600 samples
+Scenario translation: encoded 420/600 samples
+Scenario translation: encoded 480/600 samples
+Scenario translation: encoded 540/600 samples
+Scenario translation: encoded 600/600 samples
+Scenario translation: computing nICP-correspondence metric over 148500 mesh pairs (nicp_points=128)
+translation nicp correspondence pairs: 0.0% pairs (1/148500) | rate=0.0 pairs/s | eta=7421.3h | elapsed=3.0m
+translation nicp correspondence pairs: 0.6% pairs (829/148500) | rate=4.6 pairs/s | eta=8.9h | elapsed=3.0m
+translation nicp correspondence pairs: 65.7% pairs (97637/148500) | rate=513.9 pairs/s | eta=1.6m | elapsed=3.2m
+translation nicp correspondence pairs: 100.0% pairs (148500/148500) | rate=760.6 pairs/s | eta=0.0s | elapsed=3.3m
+translation nicp correspondence pairs: completed 148500 pairs in 3.3m
+Scenario translation: finished nICP-correspondence metric over 148500 mesh pairs
+Finished scenario translation: latent_sp=0.7476 nicp_corr_sp=0.1606 delta=0.5870 total_pair_s_mean=0.009771
+Starting nICP-correspondence scenario 4/5: rotation
+Scenario rotation: encoded 1/600 samples
+Scenario rotation: encoded 60/600 samples
+Scenario rotation: encoded 120/600 samples
+Scenario rotation: encoded 180/600 samples
+Scenario rotation: encoded 240/600 samples
+Scenario rotation: encoded 300/600 samples
+Scenario rotation: encoded 360/600 samples
+Scenario rotation: encoded 420/600 samples
+Scenario rotation: encoded 480/600 samples
+Scenario rotation: encoded 540/600 samples
+Scenario rotation: encoded 600/600 samples
+Scenario rotation: computing nICP-correspondence metric over 148500 mesh pairs (nicp_points=128)
+rotation nicp correspondence pairs: 0.0% pairs (1/148500) | rate=0.0 pairs/s | eta=7438.3h | elapsed=3.0m
+rotation nicp correspondence pairs: 62.9% pairs (93378/148500) | rate=491.5 pairs/s | eta=1.9m | elapsed=3.2m
+rotation nicp correspondence pairs: 100.0% pairs (148500/148500) | rate=758.7 pairs/s | eta=0.0s | elapsed=3.3m
+rotation nicp correspondence pairs: completed 148500 pairs in 3.3m
+Scenario rotation: finished nICP-correspondence metric over 148500 mesh pairs
+Finished scenario rotation: latent_sp=0.7440 nicp_corr_sp=0.1603 delta=0.5837 total_pair_s_mean=0.009793
+Starting nICP-correspondence scenario 5/5: mixed
+Scenario mixed: encoded 1/600 samples
+Scenario mixed: encoded 60/600 samples
+Scenario mixed: encoded 120/600 samples
+Scenario mixed: encoded 180/600 samples
+Scenario mixed: encoded 240/600 samples
+Scenario mixed: encoded 300/600 samples
+Scenario mixed: encoded 360/600 samples
+Scenario mixed: encoded 420/600 samples
+Scenario mixed: encoded 480/600 samples
+Scenario mixed: encoded 540/600 samples
+Scenario mixed: encoded 600/600 samples
+Scenario mixed: computing nICP-correspondence metric over 148500 mesh pairs (nicp_points=128)
+mixed nicp correspondence pairs: 0.0% pairs (1/148500) | rate=0.0 pairs/s | eta=7326.9h | elapsed=3.0m
+mixed nicp correspondence pairs: 15.1% pairs (22484/148500) | rate=124.9 pairs/s | eta=16.8m | elapsed=3.0m
+mixed nicp correspondence pairs: 79.1% pairs (117508/148500) | rate=618.5 pairs/s | eta=50.1s | elapsed=3.2m
+mixed nicp correspondence pairs: 100.0% pairs (148500/148500) | rate=768.4 pairs/s | eta=0.0s | elapsed=3.2m
+mixed nicp correspondence pairs: completed 148500 pairs in 3.2m
+Scenario mixed: finished nICP-correspondence metric over 148500 mesh pairs
+Finished scenario mixed: latent_sp=0.6648 nicp_corr_sp=0.1063 delta=0.5586 total_pair_s_mean=0.009650
+Checkpoint: /deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth
+Root output dir: /deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_nicp_correspondence_topology_breakdown/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_topopairs-cross_only_ordered-1_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed_icp128_nicp128_iter8
+Selected subjects: 100
+Samples kept: 600
+Mesh-pairs kept by pair_mode: 148500
+Overall scenario summary: /deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_nicp_correspondence_topology_breakdown/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_topopairs-cross_only_ordered-1_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed_icp128_nicp128_iter8/overall_scenario_summary.csv
+Overall topology summary: /deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_nicp_correspondence_topology_breakdown/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_topopairs-cross_only_ordered-1_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed_icp128_nicp128_iter8/overall_topology_breakdown_summary.csv

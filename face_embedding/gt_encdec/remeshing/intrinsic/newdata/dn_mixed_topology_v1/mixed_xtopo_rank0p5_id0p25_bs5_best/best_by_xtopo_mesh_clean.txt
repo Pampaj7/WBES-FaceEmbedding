@@ -1,0 +1,2 @@
+best_epoch=82
+best_xtopo_mesh_clean=0.7483693322699105

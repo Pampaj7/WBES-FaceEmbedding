@@ -1,0 +1,17 @@
+{
+  "n_mesh_pairs": 3600,
+  "n_pairs": 3600,
+  "n_samples": 96,
+  "n_subjects": 16,
+  "n_topology_labels": 6,
+  "pair_mode": "cross_topology",
+  "topology_labels": [
+    "crop",
+    "down8k",
+    "noisy",
+    "original",
+    "remesh",
+    "up60k"
+  ],
+  "train_level": "mixed"
+}

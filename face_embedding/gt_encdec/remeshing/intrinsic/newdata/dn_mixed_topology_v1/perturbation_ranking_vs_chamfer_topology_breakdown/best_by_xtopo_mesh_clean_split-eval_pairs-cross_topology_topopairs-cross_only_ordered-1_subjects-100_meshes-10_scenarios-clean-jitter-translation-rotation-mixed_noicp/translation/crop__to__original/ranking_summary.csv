@@ -1,0 +1,2 @@
+scenario,topology_a,topology_b,ordered_pair_label,ordered_topology_pairs,mesh_pair_level,latent_spearman,chamfer_spearman,delta_spearman,latent_pearson,chamfer_pearson,delta_pearson,model_beats_chamfer,n_subjects,n_subject_pairs,n_mesh_pairs,n_observations,chamfer_seconds_mean,chamfer_seconds_median,total_pair_seconds_mean,total_pair_seconds_median,output_dir,output_json,output_csv,output_md
+translation,crop,original,crop__to__original,1,1,0.753804,-0.033460,0.787264,0.782306,0.052388,0.729918,1,100,4950,4950,4950,0.035360,0.035360,0.035360,0.035360,,,,

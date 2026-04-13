@@ -1,0 +1,74 @@
+{
+  "clean": {
+    "sigma": 0.0,
+    "spearman": 0.8016390027085213,
+    "pearson": 0.8291535841770125,
+    "intra_mean": 4.6106263653200585e-05,
+    "gate_mean": NaN,
+    "n_eval": 16
+  },
+  "noisy": [
+    {
+      "sigma": 0.001,
+      "spearman": 0.8033358798064679,
+      "pearson": 0.8292035273713388,
+      "intra_mean": 4.6494266598529066e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 1.0021167596539258
+    },
+    {
+      "sigma": 0.0025118864315095794,
+      "spearman": 0.8024052596245109,
+      "pearson": 0.827171525133764,
+      "intra_mean": 4.660447772645663e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 1.0009558628178028
+    },
+    {
+      "sigma": 0.00630957344480193,
+      "spearman": 0.8005787438942518,
+      "pearson": 0.8285695687715955,
+      "intra_mean": 4.697119508515849e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 0.9986773861916808
+    },
+    {
+      "sigma": 0.01584893192461114,
+      "spearman": 0.8001875130217376,
+      "pearson": 0.8271229009292532,
+      "intra_mean": 4.8903592869464774e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 0.9981893474720174
+    },
+    {
+      "sigma": 0.039810717055349734,
+      "spearman": 0.7971479500891264,
+      "pearson": 0.8243485969702263,
+      "intra_mean": 5.836488094246306e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 0.9943976620346305
+    },
+    {
+      "sigma": 0.1,
+      "spearman": 0.7943699793967172,
+      "pearson": 0.8185783408043931,
+      "intra_mean": 9.953968879017339e-05,
+      "gate_mean": NaN,
+      "n_eval": 16,
+      "ratio": 0.9909322983447112
+    }
+  ],
+  "auc_r": 0.99774895750309,
+  "spearman_clean": 0.8016390027085213,
+  "pearson_clean": 0.8291535841770125,
+  "gate_mean_clean": NaN,
+  "gate_mean_noisy_max": NaN,
+  "spearman_noisy_max": 0.7943699793967172,
+  "ratio_noisy_max": 0.9909322983447112,
+  "n_eval": 16
+}

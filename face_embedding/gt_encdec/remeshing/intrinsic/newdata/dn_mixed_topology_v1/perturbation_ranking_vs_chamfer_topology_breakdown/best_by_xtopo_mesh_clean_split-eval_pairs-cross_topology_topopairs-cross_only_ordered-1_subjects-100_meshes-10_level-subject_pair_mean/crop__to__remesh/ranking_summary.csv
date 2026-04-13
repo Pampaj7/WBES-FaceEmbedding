@@ -1,0 +1,2 @@
+topology_a,topology_b,ordered_pair_label,ordered_topology_pairs,mesh_pair_level,latent_spearman,chamfer_spearman,delta_spearman,latent_pearson,chamfer_pearson,delta_pearson,model_beats_chamfer,n_subjects,n_subject_pairs,n_mesh_pairs,n_observations
+crop,remesh,crop__to__remesh,1,0,0.658349,-0.008462,0.666811,0.681207,0.084325,0.596882,1,100,4950,4950,4950

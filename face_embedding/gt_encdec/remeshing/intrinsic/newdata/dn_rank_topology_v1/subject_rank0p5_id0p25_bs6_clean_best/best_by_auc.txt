@@ -1,0 +1,2 @@
+best_epoch=8
+best_auc_r=1.0022588467905402

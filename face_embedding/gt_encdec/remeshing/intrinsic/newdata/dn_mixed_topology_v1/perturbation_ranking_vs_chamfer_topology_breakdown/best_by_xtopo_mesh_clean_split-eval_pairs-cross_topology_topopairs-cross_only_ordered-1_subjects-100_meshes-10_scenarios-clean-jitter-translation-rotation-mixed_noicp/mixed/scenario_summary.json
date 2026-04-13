@@ -1,0 +1,37 @@
+{
+  "scenario": "mixed",
+  "scenario_description": {
+    "jitter_sigma": 0.05,
+    "rotation_sigma": 0.05,
+    "translation_sigma": 0.05,
+    "rotation_angle_max_deg": 2.0,
+    "translation_axis_std": 0.0045000000000000005
+  },
+  "overall": {
+    "scenario": "mixed",
+    "topology_a": "all",
+    "topology_b": "all",
+    "ordered_pair_label": "all_pairs",
+    "ordered_topology_pairs": false,
+    "mesh_pair_level": true,
+    "latent_spearman": 0.6354208009421517,
+    "latent_pearson": 0.6721924180210737,
+    "chamfer_spearman": 0.13811478275920364,
+    "chamfer_pearson": 0.13441428205428935,
+    "delta_spearman": 0.49730601818294806,
+    "delta_pearson": 0.5377781359667844,
+    "model_beats_chamfer": true,
+    "n_subjects": 100,
+    "n_subject_pairs": 4950,
+    "n_mesh_pairs": 148500,
+    "n_observations": 148500,
+    "chamfer_seconds_mean": 0.025252486943803498,
+    "chamfer_seconds_median": 0.0252524869438035,
+    "total_pair_seconds_mean": 0.025252486943803498,
+    "total_pair_seconds_median": 0.0252524869438035,
+    "output_dir": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_chamfer_topology_breakdown/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_topopairs-cross_only_ordered-1_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed_noicp/mixed",
+    "output_json": "",
+    "output_csv": "",
+    "output_md": ""
+  }
+}

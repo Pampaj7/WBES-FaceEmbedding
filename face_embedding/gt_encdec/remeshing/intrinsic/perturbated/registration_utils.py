@@ -13,6 +13,8 @@ import numpy as np
 import open3d as o3d
 import torch
 from pycpd import DeformableRegistration
+from scipy.linalg import lu_factor, lu_solve
+from scipy.spatial import cKDTree
 from tqdm import tqdm
 
 
@@ -163,6 +165,14 @@ class PairRegistrationResult:
     nonrigid_seconds: float
 
 
+@dataclass(frozen=True)
+class NICPCorrespondenceResult:
+    rigid_transform: np.ndarray
+    deformed_source_points: np.ndarray
+    rigid_seconds: float
+    nonrigid_seconds: float
+
+
 def _register_single_pair(
     source_icp_points: np.ndarray,
     target_icp_points: np.ndarray,
@@ -221,6 +231,143 @@ def _resolve_registration_workers(workers: int) -> int:
     if int(workers) > 0:
         return int(workers)
     return max(1, min(8, os.cpu_count() or 1))
+
+
+def _build_knn_laplacian(
+    points: np.ndarray,
+    n_neighbors: int,
+) -> np.ndarray:
+    pts = np.asarray(points, dtype=np.float64)
+    n_points = int(pts.shape[0])
+    if n_points <= 1:
+        return np.zeros((n_points, n_points), dtype=np.float64)
+
+    k = min(max(1, int(n_neighbors)), n_points - 1)
+    tree = cKDTree(pts)
+    distances, neighbors = tree.query(pts, k=k + 1)
+    if distances.ndim == 1:
+        distances = distances[:, None]
+        neighbors = neighbors[:, None]
+
+    neighbor_distances = np.asarray(distances[:, 1:], dtype=np.float64)
+    neighbor_indices = np.asarray(neighbors[:, 1:], dtype=np.int64)
+    sigma = float(np.median(neighbor_distances))
+    if not math.isfinite(sigma) or sigma <= 1.0e-12:
+        sigma = 1.0
+    sigma_sq = sigma * sigma
+
+    weights = np.zeros((n_points, n_points), dtype=np.float64)
+    for src_idx in range(n_points):
+        for dst_idx, dst_dist in zip(neighbor_indices[src_idx], neighbor_distances[src_idx]):
+            if int(dst_idx) == src_idx:
+                continue
+            weight = math.exp(-(float(dst_dist) ** 2) / (2.0 * sigma_sq))
+            if weight <= 0.0:
+                continue
+            weights[src_idx, int(dst_idx)] = max(weights[src_idx, int(dst_idx)], weight)
+            weights[int(dst_idx), src_idx] = max(weights[int(dst_idx), src_idx], weight)
+
+    degree = np.diag(weights.sum(axis=1))
+    return degree - weights
+
+
+def _estimate_nicp_deformed_source(
+    source_points: np.ndarray,
+    target_points: np.ndarray,
+    *,
+    n_iterations: int,
+    n_neighbors: int,
+    smoothness_lambda: float,
+    damping: float,
+) -> np.ndarray:
+    X0 = np.asarray(source_points, dtype=np.float64)
+    Y = np.asarray(target_points, dtype=np.float64)
+    if int(X0.shape[0]) == 0 or int(Y.shape[0]) == 0:
+        return np.asarray(X0, dtype=np.float32)
+
+    laplacian = _build_knn_laplacian(X0, n_neighbors=int(n_neighbors))
+    n_points = int(X0.shape[0])
+    system = np.eye(n_points, dtype=np.float64) + float(smoothness_lambda) * laplacian
+    lu, piv = lu_factor(system)
+    target_tree = cKDTree(Y)
+
+    X_deformed = np.asarray(X0, dtype=np.float64)
+    alpha = float(np.clip(damping, 1.0e-3, 1.0))
+    n_iter = max(1, int(n_iterations))
+    for _ in range(n_iter):
+        _, nn_idx = target_tree.query(X_deformed, k=1)
+        Y_corr = Y[np.asarray(nn_idx, dtype=np.int64)]
+        displacement = lu_solve((lu, piv), Y_corr - X0)
+        X_deformed = X0 + alpha * displacement
+    return np.asarray(X_deformed, dtype=np.float32)
+
+
+def _symmetric_correspondence_distance(
+    *,
+    source_points: np.ndarray,
+    target_points: np.ndarray,
+    deformed_source_points: np.ndarray,
+) -> float:
+    X0 = np.asarray(source_points, dtype=np.float64)
+    Y = np.asarray(target_points, dtype=np.float64)
+    Xd = np.asarray(deformed_source_points, dtype=np.float64)
+    if int(X0.shape[0]) == 0 or int(Y.shape[0]) == 0:
+        return float("nan")
+
+    target_tree = cKDTree(Y)
+    _, src_to_tgt_idx = target_tree.query(Xd, k=1)
+    matched_tgt = Y[np.asarray(src_to_tgt_idx, dtype=np.int64)]
+    forward = np.linalg.norm(X0 - matched_tgt, axis=1)
+
+    deformed_tree = cKDTree(Xd)
+    _, tgt_to_src_idx = deformed_tree.query(Y, k=1)
+    matched_src = X0[np.asarray(tgt_to_src_idx, dtype=np.int64)]
+    backward = np.linalg.norm(matched_src - Y, axis=1)
+
+    return float(0.5 * (forward.mean() + backward.mean()))
+
+
+def _register_single_pair_nicp_correspondence(
+    source_icp_points: np.ndarray,
+    target_icp_points: np.ndarray,
+    source_nicp_points: np.ndarray,
+    target_nicp_points: np.ndarray,
+    icp_max_correspondence_distance: float,
+    icp_max_iteration: int,
+    nicp_iterations: int,
+    nicp_neighbors: int,
+    nicp_smoothness_lambda: float,
+    nicp_damping: float,
+) -> NICPCorrespondenceResult:
+    rigid_start = time.time()
+    transform = _estimate_rigid_icp_transform(
+        source_points=source_icp_points,
+        target_points=target_icp_points,
+        max_correspondence_distance=float(icp_max_correspondence_distance),
+        max_iteration=int(icp_max_iteration),
+    )
+    rigid_seconds = float(time.time() - rigid_start)
+
+    aligned_source = (
+        np.asarray(source_nicp_points, dtype=np.float64) @ np.asarray(transform[:3, :3], dtype=np.float64).T
+        + np.asarray(transform[:3, 3], dtype=np.float64)
+    )
+    nonrigid_start = time.time()
+    deformed_source = _estimate_nicp_deformed_source(
+        aligned_source,
+        np.asarray(target_nicp_points, dtype=np.float64),
+        n_iterations=int(nicp_iterations),
+        n_neighbors=int(nicp_neighbors),
+        smoothness_lambda=float(nicp_smoothness_lambda),
+        damping=float(nicp_damping),
+    )
+    nonrigid_seconds = float(time.time() - nonrigid_start)
+    return NICPCorrespondenceResult(
+        rigid_transform=np.asarray(transform, dtype=np.float32),
+        deformed_source_points=np.asarray(deformed_source, dtype=np.float32),
+        rigid_seconds=rigid_seconds,
+        nonrigid_seconds=nonrigid_seconds,
+    )
 
 
 def compute_pairwise_registered_chamfer_values(
@@ -446,3 +593,149 @@ def compute_pairwise_registered_chamfer_values(
         "total_pair_seconds": total_pair_seconds,
     }
     return values, timing_arrays
+
+
+def compute_pairwise_nicp_correspondence_values(
+    *,
+    icp_point_sets: Sequence[np.ndarray],
+    nicp_point_sets: Sequence[np.ndarray],
+    pair_i: Sequence[int] | np.ndarray,
+    pair_j: Sequence[int] | np.ndarray,
+    registration_workers: int,
+    icp_max_correspondence_distance: float,
+    icp_max_iteration: int,
+    nicp_iterations: int,
+    nicp_neighbors: int,
+    nicp_smoothness_lambda: float,
+    nicp_damping: float,
+    progress_desc: str = "",
+    show_progress: bool = False,
+) -> tuple[np.ndarray, Dict[str, np.ndarray]]:
+    pair_i_np = np.asarray(pair_i, dtype=np.int64)
+    pair_j_np = np.asarray(pair_j, dtype=np.int64)
+    n_pairs = int(pair_i_np.size)
+    if n_pairs == 0:
+        empty = np.empty((0,), dtype=np.float64)
+        timings = {
+            "rigid_icp_seconds": empty.copy(),
+            "nonrigid_refine_seconds": empty.copy(),
+            "metric_seconds": empty.copy(),
+            "total_pair_seconds": empty.copy(),
+        }
+        return empty, timings
+
+    values = np.empty((n_pairs,), dtype=np.float64)
+    rigid_seconds = np.empty((n_pairs,), dtype=np.float64)
+    nonrigid_seconds = np.empty((n_pairs,), dtype=np.float64)
+    metric_seconds = np.empty((n_pairs,), dtype=np.float64)
+    total_pair_seconds = np.empty((n_pairs,), dtype=np.float64)
+
+    progress_label = str(progress_desc).strip() or "nicp correspondence pairs"
+    processed_pairs = 0
+    progress_start_time = time.time()
+    progress_interval_s = 10.0
+    next_progress_time = progress_start_time + progress_interval_s
+    use_tqdm = bool(show_progress and n_pairs > 1 and sys.stdout.isatty() and sys.stderr.isatty())
+    pair_pbar = (
+        tqdm(
+            total=n_pairs,
+            desc=progress_label,
+            dynamic_ncols=True,
+            leave=False,
+            position=2,
+        )
+        if use_tqdm
+        else None
+    )
+
+    n_workers = _resolve_registration_workers(registration_workers)
+    executor: ThreadPoolExecutor | None = ThreadPoolExecutor(max_workers=n_workers) if n_workers > 1 else None
+
+    try:
+        jobs = [
+            (
+                icp_point_sets[int(pair_i_np[pair_idx])],
+                icp_point_sets[int(pair_j_np[pair_idx])],
+                nicp_point_sets[int(pair_i_np[pair_idx])],
+                nicp_point_sets[int(pair_j_np[pair_idx])],
+                float(icp_max_correspondence_distance),
+                int(icp_max_iteration),
+                int(nicp_iterations),
+                int(nicp_neighbors),
+                float(nicp_smoothness_lambda),
+                float(nicp_damping),
+            )
+            for pair_idx in range(n_pairs)
+        ]
+        if executor is None:
+            registrations = [_register_single_pair_nicp_correspondence(*job) for job in jobs]
+        else:
+            registrations = list(executor.map(lambda job: _register_single_pair_nicp_correspondence(*job), jobs))
+
+        for pair_idx, reg in enumerate(registrations):
+            src_points = np.asarray(nicp_point_sets[int(pair_i_np[pair_idx])], dtype=np.float64)
+            tgt_points = np.asarray(nicp_point_sets[int(pair_j_np[pair_idx])], dtype=np.float64)
+            rigid_src = (
+                src_points @ np.asarray(reg.rigid_transform[:3, :3], dtype=np.float64).T
+                + np.asarray(reg.rigid_transform[:3, 3], dtype=np.float64)
+            )
+            metric_start = time.time()
+            values[pair_idx] = _symmetric_correspondence_distance(
+                source_points=rigid_src,
+                target_points=tgt_points,
+                deformed_source_points=np.asarray(reg.deformed_source_points, dtype=np.float64),
+            )
+            metric_seconds[pair_idx] = float(time.time() - metric_start)
+            rigid_seconds[pair_idx] = float(reg.rigid_seconds)
+            nonrigid_seconds[pair_idx] = float(reg.nonrigid_seconds)
+            total_pair_seconds[pair_idx] = (
+                float(rigid_seconds[pair_idx])
+                + float(nonrigid_seconds[pair_idx])
+                + float(metric_seconds[pair_idx])
+            )
+
+            processed_pairs += 1
+            if pair_pbar is not None:
+                pair_pbar.update(1)
+            if show_progress:
+                now = time.time()
+                should_log = (
+                    processed_pairs == 1
+                    or processed_pairs == n_pairs
+                    or now >= next_progress_time
+                )
+                if should_log:
+                    elapsed_s = max(now - progress_start_time, 1.0e-9)
+                    pairs_per_s = float(processed_pairs) / elapsed_s
+                    eta_s = float(n_pairs - processed_pairs) / pairs_per_s if pairs_per_s > 0.0 else float("inf")
+                    eta_text = f"{eta_s / 3600.0:.1f}h" if eta_s >= 3600.0 else (f"{eta_s / 60.0:.1f}m" if eta_s >= 60.0 else f"{eta_s:.1f}s")
+                    elapsed_text = f"{elapsed_s / 3600.0:.1f}h" if elapsed_s >= 3600.0 else (f"{elapsed_s / 60.0:.1f}m" if elapsed_s >= 60.0 else f"{elapsed_s:.1f}s")
+                    while next_progress_time <= now:
+                        next_progress_time += progress_interval_s
+                    progress_pct = 100.0 * (float(processed_pairs) / float(n_pairs))
+                    print(
+                        f"{progress_label}: {progress_pct:.1f}% pairs "
+                        f"({processed_pairs}/{n_pairs}) | rate={pairs_per_s:.1f} pairs/s | "
+                        f"eta={eta_text} | elapsed={elapsed_text}",
+                        flush=True,
+                    )
+    finally:
+        if executor is not None:
+            executor.shutdown(wait=True)
+        if pair_pbar is not None:
+            pair_pbar.close()
+
+    if show_progress:
+        elapsed_s = time.time() - progress_start_time
+        elapsed_text = f"{elapsed_s / 3600.0:.1f}h" if elapsed_s >= 3600.0 else (f"{elapsed_s / 60.0:.1f}m" if elapsed_s >= 60.0 else f"{elapsed_s:.1f}s")
+        print(
+            f"{progress_label}: completed {n_pairs} pairs in {elapsed_text}",
+            flush=True,
+        )
+
+    return values, {
+        "rigid_icp_seconds": rigid_seconds,
+        "nonrigid_refine_seconds": nonrigid_seconds,
+        "metric_seconds": metric_seconds,
+        "total_pair_seconds": total_pair_seconds,
+    }

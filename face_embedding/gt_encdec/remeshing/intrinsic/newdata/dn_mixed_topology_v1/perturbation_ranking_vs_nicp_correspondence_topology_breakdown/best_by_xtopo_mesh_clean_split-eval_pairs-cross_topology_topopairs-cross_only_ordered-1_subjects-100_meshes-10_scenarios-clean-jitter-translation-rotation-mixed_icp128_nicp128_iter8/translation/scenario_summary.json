@@ -1,0 +1,41 @@
+{
+  "scenario": "translation",
+  "scenario_description": {
+    "jitter_sigma": 0.0,
+    "rotation_sigma": 0.0,
+    "translation_sigma": 0.05,
+    "rotation_angle_max_deg": 0.0,
+    "translation_axis_std": 0.0025
+  },
+  "overall": {
+    "scenario": "translation",
+    "topology_a": "all",
+    "topology_b": "all",
+    "ordered_pair_label": "all_pairs",
+    "ordered_topology_pairs": false,
+    "mesh_pair_level": true,
+    "latent_spearman": 0.7475956839110233,
+    "latent_pearson": 0.7775076499071766,
+    "nicp_correspondence_spearman": 0.16060895089467597,
+    "nicp_correspondence_pearson": 0.08665702671919367,
+    "delta_spearman": 0.5869867330163473,
+    "delta_pearson": 0.690850623187983,
+    "model_beats_nicp_correspondence": true,
+    "n_subjects": 100,
+    "n_subject_pairs": 4950,
+    "n_mesh_pairs": 148500,
+    "n_observations": 148500,
+    "rigid_icp_seconds_mean": 0.0006543102521286267,
+    "rigid_icp_seconds_median": 0.0004525184631347656,
+    "nonrigid_nicp_seconds_mean": 0.00901662645757399,
+    "nonrigid_nicp_seconds_median": 0.009001970291137695,
+    "metric_seconds_mean": 9.973799901377874e-05,
+    "metric_seconds_median": 9.965896606445312e-05,
+    "total_pair_seconds_mean": 0.009770674708716396,
+    "total_pair_seconds_median": 0.009675979614257812,
+    "output_dir": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_nicp_correspondence_topology_breakdown/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_topopairs-cross_only_ordered-1_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed_icp128_nicp128_iter8/translation",
+    "output_json": "",
+    "output_csv": "",
+    "output_md": ""
+  }
+}
