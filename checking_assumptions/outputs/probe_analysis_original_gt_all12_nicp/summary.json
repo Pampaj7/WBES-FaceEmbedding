@@ -1,0 +1,29 @@
+{
+  "label": "original_gt_all12_nicp",
+  "scenarios": {
+    "clean": {
+      "metrics": [
+        "latent_distance",
+        "raw_chamfer",
+        "rigid_registered_chamfer",
+        "nicp_correspondence"
+      ],
+      "best_metric_by_diff_spearman": "latent_distance",
+      "best_metric_diff_spearman": 0.8482717699995701,
+      "n_same_pairs": 180,
+      "n_diff_pairs": 300
+    },
+    "translation": {
+      "metrics": [
+        "latent_distance",
+        "raw_chamfer",
+        "rigid_registered_chamfer",
+        "nicp_correspondence"
+      ],
+      "best_metric_by_diff_spearman": "latent_distance",
+      "best_metric_diff_spearman": 0.8432816091922534,
+      "n_same_pairs": 180,
+      "n_diff_pairs": 300
+    }
+  }
+}

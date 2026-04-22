@@ -85,6 +85,21 @@ def _estimate_rigid_icp_transform(
     return np.asarray(reg.transformation, dtype=np.float32)
 
 
+def estimate_rigid_icp_transform(
+    source_points: np.ndarray,
+    target_points: np.ndarray,
+    max_correspondence_distance: float,
+    max_iteration: int,
+) -> np.ndarray:
+    """Public wrapper for rigid ICP transform estimation."""
+    return _estimate_rigid_icp_transform(
+        source_points=source_points,
+        target_points=target_points,
+        max_correspondence_distance=max_correspondence_distance,
+        max_iteration=max_iteration,
+    )
+
+
 def apply_rigid_transform(
     V: torch.Tensor,
     transform: np.ndarray,
@@ -390,6 +405,7 @@ def compute_pairwise_registered_chamfer_values(
     warp_chunk_size: int = 4096,
     progress_desc: str = "",
     show_progress: bool = False,
+    return_transforms: bool = False,
 ) -> tuple[np.ndarray, Dict[str, np.ndarray]]:
     pair_i_np = np.asarray(pair_i, dtype=np.int64)
     pair_j_np = np.asarray(pair_j, dtype=np.int64)
@@ -407,6 +423,7 @@ def compute_pairwise_registered_chamfer_values(
         return empty, timings
 
     values = np.empty((n_pairs,), dtype=np.float64)
+    transforms = np.empty((n_pairs, 4, 4), dtype=np.float64) if bool(return_transforms) else None
     rigid_seconds = np.empty((n_pairs,), dtype=np.float64)
     nonrigid_seconds = np.empty((n_pairs,), dtype=np.float64)
     warp_seconds = np.empty((n_pairs,), dtype=np.float64)
@@ -489,6 +506,8 @@ def compute_pairwise_registered_chamfer_values(
                     src_idx = int(pair_i_np[pair_idx])
                     tgt_idx = int(pair_j_np[pair_idx])
                     reg = registrations[local_idx]
+                    if transforms is not None:
+                        transforms[int(pair_idx)] = np.asarray(reg.rigid_transform, dtype=np.float64)
                     V_src = apply_rigid_transform(vertex_sets[src_idx], reg.rigid_transform)
                     if reg.nonrigid_warp is not None:
                         V_src = apply_nonrigid_cpd_warp(
@@ -592,6 +611,8 @@ def compute_pairwise_registered_chamfer_values(
         "chamfer_seconds": chamfer_seconds,
         "total_pair_seconds": total_pair_seconds,
     }
+    if transforms is not None:
+        timing_arrays["rigid_transforms"] = transforms
     return values, timing_arrays
 
 

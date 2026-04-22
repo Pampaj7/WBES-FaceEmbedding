@@ -1,0 +1,62 @@
+[
+  {
+    "scenario": "mixed",
+    "metric": "latent_distance",
+    "same_mean": 0.17829591333866118,
+    "same_median": 0.17426665127277374,
+    "different_mean": 0.41290467696057426,
+    "different_median": 0.3994574248790741,
+    "gap_diff_minus_same": 0.23460876362191307,
+    "same_vs_diff_auc": 0.9990123456790123,
+    "different_only_spearman_vs_gt": 0.8946762525350113,
+    "different_only_pearson_vs_gt": 0.8945031471154469
+  },
+  {
+    "scenario": "mixed",
+    "metric": "raw_chamfer",
+    "same_mean": 0.0019106045223048164,
+    "same_median": 0.0008063695859164,
+    "different_mean": 0.0026395394059363754,
+    "different_median": 0.0015973433619365096,
+    "gap_diff_minus_same": 0.0007289348836315591,
+    "same_vs_diff_auc": 0.6590123456790123,
+    "different_only_spearman_vs_gt": 0.2346691809927898,
+    "different_only_pearson_vs_gt": 0.1282128742224252
+  },
+  {
+    "scenario": "mixed",
+    "metric": "rigid_registered_chamfer",
+    "same_mean": 0.001920131308078352,
+    "same_median": 0.0008870159508660436,
+    "different_mean": 0.00272188125592139,
+    "different_median": 0.001594880479387939,
+    "gap_diff_minus_same": 0.0008017499478430383,
+    "same_vs_diff_auc": 0.6498765432098765,
+    "different_only_spearman_vs_gt": 0.18281148251447243,
+    "different_only_pearson_vs_gt": 0.1411758855580955
+  },
+  {
+    "scenario": "mixed",
+    "metric": "nicp_correspondence",
+    "same_mean": 0.09667527505863548,
+    "same_median": 0.0913841708889577,
+    "different_mean": 0.10176696049496883,
+    "different_median": 0.09667966949366583,
+    "gap_diff_minus_same": 0.005091685436333357,
+    "same_vs_diff_auc": 0.6266666666666667,
+    "different_only_spearman_vs_gt": 0.20376408796025722,
+    "different_only_pearson_vs_gt": 0.14931437218301155
+  },
+  {
+    "scenario": "mixed",
+    "metric": "cpd_registered_chamfer",
+    "same_mean": NaN,
+    "same_median": NaN,
+    "different_mean": NaN,
+    "different_median": NaN,
+    "gap_diff_minus_same": NaN,
+    "same_vs_diff_auc": NaN,
+    "different_only_spearman_vs_gt": NaN,
+    "different_only_pearson_vs_gt": NaN
+  }
+]

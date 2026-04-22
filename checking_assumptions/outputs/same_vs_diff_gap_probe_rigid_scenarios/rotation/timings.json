@@ -1,0 +1,8 @@
+{
+  "rigid_mean_total_seconds": 0.008358870612250434,
+  "nicp_mean_total_seconds": 0.009738185670640734,
+  "cpd_mean_total_seconds": NaN,
+  "rigid_mean_registration_seconds": 0.0004661824968126085,
+  "nicp_mean_registration_seconds": 0.009636884265475803,
+  "cpd_mean_registration_seconds": NaN
+}

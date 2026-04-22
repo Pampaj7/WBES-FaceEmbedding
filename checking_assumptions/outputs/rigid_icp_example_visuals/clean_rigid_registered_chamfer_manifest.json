@@ -1,0 +1,32 @@
+[
+  {
+    "scenario": "clean",
+    "metric": "rigid_registered_chamfer",
+    "sample_name_a": "id0051_GTready_down8k",
+    "sample_name_b": "id0456_GTready_up60k",
+    "subject_a": "id0051",
+    "subject_b": "id0456",
+    "topology_a": "down8k",
+    "topology_b": "up60k",
+    "gt_distance": 0.3394517600536346,
+    "raw_chamfer": 0.003626013174653,
+    "rigid_registered_chamfer": 0.0113644320517778,
+    "extra_abs_rank_error_vs_raw": 143.0,
+    "output_png": "/deck/datasets/WBES-FaceEmbedding/checking_assumptions/outputs/rigid_icp_example_visuals/clean_rigid_registered_chamfer_example1.png"
+  },
+  {
+    "scenario": "clean",
+    "metric": "rigid_registered_chamfer",
+    "sample_name_a": "id0084_GTready_down8k",
+    "sample_name_b": "id0478_GTready_up60k",
+    "subject_a": "id0084",
+    "subject_b": "id0478",
+    "topology_a": "down8k",
+    "topology_b": "up60k",
+    "gt_distance": 0.5340049862861633,
+    "raw_chamfer": 0.0070289145223796,
+    "rigid_registered_chamfer": 0.0026604835875332,
+    "extra_abs_rank_error_vs_raw": 103.0,
+    "output_png": "/deck/datasets/WBES-FaceEmbedding/checking_assumptions/outputs/rigid_icp_example_visuals/clean_rigid_registered_chamfer_example2.png"
+  }
+]

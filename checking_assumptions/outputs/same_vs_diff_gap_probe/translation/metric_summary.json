@@ -1,0 +1,50 @@
+[
+  {
+    "scenario": "translation",
+    "metric": "latent_distance",
+    "same_mean": 0.17714501519997913,
+    "same_median": 0.17678363621234894,
+    "different_mean": 0.43381496005588105,
+    "different_median": 0.42229481041431427,
+    "gap_diff_minus_same": 0.2566699448559019,
+    "same_vs_diff_auc": 0.9940740740740741,
+    "different_only_spearman_vs_gt": 0.8621997140940447,
+    "different_only_pearson_vs_gt": 0.8571831611136547
+  },
+  {
+    "scenario": "translation",
+    "metric": "raw_chamfer",
+    "same_mean": 0.0035427164619452217,
+    "same_median": 0.0009943366749212146,
+    "different_mean": 0.0052915375996639745,
+    "different_median": 0.0033317022025585175,
+    "gap_diff_minus_same": 0.0017488211377187529,
+    "same_vs_diff_auc": 0.6935802469135802,
+    "different_only_spearman_vs_gt": 0.22733576908676512,
+    "different_only_pearson_vs_gt": 0.1361554831183069
+  },
+  {
+    "scenario": "translation",
+    "metric": "rigid_registered_chamfer",
+    "same_mean": 0.002977009928306668,
+    "same_median": 0.0007371567189693451,
+    "different_mean": 0.005210439044620014,
+    "different_median": 0.0025995877804234624,
+    "gap_diff_minus_same": 0.002233429116313346,
+    "same_vs_diff_auc": 0.7079012345679012,
+    "different_only_spearman_vs_gt": 0.32371775413737525,
+    "different_only_pearson_vs_gt": 0.15001978820399622
+  },
+  {
+    "scenario": "translation",
+    "metric": "cpd_registered_chamfer",
+    "same_mean": 0.009178337496187952,
+    "same_median": 0.007491346448659897,
+    "different_mean": 0.008059477244710758,
+    "different_median": 0.007257810793817043,
+    "gap_diff_minus_same": -0.0011188602514771943,
+    "same_vs_diff_auc": 0.45901234567901233,
+    "different_only_spearman_vs_gt": -0.041381395755424995,
+    "different_only_pearson_vs_gt": -0.06720579070650362
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "sample_name_a": "id0084_GTready_down8k",
+  "sample_name_b": "id0478_GTready_up60k",
+  "scenario": "rotation",
+  "rotation_sigma": 0.2,
+  "clean_vs_target_note": "source and target both clean (no perturbation)",
+  "rotated_vs_target_note": "source and target both rotated independently with the same scenario seed policy used by the benchmark",
+  "output_png": "/deck/datasets/WBES-FaceEmbedding/checking_assumptions/outputs/rotation_icp_triplet_visuals/rotation_sigma0.20_id0084_GTready_down8k__to__id0478_GTready_up60k.png",
+  "icp_points": 128,
+  "icp_max_correspondence_distance": 0.05,
+  "icp_max_iteration": 20
+}

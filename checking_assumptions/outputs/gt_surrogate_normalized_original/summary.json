@@ -1,0 +1,12 @@
+{
+  "data_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops",
+  "topology": "original",
+  "subject_count": 500,
+  "matrix_shape": [
+    500,
+    500
+  ],
+  "positive_min": 0.1325069120785454,
+  "positive_max": 1.0,
+  "npz_path": "/deck/datasets/WBES-FaceEmbedding/checking_assumptions/outputs/gt_surrogate_normalized_original/normalized_matrix_distances_surrogate.npz"
+}

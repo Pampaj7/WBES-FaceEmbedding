@@ -1,0 +1,22 @@
+{
+  "original_gt": {
+    "scenario_rows": 20,
+    "methods": [
+      "nicp_corr",
+      "raw_noicp",
+      "rigid_cpd",
+      "rigid_only"
+    ]
+  },
+  "surrogate_gt_normalized": {
+    "scenario_rows": 4,
+    "methods": [
+      "raw_noicp",
+      "rigid_only"
+    ]
+  },
+  "flip_counts": {
+    "clean": 4,
+    "translation": 2
+  }
+}

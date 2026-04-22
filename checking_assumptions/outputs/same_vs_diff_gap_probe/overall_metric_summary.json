@@ -1,0 +1,98 @@
+[
+  {
+    "scenario": "clean",
+    "metric": "latent_distance",
+    "same_mean": 0.16857710629701614,
+    "same_median": 0.1469917595386505,
+    "different_mean": 0.426232483320766,
+    "different_median": 0.4141089916229248,
+    "gap_diff_minus_same": 0.25765537702374985,
+    "same_vs_diff_auc": 0.9977777777777778,
+    "different_only_spearman_vs_gt": 0.8789617984506727,
+    "different_only_pearson_vs_gt": 0.8701886242684058
+  },
+  {
+    "scenario": "clean",
+    "metric": "raw_chamfer",
+    "same_mean": 0.003569152904674411,
+    "same_median": 0.000963284051977098,
+    "different_mean": 0.005236191834167888,
+    "different_median": 0.003265659906901419,
+    "gap_diff_minus_same": 0.001667038929493477,
+    "same_vs_diff_auc": 0.6891358024691357,
+    "different_only_spearman_vs_gt": 0.2530027107578515,
+    "different_only_pearson_vs_gt": 0.1486417736946544
+  },
+  {
+    "scenario": "clean",
+    "metric": "rigid_registered_chamfer",
+    "same_mean": 0.0030189728018336203,
+    "same_median": 0.0007064156234264374,
+    "different_mean": 0.005284921334047492,
+    "different_median": 0.0026901412056759,
+    "gap_diff_minus_same": 0.0022659485322138713,
+    "same_vs_diff_auc": 0.7014814814814815,
+    "different_only_spearman_vs_gt": 0.3252891995458091,
+    "different_only_pearson_vs_gt": 0.1723923552753488
+  },
+  {
+    "scenario": "clean",
+    "metric": "cpd_registered_chamfer",
+    "same_mean": 0.009322988381609321,
+    "same_median": 0.007271695416420698,
+    "different_mean": 0.00795998758274234,
+    "different_median": 0.007213969947770238,
+    "gap_diff_minus_same": -0.0013630007988669809,
+    "same_vs_diff_auc": 0.4622222222222222,
+    "different_only_spearman_vs_gt": -0.055000589295185115,
+    "different_only_pearson_vs_gt": -0.02925733810634309
+  },
+  {
+    "scenario": "translation",
+    "metric": "latent_distance",
+    "same_mean": 0.17714501519997913,
+    "same_median": 0.17678363621234894,
+    "different_mean": 0.43381496005588105,
+    "different_median": 0.42229481041431427,
+    "gap_diff_minus_same": 0.2566699448559019,
+    "same_vs_diff_auc": 0.9940740740740741,
+    "different_only_spearman_vs_gt": 0.8621997140940447,
+    "different_only_pearson_vs_gt": 0.8571831611136547
+  },
+  {
+    "scenario": "translation",
+    "metric": "raw_chamfer",
+    "same_mean": 0.0035427164619452217,
+    "same_median": 0.0009943366749212146,
+    "different_mean": 0.0052915375996639745,
+    "different_median": 0.0033317022025585175,
+    "gap_diff_minus_same": 0.0017488211377187529,
+    "same_vs_diff_auc": 0.6935802469135802,
+    "different_only_spearman_vs_gt": 0.22733576908676512,
+    "different_only_pearson_vs_gt": 0.1361554831183069
+  },
+  {
+    "scenario": "translation",
+    "metric": "rigid_registered_chamfer",
+    "same_mean": 0.002977009928306668,
+    "same_median": 0.0007371567189693451,
+    "different_mean": 0.005210439044620014,
+    "different_median": 0.0025995877804234624,
+    "gap_diff_minus_same": 0.002233429116313346,
+    "same_vs_diff_auc": 0.7079012345679012,
+    "different_only_spearman_vs_gt": 0.32371775413737525,
+    "different_only_pearson_vs_gt": 0.15001978820399622
+  },
+  {
+    "scenario": "translation",
+    "metric": "cpd_registered_chamfer",
+    "same_mean": 0.009178337496187952,
+    "same_median": 0.007491346448659897,
+    "different_mean": 0.008059477244710758,
+    "different_median": 0.007257810793817043,
+    "gap_diff_minus_same": -0.0011188602514771943,
+    "same_vs_diff_auc": 0.45901234567901233,
+    "different_only_spearman_vs_gt": -0.041381395755424995,
+    "different_only_pearson_vs_gt": -0.06720579070650362
+  }
+]

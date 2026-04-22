@@ -1,0 +1,80 @@
+{
+  "seed": 1234,
+  "n_cases": 24,
+  "picked_records": [
+    {
+      "subject_id": "id0000",
+      "dataset_idx": 0,
+      "sample_name": "id0000_GTready_crop.npz",
+      "topology_label": "crop"
+    },
+    {
+      "subject_id": "id0000",
+      "dataset_idx": 3,
+      "sample_name": "id0000_GTready_original.npz",
+      "topology_label": "original"
+    },
+    {
+      "subject_id": "id0000",
+      "dataset_idx": 4,
+      "sample_name": "id0000_GTready_remesh.npz",
+      "topology_label": "remesh"
+    },
+    {
+      "subject_id": "id0001",
+      "dataset_idx": 6,
+      "sample_name": "id0001_GTready_crop.npz",
+      "topology_label": "crop"
+    },
+    {
+      "subject_id": "id0001",
+      "dataset_idx": 9,
+      "sample_name": "id0001_GTready_original.npz",
+      "topology_label": "original"
+    },
+    {
+      "subject_id": "id0001",
+      "dataset_idx": 10,
+      "sample_name": "id0001_GTready_remesh.npz",
+      "topology_label": "remesh"
+    }
+  ],
+  "summary_by_transform": [
+    {
+      "transform_name": "identity",
+      "n_cases": 6,
+      "raw_mean": 1.2172440537009758e-08,
+      "rigid_mean": 0.00023533585044788197,
+      "cpd_mean": 0.008180533535778522,
+      "rigid_beats_raw_frac": 0.0,
+      "cpd_beats_rigid_frac": 0.0
+    },
+    {
+      "transform_name": "rigid_combo",
+      "n_cases": 6,
+      "raw_mean": 0.008172698163737854,
+      "rigid_mean": 0.006092104323518773,
+      "cpd_mean": 0.009533923507357637,
+      "rigid_beats_raw_frac": 0.6666666666666666,
+      "cpd_beats_rigid_frac": 0.3333333333333333
+    },
+    {
+      "transform_name": "rotation_only",
+      "n_cases": 6,
+      "raw_mean": 0.005746221014608939,
+      "rigid_mean": 0.0016478804463986307,
+      "cpd_mean": 0.00915716371188561,
+      "rigid_beats_raw_frac": 1.0,
+      "cpd_beats_rigid_frac": 0.0
+    },
+    {
+      "transform_name": "translation_only",
+      "n_cases": 6,
+      "raw_mean": 0.0012673232898426552,
+      "rigid_mean": 0.0003039107517300484,
+      "cpd_mean": 0.008467550932740172,
+      "rigid_beats_raw_frac": 1.0,
+      "cpd_beats_rigid_frac": 0.0
+    }
+  ]
+}

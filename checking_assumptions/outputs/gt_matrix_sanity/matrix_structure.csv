@@ -1,0 +1,11 @@
+metric,value
+shape_n,4999
+diag_abs_max,0.0
+sym_abs_max,0.0
+positive_min,0.11494383215904236
+positive_max,1.0
+negative_count,0
+zero_count,4999
+parsed_name_count,4999
+unparsed_name_count,0
+duplicate_subject_id_count,0

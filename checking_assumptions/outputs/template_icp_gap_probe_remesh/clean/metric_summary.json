@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "clean",
+    "metric": "latent_distance",
+    "same_mean": 0.16857710629701614,
+    "same_median": 0.1469917595386505,
+    "different_mean": 0.426232483320766,
+    "different_median": 0.4141089916229248,
+    "gap_diff_minus_same": 0.25765537702374985,
+    "same_vs_diff_auc": 0.9977777777777778,
+    "different_only_spearman_vs_gt": 0.8789617984506727,
+    "different_only_pearson_vs_gt": 0.8701886242684058
+  },
+  {
+    "scenario": "clean",
+    "metric": "raw_chamfer",
+    "same_mean": 0.003569152904674411,
+    "same_median": 0.000963284051977098,
+    "different_mean": 0.005236191834167888,
+    "different_median": 0.003265659906901419,
+    "gap_diff_minus_same": 0.001667038929493477,
+    "same_vs_diff_auc": 0.6891358024691357,
+    "different_only_spearman_vs_gt": 0.2530027107578515,
+    "different_only_pearson_vs_gt": 0.1486417736946544
+  },
+  {
+    "scenario": "clean",
+    "metric": "template_icp_chamfer",
+    "same_mean": 0.0028604204569193017,
+    "same_median": 0.0020151096396148205,
+    "different_mean": 0.004211617362711371,
+    "different_median": 0.0030639696633443236,
+    "gap_diff_minus_same": 0.0013511969057920696,
+    "same_vs_diff_auc": 0.6503703703703704,
+    "different_only_spearman_vs_gt": 0.11419169967952719,
+    "different_only_pearson_vs_gt": 0.1125560231581916
+  }
+]
