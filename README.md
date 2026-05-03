@@ -35,6 +35,10 @@ face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/
     └── config.json
 ```
 
+The selected checkpoint has also been published as a Hugging Face model repository:
+
+- [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
+
 The codebase tackles that problem in five connected layers:
 
 - `face_embedding`: the main modeling branch, with DiffusionNet-based encoders, autoencoders, latent analysis, and spectral variants.
@@ -56,7 +60,7 @@ It contains two no-operator archives:
 - `REMESH_npz_data_topo_500_noops.tar.zst`: REMESH with `500` subjects and `6` topology variants per subject, stored as mesh-only `.npz` files.
 - `FaceVerse_cross_topology_10k_noops.tar.zst`: FaceVerse cross-topology data with `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
 
-These archives are intended as the safe/public data release. Intrinsic-operator datasets, checkpoints, and heavy pair-level evaluation dumps are treated as separate research artifacts.
+These archives are intended as the safe/public data release. Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; the selected checkpoint is published separately as the model repo linked above.
 
 ## If You Only Read One Part
 

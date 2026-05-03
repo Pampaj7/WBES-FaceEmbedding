@@ -166,6 +166,13 @@ Important files:
 - `xtopo_mesh_log.csv`
 - `robustness_grid.csv`
 
+The selected checkpoint is also published on Hugging Face:
+
+- model repo: `Pampaj/wbes-faceembedding-dn-mixed-topology-v1`
+- URL: <https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1>
+- uploaded files: `best_by_xtopo_mesh_clean.pth`, `config.json`, `best_by_xtopo_mesh_clean.txt`, `train_log.csv`, `xtopo_mesh_log.csv`
+- Hub commit: <https://huggingface.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1/commit/c8e42d79d5606690e72d1091823a96b1f9e30726>
+
 The run configuration is an `xyz_dn` DiffusionNet encoder with:
 
 - latent dim: `256`
