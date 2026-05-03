@@ -1,6 +1,6 @@
 # WBES-FaceEmbedding Codebase Guide
 
-Last updated from the current checkout on 2026-03-27.
+Last updated from the current checkout on 2026-05-03.
 
 This document is a practical guide to the repository as it exists on disk, not just as it is described in the README. The repo is a research workspace, not a cleanly packaged library. Code, datasets, experiment outputs, ad hoc utilities, and third-party material all live together.
 
@@ -14,16 +14,30 @@ The main goal of this guide is to help a new contributor answer five questions q
 
 ## 1. Executive Summary
 
-At a high level, this repository has one clear technical center and one clear evaluation branch:
+At a high level, this repository is the official research workspace for the NeurIPS 2026 submission on identity-preserving 3D face embeddings under topology changes.
+
+The current top model for the submission is:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1`
+
+The main run/checkpoint inside that branch is:
+
+- run directory: `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best`
+- checkpoint: `checkpoints/best_by_xtopo_mesh_clean.pth`
+- config: `config.json`
+
+At a technical level, this repository has one clear modeling center and three evaluation/validation branches:
 
 - `face_embedding`: the main modeling branch, where 3D face identity embeddings are learned directly from meshes using DiffusionNet-style architectures, spectral variants, and robustness experiments.
-- `WBES`: the evaluation branch, used to measure whether identity separability is actually preserved.
+- `faceBench/latentVSpipeline`: the paper-facing latent-vs-geometry branch, used to compare learned rankings against transparent FaceBench-style geometry pipelines.
+- `datasets/FaceVerse`: the external FaceVerse validation branch, including downsampling, remesh10k topology variants, post-perturbation ICP benchmarks, sigma sweeps, and few-shot fine-tuning.
+- `WBES`: the identity-effect-size branch, used to measure whether identity separability is actually preserved.
 
-There is also a third, more isolated component:
+There is also a more isolated component:
 
 - `BFM_to_FLAME`: a vendored external project used for topology/model conversion between Basel Face Model and FLAME.
 
-If you only have time to understand one subtree, read `face_embedding/gt_encdec/` first. That is where most of the architecture decisions, representation-learning work, and topology-robust identity experiments live. `WBES/` matters, but mostly as the quantitative lens used to validate the embedding story.
+If you only have time to understand one subtree, read `face_embedding/gt_encdec/` first. That is where most of the architecture decisions, representation-learning work, and topology-robust identity experiments live. Then read the current top run under `dn_mixed_topology_v1`, followed by `faceBench/latentVSpipeline/` and `datasets/FaceVerse/` for the current submission evaluation surface.
 
 This is not a single end-to-end application with one orchestrator. It is closer to a research lab notebook in code form:
 
@@ -33,12 +47,13 @@ This is not a single end-to-end application with one orchestrator. It is closer 
 - several scripts assume absolute local paths,
 - multiple generations of approaches coexist.
 
-The best way to understand the repo is to treat it as four layers:
+The best way to understand the repo is to treat it as five layers:
 
 1. Data preparation and topology generation
 2. Operator precomputation and dataset adaptation
 3. Mesh embedding / latent-space learning
-4. Topology robustness plus WBES-based validation
+4. Topology robustness and top-model selection
+5. FaceBench, FaceVerse, and WBES validation
 
 ## 2. Current Checkout Snapshot
 
@@ -48,6 +63,7 @@ These are facts about the current workspace, not abstract expectations.
 
 Main directories:
 
+- `faceBench/`
 - `WBES/`
 - `face_embedding/`
 - `datasets/`
@@ -64,11 +80,18 @@ Current counts:
 - `datasets/GT_ready/npz_data/*.npz`: `4999`
 - `datasets/GT_ready/npz_data_cropped_23470_with_ops/*.npz`: `4999`
 - `datasets/REMESH/npz_data_topo_500/*.npz`: `3000`
-- `datasets/REMESH/npz_data_topo_500_withops/*.npz`: `2617`
+- `datasets/REMESH/npz_data_topo_500_withops/*.npz`: `3000`
+- `datasets/FaceVerse/downsampled_with_ops/*.npz`: `110`
+- `datasets/FaceVerse/remesh10k_with_ops/*.npz`: `110`
+- `datasets/FaceVerse/cross_topology_10k_with_ops/*.npz`: `220` symlink entries
+- `datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/*.npz`: `150` symlink entries
 - `WBES/results/`: `159` files
 - `WBES/results_landmarks/`: `134` files
 - `WBES/plots/`: `127` files
 - `face_embedding/gt_encdec/autoencoder/results_diffusionAE/`: `65` files
+- `faceBench/latentVSpipeline/outputs/baseline_dn_mixed_topology_v1/`: `4` summary files
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/figures/`: `10` figure files
+- `datasets/FaceVerse/FINE_tuning/evals_mixedaug/`: `219` files
 
 Observed REMESH variant split in `datasets/REMESH/npz_data_topo_500/`:
 
@@ -85,16 +108,192 @@ Observed operator-enriched REMESH split in `datasets/REMESH/npz_data_topo_500_wi
 - `remesh`: `500`
 - `crop`: `500`
 - `noisy`: `500`
-- `up60k`: `484`
-- `down8k`: missing in the current checkout
+- `down8k`: `500`
+- `up60k`: `500`
 
-This mismatch matters: some experimental branches may assume all variants have operators, but the local workspace currently does not fully satisfy that assumption.
+This matters because the current top model and the FaceBench comparison both assume all six topology labels are available with operators. The current checkout now satisfies that assumption for REMESH.
 
 ### 2.3 Stored Results Snapshot
 
 The repository already contains enough saved artifacts to extract a few concrete observations.
 
 The most important narrative point is that the model-side artifacts under `face_embedding/` already show strong embedding behavior, and the WBES artifacts then provide an independent evaluation view of the same identity-preservation question.
+
+#### Current top submission model: `dn_mixed_topology_v1`
+
+The current top model branch is:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1`
+
+The selected run is:
+
+- `mixed_xtopo_rank0p5_id0p25_bs5_best`
+
+Important files:
+
+- `config.json`
+- `checkpoints/best_by_xtopo_mesh_clean.pth`
+- `best_by_clean.txt`
+- `best_by_auc.txt`
+- `best_by_xtopo_mesh_clean.txt`
+- `train_log.csv`
+- `mixed_train_log.csv`
+- `xtopo_mesh_log.csv`
+- `robustness_grid.csv`
+
+The run configuration is an `xyz_dn` DiffusionNet encoder with:
+
+- latent dim: `256`
+- width: `128`
+- blocks: `4`
+- pooling: `meanmax`
+- epochs: `120`
+- batch subjects: `5`
+- training level: `mixed`
+- training pair mode: `cross_topology`
+- lambda rank: `0.5`
+- lambda id: `0.25`
+- lambda mesh: `1.0`
+- noise probability: `0.6`
+- noise modes: translation, rotation, jitter
+- REMESH data root: `datasets/REMESH/npz_data_topo_500_withops`
+
+Stored checkpoint-selection markers:
+
+- `best_by_clean.txt`: `best_epoch=82`, clean Spearman `0.823418`
+- `best_by_xtopo_mesh_clean.txt`: `best_epoch=82`, cross-topology mesh clean Spearman `0.748369`
+- `best_by_auc.txt`: `best_epoch=16`, `best_auc_r=1.004153`
+
+The online mesh evaluation summary records:
+
+- `96` samples
+- `16` subjects
+- `3600` mesh pairs
+- `6` topology labels: `crop`, `down8k`, `noisy`, `original`, `remesh`, `up60k`
+- pair mode: `cross_topology`
+- train level: `mixed`
+
+At epoch `82`, the saved logs show:
+
+- clean robustness Spearman: `0.823418`
+- clean robustness Pearson: `0.846031`
+- cross-topology mesh clean Spearman: `0.748369`
+- cross-topology mesh Pearson: `0.774026`
+
+At epoch `120`, the final logged values are still strong:
+
+- clean robustness Spearman: `0.794944`
+- clean robustness Pearson: `0.824230`
+- cross-topology mesh clean Spearman: `0.734213`
+- cross-topology mesh Pearson: `0.764397`
+
+For the submission narrative, this should be treated as the current reference model unless a newer run is explicitly selected.
+
+#### Top-model perturbation ranking results on REMESH
+
+The stored REMESH ranking summary for the current top model is:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_chamfer/best_by_xtopo_mesh_clean_split-eval_pairs-cross_topology_agglvl-subject_pair_mean_subjects-100_meshes-10_scenarios-clean-jitter-translation-rotation-mixed/ranking_summary.csv`
+
+It evaluates `100` subjects and `4950` subject pairs. Stored Spearman summaries:
+
+- clean: latent `0.828020`, Chamfer `0.484707`, delta `0.343313`
+- jitter: latent `0.817001`, Chamfer `0.446133`, delta `0.370868`
+- translation: latent `0.825684`, Chamfer `0.480884`, delta `0.344800`
+- rotation: latent `0.826496`, Chamfer `0.480426`, delta `0.346070`
+- mixed: latent `0.799530`, Chamfer `0.432088`, delta `0.367442`
+
+The stored `model_beats_chamfer` flag is `1` in all five scenarios.
+
+The sigma sweep in the same branch covers jitter, translation, rotation, and mixed scenarios at sigmas:
+
+- `0.00`
+- `0.02`
+- `0.05`
+- `0.10`
+- `0.15`
+- `0.20`
+
+For example, under jitter the latent Spearman decreases from `0.828020` at sigma `0.00` to `0.578171` at sigma `0.20`, while still beating the stored Chamfer Spearman at every jitter sweep point.
+
+#### FaceBench latent-vs-geometry aggregate
+
+The current FaceBench comparison summaries live in:
+
+- `faceBench/latentVSpipeline/outputs/baseline_dn_mixed_topology_v1`
+
+The method-level aggregate table reports:
+
+- `raw_chamfer`: metric Spearman mean `0.338320`, latent Spearman mean `0.725293`, model-beats-metric rate `1.0`
+- `rigid_chamfer`: metric Spearman mean `0.292456`, latent Spearman mean `0.729672`, model-beats-metric rate `1.0`
+- `nicp_correspondence`: metric Spearman mean `0.186387`, latent Spearman mean `0.729672`, model-beats-metric rate `1.0`
+- `rigid_cpd_chamfer`: metric Spearman mean `0.011102`, latent Spearman mean `0.729672`, model-beats-metric rate `1.0`
+
+This is the cleanest artifact-backed summary for the paper claim that the learned latent ranking preserves identity structure better than several transparent geometry-only registration pipelines on the REMESH benchmark.
+
+#### FaceVerse external validation snapshot
+
+The FaceVerse branch is now populated enough to treat it as a substantial external validation surface.
+
+Important directories:
+
+- `datasets/FaceVerse/downsampled_with_ops`: `110` operator NPZ files
+- `datasets/FaceVerse/remesh10k_with_ops`: `110` operator NPZ files
+- `datasets/FaceVerse/cross_topology_10k_with_ops`: `220` original/remesh symlinked NPZ entries
+- `datasets/FaceVerse/gt_distance_matrix`: FaceVerse GT distance matrices
+- `datasets/FaceVerse/FINE_tuning`: few-shot fine-tuning manifests, runs, and held-out evaluations
+
+Base full-neutral post-perturb ICP evaluation:
+
+- path: `datasets/FaceVerse/faceverse_ranking_vs_gt_neutral_full_mixed_xtopo_9a81466d_best_by_xtopo_mesh_clean_postperturb_icp/ranking_summary.csv`
+- subjects: `110`
+- samples: `110`
+- pairs: `5995`
+- clean latent Spearman: `0.531864`
+- clean Chamfer Spearman: `0.605202`
+- mixed latent Spearman: `0.476996`
+- mixed Chamfer Spearman: `0.638449`
+
+This result is important because it shows nontrivial zero-shot transfer of the REMESH-trained model to FaceVerse, while also showing that Chamfer remains stronger in the within-topology full-neutral FaceVerse setting.
+
+Cross-topology FaceVerse remesh10k post-perturb ICP evaluation:
+
+- path: `datasets/FaceVerse/faceverse_xtopo10k_ranking_vs_gt_mixed_xtopo_9a81466d_best_by_xtopo_mesh_clean_postperturb_icp/ranking_summary.csv`
+- subjects: `110`
+- samples: `220`
+- subject pairs: `5995`
+- mesh pairs: `11990`
+- clean latent Spearman: `0.114807`
+- clean Chamfer Spearman: `0.598032`
+
+This is a hard external cross-topology setting and should not be presented as a win for the zero-shot model. It is useful because it motivated the few-shot FaceVerse fine-tuning branch.
+
+Few-shot FaceVerse fine-tuning:
+
+- manifest: `datasets/FaceVerse/FINE_tuning/faceverse_finetune_manifest.json`
+- available subjects: `110`
+- shot datasets include `5`, `6`, `10`, `20`, `50`, `75`, and `100` subject variants in the current workspace
+- selected 75-shot cross-topology dataset: `150` symlinked NPZ entries
+
+One strong stored held-out result is:
+
+- `datasets/FaceVerse/FINE_tuning/evals_mixedaug/shot75_heldout_xtopo10k_meshpair_pnoise0.6_sig5e-2_mixed5_id0.5_best_by_xtopo_mesh_clean_postperturb_icp/sigma_sweep_summary.csv`
+
+It evaluates `35` held-out subjects, `70` samples, and `1190` subject pairs. At clean sigma:
+
+- latent Spearman: `0.537433`
+- Chamfer Spearman: `0.403222`
+- delta: `0.134211`
+- model-beats-Chamfer: `1`
+
+At translation sigma `0.10`:
+
+- latent Spearman: `0.485680`
+- Chamfer Spearman: `0.416691`
+- delta: `0.068990`
+- model-beats-Chamfer: `1`
+
+Under heavy jitter, the model degrades and Chamfer can overtake it. That is useful context for the robustness limits of the current FaceVerse fine-tuning branch.
 
 #### WBES trends visible in stored CSVs
 
@@ -209,9 +408,9 @@ There is also a useful artifact-level caveat:
 
 So the evaluation artifacts look strong, but the logging artifact in that folder should not be treated as a clean full training history.
 
-#### Robustness run currently stored in `intrinsic/xyz_baseline`
+#### Older robustness run stored in `intrinsic/xyz_baseline`
 
-The most concrete saved robustness run in the current checkout is:
+An older saved robustness run is:
 
 - `face_embedding/gt_encdec/remeshing/intrinsic/xyz_baseline/mxyz_dn_z256_w128_b4_ks100_poolmeanmax_bs4_tn0_pn0.00_s1.0e-04-3.0e-02_seed1234__d5cbb737/`
 
@@ -269,7 +468,41 @@ Subdirectories:
 
 This area is mostly script-driven. There is no central package entry point. The scripts assume external study folders or local result folders already exist.
 
-## 3.3 `face_embedding/`
+## 3.3 `faceBench/`
+
+This is the FaceBench-based comparison branch. It is now important for the NeurIPS 2026 submission because it connects the learned latent ranking to transparent geometry baselines.
+
+Main area:
+
+- `faceBench/latentVSpipeline/`
+
+What this branch does:
+
+- builds REMESH pair tables
+- runs the real `facebench` library, not only local DIY metrics
+- computes raw Chamfer, rigid ICP, NICP, and registered correspondence distances
+- compares those geometry-only rankings against the current top model's latent ranking
+- aggregates already-produced ranking summaries
+- produces distance-compression figures and density/scatter plots
+
+Important files:
+
+- `faceBench/latentVSpipeline/README.md`
+- `faceBench/latentVSpipeline/run_facebench_remesh.py`
+- `faceBench/latentVSpipeline/run_facebench_remesh_perturbed.py`
+- `faceBench/latentVSpipeline/run_facebench_full_pipeline_perturbed.py`
+- `faceBench/latentVSpipeline/summarize_existing_rankings.py`
+- `faceBench/latentVSpipeline/compare_existing_methods.py`
+- `faceBench/latentVSpipeline/analyze_distance_compression.py`
+- `faceBench/latentVSpipeline/plot_distance_compression_png.py`
+
+The branch is currently pinned to the top model:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth`
+
+Use `faceBench/latentVSpipeline/README.md` for the most direct commands.
+
+## 3.4 `face_embedding/`
 
 This is the mesh embedding and learning area, and it is the real center of gravity of the repository.
 
@@ -287,7 +520,7 @@ Important subareas:
 This is the densest part of the repo in terms of model experimentation.
 If someone asks where the main technical substance is, this is the answer.
 
-## 3.4 `datasets/`
+## 3.5 `datasets/`
 
 This directory is both:
 
@@ -302,13 +535,13 @@ Subdirectories:
 
 Root-level scripts in `datasets/` are important and still useful.
 
-## 3.5 `BFM_to_FLAME/`
+## 3.6 `BFM_to_FLAME/`
 
 This is effectively a vendored external repository. It contains its own nested `.git` directory, its own README, model data, and helper libraries such as `psbody_mesh` and `smpl_webuser`.
 
 It should be treated as a related utility, not as a core part of the WBES or DiffusionNet training pipeline.
 
-## 3.6 `tmp/`
+## 3.7 `tmp/`
 
 Scratch space for temporary experiment outputs, probes, smoke tests, and diagnostics.
 
@@ -364,7 +597,23 @@ It studies whether embeddings remain meaningful when topology changes, noise is 
 
 ### 4.7 Evaluation branch
 
-WBES then acts as the explicit evaluation layer:
+The current evaluation layer is split across three branches.
+
+FaceBench acts as the transparent geometry-comparison layer:
+
+- raw geometry
+- rigid registration
+- non-rigid registration/correspondence
+- distance-compression analysis
+
+FaceVerse acts as the external dataset stress test:
+
+- zero-shot transfer to a different face model family
+- 10k remesh cross-topology variants
+- post-perturbation ICP baselines
+- few-shot fine-tuning and held-out evaluation
+
+WBES acts as the explicit identity-effect-size layer:
 
 - quantify within-subject versus between-subject separation
 - compare identity separability against geometric error
@@ -595,31 +844,45 @@ Important note:
 
 ### `datasets/FaceVerse/`
 
-This subtree contains utilities for FaceVerse-specific processing.
+This subtree has become one of the main external-validation branches for the submission.
 
 Important scripts:
 
 - `downsample_faceverse.py`
 - `validate_downsampled_faceverse.py`
 - `compare_downsampled_suffix_groups.py`
+- `remesh_faceverse_from_npz.py`
+- `assemble_faceverse_cross_topology_dataset.py`
 - `compare_model_vs_chamfer_rankings_faceverse.py`
 - `compare_model_vs_chamfer_rankings_faceverse_sigma_sweep.py`
+- `compare_faceverse_result_dirs.py`
 - `plot_downsampled_mesh.py`
 - `plot_subject_suffix_grid.py`
+- `FINE_tuning/prepare_faceverse_finetune.py`
 
 What this branch does:
 
-- downsample FaceVerse PLY meshes using libigl
-- optionally normalize point clouds/meshes
+- downsample FaceVerse PLY meshes using libigl to about 10k vertices
 - validate counts and alignment statistics
-- compare learned ranking behavior versus Chamfer-like baselines
+- precompute DiffusionNet operators for FaceVerse meshes
+- create remesh10k topology variants through Open3D reconstruction/decimation
+- assemble original/remesh cross-topology datasets through symlinks
+- compare learned ranking behavior versus Chamfer-like baselines and post-perturbation ICP
+- run progressive sigma sweeps
+- prepare few-shot fine-tuning datasets where FaceVerse subjects are exposed as `idXXXX`
+- evaluate held-out FaceVerse cross-topology transfer
 
 Current local state:
 
-- `datasets/FaceVerse/extracted/detail`: missing
-- `datasets/FaceVerse/downsampled`: missing
+- `downsampled_with_ops`: `110` operator NPZ files
+- `remesh10k_with_ops`: `110` operator NPZ files
+- `cross_topology_10k_with_ops`: `220` symlinked original/remesh NPZ entries
+- `gt_distance_matrix`: present
+- `FINE_tuning/faceverse_finetune_manifest.json`: present, with `110` available subjects
+- `FINE_tuning/shot75_cross_topology_with_ops`: `150` symlinked NPZ entries
+- `FINE_tuning/evals_mixedaug`: populated with held-out sigma sweeps
 
-So the scripts are present, but the corresponding local data is not currently available in this checkout.
+The raw extracted FaceVerse PLY directory is not present in this checkout, but the operator-ready downstream assets needed by the current evaluation scripts are present.
 
 ## 6.2 `WBES/`
 
@@ -1353,6 +1616,41 @@ If you want to change the old public entry surface:
 
 In other words, `train_twotower_dn_spec_robust.py` is now the door, not the machinery behind the door.
 
+#### Deep Focus: `newdata/dn_mixed_topology_v1`
+
+This is the current top-model branch for the NeurIPS 2026 submission.
+
+Main directory:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1`
+
+The selected run is:
+
+- `mixed_xtopo_rank0p5_id0p25_bs5_best`
+
+Why it matters:
+
+- it trains on the six REMESH topology variants with operators
+- it uses mixed cross-topology training
+- it stores both robustness-grid and cross-topology mesh logs
+- downstream FaceBench and FaceVerse scripts point to its `best_by_xtopo_mesh_clean.pth` checkpoint
+
+Key result files:
+
+- `best_by_clean.txt`
+- `best_by_auc.txt`
+- `best_by_xtopo_mesh_clean.txt`
+- `train_log.csv`
+- `mixed_train_log.csv`
+- `xtopo_mesh_log.csv`
+- `robustness_grid.csv`
+- `perturbation_ranking_vs_chamfer*/`
+- `perturbation_ranking_vs_registered_chamfer_topology_breakdown/`
+- `perturbation_ranking_vs_nicp_correspondence_topology_breakdown/`
+- `figures/`
+
+Do not treat this directory as just another experiment folder. In the current workspace, it is the reference model/output bundle for paper-facing evaluation.
+
 #### `intrinsic_utils.py`
 
 This is a core utility file for the intrinsic branch.
@@ -1568,6 +1866,42 @@ Start with:
 - `face_embedding/gt_encdec/remeshing/intrinsic/robustness/paths.py`
 - `face_embedding/gt_encdec/remeshing/intrinsic/robustness/model_helpers.py`
 - `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/config.json`
+
+### 7.7 If you want to reproduce the FaceBench paper comparison
+
+Start with:
+
+- `faceBench/latentVSpipeline/README.md`
+- `faceBench/latentVSpipeline/run_facebench_remesh.py`
+- `faceBench/latentVSpipeline/run_facebench_remesh_perturbed.py`
+- `faceBench/latentVSpipeline/summarize_existing_rankings.py`
+- `faceBench/latentVSpipeline/compare_existing_methods.py`
+
+Useful queue/run wrappers:
+
+- `scripts/run_mixed_xtopo_registered_chamfer_eval.sh`
+- `scripts/run_mixed_xtopo_registered_chamfer_rigid_only_eval.sh`
+- `scripts/run_mixed_xtopo_nicp_correspondence_eval.sh`
+- `scripts/run_mixed_xtopo_chamfer_topology_breakdown_scenarios_eval.sh`
+
+### 7.8 If you want to reproduce the FaceVerse validation path
+
+Start with:
+
+- `datasets/FaceVerse/downsample_faceverse.py`
+- `datasets/FaceVerse/remesh_faceverse_from_npz.py`
+- `datasets/FaceVerse/assemble_faceverse_cross_topology_dataset.py`
+- `datasets/FaceVerse/compare_model_vs_chamfer_rankings_faceverse.py`
+- `datasets/FaceVerse/compare_model_vs_chamfer_rankings_faceverse_sigma_sweep.py`
+- `datasets/FaceVerse/FINE_tuning/prepare_faceverse_finetune.py`
+
+Useful queue/run wrappers:
+
+- `scripts/run_mixed_xtopo_faceverse_eval.sh`
+- `scripts/run_mixed_xtopo_faceverse_postperturb_icp_eval.sh`
+- `scripts/prepare_faceverse_remesh10k_xtopo.sh`
+- `scripts/run_mixed_xtopo_faceverse_remesh10k_postperturb_icp_eval.sh`
 
 ## 8. End-to-End Workflow Map
 
@@ -1625,10 +1959,53 @@ There is no single canonical script for the whole repo, but the workflows below 
    - `eval_utils.py`
    - `posthoc_runner.py`
    - plotting/analysis scripts in the intrinsic branch
+5. Select the reference model/checkpoint
+   - current top branch: `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1`
+   - current selected checkpoint: `mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth`
+
+## 8.6 FaceBench latent-vs-geometry workflow
+
+1. Use the top model checkpoint and config from `dn_mixed_topology_v1`
+2. Run FaceBench geometry stages on REMESH pairs
+   - `faceBench/latentVSpipeline/run_facebench_remesh.py`
+   - `faceBench/latentVSpipeline/run_facebench_remesh_perturbed.py`
+3. Collect existing ranking summaries
+   - `faceBench/latentVSpipeline/summarize_existing_rankings.py`
+4. Aggregate method/scenario/topology summaries
+   - `faceBench/latentVSpipeline/compare_existing_methods.py`
+5. Generate distance-compression diagnostics
+   - `faceBench/latentVSpipeline/analyze_distance_compression.py`
+   - `faceBench/latentVSpipeline/plot_distance_compression_png.py`
+
+## 8.7 FaceVerse validation workflow
+
+1. Downsample FaceVerse meshes to about 10k vertices
+   - `datasets/FaceVerse/downsample_faceverse.py`
+2. Precompute DiffusionNet operators
+   - `face_embedding/gt_encdec/autoencoder/precompute_operators_npz.py`
+3. Evaluate within-topology FaceVerse ranking against GT distances
+   - `datasets/FaceVerse/compare_model_vs_chamfer_rankings_faceverse.py`
+   - `scripts/run_mixed_xtopo_faceverse_postperturb_icp_eval.sh`
+4. Build remesh10k FaceVerse cross-topology data
+   - `datasets/FaceVerse/remesh_faceverse_from_npz.py`
+   - `datasets/FaceVerse/assemble_faceverse_cross_topology_dataset.py`
+   - `scripts/prepare_faceverse_remesh10k_xtopo.sh`
+5. Evaluate cross-topology post-perturb ICP ranking and sigma sweeps
+   - `scripts/run_mixed_xtopo_faceverse_remesh10k_postperturb_icp_eval.sh`
+6. Prepare few-shot fine-tuning splits
+   - `datasets/FaceVerse/FINE_tuning/prepare_faceverse_finetune.py`
+7. Train/evaluate held-out FaceVerse variants under `datasets/FaceVerse/FINE_tuning`
 
 ## 9. Dependency Surface
 
-There is no top-level `requirements.txt`, `environment.yml`, or `pyproject.toml` in the repo root. Dependency management is implicit.
+There is no single universal environment file for the whole repo. The current workspace does include partial environment/dependency entry points:
+
+- `environment.twotower_robust.yml`
+- `faceBench/requirements.txt`
+- `faceBench/facebench/pyproject.toml`
+- local virtual environments such as `.venv_twotower_robust_312/`
+
+Dependency management is therefore semi-explicit for the recent robustness/FaceBench work, but still not packaged as one reproducible root environment for every branch.
 
 From the code, the major dependencies are:
 
@@ -1663,7 +2040,14 @@ Several scripts assume these external resources exist outside the repo:
 
 ### 9.2 Environment reality
 
-The local machine currently has a conda environment named `3d`, which was explicitly used during this session.
+The recent scripts and queue wrappers mostly assume:
+
+- `.venv_twotower_robust_312/bin/python`
+- `WBES_DIFFUSION_NET_SRC=/deck/datasets/WBES-FaceEmbedding/diffusion-net/src`
+
+Older FaceVerse downsampling code also references a conda environment at:
+
+- `/home/lpampaloni/miniconda3/envs/3d/bin/python`
 
 Important practical note:
 
@@ -1762,8 +2146,13 @@ If someone needs to become productive in this codebase quickly, this is the best
 6. `face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py`
 7. `face_embedding/gt_encdec/autoencoder/train_autoencoder.py`
 8. `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py`
-9. `WBES/utils/WBES_helper.py`
-10. `WBES/code/WBES_pipeline.py`
+9. `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/config.json`
+10. `faceBench/latentVSpipeline/README.md`
+11. `faceBench/latentVSpipeline/run_facebench_remesh.py`
+12. `datasets/FaceVerse/compare_model_vs_chamfer_rankings_faceverse.py`
+13. `datasets/FaceVerse/FINE_tuning/prepare_faceverse_finetune.py`
+14. `WBES/utils/WBES_helper.py`
+15. `WBES/code/WBES_pipeline.py`
 
 This order moves from:
 
@@ -1771,7 +2160,9 @@ This order moves from:
 - to data and operator infrastructure
 - to model code
 - to robustness experiments
-- to evaluation
+- to current top-model artifacts
+- to FaceBench and FaceVerse evaluation
+- to WBES identity-effect-size analysis
 
 ## 14. What Is Actually Core to the Research Question
 
@@ -1854,10 +2245,23 @@ This is not required to use the repo, but it would make the codebase much easier
   - `WBES/`
   - `face_embedding/gt_encdec/autoencoder/`
   - `face_embedding/gt_encdec/remeshing/intrinsic/robustness/`
+  - `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/`
+  - `datasets/FaceVerse/`
 
 ## 17. Bottom Line
 
-This repository is best understood as a research platform centered on learning identity-preserving 3D face embeddings, with WBES used as a quantitative check on whether those representations are meaningful.
+This repository is best understood as the official NeurIPS 2026 submission workspace for learning identity-preserving 3D face embeddings under topology change.
+
+The current top model is:
+
+- `face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1`
+
+The current paper-facing evaluation surface is:
+
+- REMESH robustness and perturbation ranking under `dn_mixed_topology_v1`
+- FaceBench latent-vs-geometry comparison under `faceBench/latentVSpipeline`
+- FaceVerse external validation and few-shot adaptation under `datasets/FaceVerse`
+- WBES identity-effect-size analysis under `WBES`
 
 The cleanest operational path through the repo today is:
 
@@ -1865,8 +2269,10 @@ The cleanest operational path through the repo today is:
 2. use the preprocessing scripts in `datasets/`,
 3. read the operator precompute and dataset adapter code,
 4. read the autoencoder / encoder model code,
-5. focus on `intrinsic/robustness/` for the most organized current experimental branch,
-6. use `WBES/` to evaluate the identity story from the metric side.
+5. focus on `intrinsic/robustness/` and `newdata/dn_mixed_topology_v1` for the current top model,
+6. use `faceBench/latentVSpipeline/` for paper-facing geometry comparisons,
+7. use `datasets/FaceVerse/` for external validation and few-shot adaptation,
+8. use `WBES/` to evaluate the identity story from the effect-size side.
 
 If you treat the repo like a polished package, it will feel inconsistent.
 If you treat it like an active research workspace with several generations of experiments, it becomes coherent.
