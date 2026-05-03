@@ -71,22 +71,6 @@ The technical center of gravity is:
 
 That is where the repo stops being "metrics around 3D faces" and becomes a real mesh-embedding research codebase.
 
-## Visual Snapshot
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="WBES/plots/wbse_vs_f_lineplot.png" alt="WBES vs F" width="100%">
-      <br>
-      <sub>WBES trends as more frames are averaged</sub>
-    </td>
-    <td align="center">
-      <img src="WBES/utils/landmarks_on_mesh.png" alt="Landmarks on mesh" width="100%">
-      <br>
-      <sub>Landmark-based topology alignment support</sub>
-    </td>
-  </tr>
-</table>
 
 ## What Is In This Repo
 
