@@ -40,3 +40,9 @@ __pycache__/
 /face_embedding/gt_encdec/remeshing/voxel/test/*.csv
 /face_embedding/gt_encdec/remeshing/voxel/test/*.html
 /face_embedding/gt_encdec/remeshing/voxel/test/grid_cache/
+
+# FaceBench pair-level outputs are reproducible and too large for source git.
+/faceBench/latentVSpipeline/outputs/**/*.log
+/faceBench/latentVSpipeline/outputs/**/all_pairs.csv
+/faceBench/latentVSpipeline/outputs/**/pair_metrics.csv
+/faceBench/latentVSpipeline/outputs/**/pair_metrics_with_fg.csv
