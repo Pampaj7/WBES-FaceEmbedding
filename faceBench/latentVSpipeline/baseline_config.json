@@ -1,0 +1,23 @@
+{
+  "baseline_root": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1",
+  "run_dir": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best",
+  "checkpoint_selector": "best_by_xtopo_mesh_clean",
+  "checkpoint": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "model_label": "dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best",
+  "model": "xyz_dn",
+  "latent_dim": 256,
+  "width": 128,
+  "n_blocks": 4,
+  "train_level": "mixed",
+  "train_pair_mode": "cross_topology",
+  "lambda_rank": 0.5,
+  "lambda_id": 0.25,
+  "lambda_mesh": 1.0,
+  "seed": 1234,
+  "existing_ranking_roots": [
+    "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_chamfer_topology_breakdown",
+    "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_registered_chamfer_topology_breakdown",
+    "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/perturbation_ranking_vs_nicp_correspondence_topology_breakdown"
+  ],
+  "recommended_output_dir": "/deck/datasets/WBES-FaceEmbedding/faceBench/latentVSpipeline/outputs/baseline_dn_mixed_topology_v1"
+}

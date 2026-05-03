@@ -1,0 +1,533 @@
+{
+  "checkpoint": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/runs_cleanbias/shot75_pnoise0.3_id0.5/mixed_xtopo_xyz_dn_rank0.50_id0.50_z256_w128_b4_bs5_ks0_poolmeanmax_noise30_sig5e-4-2e-2_latentnoise_warmstart_seed1234__03e903da/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "run_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/runs_cleanbias/shot75_pnoise0.3_id0.5/mixed_xtopo_xyz_dn_rank0.50_id0.50_z256_w128_b4_bs5_ks0_poolmeanmax_noise30_sig5e-4-2e-2_latentnoise_warmstart_seed1234__03e903da",
+  "checkpoint_selector": "best_by_auc",
+  "device": "cuda",
+  "data_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/cross_topology_10k_with_ops",
+  "gt_mesh_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/extracted/detail",
+  "dist_npz": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+  "reference_metric": "gt_vertex_mean_l2",
+  "subject_split": "all",
+  "eval_fraction": 0.2,
+  "seed": 1234,
+  "max_subjects_requested": 0,
+  "max_meshes_per_subject_eval": 2,
+  "pair_mode": "cross_topology",
+  "aggregation_level": "subject_pair_mean",
+  "selected_subjects": [
+    "001",
+    "002",
+    "003",
+    "004",
+    "005",
+    "007",
+    "008",
+    "009",
+    "012",
+    "015",
+    "018",
+    "024",
+    "028",
+    "032",
+    "038",
+    "046",
+    "049",
+    "053",
+    "055",
+    "059",
+    "061",
+    "063",
+    "065",
+    "071",
+    "073",
+    "076",
+    "078",
+    "083",
+    "085",
+    "086",
+    "093",
+    "097",
+    "098",
+    "106",
+    "109"
+  ],
+  "inference_filter_summary": {
+    "pattern": "*_01*.npz",
+    "requested_subject_ids": [
+      "001",
+      "002",
+      "003",
+      "004",
+      "005",
+      "007",
+      "008",
+      "009",
+      "012",
+      "015",
+      "018",
+      "024",
+      "028",
+      "032",
+      "038",
+      "046",
+      "049",
+      "053",
+      "055",
+      "059",
+      "061",
+      "063",
+      "065",
+      "071",
+      "073",
+      "076",
+      "078",
+      "083",
+      "085",
+      "086",
+      "093",
+      "097",
+      "098",
+      "106",
+      "109"
+    ],
+    "requested_pose_ids": [
+      "01"
+    ],
+    "n_subjects": 35,
+    "n_samples": 70,
+    "pose_counts": {
+      "01": 70
+    },
+    "skipped_pattern": 0,
+    "skipped_parse": 0,
+    "skipped_subject": 150,
+    "skipped_pose": 0,
+    "sample_preview": [
+      "001_01_original.npz",
+      "001_01_remesh_10k.npz",
+      "002_01_original.npz",
+      "002_01_remesh_10k.npz",
+      "003_01_original.npz",
+      "003_01_remesh_10k.npz",
+      "004_01_original.npz",
+      "004_01_remesh_10k.npz",
+      "005_01_original.npz",
+      "005_01_remesh_10k.npz",
+      "007_01_original.npz",
+      "007_01_remesh_10k.npz"
+    ]
+  },
+  "gt_filter_summary": {
+    "pattern": "*_01.ply",
+    "requested_subject_ids": [
+      "001",
+      "002",
+      "003",
+      "004",
+      "005",
+      "007",
+      "008",
+      "009",
+      "012",
+      "015",
+      "018",
+      "024",
+      "028",
+      "032",
+      "038",
+      "046",
+      "049",
+      "053",
+      "055",
+      "059",
+      "061",
+      "063",
+      "065",
+      "071",
+      "073",
+      "076",
+      "078",
+      "083",
+      "085",
+      "086",
+      "093",
+      "097",
+      "098",
+      "106",
+      "109"
+    ],
+    "requested_pose_ids": [
+      "01"
+    ],
+    "n_subjects": 35,
+    "n_samples": 35,
+    "pose_counts": {
+      "01": 35
+    },
+    "skipped_pattern": 0,
+    "skipped_parse": 0,
+    "skipped_subject": 0,
+    "skipped_pose": 0,
+    "sample_preview": [
+      "001_01.ply",
+      "002_01.ply",
+      "003_01.ply",
+      "004_01.ply",
+      "005_01.ply",
+      "007_01.ply",
+      "008_01.ply",
+      "009_01.ply",
+      "012_01.ply",
+      "015_01.ply",
+      "018_01.ply",
+      "024_01.ply"
+    ],
+    "source": "distance_cache",
+    "cache_path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+    "gt_mesh_dir_exists": false,
+    "gt_mesh_glob_count": 0
+  },
+  "gt_distance_matrix_summary": {
+    "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+    "metric": "vertex_mean_l2",
+    "status": "loaded_cache",
+    "n_subjects_cached": 110
+  },
+  "eval_plan_summary": {
+    "n_subjects_with_meshes": 35,
+    "total_meshes": 70,
+    "min_meshes_per_subject": 2,
+    "max_meshes_per_subject": 2,
+    "mean_meshes_per_subject": 2.0
+  },
+  "sample_eval_summary": {
+    "n_samples": 70,
+    "n_subjects": 35,
+    "n_topology_labels": 2,
+    "topology_label_counts": {
+      "original": 35,
+      "remesh": 35
+    },
+    "topology_source_counts": {
+      "filename": 70
+    },
+    "topology_signature_counts": {
+      "sig_10100v_19999f_763b793cc315e91a": 1,
+      "sig_10103v_19999f_939408e3b2c463f9": 1,
+      "sig_10106v_19999f_0952c2cf0b93e062": 1,
+      "sig_10109v_19999f_125fe44b26f19c20": 1,
+      "sig_10110v_20000f_49afb8a3d3b58d12": 1,
+      "sig_10110v_20000f_d68344bce3b1c609": 1,
+      "sig_10111v_20000f_cc17c8898a6cb438": 1,
+      "sig_10112v_19999f_c677cca4209087ae": 1,
+      "sig_10112v_20000f_8321a75286828d32": 1,
+      "sig_10113v_19999f_600ba98b5c99fd83": 1,
+      "sig_10113v_19999f_6039bfb97ad3b52c": 1,
+      "sig_10113v_19999f_b57c0a1633b31d5b": 1,
+      "sig_10113v_20000f_79a6027170c8d42d": 1,
+      "sig_10113v_20000f_82a399728575b8b6": 1,
+      "sig_10113v_20000f_834151ed0b2c3894": 1,
+      "sig_10114v_19999f_66b5148929af29a8": 1,
+      "sig_10114v_20000f_4b0d44729332b57f": 1,
+      "sig_10115v_19999f_a97e107055432d0f": 1,
+      "sig_10115v_19999f_e9a6aaaab8e29b7e": 1,
+      "sig_10115v_20000f_5ed08e36a0d03fa2": 1,
+      "sig_10115v_20000f_71b97ecd959aa7fb": 1,
+      "sig_10115v_20000f_ce4bc5d4dbbe6360": 1,
+      "sig_10116v_19999f_60582e95a7c5b68e": 1,
+      "sig_10116v_19999f_7980f2e5dae085ff": 1,
+      "sig_10116v_19999f_fdc3bd1e212b08f6": 1,
+      "sig_10116v_20000f_1babdf448b68e39b": 1,
+      "sig_10118v_19999f_4259895b2b185310": 1,
+      "sig_10119v_19999f_1958320fd510bf7e": 1,
+      "sig_10119v_19999f_3824f38be4478827": 1,
+      "sig_10119v_19999f_8a1364a1efb436ed": 1,
+      "sig_10120v_19999f_dea231c65edc6d15": 1,
+      "sig_10120v_20000f_524a30e90122be26": 1,
+      "sig_10121v_20000f_8372ebe58e6fce39": 1,
+      "sig_10123v_20000f_bc65d76b100235e3": 1,
+      "sig_10123v_20000f_d66d3ed962c16493": 1,
+      "sig_10146v_19999f_29c3db84b75abe30": 1,
+      "sig_10146v_19999f_b2e6cde9b889aca8": 1,
+      "sig_10147v_19999f_bb55aeacae9c37d8": 1,
+      "sig_10147v_20000f_fff2a289ef6b7f0f": 1,
+      "sig_10148v_19999f_3be1a1f030ddb8f8": 1,
+      "sig_10149v_19999f_74de61107089559f": 1,
+      "sig_10150v_19999f_a121677695c1747c": 1,
+      "sig_10150v_20000f_3c03efac4fc8c32c": 1,
+      "sig_10150v_20000f_5870b19d84e59fd4": 1,
+      "sig_10151v_19999f_0a306d652b5074c3": 1,
+      "sig_10151v_19999f_3505193675d17c95": 1,
+      "sig_10151v_19999f_64d242052a9d11cd": 1,
+      "sig_10151v_19999f_d49604b06e271ab0": 1,
+      "sig_10151v_19999f_db47662a7069488c": 1,
+      "sig_10151v_20000f_ee4407b93a62431b": 1,
+      "sig_10152v_19999f_7bd2d159fe52ff32": 1,
+      "sig_10152v_19999f_b57b10f8db65418a": 1,
+      "sig_10152v_19999f_f9662672f0fa1754": 1,
+      "sig_10152v_19999f_febfa440789a13ea": 1,
+      "sig_10152v_20000f_8278d16a8655a5d5": 1,
+      "sig_10153v_19999f_08f1bca7cf5913a2": 1,
+      "sig_10153v_20000f_2697796b312f7f1e": 1,
+      "sig_10154v_19999f_406fd51f5ed1a6fa": 1,
+      "sig_10154v_20000f_bfc5fb0e01a1c22d": 1,
+      "sig_10155v_19999f_1c119630f17c3dba": 1,
+      "sig_10155v_19999f_770206813af71514": 1,
+      "sig_10155v_19999f_7ce8bf947ee41676": 1,
+      "sig_10155v_19999f_931dd8646ab0e844": 1,
+      "sig_10155v_19999f_b0e6cd85817e2b44": 1,
+      "sig_10155v_20000f_5f906c6416e35132": 1,
+      "sig_10155v_20000f_7b2beb93a8e80ee6": 1,
+      "sig_10156v_20000f_ab2be57903771f5d": 1,
+      "sig_10156v_20000f_ab732d3c12a1813a": 1,
+      "sig_10156v_20000f_ab8cd425f6d9cb27": 1,
+      "sig_10163v_19999f_28eea77e891f445d": 1
+    },
+    "topology_label_summary": [
+      {
+        "topology_label": "original",
+        "n_samples": 35,
+        "n_subjects": 35,
+        "n_signatures": 35
+      },
+      {
+        "topology_label": "remesh",
+        "n_samples": 35,
+        "n_subjects": 35,
+        "n_signatures": 35
+      }
+    ],
+    "sample_preview": [
+      {
+        "dataset_idx": 0,
+        "sample_name": "001_01_original",
+        "subject_id": "001",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10151,
+          "n_faces": 19999,
+          "faces_sha1_16": "d49604b06e271ab0",
+          "signature_key": "sig_10151v_19999f_d49604b06e271ab0"
+        }
+      },
+      {
+        "dataset_idx": 1,
+        "sample_name": "001_01_remesh_10k",
+        "subject_id": "001",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10116,
+          "n_faces": 19999,
+          "faces_sha1_16": "7980f2e5dae085ff",
+          "signature_key": "sig_10116v_19999f_7980f2e5dae085ff"
+        }
+      },
+      {
+        "dataset_idx": 2,
+        "sample_name": "002_01_original",
+        "subject_id": "002",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10154,
+          "n_faces": 20000,
+          "faces_sha1_16": "bfc5fb0e01a1c22d",
+          "signature_key": "sig_10154v_20000f_bfc5fb0e01a1c22d"
+        }
+      },
+      {
+        "dataset_idx": 3,
+        "sample_name": "002_01_remesh_10k",
+        "subject_id": "002",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10120,
+          "n_faces": 19999,
+          "faces_sha1_16": "dea231c65edc6d15",
+          "signature_key": "sig_10120v_19999f_dea231c65edc6d15"
+        }
+      },
+      {
+        "dataset_idx": 4,
+        "sample_name": "003_01_original",
+        "subject_id": "003",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10154,
+          "n_faces": 19999,
+          "faces_sha1_16": "406fd51f5ed1a6fa",
+          "signature_key": "sig_10154v_19999f_406fd51f5ed1a6fa"
+        }
+      },
+      {
+        "dataset_idx": 5,
+        "sample_name": "003_01_remesh_10k",
+        "subject_id": "003",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10106,
+          "n_faces": 19999,
+          "faces_sha1_16": "0952c2cf0b93e062",
+          "signature_key": "sig_10106v_19999f_0952c2cf0b93e062"
+        }
+      },
+      {
+        "dataset_idx": 6,
+        "sample_name": "004_01_original",
+        "subject_id": "004",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10151,
+          "n_faces": 19999,
+          "faces_sha1_16": "3505193675d17c95",
+          "signature_key": "sig_10151v_19999f_3505193675d17c95"
+        }
+      },
+      {
+        "dataset_idx": 7,
+        "sample_name": "004_01_remesh_10k",
+        "subject_id": "004",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10111,
+          "n_faces": 20000,
+          "faces_sha1_16": "cc17c8898a6cb438",
+          "signature_key": "sig_10111v_20000f_cc17c8898a6cb438"
+        }
+      },
+      {
+        "dataset_idx": 8,
+        "sample_name": "005_01_original",
+        "subject_id": "005",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10146,
+          "n_faces": 19999,
+          "faces_sha1_16": "29c3db84b75abe30",
+          "signature_key": "sig_10146v_19999f_29c3db84b75abe30"
+        }
+      },
+      {
+        "dataset_idx": 9,
+        "sample_name": "005_01_remesh_10k",
+        "subject_id": "005",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10113,
+          "n_faces": 19999,
+          "faces_sha1_16": "6039bfb97ad3b52c",
+          "signature_key": "sig_10113v_19999f_6039bfb97ad3b52c"
+        }
+      },
+      {
+        "dataset_idx": 12,
+        "sample_name": "007_01_original",
+        "subject_id": "007",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10151,
+          "n_faces": 19999,
+          "faces_sha1_16": "64d242052a9d11cd",
+          "signature_key": "sig_10151v_19999f_64d242052a9d11cd"
+        }
+      },
+      {
+        "dataset_idx": 13,
+        "sample_name": "007_01_remesh_10k",
+        "subject_id": "007",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10103,
+          "n_faces": 19999,
+          "faces_sha1_16": "939408e3b2c463f9",
+          "signature_key": "sig_10103v_19999f_939408e3b2c463f9"
+        }
+      }
+    ]
+  },
+  "pair_context": {
+    "n_subjects": 35,
+    "n_samples": 70,
+    "n_pairs": 595,
+    "n_mesh_pairs": 1190,
+    "n_subject_pairs": 595,
+    "n_topology_labels": 2
+  },
+  "chamfer_protocol": {
+    "use_icp": true,
+    "alignment_stage": "perturbed_pairs",
+    "icp_points": 2048,
+    "icp_max_correspondence_distance": 0.05,
+    "icp_max_iteration": 20,
+    "icp_workers": 8
+  },
+  "chamfer_cache_verts": {
+    "mode": "force",
+    "enabled": true,
+    "device": "cuda",
+    "vertex_bytes": 8511948,
+    "vertex_mb": 8.117626190185547,
+    "reason": "cached"
+  },
+  "perturbation_params": {
+    "rigid_rot_deg": 20.0,
+    "rigid_trans_scale": 0.05,
+    "rigid_rot_deg_min": 1.0,
+    "rigid_trans_scale_min": 0.002
+  },
+  "sweep": {
+    "scenario": "translation",
+    "sigma": 0.0,
+    "include_clean_once": true,
+    "scenario_parameters": {
+      "jitter_sigma": 0.0,
+      "rotation_sigma": 0.0,
+      "translation_sigma": 0.0,
+      "rotation_angle_max_deg": 0.0,
+      "translation_axis_std": 0.0
+    }
+  },
+  "clean_baseline": {
+    "scenario": "clean",
+    "latent_spearman": 0.575304109848129,
+    "latent_pearson": 0.5975774149471997,
+    "chamfer_spearman": 0.5145824610096226,
+    "chamfer_pearson": 0.5499310432483412,
+    "n_pairs": 595,
+    "n_mesh_pairs": 1190,
+    "n_subject_pairs": 595,
+    "n_subjects": 35,
+    "n_samples": 70,
+    "delta_spearman": 0.06072164883850639,
+    "delta_pearson": 0.04764637169885855,
+    "model_beats_chamfer": true
+  },
+  "rows": [
+    {
+      "scenario": "translation",
+      "latent_spearman": 0.575304109848129,
+      "latent_pearson": 0.5975774149471997,
+      "chamfer_spearman": 0.5145824610096226,
+      "chamfer_pearson": 0.5499310432483412,
+      "n_pairs": 595,
+      "n_mesh_pairs": 1190,
+      "n_subject_pairs": 595,
+      "n_subjects": 35,
+      "n_samples": 70,
+      "delta_spearman": 0.06072164883850639,
+      "delta_pearson": 0.04764637169885855,
+      "model_beats_chamfer": true
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+scenario,reference_metric,jitter_sigma,rotation_sigma,translation_sigma,rotation_angle_max_deg,translation_axis_std,latent_spearman,chamfer_spearman,delta_spearman,latent_pearson,chamfer_pearson,delta_pearson,model_beats_chamfer,n_subjects,n_samples,n_pairs,n_mesh_pairs,n_subject_pairs
+jitter,gt_vertex_mean_l2,0.000000e+00,0.000000e+00,0.000000e+00,0.000000,0.000000,0.523979,0.570883,-0.046904,0.532734,0.543788,-0.011054,0,10,20,45,90,45

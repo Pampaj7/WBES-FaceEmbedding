@@ -1,0 +1,3630 @@
+{
+  "converted_dist_npz": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/faceverse_id_distance_matrix.npz",
+  "gt_dist_npz": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+  "n_available_subjects": 110,
+  "seed": 1234,
+  "shots": {
+    "10": {
+      "faceverse_subject_ids": [
+        "016",
+        "020",
+        "023",
+        "035",
+        "042",
+        "087",
+        "088",
+        "091",
+        "094",
+        "100"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014",
+        "015",
+        "017",
+        "018",
+        "019",
+        "021",
+        "022",
+        "024",
+        "025",
+        "026",
+        "027",
+        "028",
+        "029",
+        "030",
+        "031",
+        "032",
+        "033",
+        "034",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "059",
+        "060",
+        "061",
+        "062",
+        "063",
+        "064",
+        "065",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "071",
+        "072",
+        "073",
+        "074",
+        "075",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "083",
+        "084",
+        "085",
+        "086",
+        "089",
+        "090",
+        "092",
+        "093",
+        "095",
+        "096",
+        "097",
+        "098",
+        "099",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106",
+        "107",
+        "108",
+        "109",
+        "110"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0035_GTready_faceverse_original.npz",
+          "subject": "id0035",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0035_GTready_faceverse_remesh10k.npz",
+          "subject": "id0035",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0088_GTready_faceverse_original.npz",
+          "subject": "id0088",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0088_GTready_faceverse_remesh10k.npz",
+          "subject": "id0088",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0091_GTready_faceverse_original.npz",
+          "subject": "id0091",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0091_GTready_faceverse_remesh10k.npz",
+          "subject": "id0091",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0094_GTready_faceverse_original.npz",
+          "subject": "id0094",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0094_GTready_faceverse_remesh10k.npz",
+          "subject": "id0094",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 20,
+      "n_subjects": 10,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops",
+      "subjects": [
+        "id0016",
+        "id0020",
+        "id0023",
+        "id0035",
+        "id0042",
+        "id0087",
+        "id0088",
+        "id0091",
+        "id0094",
+        "id0100"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot10_cross_topology_with_ops_train_subject_ids.txt"
+    },
+    "100": {
+      "faceverse_subject_ids": [
+        "001",
+        "003",
+        "004",
+        "006",
+        "007",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014",
+        "016",
+        "017",
+        "018",
+        "019",
+        "020",
+        "021",
+        "022",
+        "023",
+        "024",
+        "025",
+        "026",
+        "027",
+        "028",
+        "029",
+        "030",
+        "031",
+        "033",
+        "034",
+        "035",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "042",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "060",
+        "061",
+        "062",
+        "063",
+        "064",
+        "065",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "072",
+        "073",
+        "074",
+        "075",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "084",
+        "085",
+        "086",
+        "087",
+        "088",
+        "089",
+        "090",
+        "091",
+        "092",
+        "093",
+        "094",
+        "095",
+        "096",
+        "097",
+        "098",
+        "099",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "107",
+        "108",
+        "109",
+        "110"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "002",
+        "005",
+        "008",
+        "015",
+        "032",
+        "053",
+        "059",
+        "071",
+        "083",
+        "106"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0001_GTready_faceverse_original.npz",
+          "subject": "id0001",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0001_GTready_faceverse_remesh10k.npz",
+          "subject": "id0001",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0003_GTready_faceverse_original.npz",
+          "subject": "id0003",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0003_GTready_faceverse_remesh10k.npz",
+          "subject": "id0003",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0004_GTready_faceverse_original.npz",
+          "subject": "id0004",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0004_GTready_faceverse_remesh10k.npz",
+          "subject": "id0004",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0006_GTready_faceverse_original.npz",
+          "subject": "id0006",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0006_GTready_faceverse_remesh10k.npz",
+          "subject": "id0006",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0007_GTready_faceverse_original.npz",
+          "subject": "id0007",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0007_GTready_faceverse_remesh10k.npz",
+          "subject": "id0007",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0009_GTready_faceverse_original.npz",
+          "subject": "id0009",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0009_GTready_faceverse_remesh10k.npz",
+          "subject": "id0009",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0010_GTready_faceverse_original.npz",
+          "subject": "id0010",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0010_GTready_faceverse_remesh10k.npz",
+          "subject": "id0010",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0011_GTready_faceverse_original.npz",
+          "subject": "id0011",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0011_GTready_faceverse_remesh10k.npz",
+          "subject": "id0011",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0012_GTready_faceverse_original.npz",
+          "subject": "id0012",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0012_GTready_faceverse_remesh10k.npz",
+          "subject": "id0012",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0013_GTready_faceverse_original.npz",
+          "subject": "id0013",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0013_GTready_faceverse_remesh10k.npz",
+          "subject": "id0013",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0014_GTready_faceverse_original.npz",
+          "subject": "id0014",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0014_GTready_faceverse_remesh10k.npz",
+          "subject": "id0014",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0017_GTready_faceverse_original.npz",
+          "subject": "id0017",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0017_GTready_faceverse_remesh10k.npz",
+          "subject": "id0017",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0018_GTready_faceverse_original.npz",
+          "subject": "id0018",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0018_GTready_faceverse_remesh10k.npz",
+          "subject": "id0018",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0019_GTready_faceverse_original.npz",
+          "subject": "id0019",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0019_GTready_faceverse_remesh10k.npz",
+          "subject": "id0019",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0021_GTready_faceverse_original.npz",
+          "subject": "id0021",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0021_GTready_faceverse_remesh10k.npz",
+          "subject": "id0021",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0022_GTready_faceverse_original.npz",
+          "subject": "id0022",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0022_GTready_faceverse_remesh10k.npz",
+          "subject": "id0022",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0024_GTready_faceverse_original.npz",
+          "subject": "id0024",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0024_GTready_faceverse_remesh10k.npz",
+          "subject": "id0024",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0025_GTready_faceverse_original.npz",
+          "subject": "id0025",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0025_GTready_faceverse_remesh10k.npz",
+          "subject": "id0025",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0026_GTready_faceverse_original.npz",
+          "subject": "id0026",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0026_GTready_faceverse_remesh10k.npz",
+          "subject": "id0026",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0027_GTready_faceverse_original.npz",
+          "subject": "id0027",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0027_GTready_faceverse_remesh10k.npz",
+          "subject": "id0027",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0028_GTready_faceverse_original.npz",
+          "subject": "id0028",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0028_GTready_faceverse_remesh10k.npz",
+          "subject": "id0028",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0029_GTready_faceverse_original.npz",
+          "subject": "id0029",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0029_GTready_faceverse_remesh10k.npz",
+          "subject": "id0029",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0030_GTready_faceverse_original.npz",
+          "subject": "id0030",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0030_GTready_faceverse_remesh10k.npz",
+          "subject": "id0030",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0031_GTready_faceverse_original.npz",
+          "subject": "id0031",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0031_GTready_faceverse_remesh10k.npz",
+          "subject": "id0031",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0033_GTready_faceverse_original.npz",
+          "subject": "id0033",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0033_GTready_faceverse_remesh10k.npz",
+          "subject": "id0033",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0034_GTready_faceverse_original.npz",
+          "subject": "id0034",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0034_GTready_faceverse_remesh10k.npz",
+          "subject": "id0034",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0035_GTready_faceverse_original.npz",
+          "subject": "id0035",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0035_GTready_faceverse_remesh10k.npz",
+          "subject": "id0035",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0036_GTready_faceverse_original.npz",
+          "subject": "id0036",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0036_GTready_faceverse_remesh10k.npz",
+          "subject": "id0036",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0037_GTready_faceverse_original.npz",
+          "subject": "id0037",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0037_GTready_faceverse_remesh10k.npz",
+          "subject": "id0037",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0038_GTready_faceverse_original.npz",
+          "subject": "id0038",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0038_GTready_faceverse_remesh10k.npz",
+          "subject": "id0038",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0039_GTready_faceverse_original.npz",
+          "subject": "id0039",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0039_GTready_faceverse_remesh10k.npz",
+          "subject": "id0039",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0040_GTready_faceverse_original.npz",
+          "subject": "id0040",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0040_GTready_faceverse_remesh10k.npz",
+          "subject": "id0040",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0041_GTready_faceverse_original.npz",
+          "subject": "id0041",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0041_GTready_faceverse_remesh10k.npz",
+          "subject": "id0041",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0043_GTready_faceverse_original.npz",
+          "subject": "id0043",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0043_GTready_faceverse_remesh10k.npz",
+          "subject": "id0043",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0044_GTready_faceverse_original.npz",
+          "subject": "id0044",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0044_GTready_faceverse_remesh10k.npz",
+          "subject": "id0044",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0045_GTready_faceverse_original.npz",
+          "subject": "id0045",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0045_GTready_faceverse_remesh10k.npz",
+          "subject": "id0045",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0046_GTready_faceverse_original.npz",
+          "subject": "id0046",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0046_GTready_faceverse_remesh10k.npz",
+          "subject": "id0046",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0047_GTready_faceverse_original.npz",
+          "subject": "id0047",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0047_GTready_faceverse_remesh10k.npz",
+          "subject": "id0047",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0048_GTready_faceverse_original.npz",
+          "subject": "id0048",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0048_GTready_faceverse_remesh10k.npz",
+          "subject": "id0048",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0049_GTready_faceverse_original.npz",
+          "subject": "id0049",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0049_GTready_faceverse_remesh10k.npz",
+          "subject": "id0049",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0050_GTready_faceverse_original.npz",
+          "subject": "id0050",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0050_GTready_faceverse_remesh10k.npz",
+          "subject": "id0050",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0051_GTready_faceverse_original.npz",
+          "subject": "id0051",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0051_GTready_faceverse_remesh10k.npz",
+          "subject": "id0051",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0052_GTready_faceverse_original.npz",
+          "subject": "id0052",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0052_GTready_faceverse_remesh10k.npz",
+          "subject": "id0052",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0054_GTready_faceverse_original.npz",
+          "subject": "id0054",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0054_GTready_faceverse_remesh10k.npz",
+          "subject": "id0054",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0055_GTready_faceverse_original.npz",
+          "subject": "id0055",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0055_GTready_faceverse_remesh10k.npz",
+          "subject": "id0055",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0056_GTready_faceverse_original.npz",
+          "subject": "id0056",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0056_GTready_faceverse_remesh10k.npz",
+          "subject": "id0056",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0057_GTready_faceverse_original.npz",
+          "subject": "id0057",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0057_GTready_faceverse_remesh10k.npz",
+          "subject": "id0057",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0058_GTready_faceverse_original.npz",
+          "subject": "id0058",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0058_GTready_faceverse_remesh10k.npz",
+          "subject": "id0058",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0060_GTready_faceverse_original.npz",
+          "subject": "id0060",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0060_GTready_faceverse_remesh10k.npz",
+          "subject": "id0060",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0061_GTready_faceverse_original.npz",
+          "subject": "id0061",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0061_GTready_faceverse_remesh10k.npz",
+          "subject": "id0061",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0062_GTready_faceverse_original.npz",
+          "subject": "id0062",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0062_GTready_faceverse_remesh10k.npz",
+          "subject": "id0062",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0063_GTready_faceverse_original.npz",
+          "subject": "id0063",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0063_GTready_faceverse_remesh10k.npz",
+          "subject": "id0063",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0064_GTready_faceverse_original.npz",
+          "subject": "id0064",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0064_GTready_faceverse_remesh10k.npz",
+          "subject": "id0064",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0065_GTready_faceverse_original.npz",
+          "subject": "id0065",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0065_GTready_faceverse_remesh10k.npz",
+          "subject": "id0065",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0066_GTready_faceverse_original.npz",
+          "subject": "id0066",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0066_GTready_faceverse_remesh10k.npz",
+          "subject": "id0066",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0067_GTready_faceverse_original.npz",
+          "subject": "id0067",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0067_GTready_faceverse_remesh10k.npz",
+          "subject": "id0067",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0068_GTready_faceverse_original.npz",
+          "subject": "id0068",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0068_GTready_faceverse_remesh10k.npz",
+          "subject": "id0068",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0069_GTready_faceverse_original.npz",
+          "subject": "id0069",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0069_GTready_faceverse_remesh10k.npz",
+          "subject": "id0069",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0070_GTready_faceverse_original.npz",
+          "subject": "id0070",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0070_GTready_faceverse_remesh10k.npz",
+          "subject": "id0070",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0072_GTready_faceverse_original.npz",
+          "subject": "id0072",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0072_GTready_faceverse_remesh10k.npz",
+          "subject": "id0072",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0073_GTready_faceverse_original.npz",
+          "subject": "id0073",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0073_GTready_faceverse_remesh10k.npz",
+          "subject": "id0073",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0074_GTready_faceverse_original.npz",
+          "subject": "id0074",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0074_GTready_faceverse_remesh10k.npz",
+          "subject": "id0074",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0075_GTready_faceverse_original.npz",
+          "subject": "id0075",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0075_GTready_faceverse_remesh10k.npz",
+          "subject": "id0075",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0076_GTready_faceverse_original.npz",
+          "subject": "id0076",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0076_GTready_faceverse_remesh10k.npz",
+          "subject": "id0076",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0077_GTready_faceverse_original.npz",
+          "subject": "id0077",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0077_GTready_faceverse_remesh10k.npz",
+          "subject": "id0077",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0078_GTready_faceverse_original.npz",
+          "subject": "id0078",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0078_GTready_faceverse_remesh10k.npz",
+          "subject": "id0078",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0079_GTready_faceverse_original.npz",
+          "subject": "id0079",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0079_GTready_faceverse_remesh10k.npz",
+          "subject": "id0079",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0080_GTready_faceverse_original.npz",
+          "subject": "id0080",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0080_GTready_faceverse_remesh10k.npz",
+          "subject": "id0080",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0081_GTready_faceverse_original.npz",
+          "subject": "id0081",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0081_GTready_faceverse_remesh10k.npz",
+          "subject": "id0081",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0082_GTready_faceverse_original.npz",
+          "subject": "id0082",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0082_GTready_faceverse_remesh10k.npz",
+          "subject": "id0082",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0084_GTready_faceverse_original.npz",
+          "subject": "id0084",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0084_GTready_faceverse_remesh10k.npz",
+          "subject": "id0084",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0085_GTready_faceverse_original.npz",
+          "subject": "id0085",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0085_GTready_faceverse_remesh10k.npz",
+          "subject": "id0085",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0086_GTready_faceverse_original.npz",
+          "subject": "id0086",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0086_GTready_faceverse_remesh10k.npz",
+          "subject": "id0086",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0088_GTready_faceverse_original.npz",
+          "subject": "id0088",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0088_GTready_faceverse_remesh10k.npz",
+          "subject": "id0088",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0089_GTready_faceverse_original.npz",
+          "subject": "id0089",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0089_GTready_faceverse_remesh10k.npz",
+          "subject": "id0089",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0090_GTready_faceverse_original.npz",
+          "subject": "id0090",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0090_GTready_faceverse_remesh10k.npz",
+          "subject": "id0090",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0091_GTready_faceverse_original.npz",
+          "subject": "id0091",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0091_GTready_faceverse_remesh10k.npz",
+          "subject": "id0091",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0092_GTready_faceverse_original.npz",
+          "subject": "id0092",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0092_GTready_faceverse_remesh10k.npz",
+          "subject": "id0092",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0093_GTready_faceverse_original.npz",
+          "subject": "id0093",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0093_GTready_faceverse_remesh10k.npz",
+          "subject": "id0093",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0094_GTready_faceverse_original.npz",
+          "subject": "id0094",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0094_GTready_faceverse_remesh10k.npz",
+          "subject": "id0094",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0095_GTready_faceverse_original.npz",
+          "subject": "id0095",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0095_GTready_faceverse_remesh10k.npz",
+          "subject": "id0095",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0096_GTready_faceverse_original.npz",
+          "subject": "id0096",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0096_GTready_faceverse_remesh10k.npz",
+          "subject": "id0096",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0097_GTready_faceverse_original.npz",
+          "subject": "id0097",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0097_GTready_faceverse_remesh10k.npz",
+          "subject": "id0097",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0098_GTready_faceverse_original.npz",
+          "subject": "id0098",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0098_GTready_faceverse_remesh10k.npz",
+          "subject": "id0098",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0099_GTready_faceverse_original.npz",
+          "subject": "id0099",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0099_GTready_faceverse_remesh10k.npz",
+          "subject": "id0099",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0101_GTready_faceverse_original.npz",
+          "subject": "id0101",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0101_GTready_faceverse_remesh10k.npz",
+          "subject": "id0101",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0102_GTready_faceverse_original.npz",
+          "subject": "id0102",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0102_GTready_faceverse_remesh10k.npz",
+          "subject": "id0102",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0103_GTready_faceverse_original.npz",
+          "subject": "id0103",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0103_GTready_faceverse_remesh10k.npz",
+          "subject": "id0103",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0104_GTready_faceverse_original.npz",
+          "subject": "id0104",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0104_GTready_faceverse_remesh10k.npz",
+          "subject": "id0104",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0105_GTready_faceverse_original.npz",
+          "subject": "id0105",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0105_GTready_faceverse_remesh10k.npz",
+          "subject": "id0105",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0107_GTready_faceverse_original.npz",
+          "subject": "id0107",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0107_GTready_faceverse_remesh10k.npz",
+          "subject": "id0107",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0108_GTready_faceverse_original.npz",
+          "subject": "id0108",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0108_GTready_faceverse_remesh10k.npz",
+          "subject": "id0108",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0109_GTready_faceverse_original.npz",
+          "subject": "id0109",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0109_GTready_faceverse_remesh10k.npz",
+          "subject": "id0109",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0110_GTready_faceverse_original.npz",
+          "subject": "id0110",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops/id0110_GTready_faceverse_remesh10k.npz",
+          "subject": "id0110",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 200,
+      "n_subjects": 100,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops",
+      "subjects": [
+        "id0001",
+        "id0003",
+        "id0004",
+        "id0006",
+        "id0007",
+        "id0009",
+        "id0010",
+        "id0011",
+        "id0012",
+        "id0013",
+        "id0014",
+        "id0016",
+        "id0017",
+        "id0018",
+        "id0019",
+        "id0020",
+        "id0021",
+        "id0022",
+        "id0023",
+        "id0024",
+        "id0025",
+        "id0026",
+        "id0027",
+        "id0028",
+        "id0029",
+        "id0030",
+        "id0031",
+        "id0033",
+        "id0034",
+        "id0035",
+        "id0036",
+        "id0037",
+        "id0038",
+        "id0039",
+        "id0040",
+        "id0041",
+        "id0042",
+        "id0043",
+        "id0044",
+        "id0045",
+        "id0046",
+        "id0047",
+        "id0048",
+        "id0049",
+        "id0050",
+        "id0051",
+        "id0052",
+        "id0054",
+        "id0055",
+        "id0056",
+        "id0057",
+        "id0058",
+        "id0060",
+        "id0061",
+        "id0062",
+        "id0063",
+        "id0064",
+        "id0065",
+        "id0066",
+        "id0067",
+        "id0068",
+        "id0069",
+        "id0070",
+        "id0072",
+        "id0073",
+        "id0074",
+        "id0075",
+        "id0076",
+        "id0077",
+        "id0078",
+        "id0079",
+        "id0080",
+        "id0081",
+        "id0082",
+        "id0084",
+        "id0085",
+        "id0086",
+        "id0087",
+        "id0088",
+        "id0089",
+        "id0090",
+        "id0091",
+        "id0092",
+        "id0093",
+        "id0094",
+        "id0095",
+        "id0096",
+        "id0097",
+        "id0098",
+        "id0099",
+        "id0100",
+        "id0101",
+        "id0102",
+        "id0103",
+        "id0104",
+        "id0105",
+        "id0107",
+        "id0108",
+        "id0109",
+        "id0110"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot100_cross_topology_with_ops_train_subject_ids.txt"
+    },
+    "20": {
+      "faceverse_subject_ids": [
+        "014",
+        "016",
+        "020",
+        "023",
+        "025",
+        "027",
+        "030",
+        "035",
+        "042",
+        "062",
+        "067",
+        "068",
+        "075",
+        "087",
+        "088",
+        "091",
+        "094",
+        "100",
+        "102",
+        "107"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "015",
+        "017",
+        "018",
+        "019",
+        "021",
+        "022",
+        "024",
+        "026",
+        "028",
+        "029",
+        "031",
+        "032",
+        "033",
+        "034",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "059",
+        "060",
+        "061",
+        "063",
+        "064",
+        "065",
+        "066",
+        "069",
+        "070",
+        "071",
+        "072",
+        "073",
+        "074",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "083",
+        "084",
+        "085",
+        "086",
+        "089",
+        "090",
+        "092",
+        "093",
+        "095",
+        "096",
+        "097",
+        "098",
+        "099",
+        "101",
+        "103",
+        "104",
+        "105",
+        "106",
+        "108",
+        "109",
+        "110"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0014_GTready_faceverse_original.npz",
+          "subject": "id0014",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0014_GTready_faceverse_remesh10k.npz",
+          "subject": "id0014",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0025_GTready_faceverse_original.npz",
+          "subject": "id0025",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0025_GTready_faceverse_remesh10k.npz",
+          "subject": "id0025",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0027_GTready_faceverse_original.npz",
+          "subject": "id0027",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0027_GTready_faceverse_remesh10k.npz",
+          "subject": "id0027",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0030_GTready_faceverse_original.npz",
+          "subject": "id0030",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0030_GTready_faceverse_remesh10k.npz",
+          "subject": "id0030",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0035_GTready_faceverse_original.npz",
+          "subject": "id0035",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0035_GTready_faceverse_remesh10k.npz",
+          "subject": "id0035",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0062_GTready_faceverse_original.npz",
+          "subject": "id0062",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0062_GTready_faceverse_remesh10k.npz",
+          "subject": "id0062",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0067_GTready_faceverse_original.npz",
+          "subject": "id0067",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0067_GTready_faceverse_remesh10k.npz",
+          "subject": "id0067",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0068_GTready_faceverse_original.npz",
+          "subject": "id0068",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0068_GTready_faceverse_remesh10k.npz",
+          "subject": "id0068",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0075_GTready_faceverse_original.npz",
+          "subject": "id0075",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0075_GTready_faceverse_remesh10k.npz",
+          "subject": "id0075",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0088_GTready_faceverse_original.npz",
+          "subject": "id0088",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0088_GTready_faceverse_remesh10k.npz",
+          "subject": "id0088",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0091_GTready_faceverse_original.npz",
+          "subject": "id0091",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0091_GTready_faceverse_remesh10k.npz",
+          "subject": "id0091",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0094_GTready_faceverse_original.npz",
+          "subject": "id0094",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0094_GTready_faceverse_remesh10k.npz",
+          "subject": "id0094",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0102_GTready_faceverse_original.npz",
+          "subject": "id0102",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0102_GTready_faceverse_remesh10k.npz",
+          "subject": "id0102",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0107_GTready_faceverse_original.npz",
+          "subject": "id0107",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops/id0107_GTready_faceverse_remesh10k.npz",
+          "subject": "id0107",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 40,
+      "n_subjects": 20,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops",
+      "subjects": [
+        "id0014",
+        "id0016",
+        "id0020",
+        "id0023",
+        "id0025",
+        "id0027",
+        "id0030",
+        "id0035",
+        "id0042",
+        "id0062",
+        "id0067",
+        "id0068",
+        "id0075",
+        "id0087",
+        "id0088",
+        "id0091",
+        "id0094",
+        "id0100",
+        "id0102",
+        "id0107"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot20_cross_topology_with_ops_train_subject_ids.txt"
+    },
+    "50": {
+      "faceverse_subject_ids": [
+        "006",
+        "011",
+        "014",
+        "016",
+        "019",
+        "020",
+        "022",
+        "023",
+        "025",
+        "026",
+        "027",
+        "030",
+        "033",
+        "034",
+        "035",
+        "040",
+        "041",
+        "042",
+        "043",
+        "045",
+        "050",
+        "051",
+        "057",
+        "058",
+        "060",
+        "062",
+        "064",
+        "067",
+        "068",
+        "070",
+        "072",
+        "074",
+        "075",
+        "077",
+        "079",
+        "081",
+        "084",
+        "087",
+        "088",
+        "091",
+        "094",
+        "096",
+        "099",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "107"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "007",
+        "008",
+        "009",
+        "010",
+        "012",
+        "013",
+        "015",
+        "017",
+        "018",
+        "021",
+        "024",
+        "028",
+        "029",
+        "031",
+        "032",
+        "036",
+        "037",
+        "038",
+        "039",
+        "044",
+        "046",
+        "047",
+        "048",
+        "049",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "059",
+        "061",
+        "063",
+        "065",
+        "066",
+        "069",
+        "071",
+        "073",
+        "076",
+        "078",
+        "080",
+        "082",
+        "083",
+        "085",
+        "086",
+        "089",
+        "090",
+        "092",
+        "093",
+        "095",
+        "097",
+        "098",
+        "106",
+        "108",
+        "109",
+        "110"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0006_GTready_faceverse_original.npz",
+          "subject": "id0006",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0006_GTready_faceverse_remesh10k.npz",
+          "subject": "id0006",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0011_GTready_faceverse_original.npz",
+          "subject": "id0011",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0011_GTready_faceverse_remesh10k.npz",
+          "subject": "id0011",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0014_GTready_faceverse_original.npz",
+          "subject": "id0014",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0014_GTready_faceverse_remesh10k.npz",
+          "subject": "id0014",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0019_GTready_faceverse_original.npz",
+          "subject": "id0019",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0019_GTready_faceverse_remesh10k.npz",
+          "subject": "id0019",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0022_GTready_faceverse_original.npz",
+          "subject": "id0022",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0022_GTready_faceverse_remesh10k.npz",
+          "subject": "id0022",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0025_GTready_faceverse_original.npz",
+          "subject": "id0025",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0025_GTready_faceverse_remesh10k.npz",
+          "subject": "id0025",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0026_GTready_faceverse_original.npz",
+          "subject": "id0026",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0026_GTready_faceverse_remesh10k.npz",
+          "subject": "id0026",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0027_GTready_faceverse_original.npz",
+          "subject": "id0027",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0027_GTready_faceverse_remesh10k.npz",
+          "subject": "id0027",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0030_GTready_faceverse_original.npz",
+          "subject": "id0030",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0030_GTready_faceverse_remesh10k.npz",
+          "subject": "id0030",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0033_GTready_faceverse_original.npz",
+          "subject": "id0033",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0033_GTready_faceverse_remesh10k.npz",
+          "subject": "id0033",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0034_GTready_faceverse_original.npz",
+          "subject": "id0034",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0034_GTready_faceverse_remesh10k.npz",
+          "subject": "id0034",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0035_GTready_faceverse_original.npz",
+          "subject": "id0035",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0035_GTready_faceverse_remesh10k.npz",
+          "subject": "id0035",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0040_GTready_faceverse_original.npz",
+          "subject": "id0040",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0040_GTready_faceverse_remesh10k.npz",
+          "subject": "id0040",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0041_GTready_faceverse_original.npz",
+          "subject": "id0041",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0041_GTready_faceverse_remesh10k.npz",
+          "subject": "id0041",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0043_GTready_faceverse_original.npz",
+          "subject": "id0043",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0043_GTready_faceverse_remesh10k.npz",
+          "subject": "id0043",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0045_GTready_faceverse_original.npz",
+          "subject": "id0045",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0045_GTready_faceverse_remesh10k.npz",
+          "subject": "id0045",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0050_GTready_faceverse_original.npz",
+          "subject": "id0050",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0050_GTready_faceverse_remesh10k.npz",
+          "subject": "id0050",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0051_GTready_faceverse_original.npz",
+          "subject": "id0051",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0051_GTready_faceverse_remesh10k.npz",
+          "subject": "id0051",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0057_GTready_faceverse_original.npz",
+          "subject": "id0057",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0057_GTready_faceverse_remesh10k.npz",
+          "subject": "id0057",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0058_GTready_faceverse_original.npz",
+          "subject": "id0058",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0058_GTready_faceverse_remesh10k.npz",
+          "subject": "id0058",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0060_GTready_faceverse_original.npz",
+          "subject": "id0060",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0060_GTready_faceverse_remesh10k.npz",
+          "subject": "id0060",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0062_GTready_faceverse_original.npz",
+          "subject": "id0062",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0062_GTready_faceverse_remesh10k.npz",
+          "subject": "id0062",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0064_GTready_faceverse_original.npz",
+          "subject": "id0064",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0064_GTready_faceverse_remesh10k.npz",
+          "subject": "id0064",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0067_GTready_faceverse_original.npz",
+          "subject": "id0067",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0067_GTready_faceverse_remesh10k.npz",
+          "subject": "id0067",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0068_GTready_faceverse_original.npz",
+          "subject": "id0068",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0068_GTready_faceverse_remesh10k.npz",
+          "subject": "id0068",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0070_GTready_faceverse_original.npz",
+          "subject": "id0070",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0070_GTready_faceverse_remesh10k.npz",
+          "subject": "id0070",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0072_GTready_faceverse_original.npz",
+          "subject": "id0072",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0072_GTready_faceverse_remesh10k.npz",
+          "subject": "id0072",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0074_GTready_faceverse_original.npz",
+          "subject": "id0074",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0074_GTready_faceverse_remesh10k.npz",
+          "subject": "id0074",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0075_GTready_faceverse_original.npz",
+          "subject": "id0075",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0075_GTready_faceverse_remesh10k.npz",
+          "subject": "id0075",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0077_GTready_faceverse_original.npz",
+          "subject": "id0077",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0077_GTready_faceverse_remesh10k.npz",
+          "subject": "id0077",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0079_GTready_faceverse_original.npz",
+          "subject": "id0079",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0079_GTready_faceverse_remesh10k.npz",
+          "subject": "id0079",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0081_GTready_faceverse_original.npz",
+          "subject": "id0081",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0081_GTready_faceverse_remesh10k.npz",
+          "subject": "id0081",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0084_GTready_faceverse_original.npz",
+          "subject": "id0084",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0084_GTready_faceverse_remesh10k.npz",
+          "subject": "id0084",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0088_GTready_faceverse_original.npz",
+          "subject": "id0088",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0088_GTready_faceverse_remesh10k.npz",
+          "subject": "id0088",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0091_GTready_faceverse_original.npz",
+          "subject": "id0091",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0091_GTready_faceverse_remesh10k.npz",
+          "subject": "id0091",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0094_GTready_faceverse_original.npz",
+          "subject": "id0094",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0094_GTready_faceverse_remesh10k.npz",
+          "subject": "id0094",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0096_GTready_faceverse_original.npz",
+          "subject": "id0096",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0096_GTready_faceverse_remesh10k.npz",
+          "subject": "id0096",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0099_GTready_faceverse_original.npz",
+          "subject": "id0099",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0099_GTready_faceverse_remesh10k.npz",
+          "subject": "id0099",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0101_GTready_faceverse_original.npz",
+          "subject": "id0101",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0101_GTready_faceverse_remesh10k.npz",
+          "subject": "id0101",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0102_GTready_faceverse_original.npz",
+          "subject": "id0102",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0102_GTready_faceverse_remesh10k.npz",
+          "subject": "id0102",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0103_GTready_faceverse_original.npz",
+          "subject": "id0103",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0103_GTready_faceverse_remesh10k.npz",
+          "subject": "id0103",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0104_GTready_faceverse_original.npz",
+          "subject": "id0104",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0104_GTready_faceverse_remesh10k.npz",
+          "subject": "id0104",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0105_GTready_faceverse_original.npz",
+          "subject": "id0105",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0105_GTready_faceverse_remesh10k.npz",
+          "subject": "id0105",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0107_GTready_faceverse_original.npz",
+          "subject": "id0107",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops/id0107_GTready_faceverse_remesh10k.npz",
+          "subject": "id0107",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 100,
+      "n_subjects": 50,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops",
+      "subjects": [
+        "id0006",
+        "id0011",
+        "id0014",
+        "id0016",
+        "id0019",
+        "id0020",
+        "id0022",
+        "id0023",
+        "id0025",
+        "id0026",
+        "id0027",
+        "id0030",
+        "id0033",
+        "id0034",
+        "id0035",
+        "id0040",
+        "id0041",
+        "id0042",
+        "id0043",
+        "id0045",
+        "id0050",
+        "id0051",
+        "id0057",
+        "id0058",
+        "id0060",
+        "id0062",
+        "id0064",
+        "id0067",
+        "id0068",
+        "id0070",
+        "id0072",
+        "id0074",
+        "id0075",
+        "id0077",
+        "id0079",
+        "id0081",
+        "id0084",
+        "id0087",
+        "id0088",
+        "id0091",
+        "id0094",
+        "id0096",
+        "id0099",
+        "id0100",
+        "id0101",
+        "id0102",
+        "id0103",
+        "id0104",
+        "id0105",
+        "id0107"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot50_cross_topology_with_ops_train_subject_ids.txt"
+    },
+    "6": {
+      "faceverse_subject_ids": [
+        "016",
+        "020",
+        "023",
+        "042",
+        "087",
+        "100"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "006",
+        "007",
+        "008",
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014",
+        "015",
+        "017",
+        "018",
+        "019",
+        "021",
+        "022",
+        "024",
+        "025",
+        "026",
+        "027",
+        "028",
+        "029",
+        "030",
+        "031",
+        "032",
+        "033",
+        "034",
+        "035",
+        "036",
+        "037",
+        "038",
+        "039",
+        "040",
+        "041",
+        "043",
+        "044",
+        "045",
+        "046",
+        "047",
+        "048",
+        "049",
+        "050",
+        "051",
+        "052",
+        "053",
+        "054",
+        "055",
+        "056",
+        "057",
+        "058",
+        "059",
+        "060",
+        "061",
+        "062",
+        "063",
+        "064",
+        "065",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "071",
+        "072",
+        "073",
+        "074",
+        "075",
+        "076",
+        "077",
+        "078",
+        "079",
+        "080",
+        "081",
+        "082",
+        "083",
+        "084",
+        "085",
+        "086",
+        "088",
+        "089",
+        "090",
+        "091",
+        "092",
+        "093",
+        "094",
+        "095",
+        "096",
+        "097",
+        "098",
+        "099",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "106",
+        "107",
+        "108",
+        "109",
+        "110"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 12,
+      "n_subjects": 6,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops",
+      "subjects": [
+        "id0016",
+        "id0020",
+        "id0023",
+        "id0042",
+        "id0087",
+        "id0100"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot06_cross_topology_with_ops_train_subject_ids.txt"
+    },
+    "75": {
+      "faceverse_subject_ids": [
+        "006",
+        "010",
+        "011",
+        "013",
+        "014",
+        "016",
+        "017",
+        "019",
+        "020",
+        "021",
+        "022",
+        "023",
+        "025",
+        "026",
+        "027",
+        "029",
+        "030",
+        "031",
+        "033",
+        "034",
+        "035",
+        "036",
+        "037",
+        "039",
+        "040",
+        "041",
+        "042",
+        "043",
+        "044",
+        "045",
+        "047",
+        "048",
+        "050",
+        "051",
+        "052",
+        "054",
+        "056",
+        "057",
+        "058",
+        "060",
+        "062",
+        "064",
+        "066",
+        "067",
+        "068",
+        "069",
+        "070",
+        "072",
+        "074",
+        "075",
+        "077",
+        "079",
+        "080",
+        "081",
+        "082",
+        "084",
+        "087",
+        "088",
+        "089",
+        "090",
+        "091",
+        "092",
+        "094",
+        "095",
+        "096",
+        "099",
+        "100",
+        "101",
+        "102",
+        "103",
+        "104",
+        "105",
+        "107",
+        "108",
+        "110"
+      ],
+      "heldout_faceverse_subject_ids": [
+        "001",
+        "002",
+        "003",
+        "004",
+        "005",
+        "007",
+        "008",
+        "009",
+        "012",
+        "015",
+        "018",
+        "024",
+        "028",
+        "032",
+        "038",
+        "046",
+        "049",
+        "053",
+        "055",
+        "059",
+        "061",
+        "063",
+        "065",
+        "071",
+        "073",
+        "076",
+        "078",
+        "083",
+        "085",
+        "086",
+        "093",
+        "097",
+        "098",
+        "106",
+        "109"
+      ],
+      "heldout_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops_heldout_subject_ids.txt",
+      "linked_files": [
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0006_GTready_faceverse_original.npz",
+          "subject": "id0006",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0006_GTready_faceverse_remesh10k.npz",
+          "subject": "id0006",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0010_GTready_faceverse_original.npz",
+          "subject": "id0010",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0010_GTready_faceverse_remesh10k.npz",
+          "subject": "id0010",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0011_GTready_faceverse_original.npz",
+          "subject": "id0011",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0011_GTready_faceverse_remesh10k.npz",
+          "subject": "id0011",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0013_GTready_faceverse_original.npz",
+          "subject": "id0013",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0013_GTready_faceverse_remesh10k.npz",
+          "subject": "id0013",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0014_GTready_faceverse_original.npz",
+          "subject": "id0014",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0014_GTready_faceverse_remesh10k.npz",
+          "subject": "id0014",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0016_GTready_faceverse_original.npz",
+          "subject": "id0016",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0016_GTready_faceverse_remesh10k.npz",
+          "subject": "id0016",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0017_GTready_faceverse_original.npz",
+          "subject": "id0017",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0017_GTready_faceverse_remesh10k.npz",
+          "subject": "id0017",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0019_GTready_faceverse_original.npz",
+          "subject": "id0019",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0019_GTready_faceverse_remesh10k.npz",
+          "subject": "id0019",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0020_GTready_faceverse_original.npz",
+          "subject": "id0020",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0020_GTready_faceverse_remesh10k.npz",
+          "subject": "id0020",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0021_GTready_faceverse_original.npz",
+          "subject": "id0021",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0021_GTready_faceverse_remesh10k.npz",
+          "subject": "id0021",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0022_GTready_faceverse_original.npz",
+          "subject": "id0022",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0022_GTready_faceverse_remesh10k.npz",
+          "subject": "id0022",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0023_GTready_faceverse_original.npz",
+          "subject": "id0023",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0023_GTready_faceverse_remesh10k.npz",
+          "subject": "id0023",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0025_GTready_faceverse_original.npz",
+          "subject": "id0025",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0025_GTready_faceverse_remesh10k.npz",
+          "subject": "id0025",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0026_GTready_faceverse_original.npz",
+          "subject": "id0026",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0026_GTready_faceverse_remesh10k.npz",
+          "subject": "id0026",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0027_GTready_faceverse_original.npz",
+          "subject": "id0027",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0027_GTready_faceverse_remesh10k.npz",
+          "subject": "id0027",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0029_GTready_faceverse_original.npz",
+          "subject": "id0029",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0029_GTready_faceverse_remesh10k.npz",
+          "subject": "id0029",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0030_GTready_faceverse_original.npz",
+          "subject": "id0030",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0030_GTready_faceverse_remesh10k.npz",
+          "subject": "id0030",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0031_GTready_faceverse_original.npz",
+          "subject": "id0031",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0031_GTready_faceverse_remesh10k.npz",
+          "subject": "id0031",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0033_GTready_faceverse_original.npz",
+          "subject": "id0033",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0033_GTready_faceverse_remesh10k.npz",
+          "subject": "id0033",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0034_GTready_faceverse_original.npz",
+          "subject": "id0034",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0034_GTready_faceverse_remesh10k.npz",
+          "subject": "id0034",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0035_GTready_faceverse_original.npz",
+          "subject": "id0035",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0035_GTready_faceverse_remesh10k.npz",
+          "subject": "id0035",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0036_GTready_faceverse_original.npz",
+          "subject": "id0036",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0036_GTready_faceverse_remesh10k.npz",
+          "subject": "id0036",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0037_GTready_faceverse_original.npz",
+          "subject": "id0037",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0037_GTready_faceverse_remesh10k.npz",
+          "subject": "id0037",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0039_GTready_faceverse_original.npz",
+          "subject": "id0039",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0039_GTready_faceverse_remesh10k.npz",
+          "subject": "id0039",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0040_GTready_faceverse_original.npz",
+          "subject": "id0040",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0040_GTready_faceverse_remesh10k.npz",
+          "subject": "id0040",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0041_GTready_faceverse_original.npz",
+          "subject": "id0041",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0041_GTready_faceverse_remesh10k.npz",
+          "subject": "id0041",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0042_GTready_faceverse_original.npz",
+          "subject": "id0042",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0042_GTready_faceverse_remesh10k.npz",
+          "subject": "id0042",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0043_GTready_faceverse_original.npz",
+          "subject": "id0043",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0043_GTready_faceverse_remesh10k.npz",
+          "subject": "id0043",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0044_GTready_faceverse_original.npz",
+          "subject": "id0044",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0044_GTready_faceverse_remesh10k.npz",
+          "subject": "id0044",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0045_GTready_faceverse_original.npz",
+          "subject": "id0045",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0045_GTready_faceverse_remesh10k.npz",
+          "subject": "id0045",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0047_GTready_faceverse_original.npz",
+          "subject": "id0047",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0047_GTready_faceverse_remesh10k.npz",
+          "subject": "id0047",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0048_GTready_faceverse_original.npz",
+          "subject": "id0048",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0048_GTready_faceverse_remesh10k.npz",
+          "subject": "id0048",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0050_GTready_faceverse_original.npz",
+          "subject": "id0050",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0050_GTready_faceverse_remesh10k.npz",
+          "subject": "id0050",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0051_GTready_faceverse_original.npz",
+          "subject": "id0051",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0051_GTready_faceverse_remesh10k.npz",
+          "subject": "id0051",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0052_GTready_faceverse_original.npz",
+          "subject": "id0052",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0052_GTready_faceverse_remesh10k.npz",
+          "subject": "id0052",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0054_GTready_faceverse_original.npz",
+          "subject": "id0054",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0054_GTready_faceverse_remesh10k.npz",
+          "subject": "id0054",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0056_GTready_faceverse_original.npz",
+          "subject": "id0056",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0056_GTready_faceverse_remesh10k.npz",
+          "subject": "id0056",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0057_GTready_faceverse_original.npz",
+          "subject": "id0057",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0057_GTready_faceverse_remesh10k.npz",
+          "subject": "id0057",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0058_GTready_faceverse_original.npz",
+          "subject": "id0058",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0058_GTready_faceverse_remesh10k.npz",
+          "subject": "id0058",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0060_GTready_faceverse_original.npz",
+          "subject": "id0060",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0060_GTready_faceverse_remesh10k.npz",
+          "subject": "id0060",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0062_GTready_faceverse_original.npz",
+          "subject": "id0062",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0062_GTready_faceverse_remesh10k.npz",
+          "subject": "id0062",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0064_GTready_faceverse_original.npz",
+          "subject": "id0064",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0064_GTready_faceverse_remesh10k.npz",
+          "subject": "id0064",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0066_GTready_faceverse_original.npz",
+          "subject": "id0066",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0066_GTready_faceverse_remesh10k.npz",
+          "subject": "id0066",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0067_GTready_faceverse_original.npz",
+          "subject": "id0067",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0067_GTready_faceverse_remesh10k.npz",
+          "subject": "id0067",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0068_GTready_faceverse_original.npz",
+          "subject": "id0068",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0068_GTready_faceverse_remesh10k.npz",
+          "subject": "id0068",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0069_GTready_faceverse_original.npz",
+          "subject": "id0069",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0069_GTready_faceverse_remesh10k.npz",
+          "subject": "id0069",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0070_GTready_faceverse_original.npz",
+          "subject": "id0070",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0070_GTready_faceverse_remesh10k.npz",
+          "subject": "id0070",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0072_GTready_faceverse_original.npz",
+          "subject": "id0072",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0072_GTready_faceverse_remesh10k.npz",
+          "subject": "id0072",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0074_GTready_faceverse_original.npz",
+          "subject": "id0074",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0074_GTready_faceverse_remesh10k.npz",
+          "subject": "id0074",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0075_GTready_faceverse_original.npz",
+          "subject": "id0075",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0075_GTready_faceverse_remesh10k.npz",
+          "subject": "id0075",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0077_GTready_faceverse_original.npz",
+          "subject": "id0077",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0077_GTready_faceverse_remesh10k.npz",
+          "subject": "id0077",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0079_GTready_faceverse_original.npz",
+          "subject": "id0079",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0079_GTready_faceverse_remesh10k.npz",
+          "subject": "id0079",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0080_GTready_faceverse_original.npz",
+          "subject": "id0080",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0080_GTready_faceverse_remesh10k.npz",
+          "subject": "id0080",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0081_GTready_faceverse_original.npz",
+          "subject": "id0081",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0081_GTready_faceverse_remesh10k.npz",
+          "subject": "id0081",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0082_GTready_faceverse_original.npz",
+          "subject": "id0082",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0082_GTready_faceverse_remesh10k.npz",
+          "subject": "id0082",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0084_GTready_faceverse_original.npz",
+          "subject": "id0084",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0084_GTready_faceverse_remesh10k.npz",
+          "subject": "id0084",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0087_GTready_faceverse_original.npz",
+          "subject": "id0087",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0087_GTready_faceverse_remesh10k.npz",
+          "subject": "id0087",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0088_GTready_faceverse_original.npz",
+          "subject": "id0088",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0088_GTready_faceverse_remesh10k.npz",
+          "subject": "id0088",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0089_GTready_faceverse_original.npz",
+          "subject": "id0089",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0089_GTready_faceverse_remesh10k.npz",
+          "subject": "id0089",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0090_GTready_faceverse_original.npz",
+          "subject": "id0090",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0090_GTready_faceverse_remesh10k.npz",
+          "subject": "id0090",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0091_GTready_faceverse_original.npz",
+          "subject": "id0091",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0091_GTready_faceverse_remesh10k.npz",
+          "subject": "id0091",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0092_GTready_faceverse_original.npz",
+          "subject": "id0092",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0092_GTready_faceverse_remesh10k.npz",
+          "subject": "id0092",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0094_GTready_faceverse_original.npz",
+          "subject": "id0094",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0094_GTready_faceverse_remesh10k.npz",
+          "subject": "id0094",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0095_GTready_faceverse_original.npz",
+          "subject": "id0095",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0095_GTready_faceverse_remesh10k.npz",
+          "subject": "id0095",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0096_GTready_faceverse_original.npz",
+          "subject": "id0096",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0096_GTready_faceverse_remesh10k.npz",
+          "subject": "id0096",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0099_GTready_faceverse_original.npz",
+          "subject": "id0099",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0099_GTready_faceverse_remesh10k.npz",
+          "subject": "id0099",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0100_GTready_faceverse_original.npz",
+          "subject": "id0100",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0100_GTready_faceverse_remesh10k.npz",
+          "subject": "id0100",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0101_GTready_faceverse_original.npz",
+          "subject": "id0101",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0101_GTready_faceverse_remesh10k.npz",
+          "subject": "id0101",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0102_GTready_faceverse_original.npz",
+          "subject": "id0102",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0102_GTready_faceverse_remesh10k.npz",
+          "subject": "id0102",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0103_GTready_faceverse_original.npz",
+          "subject": "id0103",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0103_GTready_faceverse_remesh10k.npz",
+          "subject": "id0103",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0104_GTready_faceverse_original.npz",
+          "subject": "id0104",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0104_GTready_faceverse_remesh10k.npz",
+          "subject": "id0104",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0105_GTready_faceverse_original.npz",
+          "subject": "id0105",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0105_GTready_faceverse_remesh10k.npz",
+          "subject": "id0105",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0107_GTready_faceverse_original.npz",
+          "subject": "id0107",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0107_GTready_faceverse_remesh10k.npz",
+          "subject": "id0107",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0108_GTready_faceverse_original.npz",
+          "subject": "id0108",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0108_GTready_faceverse_remesh10k.npz",
+          "subject": "id0108",
+          "variant": "remesh_10k"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0110_GTready_faceverse_original.npz",
+          "subject": "id0110",
+          "variant": "original"
+        },
+        {
+          "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops/id0110_GTready_faceverse_remesh10k.npz",
+          "subject": "id0110",
+          "variant": "remesh_10k"
+        }
+      ],
+      "n_files": 150,
+      "n_subjects": 75,
+      "output_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops",
+      "subjects": [
+        "id0006",
+        "id0010",
+        "id0011",
+        "id0013",
+        "id0014",
+        "id0016",
+        "id0017",
+        "id0019",
+        "id0020",
+        "id0021",
+        "id0022",
+        "id0023",
+        "id0025",
+        "id0026",
+        "id0027",
+        "id0029",
+        "id0030",
+        "id0031",
+        "id0033",
+        "id0034",
+        "id0035",
+        "id0036",
+        "id0037",
+        "id0039",
+        "id0040",
+        "id0041",
+        "id0042",
+        "id0043",
+        "id0044",
+        "id0045",
+        "id0047",
+        "id0048",
+        "id0050",
+        "id0051",
+        "id0052",
+        "id0054",
+        "id0056",
+        "id0057",
+        "id0058",
+        "id0060",
+        "id0062",
+        "id0064",
+        "id0066",
+        "id0067",
+        "id0068",
+        "id0069",
+        "id0070",
+        "id0072",
+        "id0074",
+        "id0075",
+        "id0077",
+        "id0079",
+        "id0080",
+        "id0081",
+        "id0082",
+        "id0084",
+        "id0087",
+        "id0088",
+        "id0089",
+        "id0090",
+        "id0091",
+        "id0092",
+        "id0094",
+        "id0095",
+        "id0096",
+        "id0099",
+        "id0100",
+        "id0101",
+        "id0102",
+        "id0103",
+        "id0104",
+        "id0105",
+        "id0107",
+        "id0108",
+        "id0110"
+      ],
+      "train_subject_ids_txt": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/shot75_cross_topology_with_ops_train_subject_ids.txt"
+    }
+  },
+  "source_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/cross_topology_10k_with_ops"
+}

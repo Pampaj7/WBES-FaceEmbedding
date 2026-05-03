@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 900 440">
+
+    <style>
+      .bg { fill: #ffffff; }
+      .axis { stroke: #111827; stroke-width: 1; }
+      .grid { stroke: #E5E7EB; stroke-width: 1; }
+      .tick { fill: #374151; font: 12px Arial, sans-serif; }
+      .label { fill: #111827; font: 13px Arial, sans-serif; }
+      .title { fill: #111827; font: bold 18px Arial, sans-serif; }
+      .sub { fill: #6B7280; font: 12px Arial, sans-serif; }
+    </style>
+    <rect class="bg" width="900" height="440"/>
+<text class="title" x="70" y="34">Registration compresses inter-subject distance spread</text>
+<text class="sub" x="70" y="54">Boxes show P25-P75, whiskers show P05-P95, line is median.</text>
+<line class="grid" x1="170.0" y1="70" x2="170.0" y2="380"/>
+<text class="tick" x="170.0" y="404" text-anchor="middle">0</text>
+<line class="grid" x1="285.0" y1="70" x2="285.0" y2="380"/>
+<text class="tick" x="285.0" y="404" text-anchor="middle">0.02</text>
+<line class="grid" x1="400.0" y1="70" x2="400.0" y2="380"/>
+<text class="tick" x="400.0" y="404" text-anchor="middle">0.04</text>
+<line class="grid" x1="515.0" y1="70" x2="515.0" y2="380"/>
+<text class="tick" x="515.0" y="404" text-anchor="middle">0.06</text>
+<line class="grid" x1="630.0" y1="70" x2="630.0" y2="380"/>
+<text class="tick" x="630.0" y="404" text-anchor="middle">0.08</text>
+<line class="grid" x1="745.0" y1="70" x2="745.0" y2="380"/>
+<text class="tick" x="745.0" y="404" text-anchor="middle">0.1</text>
+<line class="grid" x1="860.0" y1="70" x2="860.0" y2="380"/>
+<text class="tick" x="860.0" y="404" text-anchor="middle">0.12</text>
+<line class="axis" x1="170" y1="380" x2="860" y2="380"/>
+<text class="label" x="156" y="125" text-anchor="end">Raw Chamfer</text>
+<line x1="349.9" y1="120" x2="652.9" y2="120" stroke="#3B82F6" stroke-width="3"/>
+<line x1="349.9" y1="111" x2="349.9" y2="129" stroke="#3B82F6" stroke-width="2"/>
+<line x1="652.9" y1="111" x2="652.9" y2="129" stroke="#3B82F6" stroke-width="2"/>
+<rect x="384.4" y="103" width="116.0" height="34" rx="4" fill="#3B82F6" opacity="0.28" stroke="#3B82F6" stroke-width="2"/>
+<line x1="426.1" y1="101" x2="426.1" y2="139" stroke="#111827" stroke-width="2"/>
+<text class="label" x="156" y="193" text-anchor="end">Rigid ICP</text>
+<line x1="324.5" y1="188" x2="488.5" y2="188" stroke="#F59E0B" stroke-width="3"/>
+<line x1="324.5" y1="179" x2="324.5" y2="197" stroke="#F59E0B" stroke-width="2"/>
+<line x1="488.5" y1="179" x2="488.5" y2="197" stroke="#F59E0B" stroke-width="2"/>
+<rect x="346.5" y="171" width="62.3" height="34" rx="4" fill="#F59E0B" opacity="0.28" stroke="#F59E0B" stroke-width="2"/>
+<line x1="371.8" y1="169" x2="371.8" y2="207" stroke="#111827" stroke-width="2"/>
+<text class="label" x="156" y="261" text-anchor="end">NICP P2P</text>
+<line x1="312.3" y1="256" x2="378.1" y2="256" stroke="#10B981" stroke-width="3"/>
+<line x1="312.3" y1="247" x2="312.3" y2="265" stroke="#10B981" stroke-width="2"/>
+<line x1="378.1" y1="247" x2="378.1" y2="265" stroke="#10B981" stroke-width="2"/>
+<rect x="324.4" y="239" width="25.4" height="34" rx="4" fill="#10B981" opacity="0.28" stroke="#10B981" stroke-width="2"/>
+<line x1="335.4" y1="237" x2="335.4" y2="275" stroke="#111827" stroke-width="2"/>
+<text class="label" x="156" y="329" text-anchor="end">NICP P2Tri</text>
+<line x1="293.3" y1="324" x2="364.0" y2="324" stroke="#8B5CF6" stroke-width="3"/>
+<line x1="293.3" y1="315" x2="293.3" y2="333" stroke="#8B5CF6" stroke-width="2"/>
+<line x1="364.0" y1="315" x2="364.0" y2="333" stroke="#8B5CF6" stroke-width="2"/>
+<rect x="306.4" y="307" width="27.4" height="34" rx="4" fill="#8B5CF6" opacity="0.28" stroke="#8B5CF6" stroke-width="2"/>
+<line x1="318.3" y1="305" x2="318.3" y2="343" stroke="#111827" stroke-width="2"/>
+</svg>

@@ -1,0 +1,50 @@
+{
+  "date": "2026-04-02",
+  "checkpoint": "/deck/datasets/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "baseline_clean_l2": {
+    "latent_spearman": 0.5318642267208586,
+    "latent_pearson": 0.5275283448408205
+  },
+  "operator_trainscale_clean_l2": {
+    "alpha": 144736.7086996909,
+    "latent_spearman": 0.5319056778524579,
+    "latent_pearson": 0.5275765008127021,
+    "delta_spearman_vs_baseline": 4.145113159924593e-05,
+    "delta_pearson_vs_baseline": 4.815597188159764e-05
+  },
+  "mass_unit_sum_clean_l2": {
+    "latent_spearman": 0.520714752758675,
+    "latent_pearson": 0.5171025099010748,
+    "delta_spearman_vs_baseline": -0.011149473962183598,
+    "delta_pearson_vs_baseline": -0.010425834939745734
+  },
+  "baseline_clean_cosine": {
+    "latent_spearman": 0.5199031441342669,
+    "latent_pearson": 0.49103392219305647,
+    "delta_spearman_vs_baseline_l2": -0.011961082586591703,
+    "delta_pearson_vs_baseline_l2": -0.03649442264776402
+  },
+  "checkpoint_clean_l2": [
+    {
+      "checkpoint": "best_by_auc",
+      "latent_spearman": 0.5019516171713524,
+      "latent_pearson": 0.5160863226320265
+    },
+    {
+      "checkpoint": "best_by_clean",
+      "latent_spearman": 0.5318642267208586,
+      "latent_pearson": 0.5275283448408205
+    },
+    {
+      "checkpoint": "best_by_xtopo_mesh_clean",
+      "latent_spearman": 0.5318642267208586,
+      "latent_pearson": 0.5275283448408205
+    },
+    {
+      "checkpoint": "epoch120",
+      "latent_spearman": 0.5045785834179294,
+      "latent_pearson": 0.5019209986301981
+    }
+  ],
+  "conclusion": "FaceVerse underperformance vs Chamfer is not explained by operator scale mismatch, simple mass renormalization, cosine readout, or checkpoint selection within this mixed_xtopo run."
+}

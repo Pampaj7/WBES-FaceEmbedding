@@ -1,0 +1,421 @@
+{
+  "checkpoint": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/runs_matrix/shot100/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_warmstart_seed1234__17f4cc36/checkpoints/best_by_clean.pth",
+  "run_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/FINE_tuning/runs_matrix/shot100/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_warmstart_seed1234__17f4cc36",
+  "checkpoint_selector": "best_by_auc",
+  "device": "cuda",
+  "data_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/cross_topology_10k_with_ops",
+  "gt_mesh_dir": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/extracted/detail",
+  "dist_npz": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+  "reference_metric": "gt_vertex_mean_l2",
+  "subject_split": "all",
+  "eval_fraction": 0.2,
+  "seed": 1234,
+  "max_subjects_requested": 0,
+  "max_meshes_per_subject_eval": 2,
+  "pair_mode": "cross_topology",
+  "aggregation_level": "subject_pair_mean",
+  "selected_subjects": [
+    "002",
+    "005",
+    "008",
+    "015",
+    "032",
+    "053",
+    "059",
+    "071",
+    "083",
+    "106"
+  ],
+  "inference_filter_summary": {
+    "pattern": "*_01*.npz",
+    "requested_subject_ids": [
+      "002",
+      "005",
+      "008",
+      "015",
+      "032",
+      "053",
+      "059",
+      "071",
+      "083",
+      "106"
+    ],
+    "requested_pose_ids": [
+      "01"
+    ],
+    "n_subjects": 10,
+    "n_samples": 20,
+    "pose_counts": {
+      "01": 20
+    },
+    "skipped_pattern": 0,
+    "skipped_parse": 0,
+    "skipped_subject": 200,
+    "skipped_pose": 0,
+    "sample_preview": [
+      "002_01_original.npz",
+      "002_01_remesh_10k.npz",
+      "005_01_original.npz",
+      "005_01_remesh_10k.npz",
+      "008_01_original.npz",
+      "008_01_remesh_10k.npz",
+      "015_01_original.npz",
+      "015_01_remesh_10k.npz",
+      "032_01_original.npz",
+      "032_01_remesh_10k.npz",
+      "053_01_original.npz",
+      "053_01_remesh_10k.npz"
+    ]
+  },
+  "gt_filter_summary": {
+    "pattern": "*_01.ply",
+    "requested_subject_ids": [
+      "002",
+      "005",
+      "008",
+      "015",
+      "032",
+      "053",
+      "059",
+      "071",
+      "083",
+      "106"
+    ],
+    "requested_pose_ids": [
+      "01"
+    ],
+    "n_subjects": 10,
+    "n_samples": 10,
+    "pose_counts": {
+      "01": 10
+    },
+    "skipped_pattern": 0,
+    "skipped_parse": 0,
+    "skipped_subject": 0,
+    "skipped_pose": 0,
+    "sample_preview": [
+      "002_01.ply",
+      "005_01.ply",
+      "008_01.ply",
+      "015_01.ply",
+      "032_01.ply",
+      "053_01.ply",
+      "059_01.ply",
+      "071_01.ply",
+      "083_01.ply",
+      "106_01.ply"
+    ],
+    "source": "distance_cache",
+    "cache_path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+    "gt_mesh_dir_exists": false,
+    "gt_mesh_glob_count": 0
+  },
+  "gt_distance_matrix_summary": {
+    "path": "/deck/datasets/WBES-FaceEmbedding/datasets/FaceVerse/gt_distance_matrix/faceverse_detail_pose01_vertex_mean_l2_normalized.npz",
+    "metric": "vertex_mean_l2",
+    "status": "loaded_cache",
+    "n_subjects_cached": 110
+  },
+  "eval_plan_summary": {
+    "n_subjects_with_meshes": 10,
+    "total_meshes": 20,
+    "min_meshes_per_subject": 2,
+    "max_meshes_per_subject": 2,
+    "mean_meshes_per_subject": 2.0
+  },
+  "sample_eval_summary": {
+    "n_samples": 20,
+    "n_subjects": 10,
+    "n_topology_labels": 2,
+    "topology_label_counts": {
+      "original": 10,
+      "remesh": 10
+    },
+    "topology_source_counts": {
+      "filename": 20
+    },
+    "topology_signature_counts": {
+      "sig_10110v_20000f_49afb8a3d3b58d12": 1,
+      "sig_10110v_20000f_d68344bce3b1c609": 1,
+      "sig_10112v_20000f_8321a75286828d32": 1,
+      "sig_10113v_19999f_6039bfb97ad3b52c": 1,
+      "sig_10119v_19999f_1958320fd510bf7e": 1,
+      "sig_10119v_19999f_3824f38be4478827": 1,
+      "sig_10119v_19999f_8a1364a1efb436ed": 1,
+      "sig_10120v_19999f_dea231c65edc6d15": 1,
+      "sig_10121v_20000f_8372ebe58e6fce39": 1,
+      "sig_10123v_20000f_d66d3ed962c16493": 1,
+      "sig_10146v_19999f_29c3db84b75abe30": 1,
+      "sig_10146v_19999f_b2e6cde9b889aca8": 1,
+      "sig_10147v_20000f_fff2a289ef6b7f0f": 1,
+      "sig_10152v_19999f_febfa440789a13ea": 1,
+      "sig_10154v_20000f_bfc5fb0e01a1c22d": 1,
+      "sig_10155v_19999f_1c119630f17c3dba": 1,
+      "sig_10155v_19999f_770206813af71514": 1,
+      "sig_10155v_20000f_7b2beb93a8e80ee6": 1,
+      "sig_10156v_20000f_ab2be57903771f5d": 1,
+      "sig_10156v_20000f_ab732d3c12a1813a": 1
+    },
+    "topology_label_summary": [
+      {
+        "topology_label": "original",
+        "n_samples": 10,
+        "n_subjects": 10,
+        "n_signatures": 10
+      },
+      {
+        "topology_label": "remesh",
+        "n_samples": 10,
+        "n_subjects": 10,
+        "n_signatures": 10
+      }
+    ],
+    "sample_preview": [
+      {
+        "dataset_idx": 2,
+        "sample_name": "002_01_original",
+        "subject_id": "002",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10154,
+          "n_faces": 20000,
+          "faces_sha1_16": "bfc5fb0e01a1c22d",
+          "signature_key": "sig_10154v_20000f_bfc5fb0e01a1c22d"
+        }
+      },
+      {
+        "dataset_idx": 3,
+        "sample_name": "002_01_remesh_10k",
+        "subject_id": "002",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10120,
+          "n_faces": 19999,
+          "faces_sha1_16": "dea231c65edc6d15",
+          "signature_key": "sig_10120v_19999f_dea231c65edc6d15"
+        }
+      },
+      {
+        "dataset_idx": 8,
+        "sample_name": "005_01_original",
+        "subject_id": "005",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10146,
+          "n_faces": 19999,
+          "faces_sha1_16": "29c3db84b75abe30",
+          "signature_key": "sig_10146v_19999f_29c3db84b75abe30"
+        }
+      },
+      {
+        "dataset_idx": 9,
+        "sample_name": "005_01_remesh_10k",
+        "subject_id": "005",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10113,
+          "n_faces": 19999,
+          "faces_sha1_16": "6039bfb97ad3b52c",
+          "signature_key": "sig_10113v_19999f_6039bfb97ad3b52c"
+        }
+      },
+      {
+        "dataset_idx": 14,
+        "sample_name": "008_01_original",
+        "subject_id": "008",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10155,
+          "n_faces": 20000,
+          "faces_sha1_16": "7b2beb93a8e80ee6",
+          "signature_key": "sig_10155v_20000f_7b2beb93a8e80ee6"
+        }
+      },
+      {
+        "dataset_idx": 15,
+        "sample_name": "008_01_remesh_10k",
+        "subject_id": "008",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10119,
+          "n_faces": 19999,
+          "faces_sha1_16": "3824f38be4478827",
+          "signature_key": "sig_10119v_19999f_3824f38be4478827"
+        }
+      },
+      {
+        "dataset_idx": 28,
+        "sample_name": "015_01_original",
+        "subject_id": "015",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10155,
+          "n_faces": 19999,
+          "faces_sha1_16": "1c119630f17c3dba",
+          "signature_key": "sig_10155v_19999f_1c119630f17c3dba"
+        }
+      },
+      {
+        "dataset_idx": 29,
+        "sample_name": "015_01_remesh_10k",
+        "subject_id": "015",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10110,
+          "n_faces": 20000,
+          "faces_sha1_16": "d68344bce3b1c609",
+          "signature_key": "sig_10110v_20000f_d68344bce3b1c609"
+        }
+      },
+      {
+        "dataset_idx": 62,
+        "sample_name": "032_01_original",
+        "subject_id": "032",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10156,
+          "n_faces": 20000,
+          "faces_sha1_16": "ab2be57903771f5d",
+          "signature_key": "sig_10156v_20000f_ab2be57903771f5d"
+        }
+      },
+      {
+        "dataset_idx": 63,
+        "sample_name": "032_01_remesh_10k",
+        "subject_id": "032",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10119,
+          "n_faces": 19999,
+          "faces_sha1_16": "1958320fd510bf7e",
+          "signature_key": "sig_10119v_19999f_1958320fd510bf7e"
+        }
+      },
+      {
+        "dataset_idx": 104,
+        "sample_name": "053_01_original",
+        "subject_id": "053",
+        "topology_label": "original",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10146,
+          "n_faces": 19999,
+          "faces_sha1_16": "b2e6cde9b889aca8",
+          "signature_key": "sig_10146v_19999f_b2e6cde9b889aca8"
+        }
+      },
+      {
+        "dataset_idx": 105,
+        "sample_name": "053_01_remesh_10k",
+        "subject_id": "053",
+        "topology_label": "remesh",
+        "topology_source": "filename",
+        "topology_signature": {
+          "n_verts": 10123,
+          "n_faces": 20000,
+          "faces_sha1_16": "d66d3ed962c16493",
+          "signature_key": "sig_10123v_20000f_d66d3ed962c16493"
+        }
+      }
+    ]
+  },
+  "pair_context": {
+    "n_subjects": 10,
+    "n_samples": 20,
+    "n_pairs": 45,
+    "n_mesh_pairs": 90,
+    "n_subject_pairs": 45,
+    "n_topology_labels": 2
+  },
+  "chamfer_protocol": {
+    "use_icp": true,
+    "alignment_stage": "perturbed_pairs",
+    "icp_points": 2048,
+    "icp_max_correspondence_distance": 0.05,
+    "icp_max_iteration": 20,
+    "icp_workers": 8
+  },
+  "chamfer_cache_verts": {
+    "mode": "force",
+    "enabled": true,
+    "device": "cuda",
+    "vertex_bytes": 2432256,
+    "vertex_mb": 2.319580078125,
+    "reason": "cached"
+  },
+  "perturbation_params": {
+    "rigid_rot_deg": 12.0,
+    "rigid_trans_scale": 0.03,
+    "rigid_rot_deg_min": 0.5,
+    "rigid_trans_scale_min": 0.001
+  },
+  "sweep": {
+    "scenario": "rotation",
+    "sigma": 0.2,
+    "include_clean_once": true,
+    "scenario_parameters": {
+      "jitter_sigma": 0.0,
+      "rotation_sigma": 0.2,
+      "translation_sigma": 0.0,
+      "rotation_angle_max_deg": 2.9000000000000004,
+      "translation_axis_std": 0.0
+    }
+  },
+  "clean_baseline": {
+    "scenario": "clean",
+    "latent_spearman": 0.5270092226613965,
+    "latent_pearson": 0.5324199729077856,
+    "chamfer_spearman": 0.5708827404479578,
+    "chamfer_pearson": 0.5437883660964518,
+    "n_pairs": 45,
+    "n_mesh_pairs": 90,
+    "n_subject_pairs": 45,
+    "n_subjects": 10,
+    "n_samples": 20,
+    "delta_spearman": -0.043873517786561345,
+    "delta_pearson": -0.011368393188666115,
+    "model_beats_chamfer": false
+  },
+  "rows": [
+    {
+      "scenario": "clean",
+      "latent_spearman": 0.5270092226613965,
+      "latent_pearson": 0.5324199729077856,
+      "chamfer_spearman": 0.5708827404479578,
+      "chamfer_pearson": 0.5437883660964518,
+      "n_pairs": 45,
+      "n_mesh_pairs": 90,
+      "n_subject_pairs": 45,
+      "n_subjects": 10,
+      "n_samples": 20,
+      "delta_spearman": -0.043873517786561345,
+      "delta_pearson": -0.011368393188666115,
+      "model_beats_chamfer": false
+    },
+    {
+      "scenario": "rotation",
+      "latent_spearman": 0.5198945981554677,
+      "latent_pearson": 0.5176481302077421,
+      "chamfer_spearman": 0.6337285902503295,
+      "chamfer_pearson": 0.5829234814915979,
+      "n_pairs": 45,
+      "n_mesh_pairs": 90,
+      "n_subject_pairs": 45,
+      "n_subjects": 10,
+      "n_samples": 20,
+      "delta_spearman": -0.11383399209486178,
+      "delta_pearson": -0.06527535128385575,
+      "model_beats_chamfer": false
+    }
+  ]
+}

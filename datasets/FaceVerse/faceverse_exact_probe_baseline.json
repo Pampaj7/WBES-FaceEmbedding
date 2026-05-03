@@ -1,0 +1,32 @@
+[
+  {
+    "variant": "baseline_ops",
+    "scenario": "clean",
+    "latent_spearman": 0.5318642267208586,
+    "latent_pearson": 0.5275283448408205
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "jitter",
+    "latent_spearman": 0.49224455070223105,
+    "latent_pearson": 0.5010519654112762
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "translation",
+    "latent_spearman": 0.5226625982525842,
+    "latent_pearson": 0.5187744897346076
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "rotation",
+    "latent_spearman": 0.5011688859935761,
+    "latent_pearson": 0.5009881040568578
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "mixed",
+    "latent_spearman": 0.47699632846015344,
+    "latent_pearson": 0.48698981046802564
+  }
+]

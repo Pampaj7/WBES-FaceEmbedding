@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430">
+
+    <style>
+      .bg { fill: #ffffff; }
+      .axis { stroke: #111827; stroke-width: 1; }
+      .grid { stroke: #E5E7EB; stroke-width: 1; }
+      .tick { fill: #374151; font: 12px Arial, sans-serif; }
+      .label { fill: #111827; font: 13px Arial, sans-serif; }
+      .title { fill: #111827; font: bold 18px Arial, sans-serif; }
+      .sub { fill: #6B7280; font: 12px Arial, sans-serif; }
+    </style>
+    <rect class="bg" width="760" height="430"/>
+<text class="title" x="70" y="34">Distance spread retained after registration</text>
+<text class="sub" x="70" y="54">Ratio to raw Chamfer on clean full-scale evaluation. Lower means stronger compression.</text>
+<line class="grid" x1="90" y1="350.0" x2="720" y2="350.0"/>
+<text class="tick" x="78" y="354.0" text-anchor="end">0.00</text>
+<line class="grid" x1="90" y1="280.0" x2="720" y2="280.0"/>
+<text class="tick" x="78" y="284.0" text-anchor="end">0.25</text>
+<line class="grid" x1="90" y1="210.0" x2="720" y2="210.0"/>
+<text class="tick" x="78" y="214.0" text-anchor="end">0.50</text>
+<line class="grid" x1="90" y1="140.0" x2="720" y2="140.0"/>
+<text class="tick" x="78" y="144.0" text-anchor="end">0.75</text>
+<line class="grid" x1="90" y1="70.0" x2="720" y2="70.0"/>
+<text class="tick" x="78" y="74.0" text-anchor="end">1.00</text>
+<rect x="200.0" y="199.6" width="50" height="150.4" rx="4" fill="#F59E0B"/>
+<text class="tick" x="225.0" y="192.6" text-anchor="middle">0.54</text>
+<rect x="258.0" y="194.0" width="50" height="156.0" rx="4" fill="#6B7280"/>
+<text class="tick" x="283.0" y="187.0" text-anchor="middle">0.56</text>
+<text class="label" x="254.0" y="392" text-anchor="middle">Rigid ICP</text>
+<rect x="411.0" y="288.8" width="50" height="61.2" rx="4" fill="#10B981"/>
+<text class="tick" x="436.0" y="281.8" text-anchor="middle">0.22</text>
+<rect x="469.0" y="289.5" width="50" height="60.5" rx="4" fill="#6B7280"/>
+<text class="tick" x="494.0" y="282.5" text-anchor="middle">0.22</text>
+<text class="label" x="465.0" y="392" text-anchor="middle">NICP P2P</text>
+<rect x="622.0" y="283.8" width="50" height="66.2" rx="4" fill="#8B5CF6"/>
+<text class="tick" x="647.0" y="276.8" text-anchor="middle">0.24</text>
+<rect x="680.0" y="285.2" width="50" height="64.8" rx="4" fill="#6B7280"/>
+<text class="tick" x="705.0" y="278.2" text-anchor="middle">0.23</text>
+<text class="label" x="676.0" y="392" text-anchor="middle">NICP P2Tri</text>
+<rect x="565" y="90" width="14" height="14" fill="#F59E0B"/><text class="tick" x="586" y="102">IQR / raw IQR</text>
+<rect x="565" y="114" width="14" height="14" fill="#6B7280"/><text class="tick" x="586" y="126">Std / raw std</text>
+</svg>

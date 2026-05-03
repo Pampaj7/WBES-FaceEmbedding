@@ -1,0 +1,62 @@
+[
+  {
+    "variant": "baseline_ops",
+    "scenario": "clean",
+    "latent_spearman": 0.5318642267208586,
+    "latent_pearson": 0.5275283448408205
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "jitter",
+    "latent_spearman": 0.530048484771186,
+    "latent_pearson": 0.5295201364969545
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "translation",
+    "latent_spearman": 0.5303480484946371,
+    "latent_pearson": 0.5254958142237763
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "rotation",
+    "latent_spearman": 0.5239703730989063,
+    "latent_pearson": 0.5203823089295507
+  },
+  {
+    "variant": "baseline_ops",
+    "scenario": "mixed",
+    "latent_spearman": 0.5214588305351889,
+    "latent_pearson": 0.5198797048811314
+  },
+  {
+    "variant": "trainscale_ops",
+    "scenario": "clean",
+    "latent_spearman": 0.5319056778524579,
+    "latent_pearson": 0.5275765008127021
+  },
+  {
+    "variant": "trainscale_ops",
+    "scenario": "jitter",
+    "latent_spearman": 0.530088199975916,
+    "latent_pearson": 0.5295667586098958
+  },
+  {
+    "variant": "trainscale_ops",
+    "scenario": "translation",
+    "latent_spearman": 0.5304008692082901,
+    "latent_pearson": 0.5255434869065139
+  },
+  {
+    "variant": "trainscale_ops",
+    "scenario": "rotation",
+    "latent_spearman": 0.5240248188514053,
+    "latent_pearson": 0.5204291193944734
+  },
+  {
+    "variant": "trainscale_ops",
+    "scenario": "mixed",
+    "latent_spearman": 0.5214595954737412,
+    "latent_pearson": 0.51987958988903
+  }
+]

@@ -1,0 +1,8 @@
+n_pairs,spearman_latent_distance,pearson_latent_distance,spearman_raw_chamfer,pearson_raw_chamfer,spearman_rigid_p2p,pearson_rigid_p2p,spearman_nicp_p2p,pearson_nicp_p2p,spearman_nicp_p2tri,pearson_nicp_p2tri,topology_a,topology_b,pair_label
+29700,0.8783255711458269,0.8978744761383859,0.675872006309846,0.6932209362466973,nan,nan,nan,nan,nan,nan,all,all,overall
+4950,0.8306894836118693,0.8571995808268785,0.5575545327552869,0.5546018863554539,nan,nan,nan,nan,nan,nan,crop,crop,crop__to__crop
+4950,0.8830534185859154,0.9019157320521747,0.7429225240790645,0.7758475864035017,nan,nan,nan,nan,nan,nan,down8k,down8k,down8k__to__down8k
+4950,0.900260469058644,0.916559882423057,0.7393124380343167,0.7703698931916332,nan,nan,nan,nan,nan,nan,noisy,noisy,noisy__to__noisy
+4950,0.9020125270835493,0.9167882710014555,0.7294732466529957,0.763937589392394,nan,nan,nan,nan,nan,nan,original,original,original__to__original
+4950,0.8728445655437562,0.893956686785231,0.7093871624950475,0.7451543625019844,nan,nan,nan,nan,nan,nan,remesh,remesh,remesh__to__remesh
+4950,0.8901545622227908,0.9085861885712738,0.7348997121766627,0.7656460115086877,nan,nan,nan,nan,nan,nan,up60k,up60k,up60k__to__up60k

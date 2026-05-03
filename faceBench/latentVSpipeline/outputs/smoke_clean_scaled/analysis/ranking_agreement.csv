@@ -1,0 +1,11 @@
+group,metric,n,spearman_vs_latent,pearson_vs_latent,kendall_vs_latent_sampled,spearman_vs_gt,pearson_vs_gt,same_mean,diff_mean,gap_diff_minus_same,same_vs_diff_auc,top10_overlap_vs_latent,top50_overlap_vs_latent,top100_overlap_vs_latent,scenario
+overall,latent_distance,3,1.0,1.0,1.0,nan,nan,0.22807455559571585,nan,nan,nan,1.0,1.0,1.0,
+overall,raw_chamfer,3,-1.0,-0.9853619771228231,-1.0,nan,nan,0.0007867398927742744,nan,nan,nan,1.0,1.0,1.0,
+overall,rigid_chamfer,3,0.5,-0.37303616320871386,0.3333333333333333,nan,nan,0.0017782305561761932,nan,nan,nan,1.0,1.0,1.0,
+overall,fg_p2p,3,0.5,-0.3045571799890857,0.3333333333333333,nan,nan,0.0015378427120832313,nan,nan,nan,1.0,1.0,1.0,
+overall,fg_p2tri,3,0.5,-0.21151131086112274,0.3333333333333333,nan,nan,0.0013571950031710724,nan,nan,nan,1.0,1.0,1.0,
+clean,latent_distance,3,1.0,1.0,1.0,nan,nan,0.22807455559571585,nan,nan,nan,1.0,1.0,1.0,clean
+clean,raw_chamfer,3,-1.0,-0.9853619771228231,-1.0,nan,nan,0.0007867398927742744,nan,nan,nan,1.0,1.0,1.0,clean
+clean,rigid_chamfer,3,0.5,-0.37303616320871386,0.3333333333333333,nan,nan,0.0017782305561761932,nan,nan,nan,1.0,1.0,1.0,clean
+clean,fg_p2p,3,0.5,-0.3045571799890857,0.3333333333333333,nan,nan,0.0015378427120832313,nan,nan,nan,1.0,1.0,1.0,clean
+clean,fg_p2tri,3,0.5,-0.21151131086112274,0.3333333333333333,nan,nan,0.0013571950031710724,nan,nan,nan,1.0,1.0,1.0,clean

@@ -1,0 +1,315 @@
+\documentclass{article}
+
+\usepackage[eandd]{neurips_2026}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\title{Learning a Topology-Robust Latent Metric for 3D Face Evaluation}
+
+\author{%
+  Anonymous Authors\\
+  Anonymous Institution\\
+  \texttt{anonymous@example.com}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Comparing 3D faces across different meshes, topologies, resolutions, crops, and poses remains difficult because standard geometric distances depend heavily on preprocessing, sampling density, and registration protocol. Alignment pipelines can reduce local geometric discrepancy, but they may also suppress identity-related shape variation that is essential for meaningful similarity ranking across subjects. We propose a mesh-agnostic latent metric for 3D face evaluation. A deep encoder maps a generic 3D face mesh to an embedding space whose pairwise distances are trained to preserve correspondence-based ground-truth geometric dissimilarities computed on topology-consistent synthetic data. At inference time, the metric requires no iterative registration and no explicit dense correspondence between the input meshes. We evaluate the learned metric against raw Chamfer distance, rigidly aligned Chamfer distance, and registration-based correspondence pipelines under controlled topology and perturbation shifts, including remeshing, resolution changes, cropping, noise, rotation, translation, and mixed corruptions. Across mixed-topology benchmarks, the learned metric shows substantially stronger agreement with ground-truth rankings than all geometric baselines. These results suggest that robust 3D face evaluation should prioritize ranking fidelity and cross-topology comparability, and that learned metrics can complement registration-dependent geometric measurements when exact metric units are less important than reliable relative similarity.
+\end{abstract}
+
+\section{Introduction}
+
+Quantitatively comparing two 3D faces is deceptively hard. In the simplest setting, both meshes share the same topology, vertex ordering, scale, and pose; the point-to-point root mean squared error (RMSE) then gives an unambiguous measurement. Most practical settings are not this clean. Reconstructions may use different templates, include different regions of the head, be sampled at different resolutions, contain holes or local noise, and arrive in different rigid poses. Under these conditions, a geometric distance is not only a distance: it is the output of an evaluation pipeline.
+
+Common pipelines therefore combine several operations before reporting a number: cropping, normalization, landmark initialization, rigid alignment, optional non-rigid registration, correspondence estimation, and finally point-to-point, point-to-surface, or Chamfer-style error computation. Each step introduces design choices and hyperparameters. Two researchers can evaluate the same reconstructions and obtain different conclusions simply because they selected different alignment thresholds, crops, templates, or correspondence procedures.
+
+This issue is especially visible in 3D face reconstruction benchmarks. The NoW benchmark aligns predictions to scans using landmarks followed by rigid scan-to-mesh refinement \citep{now2018}. REALY uses a more elaborate region-wise non-rigid registration procedure to obtain more localized measurements \citep{realy2022}. FaceBench-style pipelines expose alignment, correspondence, correction, and distance modules explicitly. These approaches are valuable, but they remain registration-dependent. When two methods output different mesh templates, different crops, or different resolutions, the resulting geometric errors may not be directly comparable.
+
+We argue that the evaluation problem should be separated into two questions. The first is metric measurement: how many millimeters apart are two surfaces under a chosen alignment and correspondence protocol? The second is ranking fidelity: if face $A$ is more similar to face $B$ than to face $C$ according to a trusted reference, does the evaluation metric preserve that ordering and relative scale? For many 3D face modeling tasks, especially cross-method comparison and retrieval-like evaluation, the second question is often the more stable and meaningful one.
+
+This paper proposes a learned latent metric for 3D face evaluation. Instead of defining a hand-crafted registration pipeline for every pair of meshes, we train a mesh-agnostic encoder $f_\theta$ that maps a face mesh $M$ to an embedding $z=f_\theta(M)$. Distances in the embedding space are optimized to preserve ground-truth pairwise dissimilarities computed from topology-consistent synthetic data, where dense correspondence is known by construction. The resulting metric can be applied to meshes with different sampling densities or topology variants without pairwise registration at inference time.
+
+\paragraph{Contributions.}
+Our contributions are:
+\begin{itemize}
+    \item We formulate 3D face evaluation as a ranking-preserving metric learning problem, using topology-consistent synthetic faces to define a ground-truth dissimilarity signal.
+    \item We introduce a mesh-agnostic latent metric that avoids iterative pairwise alignment and explicit dense correspondence at inference time.
+    \item We evaluate the metric under controlled topology and perturbation shifts, including remeshing, downsampling, upsampling, cropping, noise, rigid rotations, rigid translations, and mixed corruptions.
+    \item We show that stronger pairwise geometric alignment does not necessarily imply better global ranking fidelity, and that learned latent distances can outperform raw, rigidly aligned, and registration-based geometric baselines in mixed-topology comparisons.
+\end{itemize}
+
+\section{Related Work}
+
+\paragraph{3D face reconstruction benchmarks.}
+NoW evaluates monocular 3D face reconstruction by aligning predicted meshes to scans using landmarks and rigid refinement, then reporting scan-to-mesh distances \citep{now2018}. This protocol is practical and template-agnostic, but the final score depends on the rigid alignment procedure and scan-to-mesh nearest-neighbor geometry. REALY proposes a richer benchmark with region-wise evaluation and non-rigid registration, improving local diagnostic value while increasing computational and implementation complexity \citep{realy2022}. Such benchmarks are essential for standardized evaluation, but they do not fully resolve comparability across templates, resolutions, and crops.
+
+\paragraph{Geometric distances and registration.}
+Chamfer distance and related point-set distances are widely used because they can compare shapes without known correspondence \citep{fan2017pointset}. However, Chamfer distance is sensitive to sampling density, missing regions, outliers, and rigid misalignment. ICP and its variants reduce this sensitivity by aligning point sets before distance computation \citep{besl1992icp}, while non-rigid ICP and deformation-based pipelines attempt to account for expression and shape differences. These procedures can improve local fit, but their optimization objectives are not necessarily aligned with preserving identity-level or subject-level ranking structure.
+
+\paragraph{Learned perceptual and point-cloud metrics.}
+Learned metrics are common in image evaluation, where features from neural networks can correlate better with perceptual judgments than pixel distances \citep{zhang2018lpips}. FID similarly evaluates distributions through a learned feature space \citep{heusel2017fid}. In 3D, deep distances for point clouds, including DPDist-style approaches, learn comparison functions that can better capture semantic or structural similarity than hand-crafted distances \citep{dpdist2021}. Our work follows this general direction but targets a specific evaluation failure mode: cross-topology 3D face comparison where the desired output is ranking agreement with a known geometric reference, not necessarily a metric-unit surface error.
+
+\section{Problem Formulation}
+
+Let $M_i$ and $M_j$ be two 3D face meshes. In the topology-consistent setting, their vertices are in known semantic correspondence after a canonical alignment, so a ground-truth dissimilarity can be computed as
+\begin{equation}
+    D_{\mathrm{GT}}(M_i,M_j)
+    =
+    \sqrt{\frac{1}{N}\sum_{n=1}^{N}\left\|v_{i,n}-v_{j,n}\right\|_2^2}.
+\end{equation}
+This quantity is unavailable for arbitrary meshes with unknown topology, different resolution, or missing regions. A conventional estimator $\hat{D}_{\mathrm{geo}}$ therefore approximates it with a pipeline:
+\begin{equation}
+    \hat{D}_{\mathrm{geo}} =
+    d\left(
+        c_a\left(a\left(p(M_i),p(M_j)\right)\right),
+        c_b\left(a\left(p(M_i),p(M_j)\right)\right)
+    \right),
+\end{equation}
+where $p$ denotes preprocessing, $a$ alignment or registration, $c$ correspondence or surface projection, and $d$ the final geometric distance. The exact value depends on all of these choices.
+
+We instead learn an encoder $f_\theta$ and define
+\begin{equation}
+    D_\theta(M_i,M_j) = \left\|f_\theta(M_i)-f_\theta(M_j)\right\|_2.
+\end{equation}
+The goal is not to reconstruct the mesh from the embedding. The goal is to make $D_\theta$ preserve the ordering and relative proportions induced by $D_{\mathrm{GT}}$:
+\begin{equation}
+    D_{\mathrm{GT}}(M_i,M_j) < D_{\mathrm{GT}}(M_i,M_k)
+    \Rightarrow
+    D_\theta(M_i,M_j) < D_\theta(M_i,M_k).
+\end{equation}
+We evaluate this preservation using rank correlation, top-$k$ overlap, and ratio-sensitive correlation measures.
+
+\section{Method}
+
+\subsection{Model Architecture}
+
+Our best-performing model is an encoder-only surface network. Given a triangular face mesh $M=(V,F)$, we first normalize the vertex coordinates by subtracting the mesh centroid and dividing by the maximum absolute coordinate value. The network receives the normalized coordinates $V\in\mathbb{R}^{N\times 3}$ together with the mesh faces and precomputed DiffusionNet operators: lumped mass vector, cotangent Laplacian, Laplace--Beltrami eigenpairs, and gradient operators. These operators are used internally by DiffusionNet, but the best model does not use an additional spectral descriptor tower.
+
+The encoder is based on DiffusionNet \citep{sharp2022diffusionnet}, which performs learned diffusion and pointwise feature updates on the surface. This choice is important for our setting because the same face may be represented with different triangulations or sampling densities. DiffusionNet provides a discretization-aware way to communicate information over the surface while avoiding fixed mesh connectivity assumptions.
+
+Formally, a DiffusionNet backbone $\phi_\theta$ maps each vertex to a $d$-dimensional feature:
+\begin{equation}
+    H = \phi_\theta(V,F,\mathcal{O}) \in \mathbb{R}^{N\times d},
+\end{equation}
+where $\mathcal{O}$ denotes the precomputed surface operators. In the selected run, $d=256$, the hidden width is $128$, and the backbone uses four DiffusionNet blocks with gradient features enabled. A small per-vertex bottleneck regularizes the latent field:
+\begin{equation}
+    \tilde{H}
+    =
+    W_2\,\sigma\!\left(\mathrm{Dropout}(W_1 H)\right),
+\end{equation}
+where $W_1:\mathbb{R}^{256}\rightarrow\mathbb{R}^{128}$, $W_2:\mathbb{R}^{128}\rightarrow\mathbb{R}^{256}$, and $\sigma$ is ReLU.
+
+The global face embedding is obtained by combining average and max pooling over vertices:
+\begin{equation}
+    z(M)
+    =
+    W_p\left[
+        \frac{1}{N}\sum_{n=1}^{N}\tilde{h}_n
+        \,;\,
+        \max_{n=1,\ldots,N}\tilde{h}_n
+    \right]
+    \in \mathbb{R}^{256}.
+\end{equation}
+The final metric between two meshes is the Euclidean distance between their embeddings:
+\begin{equation}
+    D_\theta(M_i,M_j)=\left\|z(M_i)-z(M_j)\right\|_2.
+\end{equation}
+The model has no decoder and is never trained to reconstruct the input mesh. This is deliberate: the embedding is optimized only for metric structure, not for preserving every local geometric detail needed for reconstruction.
+
+\subsection{Training Objective}
+
+Training uses topology-consistent synthetic identities for which a subject-level ground-truth distance matrix $D_{\mathrm{GT}}$ is available. Each mini-batch contains multiple subjects and multiple mesh realizations per subject. In the best run, we sample five subjects per batch and up to six mesh variants per subject. Training is performed in a mixed mode with two coupled objectives: a subject-level objective over averaged per-subject embeddings and a mesh-level objective over cross-topology mesh pairs.
+
+\paragraph{Subject-level stress.}
+For each subject $s$, let $\bar{z}_s$ be the mean embedding over the sampled mesh variants of that subject. We compute pairwise latent distances among subjects and match them to the corresponding entries of $D_{\mathrm{GT}}$ with a scale-invariant Smooth L1 stress loss:
+\begin{equation}
+    \mathcal{L}_{\mathrm{stress}}^{\mathrm{subj}}
+    =
+    \mathrm{SmoothL1}
+    \left(
+        \frac{D_\theta^{\mathrm{subj}}}{\mu_\theta^{\mathrm{subj}}},
+        \frac{D_{\mathrm{GT}}^{\mathrm{subj}}}{\mu_{\mathrm{GT}}^{\mathrm{subj}}}
+    \right),
+\end{equation}
+where each $\mu$ is the mean off-diagonal distance in the corresponding batch distance matrix. This normalization makes the loss focus on relative geometry rather than on an arbitrary latent scale.
+
+\paragraph{Cross-topology mesh stress.}
+At the mesh level, we form pairs only between different subjects and different topology variants. If $M_{s,a}$ and $M_{t,b}$ are two sampled meshes with $s\neq t$ and topology labels $a\neq b$, their target distance is $D_{\mathrm{GT}}(s,t)$. The mesh stress loss applies the same normalized Smooth L1 objective to this masked set of cross-topology pairs:
+\begin{equation}
+    \mathcal{L}_{\mathrm{stress}}^{\mathrm{mesh}}
+    =
+    \mathrm{SmoothL1}
+    \left(
+        \frac{D_\theta^{\mathrm{mesh}}}{\mu_\theta^{\mathrm{mesh}}},
+        \frac{D_{\mathrm{GT}}^{\mathrm{mesh}}}{\mu_{\mathrm{GT}}^{\mathrm{mesh}}}
+    \right).
+\end{equation}
+This term explicitly teaches the metric that different discretizations, crops, or sampling densities of the same geometric family should remain comparable in the shared embedding space.
+
+\paragraph{Ranking loss.}
+Stress preserves relative distance scale, but we also directly optimize ordering. For sampled pair observations $(p,q)$ with sufficiently different ground-truth distances, the ranking loss enforces the same ordering in latent space:
+\begin{equation}
+    \mathcal{L}_{\mathrm{rank}}
+    =
+    \max\left(0, m - \mathrm{sign}(D_{\mathrm{GT}}^p-D_{\mathrm{GT}}^q)
+    (D_\theta^p-D_\theta^q)\right).
+\end{equation}
+We use the same ranking form for subject-level and mesh-level distances. The selected run samples 1024 pair comparisons per step, uses margin $m=0.05$, ignores target gaps smaller than $\tau=0.02$, and draws $70\%$ of comparisons from hard high-gap candidates.
+
+\paragraph{Identity-consistency loss.}
+For each subject, embeddings from its different topology variants should collapse around a common identity representation. We therefore add an intra-subject compactness term:
+\begin{equation}
+    \mathcal{L}_{\mathrm{id}}
+    =
+    \frac{1}{|\mathcal{S}|}
+    \sum_{s\in\mathcal{S}}
+    \frac{1}{|\mathcal{M}_s|}
+    \sum_{M\in\mathcal{M}_s}
+    \left\|z(M)-\bar{z}_s\right\|_2^2.
+\end{equation}
+
+\paragraph{Full loss.}
+The final objective is
+\begin{equation}
+    \mathcal{L}
+    =
+    \lambda_{\mathrm{subj}}
+    \left(
+        \mathcal{L}_{\mathrm{stress}}^{\mathrm{subj}}
+        +
+        \lambda_{\mathrm{rank}}\mathcal{L}_{\mathrm{rank}}^{\mathrm{subj}}
+    \right)
+    +
+    \lambda_{\mathrm{mesh}}
+    \left(
+        \mathcal{L}_{\mathrm{stress}}^{\mathrm{mesh}}
+        +
+        \lambda_{\mathrm{rank}}\mathcal{L}_{\mathrm{rank}}^{\mathrm{mesh}}
+    \right)
+    +
+    \lambda_{\mathrm{id}}\mathcal{L}_{\mathrm{id}}.
+\end{equation}
+For the best run, $\lambda_{\mathrm{subj}}=1.0$, $\lambda_{\mathrm{mesh}}=1.0$, $\lambda_{\mathrm{rank}}=0.5$, and $\lambda_{\mathrm{id}}=0.25$.
+
+\subsection{Robustness Augmentation}
+
+During training, each batch is perturbed with probability $0.6$. The perturbation magnitude is sampled log-uniformly in $[5\cdot10^{-4},2\cdot10^{-2}]$. We use translation, rotation, and vertex jitter with sampling weights $4:2:1$. Rotation is sampled up to $0.5 + 12\sigma$ degrees, and translation has per-axis standard deviation $0.001 + 0.03\sigma$. The encoder also receives small Gaussian noise in the per-vertex latent field during training. These perturbations encourage the learned metric to remain stable under rigid misalignment and local sampling noise.
+
+\subsection{Inference}
+
+At inference time, perturbations and latent noise are disabled. Each mesh is normalized, encoded once, and represented by a single 256-dimensional vector. Pairwise evaluation then reduces to Euclidean distance in embedding space. No landmarks, ICP initialization, non-rigid registration, or dense correspondence estimation are required for each pair.
+
+\section{Experimental Setup}
+
+\subsection{Reference Data}
+
+We use synthetic or topology-consistent 3D face data to compute $D_{\mathrm{GT}}$ directly from known point correspondences. This setting provides the reference signal needed to meta-evaluate approximate metrics. The central assumption is that the canonical alignment supplied by the generative face model is a valid reference pose. This assumption should be made explicit: the learned metric is only as meaningful as the ground-truth dissimilarity used to train and evaluate it.
+
+\subsection{Topology and Perturbation Conditions}
+
+We evaluate across topology variants designed to stress different weaknesses of geometric metrics:
+\begin{itemize}
+    \item \textbf{Original}: the canonical topology used to compute correspondence-based reference distances.
+    \item \textbf{Remesh}: a different mesh connectivity and sampling of the same underlying surface.
+    \item \textbf{Downsampled}: a lower-resolution representation.
+    \item \textbf{Upsampled}: a higher-resolution representation.
+    \item \textbf{Crop}: missing facial or head regions.
+    \item \textbf{Noisy}: local geometric perturbations.
+\end{itemize}
+We additionally evaluate rigid rotations, translations, jitter, and mixed corruptions.
+
+\subsection{Baselines}
+
+We compare the latent metric against:
+\begin{itemize}
+    \item \textbf{Raw Chamfer}: symmetric Chamfer distance on the input point sets.
+    \item \textbf{Rigid Chamfer}: sample-based rigid ICP followed by symmetric Chamfer distance.
+    \item \textbf{Rigid CPD Chamfer}: rigid coherent point drift alignment followed by Chamfer distance.
+    \item \textbf{NICP correspondence}: rigid alignment followed by non-rigid ICP correspondence and point-wise or point-to-surface distance computation.
+\end{itemize}
+These baselines represent increasing levels of geometric preprocessing and registration.
+
+\subsection{Metrics}
+
+For each method, we compare the induced pair ordering with the reference ordering. The main statistic is Spearman rank correlation with $D_{\mathrm{GT}}$. We also report whether the learned metric outperforms each baseline per topology/scenario slice. Future versions should include Kendall correlation, Pearson correlation after calibration, top-$k$ overlap, and same-subject versus different-subject separation.
+
+\section{Results}
+
+Table~\ref{tab:method_summary} summarizes the current mixed-topology results collected by the FaceBench latent-versus-geometry pipeline. The latent metric consistently obtains stronger rank agreement than all geometric baselines. Importantly, the model beats every baseline in every evaluated slice of the current summary.
+
+\begin{table}[t]
+    \centering
+    \caption{Average Spearman rank correlation with the ground-truth ordering across mixed-topology evaluations. Higher is better. The final column reports the fraction of evaluated slices in which the learned metric outperforms the corresponding geometric baseline.}
+    \label{tab:method_summary}
+    \begin{tabular}{lrrrr}
+        \toprule
+        Baseline & Slices & Baseline $\rho$ & Latent $\rho$ & Win rate \\
+        \midrule
+        NICP correspondence & 150 & 0.186 & 0.730 & 1.00 \\
+        Raw Chamfer & 180 & 0.338 & 0.725 & 1.00 \\
+        Rigid Chamfer & 150 & 0.292 & 0.730 & 1.00 \\
+        Rigid CPD Chamfer & 150 & 0.011 & 0.730 & 1.00 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The results also show that better local registration does not automatically produce better global rankings. For example, non-rigid correspondence pipelines can reduce local geometric discrepancy, yet their average ranking correlation remains far below the learned latent metric. This supports our central claim: pairwise alignment quality and benchmark ranking fidelity are related but distinct objectives.
+
+Across perturbation conditions, the learned metric remains substantially more correlated with the reference ordering than the geometric baselines. In the clean setting, the latent metric reaches an average Spearman correlation of approximately $0.764$, compared with $0.343$ for raw Chamfer, $0.307$ for rigid Chamfer, and $0.215$ for NICP correspondence. Under mixed perturbations, the latent metric remains around $0.646$--$0.677$ depending on the baseline comparison, while geometric baselines fall between approximately $0.013$ and $0.326$.
+
+\section{Discussion}
+
+These findings suggest that a learned latent metric can serve as a practical complement to geometric error pipelines. It is not a replacement for metric-unit surface measurement when exact distances in millimeters matter. Instead, it addresses a different evaluation need: stable, fast, cross-topology similarity ranking.
+
+This distinction matters for comparing reconstruction methods that output different templates. A FLAME-based method, a BFM-based method, and a custom mesh generator may all represent plausible faces, but a template-dependent error pipeline can favor one representation over another because of sampling, crop, or registration details. A latent metric trained to preserve topology-consistent reference distances can reduce this dependency.
+
+The results also caution against using registration success as a proxy for evaluation success. ICP or non-rigid ICP can improve surface overlap for a pair of meshes while also removing or warping identity-discriminative shape differences. If the benchmark objective is to rank which faces are more similar, excessive alignment can make the resulting distance less faithful to the reference ranking.
+
+\section{Limitations}
+
+The proposed metric is learned and therefore inherits the limitations of its training data. It may fail on out-of-distribution geometry, stylized faces, scans with severe artifacts, demographic groups underrepresented in the training distribution, or non-human characters. It is also less interpretable than a direct millimeter error. A distance of $0.2$ in embedding space does not have the same physical meaning as $0.2$ mm on a mesh.
+
+The method further depends on the validity of the reference dissimilarity. We assume that topology-consistent synthetic faces provide a reliable ground-truth ordering after canonical alignment. If that alignment is biased, or if the synthetic model fails to capture relevant real-world variation, the learned metric will reflect those limitations.
+
+Finally, the current evaluation emphasizes ranking correlation. Additional work should assess calibration, uncertainty, robustness to severe missing data, fairness across demographic groups, and transfer to real scans where exact correspondence-based ground truth is unavailable.
+
+\section{Conclusion}
+
+We presented a topology-robust latent metric for 3D face evaluation. By training an encoder to preserve correspondence-based ground-truth dissimilarities in a latent space, the method avoids pairwise registration and dense correspondence estimation at inference time. In mixed-topology experiments, the learned metric substantially outperforms raw Chamfer, rigidly aligned Chamfer, rigid CPD Chamfer, and NICP-based correspondence baselines in ranking agreement with the reference ordering. These results support a broader view of 3D face evaluation: when cross-template comparability is the goal, ranking fidelity can be more informative than local pairwise alignment quality.
+
+\begin{ack}
+Acknowledgments, funding disclosures, and competing-interest statements should be added only in the final non-anonymous version.
+\end{ack}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+
+\section{Implementation Details}
+
+The current baseline configuration uses the run directory:
+\begin{verbatim}
+face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/
+mixed_xtopo_rank0p5_id0p25_bs5_best
+\end{verbatim}
+with a 256-dimensional latent embedding. The geometry comparison summaries are generated by the scripts in \texttt{latentVSpipeline/}.
+
+\section{NeurIPS Checklist}
+
+\input{checklist.tex}
+
+\end{document}
