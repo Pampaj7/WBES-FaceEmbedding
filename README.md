@@ -13,9 +13,6 @@
   Official research repository for the NeurIPS 2026 submission on identity-sensitive 3D face embeddings under topology changes.
 </p>
 
-<p align="center">
-  <img src="WBES/plots/wbes_density_grid.png" alt="WBES density grid" width="84%">
-</p>
 
 ## Overview
 
