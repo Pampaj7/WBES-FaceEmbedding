@@ -48,6 +48,19 @@ The codebase tackles that problem in five connected layers:
 
 The repository also contains GT-ready alignment, remeshing utilities, operator precomputation, and a vendored `BFM_to_FLAME` conversion utility.
 
+## Public Dataset Release
+
+The mesh-only public dataset release is already on Hugging Face:
+
+- [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
+
+It contains two no-operator archives:
+
+- `REMESH_npz_data_topo_500_noops.tar.zst`: REMESH with `500` subjects and `6` topology variants per subject, stored as mesh-only `.npz` files.
+- `FaceVerse_cross_topology_10k_noops.tar.zst`: FaceVerse cross-topology data with `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
+
+These archives are intended as the safe/public data release. Intrinsic-operator datasets, checkpoints, and heavy pair-level evaluation dumps are treated as separate research artifacts.
+
 ## If You Only Read One Part
 
 The technical center of gravity is:
