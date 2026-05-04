@@ -14,6 +14,14 @@ __pycache__/
 /WBES/results_landmarks/
 /WBES/z_notes.txt
 
+# Local Hugging Face packaging/export artifacts.
+/hf_exports/
+/hf_model_exports/
+/hf_repo_snapshot_exports/
+/hf_repo_snapshot_upload/
+/FaceVerse_cross_topology_10k_noops.tar.zst
+/REMESH_npz_data_topo_500_noops.tar.zst
+
 # Local experiment artifacts
 /face_embedding/gt_encdec/autoencoder/AAAAAAAAAAA/
 /face_embedding/gt_encdec/autoencoder/latent_analysis/D_tmp.dat
