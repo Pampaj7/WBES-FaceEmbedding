@@ -39,6 +39,13 @@ The selected checkpoint has also been published as a Hugging Face model reposito
 
 - [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
 
+## Availability Links
+
+- Code repository: [`Pampaj7/WBES-FaceEmbedding`](https://github.com/Pampaj7/WBES-FaceEmbedding)
+- Selected model checkpoint: [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
+- Mesh-only dataset package: [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
+- Full workspace artifact snapshot: [`Pampaj/wbes-faceembedding-repo-snapshot`](https://hf.co/datasets/Pampaj/wbes-faceembedding-repo-snapshot)
+
 The codebase tackles that problem in five connected layers:
 
 - `face_embedding`: the main modeling branch, with DiffusionNet-based encoders, autoencoders, latent analysis, and spectral variants.
@@ -51,7 +58,7 @@ The repository also contains GT-ready alignment, remeshing utilities, operator p
 
 ## Public Dataset Release
 
-The mesh-only public dataset release is already on Hugging Face:
+The mesh-only dataset package is on Hugging Face:
 
 - [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
 
@@ -60,7 +67,7 @@ It contains two no-operator archives:
 - `REMESH_npz_data_topo_500_noops.tar.zst`: REMESH with `500` subjects and `6` topology variants per subject, stored as mesh-only `.npz` files.
 - `FaceVerse_cross_topology_10k_noops.tar.zst`: FaceVerse cross-topology data with `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
 
-These archives are intended as the safe/public data release. Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; the selected checkpoint is published separately as the model repo linked above.
+Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; the selected checkpoint is published separately as the model repo linked above. If releasing generated meshes derived from upstream 3DMM assets, check the upstream license before treating this package as a public redistribution artifact.
 
 ## If You Only Read One Part
 
