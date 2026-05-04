@@ -113,9 +113,9 @@ Observed operator-enriched REMESH split in `datasets/REMESH/npz_data_topo_500_wi
 
 This matters because the current top model and the FaceBench comparison both assume all six topology labels are available with operators. The current checkout now satisfies that assumption for REMESH.
 
-### 2.2.1 Hugging Face public dataset release
+### 2.2.1 Hugging Face dataset package
 
-The no-operator public dataset release has already been published on Hugging Face:
+The no-operator mesh package is on Hugging Face:
 
 - `Pampaj/wbes-faceembedding-noops`
 - <https://hf.co/datasets/Pampaj/wbes-faceembedding-noops>
@@ -136,7 +136,13 @@ Local export copies were observed under `hf_exports/`:
 - `hf_exports/REMESH_npz_data_topo_500_noops.tar.zst`
 - `hf_exports/FaceVerse_cross_topology_10k_noops.tar.zst`
 
-This release should be described as the public mesh-only dataset package. It is not the same as the operator-enriched training/evaluation directories used by the top DiffusionNet model, and it does not include checkpoints or heavy pair-level evaluation dumps.
+This package should be described as the mesh-only dataset package. It is not the same as the operator-enriched training/evaluation directories used by the top DiffusionNet model, and it does not include checkpoints or heavy pair-level evaluation dumps. If the generated meshes are derived from upstream 3DMM assets such as BFM, check the upstream license before treating the package as a public redistribution artifact.
+
+Related public artifact links:
+
+- code repository: <https://github.com/Pampaj7/WBES-FaceEmbedding>
+- selected model checkpoint: <https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1>
+- full workspace artifact snapshot: <https://hf.co/datasets/Pampaj/wbes-faceembedding-repo-snapshot>
 
 ### 2.3 Stored Results Snapshot
 
