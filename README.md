@@ -54,6 +54,7 @@ The repository also contains GT-ready alignment, remeshing utilities, operator p
 The mesh-only public dataset release is already on Hugging Face:
 
 - [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
+- Croissant metadata for the dataset submission: [`croissant.json`](https://huggingface.co/datasets/Pampaj/wbes-faceembedding-noops/resolve/main/croissant.json)
 
 It contains two no-operator archives:
 
@@ -61,6 +62,8 @@ It contains two no-operator archives:
 - `FaceVerse_cross_topology_10k_noops.tar.zst`: FaceVerse cross-topology data with `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
 
 These archives are intended as the safe/public data release. Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; the selected checkpoint is published separately as the model repo linked above.
+
+The Croissant metadata includes the required core metadata and Responsible AI fields, including intended use, limitations, biases, synthetic-data provenance, and misuse considerations.
 
 ## If You Only Read One Part
 

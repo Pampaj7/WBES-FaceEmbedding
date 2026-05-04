@@ -119,6 +119,7 @@ The no-operator public dataset release has already been published on Hugging Fac
 
 - `Pampaj/wbes-faceembedding-noops`
 - <https://hf.co/datasets/Pampaj/wbes-faceembedding-noops>
+- Croissant metadata: <https://huggingface.co/datasets/Pampaj/wbes-faceembedding-noops/resolve/main/croissant.json>
 
 Published archives:
 
@@ -137,6 +138,8 @@ Local export copies were observed under `hf_exports/`:
 - `hf_exports/FaceVerse_cross_topology_10k_noops.tar.zst`
 
 This release should be described as the public mesh-only dataset package. It is not the same as the operator-enriched training/evaluation directories used by the top DiffusionNet model, and it does not include checkpoints or heavy pair-level evaluation dumps.
+
+For dataset-submission forms, use this dataset as the Dataset URL and upload the accompanying Croissant JSON. The Croissant file contains both core Croissant metadata and the Responsible AI fields needed to document intended use, limitations, biases, synthetic-data provenance, personal/sensitive information, and misuse considerations.
 
 ### 2.3 Stored Results Snapshot
 
