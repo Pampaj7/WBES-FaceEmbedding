@@ -41,7 +41,7 @@ The selected checkpoint has also been published as a Hugging Face model reposito
 
 ## Availability Links
 
-- Code repository: [`Pampaj7/WBES-FaceEmbedding`](https://github.com/Pampaj7/WBES-FaceEmbedding)
+- Code repository: ******
 - Selected model checkpoint: [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
 - Mesh-only dataset package: [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
 - Full workspace artifact snapshot: [`Pampaj/wbes-faceembedding-repo-snapshot`](https://hf.co/datasets/Pampaj/wbes-faceembedding-repo-snapshot)
@@ -381,10 +381,7 @@ Important note:
 
 ## Author
 
-Leonardo Pampaloni  
-AI Engineer and Researcher  
-University of Florence (MICC)  
-Former AI Research Intern at CHOP
+Anonymized
 
 ## Citation
 
