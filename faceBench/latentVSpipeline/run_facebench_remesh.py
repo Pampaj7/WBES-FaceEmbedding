@@ -9,7 +9,11 @@ Pipeline stages (all use the real facebench library, not fg_metrics.py):
   raw     – symmetric Chamfer distance (no alignment)
   rigid   – ICP (bbox prealign) + P2P mean distance
   nicp    – rigid ICP → non-rigid ICP → Chamfer correspondence → P2P mean
-  p2tri   – same as nicp but P2Tri distance
+  nicp_direct – non-rigid ICP directly on input meshes, no rigid ICP prealign;
+                use the deformation only for correspondence, then measure on originals
+  nicp_bbox – bbox center/scale prealign → non-rigid ICP, no rigid ICP iterations;
+              use the deformation only for correspondence, then measure on bbox-prealigned source
+  p2tri   – same as nicp/nicp_direct/nicp_bbox but P2Tri distance
 
 Outputs per topology pair and overall:
   - pair_metrics.csv       : one row per mesh pair with all metrics + latent + gt distance
@@ -59,6 +63,7 @@ sys.path.insert(0, str(FACBENCH_DIR))             # makes `import facebench` wor
 sys.path.insert(0, str(THIS_DIR))
 
 import facebench as fb
+from facebench.rigid_aligners.icp import prealign_by_bbox
 from mesh_npz_utils import load_normalized_vertices_npz, load_withops_sample_npz
 
 TOPOLOGIES = ["crop", "down8k", "noisy", "original", "remesh", "up60k"]
@@ -85,8 +90,14 @@ class PairRecord:
     rigid_p2p: float = math.nan
     nicp_p2p: float = math.nan
     nicp_p2tri: float = math.nan
+    nicp_direct_p2p: float = math.nan
+    nicp_direct_p2tri: float = math.nan
+    nicp_bbox_p2p: float = math.nan
+    nicp_bbox_p2tri: float = math.nan
     rigid_seconds: float = math.nan
     nicp_seconds: float = math.nan
+    nicp_direct_seconds: float = math.nan
+    nicp_bbox_seconds: float = math.nan
     status: str = "ok"
     error: str = ""
 
@@ -130,8 +141,14 @@ def run_geometry_pipeline(
         "rigid_p2p": math.nan,
         "nicp_p2p": math.nan,
         "nicp_p2tri": math.nan,
+        "nicp_direct_p2p": math.nan,
+        "nicp_direct_p2tri": math.nan,
+        "nicp_bbox_p2p": math.nan,
+        "nicp_bbox_p2tri": math.nan,
         "rigid_seconds": math.nan,
         "nicp_seconds": math.nan,
+        "nicp_direct_seconds": math.nan,
+        "nicp_bbox_seconds": math.nan,
     }
     try:
         X = load_verts(Path(path_a))
@@ -174,6 +191,31 @@ def run_geometry_pipeline(
             if "p2tri" in stages or "nicp" in stages:
                 result["nicp_p2tri"] = float(np.mean(fb.p2tri_distance(X_nicp, Ys, corr_n)))
 
+        # 4. Direct non-rigid ICP → P2P and P2Tri, without rigid ICP prealign
+        if "nicp_direct" in stages:
+            Xs = sample_pts(X, max_sample_points, seed)
+            Ys = sample_pts(Y, max_sample_points, seed + 1)
+            t0 = time.time()
+            X_nicp_direct = fb.nonrigid_icp_align(Xs, Ys)
+            result["nicp_direct_seconds"] = float(time.time() - t0)
+            corr_nd = fb.chamfer_correspondence(X_nicp_direct, Ys)
+            result["nicp_direct_p2p"] = float(np.mean(fb.p2p_distance(Xs, Ys, corr_nd)))
+            if "p2tri" in stages or "nicp_direct" in stages:
+                result["nicp_direct_p2tri"] = float(np.mean(fb.p2tri_distance(Xs, Ys, corr_nd)))
+
+        # 5. BBox prealign + non-rigid ICP → P2P and P2Tri, without rigid ICP iterations
+        if "nicp_bbox" in stages:
+            Xs = sample_pts(X, max_sample_points, seed)
+            Ys = sample_pts(Y, max_sample_points, seed + 1)
+            X_bbox = prealign_by_bbox(Xs, Ys)
+            t0 = time.time()
+            X_nicp_bbox = fb.nonrigid_icp_align(X_bbox, Ys)
+            result["nicp_bbox_seconds"] = float(time.time() - t0)
+            corr_nb = fb.chamfer_correspondence(X_nicp_bbox, Ys)
+            result["nicp_bbox_p2p"] = float(np.mean(fb.p2p_distance(X_bbox, Ys, corr_nb)))
+            if "p2tri" in stages or "nicp_bbox" in stages:
+                result["nicp_bbox_p2tri"] = float(np.mean(fb.p2tri_distance(X_bbox, Ys, corr_nb)))
+
     except Exception as exc:
         result["status"] = "failed"
         result["error"] = f"{type(exc).__name__}: {exc}"
@@ -191,8 +233,14 @@ def _worker(args: tuple) -> PairRecord:
     rec.rigid_p2p = metrics.get("rigid_p2p", math.nan)
     rec.nicp_p2p = metrics.get("nicp_p2p", math.nan)
     rec.nicp_p2tri = metrics.get("nicp_p2tri", math.nan)
+    rec.nicp_direct_p2p = metrics.get("nicp_direct_p2p", math.nan)
+    rec.nicp_direct_p2tri = metrics.get("nicp_direct_p2tri", math.nan)
+    rec.nicp_bbox_p2p = metrics.get("nicp_bbox_p2p", math.nan)
+    rec.nicp_bbox_p2tri = metrics.get("nicp_bbox_p2tri", math.nan)
     rec.rigid_seconds = metrics.get("rigid_seconds", math.nan)
     rec.nicp_seconds = metrics.get("nicp_seconds", math.nan)
+    rec.nicp_direct_seconds = metrics.get("nicp_direct_seconds", math.nan)
+    rec.nicp_bbox_seconds = metrics.get("nicp_bbox_seconds", math.nan)
     if "status" in metrics:
         rec.status = metrics["status"]
         rec.error = metrics.get("error", "")
@@ -439,7 +487,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--topo_pairs", default="all",
                    help="'all' or comma-separated e.g. 'original,remesh;crop,down8k'")
     p.add_argument("--stages", default="raw,rigid,nicp",
-                   help="Comma-separated stages: raw, rigid, nicp")
+                   help="Comma-separated stages: raw, rigid, nicp, nicp_direct, nicp_bbox")
     p.add_argument("--max_sample_points", type=int, default=4096,
                    help="Max points per mesh for geometry pipeline (0=all)")
     p.add_argument("--workers", type=int, default=4,
@@ -464,7 +512,17 @@ def main() -> None:
     npz_root = Path(args.npz_root)
     withops_root = Path(args.withops_root)
     stages = [s.strip() for s in args.stages.split(",") if s.strip()]
-    metric_cols = ["latent_distance", "raw_chamfer", "rigid_p2p", "nicp_p2p", "nicp_p2tri"]
+    metric_cols = [
+        "latent_distance",
+        "raw_chamfer",
+        "rigid_p2p",
+        "nicp_p2p",
+        "nicp_p2tri",
+        "nicp_direct_p2p",
+        "nicp_direct_p2tri",
+        "nicp_bbox_p2p",
+        "nicp_bbox_p2tri",
+    ]
 
     # ── topology pairs ────────────────────────────────────────────────────────
     if args.topo_pairs == "all":
@@ -567,7 +625,7 @@ def main() -> None:
     print("\n" + "=" * 70)
     print("RANKING SUMMARY (Spearman vs GT distance matrix)")
     print("=" * 70)
-    header = f"{'Pair':<25} {'lat_sp':>8} {'raw_sp':>8} {'rig_sp':>8} {'nicp_sp':>9} {'p2tri_sp':>9} {'n':>7}"
+    header = f"{'Pair':<25} {'lat_sp':>8} {'raw_sp':>8} {'rig_sp':>8} {'nicp_sp':>9} {'p2tri_sp':>9} {'dir_sp':>8} {'bbox_sp':>8} {'n':>7}"
     print(header)
     print("-" * 70)
     for row in summary_rows:
@@ -579,6 +637,8 @@ def main() -> None:
             f" {_fmt(row.get('spearman_rigid_p2p')):>8}"
             f" {_fmt(row.get('spearman_nicp_p2p')):>9}"
             f" {_fmt(row.get('spearman_nicp_p2tri')):>9}"
+            f" {_fmt(row.get('spearman_nicp_direct_p2p')):>8}"
+            f" {_fmt(row.get('spearman_nicp_bbox_p2p')):>8}"
             f" {row.get('n_pairs', ''):>7}"
         )
     print("=" * 70)

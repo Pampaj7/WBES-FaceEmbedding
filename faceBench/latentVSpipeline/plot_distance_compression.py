@@ -148,10 +148,7 @@ def boxplot(clean_summary: list[dict[str, str]], out: Path) -> None:
     def xmap(x: float) -> float:
         return left + x / xmax * pw
 
-    parts = [
-        '<text class="title" x="70" y="34">Registration compresses inter-subject distance spread</text>',
-        '<text class="sub" x="70" y="54">Boxes show P25-P75, whiskers show P05-P95, line is median.</text>',
-    ]
+    parts = []
     for t in [0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12]:
         x = xmap(t)
         parts.append(f'<line class="grid" x1="{x:.1f}" y1="{top}" x2="{x:.1f}" y2="{top+ph}"/>')

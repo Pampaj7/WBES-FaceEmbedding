@@ -112,6 +112,15 @@ def parse_args() -> argparse.Namespace:
         help="Write JSON/CSV/MD artifacts for each topology-pair",
     )
     p.add_argument(
+        "--write_pair_metrics",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help=(
+            "Also write per-topology-pair observations as pair_metrics.csv. "
+            "When --mesh_pair_level is false, rows are subject-pair means."
+        ),
+    )
+    p.add_argument(
         "--mesh_pair_level",
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -262,6 +271,104 @@ def _aggregate_grouped_values(values: np.ndarray, group_members: Sequence[np.nda
             continue
         aggregated[group_idx] = float(member_values.mean())
     return aggregated
+
+
+def _build_topology_pair_metric_rows(
+    *,
+    topology_a: str,
+    topology_b: str,
+    mesh_pair_indices: np.ndarray,
+    pair_subject_ids_a: np.ndarray,
+    pair_subject_ids_b: np.ndarray,
+    pair_gt_mesh_values: np.ndarray,
+    latent_mesh_values: np.ndarray,
+    chamfer_mesh_values: np.ndarray,
+    mesh_pair_level: bool,
+) -> list[dict]:
+    selected_indices = np.asarray(mesh_pair_indices, dtype=np.int64)
+    if selected_indices.size == 0:
+        return []
+
+    subject_ids_a = np.asarray(pair_subject_ids_a[selected_indices], dtype=object)
+    subject_ids_b = np.asarray(pair_subject_ids_b[selected_indices], dtype=object)
+    gt_mesh_values = np.asarray(pair_gt_mesh_values[selected_indices], dtype=np.float64)
+    latent_mesh = np.asarray(latent_mesh_values[selected_indices], dtype=np.float64)
+    chamfer_mesh = np.asarray(chamfer_mesh_values[selected_indices], dtype=np.float64)
+
+    rows: list[dict] = []
+    if mesh_pair_level:
+        for local_idx, mesh_pair_idx in enumerate(selected_indices.tolist()):
+            rows.append(
+                {
+                    "subject_a": str(subject_ids_a[local_idx]),
+                    "subject_b": str(subject_ids_b[local_idx]),
+                    "topology_a": str(topology_a),
+                    "topology_b": str(topology_b),
+                    "gt_distance": float(gt_mesh_values[local_idx]),
+                    "latent_distance": float(latent_mesh[local_idx]),
+                    "raw_chamfer": float(chamfer_mesh[local_idx]),
+                    "n_mesh_pairs": 1,
+                    "mesh_pair_index": int(mesh_pair_idx),
+                }
+            )
+        return rows
+
+    subject_pair_keys, group_members = _group_subject_pair_members(
+        subject_ids_a=subject_ids_a,
+        subject_ids_b=subject_ids_b,
+    )
+    gt_values = np.asarray(
+        [gt_mesh_values[int(group_members[group_idx][0])] for group_idx in range(len(group_members))],
+        dtype=np.float64,
+    )
+    latent_values = _aggregate_grouped_values(latent_mesh, group_members=group_members)
+    chamfer_values = _aggregate_grouped_values(chamfer_mesh, group_members=group_members)
+    for group_idx, (subject_a, subject_b) in enumerate(subject_pair_keys):
+        rows.append(
+            {
+                "subject_a": str(subject_a),
+                "subject_b": str(subject_b),
+                "topology_a": str(topology_a),
+                "topology_b": str(topology_b),
+                "gt_distance": float(gt_values[group_idx]),
+                "latent_distance": float(latent_values[group_idx]),
+                "raw_chamfer": float(chamfer_values[group_idx]),
+                "n_mesh_pairs": int(len(group_members[group_idx])),
+                "mesh_pair_index": "",
+            }
+        )
+    return rows
+
+
+def _write_pair_metrics_csv(path: Path, rows: Sequence[dict]) -> None:
+    header = [
+        "subject_a",
+        "subject_b",
+        "topology_a",
+        "topology_b",
+        "gt_distance",
+        "latent_distance",
+        "raw_chamfer",
+        "n_mesh_pairs",
+        "mesh_pair_index",
+    ]
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=header)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(
+                {
+                    "subject_a": row["subject_a"],
+                    "subject_b": row["subject_b"],
+                    "topology_a": row["topology_a"],
+                    "topology_b": row["topology_b"],
+                    "gt_distance": _format_float(row["gt_distance"]),
+                    "latent_distance": _format_float(row["latent_distance"]),
+                    "raw_chamfer": _format_float(row["raw_chamfer"]),
+                    "n_mesh_pairs": int(row["n_mesh_pairs"]),
+                    "mesh_pair_index": row["mesh_pair_index"],
+                }
+            )
 
 
 def _summarize_topology_pair(
@@ -737,6 +844,19 @@ def main() -> None:
             _write_json(json_path, payload)
             _write_pair_summary_csv(csv_path, row=row)
             _write_pair_summary_md(md_path, row=row)
+            if cli_args.write_pair_metrics:
+                pair_metrics_rows = _build_topology_pair_metric_rows(
+                    topology_a=topology_a,
+                    topology_b=topology_b,
+                    mesh_pair_indices=mesh_pair_indices,
+                    pair_subject_ids_a=pair_subject_ids_a,
+                    pair_subject_ids_b=pair_subject_ids_b,
+                    pair_gt_mesh_values=pair_gt_mesh_values,
+                    latent_mesh_values=latent_mesh_values,
+                    chamfer_mesh_values=chamfer_mesh_values,
+                    mesh_pair_level=bool(cli_args.mesh_pair_level),
+                )
+                _write_pair_metrics_csv(pair_dir / "pair_metrics.csv", rows=pair_metrics_rows)
 
             row["output_dir"] = str(pair_dir)
             row["output_json"] = str(json_path)

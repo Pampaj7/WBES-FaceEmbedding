@@ -22,6 +22,11 @@ GRAY = (107, 114, 128)
 GRID = (229, 231, 235)
 WHITE = (255, 255, 255)
 RED = (220, 38, 38)
+AXIS_LABELS = {
+    "rigid_p2p": "Rigid ICP P2P distance",
+    "nicp_p2p": "NICP P2P distance",
+    "nicp_p2tri": "NICP P2Tri distance",
+}
 
 
 def font(size: int, bold: bool = False):
@@ -39,9 +44,9 @@ def font(size: int, bold: bool = False):
 
 F_TITLE = font(30, True)
 F_SUB = font(19)
-F_LABEL = font(20)
-F_TICK = font(16)
-F_SMALL = font(15)
+F_LABEL = font(22)
+F_TICK = font(18)
+F_SMALL = font(17)
 
 
 def parse_args() -> argparse.Namespace:
@@ -60,6 +65,19 @@ def s(x: float, scale: int) -> int:
 
 def text(draw, xy, value, fill, fnt, scale, anchor=None):
     draw.text((s(xy[0], scale), s(xy[1], scale)), value, fill=fill, font=fnt, anchor=anchor)
+
+
+def rotated_text(img: Image.Image, xy, value: str, fill, fnt, scale: int, angle: int = 90):
+    bbox = fnt.getbbox(value)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    label = Image.new("RGBA", (tw + 8 * scale, th + 8 * scale), (255, 255, 255, 0))
+    label_draw = ImageDraw.Draw(label)
+    label_draw.text((4 * scale - bbox[0], 4 * scale - bbox[1]), value, fill=fill, font=fnt)
+    label = label.rotate(angle, expand=True)
+    x = s(xy[0], scale) - label.size[0] // 2
+    y = s(xy[1], scale) - label.size[1] // 2
+    img.paste(label, (x, y), label)
 
 
 def line(draw, xy, fill, width, scale):
@@ -122,7 +140,7 @@ def density_color(t: float) -> tuple[int, int, int]:
     return tuple(int(c0[i] * (1 - a) + c1[i] * a) for i in range(3))
 
 
-def draw_panel(draw, rows, metric, label, px, py, pw, ph, xmax, ymax, scale):
+def draw_panel(img, draw, rows, metric, label, px, py, pw, ph, xmax, ymax, scale, show_median: bool = False):
     bins_x, bins_y = 90, 70
     counts = [[0 for _ in range(bins_y)] for _ in range(bins_x)]
     by_x = [[] for _ in range(bins_x)]
@@ -148,11 +166,11 @@ def draw_panel(draw, rows, metric, label, px, py, pw, ph, xmax, ymax, scale):
     for t in [0, 0.025, 0.05, 0.075, 0.10]:
         x = xmap(t)
         line(draw, (x, py, x, py + ph), GRID, 1, scale)
-        text(draw, (x, py + ph + 22), f"{t:.3f}", GRAY, F_TICK, scale, "mm")
+        text(draw, (x, py + ph + 26), f"{t:.3f}", GRAY, F_TICK, scale, "mm")
     for t in [0, ymax / 4, ymax / 2, ymax * 3 / 4, ymax]:
         y = ymap(t)
         line(draw, (px, y, px + pw, y), GRID, 1, scale)
-        text(draw, (px - 8, y), f"{t:.3f}", GRAY, F_TICK, scale, "rm")
+        text(draw, (px - 12, y), f"{t:.3f}", GRAY, F_TICK, scale, "rm")
 
     cell_w = pw / bins_x
     cell_h = ph / bins_y
@@ -173,15 +191,16 @@ def draw_panel(draw, rows, metric, label, px, py, pw, ph, xmax, ymax, scale):
     m = min(xmax, ymax)
     line(draw, (xmap(0), ymap(0), xmap(m), ymap(m)), (31, 41, 55), 2, scale)
 
-    median_pts = []
-    for ix, vals in enumerate(by_x):
-        if len(vals) < 20:
-            continue
-        x = (ix + 0.5) / bins_x * xmax
-        y = quantile(vals, 0.5)
-        median_pts.append((s(xmap(x), scale), s(ymap(y), scale)))
-    if len(median_pts) > 1:
-        draw.line(median_pts, fill=RED, width=4 * scale)
+    if show_median:
+        median_pts = []
+        for ix, vals in enumerate(by_x):
+            if len(vals) < 20:
+                continue
+            x = (ix + 0.5) / bins_x * xmax
+            y = quantile(vals, 0.5)
+            median_pts.append((s(xmap(x), scale), s(ymap(y), scale)))
+        if len(median_pts) > 1:
+            draw.line(median_pts, fill=RED, width=4 * scale)
 
     line(draw, (px, py + ph, px + pw, py + ph), BLACK, 1, scale)
     line(draw, (px, py, px, py + ph), BLACK, 1, scale)
@@ -190,6 +209,8 @@ def draw_panel(draw, rows, metric, label, px, py, pw, ph, xmax, ymax, scale):
     y_std = math.sqrt(sum((y - sum(ys) / len(ys)) ** 2 for y in ys) / len(ys))
     note = f"r={corr(xs, ys):.2f}, std ratio={y_std / x_std:.2f}"
     text(draw, (px + 8, py + 22), note, BLACK, F_SMALL, scale)
+    text(draw, (px + pw / 2, py + ph + 62), "Raw Chamfer distance", BLACK, F_LABEL, scale, "mm")
+    rotated_text(img, (px - 72, py + ph / 2), AXIS_LABELS.get(metric, label), BLACK, F_LABEL, scale, 90)
 
 
 def draw_raw_distribution_panel(draw, rows, px, py, pw, ph, xmax, ymax, scale):
@@ -234,22 +255,19 @@ def draw_raw_distribution_panel(draw, rows, px, py, pw, ph, xmax, ymax, scale):
 
 
 def draw_shared_axes_registered_only(rows, out_dir: Path, scale: int) -> Path:
-    w, h = 1500, 660
-    left, right, top, bottom, gap = 86, 42, 150, 98, 82
+    w, h = 1540, 680
+    left, right, top, bottom, gap = 126, 44, 92, 142, 98
     pw = (w - left - right - 2 * gap) / 3
     ph = h - top - bottom
     img = Image.new("RGB", (w * scale, h * scale), WHITE)
     draw = ImageDraw.Draw(img, "RGBA")
-    text(draw, (64, 34), "Raw vs registered distance density", BLACK, F_TITLE, scale)
-    text(draw, (64, 68), f"Clean cross-topology evaluation, {len(rows):,} sampled mesh pairs. Red line: binned median; all panels use shared axes.", GRAY, F_SUB, scale)
 
     raw_vals = [r["raw_chamfer"] for r in rows]
     xmax = quantile(raw_vals, 0.995) * 1.05
     shared_ymax = xmax
     for i, (metric, label) in enumerate(METRICS):
         px = left + i * (pw + gap)
-        draw_panel(draw, rows, metric, label, px, top, pw, ph, xmax, shared_ymax, scale)
-    text(draw, (left + (w - left - right) / 2, h - 30), "Raw Chamfer distance", BLACK, F_LABEL, scale, "mm")
+        draw_panel(img, draw, rows, metric, label, px, top, pw, ph, xmax, shared_ymax, scale)
     path = out_dir / "raw_vs_registered_density_panels_shared_axes.png"
     img.save(path)
     return path
@@ -272,7 +290,7 @@ def draw_with_raw_panel(rows, out_dir: Path, scale: int) -> Path:
     draw_raw_distribution_panel(draw, rows, left, top, raw_pw, ph, xmax, shared_ymax, scale)
     for i, (metric, label) in enumerate(METRICS):
         px = left + raw_pw + gap + i * (pw + gap)
-        draw_panel(draw, rows, metric, label, px, top, pw, ph, xmax, shared_ymax, scale)
+        draw_panel(img, draw, rows, metric, label, px, top, pw, ph, xmax, shared_ymax, scale)
     text(draw, (left + raw_pw + gap + (w - left - right - raw_pw - gap) / 2, h - 30), "Raw Chamfer distance", BLACK, F_LABEL, scale, "mm")
 
     path = out_dir / "raw_vs_registered_density_with_raw_panel.png"

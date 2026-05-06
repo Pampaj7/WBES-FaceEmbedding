@@ -28,7 +28,7 @@ Usage (from repo root):
     --gt_matrix face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz \
     --out_dir faceBench/latentVSpipeline/outputs/perturbed_sweep \
     --max_subjects 100 \
-    --stages raw,rigid,nicp \
+    --stages raw,rigid,nicp,nicp_direct \
     --max_sample_points 4096 \
     --workers 8
 """
@@ -61,6 +61,7 @@ sys.path.insert(0, str(FACBENCH_DIR))
 sys.path.insert(0, str(REPO_ROOT / "face_embedding" / "gt_encdec" / "autoencoder"))
 
 import facebench as fb
+from facebench.rigid_aligners.icp import prealign_by_bbox
 from mesh_npz_utils import load_normalized_vertices_npz, load_withops_sample_npz
 
 # ── import perturbation utilities from the robustness package ──────────────
@@ -116,6 +117,10 @@ class PairRecord:
     rigid_p2p: float = math.nan
     nicp_p2p: float = math.nan
     nicp_p2tri: float = math.nan
+    nicp_direct_p2p: float = math.nan
+    nicp_direct_p2tri: float = math.nan
+    nicp_bbox_p2p: float = math.nan
+    nicp_bbox_p2tri: float = math.nan
     status: str = "ok"
     error: str = ""
 
@@ -260,8 +265,14 @@ def run_geometry_pipeline(
         "rigid_p2p": math.nan,
         "nicp_p2p": math.nan,
         "nicp_p2tri": math.nan,
+        "nicp_direct_p2p": math.nan,
+        "nicp_direct_p2tri": math.nan,
+        "nicp_bbox_p2p": math.nan,
+        "nicp_bbox_p2tri": math.nan,
         "rigid_seconds": math.nan,
         "nicp_seconds": math.nan,
+        "nicp_direct_seconds": math.nan,
+        "nicp_bbox_seconds": math.nan,
     }
     try:
         X = V_a
@@ -294,6 +305,29 @@ def run_geometry_pipeline(
             result["nicp_p2p"] = float(np.mean(fb.p2p_distance(X_nicp, Ys, corr_n)))
             if "p2tri" in stages or "nicp" in stages:
                 result["nicp_p2tri"] = float(np.mean(fb.p2tri_distance(X_nicp, Ys, corr_n)))
+
+        if "nicp_direct" in stages:
+            Xs = sample_pts(X, max_sample_points, seed)
+            Ys = sample_pts(Y, max_sample_points, seed + 1)
+            t0 = time.time()
+            X_nicp_direct = fb.nonrigid_icp_align(Xs, Ys)
+            result["nicp_direct_seconds"] = float(time.time() - t0)
+            corr_nd = fb.chamfer_correspondence(X_nicp_direct, Ys)
+            result["nicp_direct_p2p"] = float(np.mean(fb.p2p_distance(Xs, Ys, corr_nd)))
+            if "p2tri" in stages or "nicp_direct" in stages:
+                result["nicp_direct_p2tri"] = float(np.mean(fb.p2tri_distance(Xs, Ys, corr_nd)))
+
+        if "nicp_bbox" in stages:
+            Xs = sample_pts(X, max_sample_points, seed)
+            Ys = sample_pts(Y, max_sample_points, seed + 1)
+            X_bbox = prealign_by_bbox(Xs, Ys)
+            t0 = time.time()
+            X_nicp_bbox = fb.nonrigid_icp_align(X_bbox, Ys)
+            result["nicp_bbox_seconds"] = float(time.time() - t0)
+            corr_nb = fb.chamfer_correspondence(X_nicp_bbox, Ys)
+            result["nicp_bbox_p2p"] = float(np.mean(fb.p2p_distance(X_bbox, Ys, corr_nb)))
+            if "p2tri" in stages or "nicp_bbox" in stages:
+                result["nicp_bbox_p2tri"] = float(np.mean(fb.p2tri_distance(X_bbox, Ys, corr_nb)))
 
     except Exception as exc:
         result["status"] = "failed"
@@ -609,6 +643,10 @@ def _perturbed_worker(args_tuple) -> List[PairRecord]:
             rigid_p2p=math.nan,
             nicp_p2p=math.nan,
             nicp_p2tri=math.nan,
+            nicp_direct_p2p=math.nan,
+            nicp_direct_p2tri=math.nan,
+            nicp_bbox_p2p=math.nan,
+            nicp_bbox_p2tri=math.nan,
         )
         try:
             V_a = load_verts(Path(rec.sample_name_a))
@@ -625,6 +663,10 @@ def _perturbed_worker(args_tuple) -> List[PairRecord]:
             new_rec.rigid_p2p = geo.get("rigid_p2p", math.nan)
             new_rec.nicp_p2p = geo.get("nicp_p2p", math.nan)
             new_rec.nicp_p2tri = geo.get("nicp_p2tri", math.nan)
+            new_rec.nicp_direct_p2p = geo.get("nicp_direct_p2p", math.nan)
+            new_rec.nicp_direct_p2tri = geo.get("nicp_direct_p2tri", math.nan)
+            new_rec.nicp_bbox_p2p = geo.get("nicp_bbox_p2p", math.nan)
+            new_rec.nicp_bbox_p2tri = geo.get("nicp_bbox_p2tri", math.nan)
 
         except Exception as exc:
             new_rec.status = "failed"
@@ -646,7 +688,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out_dir", required=True, help="Output directory")
     p.add_argument("--max_subjects", type=int, default=100, help="Max subjects (0=all)")
     p.add_argument("--topo_pairs", default="all", help="'all' or 'original,remesh;crop,down8k'")
-    p.add_argument("--stages", default="raw,rigid,nicp", help="FG stages: raw,rigid,nicp")
+    p.add_argument("--stages", default="raw,rigid,nicp", help="FG stages: raw,rigid,nicp,nicp_direct,nicp_bbox")
     p.add_argument("--max_sample_points", type=int, default=4096, help="Max points per mesh for FG")
     p.add_argument("--workers", type=int, default=8, help="Parallel workers")
     p.add_argument("--device", default="cuda")
@@ -775,7 +817,17 @@ def main() -> None:
     npz_root = Path(args.npz_root)
     withops_root = Path(args.withops_root)
     stages = [s.strip() for s in args.stages.split(",") if s.strip()]
-    metric_cols = ["latent_distance", "raw_chamfer", "rigid_p2p", "nicp_p2p", "nicp_p2tri"]
+    metric_cols = [
+        "latent_distance",
+        "raw_chamfer",
+        "rigid_p2p",
+        "nicp_p2p",
+        "nicp_p2tri",
+        "nicp_direct_p2p",
+        "nicp_direct_p2tri",
+        "nicp_bbox_p2p",
+        "nicp_bbox_p2tri",
+    ]
 
     # ── sigma grid ────────────────────────────────────────────────────────────
     if args.sigma_grid.strip():

@@ -30,7 +30,7 @@ class PerturbationParams:
 
 
 def parse_noise_modes(text: str) -> List[str]:
-    allowed = {"jitter", "rigid", "rotation", "translation", "outliers"}
+    allowed = {"jitter", "rigid", "rotation", "translation", "mixed", "outliers"}
     modes = [tok.strip().lower() for tok in text.split(",") if tok.strip()]
     if not modes:
         raise ValueError("noise_modes must contain at least one mode")
@@ -59,7 +59,8 @@ def parse_noise_mode_weights(text: str, noise_modes: Sequence[str]) -> List[floa
             continue
         if "=" not in token:
             raise ValueError(
-                "noise_mode_weights must use mode=weight entries, e.g. 'jitter=1,translation=6,rotation=2,outliers=1'"
+                "noise_mode_weights must use mode=weight entries, e.g. "
+                "'mixed=5,jitter=2,translation=1,rotation=1,outliers=1'"
             )
         mode, raw_weight = token.split("=", 1)
         mode = mode.strip().lower()
@@ -138,10 +139,10 @@ def apply_xyz_perturbation(
         noise = sigma * torch.randn(V.shape, device=device, dtype=dtype)
         return V + noise
 
-    if mode in {"rigid", "rotation", "translation"}:
+    if mode in {"rigid", "rotation", "translation", "mixed"}:
         center = V.mean(dim=0, keepdim=True)
 
-        if mode in {"rigid", "rotation"}:
+        if mode in {"rigid", "rotation", "mixed"}:
             axis = torch.randn(3, device=device, dtype=dtype)
             axis = axis / (axis.norm() + 1e-12)
 
@@ -172,7 +173,7 @@ def apply_xyz_perturbation(
         else:
             V_out = V
 
-        if mode in {"rigid", "translation"}:
+        if mode in {"rigid", "translation", "mixed"}:
             trans_axis_std = rigid_trans_axis_std_from_sigma(
                 sigma=sigma,
                 rigid_trans_scale=rigid_trans_scale,
@@ -180,6 +181,9 @@ def apply_xyz_perturbation(
             )
             trans = trans_axis_std * torch.randn((1, 3), device=device, dtype=dtype)
             V_out = V_out + trans
+
+        if mode == "mixed":
+            V_out = V_out + sigma * torch.randn(V_out.shape, device=device, dtype=dtype)
 
         return V_out
 

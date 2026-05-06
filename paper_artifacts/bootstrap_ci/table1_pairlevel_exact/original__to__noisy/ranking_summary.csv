@@ -1,0 +1,2 @@
+topology_a,topology_b,ordered_pair_label,ordered_topology_pairs,mesh_pair_level,latent_spearman,chamfer_spearman,delta_spearman,latent_pearson,chamfer_pearson,delta_pearson,model_beats_chamfer,n_subjects,n_subject_pairs,n_mesh_pairs,n_observations
+original,noisy,original__to__noisy,1,0,0.822388,0.627356,0.195032,0.846550,0.641630,0.204920,1,100,4950,4950,4950

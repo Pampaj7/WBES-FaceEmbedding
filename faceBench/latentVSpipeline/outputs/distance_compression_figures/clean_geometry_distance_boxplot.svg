@@ -10,8 +10,6 @@
       .sub { fill: #6B7280; font: 12px Arial, sans-serif; }
     </style>
     <rect class="bg" width="900" height="440"/>
-<text class="title" x="70" y="34">Registration compresses inter-subject distance spread</text>
-<text class="sub" x="70" y="54">Boxes show P25-P75, whiskers show P05-P95, line is median.</text>
 <line class="grid" x1="170.0" y1="70" x2="170.0" y2="380"/>
 <text class="tick" x="170.0" y="404" text-anchor="middle">0</text>
 <line class="grid" x1="285.0" y1="70" x2="285.0" y2="380"/>

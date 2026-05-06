@@ -1,0 +1,11 @@
+{
+  "sample_name_a": "id0084_GTready_down8k",
+  "sample_name_b": "id0478_GTready_up60k",
+  "scenario": "rigid_mixed",
+  "layout": "paper_identity",
+  "rigid_sigma": 0.2,
+  "output_png": "/deck/datasets/WBES-FaceEmbedding/checking_assumptions/outputs/rigid_mixed_triplet_visuals_rot180/rigid_mixed_sigma0.20_id0084_GTready_down8k__to__id0478_GTready_up60k_paper_identity.png",
+  "icp_points": 128,
+  "icp_max_correspondence_distance": 0.05,
+  "icp_max_iteration": 20
+}

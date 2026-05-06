@@ -20,6 +20,9 @@ Pipeline stages:
 - `raw`   — symmetric Chamfer (no alignment)
 - `rigid` — ICP (bbox prealign) → P2P
 - `nicp`  — rigid ICP → non-rigid ICP → Chamfer correspondence → P2P + P2Tri
+- `nicp_direct` — non-rigid ICP directly on the sampled meshes, no rigid ICP prealign;
+  the deformed mesh is used only to estimate correspondences, while P2P/P2Tri
+  are measured on the original sampled coordinates
 
 ```bash
 .venv_twotower_robust_312/bin/python faceBench/latentVSpipeline/run_facebench_remesh.py \

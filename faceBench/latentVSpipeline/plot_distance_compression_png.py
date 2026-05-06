@@ -172,8 +172,6 @@ def boxplot(clean_summary: list[dict[str, str]], out: Path, scale: int) -> None:
     pw, ph = w - left - right, h - top - bottom
     xmax = 0.12
     img, d = canvas(w, h, scale)
-    text(d, (70, 30), "Registration compresses inter-subject distance spread", BLACK, F_TITLE, scale)
-    text(d, (70, 57), "Boxes show P25-P75, whiskers show P05-P95, line is median.", GRAY, F_SUB, scale)
 
     def xmap(x: float) -> float:
         return left + x / xmax * pw

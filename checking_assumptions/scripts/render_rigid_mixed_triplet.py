@@ -39,6 +39,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--icp_max_correspondence_distance", type=float, default=0.05)
     p.add_argument("--icp_max_iteration", type=int, default=20)
     p.add_argument("--plot_points", type=int, default=5000)
+    p.add_argument("--rotate_180", action="store_true", help="Rotate each 2D panel by 180 degrees")
+    p.add_argument(
+        "--paper_identity_layout",
+        action="store_true",
+        help="Render a 2x3 paper layout without the rigid-mixed row and with separated identity/topology panels.",
+    )
     return p.parse_args()
 
 
@@ -120,6 +126,73 @@ def main() -> None:
     )
     out_path = out_dir / f"rigid_mixed_sigma{float(args.rigid_sigma):.2f}_{args.sample_name_a}__to__{args.sample_name_b}.png"
 
+    def maybe_rotate(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        if args.rotate_180:
+            return -x, -y
+        return x, y
+
+    if args.paper_identity_layout:
+        out_path = out_dir / (
+            f"rigid_mixed_sigma{float(args.rigid_sigma):.2f}_{args.sample_name_a}"
+            f"__to__{args.sample_name_b}_paper_identity.png"
+        )
+        fig, axes = plt.subplots(2, 3, figsize=(15.5, 8.0))
+        panels = [
+            (axes[0, 0], clean_src[:, 0], clean_src[:, 1], clean_tgt[:, 0], clean_tgt[:, 1], "Clean front (x,y)"),
+            (axes[0, 1], clean_src[:, 2], clean_src[:, 1], clean_tgt[:, 2], clean_tgt[:, 1], "Clean depth (z,y)"),
+            (axes[1, 0], aligned_src[:, 0], aligned_src[:, 1], rigid_tgt[:, 0], rigid_tgt[:, 1], "Post-ICP front (x,y)"),
+            (axes[1, 1], aligned_src[:, 2], aligned_src[:, 1], rigid_tgt[:, 2], rigid_tgt[:, 1], "Post-ICP depth (z,y)"),
+        ]
+        for ax, src_x, src_y, tgt_x, tgt_y, panel_title in panels:
+            src_x, src_y = maybe_rotate(src_x, src_y)
+            tgt_x, tgt_y = maybe_rotate(tgt_x, tgt_y)
+            ax.scatter(tgt_x, tgt_y, s=1.2, alpha=0.28, color="#ff7f0e", label="target")
+            ax.scatter(src_x, src_y, s=1.2, alpha=0.28, color="#1f77b4", label="source")
+            ax.set_title(panel_title)
+            ax.set_aspect("equal", adjustable="box")
+
+        sep_specs = [
+            (axes[0, 2], clean_src[:, 0], clean_src[:, 1], clean_tgt[:, 0], clean_tgt[:, 1], "Separated front"),
+            (axes[1, 2], clean_src[:, 2], clean_src[:, 1], clean_tgt[:, 2], clean_tgt[:, 1], "Separated depth"),
+        ]
+        for ax, src_x, src_y, tgt_x, tgt_y, panel_title in sep_specs:
+            src_x, src_y = maybe_rotate(src_x, src_y)
+            tgt_x, tgt_y = maybe_rotate(tgt_x, tgt_y)
+            all_x = np.concatenate([src_x, tgt_x])
+            gap = 0.25 * max(float(np.ptp(all_x)), 1e-6)
+            src_shift = -0.5 * (float(np.ptp(src_x)) + gap)
+            tgt_shift = 0.5 * (float(np.ptp(tgt_x)) + gap)
+            ax.scatter(src_x + src_shift, src_y, s=1.2, alpha=0.34, color="#1f77b4", label=args.sample_name_a)
+            ax.scatter(tgt_x + tgt_shift, tgt_y, s=1.2, alpha=0.34, color="#ff7f0e", label=args.sample_name_b)
+            ax.set_title(panel_title)
+            ax.set_aspect("equal", adjustable="box")
+            ax.legend(frameon=False, markerscale=4, fontsize=8, loc="lower center")
+
+        axes[0, 0].legend(frameon=False, markerscale=4)
+        fig.suptitle(
+            f"rigid mixed sigma={float(args.rigid_sigma):.2f} | {args.sample_name_a} -> {args.sample_name_b}"
+        )
+        fig.tight_layout()
+        fig.savefig(out_path, dpi=180)
+        plt.close(fig)
+
+        manifest = {
+            "sample_name_a": str(args.sample_name_a),
+            "sample_name_b": str(args.sample_name_b),
+            "scenario": "rigid_mixed",
+            "layout": "paper_identity",
+            "rigid_sigma": float(args.rigid_sigma),
+            "output_png": str(out_path),
+            "icp_points": int(args.icp_points),
+            "icp_max_correspondence_distance": float(args.icp_max_correspondence_distance),
+            "icp_max_iteration": int(args.icp_max_iteration),
+        }
+        (out_dir / f"rigid_mixed_sigma{float(args.rigid_sigma):.2f}_{args.sample_name_a}__to__{args.sample_name_b}_paper_identity_manifest.json").write_text(
+            json.dumps(manifest, indent=2),
+            encoding="utf-8",
+        )
+        return
+
     fig, axes = plt.subplots(3, 2, figsize=(11.5, 11.5))
     panels = [
         (axes[0, 0], clean_src[:, 0], clean_src[:, 1], clean_tgt[:, 0], clean_tgt[:, 1], "Clean front (x,y)"),
@@ -130,6 +203,8 @@ def main() -> None:
         (axes[2, 1], aligned_src[:, 2], aligned_src[:, 1], rigid_tgt[:, 2], rigid_tgt[:, 1], "Post-ICP depth (z,y)"),
     ]
     for ax, src_x, src_y, tgt_x, tgt_y, panel_title in panels:
+        src_x, src_y = maybe_rotate(src_x, src_y)
+        tgt_x, tgt_y = maybe_rotate(tgt_x, tgt_y)
         ax.scatter(tgt_x, tgt_y, s=1.2, alpha=0.28, color="#ff7f0e", label="target")
         ax.scatter(src_x, src_y, s=1.2, alpha=0.28, color="#1f77b4", label="source")
         ax.set_title(panel_title)
