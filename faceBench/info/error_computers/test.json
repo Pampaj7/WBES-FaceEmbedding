@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "mesh_cropper": null,
+  "rigid_aligner": {
+    "type": "ICPRigidAligner",
+    "opts": {}
+  },
+  "nonrigid_aligner": {
+    "type": "LandmarkBasedElasticAligner",
+    "opts": {
+      "gamma": 1.0
+    }
+  },  "distance_computer": {
+    "type": "DenseP2TriDistance",
+    "opts": {}
+  },
+  "corr_establisher": {
+    "type": "ChamferCorrespondence",
+    "opts": {}
+  },
+  "corrector": null
+}

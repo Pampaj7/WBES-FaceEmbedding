@@ -1,0 +1,107 @@
+site_name: FaceBench
+site_url: https://facebench.org
+repo_url: https://github.com/your-org/facebench
+repo_name: FaceBench
+site_author: Pampaj7
+theme:
+  name: material
+  #logo: docs/assets/logos/a.png
+  #favicon: docs/assets/logos/favicon.ico
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.tooltips
+    - navigation.top
+    - navigation.footer
+    - toc.integrate
+    - header.autohide
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.dark.mode
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: lime
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+
+nav:
+  - 🏠 Home: index.md
+  - ⚡ Quickstart: quickstart.md
+  - 📦 Configuration: configuration.md
+  - 🧪 Pipeline: pipeline.md
+  - 📊 Visualizations: visualizations.md
+  - 📁 Data format: data_format.md
+  - 🧠 API Reference:
+      - ✂️ Croppers: api/croppers.md
+      - 🔄 Aligners:
+          - 📘 Introduction: api/aligners_introduction.md
+          - 🧩 Rigid Aligners: api/rigid_aligner.md
+          - 🛠 Non-Rigid Aligners: api/nonrigid_aligner.md
+      - 🧭 Correspondences: api/correspondences.md
+      - 🛡 Correctors: api/correctors.md
+      - 📏 Distances: api/distances.md
+      - ⚙️ Batch configuration: api/config.md
+  - ❓ FAQ: faq.md
+  - 🔧 Extending FaceBench: ext_face.md
+  - ❓ info for wed: info.md
+
+plugins:
+  - search
+  - awesome-pages
+  - section-index
+  - git-revision-date-localized:
+      fallback_to_build_date: true
+  - blog:
+      authors_profiles: true
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Pampaj7
+      name: GitHub
+      copyright: CHOP 2025
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+
+  generator: false
+  copyright:
+    text: "© 2025 CHOP"
