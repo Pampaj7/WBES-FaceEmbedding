@@ -1,15 +1,6 @@
 # WBES Face Embedding
 
 <p align="center">
-  <img alt="Research code" src="https://img.shields.io/badge/status-research_code-8a5a44">
-  <img alt="Domain" src="https://img.shields.io/badge/domain-3D_face_analysis-1f6f8b">
-  <img alt="Focus" src="https://img.shields.io/badge/focus-face_embeddings-cb6d51">
-  <img alt="Validation" src="https://img.shields.io/badge/validation-WBES-b56a4a">
-  <img alt="Backbone" src="https://img.shields.io/badge/backbone-DiffusionNet-2f855a">
-  <img alt="Submission" src="https://img.shields.io/badge/submission-NeurIPS_2026-6b46c1">
-</p>
-
-<p align="center">
   Official research repository for the NeurIPS 2026 submission on identity-sensitive 3D face embeddings under topology changes.
 </p>
 
@@ -35,16 +26,11 @@ face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/
     └── config.json
 ```
 
-The selected checkpoint has also been published as a Hugging Face model repository:
+The selected checkpoint/config pair is included for review. Public model-card and artifact links are intentionally omitted during anonymized review and will be added in a future release.
 
-- [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
+## Availability
 
-## Availability Links
-
-- Code repository: ******
-- Selected model checkpoint: [`Pampaj/wbes-faceembedding-dn-mixed-topology-v1`](https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1)
-- Mesh-only dataset package: [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
-- Full workspace artifact snapshot: [`Pampaj/wbes-faceembedding-repo-snapshot`](https://hf.co/datasets/Pampaj/wbes-faceembedding-repo-snapshot)
+Public URLs are intentionally anonymized for review. The code repository, selected checkpoint package, mesh-only dataset package, and full artifact snapshot will be released with stable links in a future public release.
 
 The codebase tackles that problem in five connected layers:
 
@@ -56,18 +42,14 @@ The codebase tackles that problem in five connected layers:
 
 The repository also contains GT-ready alignment, remeshing utilities, operator precomputation, and a vendored `BFM_to_FLAME` conversion utility.
 
-## Public Dataset Release
+## Dataset Release Plan
 
-The mesh-only dataset package is on Hugging Face:
+A mesh-only dataset package has been prepared for anonymized review and future public release. It contains two no-operator archives:
 
-- [`Pampaj/wbes-faceembedding-noops`](https://hf.co/datasets/Pampaj/wbes-faceembedding-noops)
+- REMESH mesh-only archive: `500` subjects and `6` topology variants per subject, stored as mesh-only `.npz` files.
+- FaceVerse cross-topology mesh-only archive: `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
 
-It contains two no-operator archives:
-
-- `REMESH_npz_data_topo_500_noops.tar.zst`: REMESH with `500` subjects and `6` topology variants per subject, stored as mesh-only `.npz` files.
-- `FaceVerse_cross_topology_10k_noops.tar.zst`: FaceVerse cross-topology data with `original` and `remesh_10k` variants per subject, also stored as mesh-only `.npz` files.
-
-Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; the selected checkpoint is published separately as the model repo linked above. If releasing generated meshes derived from upstream 3DMM assets, check the upstream license before treating this package as a public redistribution artifact.
+Intrinsic-operator datasets and heavy pair-level evaluation dumps are treated as separate research artifacts; public links for these artifacts will be added only in a future release. If releasing generated meshes derived from upstream 3DMM assets, check the upstream license before treating this package as a public redistribution artifact.
 
 ## If You Only Read One Part
 

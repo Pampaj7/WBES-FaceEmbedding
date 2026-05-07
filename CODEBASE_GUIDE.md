@@ -113,14 +113,11 @@ Observed operator-enriched REMESH split in `datasets/REMESH/npz_data_topo_500_wi
 
 This matters because the current top model and the FaceBench comparison both assume all six topology labels are available with operators. The current checkout now satisfies that assumption for REMESH.
 
-### 2.2.1 Hugging Face dataset package
+### 2.2.1 Dataset release plan
 
-The no-operator mesh package is on Hugging Face:
+A mesh-only dataset package has been prepared for anonymized review and future public release. Public artifact names and URLs are intentionally omitted from this review snapshot.
 
-- `Pampaj/wbes-faceembedding-noops`
-- <https://hf.co/datasets/Pampaj/wbes-faceembedding-noops>
-
-Published archives:
+Planned archives:
 
 - `REMESH_npz_data_topo_500_noops.tar.zst`
   - REMESH, `500` subjects
@@ -131,18 +128,18 @@ Published archives:
   - `original` and `remesh_10k` variants per subject
   - mesh-only `.npz` files with no intrinsic operators
 
-Local export copies were observed under `hf_exports/`:
+Local export copies may exist under `hf_exports/`:
 
 - `hf_exports/REMESH_npz_data_topo_500_noops.tar.zst`
 - `hf_exports/FaceVerse_cross_topology_10k_noops.tar.zst`
 
 This package should be described as the mesh-only dataset package. It is not the same as the operator-enriched training/evaluation directories used by the top DiffusionNet model, and it does not include checkpoints or heavy pair-level evaluation dumps. If the generated meshes are derived from upstream 3DMM assets such as BFM, check the upstream license before treating the package as a public redistribution artifact.
 
-Related public artifact links:
+Related public artifact links are intentionally anonymized for review:
 
-- code repository: <https://github.com/Pampaj7/WBES-FaceEmbedding>
-- selected model checkpoint: <https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1>
-- full workspace artifact snapshot: <https://hf.co/datasets/Pampaj/wbes-faceembedding-repo-snapshot>
+- code repository: stable URL planned for a future public release
+- selected model checkpoint: stable model-card link planned for a future public release
+- full workspace artifact snapshot: stable artifact link planned for a future public release
 
 ### 2.3 Stored Results Snapshot
 
@@ -172,12 +169,15 @@ Important files:
 - `xtopo_mesh_log.csv`
 - `robustness_grid.csv`
 
-The selected checkpoint is also published on Hugging Face:
+The selected checkpoint/config pair is included for review. Public model-card links, upload URLs, and hub commit identifiers are intentionally omitted during anonymized review and will be added in a future release.
 
-- model repo: `Pampaj/wbes-faceembedding-dn-mixed-topology-v1`
-- URL: <https://hf.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1>
-- uploaded files: `best_by_xtopo_mesh_clean.pth`, `config.json`, `best_by_xtopo_mesh_clean.txt`, `train_log.csv`, `xtopo_mesh_log.csv`
-- Hub commit: <https://huggingface.co/Pampaj/wbes-faceembedding-dn-mixed-topology-v1/commit/c8e42d79d5606690e72d1091823a96b1f9e30726>
+Planned model package contents:
+
+- `best_by_xtopo_mesh_clean.pth`
+- `config.json`
+- `best_by_xtopo_mesh_clean.txt`
+- `train_log.csv`
+- `xtopo_mesh_log.csv`
 
 The run configuration is an `xyz_dn` DiffusionNet encoder with:
 
@@ -985,8 +985,8 @@ Code-level details that matter:
 Important assumptions:
 
 - `STUDY_ROOT` is empty and must be edited
-- GT paths are hardcoded to `/Users/pampaj/...`
-- BFM landmark JSON path is hardcoded to `/Users/pampaj/...`
+- GT paths are hardcoded to local user-specific locations
+- BFM landmark JSON path is hardcoded to a local user-specific location
 
 Meaning:
 
@@ -1043,7 +1043,7 @@ Outputs:
 
 Important caveat:
 
-- one path is hardcoded to `/home/pampalonil/data/utils/faceverse_lmk_indices_51_cropped.npy`
+- one path is hardcoded to a local user-specific landmark index file
 
 ### Other WBES plotting and analysis scripts
 
@@ -1396,7 +1396,7 @@ Default output:
 
 Important dependency:
 
-- local DiffusionNet source tree under `/equilibrium/lpampaloni/diffusion-net/src`
+- local DiffusionNet source tree configured through `WBES_DIFFUSION_NET_SRC`
 
 ### `geometric_loss.py` and `latent_loss.py`
 
@@ -2071,21 +2071,21 @@ From the code, the major dependencies are:
 Several scripts assume these external resources exist outside the repo:
 
 - local DiffusionNet source tree:
-  - `/equilibrium/lpampaloni/diffusion-net/src`
+  - `WBES_DIFFUSION_NET_SRC`
 - GT or study assets under user-specific locations such as:
-  - `/Users/pampaj/...`
-  - `/home/pampalonil/...`
+  - `<LOCAL_USER_HOME>/...`
+  - `<LOCAL_DATA_ROOT>/...`
 
 ### 9.2 Environment reality
 
 The recent scripts and queue wrappers mostly assume:
 
 - `.venv_twotower_robust_312/bin/python`
-- `WBES_DIFFUSION_NET_SRC=/deck/datasets/WBES-FaceEmbedding/diffusion-net/src`
+- `WBES_DIFFUSION_NET_SRC=<REPO_ROOT>/diffusion-net/src`
 
-Older FaceVerse downsampling code also references a conda environment at:
+Older FaceVerse downsampling code also references a local conda environment placeholder:
 
-- `/home/lpampaloni/miniconda3/envs/3d/bin/python`
+- `<LOCAL_PYTHON_ENV>/bin/python`
 
 Important practical note:
 
@@ -2104,9 +2104,9 @@ The repository contains many absolute paths and machine-specific assumptions.
 
 Common examples:
 
-- `/equilibrium/lpampaloni/...`
-- `/Users/pampaj/...`
-- `/home/pampalonil/...`
+- `<LOCAL_WORKSPACE>/...`
+- `<LOCAL_USER_HOME>/...`
+- `<LOCAL_PYTHON_ENV>/...`
 
 Consequences:
 
