@@ -1445,6 +1445,58 @@ solo numero per convenzione, calcolata sull'intero insieme --- globale, quindi s
 normalizzazione per-mesh dalla porta di servizio.
 
 
+\section{18 agosto, notte --- Il gate passa: la normalizzazione d'area recupera il crop}
+
+\finding{\textbf{$+2{,}2$ punti su \texttt{crop}, l'asse rotto.} Cento soggetti held-out,
+$148{.}500$ coppie, ricetta, seed e regola di selezione identici a \texttt{pot\_plain}; unica
+differenza gli operatori, calcolati su mesh ad area unitaria.}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+braccio & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_plain} & $0{,}7072$ & $0{,}7561$ & $0{,}7719$ & $0{,}7347$ \\
+\texttt{pot\_area}  & $0{,}7292$ & $0{,}7699$ & $0{,}7575$ & $0{,}7432$ \\
+\midrule
+$\Delta$            & $+0{,}0220$ & $+0{,}0138$ & $-0{,}0144$ & $+0{,}0085$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Il guadagno cade dove la previsione meccanicistica lo collocava. Le tre misure di ieri e di oggi
+--- $\lambda_{128}$ che si sposta del $16\%$ sotto crop come Weyl prevede, un solo scalare che
+spiega il $99{,}95\%$ dello spostamento spettrale, quello scalare uguale al rapporto di aree
+all'$1{,}1\%$ --- descrivevano un difetto specifico dell'asse \texttt{crop}, e correggendolo
+\`e \texttt{crop} a salire. \textbf{Il gate \`e superato: il modello corretto esiste.}
+
+\finding{\textbf{Seconda dimostrazione, registrata in anticipo, che i proxy senza training non
+predicono la metrica.} Poche ore prima di questo numero la traccia del kernel del calore dava
+alla convenzione \texttt{geom} un rapporto \emph{between}/\emph{within} di $0{,}04$ contro lo
+$0{,}14$ del grezzo, cio\`e diceva che normalizzare per l'area \emph{peggiora} la separabilit\`a.
+Era stato scritto nel diario, prima del risultato: ``da questa tabella verrebbe la tentazione di
+predire che \texttt{pot\_area} peggiorer\`a. \textbf{Non lo predico.}'' \`E migliorato. Con lo
+sweep di $\alpha$ del pozzo fanno due casi indipendenti in cui una misura spettrale senza
+training punta nella direzione opposta al modello allenato.}
+
+\paragraph{Il costo, che va riportato.} \texttt{resample} scende di $1{,}4$ punti, da $0{,}7719$
+a $0{,}7575$. Sorprende, perch\'e per le topologie di ricampionamento la normalizzazione d'area
+non cambia quasi nulla ($\alpha/$rapporto fra $0{,}989$ e $1{,}005$): non c'\`e un meccanismo che
+preveda quel calo, il che lo rende un candidato a essere rumore di seed. Non lo si pu\`o
+distinguere con una sola replica.
+
+\decision{\textbf{Il gate passa in via provvisoria e non si scrive nulla in un paper prima delle
+tre repliche.} Il criterio era gi\`a fissato la mattina: ``per $0{,}7072$ contro $0{,}3155$ un
+seed basta, per un guadagno piccolo no''. Qui i guadagni sono $+0{,}022$ e $+0{,}0085$: piccoli.
+Servono \texttt{pot\_plain} e \texttt{pot\_area} su tre seed prima di poter chiamare reale la
+differenza, e prima di poter dire se il calo su \texttt{resample} \`e un effetto o rumore.}
+
+\paragraph{Stato.} Quarta cella del $2\times2$ (\texttt{pot\_rms\_area}, frame rms su operatori
+ad area unitaria) lanciata sulla GPU liberata da \texttt{pot\_area}; \texttt{pot\_rms} in corso
+all'epoca $6/60$. Il $2\times2$ completo dir\`a se le due correzioni sono additive o se una
+assorbe l'altra.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
