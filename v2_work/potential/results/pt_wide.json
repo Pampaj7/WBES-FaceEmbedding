@@ -1,0 +1,26 @@
+{
+  "tag": "pt_wide",
+  "checkpoint": "v2_work/runs/pt_wide_29139125/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w256_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__a44f182a/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "data_dir": "datasets/REMESH/npz_data_topo_500_withops",
+  "frame": "current",
+  "point_backbone": true,
+  "n_subjects": 100,
+  "groups": {
+    "crop": {
+      "n_pairs": 49500,
+      "spearman": 0.3038300512102118
+    },
+    "noisy": {
+      "n_pairs": 39600,
+      "spearman": 0.6598103401750849
+    },
+    "resample": {
+      "n_pairs": 59400,
+      "spearman": 0.6742311447627792
+    },
+    "all": {
+      "n_pairs": 148500,
+      "spearman": 0.4481258393682433
+    }
+  }
+}

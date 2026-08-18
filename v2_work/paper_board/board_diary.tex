@@ -1230,6 +1230,78 @@ semplice che nessuno usa \texttt{maxabs}. \`E un difetto nostro, e serve \texttt
 quantificarlo.
 
 
+\section{18 agosto --- Capacit\`a esclusa, e la strategia cambia}
+
+\finding{\textbf{Il controllo di capacit\`a \`e negativo: la sconfitta del braccio senza
+operatori non dipende dai parametri.}}
+
+\begin{center}\small
+\begin{tabular}{llrrrrr}
+\toprule
+braccio & backbone & parametri & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_plain} & DiffusionNet   & $691{.}584$ & $0{,}7072$ & $0{,}7561$ & $0{,}7719$ & $0{,}7347$ \\
+\texttt{pot\_point} & point $w{=}128$ & $288{.}768$ & $0{,}3155$ & $0{,}6536$ & $0{,}6684$ & $0{,}4659$ \\
+\texttt{pt\_wide}   & point $w{=}256$ & $428{.}928$ & $0{,}3038$ & $0{,}6598$ & $0{,}6742$ & $0{,}4481$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Il $49\%$ di parametri in pi\`u non sposta nulla: su \texttt{crop} scende perfino di poco, e ogni
+differenza sta dentro il rumore. Il controllo era stato registrato in anticipo, il giorno stesso,
+come condizione per poter attribuire la sconfitta all'assenza di operatori invece che alla
+capienza. Condizione soddisfatta. \textbf{Aggiungere parametri non sostituisce un sistema di
+riferimento.}
+
+\subsection*{Decisione di scope: le ablation sono uno strumento, non un prodotto}
+
+\decision{Abbandonata la mia proposta di un paper breve sulle sole ablation. Tre ragioni, la
+prima delle quali \`e un'obiezione di Leonardo che ha retto al controllo.}
+
+\begin{enumerate}
+\item \textbf{Erediterebbe la causa di rifiuto di v1.} Le review NeurIPS 2026 elencano
+      ``perimetro sintetico'' fra le cause; un paper di sole ablation sullo stesso dataset
+      sintetico ripete l'errore invece di ripararlo.
+\item \textbf{Il peso di quel formato \`e misurabile.} Cercata la letteratura per verificare se
+      l'ablation esistesse gi\`a: non nella nostra forma, ma esiste
+      \texttt{arXiv:2606.07791} (\emph{Frequency-Scale Saliency for Spectral Descriptor
+      Analysis}, giugno 2026), autore singolo, che fa lo stesso genere di lavoro --- ablation per
+      bande su descrittori spettrali --- e dichiara da s\'e: \emph{``The primary limitation of
+      this study is its reliance on a single benchmark''}. Quattro visualizzazioni. \`E la
+      calibrazione di quanto pesa un paper di sole ablation. Nota utile: le sue future work
+      nominano \emph{``learned spectral descriptors and surface networks''}, cio\`e il nostro
+      territorio resta libero.
+\item \textbf{Brucerebbe il risultato dove serve meno.} L'ablation \`e la risposta alla causa
+      C4 (``backbone non giustificato'') e il piano di resubmission la aveva gi\`a prevista come
+      sezione 2.2, ``ablation backbone come studio, non appendice''.
+\end{enumerate}
+
+\paragraph{Il ruolo vero delle ablation.} Non sono un risultato da pubblicare, sono uno
+strumento che ha prodotto due indicazioni costruttive: il frame \`e rotto, la banda \`e rotta.
+Cio\`e una \emph{ricetta} per un encoder che non si rompe sul crop. Il contributo non \`e
+``abbiamo misurato che gli operatori servono'' ma ``abbiamo capito perch\'e il crop rompe e
+costruito il modello che regge''.
+
+\decision{Due sedi, due classi di contributo.
+\textbf{CVPR} (deadline $\sim$novembre, tre mesi): paper di \emph{metodo} --- encoder di
+superficie robusto alla topologia, ablation come evidenza, modello corretto come contributo. Un
+paper di metodo sopravvive su dati controllati; era il paper \emph{benchmark} ad aver bisogno
+dello human study e degli scan reali, ed \`e esattamente la differenza che ha fatto rifiutare v1,
+che rivendicava una metrica senza validarla contro l'uso reale.
+\textbf{ICCV 2027}: i tre pilastri del piano, benchmark e teoria della compressione, invariati.}
+
+\paragraph{Il gate, dichiarato prima di vedere i numeri.} Tutto questo presuppone che il modello
+corretto \emph{esista}, cio\`e che \texttt{pot\_area} o \texttt{pot\_rms} recuperino davvero
+punti su \texttt{crop}. Se il $2\times2$ dice che nessuna delle due correzioni sposta la metrica,
+non c'\`e un modello da portare a CVPR: c'\`e solo una diagnosi negativa, la terza di fila dopo
+il pozzo e gli operatori, e la domanda diventa un'altra. Nessuna decisione di strategia prima di
+quel numero.
+
+\paragraph{Debito noto.} Il piano richiede tre seed e ne abbiamo uno. Per una differenza come
+$0{,}7072$ contro $0{,}3155$ un seed basta; per $0{,}7072$ contro $0{,}7012$ no. Se il $2\times2$
+d\`a un guadagno piccolo, va replicato prima di scriverci sopra qualcosa.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
