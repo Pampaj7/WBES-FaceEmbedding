@@ -245,3 +245,127 @@ Alignment Hurts*), non un riferimento scaricato: era già qui. Tutti gli altri `
 scaricati e verificati contro il titolo estratto dal testo, non contro l'URL — un download si
 era rivelato un paper del tutto diverso ed è stato scartato. Ogni `.txt` è l'estrazione
 `pdftotext` corrispondente, tenuta per poter citare alla lettera.
+
+---
+
+## 8. Ricerca di letteratura: i functional maps nell'AI (18 agosto 2026)
+
+Ricerca fatta su richiesta, su corpus arXiv/alphaXiv. Tredici paper rilevanti, quattro letti nel
+merito. La linea è: FMNet (Litany et al. 2017, primo fmap layer differenziabile) → successori
+non supervisionati → DPFM per la parzialità (2021) → consistenza spaziale/spettrale (2023) →
+frequency-awareness e basi apprese (2024-2026).
+
+**Attenzione al trasferimento.** Tutta questa letteratura calcola *corrispondenze*. Noi
+calcoliamo un *embedding globale* per una metrica di ranking e non abbiamo alcun fmap layer.
+Quindi non tutto si trasferisce, e sotto è segnato che cosa sì e che cosa no.
+
+### 8.1 La convenzione di preprocessing del campo è la normalizzazione d'area — e noi non la facevamo
+
+Bracha, Dagès & Kimmel, *On Unsupervised Partial Shape Correspondence* (ACCV 2024,
+arXiv:2310.14692), sezione sperimentale, alla lettera:
+
+> «as in other methods [4, 14], we normalize the square root of the area of the shapes to one»
+
+Cioè $\sqrt{A} = 1$: esattamente ciò che fa `v2_work/potential/areanorm_operators.py`, e lo
+citano come pratica corrente altrui, non come contributo proprio. La nostra pipeline
+normalizzava invece per `maxabs`, il raggio del vertice più lontano. Non è una scelta
+alternativa documentata in letteratura: è fuori convenzione. **Questo è l'item più azionabile
+della ricerca, ed è citabile.**
+
+### 8.2 Esiste un teorema per cui l'errore cresce con l'AREA MANCANTE
+
+Gli stessi autori dimostrano che l'errore introdotto dal fmap layer sotto parzialità è
+*proporzionale all'area mancante*, e distinguono esplicitamente il loro risultato da quello di
+Rodolà et al.:
+
+> «While the error in [39] relates to the length of the cut, our analysis exhibits a relation to
+> the missing area.»
+
+Due conti teorici indipendenti — lunghezza del taglio (Rodolà) e area mancante (Bracha) — che
+predicono entrambi il nostro asse `crop`. La nostra misura del 18 agosto ($\lambda_{128}$ che si
+sposta del $16\%$ sul crop, contro il $17\%$ previsto da Weyl sull'area persa del $14{,}6\%$) è
+l'istanza discreta della seconda. Trasferisce: l'oggetto è lo spettro troncato, che abbiamo anche
+noi, non il fmap layer.
+
+Nota su cosa **non** trasferisce: la loro soluzione è abbandonare il fmap layer e fare matching
+diretto di feature con loss di Gromov più un regolarizzatore che preserva l'area, ottenendo SOTA
+su SHREC'16 HOLES sopra anche i metodi supervisionati. Noi non abbiamo un fmap layer da
+abbandonare. Codice e dati: `github.com/ABracha/DirectMatchNet`, dataset `PFAUST`.
+
+### 8.3 Perché il pozzo era destinato a fallire, secondo il campo
+
+Luo & Chen, *From Feature Learning to Spectral Basis Learning* (arXiv:2603.23383), nella
+rassegna, elencano l'Hamiltoniano di Choukroun fra le «specialized variations of the Laplacian
+eigenbasis» e concludono:
+
+> «Despite their efficacy, these methods are fundamentally constrained by their reliance on
+> axiomatic and fixed basis functions, which precludes the use of data-driven strategies for
+> further basis optimization.»
+
+Il nostro pozzo è un'istanza di una limitazione già nota, non un incidente. Da mettere accanto
+all'avvertimento di Choukroun che il potenziale amplifica il rumore di discretizzazione
+(sezione 1.1 sopra): due letture della letteratura che, prese prima, avrebbero risparmiato
+l'esperimento.
+
+### 8.4 L'alternativa costruttiva: APPRENDERE il potenziale invece di disegnarlo
+
+Lo stesso paper sostituisce la base fissa con $\Psi_k = \Phi_k G$, dove $G = \mathrm{diag}\{g_i\}$
+sono «inhibition functions» apprese che sopprimono selettivamente i modi. In concreto
+$\Psi_k = \Phi_k e^{-T}$ con $T = \mathrm{diag}\{t_1,\dots,t_k\}$ parametri appresi, e — dettaglio
+che conta —
+
+> «The coefficients $\{t_i\}$ are initialized to zero, ensuring that the inhibition function acts
+> as an identity mapping at the onset of training, thus preserving all original basis functions
+> equally.»
+
+È il pozzo, ma appreso invece che disegnato, **e inizializzato al no-op**. Il nostro partiva da
+una perturbazione grande ($c = 10^{10}$, ROI che tratteneva il $22$--$50\%$ della superficie), che
+è il contrario di questa disciplina. Se si riprende quella strada, si riprende così.
+
+### 8.5 Una tensione di progetto da dichiarare, non da ignorare
+
+La loro diffusione è deliberatamente *eigenvalue-agnostic*. Criticano il kernel di calore
+standard perché
+
+> «since the eigenvalues $\Lambda_k$ serve as fixed weights for the diffusion time,
+> high-frequency components are often excessively suppressed regardless of their task-relevance»
+
+Ma eigenvalue-agnostic significa **appaiare per indice**, e il teorema di Rodolà dice che sotto
+parzialità appaiare per indice è la corrispondenza sbagliata: la diagonale è inclinata di un
+fattore pari al rapporto di aree. Il loro rimedio e la nostra normalizzazione d'area toccano la
+stessa riga di codice e tirano in direzioni opposte sulla parzialità. Loro riportano guadagni su
+*topological noise* e casi non isometrici, che non è la nostra parzialità. **Adottarlo alla
+cieca disferebbe ciò che `pot_area` sta misurando.** Va deciso con un numero, non per analogia.
+
+Stessa linea, stesso gruppo: Luo et al., *Deep Frequency-Aware Functional Maps*
+(arXiv:2402.03904), che lamenta che «different frequency information is treated [equally]» e
+introduce un operatore di filtro spettrale appreso.
+
+### 8.6 Gli altri, in breve
+
+- **DPFM** (arXiv:2110.09994) — già in `paper/partial_fmaps.pdf` come scheda 4.5.
+- **Spatially and Spectrally Consistent Deep Functional Maps** (arXiv:2308.08871) — consistenza
+  ciclica come prior su collezioni di forme. Rilevante se un giorno si allena su collezioni.
+- **Denoising Functional Maps** (arXiv:2503.01845, Bonn/MPI) — modelli di diffusione come prior
+  sulle mappe; alta visibilità.
+- **DiffuMatch** (arXiv:2507.23715) — prior spettrali category-agnostic.
+- **Hyper-Network Neural Functional Maps** (arXiv:2606.30131) — dichiara la parzialità come
+  scenario ancora aperto nel 2026.
+- **DeepShapeMatchingKit** (arXiv:2604.10377) — analisi delle implementazioni open source e
+  solver accelerato. Da leggere se servisse un confronto di runtime credibile con il campo.
+- **Volumetric Functional Maps** (arXiv:2506.13212) — estensione al volume, fuori scope.
+- **Integrating Optimal Transport and Functional Maps** (arXiv:2403.01781) — il più votato del
+  gruppo, OT al posto del solver ai minimi quadrati.
+
+### 8.7 Conseguenze per noi, in ordine
+
+1. `pot_area` non è una nostra invenzione ma l'allineamento a una convenzione del campo, e questo
+   la rende più facile da difendere e più imbarazzante da aver mancato. Citare Bracha et al. per
+   la pratica e Rodolà et al. per la teoria.
+2. Il difetto del frame `maxabs` (misurato: scala che si sposta di $\pm 0{,}034$ per identità
+   sotto crop) non ha una controparte in letteratura perché nessuno usa `maxabs`. È un difetto
+   nostro, e il braccio `pot_rms` serve a quantificarlo.
+3. Se si torna sul pozzo, si torna nella forma appresa e inizializzata a identità (8.4), non in
+   quella assiomatica che ha già fallito.
+4. La diffusione eigenvalue-agnostic è un'opzione reale ma antagonista alla normalizzazione
+   d'area sulla parzialità (8.5). Non provarle insieme senza separarle.
