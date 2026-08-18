@@ -1302,6 +1302,84 @@ $0{,}7072$ contro $0{,}3155$ un seed basta; per $0{,}7072$ contro $0{,}7012$ no.
 d\`a un guadagno piccolo, va replicato prima di scriverci sopra qualcosa.
 
 
+\section{18 agosto --- Il crop riparametrizza, e di quanto esattamente}
+
+Idea di Leonardo: se il crop \emph{riparametrizza} lo spettro invece di distruggerlo, allora la
+riparametrizzazione si misura e si correla con qualcosa. Si misura senza allenare nulla.
+
+\finding{\textbf{Sotto crop un solo scalare spiega il $99{,}95\%$ dello spostamento dell'intero
+spettro, e quel numero \`e il rapporto di aree.} Sessanta identit\`a, modi $1$--$128$, fit ai
+minimi quadrati di $\lambda^t_k = \alpha_t \lambda^{\mathrm{orig}}_k$:}
+
+\begin{center}\small
+\begin{tabular}{lrrrrr}
+\toprule
+topologia & $\alpha$ (fit) & $A_{\mathrm{orig}}/A_t$ & $\alpha/$rapporto & $R^2$ & tilt residuo \\
+\midrule
+\texttt{crop}   & $1{,}1621 \pm 0{,}0095$ & $1{,}1748 \pm 0{,}0102$ & $0{,}9892 \pm 0{,}0011$ & $0{,}9995$ & $+0{,}0068$ \\
+\texttt{noisy}  & $0{,}5004 \pm 0{,}0054$ & $0{,}4390 \pm 0{,}0064$ & $1{,}1399 \pm 0{,}0049$ & $0{,}9994$ & $-0{,}0073$ \\
+\texttt{down8k} & $0{,}9893 \pm 0{,}0003$ & $1{,}0000 \pm 0{,}0004$ & $0{,}9893 \pm 0{,}0004$ & $0{,}9999$ & $-0{,}0061$ \\
+\texttt{up60k}  & $1{,}0099 \pm 0{,}0005$ & $1{,}0050 \pm 0{,}0006$ & $1{,}0049 \pm 0{,}0004$ & $0{,}9999$ & $+0{,}0005$ \\
+\texttt{remesh} & $1{,}0396 \pm 0{,}0013$ & $1{,}0389 \pm 0{,}0016$ & $1{,}0007 \pm 0{,}0007$ & $0{,}9996$ & $-0{,}0068$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Correlazione di Pearson fra $\alpha$ stimato e rapporto di aree: \texttt{crop} $+0{,}9932$,
+\texttt{noisy} $+0{,}9846$, \texttt{remesh} $+0{,}9121$. Il residuo \`e \emph{piatto} in $k$
+(tilt $\sim 0{,}007$), quindi non si tratta nemmeno di una riparametrizzazione dipendente
+dall'indice: \`e un \textbf{riscalamento puro}, pi\`u pulito di quanto la diagonale inclinata di
+Rodol\`a farebbe attendere per gli autovalori.
+
+\finding{\textbf{L'eccezione \`e \texttt{noisy}, e insegna qualcosa.} $\alpha/$rapporto
+$= 1{,}1399$: l'area geometrica sovrastima del $14\%$. Verificato per una via indipendente
+stimando l'area \emph{spettrale} $A_{\mathrm{Weyl}} = 4\pi k/\lambda_k$ per regressione nella
+banda di mezzo ($k = 20$--$110$):}
+
+\begin{center}\small
+\begin{tabular}{lrrr}
+\toprule
+topologia & $A_{\mathrm{geom}}/$orig & $A_{\mathrm{Weyl}}/$orig & Weyl$/$geom \\
+\midrule
+\texttt{crop}   & $0{,}8513 \pm 0{,}0075$ & $0{,}8611 \pm 0{,}0071$ & $1{,}0116 \pm 0{,}0012$ \\
+\texttt{remesh} & $0{,}9626 \pm 0{,}0015$ & $0{,}9607 \pm 0{,}0012$ & $0{,}9980 \pm 0{,}0007$ \\
+\texttt{up60k}  & $0{,}9950 \pm 0{,}0006$ & $0{,}9906 \pm 0{,}0005$ & $0{,}9955 \pm 0{,}0004$ \\
+\texttt{noisy}  & $2{,}2785 \pm 0{,}0332$ & $1{,}9955 \pm 0{,}0217$ & $0{,}8758 \pm 0{,}0039$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Su crop e su tutte le topologie di ricampionamento l'area geometrica \`e fedele all'$1\%$ alla
+superficie che il calore percepisce. Su \texttt{noisy} sbaglia del $14\%$ con dispersione
+$\pm 0{,}004$, dunque sistematicamente: \textbf{il rumore aggiunge triangoli che ci sono e non
+contano.} Due misure indipendenti danno lo stesso numero --- questo $14\%$ e l'overshoot del
+$13\%$ trovato ieri sulla banda ($\lambda_{128}$ da $0{,}4966$ a $1{,}1315$ dopo normalizzazione
+d'area).
+
+\paragraph{Che cosa cambia, e che cosa non cambia.} Non ne esce una normalizzazione nuova da
+provare subito. Ne esce che \textbf{la correzione di \texttt{pot\_area} \`e ora dimostrata quasi
+esatta sul crop}: un solo scalare, $R^2 = 0{,}9995$, e quello scalare \`e il rapporto di aree
+all'$1{,}1\%$ con l'area geometrica fedele all'$1{,}2\%$. Non resta margine di approssimazione in
+cui rifugiarsi, e questo cambia il significato di entrambi gli esiti del gate:
+
+\begin{itemize}
+\item se \texttt{pot\_area} recupera punti su \texttt{crop}, sappiamo esattamente perch\'e;
+\item se \emph{non} li recupera, non \`e pi\`u lecito dire ``forse la correzione era
+      approssimativa''. Diventa: \emph{abbiamo corretto il difetto spettrale in modo esatto e la
+      metrica non si \`e mossa} --- risultato negativo molto pi\`u forte, che sposterebbe
+      l'imputazione sul frame, cio\`e su \texttt{pot\_rms}.
+\end{itemize}
+
+\decision{Normalizzazione ad ``area spettrale'' ($\lambda \cdot A_{\mathrm{Weyl}}$ invece di
+$\lambda \cdot A_{\mathrm{geom}}$) messa da parte, malgrado sia la cosa pi\`u elegante uscita
+oggi. L'unica topologia su cui differirebbe \`e \texttt{noisy}, che a $0{,}7561$ \`e il nostro
+secondo asse migliore: sarebbe una correzione precisa applicata a qualcosa che non \`e rotto.
+Diventa interessante solo se il gate passa e \texttt{noisy} resta indietro. Costo comunque
+basso: sotto scala uniforme gli operatori si riscalano analiticamente ($\lambda \to \lambda/s^2$,
+massa $\to s^2$, gradienti $\to 1/s$, autovettori invarianti), quindi non richiederebbe di
+ricalcolare nulla.}
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
