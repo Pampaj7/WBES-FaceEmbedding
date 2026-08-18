@@ -1380,6 +1380,71 @@ massa $\to s^2$, gradienti $\to 1/s$, autovettori invarianti), quindi non richie
 ricalcolare nulla.}
 
 
+\section{18 agosto --- Il calore vede la stessa forma, ma il descrittore no}
+
+Seconda idea di Leonardo: sistemare la scala perch\'e, guardata col calore, la versione crop
+coincida con l'originale. Riformulata nella forma testabile come metodo --- a test time
+l'originale non c'\`e, quindi ogni mesh deve normalizzarsi da sola --- e misurata con la traccia
+del kernel del calore $\mathrm{Tr}(e^{-t\Delta}) = \sum_k e^{-\lambda_k t}$, che \`e globale e
+non richiede vertici appaiati.
+
+\paragraph{Prima, una correzione sul dataset.} Leonardo sospettava che \texttt{noisy} fosse
+``distrutto'' e proponeva di toglierlo. Misurato: i vertici si spostano dello $0{,}48\%$ della
+diagonale del volto in media, dell'$1{,}01\%$ al novantanovesimo percentile --- circa un
+millimetro su venti centimetri, cio\`e rumore di scansione realistico. \textbf{La forma non \`e
+toccata; \`e l'area a raddoppiare} ($2{,}283\times$ per triangolo), perch\'e il rumore \`e ad
+alta frequenza e increspa ogni faccetta. \`E il paradosso della linea di costa sulla nostra
+mesh, e rende \texttt{noisy} pi\`u prezioso, non meno: \`e la dimostrazione pi\`u pulita che
+l'area geometrica \`e un cattivo normalizzatore, visto che una perturbazione invisibile la
+raddoppia. Pi\`u il fatto pratico che con $0{,}7561$ \`e il nostro secondo asse migliore, quindi
+toglierlo abbasserebbe il numero di testa. \decision{\texttt{noisy} resta.}
+
+\finding{\textbf{Normalizzando ogni mesh col proprio spettro, il calore vede davvero la stessa
+forma.} Quaranta identit\`a, $24$ tempi log-spaziati, taratura globale per convenzione:}
+
+\begin{center}\small
+\begin{tabular}{lrrrrr}
+\toprule
+convenzione & within & within \texttt{crop} & between & b/w & b/w \texttt{crop} \\
+\midrule
+\texttt{raw}  ($\lambda$)                       & $0{,}5791$ & $0{,}3329$ & $0{,}0835$ & $0{,}14$ & $0{,}25$ \\
+\texttt{geom} ($\lambda A_{\mathrm{geom}}$)     & $0{,}1216$ & $0{,}0354$ & $0{,}0055$ & $0{,}04$ & $0{,}15$ \\
+\texttt{weyl} ($\lambda A_{\mathrm{Weyl}}$)     & $0{,}0082$ & $0{,}0109$ & $0{,}0026$ & $0{,}31$ & $0{,}24$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Il \emph{within} --- distanza fra topologie della stessa identit\`a --- crolla di $71\times$ dal
+grezzo alla convenzione di Weyl. L'obiettivo ``il calore vede la stessa forma'' \`e raggiunto.
+Ma il \emph{between} crolla di $32\times$: il segnale d'identit\`a si contrae quasi quanto il
+disturbo.
+
+\finding{\textbf{Il crollo del \emph{between} non \`e colpa della normalizzazione, \`e colpa del
+descrittore.} Misurato su $120$ identit\`a: l'area varia del $3{,}2\%$ \emph{fra identit\`a}
+mentre il crop la sposta del $14{,}9\%$. Il disturbo di topologia sull'area \`e dunque
+$4{,}6\times$ pi\`u grande del segnale d'identit\`a che vi risiede, e normalizzarla costa il
+$3{,}2\%$ per togliere il $14{,}9\%$: scambio nettamente favorevole. Ne segue che la traccia del
+calore --- ventiquattro numeri globali --- stava misurando soprattutto la \emph{taglia} del
+volto, e una volta tolta la scala resta poco. Non \`e un'obiezione alla normalizzazione d'area:
+\`e la prova che la traccia del calore \`e un pessimo descrittore d'identit\`a.}
+
+\paragraph{Paletto contro me stesso, scritto prima che il numero arrivi.} Da questa tabella
+verrebbe la tentazione di predire che \texttt{pot\_area} peggiorer\`a, visto che \texttt{geom}
+ha rapporto $0{,}04$ contro lo $0{,}14$ del grezzo. \textbf{Non lo predico.} \`E esattamente la
+forma dell'errore gi\`a commesso: lo sweep di $\alpha$ del pozzo migliorava del $46\%$ su un
+proxy di questa stessa famiglia e il modello allenato peggior\`o sul gruppo interessato. Il proxy
+misura la traccia del calore; DiffusionNet non usa la traccia del calore, usa feature apprese per
+vertice con xyz in ingresso, e l'xyz la forma ce l'ha ancora. Se \texttt{pot\_area} migliorer\`a,
+avremo la seconda dimostrazione indipendente che questa classe di proxy non predice la metrica ---
+e sar\`a un risultato riportabile quanto il primo.
+
+\paragraph{Errore di misura corretto in corsa.} Il primo tentativo dava distanze nulle sulla riga
+\texttt{raw}: la finestra dei tempi era tarata per mesh ad area unitaria e sugli autovalori
+grezzi la traccia satura, rendendo il descrittore una costante. Corretto con una taratura di un
+solo numero per convenzione, calcolata sull'intero insieme --- globale, quindi senza reintrodurre
+normalizzazione per-mesh dalla porta di servizio.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
