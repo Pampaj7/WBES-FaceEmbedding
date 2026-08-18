@@ -1,0 +1,24 @@
+{
+  "tag": "SMOKE_v1_by_topology",
+  "checkpoint": "face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "data_dir": "datasets/REMESH/npz_data_topo_500_withops",
+  "n_subjects": 25,
+  "groups": {
+    "crop": {
+      "n_pairs": 3000,
+      "spearman": 0.7627443998551134
+    },
+    "noisy": {
+      "n_pairs": 2400,
+      "spearman": 0.8275981140642344
+    },
+    "resample": {
+      "n_pairs": 3600,
+      "spearman": 0.8159537065435692
+    },
+    "all": {
+      "n_pairs": 9000,
+      "spearman": 0.7895473690379569
+    }
+  }
+}

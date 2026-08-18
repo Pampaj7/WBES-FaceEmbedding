@@ -6,6 +6,9 @@
 __pycache__/
 *.py[cod]
 
+# Third-party code clones (not vendored into our index)
+/external/
+
 # Local datasets and notes
 /BFM_to_FLAME/
 /datasets/
@@ -54,3 +57,28 @@ __pycache__/
 /faceBench/latentVSpipeline/outputs/**/all_pairs.csv
 /faceBench/latentVSpipeline/outputs/**/pair_metrics.csv
 /faceBench/latentVSpipeline/outputs/**/pair_metrics_with_fg.csv
+
+# Crash dumps and the local conda environment
+core.*
+/.conda_env/
+
+# Vendored third-party clone (upstream DiffusionNet, not our code)
+/diffusion-net/
+
+# Third-party published PDFs read for the literature report: copyrighted, the
+# report itself (paper/REPORT.md) carries everything we take from them.
+/paper/*.pdf
+/paper/*.txt
+
+# v2 experiment artifacts: operators, caches, checkpoints, generated meshes and logs.
+# Source files under v2_work are tracked; the 270 GB of data they produce is not.
+/v2_work/runs/
+/v2_work/logs/
+/v2_work/**/*.npz
+/v2_work/**/*.pth
+/v2_work/**/*.pt
+/v2_work/**/*.pkl
+/v2_work/**/*.log
+/v2_work/**/*.png
+/v2_work/**/*.pdf
+/v2_work/**/*.aux

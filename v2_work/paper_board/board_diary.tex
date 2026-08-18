@@ -1,0 +1,1185 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\setlist{nosep}
+\definecolor{finding}{RGB}{150,30,30}
+\definecolor{decision}{RGB}{20,90,160}
+\newcommand{\finding}[1]{\textcolor{finding}{\textbf{FINDING:}} #1}
+\newcommand{\decision}[1]{\textcolor{decision}{\textbf{DECISION:}} #1}
+
+\title{Board Diary --- WBES-FaceEmbedding v2\\
+\large Verso la resubmission di ``When Alignment Hurts''}
+\author{Claude (agente autonomo) + Leonardo Pampaloni}
+\date{Iniziato: 2026-08-17}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%=====================================================================
+\section{Contesto e mandato}
+
+\textbf{2026-08-16/17.} Il paper v1 (NeurIPS 2026 Evaluations \& Datasets, submission 2392)
+\`e stato rigettato: 2 borderline reject (bhBZ conf.~2, YJz1 conf.~4) + 1 reject (Z1mX conf.~4).
+Meta-review: (i) valutazione solo sintetica, nessuna validazione real-world; (ii) circolarit\`a
+train/eval sullo stesso $D_{GT}$; (iii) baseline insufficienti (varifolds, DPDist, percettive 2D);
+(iv) claim cross-topology sovradimensionato (vale solo entro lo stesso 3DMM).
+Nota positiva ricorrente: esecuzione solida, onest\`a sui risultati negativi (Z1mX:
+``not by execution quality, which is generally solid'').
+
+Mandato ricevuto: piena autonomia operativa, orizzonte di mesi, obiettivo ``roba cicciona'' ---
+cambiare classe di contributo, non patchare le review.
+
+%=====================================================================
+\section{Il piano grande (RESUBMISSION\_PLAN.md)}
+
+Target: \textbf{ICCV 2027} (deadline $\sim$marzo 2027) primario; fallback NeurIPS 2027 D\&B.
+Tre pilastri:
+
+\subsection{Pilastro 1 --- REMESH-2, la suite di meta-valutazione}
+\begin{itemize}
+\item Multi-3DMM: BFM + FLAME + FaceScape, $5\text{--}10$k identit\`a per modello
+      ($10^4$--$10^5$ mesh totali), 6 varianti topologiche + coppie cross-model.
+\item Asse espressioni (FLAME/FaceScape) e scan-noise realistico (holes, occlusioni).
+\item $D_{GT}$ ricostruito nello \emph{spazio normalizzato} del benchmark (fix del
+      mismatch scoperto da \texttt{checking\_assumptions}).
+\item \textbf{REMESH-Human}: 2--5k triplette di giudizi umani di similarit\`a identitaria
+      su render standardizzati, protocollo psicofisico, $\geq 50$ partecipanti.
+      \`E il dataset-nel-dataset che rompe la circolarit\`a. IRB via CHOP: lead time
+      pi\`u lungo, da avviare subito (azione umana richiesta).
+\item Estensione real-scan: FaceScape scans, NoW, FaMoS.
+\item Rilascio: HF + leaderboard con eval script bloccato.
+\end{itemize}
+
+\subsection{Pilastro 2 --- Studio sistematico delle metriche}
+$\sim$15--20 metriche in 4 famiglie sullo stesso protocollo, con GT percettivo:
+(1) registration-based (raw Chamfer, ICP, NICP, CPD, protocollo REALY, i 16 estimator
+di M3DFB); (2) correspondence-free (varifolds, currents, neural varifolds, DPDist,
+Gromov--Wasserstein su subset); (3) percettive 2D su render canonici (ArcFace, LPIPS,
+CLIP, DINOv2, FaceNet); (4) learned 3D (la nostra famiglia + ablation).
+Pi\`u: \textbf{ablation backbone come studio} (DiffusionNet vs PointNet++/DGCNN/Point
+Transformer vs spettrali: serve la connettivit\`a o basta la scala?) e \textbf{analisi
+teorica della compressione} (registrazione = $\min$ su famiglia di trasformazioni
+$\Rightarrow$ contrazione non uniforme; bound legato ai DOF).
+
+\subsection{Pilastro 3 --- FaceDist: il modello e il suo uso reale}
+Checkpoint multi-dominio (train B+F+S), matrice transfer completa
+train$\times$eval, split a 3 vie, 3 seed. Esperimento d'uso: rankare 5--8 metodi
+image-to-3D pubblici su NoW / NeRSemble~v2 confrontando metrica ufficiale / Chamfer /
+FaceDist / giudizio umano. L'infrastruttura WBES del repo gestisce gi\`a 8 metodi reali.
+
+\subsection{Stato dell'arte (survey 2026-08)}
+Vicini diretti: REALY (ECCV'22, rimedio opposto al nostro), M3DFB (Sariyanidi, FG'25,
+stesso ambiente CHOP --- posizionamento obbligatorio, i loro 16 estimator diventano
+nostre baseline). Onda 2025--26 di metriche 3D human-aligned (DB-3DME, SRAM, VLM-judge):
+lo slot ``identit\`a facciale + cross-topology controllato + GT per corrispondenza densa''
+\`e libero ma la finestra si chiude $\Rightarrow$ ICCV 2027, non oltre.
+Blueprint per lo human study: ``Explaining Human Preferences via Metrics for Structured
+3D Reconstruction'' (ETH/Apple 2025, arXiv 2503.08208).
+
+%=====================================================================
+\section{Diario operativo}
+
+\subsection{2026-08-16 --- Setup del progetto}
+\begin{itemize}
+\item Clone repo pubblico + \texttt{diffusion-net} in root (auto-rilevato da \texttt{path\_setup.py}).
+\item Recuperato l'intero workspace da HuggingFace (\texttt{Pampaj/wbes-faceembedding-repo-snapshot},
+      30.5 GB in 16 parti) + archivi mesh-only noops (REMESH 3000 npz, FaceVerse 220 npz,
+      checksum verificati). Merge con \texttt{rsync --ignore-existing}: i file tracciati da git
+      restano canonici, i dati gitignorati si riempiono.
+\item Env: \texttt{.conda\_env} (python 3.10, torch 2.5.1+cu121, igl, potpourri3d,
+      robust-laplacian). \texttt{scripts/check\_twotower\_robust\_env.py} PASS.
+      \finding{\texttt{conda env create} pieno corrompe la cache pacchetti su NFS; via
+      robusta = conda-forge minimale + pip con cache isolata.}
+\item \decision{\texttt{npz\_data\_topo\_500\_withops} non \`e mai stato pubblicato (licenza 3DMM):
+      ricomputato in locale con \texttt{precompute\_operators\_npz.py} (k\_eig=128).}
+\item Letto integralmente: paper v1, \texttt{CODEBASE\_GUIDE.md} (2317 righe), moduli core
+      (216 file python censiti, $\sim$52k righe). Mappa completa nel messaggio di sessione;
+      punti chiave: \texttt{robustness/} \`e il package pulito (trainer 1902 righe, 3 checkpoint
+      selector, fingerprint config); \texttt{checking\_assumptions/} \`e un framework adversarial
+      ifTrue/ifFalse gi\`a esistente che ha scoperto il mismatch GT raw-space vs normalized-space.
+\end{itemize}
+
+\subsection{2026-08-17 notte --- Fase 0 (GATE 1)}
+
+Obiettivo: le baseline ``economiche'' chieste dai reviewer, sui pair set \emph{identici}
+alla v1 (scoperta abilitante: \texttt{paper\_artifacts/bootstrap\_ci/table1\_pairlevel\_exact/}
+conserva le tabelle per-pair con $D_{GT}$, latente e Chamfer per 30 coppie di topologie
+$\times$ 4950 coppie soggetti).
+
+\paragraph{Infrastruttura costruita (in \texttt{v2\_work/phase0/}):}
+\begin{itemize}
+\item \texttt{render\_mesh.py}: renderer CPU puro (PIL painter's algorithm, shading
+      lambertiano two-sided, SSAA 2$\times$), 0.05--0.30 s/mesh; orientazione derivata
+      empiricamente: screen $=(+x,-y,-z)$; NCC(original, down8k) $=0.946$.
+      Caveat: normalizzazione per-mesh $\Rightarrow$ \texttt{crop} inquadrato pi\`u grande.
+\item \texttt{measure\_distances.py}: varifold e currents in torch puro, multi-scala
+      $\sigma \in \{0.5,0.2,0.1,0.05\}$, subsampling 2000 triangoli con correzione d'area,
+      94 ms/coppia su 1 core.
+\item \texttt{perceptual\_embed.py}: ArcFace (insightface, fallback center-crop),
+      CLIP ViT-B-32, DINOv2 ViT-S/14; distanza coseno.
+\item \texttt{run\_phase0.py}: driver a 6 stadi, cache/resume per stadio.
+\item Precompute operatori completato: \textbf{3000/3000, 0 fail, 43 GB}.
+\item GT surrogato normalizzato su 500 soggetti (fix chiavi V/verts committabile).
+\end{itemize}
+
+\paragraph{Risultati GATE 1 (148.500 coppie cross-topology, 100 soggetti):}
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Metrica & Spearman vs $D_{GT}$ \\
+\midrule
+\textbf{Latente (v1, xyz\_dn)} & $\mathbf{+0.751}$ \\
+Raw Chamfer                  & $+0.237$ \\
+ArcFace su render            & $+0.178$ \\
+Varifold                     & $+0.151$ \\
+LPIPS (20 soggetti)          & $+0.120$ \\
+CLIP                         & $+0.082$ \\
+Currents                     & $+0.074$ \\
+DINOv2                       & $+0.059$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{GATE 1 superato con margine: le percettive 2D \emph{non} risolvono il ranking
+identitario cross-topology. La baseline ArcFace chiesta da bhBZ diventa un argomento a favore.}
+
+\finding{Proxy anti-circolarit\`a (topologia original, 4950 coppie): accordo
+$D_{GT}\leftrightarrow$ ArcFace $=0.31$, CLIP $=0.33$, DINOv2 $=0.40$. Moderato ---
+atteso con render shading-only senza texture. Il proxy automatico non basta a validare
+$D_{GT}$: lo human study resta necessario.}
+
+\finding{(dal lavoro sul modulo varifold) La normalizzazione per-mesh maxabs usata dal
+benchmark v1 \`e essa stessa topology-sensitive: stesso soggetto, original vs down8k
+$\Rightarrow$ 4.5\% di scala e $\sim$0.04 unit\`a di centroide, stesso ordine di grandezza
+delle differenze tra soggetti. Con normalizzazione area-weighted (centroide pesato per area,
+scala $\sqrt{\text{area totale}}$) il same-subject cross-topo si riduce $37\times$ e
+l'ordinamento si ripristina. Collegato al finding GT-space di checking\_assumptions.
+\textbf{Da quantificare in Fase 1: quanta della degradazione delle metriche geometriche
+in v1 \`e confound di normalizzazione.} Candidata sezione paper.}
+
+\finding{Currents non ranka i soggetti (ratio same/diff $=0.97$): il termine orientato \`e
+sensibile alla tessellazione quanto all'identit\`a. Tenuto solo come check di orientazione.}
+
+\decision{Varifold user\`a normalizzazione area-weighted di default; ogni metrica ha diritto
+al suo preprocessing migliore, il confronto resta fair a livello di ranking.}
+
+\paragraph{Metodo di lavoro.} Moduli renderer e varifold delegati a due subagenti
+(Opus), integrazione e driver scritti direttamente; chain automatiche
+render$\to$embed$\to$pairs$\to$summary con resume; log operativo in \texttt{v2\_work/STATUS.md}.
+
+\subsection{2026-08-17 mattina --- Fase 1a e Pilastro C}
+
+\paragraph{FLAME: i pkl bundled sono falsi.} Avviso dell'utente verificato numericamente.
+I file \texttt{BFM\_to\_FLAME/model/flame/FLAME\_*.pkl} hanno la topologia giusta
+(\texttt{f} identiche) ma \texttt{v\_template} deviato fino a $8.8\cdot10^{-3}$ e
+\texttt{shapedirs} fino a $1.6\cdot10^{-2}$ rispetto al modello originale.
+\finding{Un template deviato di $\sim$9 mm avrebbe inquinato l'intera met\`a FLAME
+di REMESH-2 in modo invisibile: le identit\`a sarebbero state generate su una base
+sbagliata e il transfer cross-model non avrebbe misurato ci\`o che dichiara.}
+\decision{Recuperato il modello FLAME 2020 originale (53 MB,
+sha256 \texttt{efcd14cc...eba725b}); \texttt{flame\_model.py} lo preferisce, i bundled
+declassati a fallback dev. I pkl non entrano in nessun artifact pubblico (licenza).}
+
+\paragraph{Generatore FLAME (\texttt{v2\_work/genflame/}).} Loader senza chumpy
+(unpickler custom con shim, \texttt{encoding=latin1}, rimappatura
+\texttt{scipy.sparse.csc}); \texttt{shapedirs} $(5023,3,400)$ = 300 identity + 100
+expression; forward solo-shape senza LBS. Campionamento betas $\mathcal{N}(0,\sigma)$
+troncato a $\pm 2.5\sigma$ per \emph{rejection sampling} (non clipping, altrimenti la
+coda si accumula sulla soglia e il check di dedup risulta artificialmente sano).
+\finding{Orientazione: FLAME canonico \`e y-up/+z-forward, i crop BFM sono
+y-down/$-z$; senza correzione si renderizza la nuca capovolta. Flip $[1,-1,-1]$
+($\det=+1$, winding preservato) applicato al salvataggio.}
+
+\paragraph{Percettive 2D v2: scala condivisa e multi-vista.} Il bias di framing
+della variante \texttt{crop} \`e stato eliminato calcolando centro e scala dalla
+mesh \texttt{original} di ciascun soggetto e riusandoli per tutte le sue topologie;
+aggiunte 3 viste (yaw $-30/0/+30$) con embedding medio normalizzato.
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Estrattore & v1 & v2 & $\Delta$ \\
+\midrule
+ArcFace & $+0.178$ & $+0.213$ & $+0.035$ \\
+CLIP    & $+0.082$ & $+0.105$ & $+0.023$ \\
+DINOv2  & $+0.059$ & $+0.074$ & $+0.015$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{Il guadagno viene dalla scala condivisa, non dal multi-vista: ArcFace
+$+0.082$ medio sulle coppie che coinvolgono \texttt{crop} contro $+0.023$ altrove
+(\texttt{original}$\to$\texttt{crop}: $0.212 \to 0.313$), mentre il proxy
+mono-topologia mostra che il multi-vista aiuta CLIP e \emph{peggiora} DINOv2
+($0.402 \to 0.374$). Anche corrette, le percettive 2D restano sotto \texttt{raw\_chamfer}
+($+0.237$) e lontanissime dal latente ($+0.751$): sono una diagnosi per il paper v2,
+non una baseline competitiva.}
+
+\paragraph{Confound di normalizzazione (in corso).} Rerun del Chamfer sui pair set v1
+con due normalizzazioni per-mesh: \texttt{maxabs} (v1) e area-weighted
+(centroide pesato per area, scala $\sqrt{A_{tot}}$). Primi risultati (30 soggetti):
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Coppia di topologie & Chamfer maxabs & Chamfer area & Latente \\
+\midrule
+crop$\to$down8k   & $+0.088$ & $+0.262$ & $+0.612$ \\
+crop$\to$noisy    & $+0.131$ & $+0.063$ & $+0.705$ \\
+crop$\to$original & $+0.139$ & $+0.256$ & $+0.725$ \\
+crop$\to$remesh   & $+0.131$ & $+0.365$ & $+0.602$ \\
+crop$\to$up60k    & $+0.113$ & $+0.286$ & $+0.634$ \\
+down8k$\to$crop   & $+0.008$ & $+0.344$ & $+0.675$ \\
+down8k$\to$noisy  & $+0.365$ & $+0.105$ & $+0.800$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{La normalizzazione \`e un confound reale ma \emph{non uniforme}: sulle coppie
+che coinvolgono \texttt{crop} la normalizzazione area triplica il Chamfer
+($+0.008 \to +0.344$ nel caso estremo), perch\`e \texttt{maxabs} dipende dal singolo
+vertice estremo che il crop rimuove; sulle coppie con \texttt{noisy} invece
+\emph{peggiora} ($+0.365 \to +0.105$), coerente con il fatto che il rumore gonfia
+l'area totale e quindi corrompe il denominatore area-weighted. Nessuna delle due
+normalizzazioni \`e neutrale: ogni scelta privilegia un tipo di perturbazione.
+Il latente resta 2--5$\times$ sopra entrambe in ogni cella.}
+\decision{Nel paper v2 il Chamfer sar\`a riportato con \emph{entrambe} le
+normalizzazioni (best-case per la baseline geometrica), e la non-neutralit\`a della
+normalizzazione diventa una sottosezione: \`e un secondo meccanismo, indipendente
+dalla registrazione, per cui le metriche geometriche perdono l'ordinamento
+identitario sotto cambio di topologia.}
+
+\subsection{2026-08-17 mezzogiorno --- REMESH-2, met\`a FLAME completata}
+
+600 identit\`a FLAME $\times$ 6 varianti topologiche = 3600 mesh in
+\texttt{v2\_work/genflame/flame\_topo\_600/}, generate in $\sim$9 minuti.
+Due decisioni metodologiche non banali, entrambe da dichiarare nel paper:
+
+\paragraph{Crop face-region via corrispondenza, non via regola inventata.}
+Una testa FLAME completa contro una patch facciale BFM non \`e una coppia
+cross-model equa. Il crop \`e stato \emph{trasportato} dal BFM al FLAME attraverso la
+matrice di corrispondenza pubblicata (\texttt{BFM\_to\_FLAME\_corr.npz}, sparsa
+$5023 \times 2\cdot 53215$, che mappa esattamente la mesh BFM a 53215 vertici indicizzata
+da \texttt{ix\_23470\_relative\_to\_53215.txt}): un vertice FLAME \`e tenuto se \emph{tutto}
+il suo peso baricentrico cade dentro il crop BFM. Criterio netto, non soglia tarata
+(3022 vertici a peso $\geq 0.99$, 3037 a $\geq 0.25$); rimossi i due bulbi oculari
+(componenti separate, assenti in BFM); insieme di indici fisso 1930\,V / 3770\,F,
+identico per ogni identit\`a. Le silhouette combaciano con la patch BFM, tacca
+frontale inclusa.
+\decision{Scartata la \texttt{FLAME\_mask\_ids} dello stesso file: \`e la maschera di
+fitting e non si allinea al bordo della patch BFM.}
+
+\paragraph{Varianti a rapporto costante, non a conteggio assoluto.}
+\finding{I target di \texttt{down8k}/\texttt{up60k} (16k e 120k triangoli) sono tarati
+sulla patch BFM da 46\,440 triangoli. La patch FLAME ne ha 3770: con i target assoluti
+entrambe le varianti sarebbero \emph{no-op} e la met\`a FLAME del benchmark sarebbe
+degenere (\texttt{down8k} $\equiv$ \texttt{original}).}
+\decision{Si conserva il \emph{rapporto} rispetto alla \texttt{original} di ciascun
+modello ($0.345\times$ e $2.58\times$): \`e la definizione che rende la variante
+confrontabile tra modelli. Verificato a posteriori: F/orig FLAME 0.344 e 2.584 contro
+BFM 0.344 e 2.587. Anche \texttt{remesh} (smoothing + decimazione $0.7\times$) e
+\texttt{noisy} (rumore gaussiano $0.003\times$ diagonale bbox) sono definizioni
+scale-relative, quindi trasferiscono senza modifiche.}
+Sanity: 3600/3600 file, 0 fallimenti, 0 spigoli non-manifold, 1 componente connessa
+per mesh, loop di bordo coerenti con il comportamento BFM.
+
+\paragraph{GT matrix FLAME e il mismatch di spazio, di nuovo.}
+Costruite due matrici $600\times600$ dalle \emph{stesse} mesh: \texttt{raw} (metri) e
+\texttt{maxabs} (dopo la normalizzazione per-mesh del benchmark).
+\finding{Spearman(\texttt{raw}, \texttt{maxabs}) $= \mathbf{0.571}$ su 179\,700 coppie.
+Su BFM lo stesso confronto dava $0.81$. Il mismatch tra spazio del GT e spazio della
+metrica non \`e una peculiarit\`a di BFM: \`e strutturale, e su FLAME \`e sensibilmente
+peggiore. Due ground truth costruiti dalle stesse mesh, differenti solo per
+normalizzazione, ordinano le identit\`a in modo sostanzialmente diverso.}
+\decision{Target ufficiale = matrice \texttt{maxabs} (lo spazio in cui vivono le metriche
+valutate); \texttt{raw} riportata come controllo di robustezza. ``Quale GT'' diventa una
+scelta metodologica dichiarata, non un dettaglio implementativo.}
+\finding{Dedup identit\`a (richiesta esplicita di Z1mX): la coppia pi\`u vicina dista il
+$30.8\%$ della distanza mediana $\Rightarrow$ nessuna identit\`a quasi-duplicata.}
+
+\subsection{2026-08-17 pomeriggio --- verdetto confound, M3DFB, prima cella transfer}
+
+\paragraph{Confound di normalizzazione: verdetto su 30/30 coppie (13\,050 coppie soggetto).}
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+Gruppo & $n$ & Chamfer maxabs & Chamfer area & $\Delta$ \\
+\midrule
+coppie con \texttt{crop}   & 10 & $+0.087$ & $+0.279$ & $+0.193$ \\
+coppie con \texttt{noisy}  &  8 & $+0.510$ & $+0.105$ & $-0.406$ \\
+solo topologie clean       & 12 & $+0.456$ & $+0.533$ & $+0.076$ \\
+\midrule
+\textbf{OVERALL}           & 30 & $\mathbf{+0.253}$ & $+0.172$ & $-0.081$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Area migliora 16/30 coppie e peggiora 14/30; estremi \texttt{remesh}$\to$\texttt{crop}
+($+0.070 \to +0.451$) e \texttt{noisy}$\to$\texttt{original} ($+0.636 \to +0.066$).
+\finding{Le due normalizzazioni falliscono su perturbazioni \emph{opposte}, e per un motivo
+meccanico identificabile: \texttt{maxabs} dipende dal singolo vertice estremo, che il crop
+rimuove; area-weighted dipende dall'area totale, che il rumore gonfia. Nessuna
+normalizzazione per-mesh \`e neutrale. \`E un secondo meccanismo, indipendente dalla
+registrazione, per cui una metrica geometrica perde l'ordinamento identitario quando cambia
+il supporto della mesh.}
+\decision{Difesa preventiva: in aggregato \texttt{maxabs} ($0.253$) \emph{batte}
+area ($0.172$), quindi la scelta della v1 non era cherry-picking a danno della baseline
+geometrica --- era la migliore delle due. Nel paper v2 il Chamfer si riporta con entrambe.}
+
+\paragraph{M3DFB: le baseline del gruppo vicino, e cosa nascondono.}
+Importati gli estimator di M3DFB (Sariyanidi et al., FG'25). Non sono 16 implementazioni ma
+il prodotto \texttt{rigid}$\{$ICP, RLR$\}\times$\texttt{nonrigid}$\{$none, ELR, NICP,
+ELR+NICP$\}\times$\texttt{corrector}$\{$none, ETC$\}$.
+\finding{\textbf{Tutti e 16 richiedono 51 landmark iBUG e il repository non spedisce un
+predittore.} Su dati genuinamente landmark-free e cross-topology sono inapplicabili. Girano
+sul nostro benchmark solo perch\`e le topologie \texttt{original}/\texttt{noisy} \emph{sono}
+BFM p23470 nell'ordine di vertici di M3DFB (residuo Procrustes $0.0015$ contro $0.9999$ su
+controllo permutato), e per le altre quattro i landmark sono trasferiti per vertice pi\`u
+vicino dalla \texttt{original} dello stesso soggetto. I loro numeri sono quindi un
+\emph{upper bound generoso}, e vanno riportati come tali.}
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+Metodo (20 soggetti, 5700 coppie) & Spearman \\
+\midrule
+latente (nostro) & $\mathbf{+0.710}$ \\
+E9 \; RLR + Chamfer + P2P & $+0.456$ \\
+E10 = E9 + ETC & $+0.417$ \\
+E2 \; ICP + Chamfer + P2P + ETC & $+0.290$ \\
+E1 \; ICP + Chamfer + P2P & $+0.284$ \\
+raw Chamfer & $+0.265$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{\textbf{RLR batte ICP di larghissimo margine} ($+0.456$ vs $+0.284$): l'ICP con
+scala ottimizza via esattamente le differenze di identit\`a che il ranking deve preservare,
+mentre il Procrustes su 5 landmark le conserva. \`E la baseline forte che la v1 non aveva
+provato, ed \`e quella da riportare --- riportare solo ICP sarebbe stato un uomo di paglia.}
+\finding{E1 riproduce il nostro ICP+Chamfer della v1 ($+0.284$ vs $\approx +0.29$): il
+nostro \texttt{fg\_metrics.py} era fedele, ma ora il confronto gira sul codice degli autori.}
+\finding{Il correttore di topologia ETC non muove il ranking cross-topology
+(E2$-$E1 $= +0.006$, E10$-$E9 $= -0.039$). Il miglior estimator M3DFB, \emph{con i landmark
+regalati}, resta $0.25$ Spearman sotto il nostro latente.}
+
+\paragraph{Prima cella della matrice transfer, e un sospetto sul fallimento della v1.}
+\texttt{v2\_work/transfer/eval\_transfer.py} valuta un checkpoint su un dominio col
+protocollo headline della v1 (coppie cross-topology, aggregazione mesh\_pair), su CPU per
+non contendere la GPU al training. Flag \texttt{--use-eval-split} per le celle in-domain:
+senza, un sottoinsieme casuale di soggetti si sovrappone al training e la diagonale della
+matrice \`e gonfiata.
+
+Modello v1 (BFM-trained) su FLAME zero-shot, 100 soggetti, 148\,500 coppie:
+\textbf{Spearman $+0.478$}.
+\finding{Sul FaceScape della v1 lo stesso tipo di misura zero-shot cross-topology dava
+$\mathbf{+0.115}$ --- il numero che ha convinto i reviewer che il metodo non generalizza.
+Su FLAME lo stesso modello fa $+0.478$, quattro volte tanto. L'ipotesi meccanica \`e che il
+crop FLAME \`e stato derivato \emph{per corrispondenza} dal crop BFM (stessa regione
+anatomica, stesso bordo), mentre il FaceScape della v1 era una regione e una scala diverse.
+Se confermato con un crop FaceScape riallineato per corrispondenza, allora parte del
+``fallimento di generalizzazione'' della v1 era \textbf{disallineamento di supporto, non
+incapacit\`a del modello} --- e la critica principale di Z1mX/YJz1 va riformulata, non
+subita. Test controllato da fare.}
+Il gap cross-model resta comunque reale: $+0.478$ contro $\sim+0.75$ in-domain.
+
+\subsection{2026-08-17 sera --- infrastruttura per il training grande}
+
+Il training pilota girava a $2.13$ s/iterazione su H100 per 30 mesh da 1930 vertici:
+$71$ ms per mesh su hardware che ne farebbe centinaia. Diagnosi con misura, non a occhio.
+
+\paragraph{Primo collo di bottiglia: I/O, non calcolo.}
+\finding{Il training path della v1 fa \texttt{dataset[idx]} dentro il ciclo di batch
+\emph{senza cache} --- il preload esiste solo nel path di eval. Misurato per mesh:
+$48$ ms di \texttt{np.load}+decompressione e $41$ ms di preprocessing
+(normalizzazione + ricostruzione degli operatori sparsi da COO), cio\`e $89$ ms pagati a
+ogni epoca per ogni mesh. Per BFM sono $417$ MB letti da NFS \emph{per iterazione}
+($30 \times 13.9$ MB).}
+\decision{\texttt{v2\_work/fastio/fast\_data.py}: dataset residente in RAM, campioni
+gi\`a preparati, caricati una volta con thread pool. Self-check: $26.5$ ms $\to$
+$0.001$ ms per accesso. Due modalit\`a di residenza: \texttt{ram} (pinned quando c'\`e
+una GPU, cos\`i la copia H2D \`e DMA) e \texttt{device} (tensori gi\`a sulla GPU, zero
+trasferimenti). Con $\sim$1 TB di RAM ci sta tutto: BFM $\sim$22 MB/campione
+$\times 3000 = 66$ GB, FLAME $\sim$3 MB $\times 30\,000 = 90$ GB.
+L'iniezione avviene rebindando il nome \texttt{GTReadyDataset} nei moduli
+\texttt{robustness}: nessun file della v1 modificato, e con \texttt{--no-cache} il run
+\`e byte-identico --- serve per il confronto controllato della matrice transfer.}
+
+\paragraph{Secondo collo di bottiglia: 30 forward sequenziali per passo.}
+DiffusionNet accetta una dimensione batch, quindi le mesh si possono impilare.
+Due scoperte non ovvie nell'implementarlo:
+\finding{Con \texttt{diffusion\_method='spectral'} l'operatore \texttt{L} \emph{non viene
+mai letto} (solo il ramo \texttt{implicit\_dense} lo usa): si pu\`o passare \texttt{None} e
+non costruire affatto l'operatore sparso pi\`u grande.}
+\finding{Un tensore sparso COO realmente batchato $[B,N,N]$ \`e una trappola: l'unico uso
+di \texttt{gradX} \`e \texttt{gradX[b,...]} (lo sparse \texttt{mm} non batcha), e
+\texttt{select} su un COO batchato scansiona tutte le $B\cdot\text{nnz}$ entrate
+$\Rightarrow O(B^2\cdot\text{nnz})$. Misurato: $1.4\times$ \emph{pi\`u lento} del
+sequenziale a $B=15$. Servito invece per-campione in $O(1)$, matematica identica.}
+Equivalenza verificata sul checkpoint rilasciato, 18 mesh su 7 conteggi di vertici
+diversi: $\max|\Delta| = 4.9\cdot10^{-7}$ su latenti di scala $0.35$. Il test \`e
+costruito per poter fallire: senza la maschera di pooling l'errore \`e $3.8\cdot10^{-1}$.
+\finding{Tetto realistico del batching: $\sim$5$\times$ in conteggio di kernel lanciati,
+$\sim$2--3$\times$ atteso in tempo, perch\`e i termini di gradiente restano seriali
+($2$ sparse \texttt{mm} $\times 4$ blocchi $\times B$). Superarlo richiederebbe un
+operatore block-diagonal $[BN,BN]$ e una singola \texttt{mm}, cio\`e modificare
+\texttt{diffusion-net} vendorizzato: decisione rimandata.}
+Su CPU (1 core) il batching non d\`a nulla ($0.84$--$1.01\times$): l\`i il forward \`e
+compute-bound e l'overhead che il batching rimuove non esiste. Risultato riportato come
+misurato, senza arrotondarlo verso l'alto.
+
+\paragraph{Terzo punto: il batch influenza la \emph{qualit\`a} della metrica, non solo la velocit\`a.}
+\finding{Stress e rank sono loss pairwise sulle coppie interne al batch: con
+\texttt{batch\_subjects}$=5$ esistono solo $10$ coppie soggetto, quindi
+\texttt{rank\_hard\_frac}$=0.7$ mina ``coppie difficili'' da un pool di dieci --- \`e quasi
+vacuo. Il numero di coppie cresce come $O(B^2)$: a $40$ soggetti sono $780$.}
+\finding{Caso limite trovato durante i test: con \texttt{batch\_subjects}$=2$ il termine
+soggetto \`e \emph{identicamente nullo} con gradiente zero, perch\`e \texttt{stress\_loss}
+normalizza entrambe le matrici per la media fuori diagonale. La v1 protegge solo
+\texttt{< 2}.}
+\decision{Il pilota resta a \texttt{batch\_subjects}$=5$ (ricetta identica alla v1, serve
+per la diagonale della matrice transfer); il batch grande diventa una riga di ablation
+a s\'e --- ``effetto della dimensione del batch sulla qualit\`a della metrica'' --- non
+un'ottimizzazione silenziosa.}
+
+\paragraph{Support augmentation: la banca di supporti.}
+L'evidenza del transfer dice che il modello fallisce quando il \emph{supporto} \`e fuori
+distribuzione, quindi l'augmentation giusta cambia il dominio, non le posizioni.
+\finding{Tre opzioni valutate. (a) mascherare le feature \`e operator-safe ma non \`e un
+cambio di supporto: \texttt{L}, \texttt{gradX/Y} e la base spettrale continuano ad
+accoppiare la regione ``rimossa'' in ogni blocco di diffusione, e \texttt{evals} resta lo
+spettro della mesh intera. (c) estrarre il sottografo restringendo gli operatori \`e
+sbagliato in modo silenzioso: le righe cotangenti dei nuovi vertici di bordo sono ancora
+quelle del vecchio interno, e una sottomatrice di \texttt{evecs} non \`e una base di
+autovettori. (b) banca offline di varianti con operatori ricalcolati \`e l'unica corretta
+e sostenibile.}
+\decision{Le varianti sono salvate come \texttt{idNNNN\_GTready\_supp$k$.npz}, cio\`e come
+normali mesh in pi\`u dello stesso soggetto nella convenzione che il trainer gi\`a parsa:
+il sampler a training time \`e gratis, e sotto \texttt{mesh\_pair}/\texttt{mixed} le
+varianti diventano nuove label di topologia, quindi le coppie cross-topology acquistano
+coppie cross-support. Zero modifiche al trainer.}
+
+\paragraph{Training congiunto: il GT \`e a blocchi e i blocchi fuori diagonale sono indefiniti.}
+Non esiste una distanza di identit\`a tra un soggetto BFM e uno FLAME.
+\decision{Batching \emph{domain-homogeneous}: la composizione dei batch nella v1 \`e
+decisa da un'unica \texttt{rng.permutation}, quindi basta sostituire il generatore con uno
+che restituisce un ordine a blocchi di dominio --- ogni chunk che la v1 taglia \`e
+mono-dominio e i blocchi indefiniti non vengono mai letti. I passi alternano dominio a
+granularit\`a di \emph{batch}, non di epoca (altrimenti il modello deriva verso il dominio
+girato per ultimo). Il GT congiunto ha \textbf{NaN} fuori blocco, non zero, e \`e servito
+da una sottoclasse di ndarray che solleva su qualunque lettura contenente NaN: un solo
+guard invece di un assert per call-site. Controllo negativo eseguito: col batching della
+v1 sulla vista congiunta il guard scatta subito.}
+
+\subsection{2026-08-17 sera --- l'ipotesi H \`e refutata, e il vero colpevole \`e un confondimento del protocollo v1}
+
+Ipotesi H (mia, formulata al mattino): il fallimento cross-model della v1 \`e
+disallineamento di \emph{supporto}. Test decisivo: re-croppare FaceScape a un supporto
+BFM-comparabile e rimisurare. Il crop \`e stato costruito con un template stellare
+$R_B(\theta)$ = raggio in-piano mediano dei vertici di bordo BFM attorno al proprio nose
+tip (36 settori, 50 soggetti), applicato a ogni mesh FaceScape attorno al suo nose tip,
+con la scala calibrata \emph{una volta} su BFM (nessun leakage per identit\`a).
+
+Tutte le celle, stesso checkpoint, stesso protocollo, 110 soggetti / 11\,990 coppie:
+
+\begin{center}
+\begin{tabular}{llc}
+\toprule
+Dominio & Mate cross-topology & $\rho$ \\
+\midrule
+FaceScape non croppato & \texttt{remesh\_10k} (protocollo v1) & $+0.057$ \\
+FaceScape \textbf{re-croppato} BFM-like & remesh, regola BFM & $+0.263$ \\
+FaceScape non croppato & remesh, regola BFM \textbf{(controllo)} & $\mathbf{+0.404}$ \\
+FLAME non croppato & remesh, regola BFM & $+0.406$ \\
+FLAME non croppato & mate Poisson stile v1 \textbf{(controllo causale)} & $+0.109$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{\textbf{H \`e refutata.} Il re-crop alza $+0.057 \to +0.263$, ma il controllo che
+lascia il supporto invariato e ricostruisce solo il \emph{mate} della coppia con la regola
+BFM/FLAME arriva a $+0.404$ --- meglio del re-crop. Il divario non era il supporto: era il
+\emph{mate cross-topology}. Il \texttt{remesh\_10k} della v1 \`e una ricostruzione di
+Poisson a profondit\`a 7 che chiude i loop di bordo (raggio minimo di bordo $0.955$ contro
+$0.549$), aggiunge $\sim$21\% di area, esce dal supporto originale (raggio massimo $1.412$
+contro $1.245$) e si allontana dalla propria superficie sorgente di una Hausdorff
+normalizzata di $\mathbf{0.38}$, contro $\mathbf{0.088}$ della coppia
+original/remesh su cui il modello \`e stato addestrato.}
+
+\finding{\textbf{Controllo causale decisivo:} lo stesso mate di Poisson applicato a
+\emph{FLAME} fa crollare FLAME da $+0.406$ a $+0.109$ --- riproducendo il ``fallimento
+cross-model'' \textbf{senza cambiare 3DMM}. Quindi il numero $0.115$ del paper v1 non
+misurava un cambio di famiglia di modelli: misurava un cambio di regola di generazione
+della variante topologica, attribuito al 3DMM. \`E un \emph{confondimento del protocollo},
+e la v1 ne ha tratto la conclusione sbagliata su se stessa.}
+
+\finding{Con una regola di coppia allineata, FaceScape ($+0.404$) e FLAME ($+0.406$) sono
+\textbf{indistinguibili} --- nonostante FaceScape siano scansioni reali, whole-face,
+con topologia e 3DMM diversi. \`E l'evidenza di generalizzazione che i reviewer chiedevano,
+e non richiede n\'e re-training n\'e fine-tuning.}
+
+\finding{Risultato secondario e controintuitivo: \emph{allineare} il supporto
+\textbf{peggiora} ($+0.404 \to +0.263$). Spiegazione pi\`u probabile: il $D_{GT}$ \`e una
+media L2 per-vertice su tutta la faccia, quindi integra la geometria di mandibola, fronte e
+guance che il crop butta via. Cio\`e supporto della mesh e supporto del GT devono
+\emph{concordare}: se si valuta su una regione, il GT va ridefinito su quella regione.
+Verificarlo richiede un GT sulla regione croppata, che richiede corrispondenza sulle mesh
+di dettaglio: follow-up aperto.}
+
+\decision{Riscrittura della sezione OOD del paper su due assi separati invece di uno
+confuso: (i) \emph{transfer cross-model} --- con protocollo appaiato il modello transferisce
+a scansioni reali quanto a un secondo 3DMM sintetico ($0.404$ vs $0.406$); (ii)
+\emph{robustezza alla ricostruzione di superficie} --- sotto un mate di Poisson il modello
+\`e debole \textbf{in ogni dominio} (FLAME $0.109$, FaceScape $0.057$), ed \`e una
+limitazione onesta da riportare come tale, non un problema di domain shift. Il mate di
+Poisson resta un test legittimo e pi\`u difficile: l'errore della v1 non era includerlo,
+era attribuirne l'esito al cambio di 3DMM.}
+
+\paragraph{Statistiche di supporto: FaceScape \`e OOD sulla regione, non sulla risoluzione.}
+Su mesh normalizzate, FaceScape ha bbox $x/y$ $0.952$ contro $0.773$ (BFM) e $0.785$
+(FLAME), e met\`a dell'area entro $r=0.6$ dal centroide ($0.247$ contro $0.456$/$0.504$).
+\finding{Ma sull'asse risoluzione FLAME \`e \emph{pi\`u lontano} da BFM di quanto lo sia
+FaceScape (edge medio / diagonale bbox: $0.0175$ contro $0.0054$ di BFM e $0.0085$ di
+FaceScape) e transferisce $8\times$ meglio $\Rightarrow$ la risoluzione non pu\`o essere
+causale. Utile per il paper: identifica \emph{quale} asse di dominio conta e quale no.}
+\finding{Da verificare (potenzialmente rilevante per tutto il repo):
+\texttt{precompute\_operators\_npz.py} costruisce il Laplaciano sui vertici \emph{raw}
+mentre la rete riceve vertici \emph{normalizzati}. Gli spettri memorizzati differiscono di
+12 ordini di grandezza tra domini; il dataset li riscala per $\lambda_{max}$, quindi
+l'effetto \`e in buona parte assorbito, ma la consistenza va verificata esplicitamente:
+adimensionalizzati ($\lambda \cdot \text{area}$) i tre domini concordano ($11.1$, $9.8$,
+$8.2$).}
+
+\subsection{2026-08-17 sera --- dalla diagnosi alla cura: il pozzo di potenziale}
+
+La diagnosi spettrale della sezione precedente dice \emph{dove} il modello si rompe (bordo e
+area, non campionamento). La domanda successiva --- cosa farci --- ha una risposta in
+letteratura, e non \`e quella che avevamo provato.
+
+\paragraph{Il problema ha un nome.}
+Si chiama analisi spettrale di forme parziali. Le autofunzioni del Laplace--Beltrami sono
+\emph{globali}: portano la geometria e la topologia dell'intero dominio, bordo incluso.
+Melzi et al.\ lo dicono esplicitamente: la dipendenza delle autofunzioni dalla struttura
+globale rende difficile gestire rumore topologico e parti mancanti. Rodol\`a et al.\ ne danno
+l'analisi teorica: rimuovere una parte da una superficie produce un'interazione
+\emph{strutturata} fra autofunzioni, non rumore, e la matrice di corrispondenza funzionale
+acquista una diagonale inclinata invece che diagonale.
+
+\paragraph{La cura, e il fatto che avevamo gi\`a provato quella sbagliata.}
+Liu, Jacobson \& Crane (CGF 2017, \S5) affrontano esattamente questo: invece di ``tagliare le
+mesh perch\'e abbiano tutte lo stesso bordo'', sostituiscono le condizioni al contorno con un
+\textbf{pozzo di potenziale infinito}, che d\`a ``comportamento consistente fra patch con bordi
+o discretizzazioni diverse''.
+\finding{La strada che loro scartano \`e letteralmente l'esperimento che avevamo fatto poche ore
+prima: ri-croppare FaceScape per allineare il supporto al training, che aveva \emph{abbassato}
+la correlazione da $0.404$ a $0.263$. Non \`e un avvertimento ipotetico per noi: \`e un
+risultato che ci eravamo procurati per via sperimentale.}
+
+Si aggiunge al Laplaciano un potenziale diagonale
+$L' = L + U$, con $U_{ii} = a_i\,c\,\big(1+e^{-\beta(d(p_i,q)-\alpha)}\big)^{-1}$ e $d$ la
+distanza geodetica dal centro della patch (metodo del calore). Le autofunzioni sono costrette
+ad annullarsi prima del bordo vero, quindi il dominio \emph{effettivo} diventa canonico
+qualunque cosa faccia il bordo reale. DiffusionNet consuma
+$(L, \text{mass}, \text{evals}, \text{evecs}, \nabla_X, \nabla_Y)$: cambia solo cosa mettiamo
+in quei tensori. \`E una modifica al preprocessing, la rete non si tocca.
+
+\paragraph{Due ipotesi mie, entrambe smontate dalla misura.}
+\finding{Primo tentativo con $c=10^{10}$ in unit\`a assolute, come nel paper: \texttt{crop}
+migliora $2.4\times$ ma \texttt{down8k} \emph{peggiora} $4.3\times$. Su mesh le cui coordinate
+grezze sono $\sim 10^5$, un potenziale assoluto di $10^{10}$ rende il problema agli autovalori
+generalizzato malcondizionato in modo dipendente dalla mesh. Corretto rendendo $c$
+\emph{relativo} a $\lambda_k$ del Laplaciano semplice.}
+\finding{Ipotizzato poi che la colpa fosse il quantile non pesato per area (che dipende dalla
+densit\`a di campionamento). Provato: \emph{peggiorava}. Ipotesi scartata sulla misura, non
+tenuta perch\'e plausibile.}
+
+\paragraph{Lo sweep, e il trade-off che ne esce.}
+Disaccordo spettrale rispetto a \texttt{original}, un soggetto, $K=64$:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Configurazione & \texttt{crop} (bordo) & \texttt{down8k} (risoluzione) \\
+\midrule
+senza pozzo                    & $0.0214$ & $0.0032$ \\
+$c_{rel}=10^2$, $q=0.75$, area & $\mathbf{0.0117}$ & $0.0066$ \\
+$c_{rel}=10^4$, $q=0.75$, area & $0.0064$ & $0.0132$ \\
+$c_{rel}=10^6$, $q=0.75$       & $0.0051$ & $0.0155$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{Il trade-off \`e sistematico e va riportato come tale: \textbf{il pozzo compra
+invarianza al bordo e paga in sensibilit\`a alla discretizzazione}. Pi\`u \`e profondo, pi\`u
+cancella il bordo e pi\`u diventa sensibile al campionamento. I default sono fissati al punto
+di miglior scambio assoluto ($-0.0097$ su crop contro $+0.0034$ su down8k).}
+
+\paragraph{La predizione, scritta prima di misurare.}
+\`E nel docstring del modulo, cos\`i non pu\`o essere riscritta a posteriori: se il meccanismo
+\`e il bordo, il pozzo deve alzare \texttt{crop} e il mate Poisson e lasciare invariate
+\texttt{down8k}/\texttt{up60k}. Se si muove tutto, o niente, il meccanismo \`e un altro.
+Per poterla verificare serviva uno strumento che il repo non aveva: la valutazione
+\emph{per gruppo di topologia}, perch\'e in un numero aggregato i due effetti attesi si
+cancellano. Profilo di riferimento del modello v1 su 25 soggetti held-out:
+\texttt{crop} $0.763$, \texttt{noisy} $0.828$, \texttt{resample} $0.816$.
+\finding{\texttt{crop} \`e il gruppo pi\`u debole anche \emph{in-domain}, non solo nel transfer:
+il pattern su cui poggia l'ipotesi non \`e un artefatto del setting fuori dominio.}
+
+\decision{A/B a 60 epoche per entrambi i bracci invece delle 120 della v1: a $7$ s/iterazione
+su GPU condivisa, 120 epoche non entrano nel walltime. Per un test di preprocessing ci\`o che
+deve essere identico \`e il budget \emph{fra i bracci}. Conseguenza da dichiarare: i numeri
+assoluti non saranno confrontabili con la tabella v1 --- solo il confronto well vs plain lo \`e.}
+
+%=====================================================================
+
+\subsection{17 agosto, sera --- Il pozzo di potenziale: implementato male, poi capito}
+
+\paragraph{Come è nato.} Dall'osservazione dell'utente: se DiffusionNet precalcola operatori
+di Laplace--Beltrami e la topologia cambia, il calore si diffonde male. È corretto e ha un
+meccanismo preciso: il Laplaciano cotangente impone la condizione naturale di Neumann
+($\partial\phi/\partial n = 0$), cioè bordo isolante contro cui il calore rimbalza. Lo spettro
+è quindi proprietà del dominio \emph{bordo incluso}, e \texttt{crop} cambia il bordo per
+costruzione. Coerente col fatto che \texttt{crop} sia il nostro gruppo peggiore
+($\rho = 0.763$ contro $0.828$ e $0.816$).
+
+\finding{Avevo implementato il pozzo senza leggere il paper.} Su domanda diretta dell'utente
+(``hai letto bene il paper? hai cercato una implementazione?'') ho recuperato il PDF e l'ho
+letto. Il pozzo c'è (Liu, Jacobson \& Crane, CGF 36(5) 2017, Sec.~5.1). Coincidono forma del
+sigmoide, $\gamma = 100$, e discretizzazione $U_{ii} = A_i U(p_i)$. \textbf{Non} coincideva il
+parametro che definisce il metodo: il paper prescrive un offset \emph{unico per l'intera
+collezione} (``$\beta$ is normalized such that across an entire collection of patches no
+boundary points are contained in the region of interest''), il mio codice usava un quantile
+per-mesh. Misurato: il pozzo si accendeva a $\alpha \approx 0.70$ mentre il bordo più vicino
+sta a $\approx 0.30$, quindi il bordo era \emph{dentro} la regione che il pozzo deve escludere,
+su 8 mesh su 8; e $\alpha$ variava fra topologie della stessa identità ($0.679$ su
+\texttt{crop} contro $0.727$ su \texttt{original}), cioè il dominio non era nemmeno condiviso.
+
+\finding{Non esiste implementazione di riferimento del pozzo.} \texttt{gptoolbox} contiene
+\texttt{dirac\_operator.m}, \texttt{relative\_dirac\_operator.m} e \texttt{dirac\_eigs.m}, ma
+non il pozzo --- verificato leggendo il sorgente. Sta solo nel paper.
+
+\finding{Il pozzo fedele al paper, sui nostri dati, tiene il 2--7\% della faccia.} Calibrato
+come prescritto ($\alpha = 0.2098$, scala comune su 120 mesh), l'area trattenuta è $5.1\%$ su
+\texttt{crop}, $2.2\%$ su \texttt{noisy}, $4.4\%$ su \texttt{original}. Confermato dagli
+autovalori: $\lambda_1$ passa da $4.09\cdot10^{-10}$ a $4.41\cdot10^{-8}$, cioè $108\times$,
+coerente con Weyl ($\lambda \sim k/A$) per un'area efficace $\sim100$ volte minore. Il pozzo
+compra invarianza al bordo buttando via la faccia, e l'identità sta proprio fuori.
+
+\finding{Il nostro caso non è quello del paper.} Là le patch sono ritagli di una superficie
+grande: interno condiviso ampio, bordo lontano dal centro. Le nostre facce \emph{sono} la
+superficie, e il bordo è vicino al centro rispetto all'estensione, quindi il vincolo
+``nessun bordo dentro'' morde molto più forte.
+
+\finding{Il pozzo non tocca il supporto dell'embedding.} Limitazione più profonda, emersa
+ragionando: il pozzo cambia \emph{come si diffonde il calore}, non l'input né il pooling. Con
+\texttt{xyz\_dn} le coordinate di tutti i vertici entrano comunque e il meanmax pesca su tutti
+i vertici, inclusi quelli soppressi. La geometria croppata rientra dalla porta principale
+saltando la diffusione: il pozzo rende consistente il dominio della diffusione, non il
+supporto dell'embedding.
+
+\decision{Misurare il trade-off invece di scommettere su un $\alpha$.} Un A/B a un solo
+$\alpha$ confonde ``il pozzo aiuta'' con ``questo $\alpha$ aiuta''. Sweep senza training
+(\texttt{alpha\_sweep.py}): se il pozzo funziona deve già vedersi nello spettro. Si riportano
+insieme la distanza spettrale fra topologie della stessa identità (che il pozzo deve
+abbassare) e quella fra identità diverse nella stessa topologia (che un pozzo troppo stretto
+abbassa pure), perché $\alpha \to 0$ manda entrambe a zero e guardarne una sola inganna.
+
+\decision{Il braccio in corso diventa un'ablation sul posizionamento.} \texttt{pot\_well} usa
+il pozzo mal posizionato: non testa l'ipotesi, ma confrontato con controllo e versione fedele
+mostra che conta \emph{dove} si mette il pozzo, non solo se c'è. Confronto a tre più forte
+dell'A/B binario previsto.
+
+\paragraph{Errori di processo corretti stasera.} Tre conclusioni mie smentite dalla misura:
+(i) i ``buchi'' negli operatori non erano shard morti ma una race nel pattern di sharding
+(\texttt{todo} calcolato all'avvio di ogni processo $\Rightarrow$ stripe non disgiunte);
+risolta alla radice sharddando la lista completa e scartando gli esistenti dopo. (ii) Il costo
+della generazione Poisson non era $\sim$367 ore ma $\sim$45 minuti: i timing erano gonfiati
+$100\times$ dall'oversubscription che stavamo causando noi. (iii) \texttt{OMP\_NUM\_THREADS}
+non limita Open3D (nessuna API sui thread in 0.19); serve \texttt{taskset}. Lezione comune:
+non misurare mai su un nodo che stiamo saturando noi, e non dedurre l'infrastruttura dai
+sintomi senza verificarla.
+
+
+
+\subsection{Notte 17--18 agosto --- Il pozzo di potenziale FALLISCE, e cosa abbiamo imparato}
+
+\finding{Risultato principale: la predizione registrata è smentita.} Tre bracci completi,
+$100$ soggetti held-out, $148{,}500$ coppie, stessa ricetta, stesso seed, stessa regola di
+selezione, ciascuno valutato con gli operatori su cui è stato addestrato:
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+braccio & crop & noisy & resample & all \\
+\midrule
+niente pozzo            & \textbf{0.7072} & 0.7561 & \textbf{0.7719} & \textbf{0.7347} \\
+pozzo mal posizionato   & 0.7034 & 0.7573 & 0.7533 & 0.7315 \\
+pozzo $\alpha=0.55$     & 0.7012 & \textbf{0.7653} & 0.7521 & 0.7215 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Avevamo dichiarato prima di misurare: ``crop SALE, resample INVARIATO''. \textbf{Sbagliato su
+entrambi}: crop scende di $0.006$ anche col pozzo piazzato dove il nostro stesso sweep
+spettrale indicava l'ottimo, e resample scende di $0.020$. L'unico gruppo che migliora è
+\texttt{noisy} ($+0.009$), non previsto. Il pozzo di potenziale, sul nostro problema, non
+funziona.
+
+\finding{Il risultato metodologicamente più utile: un proxy spettrale non predice la metrica.}
+Lo sweep senza training (40 identità) misurava che a $\alpha=0.55$ l'inconsistenza spettrale
+cross-topologia sul gruppo crop calava del $46\%$ ($0.3291 \to 0.1765$) \emph{e} la
+separabilità fra identità saliva del $13\%$ ($0.700 \to 0.789$) --- entrambe nella direzione
+giusta insieme, che avevamo letto come firma di un meccanismo agente sul bordo. Il modello
+allenato si è mosso nella direzione opposta proprio su quel gruppo. Quindi ``spettri più simili
+fra topologie'' NON implica ``ordinamenti di identità più robusti''. Vale oltre questo
+esperimento: il proxy costa un centesimo del training ed era naturale fidarsene.
+
+\finding{Quanto costa il pozzo, quantificato.} A $\alpha=0.55$ la regione di interesse trattiene
+solo il $22$--$50\%$ della superficie a seconda della realizzazione ($22\%$ su \texttt{noisy},
+la cui area extra cade fuori dal pozzo; $46\%$ su \texttt{crop}). Ipotesi (non conclusione): una
+rete addestrata cross-topology ha già dovuto imparare a resistere ai cambi di bordo, e lo fa
+plausibilmente usando proprio la geometria periferica che il pozzo elimina. L'invarianza
+comprata non ripaga l'informazione di identità spesa.
+
+\finding{La prescrizione della fonte è la scelta peggiore su questi dati.} Calibrando come
+prescrive il paper (offset unico per la collezione, nessun bordo dentro la regione di
+interesse) si ottiene $\alpha=0.2098$, che trattiene il $2$--$7\%$ dell'area ($\lambda_1$
+cresce $108\times$, coerente con Weyl) ed è peggiore del non usare il pozzo su entrambe le assi
+spettrali. Causa: disallineamento di regime. Le loro patch sono ritagli di una superficie
+grande, con interno condiviso ampio e bordo lontano dal centro; una faccia \emph{è} la
+superficie, e il suo bordo è vicino al centro rispetto all'estensione.
+
+\decision{Riportare il fallimento come risultato, non nasconderlo.} Nel supplementary è scritto
+come risultato negativo sull'\emph{applicazione in questo regime}, non sulla costruzione, di cui
+riproduciamo il comportamento atteso a livello spettrale. Un fallimento misurato con un
+controllo appaiato e una predizione registrata in anticipo vale più di un successo senza
+controllo --- ed è precisamente la metodologia che i reviewer dicevano mancare.
+
+\paragraph{Errori di processo della notte, tutti della stessa famiglia.} Il pattern: cose che
+sembrano funzionare e non funzionano, \emph{senza produrre alcun errore}. Quattro casi:
+\begin{enumerate}
+\item Un file \texttt{pot\_w55.json} scritto da un modello a epoca $5/60$, per giunta da una
+      run già uccisa: numeri plausibili che sarebbero finiti in tabella come ``il pozzo ben
+      posizionato'', dicendo l'opposto del vero. Corretto: un braccio senza \texttt{epoch060}
+      ora risulta ASSENTE, non debole --- ``debole'' è un numero che qualcuno leggerà.
+\item Il finisher ha ucciso TRE volte i bracci che doveva aspettare, perché il suo kill loop
+      trattava come ``duplicati'' anche job di bracci mai partiti. Un job di un braccio senza
+      run completa non è un duplicato: è l'unica copia.
+\item Un training partito su $2792$ mesh su $3000$, perché il wait loop cercava un nome di job
+      invece di contare i file, e gli shard erano stati rilanciati con un altro nome.
+\item \texttt{pgrep -f} che trova se stesso: la stringa cercata compare nella riga di comando
+      del processo che cerca, quindi ``3 processi attivi'' mentre non ce n'era nessuno.
+\end{enumerate}
+Regola derivata: \textbf{quando una variante non cambia forma dei tensori né numero di
+parametri, non esiste errore che avvisi se è inattiva o se il dato è parziale.} Va verificato
+esplicitamente che sia ATTIVA e che il dato sia COMPLETO.
+
+\paragraph{Infrastruttura.} DTU support ha chiesto di non saturare i 128 core del nodo:
+\texttt{OMP\_NUM\_THREADS} non limita Open3D (nessuna API thread in 0.19), serve
+\texttt{taskset}. Le stime di costo prese sotto oversubscription erano gonfiate $100\times$ e
+avevano prodotto una decisione di scope sbagliata (scartare \texttt{pois1}), poi ritirata.
+
+\paragraph{Prodotto della notte, oltre al risultato.} Dataset Poisson completo e verificato
+(BFM $4000$, FLAME $4800$, operatori $1200/1200$, zero NaN); esperimento Poisson lanciato con
+controllo appaiato a mesh-per-soggetto uguali; ablation backbone/input appaiate per capacità
+($0.699$M contro $0.70$M, dopo aver scoperto che \texttt{spec\_mlp} ne aveva $17\times$ meno);
+sweep di $\alpha$ su 40 identità; modello con pooling mascherato implementato e verificato
+end-to-end.
+
+
+\section{18 agosto --- Il backbone senza operatori}
+
+\paragraph{Da dove nasce.} Domanda di Leonardo: se il paper vende anche l'efficienza, e gli
+operatori precalcolati rovinano tutto, esistono approcci migliori? La prima met\`a della domanda
+richiede una correzione, la seconda un esperimento.
+
+\paragraph{Correzione: gli operatori non rompono il claim di efficienza.} L'argomento della
+sezione \emph{Computational Cost} \`e $O(N C_{\mathrm{op}} + N C_{\mathrm{enc}} + P d)$ contro
+$O(P C_{\mathrm{geom}})$: il costo degli operatori \`e \textbf{per-mesh}, non per-coppia, e su
+$742{.}500$ coppie si ammortizza. Quel claim regge. Ci\`o che gli operatori rompono \`e il claim
+di robustezza, ed \`e un asse diverso.
+
+\finding{Misurato oggi su \texttt{id0000} ($23{.}470$ vertici, $46{.}440$ facce), single-core:
+$k_{\mathrm{eig}}=32$ in $9{,}3$~s, $k_{\mathrm{eig}}=128$ in $15{,}3$~s, $k_{\mathrm{eig}}=300$
+in $35{,}8$~s. Il paper dichiara $1{,}2$--$2{,}15$~s per quella taglia. La misura \`e per\`o
+presa sul login node, dove il cgroup d\`a un core solo ed eravamo in contesa: non la tratto come
+smentita finch\'e non \`e rifatta su nodo di calcolo. Il principio ``non misurare tempi su un
+nodo che saturiamo noi'' vale anche contro di me. \textbf{Da rifare.} Costo di disco invece
+certo: $20{,}4$~MB per mesh, $50$~GB per le $3000$.}
+
+\paragraph{L'asse che si rompe davvero.} \texttt{resample} $0{,}7719$ (il migliore) contro
+\texttt{crop} $0{,}7072$ (il peggiore). Quella spaccatura \`e esattamente la promessa che
+DiffusionNet fa --- agnosticismo alla \emph{discretizzazione} --- accanto a una che non ha mai
+fatto: l'agnosticismo alla \emph{parzialit\`a}. La base spettrale \`e funzione globale del
+dominio, quindi spostare il bordo esterno la riscrive ovunque, non solo vicino al taglio. Il
+pozzo tentava di rattoppare questo e ha fallito.
+
+\decision{Braccio \texttt{pot\_point}: un encoder point-based (\texttt{PointEncoder}, stile
+DGCNN con EdgeConv su $k$-NN ricostruito nello spazio delle feature) che \textbf{non legge
+nessun operatore}. Un crop toglie punti; una funzione simmetrica sui punti perde all'incirca la
+frazione di punti tolti. Il modo di fallire non viene corretto: non esiste per costruzione.}
+
+Due scelte di progetto non ovvie, entrambe volute. \textbf{Numero di punti fisso} ($M=2048$):
+ogni mesh viene ridotta allo stesso numero di punti sia che ne porti $8$k o $60$k, quindi la
+rete non pu\`o vedere la tassellatura --- l'invarianza di risoluzione \`e strutturale, non
+appresa. \textbf{Campionamento pesato per area}: estrarre vertici uniformemente erediterebbe la
+densit\`a di vertici, che \`e proprio il disturbo che distingue \texttt{down8k},
+\texttt{up60k} e \texttt{remesh}; pescare con probabilit\`a proporzionale alle aree
+baricentriche approssima un'estrazione uniforme sulla \emph{superficie}. Quelle aree sono il
+vettore \texttt{mass} che gi\`a salviamo, ed \`e $O(F)$ da calcolare dalle facce: non fa parte
+dell'eigendecomposition, quindi il ``zero precompute'' sopravvive.
+
+\paragraph{Verificato prima di lanciare, non dedotto.} \texttt{test\_wiring.py} asserisce che
+\texttt{build\_model}/\texttt{forward\_model} siano ripatchati in \emph{tutti} i moduli che ne
+avevano copiato il nome all'import; che il modello costruito sia davvero un
+\texttt{PointEncoder}; che le sei topologie passino nel forward reale; che gli embedding non
+collassino a una costante; e --- il controllo che conta --- che un \textbf{eigensystem messo a
+NaN non cambi l'output di un bit}, che \`e l'unica prova positiva che il backbone \`e
+operator-free. \`E la regola della notte scorsa applicata prima e non dopo: quattro bug avevano
+tutti la stessa forma, una variante inattiva che non genera errore.
+
+\paragraph{Capacit\`a non appaiata, e detto adesso.} \texttt{PointEncoder} ha $288{.}768$
+parametri contro i $691{.}584$ di \texttt{xyz\_dn} ($0{,}42\times$); allargarlo a
+\texttt{width}$=256$ arriva solo a $428{.}928$, perch\'e gran parte dei parametri di
+DiffusionNet sta nei blocchi di diffusione e non ha controparte qui. Inseguire la parit\`a
+significherebbe inventare un'architettura invece di testarne una. Quindi: se vince o pareggia,
+lo fa con meno parametri e la conclusione vale a maggior ragione; se \textbf{perde}, la
+capacit\`a diventa un confondente vivo e il seguito onesto \`e un braccio point pi\`u largo
+prima di concludere qualsiasi cosa.
+
+\paragraph{Predizione registrata prima di vedere i numeri.} \texttt{pot\_point} migliora
+\texttt{crop} (nessuna base spettrale da riscrivere) e non peggiora \texttt{resample}
+(campionamento a $M$ fisso). Se \texttt{crop} non sale, la diagnosi ``il bordo rompe la base''
+\`e sbagliata e va scritto. Bar appaiata: \texttt{pot\_plain}, stesso data dir, stessa ricetta,
+stesso seed $1234$, stessa regola di selezione.
+
+\paragraph{Effetto collaterale sull'efficienza.} La cache carica $57$~GB di operatori che questo
+backbone non legger\`a mai --- lasciati apposta, perch\'e il confronto deve differire nel solo
+encoder. In esercizio non esisterebbero: se il braccio regge, la tabella dei tempi cambia di un
+ordine di grandezza sullo stesso asse che il paper gi\`a rivendica.
+
+\decision{Scritture degli operatori rese atomiche (\texttt{np.savez} su temporaneo privato
+$+$ \texttt{os.replace}). Due motivi gi\`a incontrati: worker con shard sovrapposti che
+interlacciano scritture sullo stesso file, e una scrittura interrotta che lascia un
+\texttt{.npz} troncato che ogni run successiva conta come ``gi\`a fatto'' e salta per sempre.}
+
+\finding{Lo shard \texttt{an5} girava $3\times$ pi\`u lento degli altri cinque. Non era un
+guasto: con sei topologie per identit\`a e nomi ordinati, \texttt{files[5::6]} seleziona una
+sola topologia per ogni identit\`a --- tutte e sole le \texttt{up60k} da $60$k vertici.
+Uno sharding a stride uguale al numero di varianti assegna a un worker un intero gruppo, e la
+partizione ``bilanciata'' \`e la pi\`u sbilanciata possibile.}
+
+
+\paragraph{Set area-normalizzato chiuso e verificato, poi \texttt{pot\_area} lanciato.}
+$3000/3000$, $500$ per ciascuna delle sei topologie, nessun temporaneo residuo. Le dimensioni
+sono strette entro ogni topologia ($23{,}31$~MB per \texttt{original} e \texttt{noisy},
+$60{,}06$--$60{,}11$~MB per \texttt{up60k}), il che esclude i file troncati; \texttt{crop}
+oscilla fra $20{,}06$ e $21{,}36$~MB perch\'e il taglio non rimuove lo stesso numero di
+vertici in tutte le identit\`a. Quaranta file estratti a caso caricano con \texttt{evals} ed
+\texttt{evecs} finiti, $128$ modi, spettro non negativo. E il controllo che conta: l'area
+totale della prima mesh \`e $1{,}000000$, cio\`e la normalizzazione \`e \textbf{attiva}, non
+solo richiesta. Verificare che la variante sia attiva e il dato completo, invece di dedurlo
+dall'assenza di errore --- \`e la regola nata dal training partito su $2792$ mesh su $3000$.
+\texttt{pot\_area} \`e partito su questi dati, non su un conteggio parziale.
+
+
+\section{18 agosto, pomeriggio --- Il costo degli operatori, misurato dove va difeso}
+
+\paragraph{Ritratto di una mia misura.} I $15{,}3$~s a $k_{\mathrm{eig}}=128$ riportati stamattina
+erano gonfiati: presi sul login node, un core in cgroup, in contesa. Il valore vero sulla stessa
+mesh \`e $5{,}71$~s. \textbf{Ritiro quel numero.} La cautela con cui era stato scritto ---
+``non lo tratto come smentita finch\'e non \`e rifatto su nodo di calcolo'' --- era la parte
+giusta; il numero no.
+
+\paragraph{Misura pulita.} Nodo allocato, mediana di tre prove per cella, \texttt{id0000} in
+tutte e sei le topologie.
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+topologia & vertici & $k{=}128$ & $k{=}300$ & forward point \\
+\midrule
+\texttt{down8k}   &  8.129 &  $1{,}65$~s &  $4{,}08$~s & $0{,}094$~s \\
+\texttt{remesh}   & 16.502 &  $3{,}70$~s &  $9{,}53$~s & $0{,}093$~s \\
+\texttt{crop}     & 20.568 &  $4{,}91$~s & $12{,}46$~s & $0{,}103$~s \\
+\texttt{noisy}    & 23.470 &  $4{,}98$~s & $14{,}17$~s & $0{,}101$~s \\
+\texttt{original} & 23.470 &  $5{,}71$~s & $14{,}18$~s & $0{,}100$~s \\
+\texttt{up60k}    & 60.432 & $15{,}65$~s & $39{,}50$~s & $0{,}087$~s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\finding{\textbf{I tempi stampati nel paper sono sottostimati di circa $2{,}5$--$3\times$.} La
+sezione \emph{Computational Cost} dichiara $1{,}2$--$2{,}15$~s per mesh da $16{,}5$k--$23{,}5$k
+vertici e $6{,}3$~s per le $60{,}4$k. Misurati: $3{,}70$--$5{,}71$~s e $15{,}65$~s. Il numero di
+thread non spiega la differenza: ripetendo \texttt{original} a $1$, $4$, $8$, $16$ e $32$ thread
+si ottiene $5{,}82$, $6{,}22$, $5{,}44$, $5{,}31$ e $5{,}32$~s --- \textbf{piatto}. Il costo \`e
+dominato dal Lanczos sparso, che non ha parallelismo BLAS da sfruttare, quindi non esiste una
+configurazione di macchina che riconcili i valori pubblicati. Vanno corretti.}
+
+\paragraph{Cosa questo NON rompe.} L'argomento di ammortamento resta intatto: il costo \`e
+$O(N C_{\mathrm{op}})$, per-mesh e non per-coppia, quindi su $742{.}500$ coppie resta
+trascurabile anche a $6$~s. Su $3000$ mesh sono $5{,}1$ ore-core una volta sola. La correzione
+riguarda i numeri, non la struttura del claim, ed \`e meglio farla noi che un revisore.
+
+\paragraph{Il confronto che conta per la tabella.} Media per mesh: operatori $6{,}10$~s contro
+$0{,}096$~s di forward del \texttt{PointEncoder}, cio\`e $63\times$. Su $3000$ mesh, $5{,}1$
+ore-core contro $4{,}8$ minuti-core, pi\`u $50$~GB di operatori su disco contro zero. Con un
+avvertimento da mettere per iscritto: quei $63\times$ confrontano \emph{precompute} contro
+\emph{forward}, non due pipeline complete --- anche DiffusionNet paga un suo forward, che non ho
+ancora misurato. La lettura onesta \`e che il percorso point elimina $6{,}10$~s e $20{,}4$~MB per
+mesh di puro sovraccarico, e ne paga $0{,}096$~s. \textbf{Manca il forward di DiffusionNet:
+misurarlo prima di scrivere qualunque fattore nel paper.}
+
+\paragraph{Notevole di per s\'e.} Il forward del \texttt{PointEncoder} \`e \emph{costante} nella
+risoluzione --- $0{,}087$~s su $60$k vertici contro $0{,}094$~s su $8$k, cio\`e se mai
+decrescente per rumore di misura --- perch\'e ogni mesh viene ridotta agli stessi $2048$ punti.
+Gli operatori invece scalano quasi linearmente, da $1{,}65$~s a $15{,}65$~s sullo stesso
+intervallo.
+
+\decision{Ritirata anche l'affermazione, scritta nel backlog del loop, che l'esperimento Poisson
+non fosse ``mai stato lanciato'': \texttt{pois\_arm} e \texttt{pois\_ctrl} erano gi\`a in coda
+su \texttt{gpuv100} dal 17 agosto alle $23{:}47$. L'avevo dedotto invece di verificarlo, e la
+seconda sottomissione \`e stata uccisa subito per non perdere la posizione in coda della prima.
+Le code pubbliche sono sature ($596$ PEND contro $183$ RUN su \texttt{gpuv100}), il che spiega
+l'attesa e non giustifica la deduzione.}
+
+
+\section{18 agosto, sera --- L'imputato assolto: \texttt{pot\_point}}
+
+\finding{\textbf{Il braccio senza operatori perde, e perde proprio su \texttt{crop}.} Cento
+soggetti held-out, $148{.}500$ coppie, stesso data dir, stessa ricetta, stesso seed $1234$,
+stessa regola di selezione di \texttt{pot\_plain}.}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+braccio & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_plain} (operatori)   & $0{,}7072$ & $0{,}7561$ & $0{,}7719$ & $0{,}7347$ \\
+\texttt{pot\_point} (nessuno)     & $0{,}3155$ & $0{,}6536$ & $0{,}6684$ & $0{,}4659$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{La predizione era registrata, ed \`e smentita su entrambi i conti.} Avevo scritto
+stamattina, prima di lanciare: ``\texttt{pot\_point} migliora \texttt{crop} (nessuna base
+spettrale da riscrivere) e non peggiora \texttt{resample} (campionamento a $M$ fisso). Se
+\texttt{crop} non sale, la diagnosi \emph{il bordo rompe la base} \`e sbagliata e va detto.''
+\texttt{crop} non sale: \textbf{crolla di $39$ punti}. \texttt{resample} peggiora di $10$.
+Quindi lo dico: la diagnosi era sbagliata. Gli operatori non stanno rovinando l'asse
+\texttt{crop} --- sono ci\`o che gli impedisce di affondare.
+
+\paragraph{Meccanismo, e non \`e speculazione.} Il loader normalizza ogni mesh cos\`i
+(\texttt{dataset\_gtready.py}, righe $167$--$171$):
+\begin{center}\ttfamily\small
+V = V - V.mean(axis=0)\qquad V = V / maxabs
+\end{center}
+La prima \`e la media sui \emph{vertici}, non il centroide della superficie; la seconda \`e
+fissata dal vertice pi\`u lontano. Entrambe dipendono dal bordo, ed entrambe sono ci\`o che il
+crop tocca: toglie la periferia, quindi sposta la media \emph{e} rimuove esattamente i vertici
+che fissavano la scala. Il point encoder riceve solo xyz: si vede arrivare una nuvola traslata e
+riscalata, senza ancora. DiffusionNet riceve xyz \emph{e} gli operatori, che sono intrinseci e
+sopravvivono a quella trasformazione. \textbf{Il contributo degli operatori, misurato, \`e un
+sistema di riferimento canonico che sopravvive al cambio di bordo} --- non l'agnosticismo alla
+discretizzazione che il paper cita, o non solo quello.
+
+\paragraph{Rovescio della medaglia sull'efficienza.} La sezione precedente ha stabilito che gli
+operatori costano $6{,}10$~s e $20{,}4$~MB per mesh, contro $0{,}096$~s e zero del percorso
+point. Oggi si sa che cosa comprano quei $6{,}10$~s: $39$ punti di Spearman su \texttt{crop}.
+Il claim di efficienza e quello di robustezza non erano due assi indipendenti, erano un
+compromesso, e questo \`e il prezzo misurato.
+
+\paragraph{Due cose prima di concludere, una registrata in anticipo.}
+\begin{enumerate}
+\item \textbf{Capacit\`a}: $288{.}768$ parametri contro $691{.}584$. Era gi\`a scritto stamattina
+che una sconfitta avrebbe reso la capacit\`a un confondente vivo; \texttt{pt\_wide}
+(\texttt{width}$=256$, $428{.}928$ parametri) \`e partito. Nessuna attribuzione prima di quel
+numero.
+\item \textbf{Ipotesi meccanicistica, registrata ADESSO, prima del test}: se la causa \`e la
+normalizzazione e non l'assenza di operatori, allora un point encoder allenato su
+\texttt{bfm\_areanorm} --- dove la scala \`e $\sqrt{A}$ e non il vertice estremo --- deve
+recuperare gran parte dei $39$ punti su \texttt{crop}. Se \emph{non} li recupera, la causa \`e
+davvero l'assenza degli operatori e non il loro preprocessing. Le due direzioni della giornata
+si incontrano qui: la normalizzazione d'area che \texttt{pot\_area} testa sul braccio spettrale
+\`e la stessa che serve al braccio point.
+\end{enumerate}
+
+\paragraph{Nota di misura.} Il braccio non \`e rotto: su \texttt{noisy} e \texttt{resample}
+ottiene $0{,}65$ e $0{,}67$, cio\`e apprende. \`E uniformemente pi\`u debole e catastroficamente
+pi\`u debole su un solo asse, il che \`e la firma di un difetto specifico e non di un
+addestramento fallito. Il flag \texttt{--point-backbone} era attivo in valutazione
+($288{.}768$ parametri stampati dal costruttore, \texttt{[point] backbone senza operatori} nel
+log): verificato, non dedotto.
+
+
+\section{18 agosto, notte --- Dove si rompe davvero la diffusione}
+
+Due difetti distinti, entrambi misurati oggi, entrambi sull'asse \texttt{crop}, e vanno tenuti
+separati perch\'e si riparano in posti diversi.
+
+\subsection*{Difetto 1: il frame xyz}
+
+\finding{Il loader normalizza con centro $=$ media sui \emph{vertici} e scala $=$
+\texttt{maxabs}, cio\`e il vertice pi\`u lontano. Misurato su $40$ identit\`a, passando da
+\texttt{original} a un'altra topologia:}
+
+\begin{center}\small
+\begin{tabular}{llrr}
+\toprule
+frame & topologia & shift centro & scala $s_1/s_0$ \\
+\midrule
+\texttt{current} & \texttt{crop}   & $0{,}0223$ & $0{,}8782 \pm 0{,}0340$ \\
+\texttt{current} & \texttt{down8k} & $0{,}0405$ & $1{,}0366 \pm 0{,}0074$ \\
+\texttt{current} & \texttt{remesh} & $0{,}0435$ & $0{,}9686 \pm 0{,}0179$ \\
+\midrule
+\texttt{area}    & \texttt{crop}   & $0{,}0100$ & $0{,}9224 \pm 0{,}0031$ \\
+\texttt{area}    & \texttt{noisy}  & $0{,}0180$ & $1{,}5096 \pm 0{,}0106$ \\
+\midrule
+\texttt{rms}     & \texttt{crop}   & $0{,}0288$ & $0{,}9141 \pm 0{,}0053$ \\
+\texttt{rms}     & \texttt{noisy}  & $0{,}0522$ & $0{,}9953 \pm 0{,}0052$ \\
+\texttt{rms}     & \texttt{down8k} & $0{,}0003$ & $1{,}0001 \pm 0{,}0001$ \\
+\texttt{rms}     & \texttt{remesh} & $0{,}0008$ & $0{,}9967 \pm 0{,}0005$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Il numero che conta non \`e il $12\%$ di rimpicciolimento su \texttt{crop}: quello \`e
+sistematico e una rete lo assorbe. \`E il $\pm 0{,}0340$. La scala si sposta di una quantit\`a
+\emph{diversa per ogni identit\`a}, perch\'e dipende da quale vertice era il pi\`u lontano e da
+quanto il crop ne ha mangiato: rumore iniettato esattamente nel confronto fra identit\`a, che \`e
+ci\`o che la metrica misura. Il frame \texttt{rms} (centroide pesato per massa, scala $=$ raggio
+quadratico medio pesato per massa) riduce quella dispersione di $6\times$ su \texttt{crop} e la
+azzera su resample; il frame ad area \`e migliore su \texttt{crop} ma esplode su \texttt{noisy}
+($1{,}51$), perch\'e il rumore gonfia l'area del $128\%$ e $\sqrt{A}$ se lo porta dietro.
+
+\decision{\texttt{pot\_area} NON testa questo difetto. Verificato algebricamente: i vertici
+salvati in \texttt{bfm\_areanorm} sono $(V-\bar V)/\sqrt{A}$, poi il loader ricentra (media gi\`a
+nulla) e divide per \texttt{maxabs}, e $\sqrt{A}$ si semplifica --- l'xyz che la rete vede \`e
+\textbf{bit-identico} a quello di \texttt{pot\_plain}. \texttt{pot\_area} \`e quindi un
+esperimento puramente sul lato operatori. Isolamento pulito, ma per caso e non per progetto:
+serve un braccio separato che cambi il frame.}
+
+\subsection*{Difetto 2: la banda spettrale}
+
+Il nostro encoder usa il default \texttt{diffusion\_method='spectral'}: la diffusione \`e
+$e^{-\lambda_i t}$ in una base \textbf{troncata a un indice fisso} $k=128$. Per Weyl
+$\lambda_k \approx 4\pi k/A$, quindi a indice fisso il taglio si muove con l'area.
+
+\finding{$\lambda_{128}$ rapportato all'originale, $40$ identit\`a:}
+
+\begin{center}\small
+\begin{tabular}{lrr}
+\toprule
+topologia & operatori attuali & operatori ad area unitaria \\
+\midrule
+\texttt{crop}   & $1{,}1609 \pm 0{,}0101$ & $0{,}9887 \pm 0{,}0074$ \\
+\texttt{noisy}  & $0{,}4966 \pm 0{,}0065$ & $1{,}1315 \pm 0{,}0097$ \\
+\texttt{down8k} & $0{,}9882 \pm 0{,}0038$ & $0{,}9881 \pm 0{,}0039$ \\
+\texttt{up60k}  & $1{,}0105 \pm 0{,}0041$ & $1{,}0054 \pm 0{,}0040$ \\
+\texttt{remesh} & $1{,}0337 \pm 0{,}0076$ & $0{,}9951 \pm 0{,}0067$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Sul \texttt{crop} le stesse $128$ modalit\`a coprono una banda $16\%$ pi\`u larga, cio\`e
+risolvono dettaglio pi\`u fine che sull'originale, e i tempi di diffusione appresi finiscono
+applicati a frequenze diverse. Sul \texttt{noisy} coprono met\`a banda.
+
+\finding{\textbf{Weyl lo predice quantitativamente.} Il crop perde il $14{,}6\%$ di area, quindi
+$1/0{,}854 = 1{,}171$ previsto contro $1{,}161$ misurato; il noisy guadagna il $128\%$, quindi
+$1/2{,}28 = 0{,}44$ previsto contro $0{,}497$ misurato. Non \`e un'analogia: \`e la legge che
+funziona sui nostri dati, con la deviazione residua sul noisy attribuibile al fatto che il
+rumore aggiunge area geometrica che non \`e superficie vera.}
+
+La colonna di destra \`e il punto: la normalizzazione d'area corregge il disallineamento di
+banda quasi esattamente come Weyl prevede. \`E la conferma meccanicistica che
+\texttt{pot\_area} agisce sulla cosa giusta --- ed \`e anche la versione discreta
+dell'osservazione di Rodol\`a et al.: la mappa funzionale fra una forma e una sua parte ha
+diagonale inclinata con pendenza pari al rapporto di aree, quindi far corrispondere per
+\emph{indice} \`e la corrispondenza sbagliata e per \emph{banda} \`e quella giusta.
+
+\paragraph{Strada chiusa, e perch\'e.} \texttt{diffusion\_method='implicit\_dense'} eliminerebbe
+il troncamento del tutto, risolvendo $(M+tL)x = Mx$ direttamente e permettendo
+\texttt{k\_eig}$=0$ --- niente eigendecomposition, niente $6{,}10$~s per mesh. Non \`e
+praticabile qui: costruisce una matrice \textbf{densa} $V\times V$, che a $23{.}470$ vertici sono
+$550$ milioni di entrate per canale.
+
+\paragraph{Avvertenza, la stessa di sempre.} Tutto quanto sopra \`e correttezza a livello di
+\emph{meccanismo}, non di metrica. Lo sweep di $\alpha$ era corretto sul proxy e il modello
+allenato \`e andato dall'altra parte. L'unica prova per il difetto 2 \`e lo Spearman di
+\texttt{pot\_area}; per il difetto 1 serve un braccio che ancora non esiste.
+
+
+\subsection*{Il disegno: un $2\times2$ che separa i due difetti}
+
+I due difetti misurati sopra vivono in posti diversi --- uno nel frame xyz, uno nella banda
+spettrale --- e nessun esperimento fatto finora li separa. \texttt{pot\_plain} li ha entrambi,
+\texttt{pot\_area} ne corregge uno solo (e per costruzione, come dimostrato sopra, non tocca
+affatto l'altro). Serve il fattoriale.
+
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+ & operatori attuali & operatori ad area unitaria \\
+\midrule
+frame \texttt{current} & \texttt{pot\_plain} --- \texttt{crop} $0{,}7072$ & \texttt{pot\_area} --- in corso \\
+frame \texttt{rms}     & \texttt{pot\_rms} --- da fare                    & \texttt{pot\_rms\_area} --- da fare \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Le teorie sul tavolo, e quale cella decide ciascuna:
+
+\begin{enumerate}
+\item \textbf{Gli operatori sono il problema sul crop.} \textsc{Morta.} \texttt{pot\_point} li
+      ha tolti del tutto e \texttt{crop} \`e crollato da $0{,}7072$ a $0{,}3155$. Restava
+      l'obiezione di capacit\`a, per cui \texttt{pt\_wide} \`e in corso.
+\item \textbf{Il difetto \`e nel frame xyz}: \texttt{maxabs} \`e fissato dal vertice pi\`u
+      lontano, che \`e ci\`o che il crop rimuove, e la scala si sposta di una quantit\`a diversa
+      per ogni identit\`a ($\pm 0{,}0340$). Decide \texttt{pot\_rms}.
+\item \textbf{Il difetto \`e nella banda spettrale}: troncamento a indice fisso $k=128$ invece
+      che a banda fissa, con $\lambda_{128}$ che si sposta del $16\%$ sul crop come Weyl
+      prevede. Decide \texttt{pot\_area}.
+\item \textbf{Sono entrambi.} Decide \texttt{pot\_rms\_area}, e in particolare se il guadagno
+      \`e additivo o se uno dei due assorbe l'altro.
+\end{enumerate}
+
+\decision{Flag \texttt{--frame \{current,rms,area\}} nel trainer e nel valutatore. Applicato ai
+campioni \emph{gi\`a in cache} e non al loader v1, che resta intoccato: i frame di ricambio sono,
+come quello del loader, una traslazione pi\`u una scala uniforme, quindi la composizione si
+cancella esattamente --- scritto per esteso e verificato in \texttt{v2\_work/pointnet/frames.py}.
+Conseguenza voluta: \texttt{--frame current} \`e un no-op \emph{esatto}, quindi \texttt{pot\_plain}
+resta valido come cella del fattoriale senza essere rilanciato.}
+
+\paragraph{Verificato, non dedotto.} \texttt{test\_frame\_wiring.py} costruisce una cache reale e
+asserisce che tutti i campioni cambino, che ognuno abbia centroide nullo e raggio RMS unitario,
+e che \texttt{--frame current} lasci i tensori bit-identici. Il frame finisce anche dentro il
+JSON dei risultati: un disallineamento fra frame di training e di valutazione non cambia forma
+di nessun tensore e non solleva errori --- almeno resta scopribile a posteriori.
+
+
+\section{Prossimi passi}
+\begin{enumerate}
+\item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
+      normalizzazione area-weighted sui pair set v1; quantificare il delta.
+\item \textbf{Fase 1b --- percettive migliorate}: scala condivisa nel renderer (fix caveat
+      crop) + multi-view (3 viste) + LPIPS full su GPU.
+\item \textbf{Pilastro C avvio}: pipeline generazione FLAME (campionamento shape params,
+      riuso \texttt{expand\_remesh\_topologies.py}).
+\item \textbf{M3DFB}: integrare i 16 estimator come baseline.
+\item \textbf{Azione umana richiesta}: avviare IRB/etica per lo human study con Birkan/CHOP;
+      account/quota GPU per i retrain multi-3DMM.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,562 @@
+\documentclass{article}
+
+\PassOptionsToPackage{numbers, compress}{natbib}
+% neurips_2026.sty is not in this tree and is not installed in the local TeX distribution
+% (kpsewhich cannot find it), so requiring it makes the supplementary uncompilable on this
+% machine. Use it when present -- the submission will need it -- and fall back to plain
+% natbib otherwise so the document always builds while we are still filling in results.
+\IfFileExists{neurips_2026.sty}{\usepackage[eandd]{neurips_2026}}{\usepackage{natbib}}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{placeins}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+
+\title{Supplementary Material\\
+\large When Alignment Hurts: A Controlled Benchmark for Ranking-Preserving 3D Face Metrics}
+
+\author{%
+  Anonymous Authors \\
+  Anonymous Institution \\
+  \texttt{anonymous@example.com}
+}
+
+\begin{document}
+\maketitle
+
+\noindent
+This supplement reports experiments added after the first version of this work. Three
+of them change how a result in the main paper should be read, and we state that
+explicitly rather than only adding numbers: the per-mesh normalisation used to make
+meshes comparable is not a neutral choice (Sec.~\ref{sec:supp_normalisation}); the
+rigid-alignment baseline in the main comparison is not the strongest available one
+(Sec.~\ref{sec:supp_m3dfb}); and the out-of-distribution transfer number reported for
+FaceScape measured a change of topology-variant construction, not a change of morphable
+model family (Sec.~\ref{sec:supp_transfer}).
+
+%=====================================================================
+\section{Per-Mesh Normalisation Is Not a Neutral Preprocessing Step}
+\label{sec:supp_normalisation}
+
+Every distance in this work is computed after a per-mesh normalisation that centres a
+mesh on its vertex mean and divides by its largest absolute coordinate
+(\texttt{maxabs}); this is the normalisation implemented by the dataset loader used for
+both training and evaluation. Because the divisor is a single extreme coordinate, it is
+itself topology-dependent: for one subject, the \texttt{original} and \texttt{down8k}
+realisations differ by $4.5\%$ in scale and by $\approx0.04$ normalised units in
+centroid position, which is the same order as the difference between two \emph{different}
+identities.
+
+We therefore recomputed raw Chamfer under a second, area-based normalisation --- centre
+on the area-weighted centroid, divide by $\sqrt{A_{\mathrm{tot}}}$ --- on the identical
+pair sets, and compared the two. Table~\ref{tab:supp_normalisation} groups the $30$
+ordered topology pairs by the topologies they involve.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Raw Chamfer under two per-mesh normalisations, Spearman correlation
+($\uparrow$) with $D_{\mathrm{GT}}$ on the same pair sets ($30$ ordered topology pairs,
+$13{,}050$ subject pairs, $30$ subjects). The learned metric is shown for reference. The
+two normalisations fail on \emph{opposite} perturbations.}
+\label{tab:supp_normalisation}
+\begin{tabular}{lcccc}
+\toprule
+Topology pairs & $n$ & Chamfer (\texttt{maxabs}) & Chamfer (area) & Latent \\
+\midrule
+involving \texttt{crop}   & 10 & 0.087 & \textbf{0.279} & 0.612--0.725 \\
+involving \texttt{noisy}  &  8 & \textbf{0.510} & 0.105 & 0.731--0.825 \\
+clean topologies only     & 12 & 0.456 & \textbf{0.533} & --- \\
+\midrule
+all pairs                 & 30 & \textbf{0.253} & 0.172 & \textbf{0.730} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Area normalisation improves $16$ of $30$ pairs and degrades $14$. The pattern is
+mechanical rather than incidental. \texttt{maxabs} is set by one extreme vertex, and
+\texttt{crop} removes exactly such vertices, so crop-involving pairs recover strongly
+under area normalisation (\texttt{remesh}$\rightarrow$\texttt{crop}: $0.070
+\rightarrow 0.451$). Area normalisation is set by total surface area, and \texttt{noisy}
+inflates area, so noise-involving pairs collapse
+(\texttt{noisy}$\rightarrow$\texttt{original}: $0.636 \rightarrow 0.066$).
+
+Two consequences. First, part of the very low Chamfer correlations reported for
+crop-involving pairs in the main paper is attributable to the normalisation rather than
+to the distance itself, and we report both normalisations so that the geometric baseline
+is credited with its better behaviour. Second, and more interesting for the argument of
+this paper: normalisation is a \emph{second} mechanism, independent of pairwise
+registration, by which a geometric distance loses the identity ordering when mesh
+support changes. In aggregate \texttt{maxabs} ($0.253$) is the stronger of the two
+choices, so the main paper's normalisation was not selected against the geometric
+baseline; but no per-mesh normalisation is neutral, and the learned metric dominates
+both in every group.
+
+%=====================================================================
+\section{Extended Baselines}
+\label{sec:supp_baselines}
+
+The first version compared the learned metric against raw Chamfer and registration
+pipelines only. We add three further families, evaluated on the identical cross-topology
+pair sets ($148{,}500$ pairs, $100$ subjects) so that the numbers are directly
+comparable to the main tables.
+
+\subsection{Correspondence-Free Geometric and Perceptual Distances}
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Additional baselines on clean cross-topology pairs, Spearman correlation
+($\uparrow$) with $D_{\mathrm{GT}}$. Perceptual distances are cosine distances between
+embeddings of canonical renders. LPIPS is reported on a $20$-subject subset because it
+is pairwise in the image domain.}
+\label{tab:supp_baselines}
+\begin{tabular}{llc}
+\toprule
+Family & Metric & Spearman \\
+\midrule
+Learned 3D (ours)      & latent distance          & \textbf{0.751} \\
+\midrule
+Registration-free geom.& raw Chamfer              & 0.237 \\
+                       & varifold (multi-scale)   & 0.151 \\
+                       & currents (multi-scale)   & 0.074 \\
+\midrule
+Perceptual 2D          & ArcFace                  & 0.213 \\
+                       & LPIPS ($20$ subj.)       & 0.120 \\
+                       & CLIP ViT-B/32            & 0.105 \\
+                       & DINOv2 ViT-S/14          & 0.074 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Perceptual baselines are reported at their best, not their first, configuration.}
+Meshes are rendered with a fixed orthographic camera and Lambertian shading. Our initial
+renderer normalised each mesh independently, which framed the \texttt{crop} topology
+larger than the other realisations of the same subject and therefore depressed exactly
+the pairs that matter. We fixed this by deriving the camera centre and scale from each
+subject's \texttt{original} mesh and reusing them for all of that subject's topologies,
+and by averaging embeddings over three yaws ($-30^\circ, 0^\circ, +30^\circ$). This
+raised ArcFace from $0.178$ to $0.213$, CLIP from $0.082$ to $0.105$ and DINOv2 from
+$0.059$ to $0.074$. The gain is attributable to the shared frame and not to multi-view:
+over crop-involving pairs ArcFace improves by $0.082$ on average against $0.023$
+elsewhere, whereas in a single-topology control multi-view helps CLIP and \emph{harms}
+DINOv2 ($0.402 \rightarrow 0.374$). Table~\ref{tab:supp_baselines} reports the corrected
+numbers.
+
+\paragraph{Currents do not rank identities, and this is informative.}
+The currents distance uses oriented normals, which are as sensitive to tessellation as
+to identity: over $8$ subjects, the ratio between the worst same-identity
+cross-topology distance and the median cross-identity distance is $0.97$, i.e. the two
+distributions overlap almost completely. We report currents as an orientation-sensitivity
+diagnostic rather than as a ranking baseline. The varifold distance, which squares the
+normal term and is therefore orientation-invariant, does rank identities (ratio $1.67$),
+and is the number in Table~\ref{tab:supp_baselines}.
+
+\subsection{M3DFB Error Estimators}
+\label{sec:supp_m3dfb}
+
+M3DFB~\cite{fg2025} provides a modular family of reconstruction-error estimators, built
+as the product of a rigid aligner (ICP or landmark-based robust linear regression, RLR),
+an optional non-rigid stage, and an optional topology corrector (ETC). We ran the
+applicable estimators on our pair sets using the authors' implementation.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{M3DFB estimators on cross-topology pairs ($20$ subjects, $5{,}700$ pairs),
+Spearman correlation ($\uparrow$) with $D_{\mathrm{GT}}$. \textbf{All M3DFB estimators
+require 51 landmarks, which our setting does not have}; the landmarks supplied here are
+exact on BFM-ordered topologies and nearest-vertex transferred on the others, so these
+numbers are an upper bound on what the estimators would achieve on genuinely
+landmark-free cross-topology data.}
+\label{tab:supp_m3dfb}
+\begin{tabular}{llc}
+\toprule
+& Estimator & Spearman \\
+\midrule
+& latent distance (ours) & \textbf{0.710} \\
+\midrule
+E9  & RLR + Chamfer corr. + P2P        & 0.456 \\
+E10 & RLR + Chamfer corr. + P2P + ETC  & 0.417 \\
+E2  & ICP + Chamfer corr. + P2P + ETC  & 0.290 \\
+E1  & ICP + Chamfer corr. + P2P        & 0.284 \\
+& raw Chamfer                          & 0.265 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations. (i) E1 reproduces the rigid-ICP-plus-Chamfer number of the main
+paper ($0.284$ against $\approx0.29$), confirming that our own implementation of that
+pipeline was faithful; the comparison now runs on the original authors' code.
+(ii) \textbf{The landmark-based rigid aligner is far stronger than ICP} ($0.456$ against
+$0.284$). ICP with scaling optimises away precisely the identity-related morphology the
+ranking must preserve, whereas a landmark Procrustes fit preserves it. Reporting only
+ICP would understate the registration-based family, and we therefore treat RLR as the
+rigid baseline of record. (iii) The topology corrector barely affects cross-topology
+ranking ($\mathrm{E2}-\mathrm{E1} = +0.006$, $\mathrm{E10}-\mathrm{E9} = -0.039$).
+Even with landmarks supplied for free, the best M3DFB estimator remains $0.25$ Spearman
+below the learned metric on the same pairs.
+
+Twelve of the sixteen estimators are runnable but too slow for a benchmark of this size
+(elastic linear regression alone costs $53$\,s per pair at $23$k vertices and scales
+quadratically; non-rigid ICP costs $185$\,s per pair at $8$k vertices), and two of the
+components are unusable on cross-topology data by construction --- identity
+correspondence requires equal topology, and the landmark distance would score our own
+landmark transfer.
+
+%=====================================================================
+\section{REMESH-2: A Second Morphable Model}
+\label{sec:supp_remesh2}
+
+To separate the effect of the morphable model family from the effect of mesh
+representation, we extended the benchmark with identities from FLAME, generated by the
+same protocol as the BFM half: $600$ identities sampled from the identity subspace with
+truncated Gaussian coefficients, each realised in the same six topologies.
+
+\paragraph{The face region is transported through correspondence, not redefined.}
+A full FLAME head and a BFM face patch are not a fair cross-model pair. We therefore
+carry the BFM crop region onto FLAME through the published BFM-to-FLAME vertex
+correspondence: a FLAME vertex is retained if and only if its entire positional weight
+falls inside the BFM crop index set. The criterion is sharp rather than tuned ($3022$
+vertices at weight $\ge 0.99$, $3037$ at $\ge 0.25$), the two eyeball components absent
+from the BFM patch are discarded, and the result is a fixed index set of $1930$ vertices
+and $3770$ faces, identical for every identity.
+
+\paragraph{Topology variants are defined by ratio, not by absolute count.}
+The decimation and subdivision targets of the BFM pipeline ($16$k and $120$k triangles)
+are calibrated on a $46{,}440$-triangle patch. Applied verbatim to FLAME's $3{,}770$
+triangles both variants would be no-ops and the FLAME half of the benchmark would be
+degenerate ($\texttt{down8k} \equiv \texttt{original}$). We therefore preserve each
+model's ratio to its own \texttt{original}, which is the property that makes a variant
+comparable across models; the realised ratios agree to three decimals
+($0.344$ and $2.584$ on FLAME against $0.344$ and $2.587$ on BFM). The remaining
+variants are defined by scale-relative rules and transfer unchanged.
+
+\paragraph{Identity distinctness.}
+Sampled identities could in principle be too close to be distinguishable. Over the $600$
+FLAME identities the closest pair is at $30.8\%$ of the median pairwise distance, and the
+minimum pairwise distance in coefficient space is $10.58$; no near-duplicate identities
+are present.
+
+%=====================================================================
+\section{What the FaceScape Transfer Number Measured}
+\label{sec:supp_transfer}
+
+The first version of this work reported a cross-topology zero-shot Spearman correlation
+of $0.115$ on FaceScape and concluded that transfer to a different mesh family is a
+substantial domain shift. A controlled decomposition shows that this conclusion does not
+follow from that experiment: the number is dominated by how the cross-topology
+\emph{mate} of each pair was constructed, not by the change of morphable model.
+
+All cells in Table~\ref{tab:supp_transfer} use the same released checkpoint, the same
+evaluator and the same protocol; only the evaluation domain and the rule used to build
+the second topology of each pair vary.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Cross-model transfer of the REMESH-trained metric, Spearman correlation
+($\uparrow$) with each domain's $D_{\mathrm{GT}}$. Rows differ only in the evaluation
+domain and in the rule used to construct the cross-topology mate. The Poisson mate is
+the construction used in the first version of this work.}
+\label{tab:supp_transfer}
+\begin{tabular}{llrc}
+\toprule
+Domain & Cross-topology mate & Pairs & Spearman \\
+\midrule
+BFM, held-out subjects        & benchmark variants        & 148{,}500 & \textbf{0.751} \\
+\midrule
+FLAME (ours)                  & remesh, benchmark rule    & 148{,}500 & 0.406 \\
+FaceScape                     & remesh, benchmark rule    &  11{,}990 & 0.404 \\
+FaceScape, support-matched    & remesh, benchmark rule    &  11{,}990 & 0.263 \\
+\midrule
+FLAME (ours)                  & Poisson reconstruction    & 148{,}500 & 0.109 \\
+FaceScape                     & Poisson reconstruction    &  11{,}990 & 0.057 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Under a matched pair construction, a different model family costs almost nothing.}
+FaceScape reaches $0.404$ and our synthetic FLAME reaches $0.406$: statistically
+indistinguishable, although FaceScape consists of real scans, of a different template,
+of a different topology, and of a whole-face rather than cropped support. This is direct
+evidence that the metric transfers across morphable model families without retraining or
+adaptation.
+
+\paragraph{The failure is surface reconstruction, and it is domain-independent.}
+The mate used in the first version is a Poisson reconstruction at depth $7$, which closes
+the boundary loops of the source mesh (minimum boundary radius $0.955$ against $0.549$),
+adds $\approx21\%$ surface area, leaves the original support (maximum radius $1.412$
+against $1.245$), and departs from its own source surface by a normalised Hausdorff
+distance of $0.38$ --- against $0.088$ for the \texttt{original}/\texttt{remesh} pair the
+metric was trained on. Applying that same construction to FLAME drops FLAME from $0.406$
+to $0.109$, reproducing the apparent cross-model failure \emph{with no change of
+morphable model at all}. The weakness is therefore robustness to surface
+re-reconstruction, it is present in every domain including the training one, and it is a
+separate axis from cross-model transfer. The Poisson mate remains a legitimate and
+harder test; the error in the first version was attributing its outcome to the change of
+model family.
+
+\paragraph{Matching the support hurts, and that says something about the ground truth.}
+Cropping FaceScape to a support matching the BFM patch \emph{lowers} the correlation from
+$0.404$ to $0.263$. The likely reason is that $D_{\mathrm{GT}}$ is a per-vertex mean over
+the whole face, so it integrates jaw, forehead and cheek geometry that the crop discards:
+the mesh support and the support over which the ground truth is defined must agree. A
+ground truth restricted to the cropped region would settle this, and requires dense
+correspondence on the detail meshes, which the $10$k downsamples do not provide.
+
+\paragraph{Which axes of domain shift matter.}
+On normalised meshes, FaceScape is out of distribution relative to BFM on the region
+axes (bounding-box $x/y$ $0.952$ against $0.773$; area within radius $0.6$ of the
+centroid $0.247$ against $0.456$) and FLAME matches BFM there. On resolution, however,
+FLAME is \emph{further} from BFM than FaceScape is (mean edge length over bounding-box
+diagonal: $0.0175$ against $0.0054$ for BFM and $0.0085$ for FaceScape) while
+transferring better, so resolution cannot be the causal axis. Non-dimensionalised, the
+first Laplace--Beltrami eigenvalue agrees across all three domains
+($\lambda_1 A \in \{11.1, 9.8, 8.2\}$), confirming that the pipeline is insensitive to
+the raw unit scale of each domain: scaling a mesh's raw coordinates by $10^2$ changes the
+resulting embedding by a relative $6\cdot10^{-4}$ (cosine similarity $1.000000$).
+
+%=====================================================================
+\section{Do Precomputed Operators Diffuse Heat Badly Across Topologies?}
+\label{sec:supp_potential}
+
+DiffusionNet learns diffusion times against a Laplace--Beltrami operator that is
+\emph{precomputed per mesh}. Each realisation of an identity therefore carries its own
+operator, and the network's invariance across topologies is only as good as the agreement
+between those operators. This is not a concern for resampling --- the cotangent Laplacian
+converges under refinement --- but it is a concern when the \emph{boundary} moves. A cropped
+face is a manifold with a different boundary, and the Neumann condition implied by the
+cotangent Laplacian reflects heat off that new boundary, so the same identity diffuses
+differently depending on where it was cut. Our per-group numbers are consistent with this:
+the crop group is the weakest of the three ($\rho = 0.763$ against $0.828$ for noise and
+$0.816$ for pure resampling).
+
+\paragraph{Intervention.} We test a boundary-insensitive operator built from the infinite
+potential well of Liu, Jacobson and Crane~\cite{liu2017dirac}: replacing $L$ by
+$L' = L + U$, where $U$ is a sigmoidal well on normalised geodesic distance from the mesh
+centre,
+\begin{equation}
+U_i = m_i \, c \, \bigl(1 + e^{-\beta (d_i - \alpha)}\bigr)^{-1},
+\qquad
+c = c_{\mathrm{rel}} \max_k \lambda_k ,
+\end{equation}
+with $m_i$ the lumped mass, $d_i$ the heat-method geodesic distance from the area-weighted
+centroid, $\beta = 100$ (the paper's $\gamma$) and $c_{\mathrm{rel}} = 10^{2}$. The well makes
+the effective domain canonical: eigenfunctions are pushed away from the boundary, so a crop
+that removes material outside the well leaves the retained spectrum nearly unchanged. Setting
+$c$ \emph{relative} to $\lambda_k$ rather than to the paper's absolute $c = 10^{10}$ is a
+deliberate deviation: the absolute value made the $8$k-decimation group $4.3\times$ worse
+through mesh-dependent ill-conditioning.
+
+\paragraph{Where the offset $\alpha$ is placed is the method.}
+The source prescribes a \emph{collection-level} offset: ``$\beta$ is normalized such that
+across an entire collection of patches no boundary points are contained in the region of
+interest''~\cite{liu2017dirac}. This is what makes the construction work --- every patch is
+restricted to the \emph{same} canonical domain, so their spectra are comparable. Our first
+implementation instead took a per-mesh quantile of each mesh's own distance distribution,
+which is not the same thing and defeats the mechanism: measured over meshes, it places the
+transition at $\alpha \approx 0.68$--$0.73$ while the nearest boundary point sits at
+$0.27$--$0.33$, so on $8$ of $8$ meshes inspected the boundary lay \emph{inside} the region
+the well is meant to exclude, and the offset differed between topologies of the same identity
+($0.679$ for \texttt{crop} against $0.727$ for \texttt{original}) --- exactly the shared
+domain the well is supposed to establish. We therefore calibrate one offset and one common
+length scale over the collection, taking $\alpha$ strictly below the smallest normalised
+centre-to-boundary distance found anywhere ($\alpha = 0.210$, safety factor $0.9$), and report
+the per-mesh variant as a placement ablation rather than as the method.
+
+\paragraph{Pre-registered prediction, and its refutation.}
+The mechanism is specific, so we stated the expected signature before measuring and report it
+either way: \textbf{the crop group improves} and \textbf{the pure-resampling group is
+unchanged}. Both halves are wrong. With the well placed at the offset our own spectral sweep
+selects, crop \emph{falls} by $0.006$ and resampling \emph{falls} by $0.020$; the only group
+that gains is \texttt{noisy} ($+0.009$), which we did not predict. Placing the well badly (a
+per-mesh quantile) is not the explanation --- that arm behaves the same way, and the two
+differ by less than the gap to the control.
+
+\paragraph{A spectral proxy does not predict the metric.}
+The more useful result is methodological. Table~\ref{tab:supp_alpha_sweep} measured, without
+any training, that $\alpha = 0.55$ cuts cross-topology spectral inconsistency on the crop group
+by $46\%$ while \emph{raising} identity separability --- both moving the right way at once, which
+we read as the signature of a mechanism acting on the boundary. The trained metric then moved
+the other way on that very group. Spectra that agree better across topologies therefore do not
+imply identity orderings that survive better, and the cheap proxy would have chosen this
+configuration on evidence that does not transfer.
+
+We can say what the well costs. At $\alpha = 0.55$ the region of interest retains only
+$22$--$50\%$ of the surface depending on the realisation ($22\%$ on \texttt{noisy}, whose extra
+area falls outside the well; $46\%$ on \texttt{crop}). A network trained cross-topology has
+already had to become robust to boundary changes, and it plausibly does so using exactly the
+peripheral geometry the well removes; the invariance bought does not pay for the identity
+information spent. This is a negative result about applying the construction in this regime, not
+about the construction, whose behaviour on partial-shape spectra we reproduce
+(Table~\ref{tab:supp_alpha_sweep}).
+
+\paragraph{Protocol.} Both arms are trained here rather than reusing the v1 checkpoint, whose
+subject subset and epoch budget differ. The arms share data, recipe, seed ($1234$), batch size
+and epoch budget ($60$); they differ only in whether the cached operators come from $L$ or
+$L'$. Model selection uses the same rule for both arms (best cross-topology mesh score), fixed
+in advance --- selecting each arm by its own best group score would manufacture the effect
+under test.
+
+\paragraph{The prescribed offset is the worst choice on this data.}
+Because the well trades boundary invariance against how much surface it retains, we measured
+that trade-off directly on the spectrum, with no network involved: if the well does anything,
+it must already show up in the eigenvalues. For each offset we report the mean spectral
+distance between two \emph{topologies of the same identity} (which the well must reduce) and
+between \emph{different identities in the same topology} (which a well that has eaten the face
+also reduces). Reporting the first alone would make $\alpha \to 0$ look like a triumph, since
+a small enough well turns every mesh into the same tiny disc. Table~\ref{tab:supp_alpha_sweep}
+uses $40$ identities across the $6$ topologies.
+
+\begin{table}[!ht]
+\centering
+\caption{Offset sweep, $40$ identities, no training. \texttt{within} is the mean spectral
+distance between topologies of one identity, \texttt{between} that between identities within
+one topology, and \texttt{crop-within} restricts \texttt{within} to pairs involving the
+cropped realisation. The paper's collection-wide offset ($0.21$ here) is worse than using no
+well at all on \emph{both} axes; the useful regime is an offset roughly $2.5\times$ larger.}
+\label{tab:supp_alpha_sweep}
+\begin{tabular}{lcccc}
+\toprule
+$\alpha$ & within & between & ratio $\uparrow$ & crop-within $\downarrow$ \\
+\midrule
+no well            & 0.2535 & 0.1774 & 0.700 & 0.3291 \\
+$0.21$ (prescribed)& 0.5897 & 0.3752 & 0.636 & 0.4837 \\
+$0.30$             & 0.4266 & 0.2912 & 0.683 & 0.3389 \\
+$0.40$             & 0.2963 & 0.2195 & 0.741 & 0.2386 \\
+$\mathbf{0.55}$    & \textbf{0.2208} & 0.1742 & \textbf{0.789} & \textbf{0.1765} \\
+$0.75$             & 0.3218 & 0.2513 & 0.781 & 0.3376 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At $\alpha = 0.55$ both quantities improve at once --- cross-topology inconsistency on the crop
+group falls by $46\%$ ($0.3291 \rightarrow 0.1765$) while identity separability \emph{rises}
+($0.700 \rightarrow 0.789$). That they move together, rather than trading off, is the signature
+of a mechanism acting on the boundary rather than one simply discarding surface. The prescribed
+$\alpha = 0.2098$ does the opposite on both counts.
+
+The reason is a mismatch of regimes, not a defect of the construction. The condition ``no
+boundary points inside the region of interest'' presumes patches cut from a larger surface,
+whose shared interior is wide and whose boundary is far from the centre. A face mesh is not a
+patch of anything: its boundary is intrinsic and close to the centre relative to its extent, so
+enforcing that condition here retains only $2$--$7\%$ of the area. We therefore select $\alpha$
+empirically and report the prescribed value as the endpoint of the sweep, rather than presenting
+$0.55$ as if it followed from the source.
+
+\begin{table}[!ht]
+\centering
+\caption{Ranking preservation (Spearman $\rho$ against $D_{\mathrm{GT}}$) by topology group,
+$100$ held-out subjects, $148{,}500$ cross-subject pairs. All arms share data, recipe, seed and
+epoch budget; each is read with the operators it was trained on; model selection uses one rule
+throughout. Best per row in bold. \textbf{The potential well does not deliver what it was
+predicted to deliver}: at the offset our own sweep selects it \emph{lowers} the crop group
+($-0.006$) and costs $0.020$ on pure resampling, and only \texttt{noisy} improves ($+0.009$).}
+\label{tab:supp_potential}
+\begin{tabular}{lcccc}
+\toprule
+ & no well & well misplaced & well $\alpha{=}0.55$ & \;+ masked pooling \\
+Group & ($L$) & (per-mesh offset) & (placed) & (support fixed) \\
+\midrule
+crop (boundary moved)     & \textbf{0.7072} & 0.7034 & 0.7012 & \texttt{[pending]} \\
+noisy                     & 0.7561 & 0.7573 & \textbf{0.7653} & \texttt{[pending]} \\
+resample (sampling only)  & \textbf{0.7719} & 0.7533 & 0.7521 & \texttt{[pending]} \\
+\midrule
+all (pooled)              & \textbf{0.7347} & 0.7315 & 0.7215 & \texttt{[pending]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%=====================================================================
+\section{Methodological Notes}
+\label{sec:supp_methodology}
+
+\paragraph{The ground truth depends on the space it is computed in.}
+$D_{\mathrm{GT}}$ is defined by Eq.~(2) of the main paper, but the space in which the
+vertices live is a choice. Computing it on the same FLAME meshes before and after the
+per-mesh normalisation used by the evaluation gives two matrices whose Spearman
+correlation is only $0.571$ (on BFM the corresponding figure is $0.81$). Two ground
+truths built from the same meshes, differing only in normalisation, therefore order
+identities substantially differently. We adopt the matrix computed in the normalised
+space --- the space in which the evaluated metrics live --- as the reference, and report
+the raw-space matrix as a robustness control.
+
+\paragraph{The ground truth also depends on the topology it is measured in.}
+The stronger version of the previous point is obtained by expressing the \emph{same}
+identities in two topologies. Transporting our $500$ BFM identities through the
+BFM-to-FLAME vertex correspondence yields, for each identity, a second mesh in FLAME
+topology; $D_{\mathrm{GT}}$ is then computable in either topology by the same Eq.~(2),
+since dense correspondence holds within each. Table~\ref{tab:supp_gt_topology} compares the
+two resulting matrices over all $124{,}750$ identity pairs.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Agreement between two correspondence-based ground truths built on the same $500$
+identities, differing only in the topology in which the vertices are sampled. Chance levels
+are $0.2\%$ for nearest-neighbour match and $1.0\%$ for top-5 overlap.}
+\label{tab:supp_gt_topology}
+\begin{tabular}{lccc}
+\toprule
+Space & Spearman & NN match & top-5 overlap \\
+\midrule
+raw                                & 0.865 & 34.8\% & 45.1\% \\
+per-mesh normalised (as evaluated) & 0.573 & 16.4\% & 27.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The nearest-neighbour agreement is far above chance, so the identity structure does survive
+re-topologisation; but agreement is well short of perfect, and in the space in which metrics
+are actually evaluated the rank correlation between the two ground truths is only $0.573$.
+The mechanism is the one identified in Sec.~\ref{sec:supp_transfer}: FLAME topology samples
+the same surface with $1930$ vertices rather than $23{,}470$, so a per-vertex mean weights
+facial regions differently.
+
+Consequently $D_{\mathrm{GT}}$ should be read as \emph{defined relative to a reference
+topology and a normalisation space}, not as an absolute quantity. A metric evaluated on
+pairs that cross topologies is scored against a target that itself moves when the reference
+topology changes, and a benchmark of this kind must declare both. This is the thesis of this
+paper taken one step further: it is not only registration-based pipelines that lose the
+identity ordering under a change of mesh representation --- a correspondence-based ground
+truth partially loses it too, once no topology is privileged.
+
+\paragraph{Cross-domain identity distances are undefined, not zero.}
+There is no identity distance between a BFM subject and a FLAME subject: the two
+identity spaces are unrelated. A joint ground truth over both domains is therefore
+block-diagonal with \emph{undefined} off-diagonal blocks. Any joint training must never
+read those entries; we enforce this by forming every mini-batch from a single domain, so
+that all pairs within a batch are intra-domain, and by storing the off-block entries as
+\texttt{NaN} so that an error surfaces rather than being silently trained on.
+
+\paragraph{Batch size is a property of the objective, not only of throughput.}
+The stress and ranking terms are computed over pairs within a batch, so the number of
+supervised pairs grows quadratically in the number of subjects per batch: the
+configuration of the main paper ($5$ subjects) provides $10$ subject pairs, from which
+the hard-pair mining fraction of $0.7$ has little to select. At the extreme, a
+$2$-subject batch makes the subject-level stress term identically zero, because both
+distance matrices are normalised by their own off-diagonal mean. We report batch size as
+an ablation rather than fixing it silently.
+
+\paragraph{Operators are recomputed per realisation.}
+For completeness: the DiffusionNet operators are computed on each topology realisation
+separately, not inherited from the \texttt{original} mesh. The \texttt{noisy} variant is
+the tightest check, since it has the same vertex count as \texttt{original} but different
+geometry; its Laplacian values differ, as they must.
+
+{\small
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+}
+
+\end{document}

@@ -1,0 +1,24 @@
+{
+  "tag": "pot_w55",
+  "checkpoint": "v2_work/runs/pot_w55_29134843/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__4de4aa77/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "data_dir": "v2_work/potential/bfm_well055",
+  "n_subjects": 100,
+  "groups": {
+    "crop": {
+      "n_pairs": 49500,
+      "spearman": 0.7011639377965064
+    },
+    "noisy": {
+      "n_pairs": 39600,
+      "spearman": 0.7653458468630427
+    },
+    "resample": {
+      "n_pairs": 59400,
+      "spearman": 0.7521491967658881
+    },
+    "all": {
+      "n_pairs": 148500,
+      "spearman": 0.7215393783912802
+    }
+  }
+}

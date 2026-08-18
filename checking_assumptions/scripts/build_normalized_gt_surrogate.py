@@ -68,7 +68,7 @@ def main() -> None:
         sid = path.name.split("_")[0].lower()
         subjects.append(sid)
         data = np.load(path, allow_pickle=False)
-        V = data["verts"].astype(np.float64)
+        V = (data["verts"] if "verts" in data else data["V"]).astype(np.float64)
         data.close()
         verts_norm.append(_normalize_vertices(V))
 
