@@ -1497,6 +1497,61 @@ all'epoca $6/60$. Il $2\times2$ completo dir\`a se le due correzioni sono additi
 assorbe l'altra.
 
 
+\section{19 agosto --- Il frame era il difetto maggiore}
+
+\finding{\textbf{Il frame \texttt{rms} vale $2{,}6$ volte la normalizzazione d'area sull'asse
+rotto, e migliora anche tutto il resto.} Stessi operatori di \texttt{pot\_plain}, stessa ricetta,
+stesso seed, stessa regola di selezione: cambia solo il sistema di riferimento dei vertici, da
+media-sui-vertici pi\`u \texttt{maxabs} a centroide pesato per massa pi\`u raggio quadratico
+medio.}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+braccio & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_plain} & $0{,}7072$ & $0{,}7561$ & $0{,}7719$ & $0{,}7347$ \\
+\texttt{pot\_area}  & $0{,}7292$ & $0{,}7699$ & $0{,}7575$ & $0{,}7432$ \\
+\texttt{pot\_rms}   & $\mathbf{0{,}7637}$ & $\mathbf{0{,}7958}$ & $0{,}7664$ & $\mathbf{0{,}7697}$ \\
+\midrule
+$\Delta$ area       & $+0{,}0220$ & $+0{,}0139$ & $-0{,}0144$ & $+0{,}0086$ \\
+$\Delta$ rms        & $+0{,}0566$ & $+0{,}0397$ & $-0{,}0055$ & $+0{,}0351$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Conferma diretta della misura di stabilit\`a del frame: sotto crop la scala \texttt{maxabs} si
+spostava di $\pm 0{,}034$ \emph{in modo diverso per ogni identit\`a}, perch\'e dipende da quale
+vertice fosse il pi\`u lontano e da quanto il taglio ne avesse mangiato. Quella dispersione era
+rumore iniettato dritto nel confronto fra identit\`a, ed \`e la met\`a pi\`u grande del problema.
+Notare che il frame \texttt{rms} migliora anche \texttt{noisy} di $+0{,}0397$ e riduce il costo su
+\texttt{resample} da $-0{,}0144$ a $-0{,}0055$: non \`e uno scambio fra assi come lo era la
+normalizzazione d'area, \`e un guadagno quasi ovunque.
+
+\decision{Resta provvisorio: un seed. Il guadagno di $+0{,}0566$ \`e per\`o di ordine ben diverso
+dal $+0{,}0220$ della normalizzazione d'area, quindi meno esposto al rumore di replica --- non
+abbastanza da saltare le repliche, che sono in corso.}
+
+\paragraph{Due difetti dell'automazione, trovati e corretti prima che producessero un numero
+falso.}
+\begin{enumerate}
+\item \textbf{Collisione di glob.} \texttt{auto\_eval.sh} cercava
+      \texttt{runs/\$\{tag\}\_*/*/checkpoints/epoch060.pth}, e \texttt{pot\_rms\_*} cattura anche
+      \texttt{pot\_rms\_area\_*} --- come \texttt{pot\_plain\_*} cattura \texttt{pot\_plain\_s2}
+      e \texttt{s3}. Il controllo ``il braccio ha finito'' diventava vero appena una qualsiasi
+      delle omonime finiva, e \texttt{head -1} poteva prendere il checkpoint di un altro braccio:
+      nessun errore sollevato, numeri plausibili. Corretto in \texttt{auto\_eval2.sh} con
+      \texttt{\$\{tag\}\_[0-9]*}, dato che i run dir sono \texttt{<tag>\_<JOBID>} numerici. Il
+      file non \`e stato modificato in luogo perch\'e era in esecuzione: bash rilegge da un
+      offset spostato, difetto gi\`a pagato una volta.
+\item \textbf{\texttt{pkill -f} ha ucciso la shell che lo eseguiva} (uscita $144$), perch\'e il
+      pattern compare nella riga di comando del processo chiamante --- la stessa forma dell'errore
+      gi\`a registrato per \texttt{pgrep -f}. Conseguenza silenziosa: il comando successivo della
+      catena, il \texttt{sed} che alzava il parallelismo, non \`e mai stato eseguito, e senza
+      controllare lo stato si sarebbe creduto fatto. Ora si uccide per PID.
+\end{enumerate}
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con

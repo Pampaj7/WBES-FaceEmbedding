@@ -17,7 +17,7 @@
 set -u
 ROOT=/dtu/p1/leopam/WBES-FaceEmbedding
 cd "$ROOT"
-MAXRUN=2
+MAXRUN=3
 STALL_LIMIT=180        # 6 ore senza uno slot libero = qualcosa non va, esci invece di insistere
 
 ours () { bjobs -w 2>/dev/null | awk '$3=="RUN" && $7 ~ /^(pot_|pt_)/' | wc -l; }
