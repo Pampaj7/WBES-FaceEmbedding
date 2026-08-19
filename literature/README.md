@@ -26,27 +26,45 @@ forniscono, entrambe con dati reali.
 
 ## 2. Le due strade che sbloccano il problema
 
-### Strada A — dataset che spediscono scan grezzo **e** registrazione
+### Strada A — dataset con identità ed espressione, ma **una topologia sola**
 
-Ogni soggetto arriva in due topologie contemporaneamente: lo scan grezzo (topologia arbitraria,
-milioni di vertici) e la registrazione (topologia condivisa). **È una coppia cross-topologia
-reale con etichetta d'identità certa**, non una topologia sintetica generata da noi.
+> **CORREZIONE del 19/08.** Una prima stesura di questa sezione affermava che FaceScape
+> distribuisce lo scan grezzo accanto alla registrazione, e quindi darebbe coppie
+> cross-topologia gratis. **È falso.** Il paper dice che «the raw scans are processed into TU
+> models representing coarse geometry and displacement maps»: gli scan grezzi sono l'input
+> della loro pipeline, non l'output rilasciato. Il repo conferma che si scaricano 16.940 modelli
+> topologicamente uniformi (847 identità × 20 espressioni), tutti a 26.317 vertici con
+> connettività identica, più displacement e texture map. L'affermazione veniva da una ricerca
+> web e non dalla fonte.
 
-| dataset | soggetti | per soggetto | grezzo | registrato | note |
-|---|---|---|---|---|---|
-| **FaceScape** | 359 | 20 espressioni | ~2M vertici | 26.317 vert, topologia condivisa | 7.120 tuple; già in uso nel progetto come OOD |
-| **NoW** | 100 | 1 (neutra) | scan testa | fornisci tu | benchmark con protocollo di allineamento pubblicato |
-| **FaMoS** | 95 | 28 sequenze | ~600K frame | FLAME, da marker | identità sotto movimento ed espressione |
-| **NPHM** | — | — | mesh texturate | — | alta qualità, recente |
+| dataset | soggetti | per soggetto | topologia | dà |
+|---|---|---|---|---|
+| **FaceScape** | 847 | 20 espressioni | **uniforme**, 26.317 vert | identità + espressione |
+| **NoW** | 100 | 1 (neutra) | scan testa | scan reali, protocollo pubblicato |
+| **FaMoS** | 95 | 28 sequenze | registrazioni FLAME | identità sotto movimento |
+| **NPHM** | — | — | mesh texturate | qualità, recente |
 
-FaceScape è il candidato migliore: dà **sia** l'asse cross-topologia (grezzo contro registrato)
-**sia** l'asse espressivo (20 espressioni per soggetto), e lo abbiamo già in parte.
+Restano preziosi per l'**asse espressivo** e per l'etichetta d'identità. Non risolvono la
+topologia.
 
-### Strada B — benchmark di *riconoscimento* 3D, cioè ranking d'identità già pronto
+**Terza via dentro FaceScape**: distribuiscono anche oltre 400k immagini multi-view con i
+parametri di camera. Ricostruendo le mesh con una pipeline diversa dalla loro si ottengono
+topologie genuinamente diverse dello stesso volto — è l'unico modo noto per avere identità,
+espressione e topologia nello stesso dataset. Costa lavoro di ricostruzione.
 
-Molti scan dello stesso soggetto in sessioni diverse. Ogni scan ha topologia diversa perché è
-un'acquisizione diversa, e l'etichetta è l'ID del soggetto — **completamente indipendente dalla
-geometria**. Sono nati esattamente per fornire ground truth di ranking d'identità.
+### Strada B — benchmark di *riconoscimento* 3D: **è qui che sta la topologia**
+
+Molti scan dello stesso soggetto in sessioni diverse. Ogni scan è un'acquisizione a sé, quindi
+conteggio di vertici e connettività cambiano davvero; l'etichetta è l'ID del soggetto,
+**completamente indipendente dalla geometria**. Sono nati esattamente per fornire ground truth
+di ranking d'identità.
+
+Nota sul *tipo* di variazione topologica: nei dataset a range image (FRGC, ND-2006, CASIA,
+Texas) la mesh nasce triangolando una griglia di profondità, quindi la connettività è
+regolare ma la maschera dei pixel validi, la risoluzione e l'allineamento cambiano a ogni
+acquisizione. È variazione vera, ma di un tipo specifico — derivata dal sensore, non da un
+rimesher come le nostre. Bosphorus distribuisce point cloud, senza connettività: andrebbe
+costruita.
 
 | dataset | anno | soggetti | scan | scan/soggetto | tipo |
 |---|---|---|---|---|---|
@@ -62,7 +80,8 @@ geometria**. Sono nati esattamente per fornire ground truth di ranking d'identit
 Fonte: tabella dei dataset in *3D Face Recognition: A Survey* (arXiv:2108.11082),
 `papers/2108_11082.pdf`.
 
-**FRGC v2 e ND-2006 sono lo standard del campo per il ranking d'identità.** Se il nostro claim è
+**FRGC v2 e ND-2006 sono lo standard del campo per il ranking d'identità, e — dopo la
+correzione qui sopra — sono anche l'unica fonte pronta all'uso di variazione topologica reale.** Se il nostro claim è
 «questa metrica preserva l'ordinamento fra identità», il posto dove dimostrarlo è lì, con il
 protocollo che il campo già usa, non su un ground truth che ci siamo definiti da soli.
 
@@ -107,7 +126,7 @@ In `papers/`, con testo estratto a fianco.
 | file | paper | perché ci serve |
 |---|---|---|
 | `2108_11082` | *3D Face Recognition: A Survey* (Deakin, 2021) | la tabella completa dei dataset e i protocolli di valutazione standard del riconoscimento 3D |
-| `2111_01082` | *FaceScape: 3D Facial Dataset and Benchmark* (PAMI 2023) | il dataset candidato principale; descrive grezzo + registrato e il benchmark |
+| `2111_01082` | *FaceScape: 3D Facial Dataset and Benchmark* (PAMI 2023) | la fonte che ha smentito la mia affermazione sugli scan grezzi: dice che sono l'input della pipeline, non l'output rilasciato |
 | `2511_19958` | *GFT-GCN: Privacy-Preserving 3D Face Mesh Recognition with Spectral Diffusion* (NII, 2025) | riconoscimento facciale 3D **spettrale** — il vicino più diretto del nostro approccio, da leggere per primo |
 | `2203_09729` | *REALY: Rethinking the Evaluation of 3D Face Reconstruction* (ECCV 2022) | il contraltare metodologico: sostiene che serve **più** registrazione, noi sosteniamo il contrario |
 | `2212_02761` | *Learning Neural Parametric Head Models* (NPHM) | dataset recente ad alta qualità e rappresentazione implicita |
@@ -121,14 +140,16 @@ Non scaricato: *Reconstructing A Large Scale 3D Face Dataset for Deep 3D Face Id
 
 ## 5. Cosa cambierebbe, concretamente
 
-Con FaceScape (o FRGC/ND-2006) diventano possibili tre cose che oggi non lo sono:
+Con FRGC/ND-2006 (topologia) e FaceScape (espressione) diventano possibili tre cose che oggi
+non lo sono --- ma le prime due richiedono dataset diversi, non uno solo:
 
 1. **Un ground truth d'identità non circolare.** «Stesso soggetto» è un'etichetta, non una
    distanza calcolata da noi. Il ranking si valuta come recognition: stesso soggetto vicino,
    soggetti diversi lontani.
 2. **Cross-topologia reale invece che sintetica.** Oggi le nostre sei topologie le generiamo noi
-   da BFM con `crop.py` e `remesh.py`. Grezzo contro registrato è una differenza di topologia
-   che esiste nel mondo, non una che abbiamo fabbricato.
+   da BFM con `crop.py` e `remesh.py`. Due acquisizioni indipendenti dello stesso soggetto sono
+   una differenza di topologia che esiste nel mondo, non una che abbiamo fabbricato. Viene dai
+   benchmark di riconoscimento, **non** da FaceScape.
 3. **L'asse espressivo.** 20 espressioni per soggetto separano «identità» da «configurazione»,
    che è la distinzione che una metrica d'identità deve fare e che oggi non testiamo affatto.
 
