@@ -129,3 +129,42 @@ if ARGS.latex:
     print(r"\bottomrule")
     print(r"\end{tabular}")
     print("% " + note)
+
+
+# ---------------------------------------------------------------------------
+# Analisi APPAIATA. E' la statistica giusta per questo disegno e non un extra:
+# bracci che condividono il seed condividono i pesi iniziali e l'ordine dei dati,
+# quindi l'effetto del seed e' comune e la differenza appaiata lo elimina. Confrontare
+# un guadagno contro la dispersione NON appaiata del controllo -- come ho fatto nella
+# ritrattazione del 19 agosto -- usa un denominatore troppo grande e fa sembrare rumore
+# un effetto reale. Il segno concorde fra seed vale piu' della media quando n e' 2.
+SEEDS = {"1234": "", "1235": "_s2", "1236": "_s3"}
+BASE = "pot_plain"
+
+print("\n=== differenze appaiate contro pot_plain, per seed ===")
+for arm, frame, _ in ARMS:
+    if arm == BASE:
+        continue
+    rows, seeds = [], []
+    for seed, suf in SEEDS.items():
+        fa, fb = R / f"{BASE}{suf}.json", R / f"{arm}{suf}.json"
+        if not (fa.exists() and fb.exists()):
+            continue
+        da, db = json.loads(fa.read_text()), json.loads(fb.read_text())
+        if db.get("frame", "current") != frame:
+            continue
+        rows.append([db["groups"][g]["spearman"] - da["groups"][g]["spearman"] for g in GROUPS])
+        seeds.append(seed)
+    if not rows:
+        continue
+    a = np.array(rows)
+    print(f"\n{arm}  ({len(seeds)} seed: {', '.join(seeds)})")
+    print(f"  {'':10s}" + " ".join(f"{g:>11s}" for g in GROUPS))
+    for s, r_ in zip(seeds, a):
+        print(f"  seed {s:5s}" + " ".join(f"{v:+11.4f}" for v in r_))
+    if len(a) > 1:
+        print(f"  {'media':10s}" + " ".join(f"{v:+11.4f}" for v in a.mean(0)))
+        print(f"  {'spread':10s}" + " ".join(f"{v:11.4f}" for v in (a.max(0) - a.min(0))))
+        conc = ["si" if (r_ > 0).all() or (r_ < 0).all() else "NO" for r_ in a.T]
+        print(f"  {'segno':10s}" + " ".join(f"{c:>11s}" for c in conc))
+        print("  (segno 'NO' = la direzione cambia fra seed, cioe' non e' un effetto)")

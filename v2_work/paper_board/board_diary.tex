@@ -1699,6 +1699,57 @@ che nel frattempo lo era davvero, ucciso dal \texttt{kill} di un comando precede
 controllo \`e ancorato sul nome del programma e non su una sottostringa qualsiasi.
 
 
+\section{19 agosto --- Correzione della ritrattazione: il denominatore era sbagliato}
+
+\decision{La ritrattazione di un'ora fa confrontava il guadagno della normalizzazione d'area
+contro la dispersione \emph{non appaiata} dei due seed del controllo. \`E il denominatore
+sbagliato. \texttt{pot\_plain} e \texttt{pot\_area} con lo stesso seed condividono i pesi
+iniziali e l'ordine dei dati: l'effetto del seed \`e \textbf{comune ai due bracci}, e la
+differenza appaiata lo elimina. Usare la varianza non appaiata gonfia l'incertezza della
+differenza e fa sembrare rumore un effetto reale.}
+
+\finding{\textbf{Differenze appaiate, \texttt{pot\_area} contro \texttt{pot\_plain}:}}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+ & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+seed $1234$ & $+0{,}0220$ & $+0{,}0139$ & $-0{,}0144$ & $+0{,}0086$ \\
+seed $1235$ & $+0{,}0141$ & $+0{,}0074$ & $+0{,}0107$ & $+0{,}0120$ \\
+\midrule
+media       & $+0{,}0181$ & $+0{,}0106$ & $-0{,}0019$ & $+0{,}0103$ \\
+spread      & $0{,}0079$ & $0{,}0065$ & $\mathbf{0{,}0251}$ & $0{,}0035$ \\
+segno concorde & s\`i & s\`i & \textbf{NO} & s\`i \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Su \texttt{crop} l'effetto \`e $2{,}3$ volte la variabilit\`a della differenza appaiata, non
+$0{,}7$ volte come appariva col denominatore sbagliato; su \texttt{all} \`e circa tre volte. Su
+\texttt{resample} il segno \textbf{si inverte} fra i due seed, quindi il ``costo di $-0{,}0144$
+su resample'' riportato ieri sera \`e rumore e non un effetto --- va ritirato anche quello, in
+direzione opposta.
+
+\paragraph{Due correzioni in senso contrario nella stessa notte, e non mi piace.} Ho annunciato
+un gate con troppa sicurezza, l'ho ritirato con troppa severit\`a, e ora ne correggo met\`a.
+L'errore comune alle due volte non \`e nei dati: \`e che ho scelto la statistica \emph{dopo} aver
+visto i numeri invece di fissarla col disegno sperimentale. Un disegno con seed condivisi fra
+bracci \`e appaiato per costruzione, e questo si sapeva quando la catena di repliche \`e stata
+scritta, non dopo.
+
+\decision{\texttt{aggregate\_2x2.py} calcola e stampa le differenze appaiate per seed, la loro
+media, il loro spread e la \textbf{concordanza di segno}, con la nota che un segno discorde
+significa assenza di effetto. Con $n$ piccolo la concordanza di segno dice pi\`u della media, e
+la statistica giusta va nello strumento, non nella testa di chi guarda la tabella.}
+
+\paragraph{Stato reale delle conclusioni, a due seed.} La normalizzazione d'area aiuta,
+modestamente e con segno concorde su \texttt{crop}, \texttt{noisy} e \texttt{all}; non costa nulla
+su \texttt{resample}. \texttt{pot\_rms} ha ancora un seed solo, quindi il suo $+0{,}0566$ resta
+non appaiabile e non confrontabile con questi: le sue repliche sono in coda ed erano il buco di
+pianificazione gi\`a registrato.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
