@@ -1898,6 +1898,54 @@ cambia: non riparare il frame ma togliere le coordinate. Scritto nello script de
 che non sia attenuabile a posteriori.
 
 
+\section{19 agosto --- Il frame regge alla replica, l'area molto meno}
+
+\finding{\textbf{Due differenze appaiate per il frame rms, contro tre per la normalizzazione
+d'area:}}
+
+\begin{center}\small
+\begin{tabular}{llrrrr}
+\toprule
+braccio & & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_rms}  & media  & $\mathbf{+0{,}0517}$ & $+0{,}0324$ & $-0{,}0010$ & $\mathbf{+0{,}0306}$ \\
+($2$ seed)         & spread & $\mathbf{0{,}0098}$ & $0{,}0146$ & $0{,}0089$ & $0{,}0089$ \\
+                   & segno  & concorde & concorde & discorde & concorde \\
+\midrule
+\texttt{pot\_area} & media  & $+0{,}0290$ & $+0{,}0040$ & $-0{,}0000$ & $+0{,}0130$ \\
+($3$ seed)         & spread & $0{,}0366$ & $0{,}0232$ & $0{,}0251$ & $0{,}0099$ \\
+                   & segno  & concorde & discorde & discorde & concorde \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Su \texttt{crop} l'effetto del frame \`e $1{,}8\times$ pi\`u grande e $3{,}7\times$ pi\`u
+consistente: spread $0{,}0098$ su un effetto di $0{,}0517$, cio\`e un quinto. La normalizzazione
+d'area ha spread $0{,}0366$ su un effetto di $0{,}0290$, dunque \emph{pi\`u grande dell'effetto
+stesso}. Il frame guadagna anche su \texttt{noisy} con segno concorde, dove l'area cambia
+direzione fra repliche. Su \texttt{resample} nessuno dei due fa nulla.
+
+\decision{Con $n=2$ non si calcola alcun test: \texttt{pot\_rms\_s3} \`e in training. Ma la
+gerarchia fra i due rimedi \`e ormai netta e va nella direzione opposta all'ordine in cui li
+abbiamo scoperti --- la normalizzazione d'area, che era l'ipotesi di partenza e ha una teoria
+elegante dietro (Weyl, Rodol\`a, la convenzione del campo), \`e il rimedio debole; il frame, che
+\`e emerso da una misura banale di stabilit\`a, \`e quello forte.}
+
+\paragraph{Proporzione, per non ripetere l'errore di ieri.} Questo \`e un guadagno
+\emph{in-domain}. Il divario che conta \`e altrove: $0{,}7506$ su BFM held-out contro
+$\mathbf{0{,}0571}$ su FaceVerse. Il $+0{,}0306$ sul punteggio aggregato \`e numericamente
+mezzo punto in pi\`u del valore assoluto della prestazione fuori dominio. Va riportato per
+quello che \`e: una correzione di preprocessing reale e riproducibile, non la soluzione del
+problema del progetto.
+
+\paragraph{\texttt{abl\_intrinsic} morto per CUDA OOM.} Non un bug nostro: il nodo aveva un
+processo altrui a $41{,}14$~GiB e la scheda a $67$~GB su $79$ con sedici job. \`E il braccio pi\`u
+esigente in memoria perch\'e \texttt{intrinsic\_dn} calcola HKS e WKS su $300$ autovalori. Il
+monitor l'ha rilevato su due segnali indipendenti --- scomparso dalla coda senza
+\texttt{epoch060}, e traceback nella log --- che \`e esattamente perch\'e ce ne sono due.
+Non rilanciato subito: scheda satura, e la priorit\`a si \`e spostata sui dati.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
