@@ -6,9 +6,16 @@ fissato prima di vederlo era che una differenza piccola va replicata, quindi que
 riporta media e deviazione standard sui seed disponibili e dice esplicitamente quanti sono: una
 media su un solo seed va letta come un singolo campione, non come una media, e viene marcata.
 """
-import json, sys
+import argparse, json, sys
 from pathlib import Path
 import numpy as np
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--latex", action="store_true",
+                help="emette anche la tabella LaTeX, cosi' i numeri entrano nel supplementary "
+                     "senza essere ricopiati a mano: una cifra trascritta male non solleva "
+                     "errori e sopravvive fino alla revisione")
+ARGS = ap.parse_args()
 
 R = Path(__file__).resolve().parent / "results"
 GROUPS = ["crop", "noisy", "resample", "all"]
@@ -19,6 +26,9 @@ ARMS = [
     ("pot_area",     "current", ["pot_area", "pot_area_s2", "pot_area_s3"]),
     ("pot_rms",      "rms",     ["pot_rms"]),
     ("pot_rms_area", "rms",     ["pot_rms_area"]),
+    # operatori sulla stessa normalizzazione che la rete vede sull'xyz: testa se
+    # l'antagonismo fra frame rms e area unitaria sia incoerenza di unita'
+    ("pot_rmsops",   "rms",     ["pot_rmsops"]),
 ]
 
 print(f"{'braccio':14s} {'n':>2s} " + " ".join(f"{g:>16s}" for g in GROUPS))
@@ -74,3 +84,48 @@ if nseed < 3:
     print(f"\nPROVVISORIO: {nseed} seed su 3 per il braccio di controllo. Con guadagni dell'ordine")
     print("di 0.02 una sola replica non distingue l'effetto dal rumore. Niente di questo va in un")
     print("paper prima delle tre repliche.")
+
+
+if ARGS.latex:
+    LBL = {"pot_plain":    (r"\texttt{current}", r"$L$"),
+           "pot_area":     (r"\texttt{current}", r"$L$, area unitaria"),
+           "pot_rms":      (r"\texttt{rms}",     r"$L$"),
+           "pot_rms_area": (r"\texttt{rms}",     r"$L$, area unitaria"),
+           "pot_rmsops":   (r"\texttt{rms}",     r"$L$, raggio rms unitario")}
+    rows, seeds_min = [], None
+    for name, frame, tags in ARMS:
+        vals, n = {g: [] for g in GROUPS}, 0
+        for t in tags:
+            f = R / f"{t}.json"
+            if not f.exists():
+                continue
+            d = json.loads(f.read_text())
+            if d.get("frame", "current") != frame:
+                continue
+            n += 1
+            for g in GROUPS:
+                vals[g].append(d["groups"][g]["spearman"])
+        if n == 0:
+            continue
+        seeds_min = n if seeds_min is None else min(seeds_min, n)
+        cells = []
+        for g in GROUPS:
+            a = np.array(vals[g])
+            cells.append("$%.4f$" % a.mean() if n == 1
+                         else "$%.4f \\pm %.4f$" % (a.mean(), a.std(ddof=1)))
+        fr, op = LBL.get(name, (name, ""))
+        rows.append(fr + " & " + op + " & " + " & ".join(cells) + r" \\")
+
+    note = ("Ogni cella e' un singolo seed: la differenza fra bracci non e' ancora "
+            "distinguibile dal rumore di inizializzazione."
+            if seeds_min == 1 else "Media e deviazione standard su %d seed." % seeds_min)
+    print("\n% ---- generato da aggregate_2x2.py --latex, non modificare a mano ----")
+    print(r"\begin{tabular}{ll" + "c" * len(GROUPS) + "}")
+    print(r"\toprule")
+    print("frame & operatori & " + " & ".join(r"\texttt{%s}" % g for g in GROUPS) + r" \\")
+    print(r"\midrule")
+    for r_ in rows:
+        print(r_)
+    print(r"\bottomrule")
+    print(r"\end{tabular}")
+    print("% " + note)
