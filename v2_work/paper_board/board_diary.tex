@@ -1617,6 +1617,27 @@ elementi ciascuno.
 stiamo gi\`a trattando come segnale, quindi o sono reali entrambi o nessuno dei due.
 
 
+\subsection*{Tabella di runtime corretta nel paper}
+
+\decision{Sostituiti i tempi degli operatori in \texttt{paper.tex}, sezione
+\emph{Computational Cost}. Dichiarati: $1{,}2$--$2{,}15$~s per mesh da $16{,}5$k--$23{,}5$k
+vertici e $6{,}3$~s per le $60{,}4$k. Misurati su nodo dedicato, mediana di tre prove:
+$1{,}65$~s a $8{,}1$k, $3{,}70$~s a $16{,}5$k, $5{,}71$~s a $23{,}5$k, $15{,}65$~s a $60{,}4$k.
+Aggiunti il comportamento in funzione dei thread ($5{,}82$, $6{,}22$, $5{,}44$, $5{,}31$,
+$5{,}32$~s da 1 a 32 thread: piatto, perch\'e domina il Lanczos sparso), il forward di
+DiffusionNet ($0{,}73$~s, mai misurato prima) e i $20{,}4$~MB di operatori per mesh.
+Il paragrafo dichiara esplicitamente che i numeri precedenti erano sottostimati di circa un
+fattore tre.}
+
+Nella prima stesura avevo scritto che le vecchie misure erano state prese ``su una macchina
+condivisa e congestionata''. \`E un'inferenza plausibile ma non la so, e in un paper una causa
+inventata \`e peggio di nessuna causa: rimossa. Il paragrafo ora dice solo che i numeri erano
+sbagliati e li corregge.
+
+L'argomento di ammortamento resta intatto --- il costo \`e per-mesh e non per-coppia --- quindi
+si correggono i numeri, non la struttura del claim. \texttt{paper.tex} compila, $20$ pagine.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con

@@ -435,12 +435,23 @@ Full FaceBench NICP & $\sim$21 days$^\dagger$ \\
 \end{table}
 
 In our implementation, constructing DiffusionNet operators with
-$k_{\mathrm{eig}}=128$ takes approximately 1.2--2.15 s for 16.5k--23.5k vertex
-meshes and 6.3 s for 60.4k-vertex upsampled meshes; encoding is then performed
-once per mesh. For the full REMESH benchmark of 3,000 meshes, preprocessing is a
-one-time cost of hours serially or tens of minutes with modest parallelization.
-Thus, the expensive part scales linearly in the number of meshes and is
-amortized across all pairwise comparisons.
+$k_{\mathrm{eig}}=128$ takes 1.65 s at 8.1k vertices, 3.70 s at 16.5k, 5.71 s at
+23.5k and 15.65 s at 60.4k, measured on a dedicated node as the median of three
+trials per mesh. The cost is essentially serial: repeating the 23.5k-vertex mesh
+at 1, 4, 8, 16 and 32 threads gives 5.82, 6.22, 5.44, 5.31 and 5.32 s, since the
+sparse Lanczos iteration that dominates offers little to parallelize. Encoding is
+then performed once per mesh and costs a further 0.73 s on average, so a complete
+pipeline is about 6.8 s per mesh. For the full REMESH benchmark of 3,000 meshes
+this is a one-time cost of roughly five core-hours, or tens of minutes with modest
+parallelization, together with 20.4 MB of stored operators per mesh. The expensive
+part therefore scales linearly in the number of meshes and is amortized across all
+$O(N^2)$ pairwise comparisons; on the 742,500-pair block of
+Table~\ref{tab:runtime_scaling} it is a few percent of the alternatives' cost.
+
+These figures replace lower ones quoted in an earlier version of this work, which
+understated the operator cost by roughly a factor of three. The amortization
+argument is unaffected, since the cost is incurred per mesh rather than per pair,
+but the numbers themselves were wrong and are corrected here.
 
 \subsection{Why Alignment Hurts: Distance Compression}
 \label{sec:distance_compression}
