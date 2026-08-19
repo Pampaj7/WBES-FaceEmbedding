@@ -1,0 +1,21 @@
+{
+  "n_identities": 500,
+  "frames": {
+    "raw": {
+      "spearman_cross_topology": 0.8652457399189948
+    },
+    "maxabs": {
+      "spearman_cross_topology": 0.5734133760324249
+    },
+    "rms": {
+      "spearman_cross_topology": 0.7906300705443393
+    },
+    "area": {
+      "spearman_cross_topology": 0.795914937350732
+    },
+    "global_rms": {
+      "spearman_cross_topology": 0.7976002758196888
+    }
+  },
+  "best": "raw"
+}

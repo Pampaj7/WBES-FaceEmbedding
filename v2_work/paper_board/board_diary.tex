@@ -1946,6 +1946,71 @@ monitor l'ha rilevato su due segnali indipendenti --- scomparso dalla coda senza
 Non rilanciato subito: scheda satura, e la priorit\`a si \`e spostata sui dati.
 
 
+\section{19 agosto --- Il bersaglio, non il modello: il frame del ground truth}
+
+Su indicazione di Leonardo, spostato il lavoro dal modello ai dati. Il primo bersaglio \`e il
+ground truth stesso, che avevamo misurato dipendere dalla topologia in cui viene calcolato.
+
+\finding{\textbf{Accordo del ground truth con se stesso attraverso le topologie}, stesse $500$
+identit\`a misurate in topologia BFM ($23{.}470$ vertici) e FLAME ($1{.}930$):}
+
+\begin{center}\small
+\begin{tabular}{llr}
+\toprule
+frame & definizione & $\rho$ \\
+\midrule
+\texttt{raw}        & nessuna normalizzazione & $\mathbf{0{,}8652}$ \\
+\texttt{global\_rms}& centroide per-mesh, scala costante per topologia & $0{,}7976$ \\
+\texttt{area}       & centroide pesato, $\div \sqrt{A}$ & $0{,}7959$ \\
+\texttt{rms}        & centroide pesato, $\div$ raggio quadratico medio & $0{,}7906$ \\
+\texttt{maxabs}     & media dei vertici, $\div$ vertice pi\`u lontano & $0{,}5734$ \emph{(attuale)} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+I valori di \texttt{raw} e \texttt{maxabs} riproducono esattamente quelli gi\`a in
+\texttt{agreement.json} ($0{,}8653$ e $0{,}5734$), il che valida lo script contro l'originale.
+
+\paragraph{Ipotesi registrata e smentita.} Avevo previsto che il vantaggio di \texttt{raw}
+venisse dalla \emph{taglia assoluta} del volto, che \`e informazione biometrica e che ogni frame
+per-mesh cancella. Il frame \texttt{global\_rms} esiste per separare le due spiegazioni: centra
+ogni mesh ma divide per una costante unica, quindi preserva le differenze di taglia fra
+identit\`a. Se l'ipotesi fosse giusta avrebbe dovuto valere quanto \texttt{raw}; vale quanto
+\texttt{rms}. \textbf{Smentita.}
+
+\finding{La causa si isola per algebra, non per congettura: dividere tutte le mesh di una
+topologia per la stessa costante non pu\`o cambiare i ranghi, quindi lo Spearman \`e invariante.
+L'unica differenza rimasta fra \texttt{raw} e \texttt{global\_rms} \`e la \textbf{centratura}.
+Dunque \emph{centrare ogni mesh sul proprio centroide fa perdere segnale}, per lo stesso
+meccanismo di tutto il resto: il centroide si calcola su insiemi di vertici diversi nelle due
+topologie, e centrare inietta una perturbazione topologia-dipendente. \`E \texttt{maxabs} in
+forma pi\`u debole.}
+
+\decision{\textbf{La raccomandazione \`e il compromesso, non l'ottimo.} La decomposizione del
+guadagno recuperabile \`e:
+\[
+\texttt{maxabs} \to \texttt{global\_rms}: +0{,}2242 \quad (77\%), \qquad
+\texttt{global\_rms} \to \texttt{raw}: +0{,}0676 \quad (23\%).
+\]
+Il grosso viene dall'abbandonare \texttt{maxabs}. E il bersaglio \texttt{raw} \textbf{non \`e
+utilizzabile}: dipende dalla posizione assoluta di ogni mesh, che l'ingresso del modello --
+centrato per necessit\`a --- non contiene; chiederemmo alla rete di predire qualcosa che non pu\`o
+vedere. Si adotta quindi centroide pesato per area pi\`u scala fissa, che recupera tre quarti
+della perdita ed \`e coerente con un frame d'ingresso realmente usabile --- la stessa lezione di
+coerenza di unit\`a emersa da \texttt{pot\_rmsops}.}
+
+\paragraph{Proporzione.} Il guadagno sul frame d'ingresso, misurato ieri, valeva $+0{,}0517$ su
+\texttt{crop}. Questo vale $+0{,}22$ di auto-consistenza \emph{del bersaglio}, cio\`e un tetto su
+tutto ci\`o che qualunque modello pu\`o raggiungere. \`E lo stesso difetto --- la normalizzazione
+per-mesh dipendente dal bordo --- applicato all'altro lato del problema, e sull'altro lato pesa
+quattro volte tanto.
+
+\paragraph{Cosa non risolve, detto subito.} Il ground truth resta \emph{geometrico e non
+biometrico}: nessuna etichetta d'identit\`a entra nel pipeline, quindi la circolarit\`a (causa
+C2) non \`e toccata. E non dice nulla sul divario fuori dominio ($0{,}7506$ contro $0{,}0571$).
+Rende il bersaglio meno rumoroso; non lo rende la cosa giusta da misurare.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
