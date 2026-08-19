@@ -82,3 +82,7 @@ core.*
 /v2_work/**/*.png
 /v2_work/**/*.pdf
 /v2_work/**/*.aux
+
+# Paper di terzi scaricati per la ricerca dati: copyright. Il resoconto
+# (literature/README.md) contiene tutto cio che ne estraiamo ed e tracciato.
+/literature/papers/
