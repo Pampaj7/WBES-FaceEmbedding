@@ -1638,6 +1638,67 @@ L'argomento di ammortamento resta intatto --- il costo \`e per-mesh e non per-co
 si correggono i numeri, non la struttura del claim. \texttt{paper.tex} compila, $20$ pagine.
 
 
+\section{19 agosto, alba --- Ritrattazione: il rumore di seed \`e pi\`u grande dell'effetto}
+
+\finding{\textbf{Lo stesso braccio, lo stesso codice, la stessa ricetta, solo il seed diverso:}}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+\texttt{pot\_plain} & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+seed $1234$ & $0{,}7072$ & $0{,}7561$ & $0{,}7719$ & $0{,}7347$ \\
+seed $1235$ & $0{,}7333$ & $0{,}7977$ & $0{,}7857$ & $0{,}7641$ \\
+\midrule
+differenza  & $0{,}0261$ & $0{,}0416$ & $0{,}0138$ & $0{,}0294$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\decision{\textbf{RITIRO l'affermazione ``il gate \`e passato'' scritta ieri sera.} Il guadagno
+che avevo attribuito alla normalizzazione d'area era $+0{,}0220$ su \texttt{crop}; la dispersione
+fra due seed dello stesso identico braccio \`e $0{,}0261$. L'effetto era pi\`u piccolo del rumore.
+Contro la media dei due seed di controllo, \texttt{pot\_area} vale $+0{,}0090$ su \texttt{crop} e
+\textbf{negativo} su \texttt{noisy}, \texttt{resample} e \texttt{all}.}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+$\Delta$ contro controllo a 2 seed & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+\texttt{pot\_area}     & $+0{,}0090$ & $-0{,}0069$ & $-0{,}0213$ & $-0{,}0061$ \\
+\texttt{pot\_rms}      & $+0{,}0435$ & $+0{,}0189$ & $-0{,}0124$ & $+0{,}0203$ \\
+\texttt{pot\_rms\_area}& $+0{,}0175$ & $+0{,}0072$ & $-0{,}0221$ & $+0{,}0023$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Che cosa resta in piedi, e con quanta forza.} \texttt{pot\_rms} \`e l'unico braccio
+sopra il rumore: $+0{,}0435$ su \texttt{crop}, cio\`e circa $1{,}7$ volte la differenza fra due
+seed del controllo, e $+0{,}0203$ su \texttt{all}. Non \`e ancora una misura --- ha un seed solo.
+
+\paragraph{Il buco nel mio piano, detto per intero.} La catena di repliche era stata decisa
+quando i bracci erano due, e replicava \texttt{pot\_plain} e \texttt{pot\_area}. \texttt{pot\_rms}
+\`e arrivato dopo, si \`e rivelato il migliore, ed \`e rimasto senza repliche \emph{proprio il
+braccio su cui poggia la conclusione}. Errore di pianificazione, non di esecuzione: le repliche
+vanno decise per il braccio che vince, non per quelli che c'erano quando si \`e scritto lo script.
+Corretto: \texttt{pot\_rms\_s2} e \texttt{pot\_rms\_s3} accodati.
+
+\paragraph{Sul metodo, ed \`e la lezione pi\`u cara della notte.} Il criterio ``un seed basta per
+$0{,}7072$ contro $0{,}3155$, non per un guadagno di $0{,}02$'' era stato scritto la mattina,
+prima di qualunque numero, ed \`e servito: ha impedito che $+0{,}0220$ finisse in un paper. Ma
+l'ho comunque \emph{annunciato} come un gate superato, con un entusiasmo che i dati non
+sostenevano. Marcare un risultato provvisorio e poi parlarne come definitivo \`e il modo in cui
+un caveat smette di funzionare.
+
+\paragraph{Terza variante dello stesso difetto di shell, in una notte.} Dopo \texttt{pgrep -f}
+che trova se stesso e \texttt{pkill -f} che uccide la shell che lo esegue, il controllo di salute
+del monitor cercava \texttt{auto\_eval} con un pattern che \textbf{compare nella riga di comando
+del monitor stesso}: si autotrovava, e non avrebbe mai potuto segnalare l'evaluator morto ---
+che nel frattempo lo era davvero, ucciso dal \texttt{kill} di un comando precedente. Ora il
+controllo \`e ancorato sul nome del programma e non su una sottostringa qualsiasi.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
