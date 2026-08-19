@@ -1552,6 +1552,71 @@ falso.}
 \end{enumerate}
 
 
+\section{19 agosto --- Il $2\times2$ chiuso: le due correzioni sono antagoniste}
+
+\finding{\textbf{Insieme fanno peggio della sola migliore.}}
+
+\begin{center}\small
+\begin{tabular}{lrr}
+\toprule
+frame $\backslash$ operatori & attuali & area unitaria \\
+\midrule
+\texttt{current} & $0{,}7072$ & $0{,}7292$ \\
+\texttt{rms}     & $\mathbf{0{,}7637}$ & $0{,}7377$ \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{lrrrr}
+\toprule
+$\Delta$ vs controllo & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+solo area & $+0{,}0220$ & $+0{,}0139$ & $-0{,}0144$ & $+0{,}0086$ \\
+solo rms  & $+0{,}0566$ & $+0{,}0397$ & $-0{,}0055$ & $+0{,}0351$ \\
+entrambe  & $+0{,}0306$ & $+0{,}0280$ & $-0{,}0152$ & $+0{,}0170$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Non \`e sub-additivit\`a: \`e antagonismo. Applicare la normalizzazione d'area \emph{sopra} il
+frame rms costa $-0{,}0260$ su \texttt{crop} rispetto al frame rms da solo.
+
+\paragraph{Il fatto che rende la lettura non ambigua.} Il frame rms \`e invariante a traslazione
+e scala uniforme --- dimostrato algebricamente e verificato nel suo self-check --- quindi l'xyz
+che la rete vede in \texttt{pot\_rms\_area} \`e \textbf{bit-identico} a quello di
+\texttt{pot\_rms}. L'unica differenza fra quei due bracci sono gli operatori. Ma l'unica
+differenza fra \texttt{pot\_plain} e \texttt{pot\_area} sono, di nuovo, solo gli operatori, e l\`i
+la normalizzazione d'area \emph{aiuta} di $+0{,}0220$. \textbf{Lo stesso identico cambiamento
+negli operatori cambia segno a seconda del frame xyz.} Non \`e un effetto attribuibile al caso
+sperimentale: \`e un'interazione fra i due canali di ingresso.
+
+\decision{\textbf{Ipotesi registrata prima di costruire il braccio che la testa.} Con il frame
+rms la rete riceve xyz in unit\`a di raggio quadratico medio e un Laplaciano in unit\`a di area:
+due canali normalizzati da grandezze diverse. I tempi di diffusione appresi agiscono su
+$\lambda$, che non \`e pi\`u coerente con la scala delle coordinate. \textbf{Previsione}: operatori
+calcolati sulla stessa normalizzazione che la rete vede sull'xyz --- centroide pesato per massa,
+raggio quadratico medio unitario --- devono fare almeno quanto \texttt{pot\_rms}. Se non lo
+fanno, l'ipotesi della coerenza di unit\`a \`e sbagliata e va scritto.}
+
+\paragraph{Costruzione, e il controllo che la rende sensata.} \texttt{rmsnorm\_operators.py}
+normalizza ogni mesh col centroide pesato per le aree baricentriche e col raggio quadratico medio
+prima di calcolare gli operatori. Le aree per vertice vanno ricostruite dalle facce, perch\'e la
+\texttt{mass} salvata negli operatori \`e esattamente ci\`o che stiamo per calcolare e non esiste
+ancora. Se le due definizioni divergessero, xyz e operatori tornerebbero su scale diverse, che \`e
+il difetto che questo braccio esiste per rimuovere --- quindi \`e stato verificato: somma delle
+aree identica a $10^{-8}$, e \textbf{raggio rms identico a $4\cdot10^{-10}$}, che \`e la quantit\`a
+che fissa la scala.
+
+\paragraph{Nota operativa.} Sette shard e non sei per la generazione: con sei topologie per
+identit\`a e nomi ordinati, uno stride di sei assegna a un worker una topologia intera. \`E cos\`i
+che \texttt{an5} si prese tutte le \texttt{up60k} da $60$k vertici e and\`o tre volte pi\`u lento
+degli altri. Sette \`e coprimo con sei e le distribuisce: gli shard risultano da $428$--$429$
+elementi ciascuno.
+
+\paragraph{Sempre provvisorio.} Un seed. Le repliche \texttt{s2} sono in training e le
+\texttt{s3} in coda. Il $-0{,}0260$ dell'antagonismo \`e per\`o pi\`u grande del $+0{,}0220$ che
+stiamo gi\`a trattando come segnale, quindi o sono reali entrambi o nessuno dei due.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
