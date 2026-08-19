@@ -97,27 +97,62 @@ protocollo che il campo già usa, non su un ground truth che ci siamo definiti d
 
 ---
 
-## 3. Accesso: cosa serve fare
+## 3. Accesso — verificato il 19/08/2026
 
-Tutti richiedono un accordo accademico, e **quasi tutti richiedono la firma di un docente
-strutturato** — uno studente non può richiederli da solo. È un'azione per Leonardo più il
-supervisore, non qualcosa che si risolve scaricando.
+Controllato direttamente sulle pagine di distribuzione, non dedotto. **Tutti vivi tranne
+Bosphorus**, il cui dominio non risolve più.
 
-| dataset | dove | vincolo noto |
+### Notre Dame CVRL — https://cvrl.nd.edu/projects/data/
+
+La fonte più ricca, e tutto in un unico accordo.
+
+| dataset | contenuto | dimensione |
 |---|---|---|
-| FaceScape | https://nju-3dv.github.io/projects/FaceScape/ | non commerciale; studenti devono far richiedere al supervisore. Sito di download spostato al 27/01/2026 |
-| NoW | https://now.is.tue.mpg.de/ | registrazione, non commerciale |
-| FaMoS | via FLAME-Universe (MPI) | non commerciale |
-| Headspace / LYHM | https://www-users.york.ac.uk/~np7/research/Headspace/ | modulo firmato da staff accademico, a Nick Pears |
-| FRGC v2 / ND-2006 | University of Notre Dame, CVRL | accordo di licenza |
-| Bosphorus | Boğaziçi University | accordo accademico |
-| BU-3DFE / BU-4DFE | Binghamton University | accordo accademico |
+| **FRGC v2.0** | 466 soggetti, 4.007 scan 3D + immagini | ~72 GB |
+| **ND-2006** | 888 soggetti, 13.450 scan, 6 espressioni | ~29 GB |
+| **3D-TEC** | **107 coppie di gemelli**, neutro e sorriso | — |
+| ND-Collection D | 277 soggetti, 953 scan frontali | — |
 
-**Non ho verificato lo stato corrente di ciascun accordo** — le pagine cambiano e alcune di
-queste distribuzioni sono ferme da anni. Prima di pianificare su un dataset, va confermato che
-sia ancora distribuito.
+Procedura: scaricare l'accordo di licenza, farlo firmare da **chi è autorizzato ad assumere
+impegni legali per l'ente** (non basta il supervisore: serve chi firma per DTU), rispedirlo da
+email istituzionale a `cvrl@nd.edu`. Consegna via Globus.
+
+### BU-3DFE — Binghamton, `lijun@cs.binghamton.edu`
+
+100 soggetti × 25 modelli (1 neutro + 6 emozioni × 4 intensità) = 2.500, **~35.000 vertici per
+modello**, più texture a 1040×1329. Serve l'accordo scritto del destinatario *e* del direttore
+dell'ufficio ricerca dell'ente. Testuale: «Students are not eligible to be a recipient».
+
+### FaceScape — `nju3dv@nju.edu.cn`, oggetto `[FaceScape Dataset Request]`
+
+- **TU models**: 847 soggetti × 20 espressioni = 16.940, topologia uniforme, **120 GB**
+- **Multi-view**: 359 soggetti × 20, oltre 400k immagini con parametri di camera e forme 3D
+  ricostruite
+- Modelli bilineari, più strumenti Python per landmark e regioni
+
+Due vincoli che contano per un paper: la pubblicazione è limitata ai soggetti in una
+«publishable list» approvata, e le texture dei soggetti 360–847 sono mascherate per privacy.
+Il 10% della collezione è trattenuto per benchmark futuri.
+
+### Bosphorus — non raggiungibile
+
+`bosphorus.ee.boun.edu.tr` non risolve. Da considerare non disponibile finché non emerge un
+mirror.
 
 ---
+
+## 3-bis. 3D-TEC: il dataset che separa identità da geometria
+
+Centosette **coppie di gemelli**, neutro e sorriso. È il test più affilato possibile della
+critica di circolarità che pesa sul nostro ground truth.
+
+Due gemelli identici hanno geometria quasi identica e identità diverse. Il nostro `D_GT`
+attuale — L2 per vertice in corrispondenza densa — li dichiarerebbe **la stessa persona**. Una
+metrica d'identità deve separarli; una metrica geometrica travestita da metrica d'identità no.
+
+È un esperimento piccolo (428 scan) che produce un'affermazione netta, e nessuno degli altri
+dataset la consente. Se serve una singola figura per rispondere alla causa di rifiuto C2, è
+questa.
 
 ## 4. Paper scaricati e cosa danno
 
