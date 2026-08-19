@@ -1750,6 +1750,63 @@ non appaiabile e non confrontabile con questi: le sue repliche sono in coda ed e
 pianificazione gi\`a registrato.
 
 
+\section{19 agosto --- Normalizzazione d'area, tre repliche: effetto piccolo e non significativo}
+
+\finding{\textbf{Tre differenze appaiate complete, \texttt{pot\_area} contro \texttt{pot\_plain}:}}
+
+\begin{center}\small
+\begin{tabular}{lrrrr}
+\toprule
+ & \texttt{crop} & \texttt{noisy} & \texttt{resample} & \texttt{all} \\
+\midrule
+seed $1234$ & $+0{,}0220$ & $+0{,}0139$ & $-0{,}0144$ & $+0{,}0086$ \\
+seed $1235$ & $+0{,}0141$ & $+0{,}0074$ & $+0{,}0107$ & $+0{,}0120$ \\
+seed $1236$ & $+0{,}0508$ & $-0{,}0093$ & $+0{,}0037$ & $+0{,}0185$ \\
+\midrule
+media       & $+0{,}0290$ & $+0{,}0040$ & $-0{,}0000$ & $+0{,}0130$ \\
+d.s.        & $0{,}0193$ & $0{,}0119$ & $0{,}0129$ & $0{,}0050$ \\
+segno       & concorde & \textbf{discorde} & \textbf{discorde} & concorde \\
+$t$ ($2$ g.l.) & $+2{,}60$ & $+0{,}58$ & $-0{,}00$ & $+4{,}49$ \\
+$p$         & $0{,}121$ & $0{,}620$ & $0{,}997$ & $0{,}046$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\decision{\textbf{Formulazione definitiva per la normalizzazione d'area: guadagno piccolo,
+coerente in segno su \texttt{crop} e sul punteggio aggregato, e \emph{non significativo} a questa
+numerosit\`a.} Il $p = 0{,}046$ su \texttt{all} \`e nominalmente sotto $0{,}05$, ma i gruppi
+testati sono quattro e con la correzione di Bonferroni servirebbe $p < 0{,}0125$: non
+sopravvive. Su \texttt{noisy} e \texttt{resample} non c'\`e effetto --- il segno cambia fra
+repliche. Va riportato cos\`i, non come una vittoria.}
+
+\paragraph{Il limite duro di $n=3$.} Il test dei segni con tre campioni concordi d\`a
+$p = 1/8 = 0{,}125$, che \`e il valore \emph{minimo ottenibile}: tre punti non possono dare di
+pi\`u, quale che sia la dimensione dell'effetto. Chiedere tre repliche era il minimo per
+distinguere segnale da rumore, non abbastanza per dimostrarlo. Se questo numero deve entrare in
+un paper come claim e non come osservazione, servono pi\`u repliche o un disegno con pi\`u
+potenza --- il che va deciso ora, non in revisione.
+
+\paragraph{Traiettoria di questa conclusione, che vale quanto la conclusione.} In dodici ore lo
+stesso effetto \`e stato chiamato ``il gate \`e passato'' ($+0{,}0220$, un seed), poi ritirato
+come rumore (confronto contro varianza non appaiata), poi corretto a effetto reale (differenze
+appaiate, due seed), e ora misurato come piccolo e non significativo (tre seed, con correzione
+per confronti multipli). Ogni passaggio era difendibile con i dati del momento; il difetto \`e
+stato annunciare i primi due con la sicurezza che solo l'ultimo poteva permettersi. La regola
+che ne segue non \`e ``aspetta sempre'', ma: \textbf{dichiarare la numerosit\`a e il test
+insieme al numero, ogni volta}, cos\`i che il grado di fiducia sia leggibile senza doverlo
+dedurre dal tono.
+
+\decision{\texttt{aggregate\_2x2.py} stampa ora, per ogni gruppo, media, deviazione standard,
+concordanza di segno, $t$ con i gradi di libert\`a, $p$, e la nota che il test dei segni non pu\`o
+scendere sotto $0{,}125$ con tre campioni. Lo strumento dice quanto vale il numero nello stesso
+punto in cui lo dice.}
+
+\paragraph{Resta aperto il braccio che conta.} \texttt{pot\_rms} ha ancora un seed, con
+$+0{,}0566$ su \texttt{crop} --- il doppio dell'effetto dell'area. \texttt{pot\_rms\_s2} \`e in
+training e \texttt{pot\_rms\_s3} in coda; solo allora si potr\`a dire se il frame \`e davvero
+l'intervento maggiore o se anche quel numero si sgonfia con le repliche.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con

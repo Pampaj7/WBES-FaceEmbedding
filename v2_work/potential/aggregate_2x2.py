@@ -168,3 +168,42 @@ for arm, frame, _ in ARMS:
         conc = ["si" if (r_ > 0).all() or (r_ < 0).all() else "NO" for r_ in a.T]
         print(f"  {'segno':10s}" + " ".join(f"{c:>11s}" for c in conc))
         print("  (segno 'NO' = la direzione cambia fra seed, cioe' non e' un effetto)")
+
+
+# Con tre differenze appaiate si puo' dire qualcosa di quantitativo, purche' si dica anche
+# quanto e' debole: n=3 significa 2 gradi di liberta', e un t-test qui e' un indizio, non una
+# prova. Il test dei segni e' riportato accanto perche' non assume nulla sulla distribuzione:
+# con tre campioni concordi da' p = 1/8, che e' il massimo che tre punti possono offrire.
+try:
+    from scipy import stats as _st
+except ImportError:
+    _st = None
+
+print("\n=== quanto reggono, per gruppo (n=3 => 2 gradi di liberta', indizio non prova) ===")
+for arm, frame, _ in ARMS:
+    if arm == BASE:
+        continue
+    rows = []
+    for seed, suf in SEEDS.items():
+        fa, fb = R / f"{BASE}{suf}.json", R / f"{arm}{suf}.json"
+        if not (fa.exists() and fb.exists()):
+            continue
+        da, db = json.loads(fa.read_text()), json.loads(fb.read_text())
+        if db.get("frame", "current") != frame:
+            continue
+        rows.append([db["groups"][g]["spearman"] - da["groups"][g]["spearman"] for g in GROUPS])
+    a = np.array(rows)
+    if len(a) < 3:
+        print(f"\n{arm}: {len(a)} seed, servono 3 repliche appaiate")
+        continue
+    print(f"\n{arm} ({len(a)} seed appaiati)")
+    for i, g in enumerate(GROUPS):
+        d = a[:, i]
+        conc = (d > 0).all() or (d < 0).all()
+        line = f"  {g:10s} media {d.mean():+.4f}  ds {d.std(ddof=1):.4f}  segno {'concorde' if conc else 'DISCORDE'}"
+        if _st is not None and d.std(ddof=1) > 0:
+            t, p = _st.ttest_1samp(d, 0.0)
+            line += f"  t={t:+.2f} p={p:.3f}"
+        if conc:
+            line += "  (test dei segni: p=0.125, il minimo possibile con 3 campioni)"
+        print(line)
