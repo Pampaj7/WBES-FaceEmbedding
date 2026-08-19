@@ -1847,6 +1847,57 @@ qui \`e un singolo seed. Il confronto \texttt{pot\_rms} contro \texttt{pot\_rmso
 reale, ma resta n$=1$. Le repliche di \texttt{pot\_rms} sono in training.
 
 
+\section{19 agosto --- Sintesi: tutti i difetti vivono nella scala dell'xyz}
+
+\finding{Osservazione di Leonardo, che unifica due risultati che avevo trattato come separati.
+Rimessi in fila, \textbf{ogni difetto misurato vive nella scala del canale delle coordinate}, e
+nessuno negli operatori:}
+
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+difetto & natura & costo \\
+\midrule
+frame \texttt{maxabs} & scala xyz dipendente dal bordo & $-0{,}057$ su \texttt{crop} \\
+operatori area $+$ xyz rms & xyz e $L$ su scale diverse & $-0{,}026$ su \texttt{crop} \\
+operatori rms $+$ xyz rms & coerenti & recuperato \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Gli operatori non sono mai stati il problema in nessuno dei tre casi. Ci\`o che era rotto \`e il
+canale delle coordinate, due volte: una in \emph{assoluto} --- la scala dipende da quale vertice
+il crop ha rimosso --- e una in \emph{relativo}, incoerente con gli operatori. Sono lo stesso
+difetto visto da due angoli, non due scoperte.
+
+\paragraph{Dove la sintesi non arriva, e come si testa.} Da qui la forma forte
+dell'inferenza sarebbe: se l'xyz \`e il punto d'ingresso del danno, non va dato affatto. Non
+segue. Che un canale sia il punto d'ingresso del danno implica che vada \emph{inquadrato} bene,
+non che vada tolto --- ed \`e esattamente ci\`o che \texttt{pot\_rms} fa. La domanda ha per\`o una
+risposta sperimentale, con codice gi\`a scritto e mai eseguito perch\'e finito sulle code
+pubbliche.
+
+\decision{Lanciato \texttt{abl\_intrinsic}: \texttt{--no-use\_xyz --n\_hks 16 --n\_wks 16}, cio\`e
+DiffusionNet senza alcuna coordinata, solo descrittori intrinseci sullo spettro. Ricetta
+identica a \texttt{pot\_plain} in tutto il resto --- stessi dati, frame corrente, seed $1234$,
+$60$ epoche --- quindi il confronto isola il solo canale di ingresso.}
+
+\paragraph{Previsione registrata prima del lancio.} Il braccio intrinseco sar\`a
+\emph{relativamente} pi\`u robusto su \texttt{crop}, non avendo un frame di coordinate da
+rompere, ma \textbf{nettamente peggiore su \texttt{all}}: l'identit\`a di un volto \`e in buona
+parte estrinseca --- proporzioni, profondit\`a, sporgenze --- e i descrittori intrinseci sono
+invarianti alle isometrie, cio\`e per costruzione non distinguono volti che differiscono per
+come sono piegati nello spazio. Due misure gi\`a acquisite la sostengono: togliendo gli operatori
+e lasciando solo xyz \texttt{crop} crolla a $0{,}3155$, e FLAME ha consistenza spettrale
+$3{,}5\times$ migliore di BFM con ranking molto peggiore ($0{,}478$ contro $0{,}751$) --- pi\`u
+invarianza intrinseca non ha mai significato metrica migliore, in questo progetto.
+
+\textbf{Se invece \texttt{abl\_intrinsic} batte \texttt{pot\_plain} su \texttt{all}}, la
+previsione \`e sbagliata, l'ipotesi nella forma forte \`e giusta, e la direzione del lavoro
+cambia: non riparare il frame ma togliere le coordinate. Scritto nello script del lancio, cos\`i
+che non sia attenuabile a posteriori.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
