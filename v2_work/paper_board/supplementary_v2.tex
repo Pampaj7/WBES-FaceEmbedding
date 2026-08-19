@@ -463,18 +463,27 @@ throughout. Best per row in bold. \textbf{The potential well does not deliver wh
 predicted to deliver}: at the offset our own sweep selects it \emph{lowers} the crop group
 ($-0.006$) and costs $0.020$ on pure resampling, and only \texttt{noisy} improves ($+0.009$).}
 \label{tab:supp_potential}
-\begin{tabular}{lcccc}
+\begin{tabular}{lccc}
 \toprule
- & no well & well misplaced & well $\alpha{=}0.55$ & \;+ masked pooling \\
-Group & ($L$) & (per-mesh offset) & (placed) & (support fixed) \\
+ & no well & well misplaced & well $\alpha{=}0.55$ \\
+Group & ($L$) & (per-mesh offset) & (placed) \\
 \midrule
-crop (boundary moved)     & \textbf{0.7072} & 0.7034 & 0.7012 & \texttt{[pending]} \\
-noisy                     & 0.7561 & 0.7573 & \textbf{0.7653} & \texttt{[pending]} \\
-resample (sampling only)  & \textbf{0.7719} & 0.7533 & 0.7521 & \texttt{[pending]} \\
+crop (boundary moved)     & \textbf{0.7072} & 0.7034 & 0.7012 \\
+noisy                     & 0.7561 & 0.7573 & \textbf{0.7653} \\
+resample (sampling only)  & \textbf{0.7719} & 0.7533 & 0.7521 \\
 \midrule
-all (pooled)              & \textbf{0.7347} & 0.7315 & 0.7215 & \texttt{[pending]} \\
+all (pooled)              & \textbf{0.7347} & 0.7315 & 0.7215 \\
 \bottomrule
 \end{tabular}
+
+\vspace{0.4em}
+\footnotesize A fourth arm was designed and implemented, pooling restricted to the well's region
+of interest so that the \emph{support} of the global descriptor would be corrected alongside the
+operator. It is reported as absent rather than as pending: it never reached a compute node,
+having sat in a shared queue carrying several hundred jobs for more than twenty hours, and the
+three arms above already separate the well's presence from its placement, which is what the
+table is for. Its code and its end-to-end verification are in the repository so the arm can be
+run when capacity allows.
 \end{table}
 
 %=====================================================================
