@@ -1,0 +1,115 @@
+{
+  "n_identities": 100,
+  "overall": {
+    "raw": {
+      "latent_distance": 0.7505963921739034,
+      "raw_chamfer": 0.23734034876489768,
+      "arcface_dist": 0.17843231924121158,
+      "clip_dist": 0.08193190277024631,
+      "dinov2_dist": 0.05888888995575422,
+      "varifold_dist": 0.15112447412607596,
+      "currents_dist": 0.07357858057929731,
+      "lpips_dist": 0.11952523413407057
+    },
+    "maxabs": {
+      "latent_distance": 0.7478379247048854,
+      "raw_chamfer": 0.2852011629550588,
+      "arcface_dist": 0.16347286518074344,
+      "clip_dist": 0.0864508262110968,
+      "dinov2_dist": 0.05203736275884744,
+      "varifold_dist": 0.13727539808479233,
+      "currents_dist": 0.07303691834891003,
+      "lpips_dist": 0.18116933911594113
+    },
+    "rms": {
+      "latent_distance": 0.7151177270447265,
+      "raw_chamfer": 0.2392393296978777,
+      "arcface_dist": 0.19504797710180322,
+      "clip_dist": 0.09169293246102893,
+      "dinov2_dist": 0.054259940144847134,
+      "varifold_dist": 0.16650206620674157,
+      "currents_dist": 0.08357328894529997,
+      "lpips_dist": 0.15091237100217958
+    },
+    "area": {
+      "latent_distance": 0.713637124574173,
+      "raw_chamfer": 0.23856003611734,
+      "arcface_dist": 0.19633038410282017,
+      "clip_dist": 0.09139181738423574,
+      "dinov2_dist": 0.056046353098893775,
+      "varifold_dist": 0.17823506899135494,
+      "currents_dist": 0.08802496964196675,
+      "lpips_dist": 0.13761975727664053
+    },
+    "global_rms": {
+      "latent_distance": 0.6792366325596984,
+      "raw_chamfer": 0.22362124022568264,
+      "arcface_dist": 0.1986222536105176,
+      "clip_dist": 0.09519219124695481,
+      "dinov2_dist": 0.055790712663774035,
+      "varifold_dist": 0.15795774166159676,
+      "currents_dist": 0.07858233683746632,
+      "lpips_dist": 0.1297571007493316
+    }
+  },
+  "orders": {
+    "raw": [
+      "latent_distance",
+      "raw_chamfer",
+      "arcface_dist",
+      "varifold_dist",
+      "lpips_dist",
+      "clip_dist",
+      "currents_dist",
+      "dinov2_dist"
+    ],
+    "maxabs": [
+      "latent_distance",
+      "raw_chamfer",
+      "lpips_dist",
+      "arcface_dist",
+      "varifold_dist",
+      "clip_dist",
+      "currents_dist",
+      "dinov2_dist"
+    ],
+    "rms": [
+      "latent_distance",
+      "raw_chamfer",
+      "arcface_dist",
+      "varifold_dist",
+      "lpips_dist",
+      "clip_dist",
+      "currents_dist",
+      "dinov2_dist"
+    ],
+    "area": [
+      "latent_distance",
+      "raw_chamfer",
+      "arcface_dist",
+      "varifold_dist",
+      "lpips_dist",
+      "clip_dist",
+      "currents_dist",
+      "dinov2_dist"
+    ],
+    "global_rms": [
+      "latent_distance",
+      "raw_chamfer",
+      "arcface_dist",
+      "varifold_dist",
+      "lpips_dist",
+      "clip_dist",
+      "currents_dist",
+      "dinov2_dist"
+    ]
+  },
+  "reference_frame": "raw",
+  "rank_changes_vs_raw": {
+    "maxabs": 3,
+    "rms": 0,
+    "area": 0,
+    "global_rms": 0
+  },
+  "validity_rho_maxabs_vs_stored": 0.9999999989858795
+}

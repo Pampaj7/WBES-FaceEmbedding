@@ -1,0 +1,18 @@
+{
+  "c0": [
+    297.68258652859515,
+    -9994.10483365657,
+    -33735.19729662277
+  ],
+  "s0": 56598.296091661745,
+  "n_train_meshes": 400,
+  "topology": "original",
+  "mesh_dir": "/dtu/p1/leopam/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops",
+  "eval_fraction": 0.2,
+  "seed": 0,
+  "n_train_subjects": 400,
+  "n_eval_subjects": 100,
+  "check_rho_global_vs_raw": 1.0,
+  "check_rho_maxabs_vs_raw": 0.7757254807929804,
+  "check_n_eval_subjects": 60
+}

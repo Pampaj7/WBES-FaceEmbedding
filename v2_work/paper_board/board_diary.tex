@@ -2011,17 +2011,158 @@ C2) non \`e toccata. E non dice nulla sul divario fuori dominio ($0{,}7506$ cont
 Rende il bersaglio meno rumoroso; non lo rende la cosa giusta da misurare.
 
 
+\section{31 agosto --- Ritrattazione: il bersaglio non era normalizzato, e cinque frame convivevano}
+
+\paragraph{Che cosa avevo affermato.} Nella sezione del 19 agosto ho scritto che $D_{\mathrm{GT}}$
+\`e «calcolato dopo la normalizzazione per-mesh del loader», che \texttt{maxabs} costa
+$0{,}22$ di auto-consistenza \emph{al bersaglio}, e che il bersaglio \texttt{raw} «non \`e
+utilizzabile» perch\'e l'ingresso del modello \`e «centrato per necessit\`a». \textbf{Tutte e tre
+le affermazioni sono false}, e la terza era un errore di ragionamento, non di misura.
+
+\paragraph{L'origine dell'errore.} Ho creduto al docstring invece che al codice.
+\texttt{compute\_gt\_distance\_matrix\_normalized.py} dichiara di applicare «the SAME
+normalisation applied in GTReadyDatasetNPZ: subtract mean, divide by global max |coord|».
+Il codice non lo fa: \texttt{load\_mesh} restituisce \texttt{verts} grezzi, e l'unica
+normalizzazione \`e \texttt{D / max\_val} sulla matrice delle distanze --- una costante, che non
+cambia nessun rango.
+
+\finding{Verificato per confronto diretto con la colonna \texttt{gt\_distance} effettivamente
+usata, su tutte le $148{.}500$ coppie:
+\[
+\rho(\text{salvato}, \texttt{raw}) = 1{,}000000,
+\]
+contro $0{,}8163$ per \texttt{global\_rms}, $0{,}7951$ per \texttt{area}, $0{,}7909$ per
+\texttt{rms}, $0{,}7854$ per \texttt{maxabs}. \textbf{Il bersaglio \`e \texttt{raw}}, cio\`e il
+migliore dei cinque frame, non il peggiore. Non \`e mai stato danneggiato.}
+
+\paragraph{Il difetto vero: cinque frame in una tabella.}
+
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+quantit\`a & frame & dove \\
+\midrule
+$D_{\mathrm{GT}}$ (bersaglio) & \texttt{raw} & \texttt{compute\_gt\_distance\_matrix\_normalized.py} \\
+ingresso del modello & \texttt{maxabs} per-mesh & \texttt{dataset\_gtready.py:167-171, 299-306} \\
+\texttt{raw\_chamfer} & \texttt{maxabs} per-mesh & \texttt{mesh\_npz\_utils.py:17-22} \\
+varifold, currents & \texttt{area} per-mesh & \texttt{measure\_distances.py:116-118} \\
+arcface, clip, dinov2, lpips & bbox della camera & \texttt{render\_mesh.py} \\
+rigid/NICP (in pi\`u) & \textbf{per-coppia} & \texttt{icp.py:109-116} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Il paper (riga 278--279) afferma: «All meshes are additionally normalized per mesh \emph{before
+any distance is computed}, by centering on the vertex mean and dividing by the largest absolute
+coordinate». \`E falso per il bersaglio e per tre delle cinque righe.
+
+\paragraph{Prima buona notizia: la classifica non dipende dal frame.} Ricalcolate le otto
+metriche contro $D_{\mathrm{GT}}$ ricostruito in cinque frame
+(\texttt{v2\_work/xdomain/frame\_metric\_ranking.py}), l'ordine \`e identico ovunque, tranne un
+solo scambio sotto \texttt{maxabs} dovuto a \texttt{lpips}, che ha valori su $5{.}700$ coppie
+su $148{.}500$. \textbf{La conclusione della Tabella~1 non \`e un artefatto della
+normalizzazione.}
+
+\paragraph{Seconda, meno buona: il margine \`e gonfiato.} Allontanandosi da \texttt{raw}, la
+nostra metrica \emph{perde} ($0{,}7506 \to 0{,}6792$) mentre arcface, varifold e currents
+\emph{guadagnano}. Siamo gli unici allenati contro \texttt{raw}. E \texttt{raw\_chamfer}, che
+vive in \texttt{maxabs}, vale $0{,}2852$ nel proprio frame contro lo $0{,}2373$ che riportiamo:
+la baseline \`e penalizzata di $0{,}048$ da una scelta nostra.
+
+\section{31 agosto --- La compressione \`e sovrastimata, e l'ICP rigido quasi non c'entra}
+
+\finding{Il paper misura la compressione col rapporto di IQR \textbf{assoluti}. Ma lo Spearman
+\`e invariante per riscalamento: la parte del calo di IQR dovuta a un cambio di unit\`a non pu\`o
+causare il degrado di ranking che dovrebbe spiegare. Le mediane calano al $79/65/58\%$ di raw,
+quindi il cambio di unit\`a c'\`e. Il coefficiente di variazione, invariante, \emph{era gi\`a
+calcolato} dal codice (\texttt{analyze\_distance\_compression.py:73}) e mai riportato.
+\[
+\begin{array}{lccc}
+\text{metrica} & \text{IQR/raw (paper)} & \text{(IQR/med)/raw} & \text{CV/raw} \\
+\hline
+\text{Rigid ICP P2P} & 0{,}537 & 0{,}681 & 0{,}739 \\
+\text{NICP P2P} & 0{,}219 & 0{,}339 & 0{,}364 \\
+\text{NICP P2Tri} & 0{,}236 & 0{,}408 & 0{,}433
+\end{array}
+\]
+Il paper scrive «NICP P2P retains only 21.9\%»; il valore invariante \`e $33{,}9\%$. Sovrastima
+$1{,}55\times$.}
+
+\paragraph{Il colpevole ha un nome.} \texttt{prealign\_by\_bbox} (\texttt{icp.py:109-116})
+riscala la sorgente al raggio del \emph{bersaglio}: per la coppia ordinata $(A,B)$ la
+trasformazione dipende da $B$, quindi cambia a ogni coppia. \`E applicata a \texttt{rigid\_p2p} e
+a entrambe le NICP (\texttt{run\_facebench\_remesh.py:166-170, :185}) e \textbf{non} a
+\texttt{raw\_chamfer} (\texttt{:158-161}).
+
+\paragraph{Il controllo.} La pipeline esplorativa (\texttt{registration\_utils.py}) fa ICP
+dall'identit\`a, senza prealign. Sulle stesse $30$ coppie di topologie:
+\[
+\begin{array}{lcc}
+ & \text{senza prealign} & \text{con prealign (paper)} \\
+\hline
+\text{raw chamfer} & 0{,}3433 & 0{,}7295 \\
+\text{rigid ICP} & 0{,}3065\ (-0{,}037) & 0{,}5995\ (-0{,}130) \\
+\text{NICP} & 0{,}2146\ (-0{,}129) & 0{,}4561\ (-0{,}273) \\
+\text{CPD} & 0{,}0110\ (-0{,}332) & \text{---}
+\end{array}
+\]
+Senza prealign, l'ICP rigido peggiora il ranking in $17$ coppie su $30$: il $57\%$,
+indistinguibile dal caso.
+
+\decision{Il titolo va scomposto. \textbf{La registrazione non rigida danneggia il ranking}
+--- NICP $-0{,}129$, CPD $-0{,}332$ anche senza prealign: il claim regge ed \`e grosso.
+\textbf{L'ICP rigido quasi no}: tre quarti del danno attribuito vengono dal
+\texttt{prealign\_by\_bbox}, che \`e una scelta implementativa di faceBench, non una propriet\`a
+dell'ICP. Caveat onesto: i due numeri non sono perfettamente confrontabili (set di coppie e
+aggregazione diversi), quindi la direzione regge, il fattore $3{,}5$ preciso no.}
+
+\section{31 agosto --- Il frame globale: il bersaglio si preserva esattamente}
+
+\finding{La soluzione non \`e scegliere un frame per-mesh migliore, \`e non usarne uno per-mesh.
+Con una \textbf{singola similarit\`a globale} $V \mapsto (V - c_0)/s_0$, con $c_0, s_0$ costanti
+dell'insieme, si ha $d(i,j) \mapsto d(i,j)/s_0$: un fattore costante, quindi \textbf{nessun rango
+cambia}. Verificato su $60$ identit\`a eval, $1{.}770$ coppie
+(\texttt{v2\_work/xdomain/global\_frame.py}):
+\[
+\rho(\text{raw}, \text{globale}) = 1{,}0000000000, \qquad
+\text{rapporto costante entro } 6{,}66\times 10^{-16}.
+\]
+E l'ingresso resta allenabile: maxabs mediano $1{,}57$, span $3{,}03$. Sullo stesso insieme,
+\texttt{maxabs} per-mesh perde $0{,}2243$.}
+
+\decision{\textbf{Ritratto la raccomandazione del 19 agosto.} Avevo scelto centroide-area pi\`u
+scala fissa perch\'e credevo che \texttt{raw} fosse irraggiungibile, dato che l'ingresso \`e
+«centrato per necessit\`a». Il ragionamento era sbagliato: l'ingresso dev'essere \emph{a scala
+sana}, non \emph{centrato per-mesh}. Una traslazione globale soddisfa la prima e non la seconda.
+Il frame globale domina tutte e tre le alternative --- \texttt{rms}, \texttt{area},
+\texttt{global\_rms} costano fra $0{,}068$ e $0{,}075$ al bersaglio, il globale costa zero.
+$c_0$ e $s_0$ si stimano \textbf{solo sulle 400 identit\`a di training}: sono statistiche dei
+dati, e calcolarle sulle 500 sarebbe leakage.}
+
+\paragraph{Lezione, la stessa di ieri con un altro vestito.} Due volte di fila ho attribuito un
+difetto alla componente sbagliata: prima agli operatori invece che alla normalizzazione, ora al
+bersaglio invece che al disallineamento fra bersaglio e ingresso. In entrambi i casi la
+correzione \`e arrivata da un controllo che \emph{poteva fallire} --- l'assert su
+\texttt{maxabs} ricalcolato contro la colonna salvata --- e non da un ragionamento pi\`u
+attento. Il codice va letto, non il docstring che lo descrive.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
-\item \textbf{Fase 1a --- confound di normalizzazione}: rerun Chamfer/varifold con
-      normalizzazione area-weighted sui pair set v1; quantificare il delta.
-\item \textbf{Fase 1b --- percettive migliorate}: scala condivisa nel renderer (fix caveat
-      crop) + multi-view (3 viste) + LPIPS full su GPU.
-\item \textbf{Pilastro C avvio}: pipeline generazione FLAME (campionamento shape params,
-      riuso \texttt{expand\_remesh\_topologies.py}).
-\item \textbf{M3DFB}: integrare i 16 estimator come baseline.
-\item \textbf{Azione umana richiesta}: avviare IRB/etica per lo human study con Birkan/CHOP;
-      account/quota GPU per i retrain multi-3DMM.
+\item \textbf{Frame globale nel loader}: sostituire la normalizzazione per-mesh con
+      $(V-c_0)/s_0$ e riallenare. \`E l'unico cambio che allinea ingresso e bersaglio a costo
+      zero sul bersaglio. Braccio \texttt{pot\_globalframe}, tre seed contro \texttt{pot\_plain}.
+\item \textbf{Correzione della tabella di compressione}: riportare CV o IQR/mediana. La frase
+      «does not merely rescale distances» diventa dimostrata invece che asserita.
+\item \textbf{Rimisurare l'ICP rigido senza \texttt{prealign\_by\_bbox}} sullo stesso set di
+      coppie della tabella principale, per rendere il confronto col controllo pulito.
+\item \textbf{Ripunteggiare le baseline nel proprio frame}: \texttt{raw\_chamfer} vale $0{,}2852$
+      in \texttt{maxabs} contro lo $0{,}2373$ riportato. La baseline va accreditata del suo
+      valore migliore, o il confronto \`e ingiusto.
+\item \textbf{Correggere il paper} (riga 278--279): l'affermazione sulla normalizzazione \`e
+      falsa. Serve approvazione, come da accordo del 20 agosto.
+\item \textbf{Azione umana richiesta}: richieste d'accesso a Notre Dame CVRL, FaceScape,
+      BU-3DFE; IRB/etica per lo human study.
 \end{enumerate}
 
 \end{document}
