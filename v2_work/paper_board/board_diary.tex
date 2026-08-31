@@ -19,6 +19,7 @@
 \author{Claude (agente autonomo) + Leonardo Pampaloni}
 \date{Iniziato: 2026-08-17}
 
+\usepackage[normalem]{ulem}
 \begin{document}
 \maketitle
 \tableofcontents
@@ -2147,6 +2148,66 @@ correzione \`e arrivata da un controllo che \emph{poteva fallire} --- l'assert s
 attento. Il codice va letto, non il docstring che lo descrive.
 
 
+\section{31 agosto, sera --- Ritrattazione: il prealign non era il colpevole}
+
+\paragraph{Che cosa avevo affermato stamattina.} Che «tre quarti del danno attribuito all'ICP
+rigido vengono dal \texttt{prealign\_by\_bbox}», e che quindi il claim del paper sull'ICP rigido
+era in gran parte un artefatto implementativo. Avevo dichiarato il caveat giusto --- «i due
+numeri non sono perfettamente confrontabili, set di coppie e aggregazione diversi» --- e poi gli
+ho dato troppo poco peso, riportando comunque il fattore $3{,}5$ come se fosse una misura.
+
+\paragraph{L'esperimento appaiato.} Stesse coppie, stesso ICP, stessa normalizzazione della
+pipeline, unica variabile il prealign acceso o spento
+(\texttt{v2\_work/xdomain/prealign\_paired.py}, 25 identita' di valutazione, 4096 punti).
+
+\finding{\textbf{Su 30 coppie di topologie} (9.000 coppie di mesh):
+\[
+\begin{array}{lcc}
+ & \rho & \text{danno} \\
+\hline
+\text{raw chamfer} & 0{,}3540 & \\
+\text{rigid ICP} + \text{prealign} & 0{,}3262 & -0{,}0278 \\
+\text{rigid ICP senza prealign} & 0{,}3217 & -0{,}0323
+\end{array}
+\]
+Il prealign non fa differenza, e il segno e' pure rovesciato: senza, e' leggermente peggio.
+
+\textbf{Su original$\to$original}, cioe' il setting della tabella del paper (300 coppie di
+soggetti; il raw e' $0{,}6013$ e non $0{,}7295$ perche' qui le identita' sono 25 e non 100,
+quindi contano i \emph{delta}, che sono appaiati, non i valori assoluti):
+\[
+\begin{array}{lcc}
+\text{raw chamfer} & 0{,}6013 & \\
+\text{rigid ICP} + \text{prealign} & 0{,}4311 & -0{,}1702 \\
+\text{rigid ICP senza prealign} & 0{,}4664 & -0{,}1349
+\end{array}
+\]
+Il prealign vale $0{,}0353$ su $0{,}1702$, cioe' il \textbf{21\%}, non il 75\%. E fuori dal
+setting a topologia fissa non vale nulla.}
+
+\decision{\textbf{Il claim del paper sull'ICP rigido regge.} L'ICP rigido toglie $0{,}135$ di
+Spearman a topologia fissa anche senza alcun prealign: e' la registrazione, non
+l'implementazione. Va corretto solo il contorno --- dichiarare che la pipeline applica un
+riscalamento per-coppia e che ne vale circa un quinto --- non la sostanza.
+
+\textbf{E il danno dipende fortemente dal setting}, cosa che il paper non dice: $-0{,}135$ dove
+il chamfer e' forte (topologia fissa, raw $0{,}60$), $-0{,}032$ dove il chamfer e' gia' debole
+(cross-topologia, raw $0{,}35$). La registrazione distrugge in proporzione a quanto c'era da
+distruggere. E' un'osservazione piu' interessante di quella che avevo sostituito, e va nel
+paper.}
+
+\paragraph{L'errore, e non e' nuovo.} Ho confrontato due numeri prodotti da pipeline diverse su
+insiemi di coppie diversi con aggregazioni diverse, ho notato che non erano confrontabili, l'ho
+scritto, e poi ho riportato lo stesso il rapporto fra i due. Il caveat scritto non annulla il
+numero sbagliato: se una misura non e' confrontabile, non va riportata affatto finche' non lo
+diventa. Il disegno appaiato costava due ore ed era disponibile fin dall'inizio.
+
+Terza volta in due giorni che una componente viene incolpata al posto di un'altra: prima gli
+operatori invece della normalizzazione, poi il bersaglio invece del disallineamento, ora il
+prealign invece della registrazione. Le prime due volte la correzione e' arrivata da un assert;
+questa da un esperimento appaiato. Nessuna delle tre da un ragionamento piu' attento.
+
+
 \section{Prossimi passi}
 \begin{enumerate}
 \item \textbf{Frame globale nel loader}: sostituire la normalizzazione per-mesh con
@@ -2154,8 +2215,9 @@ attento. Il codice va letto, non il docstring che lo descrive.
       zero sul bersaglio. Braccio \texttt{pot\_globalframe}, tre seed contro \texttt{pot\_plain}.
 \item \textbf{Correzione della tabella di compressione}: riportare CV o IQR/mediana. La frase
       «does not merely rescale distances» diventa dimostrata invece che asserita.
-\item \textbf{Rimisurare l'ICP rigido senza \texttt{prealign\_by\_bbox}} sullo stesso set di
-      coppie della tabella principale, per rendere il confronto col controllo pulito.
+\item \sout{Rimisurare l'ICP rigido senza \texttt{prealign\_by\_bbox}}. \textbf{Fatto,
+      appaiato}: il prealign vale il 21\% a topologia fissa e nulla cross-topologia. Resta da
+      riportare nel paper che il danno da registrazione dipende dal setting.
 \item \textbf{Ripunteggiare le baseline nel proprio frame}: \texttt{raw\_chamfer} vale $0{,}2852$
       in \texttt{maxabs} contro lo $0{,}2373$ riportato. La baseline va accreditata del suo
       valore migliore, o il confronto \`e ingiusto.
