@@ -167,9 +167,18 @@ def main() -> None:
                    help="use the operator-free point encoder instead of DiffusionNet")
     p.add_argument("--point-samples", type=int, default=2048)
     p.add_argument("--point-knn", type=int, default=20)
-    p.add_argument("--frame", default="current", choices=["current", "rms", "area"],
+    p.add_argument("--frame", default="current",
+                   choices=["current", "rms", "area", "global"],
                    help="canonical frame for the vertex coordinates; 'current' is the "
-                        "frozen loader's vertex-mean + maxabs and is a no-op")
+                        "frozen loader's vertex-mean + maxabs and is a no-op. 'global' is "
+                        "the only one that is NOT a per-mesh map: it inverts the loader's "
+                        "normalisation and applies one dataset-wide similarity instead, which "
+                        "preserves the ground truth's ranks exactly")
+    p.add_argument("--global-frame-json", type=Path,
+                   default=Path(__file__).resolve().parents[1] / "xdomain" / "gt_matrices"
+                           / "global_frame.json",
+                   help="c0/s0 fitted on the TRAINING identities only "
+                        "(see v2_work/xdomain/global_frame.py)")
     known, rest = p.parse_known_args()
 
     # the trainer parses its own argv; hand it everything we did not consume
@@ -185,7 +194,15 @@ def main() -> None:
         install_masked_pooling(float(known.roi_threshold))
     if known.point_backbone:
         install_point_backbone(int(known.point_samples), int(known.point_knn))
-    install_frame(str(known.frame))
+    if known.frame == "global":
+        # Not a cache re-frame: it needs the raw coordinates back, so it is installed from its
+        # own module and keyed on the sample name. See global_frame_loader's docstring for why
+        # the cancellation argument that licenses `rms`/`area` does not apply here.
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pointnet"))
+        from global_frame_loader import install as install_global_frame
+        install_global_frame([args.data_dir], known.global_frame_json)
+    else:
+        install_frame(str(known.frame))
 
     if not known.no_cache:
         device = args.device if known.cache_residency == "device" else None

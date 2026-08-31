@@ -1,0 +1,9 @@
+metric,own_frame,as_published_vs_raw_GT,in_own_frame,delta,source
+latent_distance,raw,0.7505963921739034,0.7505963921739034,0.0,bersaglio dell'addestramento -- non confrontabile con le altre
+raw_chamfer,maxabs,0.23734034876489768,0.2852011629550588,0.04786081419016114,mesh_npz_utils.py:17-22
+lpips_dist,maxabs,0.11952523413407057,0.18116933911594113,0.06164410498187056,"bbox della camera, approssimato con maxabs; 5.700/148.500 coppie"
+varifold_dist,area,0.15112447412607596,0.17823506899135494,0.027110594865278975,measure_distances.py:116-118
+arcface_dist,maxabs,0.17843231924121158,0.16347286518074344,-0.014959454060468141,"bbox della camera, approssimato con maxabs"
+currents_dist,area,0.07357858057929731,0.08802496964196675,0.014446389062669443,measure_distances.py:116-118
+clip_dist,maxabs,0.08193190277024631,0.0864508262110968,0.004518923440850489,"bbox della camera, approssimato con maxabs"
+dinov2_dist,maxabs,0.05888888995575422,0.05203736275884744,-0.006851527196906779,"bbox della camera, approssimato con maxabs"
