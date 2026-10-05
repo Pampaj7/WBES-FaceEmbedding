@@ -1,0 +1,25 @@
+{
+    "_commento": "Stadio 1: solo mesh tracciate + metadati (KRT, frame_list, vert_mean) per tutti e 13 i soggetti. I 10 soggetti Mugsy v1 hanno i segmenti E0xx, i 3 soggetti v2 (002421669, 002645310, 5067077) hanno i segmenti EXP_*: le due liste sono disgiunte, quindi expression e' un dict per entity. Il neutro a occhi aperti e' E001 per v1 ed EXP_eye_neutral per v2 (EXP_neutral_peak c'e' solo per 002645310). Serve anche a ricavare gli headpose con cui si scelgono le camere frontali dello stadio 2.",
+    "entity": ["002645310", "002643814", "002539136", "7889059", "002757580", "2183941", "5372021", "8870559", "6674443", "5067077", "002914589", "6795937", "002421669"],
+    "image": false,
+    "mesh": true,
+    "texture": false,
+    "metadata": true,
+    "audio": false,
+    "meshes_per_segment": 20,
+    "expression": {
+        "002539136": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "002643814": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "002757580": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "002914589": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "2183941": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "5372021": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "6674443": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "6795937": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "7889059": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "8870559": ["E001_Neutral_Eyes_Open", "E008_Smile_Mouth_Closed", "E009_Smile_Mouth_Open", "E012_Jaw_Open_Huge_Smile", "E018_Raise_Cheeks", "E019_Frown", "E020_Lower_Eyebrows", "E022_Raise_Inner_Eyebrows", "E026_Oooo", "E027_Scrunch_Face_Squeeze_Eyes", "E057_Cheeks_Puffed"],
+        "002421669": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_eye_squint", "EXP_eye_wide", "EXP_eyes_closed_mouth_open_peak", "EXP_cheek001", "EXP_cheek002", "EXP_jaw001", "EXP_lip001", "EXP_lip002", "EXP_nose001"],
+        "002645310": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_eye_squint", "EXP_eye_wide", "EXP_eyes_closed_mouth_open_peak", "EXP_cheek001", "EXP_cheek002", "EXP_jaw001", "EXP_lip001", "EXP_lip002", "EXP_nose001"],
+        "5067077": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_eye_squint", "EXP_eye_wide", "EXP_eyes_closed_mouth_open_peak", "EXP_cheek001", "EXP_cheek002", "EXP_jaw001", "EXP_lip001", "EXP_lip002", "EXP_nose001"]
+    }
+}

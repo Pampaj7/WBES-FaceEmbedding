@@ -1,0 +1,41 @@
+{
+    "_commento": "Stadio 2, complementare a multiface_config_mesh.json (che va eseguito prima: da li' arrivano gli headpose con cui sono state scelte le camere e i frame tenuti, a cui le immagini vengono allineate). Immagini di 3 camere frontali per il segmento neutro piu' 3 espressioni, non 10: i tar delle immagini dei segmenti E0xx contengono TUTTE le camere in un unico file, quindi il filtro camere non riduce la banda e le 11 espressioni costerebbero 798 GB. Con neutro + 3 espressioni sono 266 GB. Aggiungerne altre e' una riga in piu' qui: i .done fanno riprendere il download senza riscaricare nulla.",
+    "_camere": "400015/400009/400019 (Mugsy v1) e 400405/400442/400406 (v2) sono l'esito di scripts/multiface_frontal_cameras.py: stanno tutte entro 15 gradi dal frontale a circa 1 m. Dove una manca nella capture il posto lo prende la successiva in classifica (400014, 400016, 400069, 400357).",
+    "entity": ["002645310", "002643814", "002539136", "7889059", "002757580", "2183941", "5372021", "8870559", "6674443", "5067077", "002914589", "6795937", "002421669"],
+    "image": true,
+    "mesh": false,
+    "texture": false,
+    "metadata": false,
+    "audio": false,
+    "meshes_per_segment": 20,
+    "expression": {
+        "002539136": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "002643814": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "002757580": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "002914589": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "2183941": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "5372021": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "6674443": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "6795937": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "7889059": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "8870559": ["E001_Neutral_Eyes_Open", "E009_Smile_Mouth_Open", "E022_Raise_Inner_Eyebrows", "E057_Cheeks_Puffed"],
+        "002421669": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_cheek001", "EXP_lip001"],
+        "002645310": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_cheek001", "EXP_lip001"],
+        "5067077": ["EXP_eye_neutral", "EXP_eyebrow", "EXP_cheek001", "EXP_lip001"]
+    },
+    "cameras": {
+        "002539136": ["400015", "400019", "400069"],
+        "002643814": ["400015", "400019", "400009"],
+        "002757580": ["400014", "400016", "400009"],
+        "002914589": ["400069", "400019", "400015"],
+        "2183941": ["400015", "400009", "400019"],
+        "5372021": ["400015", "400009", "400019"],
+        "6674443": ["400015", "400016", "400009"],
+        "6795937": ["400015", "400009", "400019"],
+        "7889059": ["400019", "400015", "400009"],
+        "8870559": ["400015", "400009", "400016"],
+        "002421669": ["400442", "400405", "400357"],
+        "002645310": ["400405", "400406", "400442"],
+        "5067077": ["400405", "400442", "400406"]
+    }
+}
