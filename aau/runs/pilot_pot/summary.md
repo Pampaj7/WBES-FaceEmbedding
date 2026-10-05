@@ -24,3 +24,10 @@ Entrambe le condizioni. Un seed solo: e' un pilota, un passaggio va confermato s
 ## Risultati
 
 In attesa: training, eval appaiate e zero-shot ICT in coda (la tabella la riscrive aau/models/pilot_summary.py, job con afterany sulle eval).
+
+Primo tentativo perso (1055016 m55 a epoca 93, 1055017 dual a epoca 16): morti alle 10:24 del
+5 ottobre insieme a 1055540-1055545, che hanno saturato la quota da 1 TB; exit 1 senza traceback,
+MaxRSS 39 e 62 GB su 180 e 200. Rifatti da zero (train_runner.py non ha resume: il checkpoint
+non ha lo stato di ReduceLROnPlateau), su L40S, run dir su /tmp con sync nella home:
+training 1056124 (m55) e 1056125 (dual); eval BFM 1056126/1056128, ICT 1056127/1056129, ICT del
+controllo riusato (1055264), tabella 1056130.

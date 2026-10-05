@@ -21,11 +21,15 @@ the generated set is checked for degenerate triangles anyway.
 
 Frame
 -----
-The ICT canonical frame is kept as-is.  The FLAME script negates y and z to
-feed `v2_work/phase0/render_mesh.py`; that flip was a FLAME-vs-BFM convention,
-and nothing in the training/eval path is orientation sensitive (the operators
-are intrinsic, the GT distance is per-vertex).  Any renderer work can flip on
-read.
+The ICT canonical frame (y up, nose towards +z) is kept as-is.  The FLAME
+script negates y and z to feed `v2_work/phase0/render_mesh.py`, i.e. to the BFM
+crop frame (y down, nose towards -z).  CORRECTION (2026-10-05): the operators
+are intrinsic and the GT distance is per-vertex, but the model is NOT
+orientation invariant -- `xyz_dn` takes raw xyz coordinates as input features
+and is trained with rotations of a few degrees only, so ICT meshes reach a
+BFM-trained model 180 degrees about x away from its training frame.  The
+earlier claim that nothing in the training/eval path is orientation sensitive
+was wrong.  Frame test: WBES_ZS_FRAME in aau/zs3dmm/zs_zeroshot.sbatch.
 
 Z1mX distinctness check
 -----------------------

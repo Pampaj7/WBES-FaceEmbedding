@@ -36,6 +36,28 @@ GT `maxabs` = protocollo ICT (vertex-mean-L2 fra le `original` dopo la normalizz
 | BFM-only | 0.583 | 0.700 | - | - |
 | ICT-only | 0.688 | 0.700 | - | - |
 
+## Differenze appaiate (stesse repliche bootstrap per soggetto)
+
+Differenza degli Spearman con la GT, a - b, CI 95% sulle stesse 1000 repliche; P(boot <= 0) e' la frazione di repliche con differenza <= 0. Scenari: `all_cross` = 30 coppie ordinate di topologie, `nocrop_cross` = 20, `subject_pair_mean` = media per coppia di soggetti sulle 30 (clean).
+
+| confronto | scenario | GT maxabs: differenza [CI 95%] (a / b) | P(boot <= 0) | GT coef: differenza [CI 95%] |
+| --- | --- | --- | --- | --- |
+| BFM+ICT - Chamfer eval | all_cross | -0.090 [-0.123, -0.059] (0.246 / 0.336) | 1.000 | -0.007 [-0.034, +0.020] |
+| BFM+ICT - Chamfer eval | nocrop_cross | +0.056 [+0.015, +0.094] (0.428 / 0.372) | 0.002 | +0.026 [-0.011, +0.065] |
+| BFM+ICT - Chamfer eval | subject_pair_mean | -0.023 [-0.083, +0.036] (0.720 / 0.743) | 0.765 | +0.046 [-0.015, +0.108] |
+| BFM-only - Chamfer eval | all_cross | -0.156 [-0.194, -0.117] (0.180 / 0.336) | 1.000 | -0.027 [-0.053, +0.000] |
+| BFM-only - Chamfer eval | nocrop_cross | -0.166 [-0.203, -0.124] (0.206 / 0.372) | 1.000 | -0.031 [-0.060, +0.000] |
+| BFM-only - Chamfer eval | subject_pair_mean | -0.136 [-0.210, -0.065] (0.607 / 0.743) | 0.999 | +0.014 [-0.050, +0.080] |
+| ICT-only - Chamfer eval | all_cross | -0.114 [-0.136, -0.091] (0.222 / 0.336) | 1.000 | -0.025 [-0.051, +0.002] |
+| ICT-only - Chamfer eval | nocrop_cross | +0.010 [-0.019, +0.038] (0.382 / 0.372) | 0.282 | -0.002 [-0.032, +0.026] |
+| ICT-only - Chamfer eval | subject_pair_mean | -0.030 [-0.086, +0.023] (0.713 / 0.743) | 0.863 | +0.011 [-0.039, +0.067] |
+| BFM+ICT - ICT-only | all_cross | +0.024 [+0.004, +0.044] (0.246 / 0.222) | 0.010 | +0.018 [+0.002, +0.035] |
+| BFM+ICT - ICT-only | nocrop_cross | +0.046 [+0.018, +0.075] (0.428 / 0.382) | 0.000 | +0.028 [+0.004, +0.053] |
+| BFM+ICT - ICT-only | subject_pair_mean | +0.007 [-0.040, +0.063] (0.720 / 0.713) | 0.385 | +0.034 [-0.012, +0.080] |
+| BFM+ICT - BFM-only | all_cross | +0.066 [+0.036, +0.093] (0.246 / 0.180) | 0.000 | +0.020 [-0.004, +0.042] |
+| BFM+ICT - BFM-only | nocrop_cross | +0.222 [+0.182, +0.260] (0.428 / 0.206) | 0.000 | +0.057 [+0.019, +0.092] |
+| BFM+ICT - BFM-only | subject_pair_mean | +0.113 [+0.044, +0.181] (0.720 / 0.607) | 0.002 | +0.031 [-0.037, +0.101] |
+
 ## Riferimento: le stesse celle su ICT (tabella WS2)
 
 | modello | ICT mesh-pair all cross, latent | ICT nocrop, latent | ICT subject-pair-mean, latent |
@@ -71,7 +93,7 @@ GT `maxabs` = protocollo ICT (vertex-mean-L2 fra le `original` dopo la normalizz
 | maxabs | 500 | 0.0000 | 0.0000 | 0.1357 | 0.3352 | 0.0965 | 1.0000 |
 | coef | 500 | 0.0000 | 0.0000 | 0.7513 | 0.8684 | 0.0281 | 1.0000 |
 
-Soggetti: identici nei tre bracci e nelle baseline = True (100, primi id900001, id900004, id900018).
+Soggetti: identici nei tre bracci (e nelle baseline, se ci sono) = True (100, primi id900001, id900004, id900018).
 
 
 Sorgenti dei bracci: BFM+ICT: joint/ (completo); BFM-only: bfm_only/ (completo); ICT-only: ict_only/ (completo).

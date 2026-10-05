@@ -579,3 +579,5 @@ Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di criti
 - **Congiunto-E:** training completati; eval e summary in catena su Slurm.
 - **Test frame HIFI3D:** frameBFM completato, roty in corso; risultati da raccogliere.
 - **Pilota del pozzo:** in training.
+
+**FaceVerse chiuso, con IC appaiati (dal report dell'agente; da passare al critic).** FaceVerse è nativamente nel frame BFM. Lì il congiunto è pari al solo BFM, ed entrambi battono il solo ICT: è lo specchio esatto di HIFI3D, che è nel frame ICT. Indizio forte che lo zero-shot misuri in buona parte il frame, non il dominio.
