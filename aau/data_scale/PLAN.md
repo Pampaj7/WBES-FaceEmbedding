@@ -215,11 +215,10 @@ in RAM di `train_fast.py` (`aau/cross3dmm/joint_E_prep.py:5`) [D].
 
 ### GT estesa
 
-`build_gt.py` (job 1055828, su GPU) scrive `datasets/ICT_SCALE/gt_joint_bfm_ict.npz`: BFM 500 + ICT
-55.000, coppie fra domini a NaN, blocco BFM invariato, blocco ICT diviso per il proprio massimo
-(la convenzione di ogni file GT del repo). Il fattore di riscalatura delle coppie di ICT-5000 va
-nel manifest accanto al file. Se le coppie ricalcolate non coincidono con la GT in uso, il file
-non viene scritto.
+`build_gt.py` (job 1056223, su GPU) scrive `datasets/ICT_SCALE/gt_joint_bfm_ict.npz`: BFM 500 + ICT
+55.000, coppie fra domini a NaN, blocco BFM invariato. Il blocco ICT era diviso per il proprio massimo;
+poi `rescale_gt.py` l'ha riportato alla scala della GT in uso (vedi le decisioni del PI qui sotto).
+Se le coppie ricalcolate non coincidono con la GT in uso, il file non viene scritto.
 
 ### Trainer a passi fissi: `v2_work/fastio/train_steps.py`
 
@@ -247,6 +246,180 @@ Wrapper accanto a `train_fast.py`, che resta invariato. Nessun file di ricerca m
   passo, quindi circa il 43% delle mesh viste sono espressioni. `labels` nella data-spec decide la
   composizione: è una scelta del PI.
 
+### Prova di riproduzione del trainer [M]
+
+Dati di oggi: BFM, 500 soggetti, operatori ad area unitaria (braccio ctrl). Ricetta v1 identica a
+`train_joint_E.sbatch` senza le patch multi-dominio; 480 passi (6 epoche v1); split esplicito =
+lo split v1 del seme 1234. Valutazione fissa per tutte le corse: ultimo checkpoint, 100 held-out
+× 6 topologie, Spearman latente-GT (`trainer_repro_compare*.py`).
+
+- Giro 1 (1055816): v1 0.518, v1b (v1 ripetuto identico) 0.511, id (train_steps, stessi passi)
+  0.495, seed (seme 2345) 0.497, blk 0.471. Una sola coppia di rumore non basta: serviva il giro 2.
+- Giro 2 (1055892, 1056033, 1056034; confronto 1056035, `trainer_repro2.json`): tre semi.
+  - **A** = percorso v1: 0.509 / 0.480 / 0.489, media 0.493 ± 0.015 fra semi.
+  - **P** = pre-pass dalla geometria, un blocco: differenza appaiata con A +0.017 / −0.035 /
+    −0.017 (media −0.012).
+  - **B** = pre-pass, 2 blocchi: differenza appaiata −0.041 / −0.037 / +0.017 (media −0.020).
+  - Cross-topologia: stesso andamento (P −0.012, B −0.019).
+- Lettura: P esegue gli stessi calcoli di A (operatori identici a 1e-6, stessa lista di soggetti
+  per epoca), quindi le sue differenze, ±0.035, sono il **rumore da corsa a corsa** a parità di
+  seme: non-determinismo GPU amplificato in un training a 480 passi, ancora ripido. **Il trainer
+  adattato riproduce il training attuale entro questo rumore** (P e B entro 2 sd di A).
+- Limite onesto: per B due semi su tre sono a −0.04. Con 3 semi il test esclude solo effetti dei
+  blocchi più grandi di circa 0.04, e su 480 passi, dove l'ordine conta di più: ogni soggetto è
+  visto 3 volte di fila nel suo blocco invece di 6 volte distribuite. Su un training lungo con
+  molti blocchi l'effetto andrebbe rimisurato.
+
+### Cosa manca per un training grande
+
+1. **GT estesa: fatta** (1056223, 40 min). `datasets/ICT_SCALE/gt_joint_bfm_ict.npz` (12.3 GB,
+   55.500 × 55.500 float32). Il primo tentativo (1055828) è morto per OOM sulla GPU: `pairdist`
+   converte la matrice da 55.000² a float64 sulla GPU, 22.5 GiB in più. Corretto in
+   `build_gt.py`: righe sull'host in float32, tar letti con 8 thread (469 s contro 2183).
+   Controllo: le coppie di ICT-5000 ricalcolate coincidono con la GT in uso a 2.4e-7 [M].
+   **Da decidere (PI)**: il massimo del blocco ICT sale da 0.1718 a 0.2038 [M], quindi le coppie
+   di ICT-5000 valgono 0.843 volte quelle del congiunto attuale. La rank loss non ne risente; la
+   stress loss sì. L'alternativa, cioè tenere la vecchia scala, porterebbe il massimo globale a
+   1.19 e `load_gt_distance_matrix` riscalerebbe tutto, BFM compreso.
+2. **Decisione sullo split** (PI). La lista congelata è l'unione degli held-out di tutti i run:
+   lascia in training solo **161 soggetti BFM su 500** e 2698 di ICT-5000; le 50.000 nuove sono
+   tutte di training. L'alternativa è congelare solo gli held-out dei modelli contro cui si
+   confronterà il nuovo run.
+3. **Composizione** (PI): con 8 espressioni circa il 43% delle mesh viste da un soggetto nuovo
+   sono espressioni; `labels` nella data-spec lo regola.
+4. **Smoke test del percorso congiunto**: `--domain-blocked` (batching a dominio singolo con i
+   sottoinsiemi per dominio) e la data-spec da tar non sono stati esercitati nella prova, che era
+   BFM-only da directory di geometria. Il pre-pass da tar è verificato nel mini-lotto.
+5. **Dimensionamento** [E]: cache circa 8 MB di RSS per campione ICT, 14 mesh per identità, quindi
+   circa 2.500 identità per blocco con 300 GB, cioè circa 22 blocchi per 55.000 identità. Pre-pass
+   di un blocco: 2.500 × 14 × 3.95 CPU-s ≈ 38 CPU-h, circa 1.3 h con 32 processi. Con gli stessi
+   passi del congiunto attuale (105.600) sono circa 4.800 passi per blocco, cioè un'ora e mezza
+   di GPU per blocco: il pre-pass del blocco successivo sta dentro.
+6. Sbatch del training grande: run dir su `/tmp` con sync verso la home, come `train_joint_E.sbatch`.
+
+### Decisioni del PI (5 ottobre sera) e loro attuazione
+
+1. **Split**. `heldout_frozen.json` ha ora la politica `joint_compare`: held-out del congiunto
+   1019532 (BFM 108, ICT 992) più i 100 BFM del protocollo standard, cioè **189 BFM e 992 ICT**.
+   Motivazione e modelli di confronto sono nel file. L'unione dei 15 run resta in
+   `heldout_frozen_union15.json`: è quella con cui sono stati controllati gli shard, più severa.
+   **Sostituita il 6 ottobre** dalla politica `joint_exact` (vedi sotto). La guardia del trainer
+   resta attiva.
+2. **Scala della GT**. `rescale_gt.py` riporta il blocco ICT alla scala di ICT-5000 (fattore
+   1.18585). Le coppie del congiunto in uso tornano identiche a 3e-7 [M]; il massimo globale è
+   1.186. **`--gt-keep-scale`** fa leggere al trainer la matrice così com'è nel file, al posto di
+   `load_gt_distance_matrix`, che divide ogni voce per il massimo globale: senza il flag tutte le
+   distanze, BFM comprese, sarebbero divise per 1.186. Coincide con la lettura v1 solo quando il
+   massimo del file è esattamente 1, com'è per `JOINT_BFM_ICT/gt_matrix.npz`. Il trainer si ferma se
+   il manifest della GT dichiara massimo > 1 e il flag manca.
+3. **Espressioni al 25%**: `label_groups` fonde rexpr1-4 in rexprA e rexpr5-8 in rexprB. Un
+   soggetto nuovo ha così 8 etichette, di cui 2 d'espressione. La frazione simulata col
+   campionatore v1 è **0.250** [M, smoke].
+4. **Frame**, spento di default.
+   - `canon`: matrice per dominio applicata alla geometria prima degli operatori nel pre-pass, con
+     l'ordine dei vertici delle facce invertito se il determinante è negativo. Verificato su BFM
+     specchiato x->-x (`check_canon.py`): autovalori uguali a 1e-14, massa identica, vertici e
+     normali specchiati [M]. Con `canon` BFM passa dalla geometria e non dalla vista, e la cella
+     BFM della catena di eval non viene lanciata (le viste hanno il frame vecchio).
+   - `aug`: rotazioni e riflessioni dei vertici di training, solo sul canale xyz come le
+     perturbazioni della ricetta.
+5. **Smoke** del percorso congiunto [M]:
+   - **S1** (job 1056247): default del run grande. BFM e ICT-5000 dalle viste, ICT nuove lette dai
+     tar dentro il trainer, `--domain-blocked --eval_domain bfm`, GT a scala invariata, guardia
+     (1181 congelati, OK), BFM residente con il 9% dei passi, 2 blocchi. 60/60 passi, rc 0, 24.5
+     min. Pre-pass del primo blocco 469 s (3500 mesh nuove con 30 processi, 4.0 CPU-s per mesh);
+     il secondo era pronto al cambio (attesa 0 s). RSS massimo 62 GB.
+   - **S2** (job 1056248): canon BFM x->-x più aug (180 gradi, riflessione 0.5), 1 blocco. 30/30
+     passi, rc 0, RSS massimo 69 GB. Che l'aug abbia effetto l'ho verificato solo per via
+     indiretta (loss più alta), non misurato.
+6. **Run lungo**: `train_scale.sbatch`, `eval_chain_scale.sbatch`, `launch_scale.sh`. **Non
+   lanciato.** 105.600 passi (come il congiunto); S=220 con eval ogni 8 epoche e patience 32,
+   cioè le stesse cadenze in passi della ricetta. 40 blocchi, 360G, 72 h. La catena di eval è
+   provata a vuoto (`WBES_DS_DRY=1`) sul checkpoint di S1.
+
+### Revisione del critic (6 ottobre, BLOCCANTE) e correzioni
+
+- **D1**: la geometria estratta per il pre-pass (`blockNNN_geom`) restava su `/tmp`. Ora la cancella
+  `prepass_ops.run` a fine pre-pass, e il trainer la cancella anche al cambio di blocco.
+- **D2**: il tetto della cache era proiettato da un solo campione, sempre BFM (~20 MB). Ora
+  `project_cache_gb` usa 12 campioni misti per dominio, presi lungo la lista; il controllo di
+  `fast_data` viene scavalcato.
+- **R1, lr**: fissato in passi (`--lr-steps 81747:5e-5`), con ReduceLROnPlateau disattivato.
+  Misurato sul log del congiunto 1019532: le epoche sono da **879** passi (tqdm `/879`), 120 epoche
+  fanno **105.480** passi, e la riga "Epoch 093" stampa già 5e-5. Il lr però è letto **dopo**
+  `scheduler.step` (`train_runner.py:1735-1736`), quindi l'epoca 93 è stata fatta a 1e-4: 1e-4 per
+  i passi 1-81.747 (93 × 879), 5e-5 dal passo 81.748. Il valore 80.868 = 92 × 879 indicato dal
+  critic corrisponde a leggere il lr stampato come quello usato durante l'epoca.
+- **R1, epoca**: S = 293 = 879/3. Eval ogni 6 epoche = 1.758 passi, come il congiunto; 360 epoche
+  esatte.
+- **R2**: politica `joint_exact`, cioè esattamente gli held-out del congiunto (108 BFM, 992 ICT). In
+  training 392 BFM e 4008 ICT-5000, uguali ai 4400 del congiunto (verificato con un assert in
+  `make_scale_split.py`), più le 50.000 nuove. Dei 100 BFM standard, 81 sono di training anche per
+  il congiunto (documentato in `heldout_frozen.json`). L'eval online usa i 16 soggetti del
+  congiunto, passati espliciti (`online_eval` nello split). Quota BFM 26/293 = 78/879.
+- **R3**: 8 thread di torch al training (`--train-threads`, `OMP_NUM_THREADS`) e 22 processi al
+  pre-pass. Il trainer stampa s/passo per epoca, segnalando se il pre-pass era in corso. Rimisurato
+  nello smoke S3.
+- **R4**: `--no-requeue`. La run dir prende il suffisso `_restartN` se `SLURM_RESTART_COUNT` > 0, e
+  `_rerunN` se contiene già un run. La catena di eval legge la run dir effettiva.
+- **Guardia GT**: il trainer si ferma se la GT ha massimo > 1 e manca `--gt-keep-scale`.
+- **Frame**: Rx(180) = diag(1,−1,−1) più `flip_faces`, indipendente dal determinante
+  (`prepass_ops.apply_frame`). Verificato (`check_canon.py`):
+  - BFM ha frontale −z e normali verso l'interno; ICT frontale +z e normali verso l'esterno;
+  - dopo il canon BFM ha frontale +z e normali verso l'esterno, come ICT;
+  - autovalori uguali a 1e-14, massa identica.
+  Il canon resta spento di default.
+
+### Smoke S3 dopo le correzioni (job 1056268) [M]
+
+Configurazione come il run grande: 8 thread di training, 22 processi di pre-pass, lr a passi fissi
+(confine di prova 300), quota BFM 78/879, eval online del congiunto, GT estesa con
+`--gt-keep-scale`, guardia attiva. 600 passi su 2 blocchi da 320 soggetti.
+- 600/600 passi, rc 0, 27 min. Lr da 1e-4 a 5e-5 esattamente al passo 301.
+- **Tempo per passo**: 1.28-2.33 s con il pre-pass del blocco successivo in corso (epoche 1-20,
+  mediana circa 1.4), 0.70-0.79 s senza (epoche 21-40). Senza limite di thread erano circa 35 s
+  (smoke S1).
+- Pre-pass: 3542 mesh in 514 s con 22 processi (3.2 CPU-s per mesh). Il blocco 1 era pronto al
+  cambio con 8 s di attesa.
+- **RAM**: MaxRSS del job 64 GB. Il cgroup arriva a 142.5 GB di picco, ma comprende la page cache,
+  che è recuperabile.
+- **/tmp**: picco 19.9 GB e ritorno a 0 dopo ogni caricamento in cache, quindi la geometria non si
+  accumula più.
+- Proiezione della cache su campione misto: ICT 9.7 MB, BFM 51.1 MB per campione; 47 GB per 3896
+  campioni.
+- Dimensionamento del run lungo, ricavato da qui [E]: `--cache-max-gb 330` (proiezione di un blocco
+  circa 295 GB) e `--mem 420G`. Circa 61 minuti per blocco, circa 41 ore in tutto.
+
+### Secondo giro del critic (6 ottobre, BLOCCANTE sulla memoria) e correzioni
+
+- **B1, cache esatta**: `exact_cache_gib` (trainer) somma i byte di ogni campione del blocco dagli
+  header npy di TUTTI i file, con la stessa contabilità di `fast_data._sample_bytes`. Il
+  campionamento con `linspace` cadeva quasi sempre su `up60k`.
+  Per i 40 blocchi del run grande, prima che esistano, `cache_budget.py blocks` usa la stessa
+  partizione (`partition_blocks`): header per le viste, indice dei tar per le mesh nuove, con k = 128
+  e nnz(L) = nnz(gradX) = nnz(gradY) = n + 2E. Nello smoke S4 la formula coincide con gli header reali
+  (31.172 e 31.930 GiB, identici) [M].
+  **Massimo sui 40 blocchi: 220.4 GiB** (blocco 30), minimo 218.0, media 218.9 [M, job 1056278].
+  Tetto `--cache-max-gb 240`.
+- **B2, pinning**: spento nella cache dei blocchi (`--pin-cache` per riaccenderlo).
+  - S4 [M, job 1056277]: picco del cgroup 107.2 GiB (S3 con pinning: 142.5); picco anon 85.1, shmem
+    19.4, page cache 21.5.
+  - Costo del non pinning [M, nodi diversi, una corsa per lato]: senza pre-pass 0.73-1.11 s/passo
+    (media 0.875) contro 0.70-0.79 di S3 (media circa 0.74), circa +19%; con il pre-pass in corso
+    1.26-1.91 contro 1.28-2.33.
+  - Bilancio del run grande dal cgroup, sola memoria non recuperabile:
+    - anon = cache 220.4 + eval 2.3 + GT float64 22.9 + resto 20.8 (da S4) = 266.4 GiB;
+    - shmem (`/tmp`) del blocco successivo = 5.67 MiB per mesh (S4) × 17.500 = 97 GiB;
+    - totale circa 363 GiB; `--mem 430G` = +18%.
+  - Verifica su blocchi di grandezza reale: smoke **S5** (job 1056296, V100, `--mem=430G`), 2 blocchi
+    da 1742 soggetti (quelli dei blocchi 0 e 1 della partizione reale), 2930 passi. **In coda**: lo
+    scheduler ne stima la partenza al 7 ottobre alle 00:42, perché nessun nodo ha 430G liberi
+    prima. Finché non gira, i 430G restano una stima dalle misure, non una verifica.
+- **R1**: i `blockNNN.prepass.log` (e le liste dei soggetti) sono copiati in
+  `<run>/prepass_logs/` a ogni sync e in uscita, anche quando il job fallisce. Verificato a parte.
+- **R2**: indice dei tar `datasets/ICT_SCALE/shards/index.npz`: 700.000 membri, una scansione in
+  5.4 min [M]. Trainer e pre-pass leggono i nomi dall'indice e i membri per offset.
+
 ## 7. Stato degli script in `aau/data_scale/`
 
 | file | stato |
@@ -259,3 +432,6 @@ Wrapper accanto a `train_fast.py`, che resta invariato. Nessun file di ricerca m
 | `build_gt.py`, `build_gt.sbatch` | job 1055828 |
 | `trainer_repro*.sbatch`, `trainer_repro_compare*.py` | prova di riproduzione del trainer, sezione 6 |
 | `v2_work/fastio/train_steps.py` | wrapper del trainer |
+| `rescale_gt.py`, `make_scale_split.py`, `check_canon.py`, `recipe_v1.sh`, `smoke_scale.sbatch` | decisioni del 5-6 ottobre, eseguiti (smoke S1/S2/S3) |
+| `cache_budget.py` -> `shards/index.npz`, `cache_blocks.json`, `spec_scale_default.json` | indice dei tar e memoria esatta dei 40 blocchi |
+| `train_scale.sbatch`, `eval_chain_scale.sbatch`, `launch_scale.sh` | run lungo, **non lanciato** |

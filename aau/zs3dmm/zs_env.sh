@@ -4,13 +4,15 @@
 #
 #   WBES_ZS_DOMAIN=hifi  -> aau/zs3dmm/hifi_env.sh (WBES_HIFI_*, output aau/runs/ws_hifi3d)
 #   WBES_ZS_DOMAIN=fv    -> aau/zs3dmm/fv_env.sh   (WBES_FV_*,   output aau/runs/ws_faceverse)
+#   WBES_ZS_DOMAIN=ict   -> aau/zs3dmm/ict_env.sh  (WBES_ICTZS_*, output aau/runs/ws_ictzs):
+#                           controllo della pipeline sulle held-out di ICT, non un dominio nuovo
 #
 # Il file del dominio esporta le sue WBES_<DOM>_* e riempie le ZS_* che usano gli sbatch.
 # Qui le parti comuni: i tre modelli valutati e i preflight.
 
 case "${WBES_ZS_DOMAIN:-}" in
-    hifi|fv) ;;
-    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv)" >&2; return 2 ;;
+    hifi|fv|ict) ;;
+    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv|ict)" >&2; return 2 ;;
 esac
 source "$WBES_ROOT/aau/zs3dmm/${WBES_ZS_DOMAIN}_env.sh"
 

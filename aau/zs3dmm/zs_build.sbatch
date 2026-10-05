@@ -56,11 +56,17 @@ echo "[zs-build] root=$ZS_ROOT"
 # servono tutti i core, a differenza dei worker a un thread delle topologie.
 echo "[zs-build] 1/4 identita'"
 rm -f "$ZS_IDENTITIES_DIR/$ZS_PREFIX"[0-9]*.npz
-OMP_NUM_THREADS="$N_CORES" "$AAU_DIR/run.sh" aau/zs3dmm/zs_identities.py \
-    --domain "$WBES_ZS_DOMAIN" --model-file "$ZS_MODEL_FILE" \
-    --n-identities "$ZS_N_IDENTITIES" --seed "$ZS_SEED" \
-    --n-shape "$ZS_N_SHAPE" --trunc "$ZS_TRUNC" \
-    --out-dir "$ZS_IDENTITIES_DIR" --device cpu
+if [[ "$WBES_ZS_DOMAIN" == ict ]]; then
+    # Controllo della pipeline: le identita' held-out di ICT-5000, non un campionamento nuovo.
+    "$AAU_DIR/run.sh" aau/zs3dmm/zs_link_identities.py --source-dir "$WBES_ICTZS_SOURCE_DIR" \
+        --first "$WBES_ICTZS_FIRST" --n "$ZS_N_IDENTITIES" --out-dir "$ZS_IDENTITIES_DIR"
+else
+    OMP_NUM_THREADS="$N_CORES" "$AAU_DIR/run.sh" aau/zs3dmm/zs_identities.py \
+        --domain "$WBES_ZS_DOMAIN" --model-file "$ZS_MODEL_FILE" \
+        --n-identities "$ZS_N_IDENTITIES" --seed "$ZS_SEED" \
+        --n-shape "$ZS_N_SHAPE" --trunc "$ZS_TRUNC" \
+        --out-dir "$ZS_IDENTITIES_DIR" --device cpu
+fi
 
 # Le topologie sono riprendibili per nome: se le identita' sono cambiate (altro modello, altro
 # seed, altri modi) le vecchie vanno buttate, altrimenti verrebbero "saltate".

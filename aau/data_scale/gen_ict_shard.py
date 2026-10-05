@@ -30,7 +30,7 @@ per ``id20000`` darebbe 0, lo stesso campo di rumore di ``ict0000``.
 
 Guardia held-out (lo shard NON viene scritto se fallisce)
 ---------------------------------------------------------
-  1. nessun nome dello shard e' in ``heldout_frozen.json`` (BFM, ICT, in nome di vista o
+  1. nessun nome dello shard e' in ``heldout_frozen_union15.json`` (BFM, ICT, in nome di vista o
      grezzo) e ogni id sta in ``new_id_range``;
   2. nessuna identita' nuova e' un quasi-duplicato di un held-out ICT: la vertex-mean-L2 fra
      ``original`` normalizzate maxabs (la metrica della GT) verso TUTTE le original di
@@ -79,7 +79,7 @@ SEED_ID = 20261005       # pesi d'identita'      (ICT-5000: 1234)
 SEED_NOISE = 20261006    # rumore di `noisy`     (ICT-5000: int(subject[-4:]))
 SEED_EXPR = 20261007     # espressioni           (WS5: 1234 + id)
 TOPOLOGIES = ("original", "remesh", "crop", "noisy", "down8k", "up60k")
-FROZEN = THIS_DIR / "heldout_frozen.json"
+FROZEN = THIS_DIR / "heldout_frozen_union15.json"   # la guardia di generazione usa l'unione
 HELDOUT_GEOM = THIS_DIR / "heldout_ict_originals.npz"
 
 _MODEL: dict | None = None

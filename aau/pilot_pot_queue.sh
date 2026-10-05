@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Sottomette le eval del pilota pot e il job della tabella aau/runs/pilot_pot/summary.md.
-# Si lancia sul frontend DOPO che i due training sono partiti (serve la run dir):
+# Si lancia sul frontend appena sottomessi i due training: bastano i runs_root (..._<jobid>), le
+# eval risolvono l'unico */checkpoints/best_by_xtopo_mesh_clean.pth all'avvio. Serve perche' i
+# training scrivono la run dir su /tmp e nella home compare solo col primo sync.
 #
 #   aau/pilot_pot_queue.sh <runs_root m55> <runs_root dual> <jobid precompute ICT> [--dry-run]
 #
@@ -11,6 +13,7 @@
 #      ict_zeroshot_pilot_clean, A10. afterok sul training (e sul precompute ICT per i bracci
 #      col pozzo) E afterany sull'eval BFM dello stesso braccio: cosi' ogni braccio usa una GPU
 #      alla volta e il pilota resta dentro le 3 GPU anche mentre l'altro training gira.
+#      Per il controllo c'e' gia' 1055264 (prima sottomissione di questa coda): si riusa.
 #   3. tabella (cpu), afterany su tutte le eval: con un'eval mancante scrive la riga "n/d",
 #      lo dice nella sezione Mancanti ed esce 1.
 set -euo pipefail
@@ -27,24 +30,23 @@ DRY=0
 CTRL_ROOT="$AAU_RUNS/remesh_v1recipe_current_s1234_1055026"
 CTRL_TRAIN_JOB=1055026
 CTRL_EVAL_JOB=1055030
+CTRL_ICT_JOB=1055264
 ICT_STD="$WBES_ROOT/datasets/ICT/eval_view_heldout"
 ICT_POT="$WBES_ROOT/datasets/ICT/eval_view_heldout_pot055"
 ICT_DIST="$WBES_ROOT/datasets/ICT/train_ready/gt_matrix.npz"
 STAGE=ict_zeroshot_pilot_clean
 
-ckpt_of() {   # il best_by_xtopo_mesh_clean.pth (puo' non esistere ancora) dell'unica run dir
-    local runs=("$1"/*/config.json)
-    if [[ ${#runs[@]} -ne 1 || ! -f "${runs[0]}" ]]; then
-        echo "ERRORE: attesa una sola run dir con config.json in $1, trovate: ${runs[*]}" >&2
-        return 1
-    fi
-    echo "$(dirname "${runs[0]}")/checkpoints/best_by_xtopo_mesh_clean.pth"
-}
 job_of() {    # job id dal nome del runs_root (..._<jobid>)
     echo "${1##*_}"
 }
 live() {      # il job id se e' ancora da aspettare, niente se COMPLETED, errore altrimenti
     local state
+    # squeue prima di sacct: un job appena sottomesso puo' non essere ancora in sacct (1055094
+    # e' morto cosi', "job 1055265 in stato 'sconosciuto'", lasciando la coda a meta').
+    if [[ "$(squeue -h -j "$1" -o %i 2> /dev/null)" == "$1" ]]; then
+        echo "$1"
+        return 0
+    fi
     state="$(sacct -j "$1" -X -n -o State | head -1 | tr -d ' ')"
     case "$state" in
         PENDING|RUNNING|REQUEUED|SUSPENDED|CONFIGURING) echo "$1" ;;
@@ -81,26 +83,21 @@ submit() {    # stampa il job id
     || [[ -f "$AAU_RUNS/eval_frame/remesh_v1recipe_current_s1234_1055026_maxabs/.done" ]] \
     || { echo "ERRORE: l'eval del controllo $CTRL_EVAL_JOB non e' in coda e non e' completa" >&2; exit 1; }
 
-declare -a ALL_EVALS=("$CTRL_EVAL_JOB")
+# controllo: eval BFM e ICT gia' sottomesse, si aspettano soltanto (se ancora in coda)
+live "$CTRL_ICT_JOB" > /dev/null
+declare -a ALL_EVALS=("$CTRL_EVAL_JOB" "$CTRL_ICT_JOB")
 declare -a ROWS=()
-CTRL_CKPT="$(ckpt_of "$CTRL_ROOT")"
 ROWS+=(--row controllo "$AAU_RUNS/eval_frame/$(basename "$CTRL_ROOT")_maxabs" "$CTRL_ROOT" "$ICT_STD")
-
-# controllo: solo ICT
-d="$(deps afterok "$CTRL_TRAIN_JOB" afterany "$CTRL_EVAL_JOB")"
-j="$(WBES_CKPT="$CTRL_CKPT" WBES_DATA_DIR="$ICT_STD" WBES_DIST_NPZ="$ICT_DIST" WBES_EVAL_SEED=1234 \
-     WBES_EVAL_SCENARIOS=clean WBES_EVAL_STAGE="$STAGE" \
-     submit "$AAU_DIR/submit.sh" ict/ict_zeroshot_rank.sbatch --parsable \
-       --job-name=wbes-pilot-ict-ctrl --gres=gpu:a10:1 \
-       $d)"
-echo "[ict] controllo -> $j"
-ALL_EVALS+=("$j")
+echo "[ict] controllo -> $CTRL_ICT_JOB (riusato)"
 
 for spec in "m55|$M55_ROOT|$ICT_POT" "dual|$DUAL_ROOT|$ICT_STD"; do
     IFS='|' read -r tag root ict_data <<< "$spec"
     tjob="$(job_of "$root")"
-    ckpt="$(ckpt_of "$root")"
-    grep -q "^arm=" "$root/pilot_arm.txt"
+    # pilot_arm.txt lo scrive il training all'avvio: se e' ancora in coda non c'e' ancora
+    if [[ "$(squeue -h -j "$tjob" -o %T 2> /dev/null)" != PENDING ]]; then
+        grep -q "^arm=" "$root/pilot_arm.txt"
+    fi
+    ckpt="$root"
     d="$(deps afterok "$tjob")"
     j_bfm="$(WBES_CKPT="$ckpt" WBES_FRAME=maxabs \
         submit "$AAU_DIR/submit.sh" eval_frame_topology.sbatch --parsable \
@@ -120,8 +117,10 @@ done
 
 wrap="AAU_NV= $(printf '%q ' "$AAU_DIR/run.sh" aau/models/pilot_summary.py \
     --out "$AAU_RUNS/pilot_pot/summary.md" "${ROWS[@]}")"
+# solo i job ancora da aspettare: una dipendenza su un job uscito da slurmctld fa fallire sbatch
+if (( DRY )); then d="--dependency=afterany:$(IFS=:; echo "${ALL_EVALS[*]}")"; else d="$(deps afterany "${ALL_EVALS[*]}")"; fi
 j_tab="$(submit sbatch --parsable --job-name=wbes-pilot-summary --partition=cpu \
     --cpus-per-task=2 --mem=8G --time=00:30:00 \
     "--chdir=$WBES_ROOT" "--output=$AAU_LOGS/%x-%j.out" "--error=$AAU_LOGS/%x-%j.err" \
-    "--dependency=afterany:$(IFS=:; echo "${ALL_EVALS[*]}")" --wrap "$wrap")"
+    $d --wrap "$wrap")"
 echo "[table] $j_tab dopo: ${ALL_EVALS[*]}"

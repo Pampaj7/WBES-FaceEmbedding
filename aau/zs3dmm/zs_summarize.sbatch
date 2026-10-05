@@ -17,6 +17,8 @@
 #   WBES_ZS_DOMAIN=hifi aau/submit.sh zs3dmm/zs_summarize.sbatch --dependency=afterok:<eval e baseline>
 #
 # WBES_ZS_SUM_BOOTSTRAP=200 per CI piu' grossolani e veloci.
+# WBES_ZS_SUM_VARIANT=_frame-xmymz (o _evalframe-rms, ...): tabella della variante, con l'effetto
+# appaiato rispetto alla base e il controllo che la Chamfer non cambi -> summary<variante>.md.
 set -euo pipefail
 
 export AAU_NV=""
@@ -33,5 +35,5 @@ echo "[zs-sum] dominio=$WBES_ZS_DOMAIN host=$(hostname) job=${SLURM_JOB_ID:-none
 ZS_FP="$(zs_data_fp)"
 echo "[zs-sum] risultati da $ZS_RUNS/data_$ZS_FP"
 "$AAU_DIR/run.sh" aau/zs3dmm/zs_summarize.py --label "$ZS_LABEL" --runs "$ZS_RUNS/data_$ZS_FP" \
-    --summary-dir "$ZS_RUNS" \
+    --summary-dir "$ZS_RUNS" --variant "${WBES_ZS_SUM_VARIANT:-}" \
     --gt "$ZS_DIST_NPZ" --gt-coef "$ZS_COEF_NPZ" --root "$ZS_ROOT" "${opts[@]}"

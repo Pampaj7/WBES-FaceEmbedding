@@ -21,9 +21,13 @@ ed e' su questi che ``build_zs_gt.py`` calcola la GT nei coefficienti.
 
 Frame e unita'
 --------------
-Il frame del modello resta com'e', come ICT tiene il suo: la patch passa poi per la
-normalizzazione maxabs (GT) e area unitaria (operatori), quindi unita' e orientamento non
-entrano nei numeri.
+Il frame del modello resta com'e', come ICT tiene il suo. Le UNITA' non entrano nei numeri
+(maxabs per GT e Chamfer, area unitaria per gli operatori). L'ORIENTAMENTO SI': il modello
+(xyz_dn) riceve le coordinate xyz come feature d'ingresso, e in training ha visto solo il frame
+dei suoi dati (BFM: y in basso, naso verso -z; ICT: y in alto, naso verso +z) con rotazioni di
+pochi gradi. HIFI3D e' nel frame ICT, FaceVerse in quello BFM (misurato, aau/scratch/hifi3d/
+frames.py). Operatori intrinseci, GT per vertice e Chamfer invece non dipendono dal frame.
+Il test del frame e' WBES_ZS_FRAME in zs_zeroshot.sbatch.
 
 Pool
 ----

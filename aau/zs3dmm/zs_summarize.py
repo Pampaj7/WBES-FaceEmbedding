@@ -24,6 +24,17 @@ Due GT, stesse coppie: ``maxabs`` (protocollo ICT, quella con cui girano gli scr
 Controlli scritti nel summary: la GT ha varianza non nulla e diagonale zero (stesso soggetto
 -> distanza zero), i tre bracci e le baseline guardano gli stessi soggetti, il checkpoint
 dichiarato dai json e' quello del braccio.
+
+Differenze appaiate: per modello - Chamfer eval (stesse righe) e fra bracci (congiunto - ICT-only,
+congiunto - BFM-only, righe allineate per soggetti e topologie), Spearman delle due colonne
+ricalcolato sulle STESSE repliche bootstrap per soggetto, CI della differenza. Stessa
+ricampionatura di ``weighted_bootstrap_spearman`` (``paired_bootstrap`` qui sotto la replica per
+due colonne alla volta; la correlazione e' ``finite_spearman`` del modulo del paper).
+
+``--variant <suffisso>`` (p.es. ``_frame-xmymz``, ``_evalframe-rms``): i bracci sono
+``<arm><suffisso>`` e in piu' si stima, appaiato, l'effetto della variante (variante - base sullo
+stesso braccio) e si verifica che la Chamfer eval sia la stessa della base riga per riga. Scrive
+``summary<suffisso>.md`` e i csv col suffisso.
 """
 
 from __future__ import annotations
@@ -73,6 +84,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--ws2", type=Path, default=RUNS / "ws2_cross3dmm" / "table_cells.csv")
     p.add_argument("--n-bootstrap", type=int, default=1000)
     p.add_argument("--seed", type=int, default=1234, help="Seme del ricampionamento, non del modello")
+    p.add_argument("--variant", default="", help="suffisso delle out dir dei bracci, p.es. _frame-xmymz")
     return p.parse_args()
 
 
@@ -130,9 +142,14 @@ def arm_sources(runs: Path, arm: str) -> dict:
         r = full / "ranking"
         if all((r / f"ranking_summary.{ext}").exists() for ext in ("json", "csv", "md")):
             out["ranking"] = r
-    missing = [p for p in ("ranking", "topology") if p not in out]
-    if missing:
-        raise SystemExit(f"{arm}: mancano {missing} (ne' {full}/.done ne' i pezzi {arm}_<parte>)")
+    if "topology" not in out:
+        raise SystemExit(f"{arm}: manca il breakdown (ne' {full}/.done ne' {arm}_topology/)")
+    if "ranking" not in out:
+        # Varianti girate col solo breakdown (FaceVerse, per le ore GPU): il clean del ranking si
+        # ricalcola esatto dalle pair_metrics (point_check), il mixed non c'e'.
+        out["ranking"] = None
+        out["source"] = f"solo breakdown da {out['topology'].relative_to(runs)} (niente ranking: punto clean dalle pair_metrics, niente mixed)"
+        return out
     out["source"] = (f"ranking da {out['ranking'].relative_to(runs)}, "
                      f"breakdown da {out['topology'].relative_to(runs)}")
     return out
@@ -159,12 +176,63 @@ def boot(df: pd.DataFrame, value_col: str, args, bm, *tokens: str, n_bootstrap: 
     return base.bootstrap_row(df, value_col, n, np.random.default_rng(seed), bm)
 
 
+def paired_bootstrap(df: pd.DataFrame, col_a: str, col_b: str, n_bootstrap: int, rng, bm) -> dict:
+    """Spearman(gt, a) - Spearman(gt, b) con CI, sulle stesse repliche bootstrap per soggetto.
+
+    Ricampionamento identico a ``weighted_bootstrap_spearman`` (scripts/compute_bootstrap_ci.py):
+    soggetti estratti con reinserimento, peso di una coppia = prodotto dei conteggi dei suoi due
+    soggetti, righe ripetute per il peso. Cambia solo che le colonne sono due.
+    """
+    w = df.loc[:, ["subject_a", "subject_b", "gt_distance", col_a, col_b]].copy()
+    for c in ("gt_distance", col_a, col_b):
+        w[c] = pd.to_numeric(w[c], errors="coerce")
+    w = w[np.isfinite(w["gt_distance"]) & np.isfinite(w[col_a]) & np.isfinite(w[col_b])]
+    w = w[w["subject_a"].astype(str) != w["subject_b"].astype(str)]
+    subjects = np.array(sorted(set(w["subject_a"].astype(str)) | set(w["subject_b"].astype(str))))
+    s2i = {s: i for i, s in enumerate(subjects)}
+    sa = w["subject_a"].astype(str).map(s2i).to_numpy(np.int32)
+    sb = w["subject_b"].astype(str).map(s2i).to_numpy(np.int32)
+    gt, a, b = (w[c].to_numpy(np.float64) for c in ("gt_distance", col_a, col_b))
+    pa, pb = bm.finite_spearman(gt, a), bm.finite_spearman(gt, b)
+    diffs = []
+    for _ in range(n_bootstrap):
+        counts = np.bincount(rng.integers(0, len(subjects), size=len(subjects)), minlength=len(subjects))
+        wt = counts[sa].astype(np.int64) * counts[sb].astype(np.int64)
+        keep = wt > 0
+        if int(keep.sum()) < 3:
+            continue
+        x = np.repeat(gt[keep], wt[keep])
+        d = bm.finite_spearman(x, np.repeat(a[keep], wt[keep])) - bm.finite_spearman(x, np.repeat(b[keep], wt[keep]))
+        if np.isfinite(d):
+            diffs.append(d)
+    diffs = np.asarray(diffs)
+    lo, hi = (np.percentile(diffs, [2.5, 97.5]) if len(diffs) else (np.nan, np.nan))
+    return {"a": pa, "b": pb, "diff": pa - pb, "ci_low": float(lo), "ci_high": float(hi),
+            "p_boot_le0": float((diffs <= 0).mean()) if len(diffs) else np.nan,
+            "n_subjects": len(subjects), "n_pairs": len(w), "n_bootstrap": len(diffs)}
+
+
+def pboot(df: pd.DataFrame, col_a: str, col_b: str, args, bm, *tokens: str) -> dict:
+    key = ("paired", col_a, col_b, args.n_bootstrap) + tokens
+    if key in _STATE["cache"]:
+        return _STATE["cache"][key]
+    seed = base.stable_seed(args.seed, "paired", *tokens)
+    if _STATE["collect"]:
+        _STATE["tasks"].append((key, df, (col_a, col_b), args.n_bootstrap, seed))
+        return {"a": np.nan, "b": np.nan, "diff": np.nan, "ci_low": np.nan, "ci_high": np.nan,
+                "p_boot_le0": np.nan, "n_subjects": 0, "n_pairs": 0, "n_bootstrap": 0}
+    return paired_bootstrap(df, col_a, col_b, args.n_bootstrap, np.random.default_rng(seed), bm)
+
+
 def _boot_task(task):
     global _BM
     if _BM is None:
         _BM = base.load_bootstrap_module()
     key, df, value_col, n, seed = task
-    return key, base.bootstrap_row(df, value_col, n, np.random.default_rng(seed), _BM)
+    rng = np.random.default_rng(seed)
+    if isinstance(value_col, tuple):
+        return key, paired_bootstrap(df, value_col[0], value_col[1], n, rng, _BM)
+    return key, base.bootstrap_row(df, value_col, n, rng, _BM)
 
 
 def run_boot_tasks(n_workers: int) -> None:
@@ -178,43 +246,52 @@ def run_boot_tasks(n_workers: int) -> None:
     _STATE["tasks"] = []
 
 
-def arm_tables(args, bm, gts) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    cells, topo, subjects, sources = [], [], {}, {}
+def arm_tables(args, bm, gts, variant: str = "") -> tuple:
+    cells, topo, subjects, sources, pms = [], [], {}, {}, {}
     for arm in ARMS:
-        src = arm_sources(args.runs, arm)
+        name = arm + variant
+        src = arm_sources(args.runs, name)
         sources[arm] = src["source"]
-        payload = json.loads((src["ranking"] / "ranking_summary.json").read_text())
         want = os.environ.get(ARM_CKPT_ENV[arm])
-        if want and os.path.realpath(payload["checkpoint"]) != os.path.realpath(want):
-            raise SystemExit(f"{arm}: checkpoint {payload['checkpoint']} != {want}")
+        payload = None
+        if src["ranking"] is not None:
+            payload = json.loads((src["ranking"] / "ranking_summary.json").read_text())
+            if want and os.path.realpath(payload["checkpoint"]) != os.path.realpath(want):
+                raise SystemExit(f"{arm}: checkpoint {payload['checkpoint']} != {want}")
         key = dict(l.split("=", 1) for l in (src["topology"].parent / "eval_key.txt").read_text().splitlines()
                    if "=" in l)
         if want and os.path.realpath(key["ckpt"]) != os.path.realpath(want):
             raise SystemExit(f"{arm}: breakdown col checkpoint {key['ckpt']} != {want}")
-        ranking = {row["scenario"]: row for row in payload["rows"]}
+        ranking = {} if payload is None else {row["scenario"]: row for row in payload["rows"]}
         pm_max = base.read_pair_metrics(src["topology"])  # legge da se' <stage>/topology/*/pair_metrics.csv
-        subjects[arm] = sorted(set(payload["selected_subjects"]))
         seen = sorted(set(pm_max["subject_a"].astype(str)) | set(pm_max["subject_b"].astype(str)))
-        staged_file = next(p for p in (args.runs / arm / "subjects.json",
-                                       args.runs / f"{arm}_topology" / "subjects.json") if p.exists())
+        subjects[arm] = seen if payload is None else sorted(set(payload["selected_subjects"]))
+        staged_file = next(p for p in (args.runs / name / "subjects.json",
+                                       args.runs / f"{name}_topology" / "subjects.json") if p.exists())
         staged = json.loads(staged_file.read_text())["subjects"]
         if seen != subjects[arm] or sorted(staged) != subjects[arm]:
-            raise SystemExit(f"{arm}: pair_metrics, ranking e zs_stage guardano soggetti diversi")
+            raise SystemExit(f"{name}: pair_metrics, ranking e zs_stage guardano soggetti diversi")
+        keys = ["subject_a", "subject_b", "topology_a", "topology_b"]
+        if pm_max.duplicated(keys).any():
+            raise SystemExit(f"{name}: righe duplicate in pair_metrics per {keys}")
+        pms[arm] = pm_max
 
         for gt_tag in GTS:
             pm = pm_max if gt_tag == "maxabs" else with_gt(pm_max, gts["coef"])
             per_sp = (pm.groupby(["subject_a", "subject_b"], as_index=False)
                       [["gt_distance", "latent_distance", "raw_chamfer"]].mean())
             for scenario in ("clean", "mixed"):
-                if scenario == "mixed" and gt_tag != "maxabs":
-                    continue  # il mixed esiste solo come punto dello script, sulla GT dello script
-                row = ranking[scenario]
+                if scenario == "mixed" and (gt_tag != "maxabs" or "mixed" not in ranking):
+                    continue  # il mixed: solo punto dello script, sulla GT dello script, se c'e' (rms: no)
+                row = ranking.get(scenario)
                 out = {"model": arm, "gt": gt_tag, "protocol": "subject_pair_mean", "scenario": scenario,
-                       "n_subjects": int(row["n_subjects"]), "n_mesh_pairs": int(row["n_mesh_pairs"])}
+                       "n_subjects": len(seen) if row is None else int(row["n_subjects"]),
+                       "n_mesh_pairs": len(pm_max) if row is None else int(row["n_mesh_pairs"])}
                 for metric, col in base.METRICS:
                     if scenario == "clean":
                         b = boot(per_sp, col, args, bm, arm, gt_tag, "spm_clean", metric)
-                        point = float(row[f"{metric}_spearman"]) if gt_tag == "maxabs" else b["spearman"]
+                        point = (float(row[f"{metric}_spearman"]) if gt_tag == "maxabs" and row is not None
+                                 else b["spearman"])
                         out.update({f"{metric}_spearman": point, f"{metric}_ci_low": b["ci_low"],
                                     f"{metric}_ci_high": b["ci_high"], f"{metric}_point_check": b["spearman"]})
                     else:
@@ -250,7 +327,68 @@ def arm_tables(args, bm, gts) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
                               flush=True)
     table = pd.DataFrame(cells)
     table["delta_spearman"] = table["latent_spearman"] - table["chamfer_spearman"]
-    return table, pd.DataFrame(topo), subjects, sources
+    return table, pd.DataFrame(topo), subjects, sources, pms
+
+
+# ---------------------------------------------------------------- differenze appaiate
+
+PAIR_KEYS = ["subject_a", "subject_b", "topology_a", "topology_b"]
+SCENARIOS = ("all_cross", "nocrop_cross", "subject_pair_mean")
+
+
+def scenario_frame(df: pd.DataFrame, scenario: str, cols: list[str]) -> pd.DataFrame:
+    if scenario == "all_cross":
+        return df
+    if scenario == "nocrop_cross":
+        return df[df["topology_a"].ne("crop") & df["topology_b"].ne("crop")]
+    return df.groupby(["subject_a", "subject_b"], as_index=False)[["gt_distance"] + cols].mean()
+
+
+def merge_arms(pa: pd.DataFrame, pb: pd.DataFrame, col: str, ta: str, tb: str) -> pd.DataFrame:
+    """Righe allineate (stessi soggetti, stesse topologie) con ``col`` dei due lati in ``<col>_<ta>``/``_<tb>``."""
+    m = pa[PAIR_KEYS + ["gt_distance", col]].merge(pb[PAIR_KEYS + ["gt_distance", col]], on=PAIR_KEYS,
+                                                   suffixes=(f"_{ta}", f"_{tb}"), validate="one_to_one")
+    if len(m) != len(pa) or len(m) != len(pb):
+        raise SystemExit(f"{ta} / {tb}: righe non allineate ({len(pa)}, {len(pb)}, comuni {len(m)})")
+    if not np.allclose(m[f"gt_distance_{ta}"], m[f"gt_distance_{tb}"]):
+        raise SystemExit(f"{ta} / {tb}: GT diversa sulle stesse righe")
+    return m.rename(columns={f"gt_distance_{ta}": "gt_distance"}).drop(columns=[f"gt_distance_{tb}"])
+
+
+def paired_tables(args, bm, gts, pms: dict, base_pms: dict | None) -> pd.DataFrame:
+    rows = []
+    for gt_tag in GTS:
+        conv = (lambda d: d) if gt_tag == "maxabs" else (lambda d: with_gt(d, gts["coef"]))
+        specs = []  # (confronto, frame con le due colonne, col_a, col_b, colonne da mediare)
+        for arm in ARMS:
+            specs.append((f"{ARM_LABEL[arm]} - Chamfer eval", conv(pms[arm]), "latent_distance", "raw_chamfer",
+                          ["latent_distance", "raw_chamfer"]))
+        for x, y in (("joint", "ict_only"), ("joint", "bfm_only")):
+            m = conv(merge_arms(pms[x], pms[y], "latent_distance", x, y))
+            specs.append((f"{ARM_LABEL[x]} - {ARM_LABEL[y]}", m, f"latent_distance_{x}", f"latent_distance_{y}",
+                          [f"latent_distance_{x}", f"latent_distance_{y}"]))
+        if base_pms is not None:
+            for arm in ARMS:
+                m = conv(merge_arms(pms[arm], base_pms[arm], "latent_distance", "var", "base"))
+                specs.append((f"{ARM_LABEL[arm]}: variante - base", m, "latent_distance_var", "latent_distance_base",
+                              ["latent_distance_var", "latent_distance_base"]))
+        for name, df, ca, cb, cols in specs:
+            for scenario in SCENARIOS:
+                r = pboot(scenario_frame(df, scenario, cols), ca, cb, args, bm, args.variant, gt_tag, name, scenario)
+                rows.append({"gt": gt_tag, "comparison": name, "scenario": scenario, **r})
+    return pd.DataFrame(rows)
+
+
+def chamfer_vs_base(pms: dict, base_pms: dict) -> pd.DataFrame:
+    """Controllo di sanita' della variante: la Chamfer eval non deve cambiare, riga per riga."""
+    rows = []
+    for arm in ARMS:
+        m = merge_arms(pms[arm], base_pms[arm], "raw_chamfer", "var", "base")
+        d = (m["raw_chamfer_var"] - m["raw_chamfer_base"]).abs()
+        rel = d / m["raw_chamfer_base"].abs().clip(lower=1e-12)
+        rows.append({"model": arm, "n_rows": len(m), "max_abs_diff": float(d.max()),
+                     "max_rel_diff": float(rel.max()), "n_rows_rel_gt_1e-4": int((rel > 1e-4).sum())})
+    return pd.DataFrame(rows)
 
 
 # -------------------------------------------------------------------------- baseline
@@ -258,6 +396,8 @@ def arm_tables(args, bm, gts) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
 def baseline_table(args, bm, gts) -> tuple[pd.DataFrame, list[str]]:
     root = args.runs / "baselines"
     rows, bl_subjects = [], None
+    if not root.is_dir():
+        return pd.DataFrame(), None  # dominio "ict": le baseline ICT esistono gia' (aau/runs/outlineB)
     for metric in BL_METRICS:
         for setting in BL_SETTINGS:
             frames = []
@@ -340,9 +480,26 @@ def topology_matrix(topo: pd.DataFrame, arm: str, metric: str) -> str:
     return "\n".join(lines)
 
 
-def write_markdown(path: Path, table, topo, bl, checks, meta, args) -> None:
+def paired_md(paired: pd.DataFrame, comparisons: list[str]) -> str:
+    lines = ["| confronto | scenario | GT maxabs: differenza [CI 95%] (a / b) | P(boot <= 0) | GT coef: differenza [CI 95%] |",
+             "| --- | --- | --- | --- | --- |"]
+    for name in comparisons:
+        for scenario in SCENARIOS:
+            r = {g: paired[(paired["comparison"] == name) & (paired["scenario"] == scenario) & (paired["gt"] == g)]
+                 for g in GTS}
+            if r["maxabs"].empty:
+                continue
+            m, c = r["maxabs"].iloc[0], r["coef"].iloc[0]
+            lines.append(f"| {name} | {scenario} | {m['diff']:+.3f} [{m['ci_low']:+.3f}, {m['ci_high']:+.3f}] "
+                         f"({m['a']:.3f} / {m['b']:.3f}) | {m['p_boot_le0']:.3f} | "
+                         f"{c['diff']:+.3f} [{c['ci_low']:+.3f}, {c['ci_high']:+.3f}] |")
+    return "\n".join(lines)
+
+
+def write_markdown(path: Path, table, topo, bl, checks, meta, args, paired, cham=None) -> None:
+    title = f"# Zero-shot su un 3DMM mai visto: {args.label}" + (f", variante `{args.variant}`" if args.variant else "")
     parts = [
-        f"# Zero-shot su un 3DMM mai visto: {args.label}\n",
+        f"{title}\n",
         f"Modelli: BFM+ICT congiunto (job 1019532), BFM-only (1019310), ICT-only (1019531): gli stessi "
         f"della tabella WS2, seed 1234, ricetta v1, operatori ad area unitaria. Nessuno ha visto {args.label}. "
         f"Dati: {meta['n_identities']} identita' dal 3DMM `{meta['model_file']}` "
@@ -366,23 +523,37 @@ def write_markdown(path: Path, table, topo, bl, checks, meta, args) -> None:
         model_grid(table, "subject_pair_mean", "clean"),
         "\n## Subject-pair-mean, mixed (solo punto, solo GT dello script)\n",
         model_grid(table, "subject_pair_mean", "mixed"),
-        "\n## Riferimento: le stesse celle su ICT (tabella WS2)\n",
-        ws2_reference(args.ws2),
-        "\n## Baseline geometriche (pipeline faceBench, stessi soggetti)\n",
+        "\n## Differenze appaiate (stesse repliche bootstrap per soggetto)\n",
+        "Differenza degli Spearman con la GT, a - b, CI 95% sulle stesse 1000 repliche; P(boot <= 0) e' la "
+        "frazione di repliche con differenza <= 0. Scenari: `all_cross` = 30 coppie ordinate di topologie, "
+        "`nocrop_cross` = 20, `subject_pair_mean` = media per coppia di soggetti sulle 30 (clean).\n",
+        paired_md(paired, [c for c in dict.fromkeys(paired["comparison"]) if "variante" not in c]),
     ]
-    lines = ["| metodo | setting | GT maxabs | GT coef | NaN |", "| --- | --- | --- | --- | --- |"]
-    for metric in BL_METRICS:
-        for setting in BL_SETTINGS:
-            r = {g: bl[(bl["metric"] == metric) & (bl["setting"] == setting) & (bl["gt"] == g)].iloc[0] for g in GTS}
-            lines.append(f"| {BL_LABEL[metric]} | {setting} | {fmt_ci(r['maxabs'].spearman, r['maxabs'].ci_low, r['maxabs'].ci_high)} | "
-                         f"{fmt_ci(r['coef'].spearman, r['coef'].ci_low, r['coef'].ci_high)} | {r['maxabs'].n_nan} |")
-    parts.append("\n".join(lines))
-    parts.append("\n`chamfer eval` nelle tabelle dei modelli e' la Chamfer degli script di eval (media delle "
-                 "distanze al quadrato su tutti i vertici); la riga `Chamfer (faceBench)` qui sopra e' quella "
-                 "della Tabella 2 (4096 punti campionati). `all_cross_topology` = le 30 coppie ordinate cross.\n")
+    if args.variant:
+        parts += [f"\n## Effetto della variante `{args.variant}` (variante - base, stesso braccio, appaiato)\n",
+                  paired_md(paired, [c for c in dict.fromkeys(paired["comparison"]) if "variante" in c]),
+                  "\nControllo di sanita': Chamfer eval della variante contro quella della base, riga per riga "
+                  "(deve essere identica: la Chamfer non dipende dal frame ne' dal ri-inquadramento del modello).\n",
+                  base.md_table(cham, list(cham.columns), floats=6)]
+    parts += ["\n## Riferimento: le stesse celle su ICT (tabella WS2)\n", ws2_reference(args.ws2)]
+    if bl is not None and not bl.empty:
+        parts.append("\n## Baseline geometriche (pipeline faceBench, stessi soggetti)\n")
+        if args.variant:
+            parts.append("Le baseline sono quelle della base: allineamento e Chamfer su mesh normalizzate maxabs, "
+                         "invarianti per il cambio di frame (stessa trasformazione sulle due mesh).\n")
+        lines = ["| metodo | setting | GT maxabs | GT coef | NaN |", "| --- | --- | --- | --- | --- |"]
+        for metric in BL_METRICS:
+            for setting in BL_SETTINGS:
+                r = {g: bl[(bl["metric"] == metric) & (bl["setting"] == setting) & (bl["gt"] == g)].iloc[0] for g in GTS}
+                lines.append(f"| {BL_LABEL[metric]} | {setting} | {fmt_ci(r['maxabs'].spearman, r['maxabs'].ci_low, r['maxabs'].ci_high)} | "
+                             f"{fmt_ci(r['coef'].spearman, r['coef'].ci_low, r['coef'].ci_high)} | {r['maxabs'].n_nan} |")
+        parts.append("\n".join(lines))
+        parts.append("\n`chamfer eval` nelle tabelle dei modelli e' la Chamfer degli script di eval (media delle "
+                     "distanze al quadrato su tutti i vertici); la riga `Chamfer (faceBench)` qui sopra e' quella "
+                     "della Tabella 2 (4096 punti campionati). `all_cross_topology` = le 30 coppie ordinate cross.\n")
     parts.append("\n## Controlli\n")
     parts.append(base.md_table(pd.DataFrame(checks), list(checks[0].keys()), floats=4))
-    parts.append(f"\nSoggetti: identici nei tre bracci e nelle baseline = {meta['same_subjects']} "
+    parts.append(f"\nSoggetti: identici nei tre bracci (e nelle baseline, se ci sono) = {meta['same_subjects']} "
                  f"({meta['n_eval']}, primi {', '.join(meta['subjects'][:3])}).\n")
     parts.append("\nSorgenti dei bracci: " + "; ".join(f"{ARM_LABEL[a]}: {meta['sources'][a]}" for a in ARMS)
                  + ".\n")
@@ -406,13 +577,21 @@ def main() -> None:
             raise SystemExit(f"GT non valida: {c}")
 
     _STATE["collect"] = True
-    arm_tables(args, bm, gts)
+    # Della base servono solo le pair_metrics: in modalita' collect arm_tables non calcola niente,
+    # e i compiti raccolti per la base si buttano.
+    base_pms = arm_tables(args, bm, gts, "")[4] if args.variant else None
+    _STATE["tasks"] = []
+    pms = arm_tables(args, bm, gts, args.variant)[4]
     baseline_table(args, bm, gts)
+    paired_tables(args, bm, gts, pms, base_pms)
     _STATE["collect"] = False
     run_boot_tasks(int(os.environ.get("SLURM_CPUS_PER_TASK", "4")))
-    table, topo, subjects, sources = arm_tables(args, bm, gts)
+    table, topo, subjects, sources, pms = arm_tables(args, bm, gts, args.variant)
     bl, bl_subjects = baseline_table(args, bm, gts)
-    same = all(subjects[a] == subjects["joint"] for a in ARMS) and sorted(bl_subjects) == subjects["joint"]
+    paired = paired_tables(args, bm, gts, pms, base_pms)
+    cham = chamfer_vs_base(pms, base_pms) if base_pms is not None else None
+    same = all(subjects[a] == subjects["joint"] for a in ARMS) and (
+        bl_subjects is None or sorted(bl_subjects) == subjects["joint"])
 
     ident = json.loads((args.root / "identities" / "manifest.json").read_text())
     gtman = json.loads((args.root / "gt" / "manifest.json").read_text())
@@ -422,13 +601,19 @@ def main() -> None:
 
     out = args.summary_dir
     out.mkdir(parents=True, exist_ok=True)
-    table.to_csv(out / "table_cells.csv", index=False)
-    topo.to_csv(out / "topology_pairs.csv", index=False)
-    bl.to_csv(out / "baselines.csv", index=False)
-    pd.DataFrame(checks).to_csv(out / "gt_checks.csv", index=False)
-    write_markdown(out / "summary.md", table, topo, bl, checks, meta, args)
+    v = args.variant
+    table.to_csv(out / f"table_cells{v}.csv", index=False)
+    topo.to_csv(out / f"topology_pairs{v}.csv", index=False)
+    paired.to_csv(out / f"paired{v}.csv", index=False)
+    if cham is not None:
+        cham.to_csv(out / f"chamfer_vs_base{v}.csv", index=False)
+        print(f"[zs-sum] Chamfer variante vs base:\n{cham.to_string(index=False)}", flush=True)
+    if bl is not None and not bl.empty:
+        bl.to_csv(out / f"baselines{v}.csv", index=False)
+    pd.DataFrame(checks).to_csv(out / f"gt_checks{v}.csv", index=False)
+    write_markdown(out / f"summary{v}.md", table, topo, bl, checks, meta, args, paired, cham)
     print(f"[zs-sum] soggetti identici fra bracci e baseline: {same}", flush=True)
-    print(f"[zs-sum] scritto {out / 'summary.md'}", flush=True)
+    print(f"[zs-sum] scritto {out / f'summary{v}.md'}", flush=True)
     if not same:
         raise SystemExit("i tre bracci e le baseline non guardano gli stessi soggetti")
 

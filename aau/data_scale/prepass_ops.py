@@ -20,12 +20,20 @@ escono dal loader sono quelli di sempre (misurato: scarto 0 sull'embedding,
 aau/data_scale/study_options.json), e la lettura costa quanto oggi (51 ms contro 55 per
 campione, loader_timing.json): la compressione costerebbe +36 ms a ogni lettura.
 
+``--transform`` (spento di default): per dominio {"R": 3x3, "flip_faces": bool}, applicato alla
+geometria PRIMA degli operatori per canonicalizzare il frame (``apply_frame``). Misurato dal PI su dati
+reali: BFM ha il naso verso -z e l'alto verso -y, cioe' R = Rx(180) = diag(1,-1,-1), e normali verso
+l'interno (ICT verso l'esterno), cioe' flip_faces true. Solo ``areanorm``.
+
+La geometria estratta dai tar e' cancellata a fine pre-pass (``keep_geom`` per tenerla).
+
 Scrittura atomica (tmp + rename) e file esistenti saltati: si puo' rilanciare. Un processo
 per core, a thread singolo (OMP/MKL a 1 vanno messi dal chiamante).
 """
 from __future__ import annotations
 
 import argparse
+import json
 import multiprocessing as mp
 import os
 import sys
@@ -45,7 +53,35 @@ K_EIG = 128
 SPARSE = ("L", "gradX", "gradY")
 
 
-def ops_areanorm(src: Path, out: Path) -> None:
+def domain_of_name(name: str) -> str:
+    """bfm/flame/ict dall'id, come train_v2.domain_of (BFM <1000, FLAME 1000-9999, ICT >=10000)."""
+    num = int(name.split("_GTready_")[0][2:])
+    return "bfm" if num < 1000 else ("ict" if num >= 10000 else "flame")
+
+
+def apply_frame(V: np.ndarray, F: np.ndarray, spec) -> tuple[np.ndarray, np.ndarray]:
+    """Canonicalizzazione del frame, PRIMA degli operatori.
+
+    ``spec`` = {"R": matrice 3x3, "flip_faces": bool} (una matrice nuda vale {"R": matrice}).
+    I vertici diventano ``V @ R.T``. L'ordine dei vertici di ogni triangolo si inverte se
+    ``det(R) < 0`` XOR ``flip_faces``: una riflessione da sola inverte l'orientazione delle
+    normali e la si ricompensa; ``flip_faces`` la inverte in piu', indipendentemente da R, per
+    portare le normali BFM (verso l'interno) dalla parte di quelle ICT (verso l'esterno). Conta
+    perche' i frame tangenti, e quindi gradX/gradY, seguono le normali.
+    """
+    if not isinstance(spec, dict):
+        spec = {"R": spec}
+    R = np.asarray(spec.get("R", np.eye(3)), dtype=np.float64)
+    V = V @ R.T
+    if (np.linalg.det(R) < 0) != bool(spec.get("flip_faces", False)):
+        F = F[:, [0, 2, 1]]
+    return V, F
+
+
+COMPRESS = {"on": False}   # impostato da run(): il trainer decomprime una volta sola, al caricamento
+
+
+def ops_areanorm(src: Path, out: Path, transform: dict | None = None) -> None:
     import torch
     from areanorm_operators import total_area
     from diffusion_net.geometry import compute_operators
@@ -53,6 +89,9 @@ def ops_areanorm(src: Path, out: Path) -> None:
 
     # == v2_work/potential/areanorm_operators.py::main, corpo del ciclo
     V, F = load_mesh(src)
+    spec = (transform or {}).get(domain_of_name(src.name))
+    if spec is not None:
+        V, F = apply_frame(V, F, spec)
     A = total_area(V, F)
     if not np.isfinite(A) or A <= 0:
         raise ValueError(f"area non valida: {A}")
@@ -69,12 +108,14 @@ def ops_areanorm(src: Path, out: Path) -> None:
         data[f"{name}_values"] = c.values().numpy()
         data[f"{name}_shape"] = np.array(c.shape)
     tmp = out.with_name(f".{out.name}.{os.getpid()}.tmp.npz")
-    np.savez(tmp, **data)
+    (np.savez_compressed if COMPRESS["on"] else np.savez)(tmp, **data)
     os.replace(tmp, out)
 
 
-def ops_robust_area1(src: Path, out: Path) -> None:
+def ops_robust_area1(src: Path, out: Path, transform: dict | None = None) -> None:
     from robust_area1_operators import process
+    if transform:
+        raise ValueError("robust_area1: canonicalizzazione del frame non supportata")
     if src.name != out.name:
         raise ValueError("robust_area1: il nome di uscita e' quello della sorgente")
     process(src, out.parent, K_EIG)
@@ -83,11 +124,12 @@ def ops_robust_area1(src: Path, out: Path) -> None:
 CONVENTIONS = {"areanorm": ops_areanorm, "robust_area1": ops_robust_area1}
 
 
-def _work(task: tuple[str, str, str]) -> tuple[str, float, str]:
-    src, out, conv = task
+def _work(task: tuple) -> tuple[str, float, str]:
+    src, out, conv, transform, compress = task
+    COMPRESS["on"] = bool(compress)
     t0 = time.time()
     try:
-        CONVENTIONS[conv](Path(src), Path(out))
+        CONVENTIONS[conv](Path(src), Path(out), transform)
         return Path(src).name, time.time() - t0, ""
     except Exception as exc:  # noqa: BLE001  (una mesh rotta non deve fermare il blocco)
         return Path(src).name, time.time() - t0, f"{type(exc).__name__}: {exc}"
@@ -101,10 +143,34 @@ def wanted(name: str, subjects: set[str] | None, labels: set[str] | None) -> boo
 
 
 def stage_geometry(tars: list[Path], geom_dirs: list[Path], dest: Path,
-                   subjects: set[str] | None, labels: set[str] | None) -> list[Path]:
-    """Geometria selezionata in ``dest`` (estratta dai tar, symlink per le directory)."""
+                   subjects: set[str] | None, labels: set[str] | None,
+                   tar_index: Path | None = None) -> list[Path]:
+    """Geometria selezionata in ``dest`` (estratta dai tar, symlink per le directory).
+
+    Con ``tar_index`` (cache_budget.py index) i membri si leggono per offset: niente scansione
+    dei 3.500 header sparsi di ogni tar, che su CephFS a freddo costa ~10 s a tar.
+    """
     dest.mkdir(parents=True, exist_ok=True)
     out = []
+    if tar_index is not None and tars:
+        sys.path.insert(0, str(THIS_DIR))
+        from cache_budget import load_index, read_member
+        idx = load_index(tar_index)
+        keep_tars = {Path(t).name for t in tars}
+        tar_names = [str(x) for x in idx["tars"]]
+        handles: dict = {}
+        try:
+            for i, n in enumerate(idx["names"]):
+                n = str(n)
+                if tar_names[int(idx["tar_id"][i])] in keep_tars and wanted(n, subjects, labels):
+                    p = dest / n
+                    if not p.exists():
+                        p.write_bytes(read_member(idx, i, handles))
+                    out.append(p)
+        finally:
+            for fh in handles.values():
+                fh.close()
+        tars = []
     for t in tars:
         with tarfile.open(t) as tar:
             for m in tar:
@@ -126,13 +192,17 @@ def stage_geometry(tars: list[Path], geom_dirs: list[Path], dest: Path,
 
 def run(out_dir: Path, tars: list[Path], geom_dirs: list[Path], n_proc: int,
         subjects: set[str] | None = None, labels: set[str] | None = None,
-        convention: str = "areanorm", geom_stage: Path | None = None) -> dict:
+        convention: str = "areanorm", geom_stage: Path | None = None,
+        transform: dict | None = None, compress: bool = False, keep_geom: bool = False,
+        tar_index: Path | None = None) -> dict:
+    """Pre-pass. La geometria estratta in ``geom_stage`` (~3 GB per blocco di shard) e'
+    cancellata alla fine, salvo ``keep_geom``: lasciata li' si accumulerebbe su /tmp, che e' RAM."""
     out_dir.mkdir(parents=True, exist_ok=True)
     geom_stage = geom_stage or out_dir.parent / f"{out_dir.name}_geom"
     t0 = time.time()
-    srcs = stage_geometry(tars, geom_dirs, geom_stage, subjects, labels)
+    srcs = stage_geometry(tars, geom_dirs, geom_stage, subjects, labels, tar_index)
     t_stage = time.time() - t0
-    todo = [(str(p), str(out_dir / p.name), convention) for p in srcs
+    todo = [(str(p), str(out_dir / p.name), convention, transform, compress) for p in srcs
             if not (out_dir / p.name).exists()]
     # il piu' grande prima: up60k costa 10x down8k, in coda allungherebbe il blocco
     todo.sort(key=lambda t: -Path(t[0]).stat().st_size)
@@ -143,6 +213,9 @@ def run(out_dir: Path, tars: list[Path], geom_dirs: list[Path], n_proc: int,
     else:
         res = [_work(t) for t in todo]
     wall = time.time() - t1
+    if not keep_geom:
+        import shutil
+        shutil.rmtree(geom_stage, ignore_errors=True)
     fails = [f"{n}: {e}" for n, _, e in res if e]
     return {"n_meshes": len(srcs), "n_computed": len(todo), "n_failed": len(fails),
             "failures": fails[:20], "stage_seconds": t_stage, "wall_seconds": wall,
@@ -159,10 +232,21 @@ def main() -> None:
     ap.add_argument("--labels", default="", help="etichette separate da virgola; vuoto = tutte")
     ap.add_argument("--convention", choices=sorted(CONVENTIONS), default="areanorm")
     ap.add_argument("--n-proc", type=int, default=1)
+    ap.add_argument("--tar-index", type=Path, default=None,
+                    help="indice dei membri dei tar (cache_budget.py index): lettura per offset")
+    ap.add_argument("--compress", action="store_true",
+                    help="npz compresso (6.2 contro 8.2 MB/mesh ICT): per il trainer, che decomprime "
+                         "una volta al caricamento in cache; letto a ogni campione costerebbe +36 ms")
+    ap.add_argument("--transform", default="",
+                    help='JSON {dominio: {"R": 3x3, "flip_faces": bool}} applicato alla geometria prima '
+                         'degli operatori, es. \'{"bfm": {"R": [[1,0,0],[0,-1,0],[0,0,-1]], '
+                         '"flip_faces": true}}\' (Rx 180 gradi, BFM nel frame ICT); vuoto = nessuna')
     a = ap.parse_args()
     subjects = set(a.subjects.read_text().split()) if a.subjects else None
     labels = set(a.labels.split(",")) if a.labels else None
-    rep = run(a.out_dir, a.tars, a.geom_dirs, a.n_proc, subjects, labels, a.convention)
+    transform = json.loads(a.transform) if a.transform else None
+    rep = run(a.out_dir, a.tars, a.geom_dirs, a.n_proc, subjects, labels, a.convention,
+              transform=transform, compress=a.compress, tar_index=a.tar_index)
     print(rep, flush=True)
     raise SystemExit(1 if rep["n_failed"] else 0)
 

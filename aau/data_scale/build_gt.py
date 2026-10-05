@@ -30,7 +30,7 @@ import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "v2_work/genict"))
-from pairdist import vertex_mean_l2_matrix  # noqa: E402
+from pairdist import pick_device  # noqa: E402
 
 DS = REPO_ROOT / "datasets"
 JOINT = DS / "JOINT_BFM_ICT/gt_matrix.npz"
@@ -40,6 +40,45 @@ ICT_GT = DS / "ICT/gt/ict_matrix_distances_maxabs.npz"
 def maxabs(V: np.ndarray) -> np.ndarray:
     Vc = V - V.mean(0, keepdims=True)
     return Vc / max(float(np.abs(Vc).max()), 1e-9)
+
+
+def originals_of(tar_path: Path) -> list[tuple[str, np.ndarray]]:
+    out = []
+    with tarfile.open(tar_path) as tar:
+        for m in tar:
+            if m.name.endswith("_GTready_original.npz"):
+                with np.load(io.BytesIO(tar.extractfile(m).read())) as z:
+                    out.append((m.name.split("_GTready_")[0], maxabs(z["V"].astype(np.float64))))
+    return out
+
+
+def vml2_matrix_host(V: np.ndarray, device: str, block: int = 8) -> np.ndarray:
+    """Come ``pairdist.vertex_mean_l2_matrix`` (stessa formula e stessa sottrazione della media),
+    ma ogni blocco di righe va subito sull'host in float32.
+
+    La funzione di pairdist tiene la matrice intera sulla GPU e la converte a float64 LI'
+    (``D.double().cpu()``): a 55.000 identita' sono 12 GiB float32 + 22.5 GiB float64 + 6 GiB di
+    geometria, oltre i 44 GiB della L40S (job 1055828, OOM all'ultima riga dopo 1h30).
+    """
+    import torch
+
+    dev = pick_device(device)
+    n = V.shape[0]
+    mean = V.astype(np.float64).mean(axis=0, keepdims=True)
+    t = torch.from_numpy((V - mean).astype(np.float32)).to(dev)
+    D = np.empty((n, n), dtype=np.float32)
+    t0 = time.time()
+    for i0 in range(0, n, block):
+        a = t[i0:i0 + block]
+        D[i0:i0 + block] = torch.stack([(t - r).norm(dim=-1).mean(-1) for r in a]).cpu().numpy()
+        if (i0 // block) % 500 == 0:
+            done = min(i0 + block, n)
+            rate = done / max(time.time() - t0, 1e-9)
+            print(f"  rows {done}/{n} ({rate:.1f}/s, eta {(n - done) / rate / 60:.1f} min)", flush=True)
+    D += D.T                                   # simmetria come pairdist: 0.5 * (D + D.T)
+    D *= 0.5
+    np.fill_diagonal(D, 0.0)
+    return D
 
 
 def main() -> None:
@@ -56,29 +95,33 @@ def main() -> None:
     names, V = [], []
     for r in old_raw:
         with np.load(DS / f"ICT/topo/{r}_GTready_original.npz") as z:
-            V.append(maxabs(z["V"].astype(np.float64)))
+            V.append(maxabs(z["V"].astype(np.float64)).astype(np.float32))
         names.append(f"id{10000 + int(r[3:]):05d}")
     n_old = len(names)
     tars = sorted(a.shards_dir.glob("shard_*.tar"))
-    for t in tars:
-        with tarfile.open(t) as tar:
-            for m in tar:
-                if m.name.endswith("_GTready_original.npz"):
-                    with np.load(io.BytesIO(tar.extractfile(m).read())) as z:
-                        V.append(maxabs(z["V"].astype(np.float64)))
-                    names.append(m.name.split("_GTready_")[0])
+    # CephFS fa 69 MB/s a processo singolo e scala in parallelo: 8 tar alla volta
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(8) as ex:
+        for rows in ex.map(originals_of, tars):          # map conserva l'ordine dei tar
+            for name, v in rows:
+                names.append(name)
+                V.append(v.astype(np.float32))
     if len(set(names)) != len(names):
         raise SystemExit("nomi duplicati fra ICT-5000 e shard")
     print(f"{n_old} ICT-5000 + {len(names) - n_old} nuove da {len(tars)} shard, "
           f"lette in {time.time() - t0:.0f}s", flush=True)
 
-    D = vertex_mean_l2_matrix(np.stack(V).astype(np.float32), device=a.device, block=1)
+    Vs = np.stack(V)
+    del V
+    D = vml2_matrix_host(Vs, device=a.device)
+    del Vs
     man_scale = json.loads((DS / "ICT/gt/manifest.json").read_text())["normalization_scale"]["maxabs"]
     rel = np.abs(D[:n_old, :n_old] / man_scale - D_old_stored).max()
     if rel > 1e-4:
         raise SystemExit(f"le coppie di ICT-5000 ricalcolate differiscono dalla GT in uso: {rel:.2e}")
     new_max = float(D.max())
-    D_ict = (D / new_max).astype(np.float32)
+    D /= new_max
+    D_ict = D
 
     with np.load(JOINT) as z:
         jn = [str(n) for n in z["names"]]

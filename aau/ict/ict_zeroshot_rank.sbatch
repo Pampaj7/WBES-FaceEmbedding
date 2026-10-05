@@ -60,6 +60,19 @@ WBES_EVAL_STAGE="${WBES_EVAL_STAGE:-ict_zeroshot}"
 # fermarsi sulla sentinella .done di quelle.
 export WBES_EVAL_SEED="${WBES_EVAL_SEED:-1234}"
 
+# WBES_CKPT puo' essere anche il runs_root di un training, come in eval_frame_topology.sbatch:
+# serve alla coda per i training ancora in attesa, la cui run dir col fingerprint non esiste
+# ancora. Si risolve qui, all'avvio, nell'unico <rundir>/checkpoints/best_by_xtopo_mesh_clean.pth.
+if [[ -n "${WBES_CKPT:-}" && -d "$WBES_CKPT" ]]; then
+    _matches=("$WBES_CKPT"/*/checkpoints/best_by_xtopo_mesh_clean.pth)
+    if [[ ${#_matches[@]} -ne 1 || ! -f "${_matches[0]}" ]]; then
+        echo "ERRORE: in $WBES_CKPT attesa una sola */checkpoints/best_by_xtopo_mesh_clean.pth, trovate: ${_matches[*]}" >&2
+        exit 2
+    fi
+    export WBES_CKPT="${_matches[0]}"
+    unset _matches
+fi
+
 # Bracci del pilota pot (aau/train_pilot_pot.sbatch scrive <runs_root>/pilot_arm.txt): il
 # modello passa da aau/models/eval_pilot.py con gli operatori col pozzo DI QUESTO dataset,
 # WBES_POT_DIR (per ICT datasets/ICT/eval_view_heldout_pot055, aau/precompute_pot.sbatch).

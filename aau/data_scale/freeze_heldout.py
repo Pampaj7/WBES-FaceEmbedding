@@ -19,12 +19,21 @@ i semi BFM 2345/3456, controllati contro il 1234 di splits.json):
 HIFI3D e FLAME sono DOMINI di test: nessun loro soggetto puo' entrare nel training, e gli id
 nuovi (``new_id_range``) non si sovrappongono ai loro range (FLAME id1000-id5999).
 
-Uscite in aau/data_scale/:
-  heldout_frozen.json        le liste (nomi di vista ``idNNNN``/``idNNNNN`` e nomi grezzi
-                             ``ictNNNN``), conteggi per fonte, range riservati
-  heldout_ict_originals.npz  le ``original`` degli held-out ICT normalizzate maxabs (float32),
-                             piu' la soglia di quasi-duplicato: il controllo di
-                             gen_ict_shard.py confronta OGNI identita' nuova con queste
+Due insiemi (decisione del PI, 6 ottobre):
+  heldout_frozen.json          POLITICA IN USO ("joint_exact", 6 ottobre, dopo la revisione del
+                               critic): ESATTAMENTE gli held-out del congiunto
+                               x3dmm_joint_bfm_ict_s1234_1019532 (BFM 108 + ICT 992, ws2 splits.json
+                               models.joint), ne' piu' ne' meno, cosi' il training BFM coincide con
+                               il suo (392 soggetti). I 100 BFM del protocollo standard NON sono
+                               congelati: 81 di loro sono nel training del congiunto stesso, quindi
+                               il confronto sul protocollo standard ha gia' quel limite per il
+                               congiunto. E' quello che legge la guardia del trainer.
+  heldout_frozen_union15.json  l'unione di sopra, per riferimento: e' quella con cui e' stata fatta
+                               la guardia di generazione degli shard (piu' severa, quindi valida
+                               anche per la politica in uso).
+  heldout_ict_originals.npz    le ``original`` degli held-out ICT dell'UNIONE, normalizzate maxabs
+                               (float32), piu' la soglia di quasi-duplicato: il controllo di
+                               gen_ict_shard.py confronta OGNI identita' nuova con queste.
 """
 from __future__ import annotations
 
@@ -120,8 +129,37 @@ def main() -> None:
                                   "threshold": thr, "ict5000_nn_min": float(nn.min()),
                                   "ict5000_nn_p1": float(np.percentile(nn, 1)),
                                   "ict5000_nn_median": float(np.median(nn))}
-    (THIS_DIR / "heldout_frozen.json").write_text(json.dumps(out, indent=1) + "\n")
-    print(json.dumps({k: out[k] for k in ("counts", "sources", "ict_duplicate_check")}, indent=1))
+    (THIS_DIR / "heldout_frozen_union15.json").write_text(json.dumps(out, indent=1) + "\n")
+
+    pol_bfm = sorted(set(sources["joint_ws2_bfm"]))
+    pol_ict = sorted(set(sources["joint_ws2_ict"]), key=lambda s: int(s[2:]))
+    std = set(sources["bfm_v1_seed1234"])
+    joint_train = set(ws2["models"]["joint"]["train"])
+    policy = {
+        "policy": "joint_exact",
+        "reason": ("congela ESATTAMENTE gli held-out del congiunto x3dmm_joint_bfm_ict_s1234_1019532, "
+                   "ne' piu' ne' meno, perche' il run grande deve essere confrontabile con lui: stesso "
+                   "training BFM (392 soggetti) e stessi held-out. Decisione del PI, 6 ottobre (prima: "
+                   "joint_compare = congiunto + 100 BFM standard, 189 BFM; prima ancora: unione dei 15 run)."),
+        "bfm_standard_100_not_frozen": {
+            "n": len(std - set(pol_bfm)),
+            "of_which_in_joint_1019532_training": len((std - set(pol_bfm)) & joint_train),
+            "note": "sul protocollo BFM standard il run grande ha lo stesso limite del congiunto: "
+                    "quei soggetti sono di training per entrambi"},
+        "compared_model": {"x3dmm_joint_bfm_ict_s1234_1019532": ws2["models"]["joint"]["run_dir"]},
+        "online_eval_joint_1019532": list(ws2["models"]["joint"]["online_eval"]),
+        "bfm": pol_bfm,
+        "ict_view": pol_ict,
+        "ict_raw": sorted(ict_view_to_raw(s) for s in pol_ict),
+        "counts": {"bfm": len(pol_bfm), "ict": len(pol_ict)},
+        "test_domains": out["test_domains"],
+        "reserved_id_ranges": out["reserved_id_ranges"],
+        "new_id_range": out["new_id_range"],
+        "generation_guard": "gli shard sono stati controllati contro heldout_frozen_union15.json, che contiene questo insieme",
+    }
+    (THIS_DIR / "heldout_frozen.json").write_text(json.dumps(policy, indent=1) + "\n")
+    print(json.dumps({"union15": out["counts"], "policy": policy["counts"],
+                      "ict_duplicate_check": out["ict_duplicate_check"]}, indent=1))
 
 
 if __name__ == "__main__":

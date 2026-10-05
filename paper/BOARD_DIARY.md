@@ -535,3 +535,47 @@ Le conclusioni 1–2 di questo pomeriggio sono SOSPESE.
   - le espressioni coprono circa il 25% delle mesh viste;
   - opzione di canonicalizzazione del frame, disattivata in attesa del test sul frame.
 - **Il training grande non è ancora lanciato.** Prima servono il verdetto sul frame, lo smoke test e il critic.
+
+**Valanga: smoke test superati, run lungo pronto (non lanciato).**
+- **Configurazione:** 105.600 passi come il congiunto, 40 blocchi, BFM residente al 9% dei passi, espressioni al 25%, durata stimata circa 49 h. Split congelato: 189 BFM e 992 ICT. GT ICT ×1.18585 con `--gt-keep-scale`.
+- **Opzioni di frame** (canonicalizzazione e augmentation), spente.
+- **Dubbio aperto:** lo smoke ha usato x→−x, ma il critic misurava BFM ribaltato in z. Va chiarita la trasformazione corretta.
+- **Prossimi passi:** critic sul trainer prima del lancio. Il lancio dipende dal verdetto sul frame.
+
+**Critic sul run lungo della valanga: BLOCCANTE, con correzioni piccole.**
+- **OOM certo a metà run:** la geometria del pre-pass si accumula su /tmp.
+- **Errore al blocco 0:** il limite di cache è stimato su un solo campione BFM.
+- **Riserve:**
+  - lo scheduler a plateau non è equivalente, quindi si fissa lo schedule in passi del congiunto;
+  - BFM in training con 81 identità in meno rispetto al congiunto, quindi lo split diventa esattamente quello del congiunto;
+  - soggetti diversi per la selezione del checkpoint;
+  - il pre-pass rallenta il training di 40 volte (thread);
+  - un requeue sovrascriverebbe i risultati.
+- **Frame (misurato su dati reali):** BFM ha il naso verso −z e l'alto verso −y. La trasformazione corretta è Rx(180°) = diag(1,−1,−1), non x→−x. Inoltre le normali delle facce BFM puntano verso l'interno, quelle di ICT verso l'esterno: serve un'inversione delle facce esplicita.
+
+Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di critic.
+
+**Valanga: correzioni del critic applicate; smoke S3 a 2 blocchi passato** (1.4 s/passo durante il pre-pass invece di 35; /tmp torna a 0 a ogni blocco).
+- **Lr:** fissato in passi, 1e-4 fino a 81.747 = 93 × 879, poi 5e-5. Il passo è stato verificato sul log del congiunto: l'lr stampato è quello dopo `scheduler.step()`.
+- **Split:** identico al congiunto (392 BFM in training).
+- **Altre correzioni:** `--no-requeue`, guardia sulla scala della GT, canon = Rx(180°) + flip_faces (spento). Bug trovato: argparse accettava le abbreviazioni (`--lr` letto come `--lr-steps`); ora `allow_abbrev=False`.
+- **Stima del run:** circa 41 h, 420G. Secondo giro di critic in corso.
+
+**Secondo giro del critic sul run lungo: BLOCCANTE solo sulla memoria. Il resto è confermato, compreso il passo dell'lr 81.747.**
+- **B1:** la stima della cache campiona sempre up60k, quindi sicuro abort al blocco 16 (circa 17 h).
+- **B2:** la memoria pinned non compare nel MaxRSS; fabbisogno reale stimato 424–460 GiB contro i 420 richiesti.
+- **Correzioni affidate:** stima esatta dagli header npz, niente pinning, --mem tarato sul cgroup con margine, log del pre-pass conservati, indice dei tar.
+- **Terzo giro:** verifica empirica (proiezione su 40 blocchi e smoke con picco del cgroup), poi decisione.
+
+**Valanga, terzo giro (sera del 5 ottobre).**
+- **Stima della cache:** ora calcolata in modo esatto dagli header npz. Massimo sui 40 blocchi: 220.4 GiB.
+- **Pinning disattivato:** picco del cgroup 107 GiB contro 142; costo circa +19% di tempo per passo.
+- **Memoria richiesta:** --mem 430G, con il 18% di margine sul bilancio dal cgroup (circa 363 GiB).
+- **Log e tar:** log del pre-pass conservati; indice dei tar costruito.
+- **Smoke S5 a blocchi reali:** job 1056296 in coda, non prima del 7 ottobre 00:42 (serve un nodo con 430G liberi).
+- **Run lungo:** NON lanciato; aspetta S5 e il verdetto sul frame.
+
+**Stop per limite d'uso alle 00:00 circa.**
+- **Congiunto-E:** training completati; eval e summary in catena su Slurm.
+- **Test frame HIFI3D:** frameBFM completato, roty in corso; risultati da raccogliere.
+- **Pilota del pozzo:** in training.

@@ -1,0 +1,91 @@
+{
+ "per_seed": {
+  "A_s1234": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.508715021845417,
+   "spearman_xtopo": 0.48602607961480665
+  },
+  "P_s1234": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.5254776888152576,
+   "spearman_xtopo": 0.5073834265397206
+  },
+  "B_s1234": {
+   "checkpoint": "epoch012.pth",
+   "spearman_all": 0.46739633164884875,
+   "spearman_xtopo": 0.4450552869511213
+  },
+  "A_s2345": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.4798985207593213,
+   "spearman_xtopo": 0.454140030317822
+  },
+  "P_s2345": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.44468873646579665,
+   "spearman_xtopo": 0.416706984916022
+  },
+  "B_s2345": {
+   "checkpoint": "epoch012.pth",
+   "spearman_all": 0.4429541469390455,
+   "spearman_xtopo": 0.41345414763250665
+  },
+  "A_s3456": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.4891964093540779,
+   "spearman_xtopo": 0.46187622783416993
+  },
+  "P_s3456": {
+   "checkpoint": "epoch006.pth",
+   "spearman_all": 0.47253483477429276,
+   "spearman_xtopo": 0.4422480706286925
+  },
+  "B_s3456": {
+   "checkpoint": "epoch012.pth",
+   "spearman_all": 0.5064284207952551,
+   "spearman_xtopo": 0.4866926550521173
+  }
+ },
+ "summary": {
+  "spearman_all": {
+   "A_mean": 0.4926033173196054,
+   "A_sd_between_seeds": 0.014707241417934861,
+   "P_mean": 0.480900420018449,
+   "P_minus_A_paired": [
+    0.016762666969840634,
+    -0.03520978429352467,
+    -0.01666157457978512
+   ],
+   "P_minus_A_mean": -0.011702897301156387,
+   "P_within_2sd": true,
+   "B_mean": 0.4722596331277164,
+   "B_minus_A_paired": [
+    -0.0413186901965682,
+    -0.03694437382027582,
+    0.017232011441177197
+   ],
+   "B_minus_A_mean": -0.02034368419188894,
+   "B_within_2sd": true
+  },
+  "spearman_xtopo": {
+   "A_mean": 0.4673474459222662,
+   "A_sd_between_seeds": 0.01663221889791219,
+   "P_mean": 0.4554461606948117,
+   "P_minus_A_paired": [
+    0.021357346924913923,
+    -0.037433045401800036,
+    -0.019628157205477448
+   ],
+   "P_minus_A_mean": -0.01190128522745452,
+   "P_within_2sd": true,
+   "B_mean": 0.44840069654524845,
+   "B_minus_A_paired": [
+    -0.04097079266368536,
+    -0.04068588268531537,
+    0.024816427217947357
+   ],
+   "B_minus_A_mean": -0.01894674937701779,
+   "B_within_2sd": true
+  }
+ }
+}

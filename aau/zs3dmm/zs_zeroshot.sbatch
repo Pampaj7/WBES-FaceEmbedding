@@ -11,7 +11,7 @@
 #SBATCH --mem=96G
 #SBATCH --time=02:30:00
 #
-# Zero-shot su un 3DMM mai visto (WBES_ZS_DOMAIN=hifi|fv): un modello mai addestrato su quel
+# Zero-shot su un 3DMM mai visto (WBES_ZS_DOMAIN=hifi|fv|ict): un modello mai addestrato su quel
 # dominio valutato sulle identita' di zs_build.sbatch. Protocollo IDENTICO a
 # aau/ict/ict_zeroshot_rank.sbatch (stessi due script, stessi common_args di eval_common.sh,
 # stesse sigma):
@@ -25,23 +25,33 @@
 #      (rebuild_subject_split, --eval_fraction 0.2 --max_subjects 500, WBES_EVAL_SEED=1234) e
 #      mette le loro 600 mesh in /tmp del nodo;
 #   b. v2_work/potential/areanorm_operators.py (k_eig 128, area unitaria: gli operatori dei tre
-#      modelli) le porta in /tmp/.../ops;
+#      modelli) le porta in /tmp/.../ops, UNA volta per job;
 #   c. l'eval gira su quella dir con --subject_split all --max_subjects 0 (come ws2_eval.sbatch):
 #      stessi 100 soggetti, stesse 148.500 mesh pair cross.
 # /tmp conta contro --mem: ~60 MB di operatori per identita' a risoluzione ICT/HIFI3D, ~3x per
 # FaceVerse (passare --mem=160G). Si cancella all'uscita.
 #
-# Un braccio per job, scelto da WBES_ZS_ARM:
+# Bracci: WBES_ZS_ARMS (lista, default = WBES_ZS_ARM o joint), fra
 #   joint     BFM+ICT congiunto, job 1019532 (WBES_ZS_CKPT_JOINT)
 #   bfm_only  solo BFM, job 1019310 (WBES_ZS_CKPT_BFM_ONLY)
 #   ict_only  solo ICT, job 1019531 (WBES_ZS_CKPT_ICT_ONLY)
-# Output in $ZS_RUNS/data_<fp>/<arm>/zs_zeroshot (fp = impronta dei manifest dei dati, zs_env.sh).
+# Con piu' bracci e piu' GPU (--gres=gpu:l40s:N) ogni GPU prende un braccio, in parallelo, sugli
+# stessi operatori: un job invece di N, per stare nel tetto di job dell'utente.
 #
-#   WBES_ZS_DOMAIN=hifi WBES_ZS_ARM=joint aau/submit.sh zs3dmm/zs_zeroshot.sbatch
+# Varianti (si sommano nel nome della out dir del braccio, <arm><varianti>):
+#   WBES_ZS_FRAME=x,-y,-z      vertici trasformati prima degli operatori (zs_stage.py --transform):
+#                              test del frame. Suffisso _frame-<segni>.
+#   WBES_ZS_EVAL_FRAME=rms     il forward ri-inquadra V_in nel frame rms (aau/models/eval_ablation.py,
+#                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
+#   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
+#                              Suffisso _ranking / _topology.
+# Output in $ZS_RUNS/data_<fp>/<arm><varianti>/zs_zeroshot (fp = impronta dei manifest dei dati).
 #
-# TEMPI: riferimento ICT ~1h10m per cella (job 1019695) con patch da 9409 vertici; HIFI3D ha
-# 9518 vertici. FaceVerse sta alla risoluzione di BFM (~2.3 h per scenario di ranking + ~1 h di
-# breakdown, README): passare --time=09:00:00.
+#   WBES_ZS_DOMAIN=hifi WBES_ZS_ARMS="joint bfm_only ict_only" WBES_ZS_FRAME=x,-y,-z \
+#     aau/submit.sh zs3dmm/zs_zeroshot.sbatch --gres=gpu:l40s:3 --cpus-per-task=30 --mem=128G
+#
+# TEMPI: ~1h15 per braccio su HIFI3D (job 1055756); FaceVerse ~3.3 h per scenario a ~12.6
+# coppie/s (job 1055801).
 set -euo pipefail
 
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
@@ -51,61 +61,81 @@ aau_require_venv
 aau_require_diffusion_net
 zs_require_view
 
-WBES_ZS_ARM="${WBES_ZS_ARM:-joint}"
-case "$WBES_ZS_ARM" in
-    joint)    CKPT="$WBES_ZS_CKPT_JOINT" ;;
-    bfm_only) CKPT="$WBES_ZS_CKPT_BFM_ONLY" ;;
-    ict_only) CKPT="$WBES_ZS_CKPT_ICT_ONLY" ;;
-    *) echo "ERRORE: WBES_ZS_ARM=$WBES_ZS_ARM (joint|bfm_only|ict_only)" >&2; exit 2 ;;
-esac
+read -ra ARMS <<< "${WBES_ZS_ARMS:-${WBES_ZS_ARM:-joint}}"
+for arm in "${ARMS[@]}"; do
+    case "$arm" in
+        joint|bfm_only|ict_only) ;;
+        *) echo "ERRORE: braccio '$arm' (joint|bfm_only|ict_only)" >&2; exit 2 ;;
+    esac
+done
+ckpt_of() {
+    case "$1" in
+        joint)    echo "$WBES_ZS_CKPT_JOINT" ;;
+        bfm_only) echo "$WBES_ZS_CKPT_BFM_ONLY" ;;
+        ict_only) echo "$WBES_ZS_CKPT_ICT_ONLY" ;;
+    esac
+}
+
 WBES_EVAL_STAGE="${WBES_EVAL_STAGE:-zs_zeroshot}"
 WBES_EVAL_SCENARIOS="${WBES_EVAL_SCENARIOS:-clean,mixed}"
 export WBES_EVAL_SEED="${WBES_EVAL_SEED:-1234}"
 ZS_FP="$(zs_data_fp)"
-# WBES_ZS_PART: all (default) = ranking + breakdown nello stesso job; ranking / topology = una
-# sola delle due, in una out dir propria (<arm>_ranking, <arm>_topology) e con una /tmp propria,
-# cosi' i due pezzi girano in parallelo su due GPU. Serve a FaceVerse, dove il Chamfer su tutti
-# i vertici va a ~12 coppie/s (HIFI3D ~110) e ranking clean+mixed + breakdown in serie passano
-# le 10 h. zs_summarize.py prende <arm>/ se completo, altrimenti i due pezzi.
+
 WBES_ZS_PART="${WBES_ZS_PART:-all}"
 case "$WBES_ZS_PART" in
     all) PART_SUFFIX="" ;;
     ranking|topology) PART_SUFFIX="_$WBES_ZS_PART" ;;
     *) echo "ERRORE: WBES_ZS_PART=$WBES_ZS_PART (all|ranking|topology)" >&2; exit 2 ;;
 esac
-export WBES_EVAL_OUT="$ZS_RUNS/data_$ZS_FP/$WBES_ZS_ARM$PART_SUFFIX"
+FRAME_SUFFIX=""
+if [[ -n "${WBES_ZS_FRAME:-}" ]]; then
+    FRAME_SUFFIX="_frame-$(echo "$WBES_ZS_FRAME" | tr -d ',' | tr '-' 'm')"   # x,-y,-z -> _frame-xmymz
+fi
+LAUNCH=()
+EVALFRAME_SUFFIX=""
+if [[ -n "${WBES_ZS_EVAL_FRAME:-}" ]]; then
+    [[ "$WBES_ZS_EVAL_FRAME" == rms ]] || { echo "ERRORE: WBES_ZS_EVAL_FRAME=$WBES_ZS_EVAL_FRAME (rms)" >&2; exit 2; }
+    LAUNCH=(aau/models/eval_ablation.py --frame rms --)
+    EVALFRAME_SUFFIX="_evalframe-rms"
+    WBES_EVAL_SCENARIOS=clean   # il ri-inquadramento annullerebbe le perturbazioni del mixed
+fi
+SUFFIX="$FRAME_SUFFIX$EVALFRAME_SUFFIX$PART_SUFFIX"
 
 # Nessun braccio di ablazione o di pilota: questi tre checkpoint non hanno
 # ablation_arm.txt/pilot_arm.txt, e un checkpoint che li avesse vorrebbe frame, token o
-# operatori propri che qui non ci sono.
-_runs_root="$(dirname "$(dirname "$(dirname "$(realpath "$CKPT")")")")"
-for f in ablation_arm.txt pilot_arm.txt; do
-    if [[ -f "$_runs_root/$f" ]]; then
-        echo "ERRORE: $_runs_root/$f presente: questo sbatch non sa valutare quel braccio" >&2
-        exit 2
+# operatori propri che qui non ci sono. Bracci gia' completi: saltati PRIMA degli operatori.
+TODO=()
+for arm in "${ARMS[@]}"; do
+    _runs_root="$(dirname "$(dirname "$(dirname "$(realpath "$(ckpt_of "$arm")")")")")"
+    for f in ablation_arm.txt pilot_arm.txt; do
+        if [[ -f "$_runs_root/$f" ]]; then
+            echo "ERRORE: $_runs_root/$f presente: questo sbatch non sa valutare quel braccio" >&2
+            exit 2
+        fi
+    done
+    done_file="$ZS_RUNS/data_$ZS_FP/$arm$SUFFIX/$WBES_EVAL_STAGE/.done"
+    if [[ -f "$done_file" ]]; then
+        echo "[zs-zs] $arm$SUFFIX gia' completo: $done_file"
+    else
+        TODO+=("$arm")
     fi
 done
 unset _runs_root
-
-# Stesso controllo di aau_eval_begin, ma PRIMA dei minuti di operatori.
-if [[ -f "$WBES_EVAL_OUT/$WBES_EVAL_STAGE/.done" ]]; then
-    echo "[zs-zs] stage gia' completo: $WBES_EVAL_OUT/$WBES_EVAL_STAGE/.done"
+if (( ${#TODO[@]} == 0 )); then
     exit 0
 fi
 
 # Percorso FISSO (niente job id): eval_common.sh mette la data dir nella chiave della out dir,
 # e una risottomissione deve ritrovare la stessa chiave.
-STAGE_TMP="/tmp/wbes_zs_${WBES_ZS_DOMAIN}_${WBES_ZS_ARM}${PART_SUFFIX}"
+STAGE_TMP="/tmp/wbes_zs_${WBES_ZS_DOMAIN}${SUFFIX}"
 rm -rf "$STAGE_TMP"
 mkdir -p "$STAGE_TMP"
 trap 'rm -rf "$STAGE_TMP"' EXIT
 
-echo "[zs-zs] dominio=$WBES_ZS_DOMAIN ($ZS_LABEL) arm=$WBES_ZS_ARM dati=data_$ZS_FP host=$(hostname) job=${SLURM_JOB_ID:-none}"
+echo "[zs-zs] dominio=$WBES_ZS_DOMAIN ($ZS_LABEL) bracci=${TODO[*]} varianti='$SUFFIX' dati=data_$ZS_FP host=$(hostname) job=${SLURM_JOB_ID:-none}"
 echo "[zs-zs] a. soggetti valutati -> $STAGE_TMP/in"
 "$AAU_DIR/run.sh" aau/zs3dmm/zs_stage.py --view-dir "$ZS_DATA_DIR" \
-    --out-dir "$STAGE_TMP/in" --seed "$WBES_EVAL_SEED"
-mkdir -p "$WBES_EVAL_OUT"
-cp "$STAGE_TMP/subjects.json" "$WBES_EVAL_OUT/subjects.json"
+    --out-dir "$STAGE_TMP/in" --seed "$WBES_EVAL_SEED" --transform="${WBES_ZS_FRAME:-}"  # con "=": "-x,y,-z" altrimenti sembra un flag
 
 echo "[zs-zs] b. operatori (k_eig 128, area unitaria) su /tmp"
 N_SHARDS="${SLURM_CPUS_PER_TASK:-8}"
@@ -138,45 +168,80 @@ if (( N_OPS != N_IN )); then
     exit 1
 fi
 
-# Assegnazioni SENZA ${...:-}: env.sh ha esportato i percorsi BFM e il checkpoint v1, e un
-# default qui li lascerebbe passare (vedi la nota in hifi_env.sh).
-export WBES_DATA_DIR="$STAGE_TMP/ops"
-export WBES_DIST_NPZ="$ZS_DIST_NPZ"
-export WBES_CKPT="$CKPT"
+# c. Un braccio per processo, in una subshell: eval_common.sh fissa variabili globali (checkpoint,
+# out dir, common_args) e va sourceato una volta per braccio. Con G GPU i bracci si dividono in
+# G code, una per GPU; ogni coda li valuta in serie.
+run_arm() {  # <arm> <gpu>
+    local arm="$1" gpu="$2"
+    (
+        export CUDA_VISIBLE_DEVICES="$gpu"
+        # Assegnazioni SENZA ${...:-}: env.sh ha esportato i percorsi BFM e il checkpoint v1, e
+        # un default qui li lascerebbe passare (vedi la nota in hifi_env.sh).
+        export WBES_DATA_DIR="$STAGE_TMP/ops"
+        export WBES_DIST_NPZ="$ZS_DIST_NPZ"
+        export WBES_CKPT="$(ckpt_of "$arm")"
+        export WBES_EVAL_OUT="$ZS_RUNS/data_$ZS_FP/$arm$SUFFIX"
+        source "$WBES_ROOT/aau/eval_common.sh"
+        # La data dir e' gia' il set di eval: tutti i suoi soggetti, nessun ricampionamento.
+        common_args+=(--subject_split all --max_subjects 0)
+        mkdir -p "$WBES_EVAL_OUT"
+        cp "$STAGE_TMP/subjects.json" "$WBES_EVAL_OUT/subjects.json"
 
-source "$WBES_ROOT/aau/eval_common.sh"
-# La data dir e' gia' il set di eval: tutti i suoi soggetti, nessun ricampionamento.
-common_args+=(--subject_split all --max_subjects 0)
+        echo "[zs-zs] c. $arm$SUFFIX su GPU $gpu ckpt=$WBES_CKPT"
+        echo "[zs-zs] data=$WBES_DATA_DIR gt=$WBES_DIST_NPZ out=$OUT_ROOT launch=${LAUNCH[*]:-}"
+        aau_eval_begin "$WBES_EVAL_STAGE"
 
-echo "[zs-zs] c. eval ckpt=$WBES_CKPT"
-echo "[zs-zs] data=$WBES_DATA_DIR gt=$WBES_DIST_NPZ out=$OUT_ROOT"
-aau_eval_begin "$WBES_EVAL_STAGE"
+        if [[ "$WBES_ZS_PART" != topology ]]; then
+            echo "[$(timestamp)] 1/2 ranking aggregato, scenari: $WBES_EVAL_SCENARIOS"
+            "$AAU_DIR/run.sh" "${LAUNCH[@]}" "$PERT/compare_model_vs_chamfer_rankings.py" \
+              "${common_args[@]}" \
+              --out_dir "$STAGE_OUT/ranking" \
+              --aggregation_level subject_pair_mean \
+              --scenarios "$WBES_EVAL_SCENARIOS" \
+              --jitter_sigma 0.05 \
+              --translation_sigma 0.05 \
+              --rotation_sigma 0.05 \
+              --mixed_jitter_sigma 0.05 \
+              --mixed_translation_sigma 0.05 \
+              --mixed_rotation_sigma 0.05 \
+              2>&1 | tee "$STAGE_OUT/ranking.log"
+        fi
 
-if [[ "$WBES_ZS_PART" != topology ]]; then
-echo "[$(timestamp)] 1/2 ranking aggregato, scenari: $WBES_EVAL_SCENARIOS"
-"$AAU_DIR/run.sh" "$PERT/compare_model_vs_chamfer_rankings.py" \
-  "${common_args[@]}" \
-  --out_dir "$STAGE_OUT/ranking" \
-  --aggregation_level subject_pair_mean \
-  --scenarios "$WBES_EVAL_SCENARIOS" \
-  --jitter_sigma 0.05 \
-  --translation_sigma 0.05 \
-  --rotation_sigma 0.05 \
-  --mixed_jitter_sigma 0.05 \
-  --mixed_translation_sigma 0.05 \
-  --mixed_rotation_sigma 0.05 \
-  2>&1 | tee "$STAGE_OUT/ranking.log"
-fi
+        if [[ "$WBES_ZS_PART" != ranking ]]; then
+            echo "[$(timestamp)] 2/2 breakdown per coppia di topologie (clean) + pair_metrics"
+            "$AAU_DIR/run.sh" "${LAUNCH[@]}" "$PERT/compare_model_vs_chamfer_topology_breakdown.py" \
+              "${common_args[@]}" \
+              --out_dir "$STAGE_OUT/topology" \
+              --topology_pair_mode cross_only \
+              --ordered_topology_pairs \
+              --write_pair_metrics \
+              2>&1 | tee "$STAGE_OUT/topology.log"
+        fi
 
-if [[ "$WBES_ZS_PART" != ranking ]]; then
-echo "[$(timestamp)] 2/2 breakdown per coppia di topologie (clean) + pair_metrics"
-"$AAU_DIR/run.sh" "$PERT/compare_model_vs_chamfer_topology_breakdown.py" \
-  "${common_args[@]}" \
-  --out_dir "$STAGE_OUT/topology" \
-  --topology_pair_mode cross_only \
-  --ordered_topology_pairs \
-  --write_pair_metrics \
-  2>&1 | tee "$STAGE_OUT/topology.log"
-fi
+        aau_eval_done "$WBES_EVAL_STAGE"
+    )
+}
 
-aau_eval_done "$WBES_EVAL_STAGE"
+IFS=',' read -ra GPUS <<< "${CUDA_VISIBLE_DEVICES:-0}"
+N_Q=${#GPUS[@]}
+(( N_Q > ${#TODO[@]} )) && N_Q=${#TODO[@]}
+qpids=()
+for (( q = 0; q < N_Q; q++ )); do
+    (
+        for (( k = q; k < ${#TODO[@]}; k += N_Q )); do
+            arm="${TODO[$k]}"
+            run_arm "$arm" "${GPUS[$q]}" > "$AAU_LOGS/${SLURM_JOB_NAME:-wbes-zs}-${SLURM_JOB_ID:-manual}.$arm.log" 2>&1
+        done
+    ) &
+    qpids+=($!)
+done
+echo "[zs-zs] ${#TODO[@]} bracci su $N_Q GPU (${GPUS[*]}), log per braccio in $AAU_LOGS/${SLURM_JOB_NAME:-wbes-zs}-${SLURM_JOB_ID:-manual}.<braccio>.log"
+rc=0
+for p in "${qpids[@]}"; do
+    wait "$p" || rc=1
+done
+for arm in "${TODO[@]}"; do
+    f="$ZS_RUNS/data_$ZS_FP/$arm$SUFFIX/$WBES_EVAL_STAGE/.done"
+    if [[ -f "$f" ]]; then echo "[zs-zs] $arm$SUFFIX OK"; else echo "[zs-zs] ERRORE: $arm$SUFFIX senza .done" >&2; rc=1; fi
+done
+exit "$rc"
