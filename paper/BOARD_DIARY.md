@@ -503,3 +503,35 @@ La home scende da 996 a 902 GB.
 - La GT nei coefficienti risulta quasi scorrelata da quella geometrica (Spearman 0.089): usata solo come controllo.
 
 **FaceVerse.** Build e baseline completate; ranking del modello in corso.
+
+**Critic sullo zero-shot HIFI3D: BLOCCANTE sulle conclusioni, non sui numeri.**
+- **Frame confuso:** HIFI3D e ICT hanno lo stesso frame (naso verso +z), mentre i dati BFM sono specchiati in z. Il modello usa xyz e in training ha visto solo ±12° di rotazione. Quindi "il congiunto batte il solo BFM" può essere tutto un effetto del frame. Potrebbe valere anche per il vecchio zero-shot solo BFM→ICT (0.294), cioè per la lettura di H5 come "questione di dominio".
+- **Dati e seed:** il solo BFM ha visto 10 volte meno identità; c'è un seed per braccio.
+- **IC mancanti:** non ci sono IC appaiati sulle differenze, quindi "pari a Chamfer" non è stato testato.
+- **Crop:** il crollo coinvolge i bracci addestrati su ICT. Ipotesi: interazione con la normalizzazione maxabs (rapporto crop/original 0.98 su HIFI3D contro 0.87 su ICT e BFM).
+- **Controllo saltato:** il controllo sul crop non è mai girato su questi dati.
+
+**In corso:**
+1. test di rotazione di 180° su HIFI3D e su ICT (solo BFM nel frame giusto);
+2. IC bootstrap appaiati sulle differenze;
+3. zs3dmm su ICT held-out come controllo della pipeline;
+4. eval in frame rms;
+5. controllo sul crop.
+
+Le conclusioni 1–2 di questo pomeriggio sono SOSPESE.
+
+**Pilota del pozzo: i due training (pot_m55 1055016, dual 1055017) erano FALLITI alle 10:24, prima della saturazione della quota.** Me ne sono accorto solo nel pomeriggio, dall'eval rimasta in DependencyNeverSatisfied, che ho cancellato. Ho affidato a `coder` la diagnosi della causa e il rilancio, con run dir su /tmp.
+
+**Limite d'uso, 5 ottobre sera.** Pilota del pozzo rilanciato (causa: la prima saturazione della quota, alle 10:24). Training 1056124 (m55) e 1056125 (dual), eval e summary in catena. Segnale anticipato su m55 all'epoca 86: xtopo 0.30 contro 0.74 del controllo, quindi probabilmente negativo. Il tetto di 12 GPU e 12 job della QOS è saturo; ho chiesto la priorità per il test di rotazione e per il pilota. Agenti fermati: le catene Slurm proseguono da sole.
+
+**Valanga ICT generata (sera del 5 ottobre).**
+- **Dati:** 50.000 identità ICT nuove (id20000–69999), 6 topologie + 8 espressioni ciascuna, 700.000 mesh. Solo geometria in 200 shard: 133 GB più 12 GB di GT congiunta 55.000². Home a 1116 GB su 2199.
+- **Mini-lotto verificato:** gli operatori del pre-pass coincidono con quelli del loader (scarto 0), e la GT ricalcolata coincide con quella in uso (2.4e-7).
+- **Guardia sugli held-out:** è nel generatore e nel trainer.
+- **Trainer a passi fissi con staging a blocchi** (`v2_work/fastio/train_steps.py`): su una prova corta riproduce il trainer attuale entro il rumore (±0.035). Un piccolo effetto negativo dei blocchi non è escluso (B: −0.020 di media).
+- **Decisioni del PI:**
+  - si congela lo split del congiunto 1019532 più i 100 soggetti di valutazione BFM, non l'unione dei 15 run storici;
+  - la GT estesa torna alla scala attuale;
+  - le espressioni coprono circa il 25% delle mesh viste;
+  - opzione di canonicalizzazione del frame, disattivata in attesa del test sul frame.
+- **Il training grande non è ancora lanciato.** Prima servono il verdetto sul frame, lo smoke test e il critic.
