@@ -1,0 +1,26 @@
+{
+  "tag": "mixed_xtopo_rank0p5_id0p25_bs5_best_maxabs",
+  "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+  "data_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops",
+  "frame": "current",
+  "point_backbone": false,
+  "n_subjects": 100,
+  "groups": {
+    "crop": {
+      "n_pairs": 49500,
+      "spearman": 0.7093294823206651
+    },
+    "noisy": {
+      "n_pairs": 39600,
+      "spearman": 0.7936804655139962
+    },
+    "resample": {
+      "n_pairs": 59400,
+      "spearman": 0.7851689243061437
+    },
+    "all": {
+      "n_pairs": 148500,
+      "spearman": 0.7505964163619435
+    }
+  }
+}

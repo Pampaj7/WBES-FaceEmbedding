@@ -1,0 +1,54 @@
+[
+  {
+    "metric": "chamfer",
+    "setting": "original_to_original",
+    "correlation": "spearman",
+    "value": 0.643613169398273,
+    "ci_low": 0.572441306060308,
+    "ci_high": 0.712615924304246,
+    "n_subjects": 100,
+    "n_pairs": 4950,
+    "n_finite": 4950,
+    "n_topology_pairs": 1,
+    "n_bootstrap": 1000
+  },
+  {
+    "metric": "chamfer",
+    "setting": "original_to_original",
+    "correlation": "pearson",
+    "value": 0.6845818503061467,
+    "ci_low": 0.6000960307326569,
+    "ci_high": 0.7551524985393351,
+    "n_subjects": 100,
+    "n_pairs": 4950,
+    "n_finite": 4950,
+    "n_topology_pairs": 1,
+    "n_bootstrap": 1000
+  },
+  {
+    "metric": "chamfer",
+    "setting": "nocrop_cross_topology",
+    "correlation": "spearman",
+    "value": 0.4691430284843882,
+    "ci_low": 0.40248267966510115,
+    "ci_high": 0.5335794706349625,
+    "n_subjects": 100,
+    "n_pairs": 99000,
+    "n_finite": 99000,
+    "n_topology_pairs": 20,
+    "n_bootstrap": 1000
+  },
+  {
+    "metric": "chamfer",
+    "setting": "nocrop_cross_topology",
+    "correlation": "pearson",
+    "value": 0.5113403833229606,
+    "ci_low": 0.43754608628471214,
+    "ci_high": 0.573933461377961,
+    "n_subjects": 100,
+    "n_pairs": 99000,
+    "n_finite": 99000,
+    "n_topology_pairs": 20,
+    "n_bootstrap": 1000
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "metric": "currents",
+  "topology_a": "tracked",
+  "topology_b": "crop",
+  "n_pairs": 8000,
+  "protocol": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/multiface/pairs_protocol.json",
+  "params": {
+    "max_sample_points": 4096,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "max_tris": 12000,
+    "normalize": "area",
+    "measure_seed": 0,
+    "sigmas": [
+      0.5,
+      0.2,
+      0.1,
+      0.05
+    ],
+    "block": 2048,
+    "variant": "facebench"
+  },
+  "seconds": 812.1333167552948
+}

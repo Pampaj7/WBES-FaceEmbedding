@@ -1,0 +1,13 @@
+{
+  "n_rows": 3075,
+  "params": {
+    "method": "synergynet",
+    "seconds": 52.22556400299072,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "sample_points": 4096,
+    "radius_mm": 95.0,
+    "check_max_abs_diff_mm": 4.999876068723097e-10,
+    "frame": "coordinate di recon_face (pixel, destrorso), solo il supporto cambia"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "n_rows": 3075,
+  "params": {
+    "method": "synergynet",
+    "seconds": 74.09626770019531,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "sample_points": 4096,
+    "variant": "facebench",
+    "units": "mm per now_*, adimensionale per chamfer_raw"
+  }
+}

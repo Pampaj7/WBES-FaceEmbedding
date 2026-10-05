@@ -1,0 +1,2 @@
+label,frame,budget,dir,crop,noisy,resample,all
+v1_s1234,current,120/120 (best 82),mixed_xtopo_rank0p5_id0p25_bs5_best_maxabs,0.7093294823206651,0.7936804655139962,0.7851689243061437,0.7505964163619435

@@ -1,0 +1,13 @@
+{
+  "metric": "latent_v1",
+  "topology_a": "down",
+  "topology_b": "down",
+  "n_pairs": 8000,
+  "protocol": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/multiface/pairs_protocol.json",
+  "params": {
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+    "ops_suffix": "_withops",
+    "latent_dim": 256
+  },
+  "seconds": 0.02733159065246582
+}

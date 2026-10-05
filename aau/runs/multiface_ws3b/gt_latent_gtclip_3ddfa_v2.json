@@ -1,0 +1,10 @@
+{
+  "n_rows": 3075,
+  "params": {
+    "method": "3ddfa_v2",
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+    "latent_dim": 256,
+    "ops": "k_eig 128, convenzione standard",
+    "recon_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/multiface_ws3b/recon_face_gtclip_withops/3ddfa_v2"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "source": "mediana dei 68 landmark iBUG dei tre metodi trasportati con l'ICP inverso; pronasale dal massimo di z sulla mesh media",
+  "n_samples": 120,
+  "per_method": 40,
+  "names": [
+    "ex_r",
+    "en_r",
+    "en_l",
+    "ex_l",
+    "prn",
+    "ch_r",
+    "ch_l"
+  ],
+  "ibug_indices": [
+    36,
+    39,
+    42,
+    45,
+    30,
+    48,
+    54
+  ],
+  "vertex_indices": {
+    "ex_r": 1662,
+    "en_r": 1697,
+    "en_l": 4580,
+    "ex_l": 4607,
+    "prn": 2327,
+    "ch_r": 236,
+    "ch_l": 3147
+  },
+  "nose_tip_vertex": 2327,
+  "quality": {
+    "ex_r": {
+      "vertex": 1662,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 5.1893626706670215,
+      "snap_to_vertex_mm": 2.9026058992326464,
+      "method_disagreement_max_mm": 9.585738982223626
+    },
+    "en_r": {
+      "vertex": 1697,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 4.614082962235305,
+      "snap_to_vertex_mm": 2.8779008942170363,
+      "method_disagreement_max_mm": 8.779093051325397
+    },
+    "en_l": {
+      "vertex": 4580,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 5.110875153751275,
+      "snap_to_vertex_mm": 1.6609980563420679,
+      "method_disagreement_max_mm": 8.899956441598773
+    },
+    "ex_l": {
+      "vertex": 4607,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 5.839771200521863,
+      "snap_to_vertex_mm": 4.359392644085707,
+      "method_disagreement_max_mm": 8.760057968373188
+    },
+    "prn": {
+      "vertex": 2327,
+      "from": "argmax z sulla mesh media",
+      "sample_scatter_median_mm": 5.158375704177925,
+      "snap_to_vertex_mm": 0.0,
+      "method_disagreement_max_mm": 6.767881861041622
+    },
+    "ch_r": {
+      "vertex": 236,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 6.8563446698028425,
+      "snap_to_vertex_mm": 2.6466674616210164,
+      "method_disagreement_max_mm": 10.562045906818025
+    },
+    "ch_l": {
+      "vertex": 3147,
+      "from": "mediana dei trasferimenti",
+      "sample_scatter_median_mm": 6.7385338035923485,
+      "snap_to_vertex_mm": 3.036346831649353,
+      "method_disagreement_max_mm": 10.234175032634592
+    }
+  },
+  "anthropometry_mm": {
+    "ex_ex": {
+      "median_mm": 91.72370056518227,
+      "p5_mm": 85.63157161609597,
+      "p95_mm": 97.76489895792604,
+      "n": 2848
+    },
+    "en_en": {
+      "median_mm": 37.01928859526259,
+      "p5_mm": 31.569780141499464,
+      "p95_mm": 38.42339507689421,
+      "n": 2848
+    },
+    "ch_ch": {
+      "median_mm": 52.951818360810265,
+      "p5_mm": 41.86762577912522,
+      "p95_mm": 65.35911655630699,
+      "n": 2848
+    }
+  },
+  "ex_ex_mm": 91.72370056518227,
+  "ex_ex_icp_mm": 86.10345835157533
+}

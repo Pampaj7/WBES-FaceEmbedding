@@ -1,0 +1,10 @@
+{
+  "n_rows": 3075,
+  "params": {
+    "method": "prnet",
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/x3dmm_joint_bfm_ict_s1234_1019532/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d/checkpoints/best_by_xtopo_mesh_clean.pth",
+    "latent_dim": 256,
+    "ops": "k_eig 128, convenzione ad area unitaria",
+    "recon_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/multiface_ws3b/recon_face_gtclip_withops_areanorm/prnet"
+  }
+}

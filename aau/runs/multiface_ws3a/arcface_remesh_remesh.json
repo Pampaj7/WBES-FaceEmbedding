@@ -1,0 +1,12 @@
+{
+  "metric": "arcface",
+  "topology_a": "remesh",
+  "topology_b": "remesh",
+  "n_pairs": 8000,
+  "protocol": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/multiface/pairs_protocol.json",
+  "params": {
+    "n_views": 3,
+    "embedding_dim": 512
+  },
+  "seconds": 0.01816272735595703
+}

@@ -1,0 +1,10 @@
+cell,model,n_evaluated,n_expected,evaluated_equals_split_list,n_train_model,n_evaluated_in_train,n_evaluated_in_online_selection,n_json_checked,wrong_checkpoint
+bfm_only__bfm,bfm_only,100,100,True,400,0,16,31,
+bfm_only__ict,bfm_only,100,100,True,400,0,0,31,
+ict_only__bfm,ict_only,100,100,True,4000,0,0,31,
+ict_only__ict,ict_only,95,95,True,4000,0,5,31,
+joint__bfm,joint,108,108,True,4400,0,16,31,
+joint__ict,joint,89,89,True,4400,0,0,31,
+bfm_only__rexpr,bfm_only,100,100,True,400,0,0,21,
+ict_only__rexpr,ict_only,95,95,True,4000,0,5,23,
+joint__rexpr,joint,89,89,True,4400,0,0,23,

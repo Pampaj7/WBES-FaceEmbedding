@@ -1,0 +1,7 @@
+criterion,split_half_tau,ci_low,ci_high,n_subjects,n_repeats
+sim_icp_p2s_median,0.982051,0.897436,1.000000,13,200
+chamfer_raw,0.913590,0.846154,1.000000,13,200
+latent_v1,0.923846,0.846154,1.000000,13,200
+chamfer_icp_mm,0.963333,0.897436,1.000000,13,200
+chamfer_gtclip_mm,0.857692,0.793590,0.948718,13,200
+latent_v1_gtclip,0.876154,0.794872,1.000000,13,200

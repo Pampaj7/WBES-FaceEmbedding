@@ -1,0 +1,13 @@
+{
+  "metric": "lpips",
+  "topology_a": "tracked",
+  "topology_b": "crop",
+  "n_pairs": 8000,
+  "protocol": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/multiface/pairs_protocol.json",
+  "params": {
+    "n_views": 3,
+    "lpips_net": "alex",
+    "lpips_size": 256
+  },
+  "seconds": 25.3198823928833
+}

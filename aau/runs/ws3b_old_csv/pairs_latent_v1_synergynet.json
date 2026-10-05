@@ -1,0 +1,9 @@
+{
+  "n_rows": 7967,
+  "params": {
+    "metric": "latent_v1",
+    "method": "synergynet",
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/face_embedding/gt_encdec/remeshing/intrinsic/newdata/dn_mixed_topology_v1/mixed_xtopo_rank0p5_id0p25_bs5_best/checkpoints/best_by_xtopo_mesh_clean.pth",
+    "latent_dim": 256
+  }
+}

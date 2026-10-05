@@ -1,0 +1,10 @@
+{
+  "n_rows": 7967,
+  "params": {
+    "metric": "chamfer_raw",
+    "method": "3ddfa_v2",
+    "seconds": 3.9908218383789062,
+    "sample_points": 4096,
+    "variant": "facebench"
+  }
+}

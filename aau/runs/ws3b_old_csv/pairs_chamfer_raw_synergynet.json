@@ -1,0 +1,10 @@
+{
+  "n_rows": 7967,
+  "params": {
+    "metric": "chamfer_raw",
+    "method": "synergynet",
+    "seconds": 4.186873435974121,
+    "sample_points": 4096,
+    "variant": "facebench"
+  }
+}

@@ -1,0 +1,4 @@
+criterion_a,criterion_b,mean_tau_per_subject,ci_low,ci_high,tau_null_mean,tau_null_sd,tau_z_vs_null,tau_global_ranking,share_identical_ranking,share_identical_null,n_subjects,n_bootstrap
+sim_icp_p2s_median,chamfer_raw,0.179487,-0.179487,0.538462,0.000000,0.177028,1.013890,0.333333,0.230769,0.166667,13,1000
+sim_icp_p2s_median,latent_v1,-0.025641,-0.282051,0.179487,0.000000,0.177028,-0.144841,0.333333,0.000000,0.166667,13,1000
+chamfer_raw,latent_v1,0.589744,0.383333,0.794872,0.000000,0.177028,3.331351,1.000000,0.461538,0.166667,13,1000

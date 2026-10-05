@@ -1,0 +1,18 @@
+{
+  "radius_mm": 95.0,
+  "source_topology": "datasets/Multiface/prep/tracked",
+  "n_tracked_meshes": 2848,
+  "nose_tip_vertex": 2327,
+  "nose_tip_xyz_mm": [
+    0.4773750626485544,
+    3.587080108800712,
+    66.5378286195605
+  ],
+  "n_vertices": 2660,
+  "n_faces": 5215,
+  "extent_mm": [
+    132.91860201251643,
+    171.5417560245214,
+    68.84595720229298
+  ]
+}

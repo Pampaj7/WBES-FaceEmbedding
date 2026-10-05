@@ -1,0 +1,14 @@
+{
+  "n_rows": 3075,
+  "params": {
+    "method": "3ddfa_v2",
+    "seconds": 77.0904712677002,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "sample_points": 4096,
+    "variant": "facebench",
+    "ex_ex_mm": 86.10345835157533,
+    "radius_eye_spans": 1.1033238596770243,
+    "units": "mm per now_*/sim_icp_*, adimensionale per chamfer_raw"
+  }
+}
