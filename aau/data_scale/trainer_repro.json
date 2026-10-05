@@ -1,0 +1,63 @@
+{
+ "n_meshes_eval": 600,
+ "v1": {
+  "run_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_trainer_repro_1055816/v1/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__959eab7d",
+  "checkpoint": "epoch006.pth",
+  "spearman_all": 0.5183673938849537,
+  "spearman_xtopo": 0.49432846549806186,
+  "n_steps_logged": 480,
+  "loss_last_quarter_mean": 0.06018600000000001
+ },
+ "v1b": {
+  "run_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_trainer_repro_1055816/v1b/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__959eab7d",
+  "checkpoint": "epoch006.pth",
+  "spearman_all": 0.5113546438493305,
+  "spearman_xtopo": 0.4892037682737458,
+  "n_steps_logged": 480,
+  "loss_last_quarter_mean": 0.060018,
+  "loss_max_abs_diff_vs_v1": 0.0020780000000000035,
+  "spearman_all_minus_v1": -0.007012750035623183,
+  "spearman_xtopo_minus_v1": -0.005124697224316077
+ },
+ "id": {
+  "run_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_trainer_repro_1055816/id/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__959eab7d",
+  "checkpoint": "epoch006.pth",
+  "spearman_all": 0.49502444985288047,
+  "spearman_xtopo": 0.46925287521583214,
+  "n_steps_logged": 480,
+  "loss_last_quarter_mean": 0.05997466666666669,
+  "loss_max_abs_diff_vs_v1": 0.001246000000000004,
+  "spearman_all_minus_v1": -0.02334294403207321,
+  "spearman_xtopo_minus_v1": -0.02507559028222972
+ },
+ "seed": {
+  "run_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_trainer_repro_1055816/seed/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed2345__7c1bc432",
+  "checkpoint": "epoch006.pth",
+  "spearman_all": 0.4964777297291711,
+  "spearman_xtopo": 0.47528896376096486,
+  "n_steps_logged": 480,
+  "loss_last_quarter_mean": 0.06362466666666668,
+  "loss_max_abs_diff_vs_v1": 0.004973000000000005,
+  "spearman_all_minus_v1": -0.021889664155782584,
+  "spearman_xtopo_minus_v1": -0.01903950173709701
+ },
+ "blk": {
+  "run_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_trainer_repro_1055816/blk/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__959eab7d",
+  "checkpoint": "epoch012.pth",
+  "spearman_all": 0.4705112811882176,
+  "spearman_xtopo": 0.4516064593714143,
+  "n_steps_logged": 480,
+  "loss_last_quarter_mean": 0.061107,
+  "loss_max_abs_diff_vs_v1": 0.004565,
+  "spearman_all_minus_v1": -0.047856112696736064,
+  "spearman_xtopo_minus_v1": -0.04272200612664756
+ },
+ "verdict": {
+  "id_equals_v1_up_to_gpu_nondeterminism": false,
+  "blk_within_seed_noise": false,
+  "seed_noise": {
+   "spearman_all": 0.021889664155782584,
+   "spearman_xtopo": 0.01903950173709701
+  }
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "shard_tar": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/data_scale/minilot/shard_00000.tar",
+ "meshes": {
+  "ok": true,
+  "n_files": 336,
+  "by_label": {
+   "crop": 24,
+   "down8k": 24,
+   "noisy": 24,
+   "original": 24,
+   "remesh": 24,
+   "rexpr": 192,
+   "up60k": 24
+  },
+  "targets": {
+   "remesh": 12922,
+   "down8k": 6360,
+   "up60k": 47700
+  },
+  "errors": []
+ },
+ "prepass": {
+  "n_meshes": 336,
+  "n_computed": 336,
+  "n_failed": 0,
+  "failures": [],
+  "stage_seconds": 0.0626518726348877,
+  "wall_seconds": 85.26368641853333,
+  "cpu_seconds": 1328.8728687763214,
+  "n_proc": 16,
+  "convention": "areanorm",
+  "reference_wall_seconds": 89.22460627555847,
+  "reference_rc": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "cpu_seconds_per_mesh": 3.9549787761200044
+ },
+ "operators": {
+  "n_files": 336,
+  "rejected_by_frozen_loader": [],
+  "max_abs_diff_prepass_vs_reference": {
+   "verts": 0.0,
+   "mass": 0.0,
+   "evals": 0.0,
+   "evecs_signfree": 4.584093460380245e-08,
+   "L": 0.0,
+   "gradX": 0.0,
+   "gradY": 0.0
+  },
+  "note": "evecs e sparse in relativo al massimo |valore|",
+  "embedding_dz_rel_max": 1.642854272176919e-06,
+  "ok": true
+ },
+ "model": {
+  "ckpt": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/x3dmm_joint_bfm_ict_s1234_1019532/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d/checkpoints/epoch120.pth",
+  "device": "cpu",
+  "mean_within_identity": 0.43779200315475464,
+  "mean_across_identity": 1.3453775644302368,
+  "frac_meshes_within_lt_across": 1.0,
+  "ok": true
+ },
+ "gt": {
+  "new_vs_new": {
+   "median": 0.037804340943694115,
+   "p1": 0.020723056513816118,
+   "min": 0.017807789146900177
+  },
+  "ict5000_ref": {
+   "median": 0.039820823818445206,
+   "p1": 0.020501296818256378,
+   "min": 0.011058089323341848
+  },
+  "nn_new_to_ict5000": {
+   "min": 0.013384067453444004,
+   "median": 0.016062485054135323
+  },
+  "nn_ict5000_loo": {
+   "min": 0.011058089677057348,
+   "p1": 0.01268878494651371,
+   "median": 0.016349954844600834
+  },
+  "gt_function_vs_stored_matrix_rel_max": 1.395486192749467e-07,
+  "ok": true
+ },
+ "seeds": {
+  "ok": true
+ },
+ "shard": {
+  "n_identities": 24,
+  "n_expr": 8,
+  "n_meshes": 336,
+  "tar_bytes": 63692800,
+  "bytes_per_label_mean": {
+   "original": 182044.91666666666,
+   "remesh": 128501.70833333333,
+   "crop": 167820.08333333334,
+   "noisy": 182065.91666666666,
+   "down8k": 63777.416666666664,
+   "up60k": 458927.1666666667,
+   "rexpr1": 182028.0,
+   "rexpr2": 182042.20833333334,
+   "rexpr3": 182047.5,
+   "rexpr4": 182048.375,
+   "rexpr5": 182038.375,
+   "rexpr6": 182037.83333333334,
+   "rexpr7": 182029.33333333334,
+   "rexpr8": 182034.33333333334
+  },
+  "seconds": {
+   "wall_generation": 22.51652979850769,
+   "wall_total": 34.01341509819031,
+   "cpu_per_identity": 1.6430836915969849
+  },
+  "n_cores": 16,
+  "guard": {
+   "names": "ok",
+   "meshes": "ok",
+   "duplicates": {
+    "threshold": 0.005529044838528674,
+    "nn_min": 0.013510094955563545,
+    "nn_median": 0.016738563776016235,
+    "n_below": 0,
+    "ok": true
+   }
+  },
+  "tar_bytes_per_identity": 2653866.6666666665
+ },
+ "ok": true
+}

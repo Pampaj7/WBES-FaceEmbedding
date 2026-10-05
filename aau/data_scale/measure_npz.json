@@ -1,0 +1,1769 @@
+{
+  "rows": [
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_crop.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_crop.npz",
+      "n_verts": 20568,
+      "n_faces": 40596,
+      "bytes_disk": {
+        "orig": 20415518,
+        "i32": 12102005,
+        "c16": 7149219
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 246816,
+        "faces": 974304,
+        "mass": 82272,
+        "evals": 512,
+        "evecs": 10530816,
+        "L_indices": 2287264,
+        "L_values": 571816,
+        "L_shape": 16,
+        "gradX_indices": 2287264,
+        "gradX_values": 571816,
+        "gradX_shape": 16,
+        "gradY_indices": 2287264,
+        "gradY_values": 571816,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00036685248832372486,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.004143098369240761
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_down8k.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_down8k.npz",
+      "n_verts": 8129,
+      "n_faces": 15999,
+      "bytes_disk": {
+        "orig": 8066258,
+        "i32": 4819372,
+        "c16": 2887245
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 97548,
+        "faces": 383976,
+        "mass": 32516,
+        "evals": 512,
+        "evecs": 4162048,
+        "L_indices": 902960,
+        "L_values": 225740,
+        "L_shape": 16,
+        "gradX_indices": 902960,
+        "gradX_values": 225740,
+        "gradX_shape": 16,
+        "gradY_indices": 902960,
+        "gradY_values": 225740,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00032084607227071525,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.003386655356734991
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_noisy.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_noisy.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 23308190,
+        "i32": 13796067,
+        "c16": 8171939
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2612640,
+        "L_values": 653160,
+        "L_shape": 16,
+        "gradX_indices": 2612640,
+        "gradX_values": 653160,
+        "gradX_shape": 16,
+        "gradY_indices": 2612640,
+        "gradY_values": 653160,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0003177927267573303,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.00316251371987164
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_original.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_original.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 23308190,
+        "i32": 13800923,
+        "c16": 8141279
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2612640,
+        "L_values": 653160,
+        "L_shape": 16,
+        "gradX_indices": 2612640,
+        "gradX_values": 653160,
+        "gradX_shape": 16,
+        "gradY_indices": 2612640,
+        "gradY_values": 653160,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00035437999171608554,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0034203336108475924
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_remesh.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_remesh.npz",
+      "n_verts": 16502,
+      "n_faces": 32506,
+      "bytes_disk": {
+        "orig": 16368350,
+        "i32": 9743157,
+        "c16": 5792754
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 198024,
+        "faces": 780144,
+        "mass": 66008,
+        "evals": 512,
+        "evecs": 8449024,
+        "L_indices": 1832288,
+        "L_values": 458072,
+        "L_shape": 16,
+        "gradX_indices": 1832288,
+        "gradX_values": 458072,
+        "gradX_shape": 16,
+        "gradY_indices": 1832288,
+        "gradY_values": 458072,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00035254125143579455,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.00456661731004715
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_areanorm/id0000_GTready_up60k.npz",
+      "tag": "npz_data_topo_500_withops_areanorm__id0000_GTready_up60k.npz",
+      "n_verts": 60432,
+      "n_faces": 120139,
+      "bytes_disk": {
+        "orig": 60093422,
+        "i32": 36264259,
+        "c16": 21698963
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 725184,
+        "faces": 2883336,
+        "mass": 241728,
+        "evals": 512,
+        "evecs": 30941184,
+        "L_indices": 6746112,
+        "L_values": 1686528,
+        "L_shape": 16,
+        "gradX_indices": 6746112,
+        "gradX_values": 1686528,
+        "gradX_shape": 16,
+        "gradY_indices": 6746112,
+        "gradY_values": 1686528,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00038495097566539744,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.003880527801811695
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_crop.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_crop.npz",
+      "n_verts": 20568,
+      "n_faces": 40596,
+      "bytes_disk": {
+        "orig": 12162286,
+        "i32": 12064583,
+        "c16": 7111681
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 246816,
+        "faces": 974304,
+        "mass": 82272,
+        "evals": 512,
+        "evecs": 10530816,
+        "L_indices": 2285600,
+        "L_values": 571400,
+        "L_shape": 16,
+        "gradX_indices": 2285600,
+        "gradX_values": 571400,
+        "gradX_shape": 16,
+        "gradY_indices": 2285600,
+        "gradY_values": 571400,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0003732424089445764,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0027279804926365614
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_down8k.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_down8k.npz",
+      "n_verts": 8129,
+      "n_faces": 15999,
+      "bytes_disk": {
+        "orig": 4835393,
+        "i32": 4814919,
+        "c16": 2882586
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 97548,
+        "faces": 383976,
+        "mass": 32516,
+        "evals": 512,
+        "evecs": 4162048,
+        "L_indices": 900688,
+        "L_values": 225172,
+        "L_shape": 16,
+        "gradX_indices": 900688,
+        "gradX_values": 225172,
+        "gradX_shape": 16,
+        "gradY_indices": 900688,
+        "gradY_values": 225172,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00037395709907238865,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.003544431645423174
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_noisy.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_noisy.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 13876069,
+        "i32": 13815685,
+        "c16": 8188794
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2575936,
+        "L_values": 643984,
+        "L_shape": 16,
+        "gradX_indices": 2575936,
+        "gradX_values": 643984,
+        "gradX_shape": 16,
+        "gradY_indices": 2575936,
+        "gradY_values": 643984,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00034132389504890585,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0025257980450987816
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_original.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_original.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 13876351,
+        "i32": 13763062,
+        "c16": 8101988
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2611584,
+        "L_values": 652896,
+        "L_shape": 16,
+        "gradX_indices": 2611584,
+        "gradX_values": 652896,
+        "gradX_shape": 16,
+        "gradY_indices": 2611584,
+        "gradY_values": 652896,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00037227242550436464,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.004290302749723196
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_remesh.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_remesh.npz",
+      "n_verts": 16502,
+      "n_faces": 32506,
+      "bytes_disk": {
+        "orig": 9779377,
+        "i32": 9718368,
+        "c16": 5768212
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 198024,
+        "faces": 780144,
+        "mass": 66008,
+        "evals": 512,
+        "evecs": 8449024,
+        "L_indices": 1831040,
+        "L_values": 457760,
+        "L_shape": 16,
+        "gradX_indices": 1831040,
+        "gradX_values": 457760,
+        "gradX_shape": 16,
+        "gradY_indices": 1831040,
+        "gradY_values": 457760,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0003566683290383036,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.004745617974549532
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops_robust_area1/id0000_GTready_up60k.npz",
+      "tag": "npz_data_topo_500_withops_robust_area1__id0000_GTready_up60k.npz",
+      "n_verts": 60432,
+      "n_faces": 120139,
+      "bytes_disk": {
+        "orig": 36444398,
+        "i32": 36239872,
+        "c16": 21673891
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 725184,
+        "faces": 2883336,
+        "mass": 241728,
+        "evals": 512,
+        "evecs": 30941184,
+        "L_indices": 6742272,
+        "L_values": 1685568,
+        "L_shape": 16,
+        "gradX_indices": 6742272,
+        "gradX_values": 1685568,
+        "gradX_shape": 16,
+        "gradY_indices": 6742272,
+        "gradY_values": 1685568,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0003799334652649818,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.006736719980835915
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_crop.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_crop.npz",
+      "n_verts": 20568,
+      "n_faces": 40596,
+      "bytes_disk": {
+        "orig": 12174131,
+        "i32": 12128976,
+        "c16": 5272413
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 246816,
+        "faces": 974304,
+        "mass": 82272,
+        "evals": 512,
+        "evecs": 10530816,
+        "L_indices": 2287264,
+        "L_values": 571816,
+        "L_shape": 16,
+        "gradX_indices": 2287264,
+        "gradX_values": 571816,
+        "gradX_shape": 16,
+        "gradY_indices": 2287264,
+        "gradY_values": 571816,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0008760125687272067,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.30523189902305603
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_down8k.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_down8k.npz",
+      "n_verts": 8129,
+      "n_faces": 15999,
+      "bytes_disk": {
+        "orig": 4851848,
+        "i32": 4830768,
+        "c16": 2298132
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 97548,
+        "faces": 383976,
+        "mass": 32516,
+        "evals": 512,
+        "evecs": 4162048,
+        "L_indices": 902960,
+        "L_values": 225740,
+        "L_shape": 16,
+        "gradX_indices": 902960,
+        "gradX_values": 225740,
+        "gradX_shape": 16,
+        "gradY_indices": 902960,
+        "gradY_values": 225740,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0008195918468619847,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.12546701729297638
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_noisy.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_noisy.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 13848223,
+        "i32": 13795330,
+        "c16": 5856915
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2612640,
+        "L_values": 653160,
+        "L_shape": 16,
+        "gradX_indices": 2612640,
+        "gradX_values": 653160,
+        "gradX_shape": 16,
+        "gradY_indices": 2612640,
+        "gradY_values": 653160,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0012262061448315305,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 3.0770018100738525
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_original.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_original.npz",
+      "n_verts": 23470,
+      "n_faces": 46440,
+      "bytes_disk": {
+        "orig": 13881352,
+        "i32": 13828459,
+        "c16": 5856204
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 281640,
+        "faces": 1114560,
+        "mass": 93880,
+        "evals": 512,
+        "evecs": 12016640,
+        "L_indices": 2612640,
+        "L_values": 653160,
+        "L_shape": 16,
+        "gradX_indices": 2612640,
+        "gradX_values": 653160,
+        "gradX_shape": 16,
+        "gradY_indices": 2612640,
+        "gradY_values": 653160,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0009058896539704993,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.46219223737716675
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_remesh.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_remesh.npz",
+      "n_verts": 16502,
+      "n_faces": 32506,
+      "bytes_disk": {
+        "orig": 9802750,
+        "i32": 9765075,
+        "c16": 4386352
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 198024,
+        "faces": 780144,
+        "mass": 66008,
+        "evals": 512,
+        "evecs": 8449024,
+        "L_indices": 1832288,
+        "L_values": 458072,
+        "L_shape": 16,
+        "gradX_indices": 1832288,
+        "gradX_values": 458072,
+        "gradX_shape": 16,
+        "gradY_indices": 1832288,
+        "gradY_values": 458072,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0008862543593285412,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.13231191039085388
+      }
+    },
+    {
+      "file": "datasets/REMESH/npz_data_topo_500_withops/id0000_GTready_up60k.npz",
+      "tag": "npz_data_topo_500_withops__id0000_GTready_up60k.npz",
+      "n_verts": 60432,
+      "n_faces": 120139,
+      "bytes_disk": {
+        "orig": 36558736,
+        "i32": 36349767,
+        "c16": 16376088
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 725184,
+        "faces": 2883336,
+        "mass": 241728,
+        "evals": 512,
+        "evecs": 30941184,
+        "L_indices": 6746112,
+        "L_values": 1686528,
+        "L_shape": 16,
+        "gradX_indices": 6746112,
+        "gradX_values": 1686528,
+        "gradX_shape": 16,
+        "gradY_indices": 6746112,
+        "gradY_values": 1686528,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0009792451898704066,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 4.910877227783203
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_crop.npz",
+      "tag": "topo_withops__ict0000_GTready_crop.npz",
+      "n_verts": 8757,
+      "n_faces": 17134,
+      "bytes_disk": {
+        "orig": 8671562,
+        "i32": 5249438,
+        "c16": 3161173
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 105084,
+        "faces": 411216,
+        "mass": 35028,
+        "evals": 512,
+        "evecs": 4483584,
+        "L_indices": 968688,
+        "L_values": 242172,
+        "L_shape": 16,
+        "gradX_indices": 968688,
+        "gradX_values": 242172,
+        "gradX_shape": 16,
+        "gradY_indices": 968688,
+        "gradY_values": 242172,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00031789318570744755,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0020717065781354904
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_down8k.npz",
+      "tag": "topo_withops__ict0000_GTready_down8k.npz",
+      "n_verts": 3281,
+      "n_faces": 6360,
+      "bytes_disk": {
+        "orig": 3243098,
+        "i32": 1968904,
+        "c16": 1190448
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 39372,
+        "faces": 152640,
+        "mass": 13124,
+        "evals": 512,
+        "evecs": 1679872,
+        "L_indices": 361072,
+        "L_values": 90268,
+        "L_shape": 16,
+        "gradX_indices": 361072,
+        "gradX_values": 90268,
+        "gradX_shape": 16,
+        "gradY_indices": 361072,
+        "gradY_values": 90268,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00029964879140555715,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.001942485454492271
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_noisy.npz",
+      "tag": "topo_withops__ict0000_GTready_noisy.npz",
+      "n_verts": 9409,
+      "n_faces": 18460,
+      "bytes_disk": {
+        "orig": 9324122,
+        "i32": 5647976,
+        "c16": 3408429
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 112908,
+        "faces": 443040,
+        "mass": 37636,
+        "evals": 512,
+        "evecs": 4817408,
+        "L_indices": 1042416,
+        "L_values": 260604,
+        "L_shape": 16,
+        "gradX_indices": 1042416,
+        "gradX_values": 260604,
+        "gradX_shape": 16,
+        "gradY_indices": 1042416,
+        "gradY_values": 260604,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0003322386755217085,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0022070391569286585
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_original.npz",
+      "tag": "topo_withops__ict0000_GTready_original.npz",
+      "n_verts": 9409,
+      "n_faces": 18460,
+      "bytes_disk": {
+        "orig": 9324122,
+        "i32": 5644160,
+        "c16": 3398998
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 112908,
+        "faces": 443040,
+        "mass": 37636,
+        "evals": 512,
+        "evecs": 4817408,
+        "L_indices": 1042416,
+        "L_values": 260604,
+        "L_shape": 16,
+        "gradX_indices": 1042416,
+        "gradX_values": 260604,
+        "gradX_shape": 16,
+        "gradY_indices": 1042416,
+        "gradY_values": 260604,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00030622972209596634,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0028462146874517202
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_remesh.npz",
+      "tag": "topo_withops__ict0000_GTready_remesh.npz",
+      "n_verts": 6600,
+      "n_faces": 12921,
+      "bytes_disk": {
+        "orig": 6537734,
+        "i32": 3959285,
+        "c16": 2388430
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 79200,
+        "faces": 310104,
+        "mass": 26400,
+        "evals": 512,
+        "evecs": 3379200,
+        "L_indices": 730336,
+        "L_values": 182584,
+        "L_shape": 16,
+        "gradX_indices": 730336,
+        "gradX_values": 182584,
+        "gradX_shape": 16,
+        "gradY_indices": 730336,
+        "gradY_values": 182584,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0002895138712140494,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.0026624626480042934
+      }
+    },
+    {
+      "file": "datasets/ICT/topo_withops/ict0000_GTready_up60k.npz",
+      "tag": "topo_withops__ict0000_GTready_up60k.npz",
+      "n_verts": 24126,
+      "n_faces": 47700,
+      "bytes_disk": {
+        "orig": 23954318,
+        "i32": 14614357,
+        "c16": 8851842
+      },
+      "bytes_in_memory_by_key": {
+        "verts": 289512,
+        "faces": 1144800,
+        "mass": 96504,
+        "evals": 512,
+        "evecs": 12352512,
+        "L_indices": 2684512,
+        "L_values": 671128,
+        "L_shape": 16,
+        "gradX_indices": 2684512,
+        "gradX_values": 671128,
+        "gradX_shape": 16,
+        "gradY_indices": 2684512,
+        "gradY_values": 671128,
+        "gradY_shape": 16
+      },
+      "dtypes": {
+        "verts": "float32",
+        "faces": "int64",
+        "mass": "float32",
+        "evals": "float32",
+        "evecs": "float32",
+        "L_indices": "int64",
+        "L_values": "float32",
+        "L_shape": "int64",
+        "gradX_indices": "int64",
+        "gradX_values": "float32",
+        "gradX_shape": "int64",
+        "gradY_indices": "int64",
+        "gradY_values": "float32",
+        "gradY_shape": "int64"
+      },
+      "sparsity_shared": {
+        "L==gradX": true,
+        "L==gradY": true
+      },
+      "loader": {
+        "i32": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.0,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        },
+        "c16": {
+          "verts_maxdiff": 0.0,
+          "faces_equal": true,
+          "mass_maxdiff": 0.0,
+          "evals_maxdiff": 0.0,
+          "evecs_maxdiff_rel": 0.00030890710582947634,
+          "L_maxdiff": 0.0,
+          "gradX_maxdiff": 0.0,
+          "gradY_maxdiff": 0.0
+        }
+      },
+      "embedding_dz": {
+        "i32": 0.0,
+        "c16": 0.004355558659881353
+      }
+    }
+  ],
+  "summary": {
+    "embedding_i32": {
+      "max_dz": 0.0,
+      "median_pairwise_dist_orig": 2.757927894592285,
+      "max_dz_over_median_pair": 0.0
+    },
+    "embedding_c16": {
+      "max_dz": 4.910877227783203,
+      "median_pairwise_dist_orig": 2.757927894592285,
+      "max_dz_over_median_pair": 1.7806401818598656
+    },
+    "ckpt": "aau/runs/x3dmm_joint_bfm_ict_s1234_1019532/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d/checkpoints/epoch120.pth"
+  }
+}
