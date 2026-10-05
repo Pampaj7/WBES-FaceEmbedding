@@ -1,0 +1,219 @@
+<title>WBES, la notte degli operatori</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: registro di laboratorio a colonna singola, 900px; ipotesi come schede con predizione ed esito, tabelle numeriche come oggetti principali */
+:root{
+  --ground:#f6f8f9; --sheet:#ffffff; --ink:#17212b; --ink-2:#4c5a67; --rule:#d6dee4;
+  --accent:#0f5f6b; --accent-soft:#e1eff1;
+  --ok:#2c6a46; --ok-bg:#e2f0e7; --no:#9a3a32; --no-bg:#f7e4e1;
+  --open:#93620f; --open-bg:#f8eedb; --run:#2f5687; --run-bg:#e3ebf6;
+  --f-display:"Spectral",Georgia,"Times New Roman",serif;
+  --f-body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#11171c; --sheet:#182128; --ink:#e3e9ee; --ink-2:#9aa8b4; --rule:#2c3943;
+    --accent:#6cc0cb; --accent-soft:#1c3439;
+    --ok:#8fcfa6; --ok-bg:#1d3326; --no:#e99b92; --no-bg:#3a2321;
+    --open:#e6bb6c; --open-bg:#3a2f1a; --run:#97b8e4; --run-bg:#1e2a3c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#11171c; --sheet:#182128; --ink:#e3e9ee; --ink-2:#9aa8b4; --rule:#2c3943;
+  --accent:#6cc0cb; --accent-soft:#1c3439;
+  --ok:#8fcfa6; --ok-bg:#1d3326; --no:#e99b92; --no-bg:#3a2321;
+  --open:#e6bb6c; --open-bg:#3a2f1a; --run:#97b8e4; --run-bg:#1e2a3c;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;margin:0;padding-inline:20px}
+.page{max-width:900px;margin:0 auto;padding-block:44px 88px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.4rem;letter-spacing:-.01em}
+h2{font-size:1.6rem;margin-top:54px;padding-top:20px;border-top:1px solid var(--rule)}
+h3{font-size:1.18rem;margin-top:30px}
+p,li{max-width:70ch}
+p{margin:12px 0}
+ul{padding-left:20px;margin:12px 0}
+li{margin-bottom:7px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--accent-soft);padding:1px 5px;border-radius:3px}
+.eyebrow{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.lede{font-size:1.1rem;color:var(--ink-2);margin-top:14px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:.88rem;color:var(--ink-2)}
+.meta b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.02em;padding:2px 8px;border-radius:999px;white-space:nowrap;vertical-align:1px}
+.ok{background:var(--ok-bg);color:var(--ok)} .no{background:var(--no-bg);color:var(--no)}
+.open{background:var(--open-bg);color:var(--open)} .run{background:var(--run-bg);color:var(--run)}
+.brief{background:var(--sheet);border:1px solid var(--rule);padding:22px 26px;margin-top:30px}
+.brief h2{border:0;margin:0;padding:0;font-size:1.25rem}
+.brief ul{margin-bottom:0}
+.hyps{display:grid;gap:12px;margin-top:16px}
+.hyp{background:var(--sheet);border:1px solid var(--rule);padding:16px 20px;display:grid;grid-template-columns:52px 1fr;gap:4px 16px}
+.hyp .id{font-family:var(--f-mono);font-size:1.05rem;font-weight:500;color:var(--accent)}
+.hyp h3{margin:0;font-size:1.05rem;font-family:var(--f-body);font-weight:600}
+.hyp p{margin:4px 0;font-size:.95rem}
+.hyp .k{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+.wrap{overflow-x:auto;margin:16px 0 8px;border:1px solid var(--rule);background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font-size:.74rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);font-weight:600;background:var(--ground)}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.pos{color:var(--ok)} td.neg{color:var(--no)}
+tr.ctrl td{color:var(--ink-2)}
+tr.best td{background:var(--accent-soft)}
+.note{font-size:.88rem;color:var(--ink-2);margin-top:6px}
+.log{list-style:none;padding:0}
+.log li{display:grid;grid-template-columns:70px 1fr;gap:4px 14px;padding:9px 0;border-bottom:1px solid var(--rule);max-width:none}
+.log li:last-child{border-bottom:0}
+.log .d{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2);padding-top:3px}
+.foot{margin-top:60px;font-size:.84rem;color:var(--ink-2);border-top:1px solid var(--rule);padding-top:14px}
+@media (max-width:560px){h1{font-size:1.9rem}.hyp{grid-template-columns:1fr}.log li{grid-template-columns:1fr}.brief{padding:18px}}
+</style>
+
+<div class="page">
+<header>
+  <div class="eyebrow">WBES-FaceEmbedding · dal 4 ottobre ore 21 al 5 ottobre ore 11</div>
+  <h1>La notte degli operatori</h1>
+  <p class="lede">Brainstorm su cosa manca a DiffusionNet per il nostro compito, sei ipotesi con predizione scritta prima dei numeri, diagnostiche senza training, quattro varianti del modello addestrate contro lo stesso controllo, e i risultati che hanno cambiato il quadro: il modello addestrato su due 3DMM e il token di taglia.</p>
+  <div class="meta">
+    <span>Aggiornato al <b>5 ottobre, ore 11</b></span>
+    <span>Ogni confronto è appaiato: <b>seed 1234, stesso wrapper, 120 epoche</b></span>
+    <span>Dettagli: <code>paper/BOARD_DIARY.md</code></span>
+  </div>
+  <div class="legend">
+    <span class="chip ok">passa / confermato</span>
+    <span class="chip no">non passa / smentito</span>
+    <span class="chip open">parziale</span>
+    <span class="chip run">in corso</span>
+  </div>
+</header>
+
+<section class="brief">
+  <h2>In breve</h2>
+  <ul>
+    <li><b>Il modello congiunto BFM+ICT batte Chamfer su entrambi i 3DMM</b>: 0.856 contro 0.246 su BFM, 0.981 contro 0.347 su ICT, nessun soggetto di test nel training. Il critic conferma con riserve.</li>
+    <li><b>Il token di taglia è l'aggiunta che funziona di più in dominio</b>: con gli operatori robusti fa +4.8 punti su tutte le coppie e +8.2 sul rumore. Ma distrugge lo zero-shot su un altro 3DMM (da 0.37 a 0.12).</li>
+    <li><b>Operatori alternativi da soli non aiutano</b>: il Laplaciano robusto di Sharp e Crane cambia poco; i crop casuali in training peggiorano tutto (−11 punti sul crop).</li>
+    <li><b>Sui dati reali il collo di bottiglia resta</b>: il modello congiunto si avvicina ai criteri geometrici sulle ricostruzioni, ma sul crop reale non migliora.</li>
+    <li><b>Prossimo test decisivo, in corso</b>: il token di taglia dentro il modello congiunto, e B ed E sui crop reali di Multiface.</li>
+  </ul>
+</section>
+
+<h2>Il punto di partenza</h2>
+<p>Cosa sapevamo dei fallimenti del modello e come sono costruiti oggi gli operatori.</p>
+<ul>
+  <li><b>Operatori</b>: DiffusionNet usa sulle mesh il Laplaciano cotangente semplice, con 128 autovettori e massa per aree vertice. La variante robusta di Sharp e Crane, pensata per mesh di bassa qualità, è nel codice ma commentata.</li>
+  <li><b>Input</b>: ogni mesh è normalizzata da sola (centro e coordinata massima). Il modello non vede la taglia assoluta della testa, e la GT invece la contiene.</li>
+  <li><b>Punti deboli misurati</b>: il crop, la decimazione (down8k), le mesh da ricostruzione Poisson, il secondo 3DMM (zero-shot 0.30 contro 0.44 di Chamfer), le espressioni, le ricostruzioni reali.</li>
+</ul>
+
+<h2>Sei ipotesi, ognuna con predizione ed esito</h2>
+<div class="hyps">
+  <div class="hyp"><div class="id">H1</div><div>
+    <h3>Taglia invisibile al modello <span class="chip ok">confermata nel senso pratico</span></h3>
+    <p><span class="k">Predizione</span> La differenza di taglia spiega parte della GT e l'errore della metrica appresa.</p>
+    <p><span class="k">Esito</span> Il residuo della metrica appresa correla 0.36 con la differenza di taglia rms. Sul crop, normalizzare con il vertice estremo restringe la testa del 13%: un errore di scala grande quanto l'intera differenza di taglia tra soggetti. Aggiungere un token di taglia dà il miglior guadagno in dominio della notte (B ed E).</p>
+  </div></div>
+  <div class="hyp"><div class="id">H2</div><div>
+    <h3>Pozzo di potenziale al bordo, per il crop <span class="chip run">in training</span></h3>
+    <p><span class="k">Predizione</span> Il pozzo a 0.55 con pooling ristretto alla regione d'interesse migliora il crop di almeno 5 punti.</p>
+    <p><span class="k">Esito</span> Diagnostica: sul crop la dispersione spettrale scende da 0.072 a 0.008, ma peggiora su remesh e down8k. Pilota (pozzo con maschera, e DiffusionNet a due rami) in training.</p>
+  </div></div>
+  <div class="hyp"><div class="id">H3</div><div>
+    <h3>Qualità della mesh: Laplaciano robusto <span class="chip no">non confermata</span></h3>
+    <p><span class="k">Predizione</span> Il Laplaciano robusto riduce di almeno il 20% l'incoerenza spettrale su down8k e noisy.</p>
+    <p><span class="k">Esito</span> Da solo cambia quasi nulla (noisy −0.8%). Il grosso viene dall'area unitaria, 2.5–3 volte più consistente; il robusto aggiunge il 16–23% sopra. In training (variante C) è leggermente negativo.</p>
+  </div></div>
+  <div class="hyp"><div class="id">H4</div><div>
+    <h3>Espressioni: problema di dati, non di operatori <span class="chip open">non testata stanotte</span></h3>
+    <p><span class="k">Esito</span> Il modello congiunto perde ancora 0.11 con espressioni diverse per soggetto. Serve augmentation con espressioni in training.</p>
+  </div></div>
+  <div class="hyp"><div class="id">H5</div><div>
+    <h3>Secondo 3DMM: questione di dominio <span class="chip ok">confermata</span></h3>
+    <p><span class="k">Esito</span> Addestrato su BFM e ICT insieme, il modello batte Chamfer su entrambi. Addestrato su uno solo, non generalizza all'altro.</p>
+  </div></div>
+  <div class="hyp"><div class="id">H6</div><div>
+    <h3>Varietà del crop in training <span class="chip no">smentita su REMESH</span></h3>
+    <p><span class="k">Predizione</span> Cinque crop casuali per soggetto migliorano il crop di almeno 5 punti.</p>
+    <p><span class="k">Esito</span> Crop −11.4 punti, rumore −3.8, tutto −6.0. Il test sui crop reali di Multiface è in corso.</p>
+  </div></div>
+</div>
+
+<h2>Diagnostiche senza training</h2>
+<h3>Consistenza spettrale tra le sei topologie dello stesso soggetto</h3>
+<p>50 soggetti, 64 autovettori. Più basso è meglio in tutte le colonne.</p>
+<div class="wrap"><table>
+<thead><tr><th>Variante di operatori</th><th class="n">Dispersione autovalori</th><th class="n">Errore HKS</th><th class="n">Separabilità</th></tr></thead>
+<tbody>
+<tr class="ctrl"><td>Cotangente (attuale)</td><td class="n">0.137</td><td class="n">0.709</td><td class="n">5.93</td></tr>
+<tr><td>Robusto (Sharp e Crane)</td><td class="n">0.138</td><td class="n">0.709</td><td class="n">6.15</td></tr>
+<tr><td>Cotangente, area unitaria</td><td class="n">0.056</td><td class="n">0.023</td><td class="n">2.35</td></tr>
+<tr class="best"><td>Robusto, area unitaria</td><td class="n">0.048</td><td class="n">0.020</td><td class="n">2.04</td></tr>
+<tr><td>Pozzo 0.55</td><td class="n">0.100</td><td class="n">1.71</td><td class="n">0.98</td></tr>
+</tbody></table></div>
+<p class="note">Scoperta collaterale: il caricatore dei dati divide già gli autovalori per il loro massimo. La normalizzazione ad area unitaria viene così in gran parte annullata nel modello, e anche il modello "area unitaria" di settembre differiva dal v1 meno di quanto pensassimo.</p>
+
+<h3>Letteratura sugli operatori</h3>
+<p>In ordine di rapporto beneficio/costo: Laplaciano robusto con unità fisiche e token di scala; Hamiltoniano con potenziale al bordo più crop casuali in training; attenzione a massa concentrata sopra DiffusionNet. Non risultano lavori che combinino più operatori in DiffusionNet per i volti. File: <code>literature/OPERATORS_2026-10-04.md</code>.</p>
+
+<h2>Le varianti addestrate</h2>
+<p>Ogni variante cambia una sola cosa rispetto al controllo. Criterio fissato prima dei numeri: almeno +3 punti sul margine rispetto a Chamfer o +5 sul crop, senza perdere più di 2 punti sullo zero-shot ICT.</p>
+<div class="wrap"><table>
+<thead><tr><th>Variante</th><th class="n">Crop</th><th class="n">Rumore</th><th class="n">Resample</th><th class="n">Tutte</th><th class="n">Zero-shot ICT</th><th>Esito</th></tr></thead>
+<tbody>
+<tr class="ctrl"><td>Controllo</td><td class="n">0.765</td><td class="n">0.783</td><td class="n">0.805</td><td class="n">0.782</td><td class="n">0.369</td><td>—</td></tr>
+<tr><td>A · frame rms (3 seed)</td><td class="n pos">+0.019</td><td class="n pos">+0.027</td><td class="n neg">−0.006</td><td class="n pos">+0.012</td><td class="n">—</td><td><span class="chip open">piccolo ma stabile</span></td></tr>
+<tr><td>B · frame rms + token di taglia</td><td class="n pos">+0.012</td><td class="n pos">+0.059</td><td class="n pos">+0.027</td><td class="n pos">+0.027</td><td class="n neg">−0.234</td><td><span class="chip no">zero-shot</span></td></tr>
+<tr><td>C · operatori robusti</td><td class="n neg">−0.017</td><td class="n pos">+0.022</td><td class="n neg">−0.013</td><td class="n neg">−0.007</td><td class="n neg">−0.087</td><td><span class="chip no">non passa</span></td></tr>
+<tr class="best"><td>E · B + C</td><td class="n pos">+0.035</td><td class="n pos">+0.082</td><td class="n pos">+0.039</td><td class="n pos">+0.048</td><td class="n neg">−0.255</td><td><span class="chip no">zero-shot</span></td></tr>
+<tr><td>F · crop casuali in training</td><td class="n neg">−0.114</td><td class="n neg">−0.038</td><td class="n neg">−0.024</td><td class="n neg">−0.060</td><td class="n">—</td><td><span class="chip no">non passa</span></td></tr>
+<tr><td>D · pozzo 0.55 con maschera, e due rami</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td><span class="chip run">in training</span></td></tr>
+</tbody></table></div>
+<p class="note">Spearman con la GT per gruppo di coppie, 100 soggetti held-out BFM; differenze rispetto al controllo. La riga A è la media di tre seed; le altre sono un seed. Il token di taglia porta il guadagno più grande visto finora in dominio, ma la relazione tra taglia e identità imparata su BFM non vale per un altro 3DMM.</p>
+
+<h2>Gli altri risultati della notte</h2>
+<h3>Modello addestrato su due 3DMM</h3>
+<div class="wrap"><table>
+<thead><tr><th>Modello</th><th class="n">BFM</th><th class="n">ICT</th></tr></thead>
+<tbody>
+<tr><td>Solo BFM</td><td class="n">0.779</td><td class="n">0.294</td></tr>
+<tr><td>Solo ICT</td><td class="n">0.175</td><td class="n">0.986</td></tr>
+<tr class="best"><td>BFM + ICT</td><td class="n">0.856</td><td class="n">0.981</td></tr>
+<tr class="ctrl"><td>Chamfer</td><td class="n">0.246</td><td class="n">0.347</td></tr>
+</tbody></table></div>
+<p class="note">Spearman cross-topologia, coppie di mesh. Correzioni del critic: il vantaggio del congiunto sul modello solo BFM non è dimostrato (+0.02 sui 19 soggetti comuni); con la GT ICT grezza il congiunto scende a 0.50 ma Chamfer a 0.21, quindi batte ancora.</p>
+
+<h3>Lo stesso modello sui dati reali</h3>
+<ul>
+  <li><b>Ricostruzioni Multiface</b>: l'accordo con il criterio ICP passa da −0.03 a 0.33, con Chamfer in millimetri a 0.49. Resta lontano dall'accordo che i criteri geometrici hanno tra loro (0.80). <span class="chip open">parziale</span></li>
+  <li><b>Crop reali di Multiface</b>: AUC 0.69–0.72, nessun miglioramento. ArcFace su render arriva a 1.000. <span class="chip no">nessun guadagno</span></li>
+</ul>
+
+<h3>Allineamento e frame su soggetti held-out</h3>
+<ul>
+  <li><b>Allineamento</b>: a topologia fissa danneggia il ranking su entrambi i 3DMM; attraverso le topologie danneggia su BFM ma aiuta su ICT (0.645 contro 0.433). Non è una legge generale.</li>
+  <li><b>Frame globale unico</b>: Chamfer arriva a 0.71 ovunque, crop compreso (−0.006 con la normalizzazione per mesh). Non è segnale banale: la sola bounding box fa 0.37. La taglia della testa è informazione d'identità.</li>
+</ul>
+
+<h2>Incidenti e difetti trovati</h2>
+<ul class="log">
+  <li><span class="d">00:20</span><span>Due training in thrashing di memoria al limite di 100 GB: la cache in RAM cresce durante il training. Fermati, valutati sui checkpoint parziali, rilanciati con 180 GB.</span></li>
+  <li><span class="d">01:30</span><span>Due difetti silenziosi nel codice del pozzo: la maschera della regione d'interesse non arrivava mai al modello. Il braccio "con maschera" sarebbe stato quello vecchio. Aggirati.</span></li>
+  <li><span class="d">03:00</span><span>Training spostati tra A10, A40, L40S e V100 per trovare nodi con 180 GB di RAM liberi.</span></li>
+  <li><span class="d">09:30</span><span>Lo script di valutazione su ICT leggeva i percorsi BFM dall'ambiente: per due bracci avrebbe valutato su BFM in silenzio. Corretto prima di produrre numeri.</span></li>
+</ul>
+
+<h2>In corso adesso</h2>
+<ul>
+  <li><b>E addestrato su BFM e ICT insieme</b>, contro un controllo congiunto sugli stessi soggetti: dice se il guadagno della taglia sopravvive quando entrambi i 3DMM sono in training.</li>
+  <li><b>B, E e F sui crop reali di Multiface</b>, con il token di taglia convertito in unità BFM e con token neutro.</li>
+  <li><b>Pilota del pozzo</b>: pozzo 0.55 con maschera, e DiffusionNet a due rami.</li>
+</ul>
+
+<p class="foot">Fonti: <code>paper/BOARD_DIARY.md</code> (sezioni dal "Brainstorm" in poi), <code>aau/runs/brainstorm/</code>, <code>aau/runs/ablations_v3/summary.md</code>, <code>aau/runs/ablation_F/summary.md</code>, <code>aau/runs/eval_frame/_paired/</code>, <code>aau/runs/ws2_cross3dmm/summary.md</code>. Tutti i numeri sono misurati sul cluster AAU.</p>
+</div>

@@ -1,0 +1,280 @@
+<title>WBES dopo NeurIPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: registro di laboratorio a colonna singola, 880px; tabelle numeriche come oggetti principali, chip di stato per ogni esito */
+:root{
+  --ground:#f6f8f9; --sheet:#ffffff; --ink:#17212b; --ink-2:#4c5a67; --rule:#d6dee4;
+  --accent:#0f5f6b; --accent-soft:#e1eff1;
+  --ok:#2c6a46; --ok-bg:#e2f0e7; --no:#9a3a32; --no-bg:#f7e4e1;
+  --open:#93620f; --open-bg:#f8eedb; --run:#2f5687; --run-bg:#e3ebf6;
+  --f-display:"Spectral",Georgia,"Times New Roman",serif;
+  --f-body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#11171c; --sheet:#182128; --ink:#e3e9ee; --ink-2:#9aa8b4; --rule:#2c3943;
+    --accent:#6cc0cb; --accent-soft:#1c3439;
+    --ok:#8fcfa6; --ok-bg:#1d3326; --no:#e99b92; --no-bg:#3a2321;
+    --open:#e6bb6c; --open-bg:#3a2f1a; --run:#97b8e4; --run-bg:#1e2a3c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#11171c; --sheet:#182128; --ink:#e3e9ee; --ink-2:#9aa8b4; --rule:#2c3943;
+  --accent:#6cc0cb; --accent-soft:#1c3439;
+  --ok:#8fcfa6; --ok-bg:#1d3326; --no:#e99b92; --no-bg:#3a2321;
+  --open:#e6bb6c; --open-bg:#3a2f1a; --run:#97b8e4; --run-bg:#1e2a3c;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;margin:0;padding-inline:20px}
+.page{max-width:880px;margin:0 auto;padding-block:44px 88px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.5rem;letter-spacing:-.01em}
+h2{font-size:1.65rem;margin-top:56px;padding-top:20px;border-top:1px solid var(--rule)}
+h3{font-size:1.2rem;margin-top:34px}
+p,li{max-width:68ch}
+p{margin:12px 0}
+ul{padding-left:20px;margin:12px 0}
+li{margin-bottom:7px}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--accent-soft);padding:1px 5px;border-radius:3px}
+.eyebrow{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.lede{font-size:1.1rem;color:var(--ink-2);margin-top:14px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:.88rem;color:var(--ink-2)}
+.meta b{color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:.72rem;font-weight:500;letter-spacing:.02em;padding:2px 8px;border-radius:999px;white-space:nowrap;vertical-align:1px}
+.ok{background:var(--ok-bg);color:var(--ok)}
+.no{background:var(--no-bg);color:var(--no)}
+.open{background:var(--open-bg);color:var(--open)}
+.run{background:var(--run-bg);color:var(--run)}
+.brief{background:var(--sheet);border:1px solid var(--rule);padding:22px 26px;margin-top:30px}
+.brief h2{border:0;margin:0;padding:0;font-size:1.25rem}
+.brief ul{margin-bottom:0}
+.wrap{overflow-x:auto;margin:16px 0 8px;border:1px solid var(--rule);background:var(--sheet)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);font-weight:600;background:var(--ground)}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+tr.ctrl td{color:var(--ink-2);font-style:italic}
+.note{font-size:.86rem;color:var(--ink-2);margin-top:6px}
+.log{list-style:none;padding:0}
+.log li{display:grid;grid-template-columns:92px 1fr;gap:4px 14px;padding:10px 0;border-bottom:1px solid var(--rule);max-width:none}
+.log li:last-child{border-bottom:0}
+.log .d{font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2);padding-top:3px}
+.log .t b{font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+.cal div{background:var(--sheet);border:1px solid var(--rule);padding:10px 12px}
+.cal .k{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.cal .v{font-family:var(--f-mono);font-size:1rem;margin-top:3px}
+.cal .hot{border-color:var(--open)}
+.foot{margin-top:60px;font-size:.84rem;color:var(--ink-2);border-top:1px solid var(--rule);padding-top:14px}
+@media (max-width:560px){h1{font-size:2rem}.log li{grid-template-columns:1fr}.brief{padding:18px}}
+</style>
+
+<div class="page">
+<header>
+  <div class="eyebrow">When Alignment Hurts · NeurIPS 2026 E&amp;D, submission 2392</div>
+  <h1>WBES dopo NeurIPS</h1>
+  <p class="lede">Cosa è stato provato, scoperto, corretto o ritrattato dalla versione sottomessa il 4 maggio 2026 a oggi. Il paper è stato rifiutato il 22 luglio; da settembre il lavoro punta a CVPR 2027.</p>
+  <div class="meta">
+    <span>Aggiornato al <b>4 ottobre 2026</b></span>
+    <span>Cluster <b>AAU AI Cloud</b>, GPU L40S</span>
+    <span>Diario completo: <code>paper/BOARD_DIARY.md</code></span>
+  </div>
+  <div class="legend">
+    <span class="chip ok">confermato</span>
+    <span class="chip no">smentito o ritrattato</span>
+    <span class="chip open">aperto</span>
+    <span class="chip run">in corso</span>
+  </div>
+</header>
+
+<section class="brief">
+  <h2>In breve</h2>
+  <ul>
+    <li><b>La tesi cambia forma.</b> Il paper rifiutato diceva che la metrica appresa riproduce D<sub>GT</sub> meglio di Chamfer, cosa circolare per costruzione. La nuova versione mostra la distorsione da allineamento contro riferimenti indipendenti: un secondo 3DMM, scansioni reali, ricostruzioni di metodi veri, giudizio umano.</li>
+    <li><b>I risultati del paper sono riproducibili.</b> Tutte le 72 celle della Tabella 1 tornano sul nuovo cluster, con scarto massimo 0.008.</li>
+    <li><b>Sui metodi di ricostruzione reali l'allineamento non cambia la classifica.</b> Su Multiface, a parità di superficie e di scala, Chamfer e il criterio con ICP ordinano tre metodi allo stesso modo. È la metrica appresa a ordinarli diversamente.</li>
+    <li><b>Tre risultati negativi.</b> La metrica addestrata su BFM perde da Chamfer su un secondo 3DMM (0.30 contro 0.44), le espressioni la degradano più di Chamfer, e sulle ricostruzioni reali discorda da tutti i criteri geometrici.</li>
+    <li><b>Il bersaglio era in coordinate grezze.</b> La GT non è mai stata normalizzata, mentre metriche e input usano frame diversi. I ranghi non cambiano, ma i margini erano gonfiati.</li>
+    <li><b>Sono stati trovati e corretti nove difetti di valutazione</b>, tra cui un leak tra training ed eval e un sottocampionamento che rendeva varifold rumoroso.</li>
+  </ul>
+</section>
+
+<h2>Cosa hanno detto i reviewer</h2>
+<p>Voti 3, 3 e 2. Nessun reviewer contesta l'esecuzione o il fenomeno del distance collapse. Il rifiuto poggia su tre obiezioni.</p>
+<div class="wrap"><table>
+<thead><tr><th>Obiezione</th><th>Chi</th><th>Risposta in corso</th></tr></thead>
+<tbody>
+<tr><td>Solo dati sintetici; FaceScape zero-shot crolla (0.115 contro 0.598 di Chamfer)</td><td>tutti</td><td>Multiface (13 soggetti reali), tre metodi di ricostruzione pubblici, secondo 3DMM (ICT-FaceKit)</td></tr>
+<tr><td>Circolarità: la metrica è addestrata e valutata sulla stessa D<sub>GT</sub></td><td>Z1mX</td><td>Riferimenti senza D<sub>GT</sub>: identità reale, studio umano a triplette</td></tr>
+<tr><td>Poche baseline: solo Chamfer, ICP, NICP</td><td>bhBZ, YJz1</td><td>Varifold, currents, LPIPS, ArcFace, CLIP, DINOv2 su render, più un controllo "solo bounding box"</td></tr>
+<tr><td>Un solo 3DMM, solo volti neutri, BFM mai nominato</td><td>YJz1, Z1mX</td><td>ICT-5000 con espressioni per soggetto; correzioni di testo nel draft</td></tr>
+</tbody></table></div>
+
+<h2>Maggio–agosto: lavoro v2 dell'autore</h2>
+<p>Ricostruito dal diario <code>v2_work/STATUS.md</code> e dai commit. Il diario si ferma al 18 agosto; il lavoro dal 19 al 31 agosto è documentato solo nei commit e nei file di risultato.</p>
+
+<h3>Transfer a un secondo 3DMM</h3>
+<ul class="log">
+<li><span class="d">17 ago</span><span class="t"><b>Zero-shot BFM→FLAME:</b> Spearman 0.478, contro 0.751 in-domain su BFM e 0.057 su FaceScape. <span class="chip ok">confermato</span></span></li>
+<li><span class="d">17 ago</span><span class="t"><b>Ipotesi "supporto della mesh":</b> sembrava spiegare il crollo su FaceScape. Un controllo con lo stesso partner remesh porta FaceScape a 0.404, uguale a FLAME (0.406); riallineare il supporto peggiora. <span class="chip no">smentito</span></span></li>
+<li><span class="d">17 ago</span><span class="t"><b>Fattore Poisson:</b> il partner <code>remesh_10k</code> di FaceScape è una ricostruzione Poisson. Applicato a FLAME, fa crollare lo zero-shot da 0.406 a 0.109. È la causa del fallimento su FaceScape. <span class="chip ok">confermato con controllo causale</span></span></li>
+<li><span class="d">17 ago</span><span class="t"><b>FLAME 5000:</b> 30.000 mesh generate, poi perse con il cluster precedente. I file FLAME inclusi nel repo non sono la release ufficiale (fino a 8.8 mm di scarto). <span class="chip open">sostituito da ICT-5000</span></span></li>
+</ul>
+
+<h3>Operatori spettrali e frame</h3>
+<ul class="log">
+<li><span class="d">17–18 ago</span><span class="t"><b>Pozzo di potenziale sugli operatori, per il crop:</b> la predizione registrata era "crop sale". Misurato: crop da 0.707 a 0.701. Il proxy spettrale migliora del 46% ma non predice la metrica. <span class="chip no">smentito</span></span></li>
+<li><span class="d">18 ago</span><span class="t"><b>Encoder senza operatori:</b> crop 0.316 contro 0.707. Gli operatori sono necessari. <span class="chip ok">confermato</span></span></li>
+<li><span class="d">18 ago</span><span class="t"><b>Operatori su mesh ad area unitaria (Weyl):</b> il crop è una pura riscalatura degli autovalori per il rapporto d'area (R² 0.9995). Su tre seed appaiati, crop +2.9 punti (p 0.12). Piccolo, non significativo. <span class="chip open">debole</span></span></li>
+<li><span class="d">19 ago</span><span class="t"><b>Frame "rms" per l'input</b> (centroide pesato e raggio quadratico medio, invece di maxabs): crop +5.2, tutte le coppie +3.1, su due seed. Più forte della normalizzazione ad area. <span class="chip ok">confermato, n=2</span></span></li>
+<li><span class="d">19 ago</span><span class="t"><b>Coerenza delle unità:</b> i difetti stanno nella scala delle coordinate in input, non negli operatori. <span class="chip ok">confermato, n=1</span></span></li>
+</ul>
+
+<h3>La ground truth e i frame delle metriche</h3>
+<ul class="log">
+<li><span class="d">17 ago</span><span class="t"><b>La GT dipende dalla topologia in cui la si calcola:</b> stesse 500 identità in topologia BFM e FLAME danno Spearman 0.865 in coordinate grezze, 0.573 dopo maxabs. <span class="chip ok">misurato</span></span></li>
+<li><span class="d">31 ago</span><span class="t"><b>La GT non è mai stata normalizzata.</b> Lo script dichiara una normalizzazione ma divide solo per un massimo globale: il bersaglio è in coordinate grezze. Il danno è l'incoerenza tra cinque frame nella stessa tabella (GT grezza, input e Chamfer maxabs, varifold per area, percettive per bounding box, pipeline con riscala per coppia). I ranghi tra metriche non cambiano; i margini erano gonfiati e la compressione da NICP è 33.9%, non 21.9%. <span class="chip ok">confermato sul codice</span></span></li>
+<li><span class="d">31 ago</span><span class="t"><b>Frame globale nel loader:</b> un'unica scala per tutto il dataset conserva esattamente i ranghi della GT. Il training corrispondente non ha risultati. <span class="chip open">aperto</span></span></li>
+<li><span class="d">31 ago</span><span class="t"><b>Il pre-allineamento per bounding box spiega il danno dell'ICP:</b> claim del mattino ritirato in serata. L'ICP rigido danneggia il ranking da solo: −0.135 a topologia fissa, −0.032 cross-topologia. <span class="chip no">ritrattato</span></span></li>
+</ul>
+
+<h3>Baseline</h3>
+<ul class="log">
+<li><span class="d">17 ago</span><span class="t"><b>M3DFB (FG 2025) come pipeline di registrazione:</b> 4 stimatori su 16 usabili su larga scala. Con landmark forniti, RLR+Chamfer 0.456, ICP 0.284, latent 0.710 (20 soggetti). <span class="chip ok">confermato</span></span></li>
+<li><span class="d">17 ago</span><span class="t"><b>Chamfer con normalizzazione maxabs contro area:</b> nessuna normalizzazione per mesh è neutra. L'area aiuta sul crop, maxabs sul rumore. <span class="chip ok">confermato</span></span></li>
+<li><span class="d">31 ago</span><span class="t"><b>Letteratura:</b> "normalizzazioni diverse nella stessa tabella" è già noto (REALY, M3DFB). Resta nuovo il meccanismo del bordo: un vertice estremo fissa il divisore. <span class="chip ok">verificato</span></span></li>
+</ul>
+
+<h2>Settembre–ottobre: ripartenza e risposta alle review</h2>
+
+<h3>Riproduzione sul cluster AAU</h3>
+<p>Il repository conteneva solo codice. Dati, operatori e matrice GT sono stati recuperati da Hugging Face e dallo snapshot del workspace; gli script LSF sono stati portati su Slurm.</p>
+<div class="wrap"><table>
+<thead><tr><th>Controllo</th><th class="n">Paper</th><th class="n">Riprodotto</th><th>Esito</th></tr></thead>
+<tbody>
+<tr><td>Scenario clean, latent / Chamfer</td><td class="n">0.8280 / 0.4847</td><td class="n">0.8279 / 0.4847</td><td><span class="chip ok">identico</span></td></tr>
+<tr><td>Tabella 1, 60 celle cross-topologia</td><td class="n">—</td><td class="n">max |Δ| 0.0008</td><td><span class="chip ok">riprodotta</span></td></tr>
+<tr><td>Tabella 1, 12 celle same-topology</td><td class="n">—</td><td class="n">max |Δ| 0.008</td><td><span class="chip ok">riprodotta</span></td></tr>
+</tbody></table></div>
+<p class="note">Scoperta collaterale: il set di 100 soggetti delle Tabelle 1 e 2 del paper contiene 79 soggetti di training. Tutte le tabelle nuove sono sui 100 soggetti held-out.</p>
+
+<h3>Baseline estese</h3>
+<p>Spearman con D<sub>GT</sub>, 100 soggetti held-out, intervalli bootstrap per soggetto. Render normalizzati per mesh come Chamfer; varifold e currents senza sottocampionamento casuale.</p>
+<div class="wrap"><table>
+<thead><tr><th>Metrica</th><th class="n">Stessa topologia</th><th class="n">Cross, no crop</th><th class="n">Solo tassellazione</th><th class="n">Solo rumore</th></tr></thead>
+<tbody>
+<tr><td>Chamfer</td><td class="n">0.644</td><td class="n">0.469</td><td class="n">0.454</td><td class="n">0.502</td></tr>
+<tr><td>Varifold, massa unitaria</td><td class="n">0.646</td><td class="n">0.258</td><td class="n">0.496</td><td class="n">0.307</td></tr>
+<tr><td>Currents, massa unitaria</td><td class="n">0.663</td><td class="n">0.210</td><td class="n">0.287</td><td class="n">0.289</td></tr>
+<tr><td>LPIPS su render</td><td class="n">0.590</td><td class="n">0.127</td><td class="n">0.287</td><td class="n">0.148</td></tr>
+<tr><td>ArcFace su render</td><td class="n">0.293</td><td class="n">0.218</td><td class="n">0.300</td><td class="n">0.160</td></tr>
+<tr><td>CLIP su render</td><td class="n">0.358</td><td class="n">0.087</td><td class="n">0.226</td><td class="n">0.039</td></tr>
+<tr><td>DINOv2 su render</td><td class="n">0.378</td><td class="n">0.058</td><td class="n">0.147</td><td class="n">0.034</td></tr>
+<tr class="ctrl"><td>Controllo: solo bounding box (4 numeri)</td><td class="n">0.284</td><td class="n">0.117</td><td class="n">0.088</td><td class="n">0.167</td></tr>
+</tbody></table></div>
+<p class="note"><span class="chip ok">chiuso</span> Chamfer resta la miglior baseline quando cambia la topologia; varifold la supera di poco solo sul cambio di tassellazione. CLIP e DINOv2 cross-topologia non superano il controllo a quattro numeri. Varifold e currents sono calcolati su una misura a massa totale unitaria: con normalizzazione per area la mesh rumorosa, che ha 2.3 volte l'area, veniva rimpicciolita, e con la sola coordinata massima pesava 2.3 volte.</p>
+
+<h3>Secondo 3DMM: ICT-FaceKit</h3>
+<p>FLAME ufficiale non è disponibile, quindi è stato sostituito da ICT-FaceKit (USC, licenza MIT): 5000 identità, 6 topologie, matrice GT propria, 30.000 mesh con operatori.</p>
+<div class="wrap"><table>
+<thead><tr><th>Zero-shot da BFM a ICT, 3 seed</th><th class="n">Latent</th><th class="n">Chamfer</th></tr></thead>
+<tbody>
+<tr><td>Coppie di mesh cross-topologia (protocollo del 0.478 su FLAME)</td><td class="n">0.30</td><td class="n">0.44</td></tr>
+<tr><td>Coppie di soggetti, scenario clean</td><td class="n">0.83</td><td class="n">0.91</td></tr>
+</tbody></table></div>
+<p class="note"><span class="chip no">negativo</span> Per la prima volta la metrica appresa perde da Chamfer, peggio dello zero-shot su FLAME. Tiene dove il campionamento è denso, crolla su tutto ciò che coinvolge la decimazione a 8k. <span class="chip run">in corso</span> Valutazione dei modelli addestrati su ICT e su BFM+ICT insieme.</p>
+
+<h3>Espressioni</h3>
+<p>Cinque espressioni casuali per ciascuna identità ICT (3–8 blendshape attivi), modello BFM, Spearman con la GT neutra. Una prima versione con la stessa espressione per tutti non cambiava nulla ed è stata scartata.</p>
+<div class="wrap"><table>
+<thead><tr><th>Regime</th><th class="n">Latent</th><th class="n">Chamfer</th></tr></thead>
+<tbody>
+<tr><td>Neutro contro neutro (riferimento)</td><td class="n">0.841</td><td class="n">0.951</td></tr>
+<tr><td>Espressione contro neutro</td><td class="n">0.784</td><td class="n">0.914</td></tr>
+<tr><td>Espressioni diverse sulle due mesh</td><td class="n">0.739</td><td class="n">0.886</td></tr>
+</tbody></table></div>
+<p class="note"><span class="chip no">negativo</span> Le espressioni degradano il ranking, e la metrica appresa ci perde più di Chamfer (−0.10 contro −0.07).</p>
+
+<h3>Identità reale: Multiface</h3>
+<p>13 soggetti reali (Meta, CC BY-NC), 2848 mesh tra neutro, 10 espressioni e 20 frame. Test: la mesh dello stesso soggetto deve risultare più vicina di quella di un altro, senza alcuna D<sub>GT</sub>.</p>
+<ul>
+<li>Su scansioni pulite ogni metrica separa le identità con AUC ≥ 0.98. Ma un controllo con solo posizione e taglia della testa arriva a 0.995: il test era risolto da informazione banale. <span class="chip no">non informativo</span></li>
+<li>Con varianti tagliate, rumorose e sovracampionate, l'unico asse informativo è il taglio, dove il controllo con la sola bounding box scende a 0.42. Le metriche geometriche e quella appresa scendono a 0.58–0.73; le percettive su render tengono: ArcFace 1.000, LPIPS 0.73–0.84. <span class="chip open">da capire</span></li>
+</ul>
+
+<h3>Ricostruzioni da immagine su Multiface</h3>
+<p>Tre metodi con pesi pubblici (3DDFA_V2, SynergyNet, PRNet), 3075 immagini frontali calibrate per metodo, GT dalla mesh tracciata.</p>
+<div class="wrap"><table>
+<thead><tr><th>Criterio</th><th>Classifica</th><th class="n">Errore (mm)</th></tr></thead>
+<tbody>
+<tr><td>ICP con scala, punto-superficie</td><td>3DDFA_V2 ≈ PRNet &lt; SynergyNet</td><td class="n">1.24 · 1.26 · 1.52</td></tr>
+<tr><td>Chamfer in mm, stessa patch della GT</td><td>3DDFA_V2 &lt; PRNet &lt; SynergyNet</td><td class="n">2.37 · 2.49 · 2.56</td></tr>
+<tr><td>Chamfer su mesh normalizzate per mesh</td><td>3DDFA_V2 &lt; SynergyNet &lt; PRNet</td><td class="n">—</td></tr>
+<tr><td>Metrica appresa</td><td>3DDFA_V2 &lt; SynergyNet &lt; PRNet</td><td class="n">—</td></tr>
+</tbody></table></div>
+<div class="wrap"><table>
+<thead><tr><th>Accordo tra classifiche per soggetto</th><th class="n">Kendall τ</th><th class="n">IC 95%</th></tr></thead>
+<tbody>
+<tr><td>Chamfer stessa patch e ICP</td><td class="n">0.80</td><td class="n">[0.59, 0.95]</td></tr>
+<tr><td>Chamfer in mm e ICP</td><td class="n">0.85</td><td class="n">[0.59, 1.00]</td></tr>
+<tr><td>Chamfer stessa patch e metrica appresa</td><td class="n">0.18</td><td class="n">[−0.08, 0.44]</td></tr>
+<tr><td>Chamfer in mm e metrica appresa</td><td class="n">0.13</td><td class="n">[−0.18, 0.44]</td></tr>
+<tr class="ctrl"><td>Atteso per caso con 3 metodi</td><td class="n">0.00 ± 0.18</td><td class="n">—</td></tr>
+</tbody></table></div>
+<p class="note"><span class="chip no">ribaltato</span> Una prima analisi sembrava mostrare che l'allineamento cambia la classifica. Era un effetto della normalizzazione per mesh e della superficie diversa: 3DDFA_V2 ricostruisce il 15% di superficie in più. A parità di superficie e scala, i criteri geometrici con e senza ICP concordano. La metrica appresa discorda da tutti, in modo affidabile (split-half 0.92), e senza un riferimento esterno di identità non si può dire chi abbia ragione.</p>
+
+<h3>Convenzione degli operatori, tre seed</h3>
+<p>Ricetta v1 addestrata con operatori ad area unitaria, tre seed, ciascuno valutato sui propri soggetti held-out. Margine latent − Chamfer sulla matrice per coppie di topologie.</p>
+<div class="wrap"><table>
+<thead><tr><th>Coppie</th><th class="n">v1</th><th class="n">seed 1234</th><th class="n">seed 2345</th><th class="n">seed 3456</th></tr></thead>
+<tbody>
+<tr><td>Tutte (30)</td><td class="n">0.421</td><td class="n">0.445</td><td class="n">0.446</td><td class="n">0.439</td></tr>
+<tr><td>Con crop (10)</td><td class="n">0.699</td><td class="n">0.742</td><td class="n">0.689</td><td class="n">0.762</td></tr>
+<tr><td>Con rumore (10)</td><td class="n">0.345</td><td class="n">0.365</td><td class="n">0.375</td><td class="n">0.354</td></tr>
+</tbody></table></div>
+<p class="note"><span class="chip open">debole</span> Guadagno medio sul crop +0.032, con dispersione tra seed di 0.031. <span class="chip run">in corso</span> Training di controllo con gli operatori standard sugli stessi seed, per un confronto appaiato.</p>
+
+<h3>Studio umano</h3>
+<p>Triplette "quale tra B e C somiglia di più ad A" su render di volti sintetici: 300 scelte dove GT, Chamfer, LPIPS e metrica appresa sono in disaccordo, 30 controlli, 40 prove per partecipante, circa 10 minuti. La pagina raccoglie le risposte in un database centrale. <span class="chip open">pronto, zero risposte</span></p>
+
+<h2>Difetti trovati e corretti</h2>
+<p>Ogni risultato passa da un revisore che non ha scritto il codice. Questi difetti sono emersi così, e ciascuno avrebbe invalidato una tabella.</p>
+<div class="wrap"><table>
+<thead><tr><th>Difetto</th><th>Effetto</th><th>Correzione</th></tr></thead>
+<tbody>
+<tr><td>Varifold e currents sottocampionati a 4000 triangoli con seme diverso per mesh</td><td>La distanza tra due campioni della stessa mesh superava quella tra soggetti diversi</td><td>Misura quantizzata su griglia comune, auto-distanza esattamente zero</td></tr>
+<tr><td>ArcFace con rilevatore di volti</td><td>Fallito sul 100% dei render rumorosi: metà coppie confrontava due pipeline diverse</td><td>Allineamento geometrico fisso per tutte le topologie</td></tr>
+<tr><td>Render senza normalizzazione per mesh</td><td>Le metriche percettive leggevano posizione e scala assolute. LPIPS sembrava battere Chamfer (0.74 contro 0.64)</td><td>Normalizzazione come Chamfer; LPIPS scende a 0.59. Controllo "solo bounding box" in ogni tabella</td></tr>
+<tr><td>Seed dello split fissato nell'eval</td><td>Due modelli valutati su soggetti per l'80% visti in training</td><td>Seed letto dal checkpoint; eval rifatte</td></tr>
+<tr><td>Set di soggetti delle tabelle del paper</td><td>79 soggetti su 100 erano di training</td><td>Tabelle nuove su held-out</td></tr>
+<tr><td>Ritaglio delle ricostruzioni</td><td>Raggio diverso per metodo, 90–92 mm contro 95 della GT</td><td>Raggio scalato sull'apertura oculare misurata</td></tr>
+<tr><td>"Criterio NoW"</td><td>Era ICP libero con scala, non il protocollo NoW a 7 landmark</td><td>Rinominato; il vero NoW resta diagnostico</td></tr>
+<tr><td>Chamfer delle ricostruzioni su mesh normalizzate per mesh</td><td>La superficie diversa tra metodi creava una discordanza apparente con il criterio ICP</td><td>Chamfer in mm sulla stessa patch; la discordanza scompare</td></tr>
+<tr><td>Varifold normalizzato per area o per coordinata massima</td><td>La mesh rumorosa veniva rimpicciolita del 34% o pesava 2.3 volte</td><td>Misura a massa totale unitaria; sul rumore varifold passa da 0.14 a 0.31</td></tr>
+</tbody></table></div>
+
+<h2>Cosa manca</h2>
+<ul>
+<li><b>Tabella cross-3DMM</b> con i modelli addestrati su ICT e su BFM+ICT: decide se si risponde all'obiezione del singolo 3DMM.</li>
+<li><b>Terzo giro di correzioni</b> su baseline e Multiface, poi revisione finale.</li>
+<li><b>Frame dell'input:</b> il frame "rms" dell'autore (+5.2 sul crop) è più forte della normalizzazione ad area adottata a settembre e va confrontato con gli stessi seed.</li>
+<li><b>Studio umano:</b> 25–30 partecipanti.</li>
+<li><b>Scrittura:</b> il draft CVPR ha già protocollo, limiti e related work aggiornati; mancano i numeri finali.</li>
+</ul>
+<div class="cal">
+  <div><div class="k">Gate interno</div><div class="v">24 ottobre</div></div>
+  <div><div class="k">Registrazione</div><div class="v">10 novembre</div></div>
+  <div class="hot"><div class="k">Paper CVPR 2027</div><div class="v">16 novembre</div></div>
+  <div><div class="k">Supplementary</div><div class="v">23 novembre</div></div>
+</div>
+
+<p class="foot">Fonti: <code>paper/BOARD_DIARY.md</code>, <code>paper/PLAN_CVPR2027.md</code>, <code>v2_work/STATUS.md</code>, registro <code>checking_assumptions/experiment_registry.csv</code>. Tutti i numeri di settembre sono misurati sul cluster AAU; quelli di agosto vengono dal diario e dai file di risultato dell'autore.</p>
+</div>
