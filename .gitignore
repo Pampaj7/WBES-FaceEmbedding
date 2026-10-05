@@ -58,9 +58,57 @@ __pycache__/
 /faceBench/latentVSpipeline/outputs/**/pair_metrics.csv
 /faceBench/latentVSpipeline/outputs/**/pair_metrics_with_fg.csv
 
-# Crash dumps and the local conda environment
+# Crash dumps and the local conda / venv environments
 core.*
 /.conda_env/
+/.venv_aau/
+/.venv*/
+/external/venvs/
+
+# AAU AI Cloud: log e artefatti dei job Slurm (gli script sotto aau/ sono tracciati).
+/aau/logs/
+# Prove usa e getta, compreso un modello FLAME finto da 72 MB.
+/aau/scratch/
+# Dati prodotti dagli script sotto aau/ (held-out congelati, shard, mesh).
+/aau/**/*.npz
+/aau/**/*.npy
+/aau/**/*.tar
+/aau/**/*.pth
+/aau/**/*.pt
+/aau/**/*.ply
+/aau/**/*.obj
+# Studio umano: render e pagina ospitata (2 MB, immagini incorporate) si rigenerano.
+/aau/human_study/img/
+/aau/human_study/hosted/index.html
+
+# aau/runs: 40 GB di checkpoint, viste, matrici, cache e log. Entrano solo i risultati
+# leggibili: i .md e i .csv/.json piccoli (config, riepiloghi per run, tabelle).
+/aau/runs/**
+!/aau/runs/**/
+!/aau/runs/**/*.md
+!/aau/runs/**/*.csv
+!/aau/runs/**/*.json
+# ...ma non quelli voluminosi: ranking per checkpoint, tabelle per coppia, per epoca,
+# metadati per mesh delle viste, token per mesh.
+/aau/runs/**/ranking_summary.*
+/aau/runs/**/pair_*.csv
+/aau/runs/**/pairs_*.csv
+/aau/runs/**/robustness_epoch*.json
+/aau/runs/**/*__*__*.json
+/aau/runs/**/size_token_*.json
+/aau/runs/**/size_token/**/*.json
+/aau/runs/**/crops_meta.csv
+/aau/runs/**/*manifest.csv
+/aau/runs/**/gt_metrics_*.csv
+/aau/runs/**/gt_latent_*.csv
+/aau/runs/**/gtclip_meshes_*.csv
+/aau/runs/**/pairs_protocol.json
+/aau/runs/multiface_ws3a*/*.csv
+/aau/runs/ws3a_hard_old/*.csv
+!/aau/runs/**/summary*.csv
+
+# Archivi scaricati da Hugging Face (dataset e snapshot del workspace, decine di GB).
+/hf_downloads/
 
 # Vendored third-party clone (upstream DiffusionNet, not our code)
 /diffusion-net/
@@ -86,3 +134,10 @@ core.*
 # Paper di terzi scaricati per la ricerca dati: copyright. Il resoconto
 # (literature/README.md) contiene tutto cio che ne estraiamo ed e tracciato.
 /literature/papers/
+
+# Modello FLAME: licenza MPI, mai nel repo, in nessuna copia (v2_work/genflame/official/
+# e' dove il titolare della licenza mette la sua, vedi flame_model.py).
+/v2_work/genflame/official/
+generic_model.pkl
+FLAME_masks.pkl
+*FLAME*.pkl
