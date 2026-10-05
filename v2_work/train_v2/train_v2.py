@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Joint multi-domain training (BFM + FLAME [+ FaceScape]) on top of the v1 trainer.
+"""Joint multi-domain training (BFM + FLAME [+ FaceScape, ICT]) on top of the v1 trainer.
 
 The v1 package (`face_embedding/gt_encdec/remeshing/intrinsic/robustness/`) is
 imported and **never modified**: v1 results stay reproducible. This module runs
@@ -7,7 +7,7 @@ imported and **never modified**: v1 results stay reproducible. This module runs
 patches on that module for the duration of the run (restored in a `finally`):
 
 1. **Domain-homogeneous batching.** There is no defined identity distance
-   between a BFM and a FLAME subject, so the joint GT is block-diagonal with
+   between a BFM and a FLAME (or ICT) subject, so the joint GT is block-diagonal with
    *undefined* (not zero) inter-domain blocks. All three v1 epoch functions
    (`subject_mean`, `mesh_pair`, `mixed`) start with the same two lines:
 
@@ -76,14 +76,16 @@ from robustness import train_runner as v1  # noqa: E402  (v1 package, imported r
 # id-offset convention of the symlink views (v2_work/genflame/make_train_ready.py).
 # FaceScape appears at 2000 (v2_work/transfer/facescape_train_ready) and 3000 (the offset the
 # re-cropped rebuild uses); both are listed so neither can be silently read as FLAME.
-DOMAIN_OFFSETS = ((3000, "facescape"), (2000, "facescape"), (1000, "flame"), (0, "bfm"))
+# ICT sits at 10000 (v2_work/genict/make_train_ready.py) and must come first: the check is
+# `num >= offset`, so id10000 would otherwise be read as FaceScape.
+DOMAIN_OFFSETS = ((10000, "ict"), (3000, "facescape"), (2000, "facescape"), (1000, "flame"), (0, "bfm"))
 SUBJECT_ID_RE = re.compile(r"^id\d+$", re.IGNORECASE)
 
 STATS = {"blocked_permutations": 0, "batches": 0}
 
 
 def domain_of(subject_id: str) -> str:
-    """bfm/flame/facescape from the id offset (BFM 0, FLAME 1000, FaceScape 3000)."""
+    """bfm/flame/facescape/ict from the id offset (BFM 0, FLAME 1000, FaceScape 3000, ICT 10000)."""
     num = int(str(subject_id).lower().lstrip("id"))
     for offset, name in DOMAIN_OFFSETS:
         if num >= offset:
@@ -167,6 +169,11 @@ class NanGuardedMatrix(np.ndarray):
 
 def _nan_guarded_loader(orig):
     def wrapped(path, *a, **kw):
+        # v1 loads the GT with SUBJECT_RE_4DIGIT while it builds the subject map with
+        # SUBJECT_RE_ANY: on ICT's 5-digit ids the two disagree (id10000 -> "id1000") and the
+        # run dies on an empty subject intersection. ANY is what every other call site in the
+        # repo passes, and on 4-digit ids it returns exactly the same mapping.
+        kw.setdefault("subject_re", v1.SUBJECT_RE_ANY)
         D, name_to_idx = orig(path, *a, **kw)
         n_nan = int(np.count_nonzero(~np.isfinite(D)))
         print(f"[v2] GT {Path(path).name}: {D.shape} undefined(NaN) entries={n_nan}")
@@ -215,7 +222,7 @@ def run_training_v2(args: argparse.Namespace) -> None:
 
 def parse_args_v2() -> argparse.Namespace:
     ap = argparse.ArgumentParser(add_help=False)
-    ap.add_argument("--eval_domain", type=str, default="", help="bfm|flame|facescape, '' = most frequent")
+    ap.add_argument("--eval_domain", type=str, default="", help="bfm|flame|facescape|ict, '' = most frequent")
     extra, rest = ap.parse_known_args()
     sys.argv = [sys.argv[0]] + rest
     args = v1.parse_args()

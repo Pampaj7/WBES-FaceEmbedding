@@ -2,7 +2,7 @@
 """Unified multi-domain training view: symlinks + a joint GT with NaN off-blocks.
 
 Same pattern as `v2_work/genflame/make_train_ready.py` (nothing is copied) and the
-same id-offset convention: BFM 0, FLAME 1000, FaceScape 3000. The support bank
+same id-offset convention: BFM 0, FLAME 1000, FaceScape 3000, ICT 10000. The support bank
 (`make_support_bank.py`) is symlinked in as extra meshes of subjects that already
 have GT rows, so it adds no GT entries.
 
@@ -19,6 +19,9 @@ the view, without which BFM's id1000+ rows would collide with FLAME's offset ids
     .conda_env/bin/python v2_work/train_v2/make_joint_view.py            # full view
     .conda_env/bin/python v2_work/train_v2/make_joint_view.py --n-bfm 8 --n-flame 8 \
         --variants original,supp0,supp1 --out-dir /tmp/small_view
+    .conda_env/bin/python v2_work/train_v2/make_joint_view.py --domains bfm,ict \
+        --data-dir bfm=datasets/REMESH/npz_data_topo_500_withops_areanorm \
+        --out-dir datasets/JOINT_BFM_ICT
 """
 from __future__ import annotations
 
@@ -47,6 +50,10 @@ DEFAULTS = {
         REPO_ROOT / "v2_work" / "genflame" / "flame_train_ready" / "npz_withops",
         REPO_ROOT / "v2_work" / "genflame" / "flame_train_ready" / "gt_matrix.npz",
     ),
+    "ict": (
+        REPO_ROOT / "datasets" / "ICT" / "train_ready" / "npz_withops",
+        REPO_ROOT / "datasets" / "ICT" / "train_ready" / "gt_matrix.npz",
+    ),
 }
 DEFAULT_SUPPORT_BANK = THIS_DIR / "support_bank" / "npz_withops"
 NAME_RE = re.compile(r"^(?P<sid>id\d+)_GTready_(?P<variant>.+)\.npz$", re.IGNORECASE)
@@ -60,6 +67,17 @@ def subject_files(data_dir: Path, variants: set[str] | None) -> dict[str, list[P
         if m is None or (variants is not None and m["variant"].lower() not in variants):
             continue
         out.setdefault(m["sid"].lower(), []).append(p)
+    return out
+
+
+def parse_overrides(items: list[str], what: str) -> dict[str, Path]:
+    """`domain=path` pairs; a domain absent from DEFAULTS is a typo, not a new domain."""
+    out: dict[str, Path] = {}
+    for item in items:
+        domain, sep, path = item.partition("=")
+        if not sep or domain.strip().lower() not in DEFAULTS:
+            raise SystemExit(f"--{what} wants DOMAIN=PATH with DOMAIN in {sorted(DEFAULTS)}, got {item!r}")
+        out[domain.strip().lower()] = Path(path)
     return out
 
 
@@ -85,10 +103,17 @@ def main() -> None:
     ap.add_argument("--domains", type=str, default="bfm,flame", help=f"comma list from {sorted(DEFAULTS)}")
     ap.add_argument("--n-bfm", type=int, default=0, help="0 = all")
     ap.add_argument("--n-flame", type=int, default=0, help="0 = all")
+    ap.add_argument("--n-ict", type=int, default=0, help="0 = all")
+    ap.add_argument("--data-dir", action="append", default=[], metavar="DOMAIN=PATH",
+                    help="override a domain's npz dir (bfm=.../npz_data_topo_500_withops_areanorm)")
+    ap.add_argument("--gt-npz", action="append", default=[], metavar="DOMAIN=PATH",
+                    help="override a domain's GT matrix")
     ap.add_argument("--variants", type=str, default="", help="comma list of _GTready_<variant> tokens to keep")
     ap.add_argument("--support-bank", type=Path, default=DEFAULT_SUPPORT_BANK, help="'' to exclude")
     a = ap.parse_args()
 
+    data_dir_override = parse_overrides(a.data_dir, "data-dir")
+    gt_npz_override = parse_overrides(a.gt_npz, "gt-npz")
     variants = {v.strip().lower() for v in a.variants.split(",") if v.strip()} or None
     data_out = a.out_dir / "npz_withops"
     data_out.mkdir(parents=True, exist_ok=True)
@@ -108,8 +133,10 @@ def main() -> None:
     if unknown:
         raise SystemExit(f"unknown domains {unknown}; known={sorted(DEFAULTS)}")
 
-    for domain, cap in [(d, {"bfm": a.n_bfm, "flame": a.n_flame}[d]) for d in wanted]:
+    for domain, cap in [(d, {"bfm": a.n_bfm, "flame": a.n_flame, "ict": a.n_ict}[d]) for d in wanted]:
         data_dir, gt_npz = DEFAULTS[domain]
+        data_dir = data_dir_override.get(domain, data_dir)
+        gt_npz = gt_npz_override.get(domain, gt_npz)
         by_subject = subject_files(data_dir, variants)
         subjects = sorted(by_subject)[: cap or None]
         wrong = [s for s in subjects if train_v2.domain_of(s) != domain]
@@ -128,6 +155,10 @@ def main() -> None:
         manifest["domains"][domain] = {
             "data_dir": str(data_dir),
             "gt_npz": str(gt_npz),
+            # load_gt_distance_matrix divides by the GLOBAL max of the joint matrix, so a block
+            # is on the same scale as its single-domain run only if that global max is the one
+            # its own source file was already normalized to. Recorded to make this checkable.
+            "gt_block_max": float(blocks[-1].max()),
             "n_subjects": len(subjects),
             "id_range": [subjects[0], subjects[-1]] if subjects else [],
             "n_meshes": sum(len(by_subject[s]) + len(bank.get(s, [])) for s in subjects),
@@ -150,6 +181,7 @@ def main() -> None:
 
     np.savez(a.out_dir / "gt_matrix.npz", D_orig=D, names=np.array(names))
     manifest.update(
+        gt_global_max=float(np.nanmax(D)),
         n_subjects=n,
         n_symlinks=n_links,
         n_support_bank_links=n_bank_links,
