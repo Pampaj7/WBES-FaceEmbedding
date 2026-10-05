@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Face similarity study</title>
+<!--
+  Studio umano WS4: triplette "quale tra B e C somiglia di piu' ad A".
+
+  File singolo, senza framework e senza rete: si apre con un doppio click
+  (file:///.../aau/human_study/index.html) e funziona offline.  I dati stanno accanto:
+
+    index.html      questa pagina
+    triplets.js     le triplette (generate da select_triplets.py)
+    img/            i render frontali 512x512
+
+  triplets.js e non triplets.json perche' su file:// il browser blocca fetch()/XHR
+  (origine "null"), mentre un tag <script> e un <img src> passano.  Se il file manca,
+  la pagina offre comunque un selettore per caricare triplets.json a mano.
+
+  Le risposte non vengono spedite da nessuna parte: a fine sessione la pagina scarica un
+  JSON e ne mostra il testo, da rimandare a mano (aau/human_study/analyze.py li rilegge).
+-->
+<style>
+  :root {
+    --img: min(30vw, 38vh, 360px);
+    --bg: #121212;
+    --fg: #e9e9e9;
+    --muted: #9a9a9a;
+    --accent: #4a90d9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    display: flex; justify-content: center;
+  }
+  main { width: 100%; max-width: 900px; padding: 24px 20px 40px; }
+  h1 { font-size: 1.5rem; margin: 0 0 16px; }
+  h2 { font-size: 1.1rem; margin: 24px 0 8px; }
+  p, li { color: #d5d5d5; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  button {
+    font: inherit; padding: 10px 20px; border-radius: 6px; border: 1px solid #555;
+    background: #262626; color: var(--fg); cursor: pointer;
+  }
+  button:hover:enabled { border-color: var(--accent); }
+  button:disabled { opacity: 0.4; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  label.consent { display: block; margin: 16px 0; color: var(--fg); }
+
+  /* --- schermata di prova: A in alto centrato, B e C sotto affiancati, stessa taglia --- */
+  #screen-trial { text-align: center; }
+  .stimulus { width: var(--img); height: var(--img); display: block; background: #000;
+              border-radius: 4px; }
+  .reference { display: inline-block; margin: 4px 0 10px; }
+  .options { display: flex; gap: 28px; justify-content: center; }
+  .option { border: 3px solid transparent; border-radius: 8px; padding: 4px;
+            background: none; cursor: pointer; }
+  .option:hover, .option:focus-visible { border-color: var(--accent); outline: none; }
+  .option.picked { border-color: #fff; }
+  .tag { display: block; margin-top: 6px; font-size: 0.95rem; color: var(--muted); }
+  .bar { height: 4px; background: #262626; border-radius: 2px; margin: 0 0 14px; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); border-radius: 2px;
+               transition: width 0.15s linear; }
+  .counter { font-size: 0.9rem; color: var(--muted); margin-bottom: 6px; }
+  textarea { width: 100%; height: 220px; background: #0b0b0b; color: #cfcfcf;
+             border: 1px solid #333; border-radius: 6px; padding: 10px;
+             font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; }
+  code.big { font-size: 1.6rem; color: #fff; letter-spacing: 2px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+
+<section id="screen-error" hidden>
+  <h1>Study data not found</h1>
+  <p><code>triplets.js</code> was not found next to this page. Keep
+     <code>index.html</code>, <code>triplets.js</code> and the <code>img/</code> folder in
+     the same directory, or load <code>triplets.json</code> by hand:</p>
+  <p><input type="file" id="file-input" accept=".json,.js"></p>
+</section>
+
+<section id="screen-consent" hidden>
+  <h1>Face similarity study</h1>
+  <p>Thank you for taking part. You will compare <b>computer-generated faces</b>. The
+     images are renderings of synthetic 3D face models: <b>no real person is shown</b>, and
+     no photograph of anyone is used.</p>
+  <h2>What you will do</h2>
+  <p>You will see <span id="consent-n">40</span> screens. Each shows one reference face at
+     the top and two other faces below it. You pick the one that looks more similar to the
+     reference. It takes about <b>10 minutes</b>.</p>
+  <h2>What is recorded</h2>
+  <p>Only your choices and how long each one took. No name, no e-mail, no IP address, no
+     cookie: the page runs entirely inside your browser and sends nothing anywhere. At the
+     end you get a file and a participant code, and you decide whether to hand them over.</p>
+  <h2>Voluntary participation</h2>
+  <p>You can stop at any time by closing the tab, with no consequence and no partial data
+     being kept. The anonymous answers will be used for academic research on 3D face
+     similarity metrics and may be published in aggregate form.</p>
+  <label class="consent">
+    <input type="checkbox" id="consent-box"> I am 18 or older, I have read the above and I
+    agree to take part.
+  </label>
+  <button id="consent-next" class="primary" disabled>Continue</button>
+</section>
+
+<section id="screen-instructions" hidden>
+  <h1>Instructions</h1>
+  <p>On every screen: the <b>reference face</b> is at the top, two <b>candidate faces</b>
+     are below it, side by side.</p>
+  <p><b>Pick the candidate that looks more similar to the reference face.</b></p>
+  <ul>
+    <li>Click on a face, or press <b>1</b> for the left one and <b>2</b> for the right one.</li>
+    <li>Go with your first impression. There is no right answer and no time limit, but
+      about 10 seconds per screen is the right pace.</li>
+    <li>Judge the <b>shape of the face</b>: all faces are rendered with the same lighting,
+      the same camera and no hair, skin tone or texture.</li>
+    <li>You cannot go back to a previous screen.</li>
+  </ul>
+  <p class="muted">Some screens are easy on purpose: they are there to check that the page
+     is being looked at.</p>
+  <button id="instructions-next" class="primary">Start</button>
+</section>
+
+<section id="screen-loading" hidden>
+  <h1>Loading images…</h1>
+  <div class="bar"><div id="load-bar"></div></div>
+  <p class="muted" id="load-text">0 / 0</p>
+</section>
+
+<section id="screen-trial" hidden>
+  <div class="bar"><div id="trial-bar"></div></div>
+  <div class="counter" id="trial-counter">1 / 40</div>
+  <div class="reference"><img class="stimulus" id="img-a" alt="reference face"></div>
+  <div class="options">
+    <button class="option" id="opt-left"><img class="stimulus" id="img-left" alt="candidate 1"><span class="tag">1 — left</span></button>
+    <button class="option" id="opt-right"><img class="stimulus" id="img-right" alt="candidate 2"><span class="tag">2 — right</span></button>
+  </div>
+  <p class="muted">Which face is more similar to the one above? Click, or press 1 / 2.</p>
+</section>
+
+<section id="screen-done" hidden>
+  <h1>Done — thank you</h1>
+  <p>Your participant code is</p>
+  <p><code class="big" id="done-code">P0000000</code></p>
+  <p>A file named <code id="done-file">…</code> should have been downloaded. If it was not,
+     use the button below and send the file back to the person who invited you.</p>
+  <p>
+    <button id="done-download" class="primary">Download again</button>
+    <button id="done-copy">Copy the text</button>
+  </p>
+  <p class="muted">Or copy the text below and paste it into an e-mail:</p>
+  <textarea id="done-json" readonly></textarea>
+</section>
+
+</main>
+
+<script src="triplets.js"></script>
+<script>
+"use strict";
+
+// Quante prove vede un partecipante: 36 test + 4 controlli mescolati = 40, ~10 minuti.
+const N_TEST = 36;
+const N_CONTROL = 4;
+const ITI_MS = 300;      // schermo vuoto fra una risposta e la prova dopo
+const APP_VERSION = "ws4-1";
+
+const el = (id) => document.getElementById(id);
+const show = (id) => {
+  for (const s of document.querySelectorAll("main > section")) s.hidden = (s.id !== id);
+};
+
+/* --- PRNG seminato: il codice partecipante E' il seme, quindi l'assegnazione delle
+       triplette a quel partecipante si puo' ricostruire dopo. --- */
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function () {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function randomSeed() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    return window.crypto.getRandomValues(new Uint32Array(1))[0];
+  }
+  return Math.floor(Math.random() * 4294967296);
+}
+
+const codeFromSeed = (seed) => "P" + seed.toString(36).toUpperCase().padStart(7, "0");
+
+function shuffled(items, rand) {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/* --- costruzione della sessione ------------------------------------------------- */
+
+// I test si pescano a giro fra i tipi di disaccordo, cosi' ogni partecipante li copre
+// tutti invece di prendersi 36 triplette dello stesso tipo per caso.
+function drawTests(triplets, n, rand) {
+  const byType = new Map();
+  for (const t of triplets) {
+    if (t.kind !== "test") continue;
+    if (!byType.has(t.disagreement_type)) byType.set(t.disagreement_type, []);
+    byType.get(t.disagreement_type).push(t);
+  }
+  const queues = shuffled([...byType.keys()], rand).map((k) => shuffled(byType.get(k), rand));
+  const picked = [];
+  let round = 0;
+  while (picked.length < n) {
+    let progressed = false;
+    for (const q of queues) {
+      if (round < q.length && picked.length < n) { picked.push(q[round]); progressed = true; }
+    }
+    if (!progressed) break;   // pool esaurito: meno di n triplette disponibili
+    round++;
+  }
+  return shuffled(picked, rand);
+}
+
+// Un controllo per blocco: gli attention check restano spalmati sulla sessione invece di
+// finire tutti e quattro nei primi minuti.
+function interleave(tests, controls, rand) {
+  const nBlocks = controls.length;
+  const per = Math.floor(tests.length / nBlocks);
+  const trials = [];
+  for (let b = 0; b < nBlocks; b++) {
+    const block = (b === nBlocks - 1) ? tests.slice(b * per) : tests.slice(b * per, (b + 1) * per);
+    const at = Math.floor(rand() * (block.length + 1));
+    trials.push(...block.slice(0, at), controls[b], ...block.slice(at));
+  }
+  return trials;
+}
+
+function buildSession(data, seed) {
+  const rand = mulberry32(seed);
+  const tests = drawTests(data.triplets, N_TEST, rand);
+  const controls = shuffled(data.triplets.filter((t) => t.kind === "control"), rand)
+      .slice(0, N_CONTROL);
+  const order = interleave(tests, controls, rand);
+  // Quale candidato finisce a sinistra si tira a sorte per prova: senza questo, un
+  // eventuale bias di posizione si sommerebbe sempre allo stesso lato.
+  return order.map((t) => ({ triplet: t, left: rand() < 0.5 ? "b" : "c" }))
+              .map((x) => ({ ...x, right: x.left === "b" ? "c" : "b" }));
+}
+
+/* --- stato ---------------------------------------------------------------------- */
+
+const state = {
+  data: null, seed: 0, code: "", session: [], index: 0,
+  responses: [], startedAt: null, shownAt: 0, locked: true,
+};
+
+function preload(session, done) {
+  const urls = new Set();
+  for (const trial of session) for (const k of ["a", "b", "c"]) urls.add(trial.triplet.images[k]);
+  const list = [...urls];
+  let loaded = 0;
+  el("load-text").textContent = `0 / ${list.length}`;
+  const tick = () => {
+    loaded++;
+    el("load-bar").style.width = `${(100 * loaded) / list.length}%`;
+    el("load-text").textContent = `${loaded} / ${list.length}`;
+    if (loaded === list.length) done();
+  };
+  for (const url of list) {
+    const img = new Image();
+    img.onload = tick;
+    img.onerror = tick;   // un'immagine mancante non deve bloccare la sessione
+    img.src = url;
+  }
+}
+
+function renderTrial() {
+  const trial = state.session[state.index];
+  el("trial-counter").textContent = `${state.index + 1} / ${state.session.length}`;
+  el("trial-bar").style.width = `${(100 * state.index) / state.session.length}%`;
+  el("img-a").src = trial.triplet.images.a;
+  el("img-left").src = trial.triplet.images[trial.left];
+  el("img-right").src = trial.triplet.images[trial.right];
+  for (const id of ["opt-left", "opt-right"]) el(id).classList.remove("picked");
+  state.shownAt = performance.now();
+  state.locked = false;
+}
+
+function answer(side, input) {
+  if (state.locked) return;
+  state.locked = true;
+  const rt = performance.now() - state.shownAt;
+  const trial = state.session[state.index];
+  const chosen = side === "left" ? trial.left : trial.right;
+  el(side === "left" ? "opt-left" : "opt-right").classList.add("picked");
+  state.responses.push({
+    position: state.index + 1,
+    triplet_id: trial.triplet.id,
+    kind: trial.triplet.kind,
+    a: trial.triplet.a, b: trial.triplet.b, c: trial.triplet.c,
+    left: trial.left, right: trial.right,
+    chosen: chosen,
+    chosen_subject: trial.triplet[chosen],
+    rt_ms: Math.round(rt),
+    input: input,
+  });
+  state.index++;
+  setTimeout(() => {
+    if (state.index >= state.session.length) finish();
+    else renderTrial();
+  }, ITI_MS);
+}
+
+/* --- fine e consegna ------------------------------------------------------------ */
+
+function results() {
+  const meta = state.data.meta || {};
+  return {
+    app_version: APP_VERSION,
+    participant: state.code,
+    seed: state.seed,
+    started_at: state.startedAt,
+    finished_at: new Date().toISOString(),
+    n_trials: state.session.length,
+    user_agent: navigator.userAgent,
+    screen: { w: window.screen.width, h: window.screen.height, dpr: window.devicePixelRatio },
+    triplets_meta: {
+      generated_at: meta.generated_at, seed: meta.seed, metrics: meta.metrics,
+      n_test: meta.n_test, n_control: meta.n_control,
+    },
+    responses: state.responses,
+  };
+}
+
+function download(text, filename) {
+  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function finish() {
+  window.onbeforeunload = null;
+  const text = JSON.stringify(results(), null, 1);
+  const filename = `wbes_human_study_${state.code}.json`;
+  el("done-code").textContent = state.code;
+  el("done-file").textContent = filename;
+  el("done-json").value = text;
+  el("done-download").onclick = () => download(text, filename);
+  el("done-copy").onclick = () => {
+    el("done-json").select();
+    try { document.execCommand("copy"); } catch (e) { /* niente clipboard su file://: resta la selezione */ }
+  };
+  show("screen-done");
+  download(text, filename);
+}
+
+/* --- avvio ---------------------------------------------------------------------- */
+
+function start() {
+  state.seed = randomSeed();
+  state.code = codeFromSeed(state.seed);
+  state.session = buildSession(state.data, state.seed);
+  state.startedAt = new Date().toISOString();
+  show("screen-loading");
+  preload(state.session, () => {
+    window.onbeforeunload = () => "The session is not finished: your answers would be lost.";
+    show("screen-trial");
+    renderTrial();
+  });
+}
+
+function boot(data) {
+  if (!data || !Array.isArray(data.triplets) || data.triplets.length === 0) {
+    show("screen-error");
+    return;
+  }
+  state.data = data;
+  el("consent-n").textContent = String(N_TEST + N_CONTROL);
+  show("screen-consent");
+}
+
+el("consent-box").onchange = (e) => { el("consent-next").disabled = !e.target.checked; };
+el("consent-next").onclick = () => show("screen-instructions");
+el("instructions-next").onclick = start;
+el("opt-left").onclick = () => answer("left", "click");
+el("opt-right").onclick = () => answer("right", "click");
+document.addEventListener("keydown", (e) => {
+  if (el("screen-trial").hidden) return;
+  if (e.key === "1") answer("left", "key");
+  else if (e.key === "2") answer("right", "key");
+});
+
+// Ripiego se triplets.js non c'e': si carica triplets.json a mano (un <input type=file>
+// e' l'unico modo di leggere un file locale senza violare la same-origin policy).
+el("file-input").onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const raw = String(reader.result).replace(/^[\s\S]*?window\.WBES_TRIPLETS\s*=\s*/, "")
+                                       .replace(/;\s*$/, "");
+      boot(JSON.parse(raw));
+    } catch (err) {
+      alert("Not a valid triplets.json: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+};
+
+boot(window.WBES_TRIPLETS);
+</script>
+</body>
+</html>

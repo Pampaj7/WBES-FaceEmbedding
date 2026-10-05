@@ -1,0 +1,588 @@
+<title>Face similarity study</title>
+<!--
+  Studio umano WS4, versione ospitata: triplette "quale tra B e C somiglia di piu' ad A".
+
+  Il sorgente e' hosted/_template.html; hosted/index.html, il file da pubblicare, lo
+  genera build_hosted.py incorporandoci le triplette e le 100 immagini come data URI
+  JPEG 384x384 q85, e non si modifica a mano.  Serve PIL, che sul frontend non c'e':
+
+    AAU_NV="" srun --partition=cpu --cpus-per-task=2 --mem=8G --time=00:10:00 \
+        aau/run.sh aau/human_study/build_hosted.py
+
+  Differenze dalla versione offline (aau/human_study/index.html, che resta com'e'):
+    - un solo file, senza <!doctype>/<html>/<head>/<body>: li aggiunge la piattaforma,
+      quindi <title> e <style> stanno in cima e tutto il resto sta in un <main> nostro;
+    - niente triplets.js e niente img/: i dati sono dentro la pagina;
+    - le risposte finiscono nella capability `db` della piattaforma
+      (responses/<codice> a fine sessione, progress/<codice> ogni 10 risposte).
+      Se `db` non c'e', si ripiega sulla consegna a mano del JSON: nel visualizzatore i
+      link data:/blob: sono inerti, quindi il file si offre con la capability
+      `downloads` (che chiede conferma al partecipante), e senza nemmeno quella restano
+      la textarea e il bottone che copia.
+-->
+<style>
+  /* Tema chiaro di default, scuro se lo chiede il sistema o data-theme="dark".
+     I due selettori scuri sono separati (non una lista) perche' :root:not([data-theme])
+     dentro la media query lascia comunque a data-theme="light" l'ultima parola. */
+  :root {
+    --img: min(30vw, 38vh, 360px);
+    --bg: #f6f6f7;
+    --fg: #1b1b1f;
+    --muted: #5d6066;
+    --accent: #2563c4;
+    --panel: #ffffff;
+    --border: #cfd2d8;
+    --btn-bg: #ffffff;
+    --pick: #1b1b1f;
+    --ok: #1a7f4b;
+    --bad: #b3261e;
+    /* i render hanno il fondo nero: la cornice resta scura anche nel tema chiaro,
+       cosi' il bordo dell'immagine non taglia a meta' il contrasto */
+    --frame: #24262b;
+    --mono-bg: #101114;
+    --mono-fg: #d7d9dd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121212;
+      --fg: #e9e9e9;
+      --muted: #9a9a9a;
+      --accent: #4a90d9;
+      --panel: #1a1a1c;
+      --border: #3a3a3d;
+      --btn-bg: #262626;
+      --pick: #ffffff;
+      --ok: #5ec98c;
+      --bad: #f2887f;
+      --frame: #1b1d21;
+      --mono-bg: #0b0b0b;
+      --mono-fg: #cfcfcf;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121212;
+    --fg: #e9e9e9;
+    --muted: #9a9a9a;
+    --accent: #4a90d9;
+    --panel: #1a1a1c;
+    --border: #3a3a3d;
+    --btn-bg: #262626;
+    --pick: #ffffff;
+    --ok: #5ec98c;
+    --bad: #f2887f;
+    --frame: #1b1d21;
+    --mono-bg: #0b0b0b;
+    --mono-fg: #cfcfcf;
+  }
+
+  html { background: var(--bg); }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.5;
+  }
+  #hs-study { box-sizing: border-box; width: 100%; max-width: 900px;
+              margin: 0 auto; padding: 24px 20px 40px; }
+  #hs-study *, #hs-study *::before, #hs-study *::after { box-sizing: border-box; }
+  #hs-study h1 { font-size: 1.5rem; margin: 0 0 16px; color: var(--fg); }
+  #hs-study h2 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--fg); }
+  #hs-study p, #hs-study li { color: var(--fg); }
+  #hs-study .muted { color: var(--muted); font-size: 0.9rem; }
+  #hs-study .ok { color: var(--ok); }
+  #hs-study .bad { color: var(--bad); }
+  #hs-study button {
+    font: inherit; padding: 10px 20px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--btn-bg); color: var(--fg);
+    cursor: pointer;
+  }
+  #hs-study button:hover:enabled { border-color: var(--accent); }
+  #hs-study button:disabled { opacity: 0.4; cursor: default; }
+  #hs-study button.primary { background: var(--accent); border-color: var(--accent);
+                             color: #fff; }
+  #hs-study label.consent { display: block; margin: 16px 0; color: var(--fg); }
+
+  /* --- schermata di prova: A in alto centrato, B e C sotto affiancati, stessa taglia --- */
+  #hs-screen-trial { text-align: center; }
+  #hs-study .stimulus { width: var(--img); height: var(--img); display: block;
+                        background: #000; border-radius: 4px; }
+  #hs-study .frame { display: inline-block; padding: 6px; border-radius: 8px;
+                     background: var(--frame); line-height: 0; }
+  #hs-study .reference { display: inline-block; margin: 4px 0 10px; }
+  #hs-study .options { display: flex; gap: 28px; justify-content: center; }
+  #hs-study .option { border: 3px solid transparent; border-radius: 12px; padding: 4px;
+                      background: none; cursor: pointer; }
+  #hs-study .option:hover, #hs-study .option:focus-visible { border-color: var(--accent);
+                                                             outline: none; }
+  #hs-study .option.picked { border-color: var(--pick); }
+  #hs-study .tag { display: block; margin-top: 6px; font-size: 0.95rem; color: var(--muted); }
+  #hs-study .bar { height: 4px; background: var(--border); border-radius: 2px;
+                   margin: 0 0 14px; }
+  #hs-study .bar > div { height: 100%; width: 0; background: var(--accent);
+                         border-radius: 2px; transition: width 0.15s linear; }
+  #hs-study .counter { font-size: 0.9rem; color: var(--muted); margin-bottom: 6px; }
+  #hs-study textarea { width: 100%; height: 200px; background: var(--mono-bg);
+                       color: var(--mono-fg); border: 1px solid var(--border);
+                       border-radius: 6px; padding: 10px;
+                       font-family: ui-monospace, Menlo, Consolas, monospace;
+                       font-size: 0.8rem; }
+  #hs-study code.big { font-size: 1.6rem; color: var(--fg); letter-spacing: 2px; }
+  #hs-study [hidden] { display: none !important; }
+</style>
+
+<main id="hs-study">
+
+<section id="hs-screen-error" hidden>
+  <h1>Study data not found</h1>
+  <p>This copy of the page has no triplets in it. It was probably not built with
+     <code>build_hosted.py</code>. Please tell the person who invited you.</p>
+</section>
+
+<section id="hs-screen-consent" hidden>
+  <h1>Face similarity study</h1>
+  <p>Thank you for taking part. You will compare <b>computer-generated faces</b>. The
+     images are renderings of synthetic 3D face models: <b>no real person is shown</b>, and
+     no photograph of anyone is used.</p>
+  <h2>What you will do</h2>
+  <p>You will see <span id="hs-consent-n">40</span> screens. Each shows one reference face
+     at the top and two other faces below it. You pick the one that looks more similar to
+     the reference. It takes about <b>10 minutes</b>.</p>
+  <h2>What is recorded</h2>
+  <p>Only your choices, how long each one took and which browser you used. <b>No personal
+     data</b>: no name, no e-mail, no IP address, no cookie. Your answers are stored under a
+     random participant code and cannot be traced back to you, so they are
+     <b>anonymous</b>.</p>
+  <h2>Voluntary participation</h2>
+  <p>You can stop at any time by closing the tab, with no consequence. The anonymous
+     answers will be used for academic research on 3D face similarity metrics and may be
+     published in aggregate form.</p>
+  <label class="consent">
+    <input type="checkbox" id="hs-consent-box"> I am 18 or older, I have read the above and
+    I agree to take part.
+  </label>
+  <button id="hs-consent-next" class="primary" disabled>Continue</button>
+</section>
+
+<section id="hs-screen-instructions" hidden>
+  <h1>Instructions</h1>
+  <p>On every screen: the <b>reference face</b> is at the top, two <b>candidate faces</b>
+     are below it, side by side.</p>
+  <p><b>Pick the candidate that looks more similar to the reference face.</b></p>
+  <ul>
+    <li>Click on a face, or press <b>1</b> for the left one and <b>2</b> for the right one.</li>
+    <li>Go with your first impression. There is no right answer and no time limit, but
+      about 10 seconds per screen is the right pace.</li>
+    <li>Judge the <b>shape of the face</b>: all faces are rendered with the same lighting,
+      the same camera and no hair, skin tone or texture.</li>
+    <li>You cannot go back to a previous screen.</li>
+  </ul>
+  <p class="muted">Some screens are easy on purpose: they are there to check that the page
+     is being looked at.</p>
+  <button id="hs-instructions-next" class="primary">Start</button>
+</section>
+
+<section id="hs-screen-loading" hidden>
+  <h1>Loading images&hellip;</h1>
+  <div class="bar"><div id="hs-load-bar"></div></div>
+  <p class="muted" id="hs-load-text">0 / 0</p>
+</section>
+
+<section id="hs-screen-trial" hidden>
+  <div class="bar"><div id="hs-trial-bar"></div></div>
+  <div class="counter" id="hs-trial-counter">1 / 40</div>
+  <div class="reference frame"><img class="stimulus" id="hs-img-a" alt="reference face"></div>
+  <div class="options">
+    <button class="option" id="hs-opt-left"><span class="frame"><img class="stimulus" id="hs-img-left" alt="candidate 1"></span><span class="tag">1 &mdash; left</span></button>
+    <button class="option" id="hs-opt-right"><span class="frame"><img class="stimulus" id="hs-img-right" alt="candidate 2"></span><span class="tag">2 &mdash; right</span></button>
+  </div>
+  <p class="muted">Which face is more similar to the one above? Click, or press 1 / 2.</p>
+  <p class="muted" id="hs-sync"></p>
+</section>
+
+<section id="hs-screen-done" hidden>
+  <h1>Done &mdash; thank you</h1>
+  <p>Your participant code is</p>
+  <p><code class="big" id="hs-done-code">P0000000</code></p>
+
+  <p id="hs-save-busy">Saving your answers&hellip;</p>
+
+  <div id="hs-save-ok" hidden>
+    <p class="ok"><b>Your answers have been saved.</b> Nothing else is needed: you can close
+       this page.</p>
+    <p class="muted">Keep the code above only if you want to ask for your answers to be
+       deleted later.</p>
+  </div>
+
+  <div id="hs-save-fail" hidden>
+    <p class="bad"><b>Your answers could not be saved.</b> <span id="hs-save-why"></span></p>
+    <p>Nothing is lost: send your answers back to the person who invited you, together with
+       the code above.</p>
+    <p>
+      <button id="hs-done-download" class="primary" hidden>Download the file</button>
+      <button id="hs-done-copy">Copy the text</button>
+      <button id="hs-done-retry">Try saving again</button>
+    </p>
+    <p class="muted" id="hs-download-status"></p>
+    <p class="muted">Copy the text below and paste it into an e-mail:</p>
+    <textarea id="hs-done-json" readonly></textarea>
+  </div>
+</section>
+
+</main>
+
+<script>
+"use strict";
+(function () {
+
+// Le triplette (senza il blocco `metrics`, che serve solo all'analisi offline) e le 100
+// immagini in base64, incollate qui da build_hosted.py.
+const DATA = /*__TRIPLETS__*/ null;
+const IMG = /*__IMAGES__*/ null;
+
+// Quante prove vede un partecipante: 36 test + 4 controlli mescolati = 40, ~10 minuti.
+const N_TEST = 36;
+const N_CONTROL = 4;
+const ITI_MS = 300;         // schermo vuoto fra una risposta e la prova dopo
+const SAVE_EVERY = 10;      // ogni quante risposte si aggiorna progress/<codice>
+
+const el = (id) => document.getElementById(id);
+const show = (id) => {
+  for (const s of document.querySelectorAll("#hs-study > section")) s.hidden = (s.id !== id);
+};
+
+/* --- PRNG seminato: il codice partecipante E' il seme, quindi l'assegnazione delle
+       triplette a quel partecipante si puo' ricostruire dopo. --- */
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function () {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function randomSeed() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    return window.crypto.getRandomValues(new Uint32Array(1))[0];
+  }
+  return Math.floor(Math.random() * 4294967296);
+}
+
+const codeFromSeed = (seed) => "P" + seed.toString(36).toUpperCase().padStart(7, "0");
+
+function shuffled(items, rand) {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/* --- costruzione della sessione ------------------------------------------------- */
+
+// I test si pescano a giro fra i tipi di disaccordo, cosi' ogni partecipante li copre
+// tutti invece di prendersi 36 triplette dello stesso tipo per caso.
+function drawTests(triplets, n, rand) {
+  const byType = new Map();
+  for (const t of triplets) {
+    if (t.kind !== "test") continue;
+    if (!byType.has(t.disagreement_type)) byType.set(t.disagreement_type, []);
+    byType.get(t.disagreement_type).push(t);
+  }
+  const queues = shuffled([...byType.keys()], rand).map((k) => shuffled(byType.get(k), rand));
+  const picked = [];
+  let round = 0;
+  while (picked.length < n) {
+    let progressed = false;
+    for (const q of queues) {
+      if (round < q.length && picked.length < n) { picked.push(q[round]); progressed = true; }
+    }
+    if (!progressed) break;   // pool esaurito: meno di n triplette disponibili
+    round++;
+  }
+  return shuffled(picked, rand);
+}
+
+// Un controllo per blocco: gli attention check restano spalmati sulla sessione invece di
+// finire tutti e quattro nei primi minuti.
+function interleave(tests, controls, rand) {
+  const nBlocks = controls.length;
+  const per = Math.floor(tests.length / nBlocks);
+  const trials = [];
+  for (let b = 0; b < nBlocks; b++) {
+    const block = (b === nBlocks - 1) ? tests.slice(b * per) : tests.slice(b * per, (b + 1) * per);
+    const at = Math.floor(rand() * (block.length + 1));
+    trials.push(...block.slice(0, at), controls[b], ...block.slice(at));
+  }
+  return trials;
+}
+
+function buildSession(data, seed) {
+  const rand = mulberry32(seed);
+  const tests = drawTests(data.triplets, N_TEST, rand);
+  const controls = shuffled(data.triplets.filter((t) => t.kind === "control"), rand)
+      .slice(0, N_CONTROL);
+  const order = interleave(tests, controls, rand);
+  // Quale candidato finisce a sinistra si tira a sorte per prova: senza questo, un
+  // eventuale bias di posizione si sommerebbe sempre allo stesso lato.
+  return order.map((t) => ({ triplet: t, left: rand() < 0.5 ? "b" : "c" }))
+              .map((x) => ({ ...x, right: x.left === "b" ? "c" : "b" }));
+}
+
+/* --- stato ---------------------------------------------------------------------- */
+
+const state = {
+  data: null, seed: 0, code: "", session: [], index: 0,
+  trials: [], startedAt: null, shownAt: 0, locked: true,
+};
+
+// Le capability si chiedono una volta sola e si aspettano solo al momento di usarle: la
+// pagina deve partire anche mentre `use()` e' ancora in volo (o non risponde mai, e
+// dopo 10 s da' null).  Fuori dalla piattaforma `window.claude` non esiste affatto.
+const capability = (name) => (window.claude && typeof window.claude.use === "function")
+  ? window.claude.use(name).catch(() => null)
+  : Promise.resolve(null);
+
+const dbReady = capability("db");
+const downloadsReady = capability("downloads");
+
+function preload(session, done) {
+  const urls = new Set();
+  for (const trial of session) for (const k of ["a", "b", "c"]) urls.add(imageOf(trial.triplet, k));
+  const list = [...urls];
+  let loaded = 0;
+  el("hs-load-text").textContent = `0 / ${list.length}`;
+  const tick = () => {
+    loaded++;
+    el("hs-load-bar").style.width = `${(100 * loaded) / list.length}%`;
+    el("hs-load-text").textContent = `${loaded} / ${list.length}`;
+    if (loaded === list.length) done();
+  };
+  for (const url of list) {
+    const img = new Image();
+    img.onload = tick;
+    img.onerror = tick;   // un'immagine mancante non deve bloccare la sessione
+    img.src = url;
+  }
+}
+
+// I data URI stanno in IMG, indicizzati per soggetto (`id0027`): le 100 immagini sono
+// condivise fra le triplette e ripeterle per tripletta moltiplicherebbe il file per tre.
+const imageOf = (triplet, slot) => IMG[triplet[slot]] || "";
+
+function renderTrial() {
+  const trial = state.session[state.index];
+  el("hs-trial-counter").textContent = `${state.index + 1} / ${state.session.length}`;
+  el("hs-trial-bar").style.width = `${(100 * state.index) / state.session.length}%`;
+  el("hs-img-a").src = imageOf(trial.triplet, "a");
+  el("hs-img-left").src = imageOf(trial.triplet, trial.left);
+  el("hs-img-right").src = imageOf(trial.triplet, trial.right);
+  for (const id of ["hs-opt-left", "hs-opt-right"]) el(id).classList.remove("picked");
+  state.shownAt = performance.now();
+  state.locked = false;
+}
+
+function answer(side) {
+  if (state.locked) return;
+  state.locked = true;
+  const rt = performance.now() - state.shownAt;
+  const trial = state.session[state.index];
+  const chosen = side === "left" ? trial.left : trial.right;
+  el(side === "left" ? "hs-opt-left" : "hs-opt-right").classList.add("picked");
+  state.trials.push({
+    triplet_id: trial.triplet.id,
+    control: trial.triplet.kind === "control",
+    shown_left: trial.left,
+    choice: chosen,
+    rt_ms: Math.round(rt),
+  });
+  state.index++;
+  const last = state.index >= state.session.length;
+  if (!last && state.trials.length % SAVE_EVERY === 0) saveProgress();
+  setTimeout(() => {
+    if (last) finish();
+    else renderTrial();
+  }, ITI_MS);
+}
+
+/* --- scrittura su db ------------------------------------------------------------ */
+
+function payload(finished) {
+  return {
+    participant: state.code,
+    started: state.startedAt,
+    finished: finished,
+    trials: state.trials.slice(),
+    user_agent: navigator.userAgent,
+  };
+}
+
+// I messaggi sono per il partecipante, non per noi: dicono se ha ancora qualcosa da fare.
+function dbErrorText(err) {
+  const code = (err && err.code) || "unavailable";
+  if (code === "quota_exceeded") return "The study database is full.";
+  if (code === "resource_exhausted") return "The study database is busy right now.";
+  if (code === "invalid_argument" || code === "transform_error")
+    return "The study database rejected the answers.";
+  if (code === "revoked") return "Access to the study database was lost during the session.";
+  if (code === "not_granted" || code === "capability_disabled" || code === "capability_removed")
+    return "This page cannot reach the study database.";
+  return "The study database is unreachable.";
+}
+
+// Un solo ritentativo, e solo su `unavailable`: gli altri codici non diventano veri
+// riprovando, e insistere brucia la quota di chiamate del partecipante.
+async function writeOnce(ref, body) {
+  try {
+    await ref.set(body);
+  } catch (err) {
+    if (!err || err.code !== "unavailable") throw err;
+    await new Promise((r) => setTimeout(r, 400 + Math.random() * 600));
+    await ref.set(body);
+  }
+}
+
+// L'avanzamento e' un ripiego per la sessione interrotta: se non passa, la sessione
+// continua e sara' la scrittura finale a contare.
+async function saveProgress() {
+  const db = await dbReady;
+  if (!db) return;
+  const n = state.trials.length;
+  try {
+    await writeOnce(db.doc(`progress/${state.code}`), payload(null));
+    el("hs-sync").textContent = `Progress saved (${n} answers).`;
+    el("hs-sync").className = "muted";
+  } catch (err) {
+    el("hs-sync").textContent = `Progress not saved yet: ${dbErrorText(err)}`;
+    el("hs-sync").className = "muted bad";
+  }
+}
+
+// Anche i messaggi del download parlano al partecipante: dicono se il file e' arrivato o
+// se deve ripiegare sul testo da copiare.
+function downloadErrorText(err) {
+  const code = (err && err.code) || "unavailable";
+  if (code === "declined") return "The download was declined.";
+  if (code === "rate_limited") return "A download is already waiting for an answer.";
+  if (code === "rejected_extension" || code === "extension_not_enabled")
+    return "This page cannot offer a .json file.";
+  if (code === "bad_request" || code === "transform_error")
+    return "The file could not be prepared.";
+  return "Downloads are not available here.";
+}
+
+// Il download lo consegna la piattaforma: nel visualizzatore un <a download> su un blob:
+// non fa niente, e save() chiede comunque conferma, quindi parte solo dal bottone.
+async function offerFile(text, filename) {
+  const downloads = await downloadsReady;
+  if (!downloads) return;
+  const status = el("hs-download-status");
+  status.textContent = "Waiting for your confirmation...";
+  status.className = "muted";
+  try {
+    const result = await downloads.save({ filename: filename, data: text });
+    status.textContent = result.status === "saved" ? "File saved." : "File delivered.";
+    status.className = "muted ok";
+  } catch (err) {
+    status.textContent = `${downloadErrorText(err)} Use the text below instead.`;
+    status.className = "muted bad";
+    // "saves unusable in this view: hide your save UI" - niente ritentativi automatici,
+    // ne' sul rifiuto del partecipante.
+    const code = (err && err.code) || "unavailable";
+    if (code !== "declined" && code !== "rate_limited") el("hs-done-download").hidden = true;
+  }
+}
+
+// Senza db (pagina salvata su disco, capability non concessa, modulo non caricato: casi
+// indistinguibili per contratto) si torna alla consegna a mano della versione offline.
+function exportFlow(body, why) {
+  const text = JSON.stringify(body, null, 1);
+  const filename = `wbes_human_study_${state.code}.json`;
+  el("hs-save-why").textContent = why;
+  el("hs-done-json").value = text;
+  el("hs-download-status").textContent = "";
+  el("hs-done-download").onclick = () => offerFile(text, filename);
+  // Il bottone compare solo se la piattaforma sa davvero salvare un file.
+  downloadsReady.then((downloads) => { el("hs-done-download").hidden = !downloads; });
+  el("hs-done-copy").onclick = () => {
+    el("hs-done-json").select();
+    try { document.execCommand("copy"); } catch (e) { /* resta la selezione */ }
+  };
+  el("hs-save-busy").hidden = true;
+  el("hs-save-ok").hidden = true;
+  el("hs-save-fail").hidden = false;
+}
+
+async function submit(body) {
+  el("hs-save-busy").hidden = false;
+  el("hs-save-ok").hidden = true;
+  el("hs-save-fail").hidden = true;
+  const db = await dbReady;
+  if (!db) {
+    exportFlow(body, "This page is not connected to the study database.");
+    el("hs-done-retry").hidden = true;
+    return;
+  }
+  try {
+    await writeOnce(db.doc(`responses/${state.code}`), body);
+    el("hs-save-busy").hidden = true;
+    el("hs-save-fail").hidden = true;
+    el("hs-save-ok").hidden = false;
+    // L'avanzamento non serve piu': via, cosi' non occupa un documento per sempre.
+    db.doc(`progress/${state.code}`).delete().catch(() => {});
+  } catch (err) {
+    exportFlow(body, dbErrorText(err));
+    el("hs-done-retry").hidden = false;
+    el("hs-done-retry").onclick = () => submit(body);
+  }
+}
+
+function finish() {
+  window.onbeforeunload = null;
+  const body = payload(new Date().toISOString());
+  el("hs-done-code").textContent = state.code;
+  show("hs-screen-done");
+  submit(body);
+}
+
+/* --- avvio ---------------------------------------------------------------------- */
+
+function start() {
+  state.seed = randomSeed();
+  state.code = codeFromSeed(state.seed);
+  state.session = buildSession(state.data, state.seed);
+  state.startedAt = new Date().toISOString();
+  show("hs-screen-loading");
+  preload(state.session, () => {
+    window.onbeforeunload = () => "The session is not finished: your answers would be lost.";
+    show("hs-screen-trial");
+    renderTrial();
+  });
+}
+
+function boot(data) {
+  if (!data || !Array.isArray(data.triplets) || data.triplets.length === 0) {
+    show("hs-screen-error");
+    return;
+  }
+  state.data = data;
+  el("hs-consent-n").textContent = String(N_TEST + N_CONTROL);
+  show("hs-screen-consent");
+}
+
+el("hs-consent-box").onchange = (e) => { el("hs-consent-next").disabled = !e.target.checked; };
+el("hs-consent-next").onclick = () => show("hs-screen-instructions");
+el("hs-instructions-next").onclick = start;
+el("hs-opt-left").onclick = () => answer("left");
+el("hs-opt-right").onclick = () => answer("right");
+document.addEventListener("keydown", (e) => {
+  if (el("hs-screen-trial").hidden) return;
+  if (e.key === "1") answer("left");
+  else if (e.key === "2") answer("right");
+});
+
+boot(DATA);
+
+})();
+</script>
