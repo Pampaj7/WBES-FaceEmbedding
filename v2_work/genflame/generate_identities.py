@@ -31,13 +31,16 @@ TRUNC = 2.5  # betas are resampled until every coefficient is within +-TRUNC sig
 FLIP = np.array([1.0, -1.0, -1.0])  # FLAME canonical -> render_mesh.py world frame
 
 
-def sample_betas(rng: np.random.Generator, n_identities: int, n_shape: int, sigma: float) -> np.ndarray:
-    """(n_identities, n_shape) betas from N(0, sigma) truncated at +-TRUNC*sigma."""
+def sample_betas(rng: np.random.Generator, n_identities: int, n_shape: int, sigma: float,
+                 trunc: float = TRUNC) -> np.ndarray:
+    """(n_identities, n_shape) betas from N(0, sigma) truncated at +-trunc*sigma (0 = no truncation)."""
     b = rng.normal(0.0, sigma, size=(n_identities, n_shape))
-    bad = np.abs(b) > TRUNC * sigma
+    if trunc <= 0:  # ICT protocol (v2_work/genict/generate_identities.py): plain N(0, sigma)
+        return b
+    bad = np.abs(b) > trunc * sigma
     while bad.any():  # rejection sampling, per-coefficient
         b[bad] = rng.normal(0.0, sigma, size=int(bad.sum()))
-        bad = np.abs(b) > TRUNC * sigma
+        bad = np.abs(b) > trunc * sigma
     return b
 
 
@@ -47,6 +50,8 @@ def main() -> None:
     p.add_argument("--n-shape", type=int, default=100)
     p.add_argument("--sigma", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--trunc", type=float, default=TRUNC,
+                   help=f"truncation in sigmas, default {TRUNC} (historical); 0 = untruncated, as ICT")
     p.add_argument("--out-dir", type=Path, default=Path(__file__).resolve().parent / "flame_identities")
     p.add_argument("--gender", default="neutral", choices=("neutral", "male", "female"))
     p.add_argument("--frame", default="render", choices=("render", "flame"),
@@ -54,7 +59,7 @@ def main() -> None:
     a = p.parse_args()
 
     rng = np.random.default_rng(a.seed)
-    betas = sample_betas(rng, a.n_identities, a.n_shape, a.sigma)
+    betas = sample_betas(rng, a.n_identities, a.n_shape, a.sigma, a.trunc)
     flip = FLIP if a.frame == "render" else np.ones(3)
 
     a.out_dir.mkdir(parents=True, exist_ok=True)
@@ -70,7 +75,7 @@ def main() -> None:
         "n_shape": a.n_shape,
         "n_identities": a.n_identities,
         "gender": a.gender,
-        "truncation_sigma": TRUNC,
+        "truncation_sigma": a.trunc,
         "frame": a.frame,
         "model_file": str(model_path(a.gender)),
         "min_pairwise_beta_l2": min_d,

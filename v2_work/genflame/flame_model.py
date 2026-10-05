@@ -21,6 +21,7 @@ bleeding into expression space, so it is asserted, not trusted.
 
 from __future__ import annotations
 
+import os
 import pickle
 from functools import lru_cache
 from pathlib import Path
@@ -33,8 +34,11 @@ _REPO_ROOT = _GENFLAME_DIR.parents[1]
 # Official FLAME 2020 (verified: bundled BFM_to_FLAME pkls are MODIFIED —
 # max |v_template| diff 8.8e-3, shapedirs diff 1.6e-2 vs official; faces equal).
 # sha256(official generic_model.pkl) = efcd14cc4a69f3a3d9af8ded80146b5b6b50df3bd74cf69108213b144eba725b
+# LICENCE: the file is NOT in the repo. It is read from $WBES_FLAME_MODEL, else from
+# OFFICIAL_MODEL, where the licence holder puts their own copy. There is deliberately no
+# other fallback: the old one (BFM_to_FLAME/model/flame, modified FLAME pickles from another
+# distribution) was removed for WS-FLAME (aau/flame/).
 OFFICIAL_MODEL = _GENFLAME_DIR / "official/FLAME2020/generic_model.pkl"
-MODEL_DIR = _REPO_ROOT / "BFM_to_FLAME/model/flame"  # legacy/dev-only fallback
 N_SHAPE = 300  # identity dirs; shapedirs[..., 300:] is expression
 
 
@@ -79,9 +83,16 @@ def load_flame(path: str | Path) -> dict:
 
 
 def model_path(gender: str = "neutral") -> Path:
-    if gender == "neutral" and OFFICIAL_MODEL.exists():
-        return OFFICIAL_MODEL
-    return MODEL_DIR / f"FLAME_{gender.upper()}.pkl"
+    """$WBES_FLAME_MODEL if set, else OFFICIAL_MODEL; nothing else (see LICENCE above)."""
+    if gender != "neutral":
+        raise ValueError(f"gender '{gender}': only the neutral generic model is supported "
+                         "(the male/female fallback was a non-official copy, removed)")
+    env = os.environ.get("WBES_FLAME_MODEL", "").strip()
+    path = Path(env) if env else OFFICIAL_MODEL
+    if not path.is_file():
+        raise FileNotFoundError(f"FLAME model not found at {path}: set WBES_FLAME_MODEL or put "
+                                f"the licensed generic_model.pkl at {OFFICIAL_MODEL}")
+    return path
 
 
 def flame_shape_mesh(betas: np.ndarray, gender: str = "neutral") -> tuple[np.ndarray, np.ndarray]:
