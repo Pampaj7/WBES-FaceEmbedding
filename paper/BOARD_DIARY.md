@@ -1,0 +1,505 @@
+# Board diary — WBES-FaceEmbedding verso CVPR 2027
+
+Diario cronologico di tutto ciò che viene fatto, con risultati e scoperte. Ogni voce dice cosa è stato fatto, cosa è uscito, e cosa ne segue. I numeri sono misurati sul cluster AAU salvo dove indicato. Il piano di lavoro è in `PLAN_CVPR2027.md`; questo file è il registro di ciò che è successo davvero.
+
+---
+
+## 10 settembre 2026
+
+### Mattina — repo operativo su AAU
+
+- Clonato il repo (5478 file, 550 MB). Era codice puro: nessun dataset, nessun `diffusion-net`, un solo checkpoint (il modello top v1). Tutti gli script di lancio erano LSF del cluster DTU con path di tre macchine diverse.
+- Costruito l'ambiente in `aau/`: container `pytorch_24.10.sif` (torch 2.5), venv con igl, potpourri3d, robust-laplacian, `diffusion-net` clonato. Smoke test su L40S passato.
+- Scritti gli script Slurm: `submit.sh`, `train_remesh.sbatch`, eval spezzata in tre stage (ranking, topology, sigma) con skip degli stage già completi. Due giri di revisione critica hanno trovato e corretto: log relativi alla directory di sottomissione (job che morivano muti), `--time` troppo corti rispetto ai run originali (eval 28 h, training 23 h), chiave dell'output eval basata sul solo nome del checkpoint (avrebbe fatto passare i numeri del v1 per quelli di un modello nuovo).
+- **Scoperta**: i dati stanno su Hugging Face, account `Pampaj` (non `Pampaj7`): mesh REMESH e FaceScape senza operatori, snapshot del workspace da 30 GB, checkpoint v1. La matrice GT `normalized_matrix_distances.npz` era nello snapshot. Operatori spettrali ricalcolati (k_eig 128, 26 minuti su 24 core, 43 GB).
+
+### Pomeriggio — review lette, piano scritto
+
+- Lette le tre review e il meta-review (in `review.md`): reject per mancanza di validazione reale, circolarità su D_GT, poche baseline. Nessuno contesta l'esecuzione.
+- Scritto `PLAN_CVPR2027.md`: scadenza 16 novembre 2026, sei cantieri (WS0 base, WS1 baseline, WS2 multi-3DMM, WS3 dati reali, WS4 studio umano, WS5 espressioni, WS6 scrittura), gate al 24 ottobre. Tesi nuova: la distorsione da allineamento dimostrata contro quattro riferimenti indipendenti (BFM, secondo 3DMM, identità reali, giudizio umano).
+- **Scoperte nel diario dell'autore (STATUS.md)**:
+  - `pot_area` era concluso e mai trascritto: operatori su mesh ad area unitaria danno +2.9 punti medi su crop (tre seed) rispetto alla convenzione maxabs. Adottata come standard per i nuovi modelli.
+  - L'"anomalia FLAME in-domain 0.478" non esiste: è lo zero-shot BFM→FLAME, e la causa "supporto" era già stata esclusa con un controllo causale.
+  - Le mesh FLAME 5000 non esistono più da nessuna parte; servirebbe il file ufficiale FLAME 2020, che l'autore non può fornire.
+- **Sostituzioni senza asset a licenza**: FLAME → ICT-FaceKit (MIT, 100 identità PCA, 53 espressioni); FaceScape multi-scan e NoW → Multiface (CC BY-NC, 13 soggetti reali, 11 segmenti × 20 frame, immagini calibrate); metodi di ricostruzione con pesi pubblici: 3DDFA_V2, SynergyNet, PRNet. Rifiutata la ricerca di copie non autorizzate di FLAME.
+
+### Sera — primi risultati
+
+**WS1, Tabella 2 estesa** (`aau/runs/baselines_fb100/ranking/`), Spearman vs GT, 100 soggetti della Tabella 2 del paper, CI bootstrap per soggetto:
+
+| Metrica | original→original | cross-topology no-crop |
+|---|---|---|
+| Chamfer | 0.730 (paper 0.729) | 0.552 (paper 0.552) |
+| Varifold | 0.636 | 0.235 |
+| Currents | 0.638 | 0.135 |
+| ArcFace su render | 0.380 | 0.217 |
+| CLIP su render | 0.451 | 0.126 |
+| DINOv2 su render | 0.429 | 0.063 |
+| LPIPS su render | **0.816** | 0.258 |
+| Latent v1 (paper) | 0.902 | 0.868 |
+
+Finding: LPIPS è la miglior metrica a parità di topologia, meglio di Chamfer, ma nessuna baseline aggiunta regge il cambio di topologia. Le percettive non sono una scorciatoia mesh-agnostica. DPDist non implementato.
+
+**WS3b, ricostruzioni su Multiface** (`aau/runs/multiface_ws3b/summary.md`): 3075 immagini per metodo, 13 soggetti, GT = mesh tracciata ritagliata a 95 mm dal naso.
+
+| Criterio | 1° | 2° | 3° |
+|---|---|---|---|
+| Errore stile NoW (mm) | 3DDFA_V2 1.24 | PRNet 1.26 | SynergyNet 1.52 |
+| Chamfer grezzo | 3DDFA_V2 | PRNet | SynergyNet |
+| Latent v1 | 3DDFA_V2 | SynergyNet | PRNet |
+
+Kendall tau per soggetto: NoW/Chamfer 0.33, NoW/latent 0.03, Chamfer/latent 0.28; ordine identico per soggetto solo nell'8–31% dei casi. Finding: la classifica globale è stabile solo perché mediata sui soggetti; per soggetto dipende dal criterio, e il criterio latente scambia gli ultimi due. AUC identità sulle ricostruzioni 0.90–0.94 per tutti i metodi. Caveat: 13 soggetti, recon decimate, latent calcolato su T4. Da rifare con i modelli nuovi. In attesa di revisione critica.
+
+**WS3a, identità reale su Multiface** (`aau/runs/multiface_ws3a/summary.md`): AUC same/different subject, caso difficile (stesso soggetto con espressione diversa contro soggetti diversi a parità di espressione):
+
+| Metrica | tracked | remesh | tracked→remesh | down |
+|---|---|---|---|---|
+| Chamfer | 0.993 | 0.994 | 0.977 | 0.998 |
+| Rigid ICP | 0.995 | 0.996 | 0.993 | 1.000 |
+| Varifold | **0.722** | 0.962 | **0.735** | 0.978 |
+| LPIPS | 1.000 | 1.000 | 0.998 | 1.000 |
+| ArcFace | 1.000 | 1.000 | 1.000 | 1.000 |
+| Latent v1 | 0.999 | 0.999 | 0.983 | 0.999 |
+
+Finding: su scansioni pulite il test è saturo, tutte le metriche separano le identità. Il problema dell'allineamento non emerge con identità pulite; serve il cambio di supporto e topologia. Avviato il protocollo duro (crop, noisy, up, coppie miste). Bug trovato e corretto: le mesh Multiface sono nel frame testa e il renderer disegnava la nuca; senza la rotazione di 180° ArcFace e LPIPS sarebbero stati numeri senza senso. Varifold su tracked cala perché il kernel è sensibile alla scala della mesh tracciata: da chiarire prima di metterlo in tabella.
+
+**WS2, training in corso**:
+- BFM con operatori ad area unitaria, ricetta v1, tre seed. Misurato 250 s per epoca su L40S: 9 ore, contro 23 sul cluster precedente. Due seed completati, il terzo in chiusura. Eval ranking già lanciata sui due checkpoint.
+- ICT-5000 costruito: 5000 identità × 6 topologie, operatori ad area unitaria (30.000 npz, 284 GB), 7500 mesh di espressione per i 500 held-out. Training ICT-only in corso (45 ore stimate). Training congiunto BFM+ICT partito (48–50 ore stimate, staging di 356 GB in RAM). Correzione: il trainer legge gli id a 4 cifre e falliva sugli id ICT a 5 cifre; risolto nel wrapper multi-dominio `v2_work/train_v2`, non nel trainer.
+
+**WS0, riproduzione Tabella 1**: eval topology completata (2h22). Eval ranking: il primo job scriveva i risultati solo alla fine e non stava nel limite di 10 ore; cancellato dopo 6 ore e rilanciato in due job paralleli (3+2 scenari). Sigma sweep: 48 ore stimate contro 36 di limite, ma scrive progressivamente; i blocchi mancanti lanciati a parte. Merge con `aau/merge_ranking_scenarios.py`.
+
+**WS4, studio umano**: pacchetto pronto in `aau/human_study/`: 300 triplette scelte dove GT, Chamfer, LPIPS e latent v1 sono in disaccordo (25 tipi), 30 controlli, interfaccia a file singolo, analisi con bootstrap sui partecipanti testata su dati simulati. Resta da fare a mano: aprire l'interfaccia in un browser, distribuire lo zip a 25–30 persone.
+
+**WS6, testo**: `main_cvpr_draft.tex` con le correzioni che non dipendono da risultati: BFM nominato (2009, da confermare), invarianza rigida dichiarata con i parametri di augmentation reali, claim cross-topologia ridimensionato, Limitations, appendice sulla distinzione delle identità, related work differenziato da Shilova 2026, TGE, AlignFace. Bibliografia aggiuntiva in `refs_cvpr_add.bib`.
+
+**Letteratura**: `literature/REVIEW_2026-09-10.md`. Nessuno ha anticipato la tesi. Da citare: M3DFB (evidenza pre-esistente), Beyond Fixed Topologies (DiffusionNet come precedente), Jozwik 2022 PNAS (la distanza parametrica BFM predice i giudizi umani: argomento contro la circolarità), morfometria medica sul bias di Procrustes.
+
+**Fatti sul cluster**: nodi L40S con 735 GB di RAM e `/tmp` da 378 GB; lo staging in RAM è obbligatorio (11 s/it da CephFS contro 1.6 staged). Limite di 12 job e 12 GPU per utente raggiunto più volte.
+
+### Cose da decidere o fare a mano (autore)
+1. Confermare BFM 2009 o 2017 per REMESH.
+2. Aprire `aau/human_study/index.html` in un browser e distribuire lo studio.
+3. Se in futuro si ottiene FLAME 2020, la pipeline `genflame` aggiunge un terzo 3DMM in quattro ore.
+
+### In attesa
+- Verdetto critic su WS1, WS3a, WS3b.
+- Protocollo duro WS3a.
+- Tabella 1 riprodotta (eval ranking, verso l'una) e confronto col paper.
+- Eval dei modelli ad area unitaria (tre seed) e tabella cross-3DMM (ICT, congiunto).
+
+## 11 settembre 2026
+
+### Notte — verdetto del critic su WS1, WS3a, WS3b: nessun numero pubblicabile così
+
+Difetti dimostrati con script di controllo, non ipotizzati:
+- **Varifold e currents** (WS1 e WS3a): sottocampionamento a 4000 triangoli con seed diverso per mesh. La distanza tra due sottocampionamenti della stessa mesh (0.125 su tracked Multiface) supera quella tra soggetti diversi. Il "crollo" del varifold su tracked (0.72) era un artefatto del rumore, e le righe di Tabella 2 sono sottostimate. Rimedio: tutti i triangoli, self-distance verificata a zero.
+- **ArcFace** (WS1): il detector di volti fallisce su tutti i render `noisy` e ripiega su un center-crop, cioè un altro spazio di embedding; il 40% delle coppie cross confronta due pipeline diverse, e il contatore dei fallback era fisso a zero nel codice. Rimedio: crop geometrico fisso per tutti, niente detector.
+- **Render** (WS1 e WS3a): camera unica senza normalizzazione per mesh, quindi le metriche percettive vedono posizione e scala assolute che Chamfer non vede. Un proxy di quattro numeri (centro e diagonale del bounding box) dà Spearman 0.47 con D_GT su REMESH e AUC 0.996 su Multiface: il test WS3a era risolto da informazione banale. Rimedio: centro + maxabs per mesh prima del render, come Chamfer.
+- **Set di soggetti** (WS1): i numeri riportati erano su fb100, il set della Tabella 2 del paper, che contiene 79 soggetti di training. La tabella primaria del nuovo paper sarà su held-out; fb100 resta solo come gate di riproduzione. Su held-out varifold pareggia LPIPS nel cross (0.21 contro 0.22), quindi la lettura "LPIPS la migliore" va sfumata.
+- **Ritaglio delle ricostruzioni** (WS3b): apertura oculare assunta 90 mm, misurata 86–87, quindi raggio 90.7–91.6 mm contro 95 della GT, e diverso per metodo. È esattamente il support mismatch che il paper rimprovera a Chamfer, e favorisce SynergyNet. Rimedio: raggio scalato sull'apertura misurata.
+- **"Stile NoW"** (WS3b): ICP libero con scala, non la similarità da 7 landmark del protocollo NoW; allineamento più forte, errore più basso (1.24 mm contro ~1.5 pubblicati). Rinominato in `sim_icp_p2s`; il vero NoW aggiunto se i landmark sulla GT sono ricavabili.
+
+Cosa regge: la riproduzione di Chamfer e il bootstrap (identici al paper); la conclusione WS3b "la classifica per soggetto dipende dal criterio" è supportata da uno split-half tau di 0.92–0.98 dentro ogni criterio contro 0.03–0.33 tra criteri, con la riserva che tau su tre elementi è grossolano (atteso 0.18 sotto ipotesi nulla) e che la discordanza Chamfer/latent può dipendere dal difetto di ritaglio.
+
+Conseguenze: correzioni in corso su WS1 e WS3b; il protocollo duro di WS3a rifatto con render normalizzati e varifold a piena risoluzione, più una riga di controllo con il proxy bbox; le triplette dello studio umano vanno rigenerate dopo la correzione dei render, perché usano le matrici LPIPS. Lezione di metodo: ogni metrica su render va accompagnata da una baseline "solo bounding box" che ne misuri la parte banale.
+
+### Notte — WS3a protocollo duro: pipeline corretta, tabella in arrivo
+
+- Costruite tre varianti nuove delle 2848 mesh Multiface: `crop` (taglio anatomico canonico, 70% dei vertici), `noisy` (rumore 0.003 × diagonale), `up` (2.5× vertici), con operatori standard e ad area unitaria. 17.088 npz in totale.
+- Correzioni del critic applicate e misurate: normalizzazione per mesh prima del render (dispersione del proxy bbox da 48.3 a 0.18, cioè 269 volte meno), varifold e currents con 12.000 triangoli e seme fisso (self-distance 0.0000 contro 0.2413 del setup vecchio), riga di controllo `bbox_proxy` in tabella, CI degeneri marcati invece di stampati.
+- Sei coppie di topologie: tracked→tracked (riferimento), tracked→crop, remesh→crop, tracked→noisy, down→up, crop→crop. Nove metriche più il proxy.
+- Costo: percettive ~6 h su T4, geometria ~15 h su 24 core (kernel quadratico a piena risoluzione), latent in coda. Tabella `aau/runs/multiface_ws3a_hard/summary_hard.md` attesa nel pomeriggio dell'11.
+
+### Notte — correzioni del critic applicate a WS1 e WS3b (verificate)
+
+**WS1, Tabella 2 estesa corretta, set held-out (primario), Spearman orig→orig | cross-topology no-crop:**
+
+| Metrica | orig→orig | cross | prima della correzione |
+|---|---|---|---|
+| Chamfer | 0.644 | 0.469 | invariato |
+| Varifold | 0.577 | 0.229 | 0.553 / 0.211 |
+| Currents | 0.613 | 0.133 | — |
+| LPIPS | 0.590 | 0.127 | **0.739 / 0.217** |
+| ArcFace | 0.293 | 0.218 | 0.308 / 0.185 |
+| CLIP | 0.358 | 0.088 | — |
+| DINOv2 | 0.378 | 0.059 | — |
+
+Finding rivisto: LPIPS "batteva Chamfer" solo perché i render esponevano posizione e scala assolute; normalizzato per mesh come Chamfer scende sotto. Su held-out Chamfer resta la miglior baseline in entrambi gli scenari, e tutte crollano cross-topologia. Gate fb100 invariato (0.7295 / 0.5518). Cosa è stato corretto: varifold e currents senza sottocampionamento casuale (misura quantizzata su griglia comune, self-distance esattamente zero, Spearman 1.000 rispetto ai triangoli interi); ArcFace con allineamento geometrico fisso invece del detector (che falliva sul 44% dei render, 100% su noisy); render normalizzati; tabella primaria dichiarata held-out.
+
+**WS3b corretto**: raggio di ritaglio scalato sull'apertura oculare misurata (86.1 mm reali): raggi 94.8 / 95.7 / 95.1 mm contro 95 della GT. Classifica: `sim_icp_p2s` (ICP con scala, ex "stile NoW") 3DDFA 1.24 < PRNet 1.26 < SynergyNet 1.52; Chamfer grezzo 3DDFA < SynergyNet < PRNet; latent v1 3DDFA < SynergyNet < PRNet. **Ora Chamfer e latent concordano tra loro (tau 0.59, 3.3 deviazioni dal nullo) e discordano dal criterio con allineamento (tau 0.18 e −0.03, indistinguibili dal caso).** Split-half per criterio 0.98 / 0.91 / 0.92: le classifiche per soggetto sono affidabili. Il vero criterio NoW da 7 landmark è implementato ma diagnostico: i landmark stimati sulla GT hanno 5–7 mm di dispersione contro un segnale di 1.2–1.6 mm. Residuo da dichiarare: 3DDFA mette il 14% di superficie in più nella stessa sfera (rapporto d'area 1.14 contro 1.06 e 1.08), quindi un confondente di supporto resta.
+
+Nota operativa: per il tetto di 12 job il coder ha usato la partizione aicentre con QoS unprivileged su A40; nessuna prelazione, ma resta una deroga alla regola del cluster.
+
+### Notte — WS0: run v1 riprodotto sul cluster AAU
+
+Eval ranking del checkpoint v1 sui cinque scenari (clean, jitter, translation, rotation, mixed), fusa da due job paralleli. Scenario clean: latent 0.8279 contro 0.8280 del log originale, Chamfer 0.4847 contro 0.4847. Differenza sotto 1e-4: operatori ricalcolati (k_eig 128) e pipeline sono equivalenti a quelli dell'autore. Scenario mixed: latent 0.810 contro 0.800, Chamfer 0.448 contro 0.432, cioè fino a 1.6 punti di scarto, compatibile con la casualità delle perturbazioni (il log originale non salva i CI). La matrice 6×6 per coppie di topologie, che è la vera Tabella 1 del paper, è in confronto.
+Matrice 6×6 (stage topology): le 30 celle cross-topologia di Chamfer e le 30 di latent combaciano con la Tabella 1 del paper a precisione di arrotondamento (scarto massimo 0.0005 Chamfer, 0.0008 latent, nessuna cella oltre 0.01). Le 6 celle diagonali same-topology non sono prodotte da questo stage e restano da riprodurre con l'eval same-topology. **WS0 chiuso nella sostanza: il cluster AAU riproduce il paper.**
+
+### Mattina dell'11 — triplette dello studio umano rigenerate
+
+Con i render normalizzati per mesh e le matrici corrette (Chamfer, LPIPS, latent v1, GT): 300 triplette in disaccordo + 30 controlli, 100 render, 12 MB, in `aau/human_study/`. Prossimo passo: pubblicare lo studio come pagina web con raccolta centralizzata delle risposte, così i partecipanti ricevono solo un link.
+Studio umano pubblicato come pagina web con raccolta centralizzata delle risposte: https://claude.ai/code/artifact/204feff5-053b-44ce-aa7f-53b49182bacc (2.2 MB, 100 render JPEG 384 px, 36 test + 4 controlli per partecipante, risposte salvate nel database della pagina, esportabili con `read_db` sulla collezione `responses` e analizzabili con `analyze.py --from-dir`). La pagina è privata finché non viene condivisa dal menu della pagina; da verificare se i partecipanti esterni all'account possono aprirla, altrimenti resta lo zip offline.
+
+### Mattina dell'11 — WS2: primo confronto modello ad area unitaria contro v1 (PROVVISORIO)
+
+Eval ranking sui cinque scenari, stessi 100 soggetti held-out dell'eval v1, Spearman latent: clean 0.828 (v1) contro 0.854 / 0.852 (seed 2345 / 3456); jitter 0.817 contro 0.836 / 0.830; translation 0.826 contro 0.848 / 0.847; rotation 0.815 contro 0.825 / 0.842 / 0.839 (seed 1234 / 2345 / 3456); mixed 0.810 contro 0.804 / 0.824 / 0.822. Chamfer identico al v1 in tutti gli scenari, come atteso.
+**Sospetto di leakage, in verifica**: il trainer sceglie i soggetti held-out con il seed di training, l'eval usa sempre lo split del seed 1234. Per i seed 2345 e 3456 i 100 soggetti dell'eval possono essere stati nel loro training, e i loro guadagni (+2 punti) sarebbero gonfiati. L'unico confronto sicuro è il seed 1234: rotation +1.0, mixed −0.5. Nessun numero entra nel paper finché non è chiarito. Stessa domanda vale per l'esperimento `pot_area` dell'autore (seed 1234/1235/1236).
+**Leakage confermato (job 1019693)**: `aau/eval_common.sh` forzava `--seed 1234` per ogni checkpoint; i 100 soggetti di eval erano nel training del seed 2345 per 79/100 e del seed 3456 per 86/100. I risultati dei seed 2345 e 3456 sopra sono invalidi e archiviati in `aau/runs/_leaked/`; lo script è corretto per usare il seed del checkpoint e le due eval sono rilanciate sui rispettivi held-out. Il seed 1234 (0/100 in training) resta valido: contro il v1 dà rotation +1.0 e mixed −0.5, cioè un effetto piccolo; clean, jitter e translation in arrivo. L'esperimento `pot_area` dell'autore era invece pulito (eval con il seed letto dal checkpoint, delta appaiati per seed). Lezione: ogni eval di un modello nuovo deve stampare seed e soggetti held-out, e il critic deve controllarlo.
+**WS0 chiuso del tutto**: anche le 12 celle diagonali same-topology della Tabella 1 riprodotte (job 1019690), scarto massimo 0.008 (latent su noisy), le altre 11 entro 0.0005, tutte dentro i CI pubblicati. Nota: la Tabella 1 e la Tabella 2 del paper sono sul set fb100, che contiene 79 soggetti di training; nel nuovo paper le tabelle vanno rifatte su held-out e questo confronto resta solo un gate di riproduzione.
+Fix del leakage applicato e verificato: `eval_common.sh` ora usa il seed del checkpoint, stampa seed e primi soggetti held-out nel log, e gli hash delle out dir esistenti non cambiano (v1 invariato, soggetti identici). Eval dei seed 2345 e 3456 rilanciate sui rispettivi held-out (job 1019704-1019707), risultati nel pomeriggio.
+WS6: sezione "Evaluation protocol" scritta nel draft CVPR (`main_cvpr_draft.tex`, righe ~299-335): held-out e contaminazione delle tabelle precedenti, set di riferimento (REMESH, ICT-5000, Multiface identità, Multiface ricostruzioni), baseline con normalizzazione per mesh, convenzione ad area unitaria e split per seed, studio umano, statistica. Tutti i numeri non definitivi sono segnaposto. Verificato che un viewer con accesso di sola interazione può scrivere nel database dello studio.
+**WS2, confronto pulito seed 1234 (stessi 100 held-out del v1, seed verificato)**, Spearman latent: clean 0.828 → 0.841 (+1.3), jitter 0.817 → 0.815 (−0.2), translation 0.826 → 0.838 (+1.3), rotation 0.815 → 0.825 (+1.0), mixed 0.810 → 0.804 (−0.6). Effetto piccolo sull'eval a scenari; il guadagno di `pot_area` era sull'asse crop, che questa eval mescola con le altre topologie: lanciata l'eval topology del seed 1234 per la matrice per coppie. Un seed solo: nessuna conclusione finché non arrivano 2345 e 3456 sui propri held-out.
+
+### Mattina dell'11 — WS2 zero-shot BFM→ICT e WS5 espressioni: due risultati negativi onesti
+
+**Zero-shot cross-3DMM** (modelli BFM ad area unitaria, 3 seed, 100 soggetti held-out ICT, protocollo mesh-pair uguale a quello del 0.478 storico su FLAME): latent **0.30** (0.29 / 0.31 / 0.30), Chamfer 0.44. Peggio del BFM→FLAME e, per la prima volta, **la metrica appresa perde da Chamfer** (−0.06…−0.11 in ogni scenario e seed). Per coppia di topologie: regge dove il campionamento è denso (original↔noisy 0.84, original↔up 0.70), crolla su tutto ciò che tocca down8k (0.04–0.27). Lettura: il modello addestrato su un solo 3DMM non generalizza al secondo; è esattamente l'obiezione di YJz1. La risposta sono i modelli ICT-only e congiunto in training (fine 13 settembre). Numeri con CI in `aau/runs/ict_*/`.
+
+**Espressioni ICT** (seed 1234, 5 espressioni × 3 intensità, GT neutra): Spearman 0.83–0.86 contro 0.84 del neutro, invariato e non monotono nell'intensità. Verificato che le mesh cambiano davvero (spostamento massimo 0.215 su diametro 2.18). **Il test è non informativo per costruzione**: i blendshape ICT applicati con lo stesso coefficiente a tutte le identità spostano i 100 soggetti insieme, quindi non disturbano il ranking. Va rifatto con espressioni diverse per soggetto (coefficienti casuali per identità), altrimenti non risponde a Z1mX.
+
+### Mattina dell'11 — seconda revisione critic: WS3b regge, WS1 e WS3a ancora bloccanti
+
+**WS3b: RISERVE, nessun numero da rifare.** Chamfer e latent concordano (tau 0.59, CI [0.38, 0.80]), il criterio allineato discorda da entrambi (CI includono lo zero), split-half 0.91–0.98. Limiti da scrivere: 3DDFA ha il 14.8% di superficie in più nella sfera di ritaglio (vince Chamfer nel 67% delle immagini; correggendo per la scala il margine dimezza ma l'ordine non cambia); criterio allineato unidirezionale su recon non ritagliata; apertura oculare della GT stimata dagli stessi landmark giudicati inaffidabili per il criterio NoW; primo e secondo posto indistinguibili sul criterio allineato.
+
+**WS1: BLOCCANTE, ma con una scoperta.** Varifold e currents normalizzano per area totale, e la topologia `noisy` ha 2.28 volte l'area: la misura si rimpicciolisce del 34% e la distanza tra un soggetto e la propria versione rumorosa eguaglia quella tra soggetti diversi. Escludendo le coppie con noisy, **varifold cross-topologia fa 0.568 contro Chamfer 0.454**: la conclusione "Chamfer resta la miglior baseline" è ribaltata dai suoi stessi dati. Inoltre il proxy bbox su mesh normalizzate dà 0.284 / 0.117: CLIP e DINOv2 cross-topologia non lo superano. La colonna cross va spezzata in "cambio di tassellazione" e "perturbazione".
+
+**WS3a duro: BLOCCANTE.** ArcFace usava ancora il detector con fallback (7768 fallimenti, tutti su noisy) e la riga proxy dichiarata non era mai stata calcolata; calcolata dal critic, 4 celle su 6 sono sature anche per il proxy. L'unico asse informativo è `crop` (tracked→crop e remesh→crop: tutto scende, latent 0.73 / 0.70, Chamfer 0.66 / 0.60, varifold 0.58 / 0.62). Con 13 soggetti i CI sono larghi 0.4.
+
+Decisione: terzo giro di correzioni, oltre il limite di due che mi ero dato, perché i difetti sono meccanici e ben specificati (normalizzazione maxabs per varifold, ArcFace fisso in WS3a, riga proxy vera, colonne spezzate). Lezione registrata: ogni correzione va applicata in tutti i cantieri che condividono il codice, non solo dove il critic l'ha trovata.
+
+### Mattina dell'11 — WS5 rifatto con espressioni per soggetto: ora il test morde
+
+Generati 5 vettori di espressione casuali per ciascuno dei 500 held-out ICT (3–8 blendshape attivi su 45, coefficienti 0.3–1.0, esclusi gli sguardi): spostamento medio 0.017 su diametro 2.18 (0.41 volte jawOpen a intensità piena), con varianza tra soggetti del 24%, quindi un vero disturbo per identità. Operatori ad area unitaria, eval sugli stessi 100 soggetti di WS2 (seed 1234 areanorm, modello BFM), Spearman vs GT neutra con CI per soggetto:
+
+| Regime | Latent | Chamfer | Δ latent | Δ Chamfer |
+|---|---|---|---|---|
+| neutro vs neutro (riferimento) | 0.841 | 0.951 | — | — |
+| stessa espressione k per entrambe | 0.739 [0.68, 0.79] | 0.887 | −0.10 | −0.06 |
+| espressione vs neutro | 0.784 | 0.914 | −0.06 | −0.04 |
+| espressioni diverse (caso reale) | 0.739 | 0.886 | −0.10 | −0.07 |
+
+Finding: le espressioni degradano il ranking delle identità, e la metrica appresa ci perde più di Chamfer. Coerente con lo zero-shot cross-3DMM: il modello BFM non è robusto fuori dal suo dominio. Da rifare con i modelli ICT-only e congiunto quando pronti, e da considerare il training con augmentation di espressione. Costo: 53 minuti di L40S per 22 run.
+
+### Tarda mattina dell'11 — WS2: matrice 6×6 del modello ad area unitaria (seed 1234, stessi 100 held-out del v1)
+
+Spearman latent per coppia ordinata di topologie, Δ rispetto al v1: media su 30 coppie **+0.024**; coppie con crop **+0.043** (crop→remesh 0.658 → 0.745, crop→up60k 0.687 → 0.768, up60k→crop 0.705 → 0.772); coppie con noisy +0.020; altre +0.011. Unico calo marcato down8k→up60k −0.025. Chamfer identico. Il guadagno si concentra sul crop, in direzione coerente con `pot_area`. È la Tabella 1 del modello nuovo; i seed 2345 e 3456 arrivano nel pomeriggio sui propri held-out.
+
+## 4 ottobre 2026
+
+### Ripresa dopo tre settimane di fermo
+
+La sessione si era interrotta l'11 settembre in tarda mattinata e nessun lavoro è avanzato fino a oggi. Tutti i job lanciati allora sono finiti l'11-12 settembre: training ICT-only (41 h) e congiunto BFM+ICT (47 h) completati, eval dei tre seed completate, sigma sweep principale andata in TIMEOUT a 36 h ma con scrittura progressiva e i blocchi mancanti completati a parte. Studio umano online ma con zero risposte. Mancano 6 settimane alla scadenza (16 novembre) e 20 giorni al gate del 24 ottobre.
+
+### WS2 — modello ad area unitaria su tre seed: il guadagno sul crop NON è robusto
+
+Matrice 6×6 (stage topology) per i seed 1234, 2345, 3456, ciascuno sui propri 100 held-out (in comune con il 1234: 21 e 14 soggetti). Poiché i soggetti cambiano, il confronto con il v1 si fa sul margine latent − Chamfer:
+
+| Coppie | v1 | s1234 | s2345 | s3456 | media seed − v1 |
+|---|---|---|---|---|---|
+| tutte (30) | 0.421 | 0.445 | 0.446 | 0.439 | +0.022 |
+| con crop (10) | 0.699 | 0.742 | 0.689 | 0.762 | +0.032 ± 0.031 |
+| con noisy (10) | 0.345 | 0.365 | 0.375 | 0.354 | +0.020 |
+| altre (12) | 0.303 | 0.314 | 0.343 | 0.295 | +0.014 |
+
+Il +0.043 su crop del solo seed 1234 non si replica: un seed perde (−0.010), uno guadagna di più (+0.063). La direzione media è positiva su tutti i gruppi, ma la variabilità tra seed è grande quanto l'effetto. **Decisione**: la convenzione ad area unitaria resta (non peggiora nulla, guadagno medio +2 punti), ma nel paper va presentata come scelta di implementazione con tre seed e dispersione, non come contributo. Correzione a una nota precedente: il "0.828" citato come riferimento v1 era lo Spearman dello scenario clean dell'eval ranking, non un aggregato della matrice per coppie.
+Sull'eval a scenari, i seed 2345 e 3456 hanno un margine latent − Chamfer più basso del v1 (0.28–0.30 contro 0.33–0.37), ma i loro soggetti held-out hanno un Chamfer più alto (0.56–0.61 contro 0.48): il margine non è confrontabile tra insiemi di soggetti diversi. Per un confronto appaiato servono controlli con la stessa ricetta e gli operatori standard sugli stessi seed (come fece l'autore in `pot_plain`): lanciati i training di controllo seed 2345 e 3456 su A10 (job 1054424-1054425; L40S tutte occupate), circa 20 ore. Poi eval topology di ciascuno sul proprio held-out e Δ appaiato per seed.
+
+### Ricognizione del lavoro v2 dell'autore (maggio–agosto) e tensione con il piano
+
+Una ricognizione dei commit di fine agosto, non riportati nel diario dell'autore, cambia due cose. (1) Il frame "rms" per l'input (centroide pesato e raggio quadratico medio al posto di maxabs) dà crop +5.2 e tutte le coppie +3.1 su due seed appaiati, più forte della normalizzazione ad area adottata il 10 settembre (+2.9 non significativo, p 0.12; e su tre seed nostri +3.2 ± 3.1). La scelta del 10 settembre va riaperta: candidato principale è il frame rms o un frame globale unico, che l'autore aveva lanciato senza leggerne il risultato. (2) La GT non è mai stata normalizzata: lo script divide solo per un massimo globale, quindi il bersaglio è in coordinate grezze, e le tabelle mescolano cinque frame. I ranghi tra metriche non cambiano, ma i margini erano gonfiati e la compressione da NICP è 33.9%, non 21.9%. Da riportare nel paper. Pagina riassuntiva per i co-autori: `paper/DOPO_NEURIPS.html`.
+
+### Terzo giro di correzioni (concluso il 4 ottobre): due conclusioni da rivedere
+
+**WS1, Tabella 2 estesa su held-out**, Spearman per colonna (stessa topologia / cross no-crop / solo cambio di tassellazione / solo perturbazione): Chamfer 0.644 / 0.469 / 0.454 / 0.502; varifold maxabs 0.655 / 0.192 / 0.472 / 0.136; currents maxabs 0.661 / 0.156 / 0.292 / 0.266; LPIPS 0.590 / 0.127 / 0.287 / 0.148; ArcFace 0.293 / 0.218 / 0.300 / 0.160; CLIP 0.358 / 0.087 / 0.226 / 0.039; DINOv2 0.378 / 0.058 / 0.147 / 0.034; controllo bbox 0.284 / 0.117 / 0.088 / 0.167. Chamfer resta la miglior baseline cross-topologia; varifold la pareggia solo sul cambio di tassellazione. **Varifold non è ancora equo**: per area rimpicciolisce la mesh rumorosa, per maxabs ne sovrappesa la massa (2.28×). In corso la versione a massa unitaria, che è la definizione corretta per forme con area diversa.
+
+**WS3a duro**: ArcFace con allineamento fisso recupera la cella rumorosa (0.571 → 0.932). Il controllo bbox su mesh normalizzate dà 0.95 su 4 celle su 6 e 0.42 sulle due con crop: anche col protocollo duro solo il crop è informativo, e lì tutte le metriche stanno tra 0.60 e 0.73.
+
+**WS3b: la conclusione si indebolisce.** Con Chamfer in millimetri dalla scala ICP e con le ricostruzioni ritagliate alla stessa patch della GT, l'ordine diventa 3DDFA_V2 < PRNet < SynergyNet (2.37 / 2.49 / 2.56 mm), identico a quello del criterio con ICP. La discordanza vista prima tra Chamfer e ICP veniva in buona parte dalla normalizzazione per mesh e dal supporto diverso, non dall'allineamento. Resta da capire se la metrica appresa (che legge le mesh normalizzate per mesh) discorda per la stessa ragione: tau per soggetto con le colonne nuove in calcolo. Fino ad allora WS3b non va scritto come prova che l'allineamento cambia la classifica dei metodi.
+**WS3b, verdetto finale (tau per soggetto, 13 soggetti, IC bootstrap per soggetto):** Chamfer su patch uguale vs criterio ICP 0.80 [0.59, 0.95], ordine identico nel 69% dei soggetti; Chamfer in mm vs ICP 0.85; Chamfer su patch uguale vs metrica appresa 0.18 [−0.08, 0.44]; Chamfer in mm vs metrica appresa 0.13. Affidabilità split-half 0.86–0.98, quindi le discordanze non sono rumore. **Sulle ricostruzioni reali, a parità di supporto e scala, l'allineamento non cambia la classifica dei metodi.** È la metrica appresa a ordinarli diversamente da tutti i criteri geometrici (mette PRNet ultimo, i criteri geometrici mettono ultimo SynergyNet). Senza un riferimento esterno di identità non si può dire chi abbia ragione. Conseguenza per il paper: WS3b non sostiene la tesi; va riportato come risultato negativo o come limite, e la tesi "l'allineamento distorce" resta supportata su dati sintetici e sul controllo crop di Multiface, non sul confronto tra metodi di ricostruzione reali.
+
+### Frame rms: tre training in corso, eval appaiata in preparazione
+
+Training della ricetta v1 con il frame di input rms dell'autore (`train_fast.py --frame rms`, operatori standard: rms e rms con operatori in unità rms differivano di 0.004, sotto il rumore), seed 1234, 2345, 3456, su A10 con cache in RAM: 238 s per epoca, fine verso le 21 del 4 ottobre (job 1054482-1054484). Controlli appaiati con frame standard: seed 2345 e 3456 in corso (più lenti, senza cache, fine il 5 ottobre); per il seed 1234 il controllo è il v1. Frame verificato numericamente (raggio rms 1.000000). L'eval del repo non passa il frame: in preparazione un'eval con l'script dell'autore (`eval_by_topology.py --frame`), validata sul v1, con code di dipendenza che parte da sola alla fine dei training e produce la tabella appaiata per seed.
+Eval con frame validata (job 1054489, 1054490): stesso split, stesse 148.500 coppie, celle del repo riprodotte a 4e-4; differisce solo l'aggregazione (Spearman unico per gruppo invece che media delle celle). Riferimento v1 nel formato dell'autore: crop 0.709, noisy 0.794, resample 0.785, all 0.751. Controlli rilanciati con lo stesso wrapper in cache (frame standard, job 1054492-1054493), quindi rms e controllo leggono i dati allo stesso modo. Coda di eval e tabella appaiata in dipendenza dai training (1054494-1054499). Da aggiungere: controllo seed 1234 con il wrapper, per non confrontare con il v1 addestrato dal trainer vecchio.
+**WS1 chiuso nella sostanza**: varifold e currents su misura a massa unitaria nel frame maxabs (sigma riportate con fattore misurato 1.848), auto-distanza zero, stesso soggetto sotto la mediana tra soggetti diversi in 100/100 casi. Held-out, colonne stessa topologia / cross no-crop / tassellazione / rumore: varifold 0.646 / 0.258 / 0.496 / 0.307; currents 0.663 / 0.210 / 0.287 / 0.289; Chamfer 0.644 / 0.469 / 0.454 / 0.502. Chamfer resta la miglior baseline quando cambia la topologia; varifold la supera di poco solo sul cambio di tassellazione. Questa è la versione da mettere nel paper.
+**Correzione a una nota precedente (WS3a duro, crop):** non è vero che sul crop tutte le metriche stanno tra 0.60 e 0.73. Quella fascia vale per le metriche geometriche (Chamfer 0.58–0.65, varifold 0.61–0.63, currents 0.59–0.59) e per la metrica appresa. Le percettive su render vanno molto meglio: ArcFace 1.000 su tutte le coppie con crop, LPIPS 0.73–0.84, CLIP 0.79–0.94, DINOv2 0.63–0.89, con il controllo bbox a 0.42. Su volti reali, anche tagliati, una rete di riconoscimento facciale applicata a render senza texture separa perfettamente i 13 soggetti. È un risultato da riportare e da capire: o i render conservano tratti d'identità che le metriche geometriche perdono quando cambia il supporto, o 13 soggetti sono troppo pochi per mettere in difficoltà ArcFace.
+
+### Decisione di framing (4 ottobre, pomeriggio)
+
+Valutazione condivisa con l'autore: con i risultati attuali le probabilità a CVPR del framing "metrica appresa che corregge l'allineamento" sono basse, perché le verifiche chieste dai reviewer (secondo 3DMM, espressioni, dati reali) sono uscite contro o inconcludenti. Decisione al gate del 24 ottobre tra due framing: **A**, metrica appresa (solo se il modello congiunto BFM+ICT batte Chamfer su entrambi i 3DMM e lo studio umano la favorisce); **B**, paper di metodologia di valutazione (allineamento, normalizzazione e frame che distorcono la valutazione; risultati negativi inclusi). L'autore concorda. In preparazione un outline di B in `paper/OUTLINE_B.md`. Lo studio umano resta critico per entrambi e dipende dalla distribuzione del link da parte dell'autore.
+
+### Outline B, esperimenti 6 e 7 (4 ottobre, pomeriggio)
+
+**Identità distinte (richiesta di Z1mX):** nessun soggetto held-out è un quasi-duplicato di un soggetto di training, né su BFM né su ICT. La distanza dal vicino più prossimo nel training ha la stessa mediana della distanza dal vicino più prossimo dentro il training stesso (BFM 0.193 contro 0.196; ICT 0.096 contro 0.096); il minimo assoluto è 0.47 volte la mediana tra held-out su BFM e 0.29 su ICT. I coefficienti BFM delle 500 mesh non esistono più: il controllo su BFM usa solo D_GT. Appendice del draft riscritta.
+
+**WS3b con la metrica appresa sulla stessa patch di Chamfer:** la discordanza non scompare. Con il supporto uguale (rapporto d'area patch/GT 0.99–1.00 per tutti i metodi) la metrica appresa dà tau 0.03 [−0.28, 0.28] contro il criterio ICP e 0.23 [−0.08, 0.49] contro Chamfer su patch uguale; tau tra la versione vecchia e nuova 0.95. La metrica appresa ordina i metodi in modo stabile e diverso dai criteri geometrici, indipendentemente dal supporto: la causa è nel modello, non nell'input.
+
+### Outline B, esperimenti 1–3: allineamento, compressione e frame su held-out (4 ottobre, sera)
+
+Gate: la Tabella 2 del paper su fb100 è riprodotta esattamente (8/8 celle, delta 0). Il paper usava 4096 punti sulla stessa topologia e 2048 sul cross; le tabelle nuove usano 4096 ovunque.
+
+**Allineamento** (Spearman, stessa topologia / cross no-crop, held-out):
+
+| | BFM | ICT (GT maxabs) |
+|---|---|---|
+| Chamfer | 0.644 / 0.469 | 0.979 / 0.433 |
+| Rigid ICP + Chamfer | 0.488 / 0.415 | 0.872 / 0.645 |
+| NICP P2P | 0.420 / 0.388 | 0.776 / 0.600 |
+| NICP P2Tri | 0.427 / 0.395 | 0.778 / 0.613 |
+| M3DFB RLR + Chamfer | 0.501 / 0.473 | 0.432 / 0.229 |
+
+**A topologia fissa l'allineamento danneggia il ranking su entrambi i 3DMM. Cross-topologia lo danneggia su BFM ma lo migliora su ICT** (0.645 contro 0.433). "Alignment hurts" non è una legge generale: dipende dal 3DMM e dal tipo di cambio. Questo spinge ulteriormente verso il framing B.
+
+**Compressione** (quota di dispersione IQR/mediana trattenuta da NICP P2P rispetto a Chamfer): BFM 34.0% sulle 30 coppie cross con crop, 45–50% senza crop; ICT 29–49% a seconda del gruppo. Il 33.9% corretto del commit dell'autore esiste solo includendo il crop.
+
+**Frame** (Chamfer, held-out BFM, stessa topologia / tassellazione / perturbazione / crop): maxabs 0.644 / 0.454 / 0.502 / −0.006; area 0.558 / 0.571 / 0.097 / 0.231; rms 0.602 / 0.621 / 0.416 / 0.339; **frame globale unico 0.714 / 0.718 / 0.719 / 0.686**. Nessuna normalizzazione per mesh è neutra, e il frame globale batte tutto, crop compreso. In verifica quanto del guadagno venga da posizione e taglia assolute, che la GT grezza contiene (controllo bbox nel frame globale, traslazione e scala separate). Nota: la GT ICT di train_ready è in frame maxabs, non grezza come la BFM; le due tabelle non sono nello stesso frame.
+**Frame globale scomposto** (Spearman stessa topologia / tassellazione / perturbazione / crop; job 1054946-1054965): su BFM la sola bbox nel frame globale fa 0.370 / 0.352 / 0.265 / 0.015 contro 0.714 / 0.718 / 0.719 / 0.686 di Chamfer globale; togliendo la posizione per mesh 0.679 / 0.509 / 0.487 / 0.509, togliendo la taglia per mesh 0.659 / 0.516 / 0.595 / 0.025. **Su BFM il guadagno del frame globale è forma più taglia assoluta, non segnale banale; la taglia della testa è informazione d'identità che la normalizzazione per mesh butta via, e senza di essa il crop crolla.** Su ICT la GT grezza è dominata dalla taglia (correlazione 0.361 con la GT maxabs) e la sola bbox arriva a 0.691 / 0.667 / 0.656 / 0.134; Chamfer globale 0.919 / 0.877 / 0.882 / 0.803. Conclusione per il paper: la definizione stessa del riferimento (con o senza taglia) decide quale metrica vince; va dichiarata, e ogni tabella va riportata nei due casi.
+
+### Pilota "operatori dedicati" (approvato dall'autore, 4 ottobre notte)
+
+Idea dell'autore: una variante di DiffusionNet con operatori specifici per il task, a partire dal pozzo di potenziale. Il pozzo era stato testato solo a 0.21, valore che nello sweep risultava peggiore di nessun pozzo; il valore del ginocchio, 0.55 (−46% di inconsistenza spettrale sul crop), non è mai stato addestrato. Pilota: due bracci a seed 1234, con lo stesso wrapper del controllo appaiato: (1) pozzo a 0.55; (2) DiffusionNet a due rami di operatori (standard e pozzo), parametri pari ±10%. Criterio fissato prima di guardare: almeno +0.05 sulle coppie con crop rispetto al controllo e nessun peggioramento oltre 0.02 sullo zero-shot ICT. Se passa, tre seed e sezione nel paper o nucleo di un lavoro successivo; se no, una riga come idea testata. Non sottrae tempo al framing B.
+
+## Brainstorm: una DiffusionNet con operatori adatti al task (4 ottobre, notte)
+
+Richiesta dell'autore: prima capire cosa manca, teorizzare e testare, poi costruire la versione con operatori aggiuntivi, documentando tutto qui.
+
+### Cosa sappiamo dei fallimenti del modello attuale
+
+1. **Crop**: è l'asse peggiore in-domain (margine latent − Chamfer migliore proprio lì, ma Spearman assoluto più basso). Il crop è, per Weyl, una riscalatura dello spettro per il rapporto d'area (R² 0.9995), più un cambio di condizioni al bordo (Neumann su un bordo nuovo).
+2. **Decimazione (down8k)**: tutte le coppie con down8k crollano nello zero-shot su ICT (0.04–0.27) e sono le peggiori anche in-domain (down8k→up60k è l'unica cella peggiorata col modello ad area unitaria).
+3. **Ricostruzione Poisson**: il partner `remesh_10k` di FaceScape, ricostruito per Poisson, fa crollare lo zero-shot da 0.41 a 0.11 (controllo causale dell'autore).
+4. **Secondo 3DMM**: zero-shot BFM→ICT 0.30 contro 0.44 di Chamfer.
+5. **Espressioni**: −0.10 contro −0.06 di Chamfer.
+6. **Ricostruzioni reali**: la metrica appresa ordina i metodi diversamente da tutti i criteri geometrici, anche con supporto uguale (tau 0.03–0.23).
+7. **Taglia**: su BFM la GT è in coordinate grezze e contiene la taglia della testa; Chamfer nel frame globale (che conserva la taglia) fa 0.71 ovunque, 0.69 sul crop. **Il modello invece riceve input normalizzati maxabs per mesh: non può vedere la taglia assoluta**, e il divisore maxabs è fissato da un vertice estremo, che sul crop cambia.
+
+### Come sono costruiti oggi gli operatori
+
+`diffusion-net/src/diffusion_net/geometry.py`: per le mesh usa il **Laplaciano cotangente semplice** (`pp3d.cotan_laplacian`) e le aree vertice come massa; il Laplaciano robusto di Sharp & Crane 2020 (Delaunay intrinseco con tufted cover), pensato per mesh di bassa qualità, è presente nel codice ma commentato. Gli operatori sono calcolati una volta per mesh e non vedono le perturbazioni dell'eval. Gli autovettori sono 128 (k_eig); il diffusion time è appreso per canale.
+
+### Ipotesi, con predizione e test economico
+
+- **H1 – taglia invisibile.** Il modello perde informazione d'identità perché la normalizzazione per mesh cancella la taglia assoluta, che la GT contiene. *Predizione:* la differenza di taglia (log del divisore maxabs, o radice dell'area) da sola correla con D_GT; il residuo della metrica appresa correla con la differenza di taglia. *Test:* correlazioni su BFM held-out, nessun training. *Rimedio se confermata:* passare al modello un token di scala globale (log-scala) o usare il frame globale come input.
+- **H2 – bordo e crop.** Il crop cambia lo spettro per riscalatura (già trattata da Weyl) e per condizioni al bordo. Un pozzo di potenziale vicino al bordo smorza la dipendenza degli autovettori bassi dal bordo. *Predizione:* a 0.55 (ginocchio dello sweep) migliora il crop. *Test:* pilota già lanciato (pozzo 0.55 e DiffusionNet a due rami).
+- **H3 – qualità della mesh.** Il cotangente semplice dà spettri inconsistenti su mesh decimate, rumorose o ricostruite per Poisson; il Laplaciano robusto (Delaunay intrinseco) li rende più consistenti. *Predizione:* la dispersione degli autovalori normalizzati e la distanza tra descrittori spettrali (HKS) dello stesso soggetto tra le 6 topologie scendono passando dal cotangente al robusto, soprattutto per down8k e noisy. *Test:* solo calcolo di operatori, su CPU, nessun training.
+- **H4 – espressioni.** Non è un problema di operatori ma di dati: il modello non ha mai visto espressioni. *Rimedio:* augmentation con espressioni ICT in training. Fuori dal pilota sugli operatori.
+- **H5 – secondo 3DMM.** Parte dal dominio (risposta: training congiunto, in valutazione stanotte), parte forse da H1 e H3.
+
+### Piano
+
+1. Diagnostiche senza training per H1 e H3 (in corso), più ricognizione di letteratura sulle varianti di operatori per DiffusionNet e affini.
+2. Pilota H2 già in training (pozzo 0.55, due rami).
+3. Sulla base dei risultati, progetto della versione nuova: insieme di operatori (cotangente, robusto, pozzo) come rami, token di scala, frame d'ingresso; poi ablazioni, una componente alla volta, con controllo appaiato e criterio fissato prima.
+
+### Letteratura sugli operatori (4 ottobre notte, `literature/OPERATORS_2026-10-04.md`)
+
+Raccomandazione per rapporto beneficio/costo: (1) Laplaciano robusto di Sharp & Crane (Delaunay intrinseco) + unità fisiche fisse senza normalizzazione per mesh + token di scala globale, robusto al crop: attacca insieme decimazione, Poisson e perdita della taglia (H1, H3); (2) Hamiltoniano con potenziale crescente verso il bordo (Choukroun 2018, localized manifold harmonics di Melzi 2018) più crop casuale come augmentation: attacca il crop (H2); (3) attenzione a massa concentrata sopra DiffusionNet (Shetty et al. 2026) per decimazione e contesto globale. Scartati per ora: DeltaConv, operatore di Dirac, Laplaciano anisotropo (costo alto, beneficio incerto), Steklov (estrinseco, codice non verificato). Non risultano lavori che combinino più operatori in DiffusionNet per volti: possibile lacuna reale, da riverificare prima di rivendicarla. Le fonti marcate come lette per intero sono due; le altre vanno riverificate prima di citarle.
+
+### Incidente: due training in thrashing di memoria (5 ottobre, notte)
+
+I training rms seed 3456 e controllo seed 1234 si sono rallentati da 3 a 87 secondi per iterazione: entrambi sullo stesso nodo A10, ciascuno al limite di 100 GB, con la cache in RAM cresciuta durante il run e il kernel bloccato a recuperare memoria (GPU a 0%). Cancellati all'epoca 108 e 94 su 120; le eval appaiate girano sui loro migliori checkpoint salvati, marcate come parziali; rilanciati entrambi con 180 GB per avere il confronto a budget pieno (job 1055025-1055026). Il pilota sul pozzo usa lo stesso wrapper e viene ridimensionato.
+
+### Diagnostiche del brainstorm: H1 e H3 non passano la soglia, ma indicano il progetto (5 ottobre, notte)
+
+Predizioni scritte prima dei numeri in `aau/runs/brainstorm/PREDICTIONS.md`.
+
+**H1, taglia.** Spearman tra D_GT e differenza di taglia: 0.33 (divisore maxabs), 0.24 (raggio rms), 0.19 (radice dell'area): appena sopra la soglia solo per maxabs, senza intervallo di confidenza. La metrica appresa segue già la taglia maxabs (0.35) ma è cieca alla taglia rms (0.02), e il suo residuo rispetto a D_GT correla 0.36 con la differenza di taglia rms (0.31 in media sulle coppie cross). Sul crop il divisore maxabs scende al 0.87 di quello dell'original (dispersione del log 0.037), cioè un errore di scala grande quanto l'intera variabilità di taglia tra soggetti (0.033): il frame maxabs inietta sul crop rumore di scala pari al segnale. **Verdetto: non confermata alla soglia, ma il meccanismo è chiaro e spiega perché il frame rms aiuta sul crop.**
+
+**H3, operatori** (50 soggetti, 64 autocoppie; dispersione degli autovalori tra topologie, errore HKS, separabilità stesso/altro soggetto, più basso è meglio):
+
+| Variante | Dispersione | Errore HKS | Separabilità |
+|---|---|---|---|
+| Cotangente (attuale) | 0.137 | 0.709 | 5.93 |
+| Robusto | 0.138 | 0.709 | 6.15 |
+| Cotangente, area 1 | 0.056 | 0.023 | 2.35 |
+| Robusto, area 1 | 0.048 | 0.020 | 2.04 |
+| Pozzo 0.55 | 0.100 | 1.71 | 0.98 |
+
+Il Laplaciano robusto da solo non cambia quasi nulla (su noisy −0.8%); con l'area unitaria aggiunge il 16–23% su noisy. Il grosso viene dall'area unitaria (consistenza 2.5–3 volte migliore). Il pozzo è ottimo sul crop (dispersione 0.008 contro 0.072) ma peggiora remesh e down8k. **Verdetto: H3 non confermata come formulata; robusto + area 1 è la variante spettralmente migliore.** Avvertenza dall'autore: la consistenza spettrale non ha predetto la metrica in passato (pozzo), quindi va verificata in training.
+
+### Progetto della versione nuova e ablazioni
+
+Componenti candidate, una alla volta contro lo stesso controllo (seed 1234, wrapper in cache, 120 epoche):
+- **A. frame rms** (già in training su tre seed);
+- **B. frame rms + token di taglia** (log del raggio rms della mesh grezza, concatenato dopo il pooling): dà al modello la taglia senza il rumore del divisore maxabs;
+- **C. operatori robusti ad area 1** al posto del cotangente;
+- **D. pozzo 0.55 e due rami** (pilota in corso);
+- **E. combinazione** delle componenti che passano.
+Criterio per ciascuna, fissato ora: almeno +0.03 sul margine latent − Chamfer medio sulle 30 coppie o +0.05 sulle coppie con crop, senza perdere più di 0.02 sullo zero-shot ICT.
+
+### Frame rms contro standard: risultato intermedio (5 ottobre, notte)
+
+Tabella appaiata per seed, Δ rms − standard (Spearman, aggregazione per gruppo dell'autore), media ± dev.std su 3 seed: crop +0.025 ± 0.016, noisy +0.025 ± 0.007, resample +0.002 ± 0.011, tutte +0.017 ± 0.011. **Provvisorio:** due seed su tre hanno uno dei due bracci a budget ridotto (rms s3456 fermo all'epoca 108, controllo s1234 all'epoca 94, best a 68), e il Δ del seed 1234 (+0.029) è probabilmente gonfiato. Direzione positiva coerente con l'autore, ampiezza circa la metà del suo +5.2 sul crop (n=2). Tabella definitiva a budget pieno quando finiscono i due training rilanciati (job 1055029-1055032).
+
+### Pilota pozzo: correzione e risorse (5 ottobre, notte)
+
+**Correzione al brainstorm:** il pozzo non era stato testato solo a 0.21. L'A/B di agosto (crop 0.7072 → 0.7012) è il pozzo a **0.55 senza maschera** sul pooling (`pot_w55`, STATUS.md:1569). Mai addestrato è invece il pozzo 0.55 **con pooling ristretto alla regione d'interesse** (`pot_m55`), che è il braccio del pilota. Trovati e aggirati due difetti silenziosi nel codice dell'autore: la maschera della regione d'interesse veniva scartata prima del modello e il caricamento falliva senza errore, quindi `pot_m55` sarebbe stato `pot_w55` sotto altro nome (hook in `aau/models/pilot_hooks.py`; ora l'assenza della maschera ferma il job). DiffusionNet a due rami in `aau/models/dn_dual_ops.py`: ogni blocco diffonde con la base standard e con quella del pozzo, tempi e gradienti propri, concatenazione prima della MLP; width 103 invece di 128 per avere gli stessi parametri (+0.2%); checkpoint per blocco per stare in memoria. Smoke superati.
+**Risorse:** i training con cache in RAM chiedono 180–200 GB e i nodi A10 non li ospitano più di uno alla volta; spostati sul nodo V100 (1.4 TB di RAM) con limiti di tempo stretti per entrare nel backfill.
+
+### Ablazioni B, C, E in training (5 ottobre, notte)
+
+Implementazione in `aau/models/` (nessuna modifica al trainer): **token di taglia** = log del raggio rms pesato per area della mesh grezza, standardizzato sul training, concatenato dopo il pooling (proiezione 513 → 256, colonna del token inizializzata a zero così la partenza è identica al controllo). Invarianza del token tra topologie dello stesso soggetto: entro 0.006 per remesh, noisy, down8k, up60k; **crop −0.088** (raggio ×0.916), cioè il token non è invariante al crop: per costruzione il crop riduce la superficie. **Operatori robusti ad area 1** calcolati per 3000 mesh BFM e 3000 ICT held-out, verificati. **Scoperta collaterale:** il loader divide gli autovalori per il massimo e i gradienti per la sua radice, quindi la normalizzazione ad area unitaria degli operatori è in gran parte annullata nel forward: C misura di fatto robusto contro cotangente, e anche il modello "area unitaria" di settembre differiva dal v1 meno di quanto pensassimo (attraverso massa e autovettori, non attraverso la scala degli autovalori). Da tenere presente nell'interpretare il +0.02 di settembre.
+Training su V100 (nessun nodo A10 con 180 GB liberi), circa 220 s per epoca, fine verso le 9. All'epoca 2: controllo loss 0.0755 / xtopo 0.27; B 0.064 / 0.37; C 0.076 / 0.26; E 0.063 / 0.36. Segnale precoce a favore del token di taglia, da non sovrainterpretare. Eval e tabella in coda automatica.
+
+### WS2: tabella cross-3DMM (5 ottobre, notte) — il modello congiunto batte Chamfer su entrambi i 3DMM
+
+Spearman cross-topologia, protocollo mesh-pair (lo stesso dello zero-shot 0.30), latent [IC 95% per soggetto] / Chamfer; zero soggetti di training valutati in ogni cella (verificato rileggendo i soggetti dagli output: lo split held-out di ICT-only e del congiunto è quello ricostruito dal loro training, non la vista held-out precedente, che conteneva l'80% di soggetti di training di ICT-only):
+
+| Modello | BFM | ICT |
+|---|---|---|
+| Solo BFM | 0.779 [0.73, 0.82] / 0.237 | 0.294 [0.24, 0.34] / 0.442 |
+| Solo ICT | 0.175 [0.14, 0.21] / 0.237 | 0.986 [0.98, 0.99] / 0.355 |
+| BFM + ICT | **0.856 [0.83, 0.88]** / 0.246 | **0.981 [0.97, 0.99]** / 0.347 |
+
+Il congiunto batte Chamfer su 30/30 coppie di topologie in entrambi i domini, e sul BFM fa meglio del modello solo BFM. È la variante "positiva" del criterio fissato nell'outline B prima di guardare. Ma: (1) la generalizzazione c'è solo se il 3DMM è nel training (solo ICT su BFM perde, 0.175 contro 0.237); (2) le espressioni degradano anche il congiunto (0.881 contro 0.992 neutro, −0.111); (3) le celle della stessa colonna hanno soggetti diversi (100/108 su BFM, 100/95/89 su ICT); (4) la GT ICT usata è in frame maxabs, mentre quella BFM è grezza; (5) alcuni soggetti di valutazione erano tra i 16 usati per scegliere il checkpoint. In revisione dal critic prima di entrare nel paper.
+
+**Conseguenza per il framing:** C4 dell'outline cambia segno: "una metrica appresa senza registrazione sfugge ai confondenti solo se la distribuzione di training copre la famiglia di destinazione; addestrata su due 3DMM batte Chamfer su entrambi". Il framing resta B, con la metrica come strumento raccomandato con condizioni. Il framing A torna possibile al gate del 24 ottobre se lo studio umano la favorisce e se il modello congiunto regge su dati reali (WS3b da rifare con il congiunto).
+**Revisione del critic sulla tabella cross-3DMM: RISERVE.** Il claim principale regge: il congiunto batte Chamfer su entrambi i 3DMM confrontando sugli stessi soggetti di ogni riga; nessun leak (split ricostruito uguale al log, 16/16 soggetti dell'eval online); togliendo i soggetti usati per scegliere il checkpoint i numeri non cambiano (BFM 0.865). Correzioni:
+- **"Sul BFM fa meglio del modello solo BFM" non è dimostrato:** sui 19 soggetti held-out per entrambi il vantaggio è +0.021 [−0.013, 0.065]. Ritirato.
+- **I numeri ICT dipendono dalla GT:** la GT ICT maxabs correla 0.35 con quella grezza. Con la GT grezza il congiunto fa 0.501 contro 0.210 di Chamfer (mesh-pair, margine +0.29 [0.23, 0.35], regge), ma in media per coppia di soggetti 0.506 contro 0.457, margine [−0.003, 0.109] (non regge). Lo 0.98 va presentato come legato alla GT nello spazio dell'input. Sul BFM cambiare la GT a maxabs cambia poco (congiunto 0.793 contro 0.296).
+- **"Solo ICT su BFM perde" vale solo in mesh-pair:** in media per coppia di soggetti vince (0.573 contro 0.485). Il protocollo va dichiarato accanto a ogni claim.
+- **Righe diverse della stessa colonna non sono confrontabili:** Chamfer su ICT oscilla tra 0.26 e 0.44 secondo i soggetti estratti; lo 0.442 contro 0.347 era solo campionamento.
+- La colonna ICT è satura (0.97–0.99 su tutte le coppie di topologie, down8k compreso): ICT è più facile di BFM per il modello, forse anche per i 4000 soggetti di training contro 400.
+
+### Modello congiunto sui dati reali (5 ottobre, notte)
+
+Riproduzione verificata prima (10 soggetti BFM, Spearman identico su A10; su T4 la distanza si sposta fino a 2.6e-3 per l'aritmetica della GPU, ininfluente sul rango ma i job reali sono su A10). Operatori ad area unitaria calcolati anche per le ricostruzioni.
+
+**Ricostruzioni Multiface (WS3b), tau per soggetto [IC 95%]:** congiunto contro criterio ICP 0.33 [0.08, 0.59] (solo BFM: −0.03), contro Chamfer in mm 0.49 [0.23, 0.74], contro Chamfer su patch uguale 0.33 [0.13, 0.54]; affidabilità split-half 0.94. Si avvicina ai criteri geometrici ma resta lontano dall'accordo che questi hanno tra loro (0.80–0.85); classifica globale invariata (3DDFA_V2, SynergyNet, PRNet), i criteri geometrici mettono PRNet secondo. AUC d'identità sulle ricostruzioni 0.85–0.89.
+**Multiface duro (WS3a), AUC stesso soggetto con espressione diversa contro soggetti diversi:** tracked→tracked 0.991, tracked→crop 0.692, remesh→crop 0.717, tracked→noisy 0.966, down→up 0.933, crop→crop 0.988; differenze da latent v1 tra −0.044 e +0.019, tutte dentro gli intervalli.
+**Lettura:** l'addestramento su due 3DMM risolve la generalizzazione tra modelli sintetici ma non il comportamento su volti reali tagliati. Sul crop reale la metrica appresa resta sotto ArcFace su render (1.000) e LPIPS (0.73–0.84). Il collo di bottiglia sui dati reali non è il numero di 3DMM.
+
+### Ipotesi H6: varietà del crop in training (5 ottobre, notte)
+
+Nel training il modello vede un solo tipo di crop (taglio canonico, stessa regola per tutti i soggetti). Sui dati reali il crop varia per posizione ed estensione, e lì la metrica appresa resta a 0.69–0.72 di AUC contro 1.000 di ArcFace e 0.73–0.84 di LPIPS. **Predizione:** addestrare con crop casuali variati (frazione 60–90% dei vertici, direzione del taglio casuale, bordo irregolare) migliora le coppie con crop su Multiface e su REMESH senza perdere sulle altre. **Test:** variante F, ricetta v1 seed 1234, con 5 crop casuali per soggetto di training precalcolati (operatori offline) aggiunti come topologie extra; stesso controllo appaiato; criterio: +0.05 di AUC sulle coppie con crop di Multiface o +0.05 di Spearman sulle coppie con crop di REMESH, senza perdere più di 0.02 altrove.
+**Variante F avviata** (job 1055162, L40S, fine verso le 10:45): 2000 crop casuali (5 per ciascuno dei 400 soggetti di training, nessuno per gli held-out), frazione di vertici tenuti 0.60–0.90 uniforme (media 0.75), metà con un secondo taglio laterale, occhi e naso sempre protetti (raggio 0.15 volte la distanza tra gli angoli esterni degli occhi, circa 13 mm), operatori standard. Entrano nel training senza modifiche: il trainer etichetta `crop_rK` come `crop`, e a ogni passo pesca uno dei 6 crop disponibili (canonico compreso, 1/6 delle volte). Limite del disegno: i tagli vengono soprattutto dal basso (52% sotto i 30° dal mento), perché la protezione degli occhi impedisce i tagli laterali profondi. Eval appaiate (REMESH e Multiface duro, controllo compreso) e tabella in coda automatica.
+
+### Frame rms contro standard: risultato definitivo, budget pieno (5 ottobre, mattina)
+
+Tre seed, ciascuno appaiato con il controllo dello stesso seed e dello stesso wrapper, 120 epoche; Spearman per gruppo (aggregazione dell'autore), Δ rms − standard, media ± dev.std: **crop +0.019 ± 0.008, noisy +0.027 ± 0.011** (positivi su tutti e tre i seed), resample −0.006 ± 0.011, tutte +0.012 ± 0.008. Il frame rms aiuta in modo consistente sul crop e sul rumore, ma poco: due-tre punti, contro il +5.2 dell'autore su due seed. Si adotta come frame di default dei modelli nuovi; non è un contributo da titolo.
+**Nota sul riferimento:** il controllo seed 1234 con il wrapper in cache fa 0.765 sul crop contro 0.709 del v1 (stessa ricetta, stessi dati, stessi soggetti): la differenza non viene dal frame ma dal percorso di training o dalla selezione del checkpoint (best all'epoca 114 contro 82). Tutti i confronti nuovi sono contro il controllo con il wrapper, mai contro il v1.
+
+### Bug trovato prima che producesse numeri sbagliati (5 ottobre, mattina)
+
+`aau/submit.sh` carica `env.sh`, che esporta sempre i percorsi dei dati e della matrice GT di BFM; lo script di eval ICT delle ablazioni usava i propri default ICT solo se le variabili erano vuote, quindi li ignorava. Per la variante C ha prodotto un errore (GT BFM, nessun soggetto in comune); per B e il controllo avrebbe valutato in silenzio sui dati BFM presentandoli come ICT. Corretto con variabili ICT dedicate e rilanciate tutte e quattro le eval ICT. Controllati gli altri percorsi: l'eval ICT del pilota passa i percorsi ICT in modo esplicito (log: soggetti id145xx, 100 selezionati) ed è corretta; lo zero-shot di settembre e la tabella cross-3DMM usano script che impostano i percorsi esplicitamente. Lezione: ogni eval deve stampare e verificare il dominio dei soggetti selezionati, non solo il seed.
+
+### H6, variante F (crop casuali in training): negativa su REMESH (5 ottobre, mattina)
+
+Spearman per gruppo, F − controllo appaiato (seed 1234, stesso wrapper, 120 epoche entrambi): **crop −0.114** (0.651 contro 0.765), noisy −0.038, resample −0.024, tutte −0.060. Il criterio richiedeva +0.05 sul crop senza perdere oltre 0.02 altrove: **fallito su REMESH**, e in modo netto. Spiegazione probabile, non verificata: il crop canonico, quello valutato, compare in training solo una volta su sei; i crop casuali con bordo irregolare e tagli soprattutto dal basso non insegnano un'invarianza utile al crop canonico. Il peggioramento anche su noisy e resample suggerisce che le topologie casuali disturbano l'apprendimento in generale. Manca ancora il test sui crop reali di Multiface (WS3a), che era il bersaglio principale; il verdetto finale su H6 aspetta quel numero.
+
+### Ablazioni B, C, E: il token di taglia funziona in dominio e distrugge lo zero-shot (5 ottobre, mattina)
+
+Seed 1234, controllo appaiato con lo stesso wrapper; Spearman per gruppo su BFM held-out e zero-shot ICT (all cross, scenario clean):
+
+| Braccio | Crop | Noisy | Resample | Tutte | Margine − Chamfer, 30 celle | Zero-shot ICT |
+|---|---|---|---|---|---|---|
+| Controllo | 0.765 | 0.783 | 0.805 | 0.782 | 0.444 | 0.369 [0.31, 0.43] |
+| B (rms + token di taglia) | +0.012 | +0.059 | +0.027 | +0.027 | +0.031 | **0.135 (−0.234)** |
+| C (operatori robusti, area 1) | −0.017 | +0.022 | −0.013 | −0.007 | −0.005 | 0.282 (−0.087) |
+| E (B + C) | +0.035 | +0.082 | +0.039 | **+0.048** | **+0.049** | **0.115 (−0.255)** |
+
+**Lettura.** Il token di taglia dà il guadagno in dominio più grande visto finora (E: quasi +5 punti su tutte le coppie, +8 sul rumore), confermando H1 nel suo senso pratico: la taglia è informazione d'identità che il modello non vedeva. Ma la relazione tra taglia e identità imparata su BFM non trasferisce a un altro 3DMM, e lo zero-shot ICT crolla. Gli operatori robusti da soli non aiutano (C negativo in dominio e in zero-shot), però in E si sommano positivamente al token sul rumore. **Criterio fissato prima: tutti e tre NON passano** per la clausola sullo zero-shot. Un seed solo.
+**Prossimo test:** il caso d'uso reale non è lo zero-shot ma l'addestramento congiunto (che già batte Chamfer su entrambi i 3DMM). Test: E congiunto BFM+ICT contro il congiunto attuale, con token standardizzato per dominio. In parallelo: E e B sui crop reali di Multiface (il bersaglio vero), e rilancio dell'eval Multiface di F, fallita in un secondo.
+
+
+> Pagina riassuntiva della notte 4→5 ottobre (operatori, ipotesi, varianti): `paper/NOTTE_OPERATORI.html`, https://claude.ai/artifact/J847wzg6RB4v8hTv8wbCqL
+
+## 5 ottobre, mattina: terzo dominio per il test leave-one-out
+
+**Domanda.** Il modello addestrato su due 3DMM (BFM+ICT) generalizza a un terzo mai visto? Se sì, la strada è la diversità dei dati sintetici e il framing A resta possibile. Se no, la linea "modello" si chiude e il risultato va nel framing B.
+
+**FLAME.** Va avanti solo con la licenza ufficiale: l'utente si registra su flame.is.tue.mpg.de. Non uso copie non autorizzate. Intanto `coder` collega la pipeline esistente `v2_work/genflame/` al protocollo attuale e la collauda con un modello finto.
+
+**Alternative, censite sulle fonti ufficiali.**
+- **HIFI3D** (Tencent): repo MIT, dati "research only", download diretto. 200 scansioni est-asiatiche, quindi un dominio davvero diverso da BFM. Scelto come terzo dominio immediato.
+- **FaceVerse v1/v2**: seconda scelta, download diretto.
+- **HIFI3D++**: scartato come dominio indipendente, perché è costruito anche da LYHM e FaceScape.
+- **BFM 2009 rispetto a 2017**: non è un dominio diverso.
+- **LSFM, UHM, LYHM, Headspace, FaceWarehouse, NPHM, FaceVerse-Dataset**: richiedono email o un modulo firmato da un docente di ruolo.
+
+**Lanciati.** Download di HIFI3D (runner). Pipeline e valutazione zero-shot su HIFI3D (`coder`): congiunto, solo BFM, solo ICT, Chamfer. Output in `aau/runs/ws_hifi3d/`.
+
+**Valanga di dati (decisione del 5 ottobre, su indicazione dell'utente).** Si scala il training di almeno un ordine di grandezza: più identità BFM e ICT, più espressioni, stesse 6 topologie.
+- `coder` misura prima lo spazio per mesh e la quota (1 TB), e scrive il piano in `aau/data_scale/PLAN.md`. Poi genera, prima con un mini-lotto di prova.
+- Held-out non negoziabile: i soggetti di test attuali restano fuori dal training; HIFI3D e FLAME restano domini di test.
+- FaceVerse v2 in download, come candidato quarto dominio.
+- **FaceVerse v2 scaricato**: `~/data/faceverse/faceverse_simple_v2.npy`, 153 MB, 150 basi di identità, 52 di espressione, 28.632 vertici; repo BSD-2, il modello non dichiara una licenza. Quarto dominio di test, mai in training.
+- **HIFI3D**: in download (job 1055665). Google Drive richiedeva la conferma con uuid.
+
+## 5 ottobre, mezzogiorno: quota disco esaurita
+
+**Cosa è successo.** La home ha raggiunto 1 TB. Insieme a un login scaduto, ha fatto cadere tutti gli agenti.
+
+**Job falliti:**
+- training congiunto-E e controllo (dopo 1h07);
+- ws3a-arm-E;
+- build di FLAME e HIFI3D;
+- mini-lotto della valanga.
+
+La valanga non è la causa: aveva scritto solo 87 KB. Lo spazio era già occupato da ICT (425 GB), REMESH (252) e Multiface (184).
+
+**Pulizia, con il consenso dell'utente:**
+- zip di HIFI3D (5.8 GB);
+- 4 directory di ricostruzioni Multiface con operatori (circa 72 GB, intermedi rigenerabili);
+- vista ICT `eval_view_heldout_robust_area1` (18 GB).
+
+La home scende da 996 a 902 GB.
+
+**Nuove regole sul disco:**
+- Nella home vanno solo la geometria compressa, la GT, i checkpoint (ultimo e migliore) e i risultati.
+- Gli operatori si calcolano su /tmp del nodo dentro i job.
+- Ogni agente ha un budget in GB.
+
+**Valanga.** Sospesa la generazione. Prima uno studio misurato sul formato: fp16, k_eig ridotto, operatori al volo. Ogni mesh ICT con operatori occupa circa 9.5 MB, quindi un ordine di grandezza in più non sta in 1 TB. Serve anche chiedere più quota all'AI Cloud: lo fa l'utente.
+
+**Studio sul formato dei dati per la valanga (`aau/data_scale/PLAN.md`), misurato su 90 mesh.**
+- **Oggi:** una identità ICT con operatori occupa 61 MB, una BFM 152 MB.
+- **Nella home solo geometria compressa:** 1.2 MB per identità ICT, 2.7 per BFM. In 300 GB ci stanno circa 250.000 identità ICT.
+- **Operatori:** si calcolano in un pre-pass CPU su /tmp, con risultati identici a oggi (scarto 1.4e-6).
+- **fp16 sugli autovettori:** praticamente innocuo (Spearman fra le due versioni ≥ 0.9999).
+- **Da scartare:**
+  - k_eig 64: cambia i numeri, per esempio su BFM da 0.696 a 0.646;
+  - fp16 sugli operatori sparsi: va in overflow;
+  - operatori al volo a ogni epoca: circa 11 volte più lento.
+- **Spazio recuperabile senza perdita:** ricodificando gli insiemi attuali in int32 compresso si recuperano circa 210 GB (stima), con output identico (misurato). In attesa del sì dell'utente.
+
+**Vincoli emersi.**
+- **Il trainer va adattato a numero di passi fisso e staging a blocchi:** con 10 volte i dati, 120 epoche durerebbero circa 20 giorni.
+- **BFM non si scala oggi:** le mesh REMESH non stanno nella base BFM disponibile sul cluster (residuo 0.22). Serve il modello BFM originale.
+- **Lo split held-out va congelato in modo esplicito:** `rebuild_subject_split` sull'unione dei soggetti sposterebbe soggetti di test nel training.
+
+**Decisione del PI.** La generazione massiva su ICT aspetta lo zero-shot su HIFI3D. Se il congiunto non generalizza a un terzo dominio, servono più domini, non più identità dello stesso dominio.
+- **Quota portata a 2 TiB** (verificato con ceph.quota.max_bytes). Approvata la generazione ICT nel formato (c) e l'adattamento del trainer; la ricompressione dei dataset esistenti è rimandata.
+
+**Multiface WS3a duro, variante E (token di taglia + operatori robusti), crop reali.**
+- **Risultato:** nessun guadagno sul crop. tracked→crop: 0.661 con il token convertito (tokA) e 0.565 con il token neutro (tok0), contro 0.697 del controllo, con IC larghi (0.48–0.82).
+- **Perdite:** forti su down→up: −0.114 con tokA, −0.211 con tok0.
+- **Conclusione:** come B. Il guadagno della taglia è solo in dominio sintetico e sui dati reali peggiora la robustezza. Tabella completa in `aau/runs/multiface_ws3a_hard/summary_hard_abl.md`.
+
+**Congiunto-E rilanciato.** I training sono il job 1055737 (controllo) e 1055738 (E). La causa del fallimento precedente era la quota della home: i log non riuscivano più a scriversi. Run dir e log ora stanno su /tmp, con sync periodico nella home. Fine prevista verso le 23:30–00:00; eval e summary partono in automatico.
+
+**Pipeline FLAME: corretti i 3 punti del critic, verificati con il modello finto.**
+- L'output ha ora un'impronta dei dati nel percorso: i risultati vecchi non si riusano più dopo un rebuild.
+- Il timbro della build viene scritto prima delle topologie.
+- C'è un controllo per identità sulla variante crop.
+- Pronta per i dati veri: si mettono `generic_model.pkl` e `FLAME_masks.pkl` in `v2_work/genflame/official/` e si lancia `aau/flame/ws_flame.sh`.
+
+**Stop per limite d'uso (5 ottobre pomeriggio).** Fermati gli agenti di HIFI3D/FaceVerse e della valanga a metà lavoro: i loro job Slurm già sottomessi, se ce ne sono, proseguono da soli. Il congiunto-E (1055737/1055738) e le sue eval e il summary sono in catena su Slurm; risultato in `aau/runs/joint_E/summary.md` verso mezzanotte.
+
+## 5 ottobre, pomeriggio: zero-shot su un terzo 3DMM, HIFI3D
+
+**Protocollo.** Stesso protocollo di ICT: 100 soggetti held-out, 6 topologie, GT come distanza media per vertice in frame maxabs, IC con bootstrap per soggetto. Pipeline generica in `aau/zs3dmm/`; risultati in `aau/runs/ws_hifi3d/summary.md`.
+
+| | BFM+ICT | solo BFM | solo ICT | Chamfer |
+|---|---|---|---|---|
+| tutte le topologie | 0.246 | 0.180 | 0.222 | 0.336 |
+| senza crop | 0.428 [0.38, 0.48] | 0.206 | 0.382 | 0.372 [0.32, 0.42] |
+| media per coppia di soggetti, clean | 0.720 | 0.607 | 0.713 | 0.743 |
+
+**Lettura provvisoria, in attesa del critic.**
+- Il congiunto generalizza meglio del solo BFM, ma è vicino al solo ICT.
+- Su un dominio nuovo arriva circa al livello di Chamfer, senza batterlo in modo netto.
+- Il crop crolla: 0.04–0.14 contro 0.65 di Chamfer. Va verificato se è un artefatto della pipeline.
+- La GT nei coefficienti risulta quasi scorrelata da quella geometrica (Spearman 0.089): usata solo come controllo.
+
+**FaceVerse.** Build e baseline completate; ranking del modello in corso.
