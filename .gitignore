@@ -141,3 +141,4 @@ core.*
 generic_model.pkl
 FLAME_masks.pkl
 *FLAME*.pkl
+/paper/review.md
