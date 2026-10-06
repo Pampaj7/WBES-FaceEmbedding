@@ -26,7 +26,8 @@
 #       (spec_scale_default.json, 1.742 soggetti per blocco), S=293, 2.930 passi (5 epoche per blocco,
 #       il pre-pass del blocco 1 si sovrappone al training del blocco 0), da lanciare con il --mem del
 #       run grande: verifica il bilancio di memoria su un blocco vero
-#         WBES_DS_SMOKE=S5 aau/submit.sh data_scale/smoke_scale.sbatch --mem=430G --time=03:30:00
+#         WBES_DS_SMOKE=S5 WBES_DS_MEM_EVERY=5 aau/submit.sh data_scale/smoke_scale.sbatch --mem=600G --time=04:00:00
+#       (--mem largo apposta: si misura il picco vero attraverso il cambio di blocco, poi si dimensiona)
 # Split ridotto aau/data_scale/split_smoke.json (40 BFM + 60 ICT-5000 + 500 nuove in training).
 #
 #   WBES_DS_SMOKE=S1 aau/submit.sh data_scale/smoke_scale.sbatch
@@ -85,20 +86,23 @@ JSON
 echo "[smoke] host=$(hostname) job=${SLURM_JOB_ID:-none} arm=$ARM root=$ROOT"
 cat "$ROOT/spec.json"
 # campionatore: memoria del cgroup del job (v1 o v2) e /tmp dello stage, ogni 15 s
-cg_file() {
-  local p; p=$(awk -F: '$2 ~ /memory/ || $2 == "" {print $3; exit}' /proc/self/cgroup)
-  for f in "/sys/fs/cgroup/memory$p/memory.usage_in_bytes" "/sys/fs/cgroup$p/memory.current"; do
-    [[ -r "$f" ]] && { echo "$f"; return; }
+cg_file() {  # cgroup del JOB (dove Slurm applica --mem), non dello step o del task
+  local p d; p=$(awk -F: '$2 ~ /memory/ || $2 == "" {print $3; exit}' /proc/self/cgroup)
+  for base in /sys/fs/cgroup/memory /sys/fs/cgroup; do
+    d="$base$p"
+    while [[ "$d" != "$base" && "$(basename "$d")" != job_* ]]; do d=$(dirname "$d"); done
+    for f in "$d/memory.usage_in_bytes" "$d/memory.current"; do
+      [[ -r "$f" ]] && { echo "$f"; return; }
+    done
   done
 }
-CG=$(cg_file || true)
 CGD=$(dirname "${CG:-/nonexistent}")
 cg_stat() {  # anon / shmem (tmpfs) / page cache in GiB, v1 (total_*) o v2
   awk '$1=="total_rss"||$1=="anon"{a=$2} $1=="total_shmem"||$1=="shmem"{s=$2}
        $1=="total_cache"||$1=="file"{c=$2} END{printf "anon_gb=%.1f shmem_gb=%.1f cache_gb=%.1f", a/2^30, s/2^30, c/2^30}' \
       "$CGD/memory.stat" 2> /dev/null
 }
-( while sleep 15; do
+( while sleep "${WBES_DS_MEM_EVERY:-15}"; do
     printf '%s mem_gb=%s tmp_gb=%s %s\n' "$(date +%T)" \
       "$( [[ -n "$CG" ]] && awk '{printf "%.1f", $1/2^30}' "$CG" || echo NA)" \
       "$(du -sk "$STAGE" 2>/dev/null | awk '{printf "%.1f", $1/2^20}')" "$(cg_stat)"

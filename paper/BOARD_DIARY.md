@@ -820,3 +820,7 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Shape My Face** (IJCV 2021): embedding separati identità/espressione da point cloud, ma senza riconoscimento.
 
 **Sintesi del PI.** Direzione principale = distillazione del riconoscimento 2D in DiffusionNet, condizionata al test ArcFace-render su FaceVerse. Il fit-then-compare resta secondario; GNM Head va valutato come dominio di training e come baseline.
+
+**GNM Head scaricato** (`~/data/gnm_head/`, Apache-2.0 per codice e pesi, verificato; i dati di training non sono rilasciati).
+- **Caratteristiche:** 17 821 vertici; identità 170 basi della testa (più denti e occhi); 383 espressioni; unità in metri; frame +Y/+Z come ICT; regioni `hockey_mask` e `skin_exterior` pronte.
+- **Integrazione come quarto dominio** di test e potenziale di training in `aau/zs3dmm/`: per ora solo i build.

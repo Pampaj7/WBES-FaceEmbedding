@@ -420,6 +420,39 @@ Configurazione come il run grande: 8 thread di training, 22 processi di pre-pass
 - **R2**: indice dei tar `datasets/ICT_SCALE/shards/index.npz`: 700.000 membri, una scansione in
   5.4 min [M]. Trainer e pre-pass leggono i nomi dall'indice e i membri per offset.
 
+### OOM del run lungo 1056832 (6 ottobre): causa, evidenza, correzione
+
+- **Fatto**: OOM del cgroup dopo 2 h 39 min, al primo cambio di blocco, mentre si caricava la cache
+  del blocco 1 (15.500/20.426 campioni, circa 76%). MaxRSS 349.9 GB = 326 GiB. Il pre-pass del
+  blocco 1 era pronto in tempo.
+- **Conti**: se la cache del blocco 0 fosse tornata al sistema, al 76% del blocco 1 l'RSS sarebbe
+  stato circa 166 (cache nuova) + 23 (GT) + 21 (resto) = 210 GiB; se fosse rimasta intera, circa
+  428. Il valore misurato, 326 GiB, sta in mezzo. A questi si sommano circa 97 GiB di `/tmp` del
+  blocco 1, ancora presenti durante il caricamento: circa 423 GiB contro un limite di 430G.
+- **Codice**: il cambio di blocco liberava già la cache vecchia prima di caricare la nuova
+  (`ds._parts.pop()`). Non ci sono DataLoader né worker e il trainer non tiene campioni fra le
+  epoche. Il problema non era l'ordine delle operazioni.
+- **Evidenza** (`switch_memtest.py`, job 1057255, CPU, blocchi da 1250 soggetti ICT, RSS in GiB):
+
+  | variante | A caricato | dopo il rilascio di A | B caricato |
+  |---|---|---|---|
+  | `pop` | 72.4 | 64.7 | 74.9 |
+  | `del` + `gc.collect` | 72.4 | 47.6 | 78.2 |
+  | `gc` + **`malloc_trim(0)`** | 72.2 | **0.4** | **72.2** |
+  | soglia mmap 1 MiB + `gc` | 71.1 | 18.3 | 80.3 |
+
+  Le cause sono due:
+  1. una parte della cache vecchia sta in cicli di riferimenti e si libera solo con `gc`;
+  2. glibc trattiene nelle arene la memoria liberata e la riusa solo in parte (B/A fino a 1.08 su
+     questi blocchi piccoli, peggio sui blocchi reali, misti BFM e ICT e 3 volte più grandi).
+- **Correzione** (`_switch_block`): `del`, `gc.collect()` e `malloc_trim(0)` prima di caricare il
+  blocco nuovo; RSS e cgroup del job registrati in ogni fase (`[mem]` nel log) e a fine epoca.
+- **Stima della cache**: la lettura degli header di 20.000 file costava 22-26 minuti di GPU ferma a
+  ogni cambio. Ora usa l'indice per le mesh dei tar (identico agli header in ogni misura) e gli
+  header delle viste letti una volta sola, con un controllo a campione su 200 file per blocco.
+- **Verifica**: smoke S5 (job 1057289, L40S, `--mem=600G` per misurare il picco senza essere
+  uccisi), 2 blocchi di grandezza reale, cgroup del job campionato ogni 5 s attraverso il cambio.
+
 ## 7. Stato degli script in `aau/data_scale/`
 
 | file | stato |

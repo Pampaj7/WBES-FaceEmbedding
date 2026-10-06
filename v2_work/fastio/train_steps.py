@@ -77,6 +77,7 @@ di S, la funzione d'epoca riceve la stessa lista di soggetti di v1: la corsa e' 
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import math
 import os
@@ -233,6 +234,43 @@ class BlockedDataset:
             raise SystemExit(f"pre-pass di {dest} fallito (rc={rc}), log in {dest.parent / (dest.name + '.prepass.log')}")
         print(f"[steps] pre-pass {dest.name} pronto (atteso {time.time() - t0:.0f}s)", flush=True)
 
+    def block_gib(self, dest: Path, names: list[str]) -> tuple[float, str]:
+        """GiB esatti della cache del blocco, in secondi invece di ~25 minuti.
+
+        Leggere gli header di tutti i 20.000 file (run 1056832) teneva la GPU ferma 22-26 min a ogni
+        cambio di blocco. Ora: mesh dei tar dall'indice (n, m, spigoli), con la formula che e' risultata
+        IDENTICA agli header in ogni misura (smoke S4 31.172/31.930, run 156.870/157.248 GiB); viste
+        dagli header, una volta sola (le viste BFM sono le stesse in ogni blocco). Controllo a campione:
+        200 file dei tar contro i loro header, ogni blocco; uno scarto ferma il run.
+        """
+        sys.path.insert(0, str(REPO_ROOT / "aau/data_scale"))
+        from cache_budget import load_index, npz_sample_bytes, predicted_bytes
+        vb = self.cfg.setdefault("view_bytes", {})
+        tar_names = [n for n in names if self.sources[n][0] == "tar"]
+        if tar_names and "index" not in self.cfg:
+            idx = load_index(Path(self.cfg["tar_index"]))
+            self.cfg["index"] = (idx, {str(n): i for i, n in enumerate(idx["names"])})
+        total, check = 0, "nessun file dai tar"
+        for n in names:
+            if self.sources[n][0] == "tar":
+                idx, pos = self.cfg["index"]
+                i = pos[n]
+                total += predicted_bytes(int(idx["n"][i]), int(idx["m"][i]), int(idx["E"][i]))
+            else:
+                if n not in vb:
+                    vb[n] = npz_sample_bytes(dest / n)
+                total += vb[n]
+        if tar_names:
+            idx, pos = self.cfg["index"]
+            rng = np.random.default_rng(len(names))
+            probe = [tar_names[int(j)] for j in rng.choice(len(tar_names), min(200, len(tar_names)), replace=False)]
+            bad = [n for n in probe if npz_sample_bytes(dest / n)
+                   != predicted_bytes(int(idx["n"][pos[n]]), int(idx["m"][pos[n]]), int(idx["E"][pos[n]]))]
+            if bad:
+                raise SystemExit(f"{dest.name}: la previsione dall'indice non torna con gli header per {bad[:3]}")
+            check = f"indice = header su {len(probe)} file a campione"
+        return total / 2 ** 30, check
+
     def predicted_gib(self, names: list[str]):
         """(previsione dall'indice, esatto dagli header) per le mesh che vengono dai tar: verifica la
         formula che cache_budget.py usa per i 40 blocchi prima che esistano."""
@@ -261,13 +299,9 @@ class BlockedDataset:
         if missing:
             raise SystemExit(f"{dest}: {len(missing)} mesh mancanti dopo il pre-pass (prima {missing[0]})")
         t0 = time.time()
-        gib = exact_cache_gib(dest, names)
-        msg = (f"[steps] {dest.name}: {len(names)} campioni, cache esatta {gib:.1f} GiB dagli header "
-               f"(tetto {c['cache_max_gb']:.0f} GiB, {time.time() - t0:.0f}s)")
-        pred = self.predicted_gib(names)
-        if pred is not None:
-            msg += f"; previsione dall'indice per le mesh dei tar {pred[0]:.3f} GiB contro {pred[1]:.3f} esatti"
-        print(msg, flush=True)
+        gib, check = self.block_gib(dest, names)
+        print(f"[steps] {dest.name}: {len(names)} campioni, cache {gib:.1f} GiB (indice per i tar, header "
+              f"per le viste; {check}; tetto {c['cache_max_gb']:.0f} GiB, {time.time() - t0:.0f}s)", flush=True)
         if gib > c["cache_max_gb"]:
             raise SystemExit(f"{dest.name}: cache {gib:.1f} GiB > --cache-max-gb {c['cache_max_gb']:.0f}: "
                              "piu' blocchi o tetto piu' alto")
@@ -287,6 +321,52 @@ def exact_cache_gib(dest: Path, names: list[str]) -> float:
     sys.path.insert(0, str(REPO_ROOT / "aau/data_scale"))
     from cache_budget import npz_sample_bytes
     return sum(npz_sample_bytes(dest / n) for n in names) / 2 ** 30
+
+
+def _cgroup_dir() -> Path | None:
+    """Cgroup di memoria del JOB (quello su cui Slurm applica --mem), v1 o v2."""
+    try:
+        for line in open("/proc/self/cgroup"):
+            _, ctrl, path = line.strip().split(":", 2)
+            if ctrl in ("memory", ""):
+                for base in (Path("/sys/fs/cgroup/memory"), Path("/sys/fs/cgroup")):
+                    p = base / path.lstrip("/")
+                    # risali fino a job_<id>: il limite --mem sta li', non sullo step o sul task
+                    while p != base and not p.name.startswith("job_"):
+                        p = p.parent
+                    if p.name.startswith("job_") and p.exists():
+                        return p
+    except OSError:
+        pass
+    return None
+
+
+def mem_log(what: str) -> None:
+    """RSS del processo e memoria del cgroup del job (attuale e picco) in un riga del log."""
+    rss = float("nan")
+    for line in open("/proc/self/status"):
+        if line.startswith("VmRSS:"):
+            rss = int(line.split()[1]) / 2 ** 20
+    cg, cur, peak = _cgroup_dir(), float("nan"), float("nan")
+    if cg is not None:
+        for f, var in (("memory.usage_in_bytes", "cur"), ("memory.current", "cur"),
+                       ("memory.max_usage_in_bytes", "peak"), ("memory.peak", "peak")):
+            q = cg / f
+            if q.exists():
+                v = int(q.read_text().split()[0]) / 2 ** 30
+                if var == "cur":
+                    cur = v
+                else:
+                    peak = v
+    print(f"[mem] {what}: RSS processo {rss:.1f} GiB, cgroup job {cur:.1f} GiB (picco {peak:.1f})", flush=True)
+
+
+def malloc_trim() -> None:
+    try:
+        import ctypes
+        ctypes.CDLL("libc.so.6").malloc_trim(0)
+    except OSError:
+        pass
 
 
 def partition_blocks(train: list[str], spec: dict) -> list[list[str]]:
@@ -561,8 +641,16 @@ def install(known: argparse.Namespace) -> None:
             ds.finish(cfg["pending"][1], dest)
         else:
             ds.stage(_names_of(k), dest)
-        if len(ds._parts) > 1:                    # libera il blocco precedente prima di caricare
-            ds._parts.pop()
+        if len(ds._parts) > 1:
+            # libera il blocco precedente PRIMA di caricare il nuovo, esplicitamente: la tupla esce dalla
+            # lista, poi gc e malloc_trim, che restituisce al sistema la memoria rimasta nelle arene di
+            # glibc (run 1056832: OOM al primo cambio, vedi aau/data_scale/PLAN.md)
+            mem_log(f"cambio {ds.resident_block}->{k}: prima di liberare")
+            old = ds._parts.pop()
+            del old
+            gc.collect()
+            malloc_trim()
+            mem_log(f"cambio {ds.resident_block}->{k}: blocco {ds.resident_block} liberato (gc + malloc_trim)")
             shutil.rmtree(root / f"block{ds.resident_block:03d}", ignore_errors=True)
         # la geometria estratta dai tar la cancella gia' prepass_ops; qui per sicurezza, perche'
         # lasciata su /tmp si accumulerebbe (~3 GB a blocco, ~130 GB su 40 blocchi)
@@ -572,7 +660,9 @@ def install(known: argparse.Namespace) -> None:
         # tutti i campioni del blocco sono ora decodificati in RAM: la copia su /tmp (che conta
         # contro --mem) non serve piu'. Senza questo il picco e' cache + operatori su disco
         # (OOM a 120G sui 400 soggetti BFM, job 1055893/1055894)
+        mem_log(f"blocco {k} caricato, operatori ancora su /tmp")
         shutil.rmtree(dest, ignore_errors=True)
+        mem_log(f"blocco {k} caricato, /tmp liberato")
         ds.resident_block = k
         print(f"[steps] blocco {k} residente ({len(cfg['blocks'][k])} soggetti) in {time.time() - t0:.0f}s",
               flush=True)
@@ -609,6 +699,8 @@ def install(known: argparse.Namespace) -> None:
         print(f"\n[steps] epoca {epoch}: {STATE['steps'] - before} passi in {dt:.0f}s "
               f"({dt / max(STATE['steps'] - before, 1):.2f} s/passo), pre-pass in corso "
               f"all'inizio={'si' if busy0 else 'no'} alla fine={'si' if busy1 else 'no'}", flush=True)
+        if cfg.get("blocked") is not None:
+            mem_log(f"fine epoca {epoch}")
         if STATE["steps"] - before != steps:
             # v1 salta i batch senza coppie valide: lo si dice, e l'epoca successiva recupera
             print(f"[steps] AVVISO epoca {epoch}: {STATE['steps'] - before} passi eseguiti, attesi {steps}",
