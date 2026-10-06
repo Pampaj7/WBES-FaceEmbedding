@@ -702,3 +702,13 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **BFM, protocollo primario:** +0.030 [+0.017, +0.047]. Positivo con certezza, ma la soglia del margine (+0.03) è superata solo come valore puntuale (51.7% delle repliche).
 - **ICT:** −0.000 [−0.003, +0.003], nullo.
 - **Variabilità:** gli IC coprono i soggetti, non il seed.
+
+**Stop per limite di sessione (6 ottobre, circa 14:00; reset alle 16).** Agenti fermati. I job Slurm proseguono da soli:
+- test sulle espressioni FaceVerse (baseline e bracci, summary 1056877);
+- equalize support (BFM, HIFI3D, ICT);
+- valanga (1056832, in coda) con la sua catena di eval (1056833).
+
+**Alla ripresa:**
+1. raccogliere i risultati di espressioni ed equalize support, poi critic;
+2. cella FaceVerse `_flip` del frame, che l'agente stava ripresentando su A40;
+3. verificare il primo cambio di blocco della valanga.
