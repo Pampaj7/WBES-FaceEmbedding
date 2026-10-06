@@ -780,3 +780,11 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Errore mio:** avevo cancellato lo smoke S5 a blocchi di dimensione reale per non aspettare.
 - **Ipotesi:** al cambio coesistono la cache vecchia e quella nuova.
 - **Correzione affidata a coder:** liberare esplicitamente la cache vecchia, poi S5 obbligatorio con il picco del cgroup misurato, e rilancio solo con il 15% di margine.
+
+**Test sul frame chiusi, conclusioni riscritte dopo il critic** (`aau/runs/ws_frame/summary.md`; protocollo primario = mesh-pair senza crop).
+- **(a) HIFI3D:** il frame spiega circa metà del vantaggio del congiunto su BFM-only (frazione 0.51 [0.30, 0.76]); l'altra metà resta, +0.108 [+0.047, +0.159]. Su FaceVerse congiunto e BFM-only sono pari. Il congiunto batte ICT-only: HIFI3D +0.046, FaceVerse +0.126.
+- **(b) BFM-only su ICT:** il crollo non è un effetto del frame (VIA LIBERA).
+- **(c) Pipeline ICT:** riproduce lo storico; le celle del congiunto su ICT sono inquinate dal leakage.
+- **(d) Contro Chamfer:** sopra solo il congiunto su HIFI3D (+0.056 [+0.016, +0.092]). Altrove pari, oppure sotto (ICT-only su FaceVerse −0.159).
+- **(e) Crop:** rms non lo risolve.
+- Chiuso al secondo giro di correzioni: niente terzo critic. Le riserve note sono l'aritmetica GPU A10/L40S (±4e-4) e le celle del congiunto in `_flip` mancanti su FaceVerse.

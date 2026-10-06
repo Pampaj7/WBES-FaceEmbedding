@@ -67,18 +67,18 @@ Soggetti ICT valutati che sono nel training di ciascun modello (splits.json di W
 | --- | --- | --- | --- | --- | --- |
 | nativo | rotazione BFM, verso ICT | 0.392 [0.33, 0.45] | 0.364 [0.29, 0.44] | 0.297 [0.23, 0.35] | 0.425 [0.37, 0.47] |
 | Rx(180) | ICT completa | 0.261 [0.19, 0.32] | 0.184 [0.13, 0.24] | 0.266 [0.19, 0.33] | 0.425 [0.37, 0.47] |
-| facce invertite | BFM completa | mancante | mancante | mancante | 0.425 [0.37, 0.47] |
+| facce invertite | BFM completa | mancante | 0.355 [0.28, 0.43] | mancante | 0.425 [0.37, 0.47] |
 
 | contrasto (appaiato, stesse repliche) | stima [CI 95%] | P(boot <= 0) |
 | --- | --- | --- |
-| BFM-only: frame dei suoi dati (_flip) - nativo | mancante | - |
+| BFM-only: frame dei suoi dati (_flip) - nativo | -0.010 [-0.017, -0.002] | 0.997 |
 | ICT-only: frame dei suoi dati (_frame-xmymz) - nativo | -0.031 [-0.087, +0.024] | 0.857 |
 | BFM+ICT nativo - BFM-only nativo (gap a parita' di ingresso) | +0.027 [-0.033, +0.086] | 0.207 |
-| BFM+ICT nativo - BFM-only nel frame dei suoi dati | mancante | - |
+| BFM+ICT nativo - BFM-only nel frame dei suoi dati | +0.037 [-0.023, +0.096] | 0.122 |
 | BFM+ICT nativo - ICT-only nel frame dei suoi dati | +0.126 [+0.044, +0.213] | 0.003 |
-| frazione del gap BFM+ICT - BFM-only spiegata dal frame | mancante | - |
+| frazione del gap BFM+ICT - BFM-only spiegata dal frame | -0.35 [-2.96, +4.08] (gap con CI che tocca 0: rapporto instabile) | - |
 | BFM+ICT nel frame dei suoi dati - Chamfer eval | -0.033 [-0.100, +0.033] | 0.830 |
-| BFM-only nel frame dei suoi dati - Chamfer eval | mancante | - |
+| BFM-only nel frame dei suoi dati - Chamfer eval | -0.070 [-0.152, +0.024] | 0.933 |
 | ICT-only nel frame dei suoi dati - Chamfer eval | -0.159 [-0.209, -0.103] | 1.000 |
 
 ### ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) (99000 righe)
@@ -130,18 +130,18 @@ Soggetti ICT valutati che sono nel training di ciascun modello (splits.json di W
 | --- | --- | --- | --- | --- | --- |
 | nativo | rotazione BFM, verso ICT | 0.503 [0.43, 0.57] | 0.452 [0.36, 0.53] | 0.517 [0.44, 0.59] | 0.577 [0.48, 0.66] |
 | Rx(180) | ICT completa | 0.377 [0.28, 0.47] | 0.315 [0.20, 0.42] | 0.391 [0.28, 0.48] | 0.577 [0.48, 0.66] |
-| facce invertite | BFM completa | mancante | mancante | mancante | 0.577 [0.48, 0.66] |
+| facce invertite | BFM completa | mancante | 0.444 [0.35, 0.53] | mancante | 0.577 [0.48, 0.66] |
 
 | contrasto (appaiato, stesse repliche) | stima [CI 95%] | P(boot <= 0) |
 | --- | --- | --- |
-| BFM-only: frame dei suoi dati (_flip) - nativo | mancante | - |
+| BFM-only: frame dei suoi dati (_flip) - nativo | -0.008 [-0.017, +0.001] | 0.966 |
 | ICT-only: frame dei suoi dati (_frame-xmymz) - nativo | -0.125 [-0.222, -0.033] | 0.998 |
 | BFM+ICT nativo - BFM-only nativo (gap a parita' di ingresso) | +0.051 [-0.017, +0.119] | 0.077 |
-| BFM+ICT nativo - BFM-only nel frame dei suoi dati | mancante | - |
+| BFM+ICT nativo - BFM-only nel frame dei suoi dati | +0.059 [-0.010, +0.128] | 0.043 |
 | BFM+ICT nativo - ICT-only nel frame dei suoi dati | +0.112 [-0.003, +0.239] | 0.030 |
-| frazione del gap BFM+ICT - BFM-only spiegata dal frame | mancante | - |
+| frazione del gap BFM+ICT - BFM-only spiegata dal frame | -0.17 [-1.38, +1.50] (gap con CI che tocca 0: rapporto instabile) | - |
 | BFM+ICT nel frame dei suoi dati - Chamfer eval | -0.074 [-0.171, +0.033] | 0.925 |
-| BFM-only nel frame dei suoi dati - Chamfer eval | mancante | - |
+| BFM-only nel frame dei suoi dati - Chamfer eval | -0.134 [-0.250, -0.007] | 0.977 |
 | ICT-only nel frame dei suoi dati - Chamfer eval | -0.186 [-0.281, -0.091] | 1.000 |
 
 ### ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) (4950 righe)
@@ -193,18 +193,18 @@ Soggetti ICT valutati che sono nel training di ciascun modello (splits.json di W
 | --- | --- | --- | --- | --- | --- |
 | nativo | rotazione BFM, verso ICT | 0.254 [0.20, 0.30] | 0.296 [0.23, 0.35] | 0.097 [0.06, 0.14] | 0.154 [0.09, 0.22] |
 | Rx(180) | ICT completa | 0.070 [0.02, 0.11] | 0.164 [0.10, 0.22] | 0.083 [0.03, 0.14] | 0.154 [0.09, 0.22] |
-| facce invertite | BFM completa | mancante | mancante | mancante | 0.154 [0.09, 0.22] |
+| facce invertite | BFM completa | mancante | 0.293 [0.23, 0.35] | mancante | 0.154 [0.09, 0.22] |
 
 | contrasto (appaiato, stesse repliche) | stima [CI 95%] | P(boot <= 0) |
 | --- | --- | --- |
-| BFM-only: frame dei suoi dati (_flip) - nativo | mancante | - |
+| BFM-only: frame dei suoi dati (_flip) - nativo | -0.003 [-0.010, +0.004] | 0.767 |
 | ICT-only: frame dei suoi dati (_frame-xmymz) - nativo | -0.014 [-0.060, +0.029] | 0.760 |
 | BFM+ICT nativo - BFM-only nativo (gap a parita' di ingresso) | -0.041 [-0.091, +0.016] | 0.933 |
-| BFM+ICT nativo - BFM-only nel frame dei suoi dati | mancante | - |
+| BFM+ICT nativo - BFM-only nel frame dei suoi dati | -0.038 [-0.087, +0.018] | 0.917 |
 | BFM+ICT nativo - ICT-only nel frame dei suoi dati | +0.171 [+0.101, +0.238] | 0.000 |
-| frazione del gap BFM+ICT - BFM-only spiegata dal frame | mancante | - |
+| frazione del gap BFM+ICT - BFM-only spiegata dal frame | +0.07 [-0.48, +1.06] (gap con CI che tocca 0: rapporto instabile) | - |
 | BFM+ICT nel frame dei suoi dati - Chamfer eval | +0.101 [+0.019, +0.172] | 0.002 |
-| BFM-only nel frame dei suoi dati - Chamfer eval | mancante | - |
+| BFM-only nel frame dei suoi dati - Chamfer eval | +0.139 [+0.041, +0.233] | 0.005 |
 | ICT-only nel frame dei suoi dati - Chamfer eval | -0.071 [-0.129, -0.014] | 0.990 |
 
 ### ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) (49500 righe)
@@ -289,6 +289,7 @@ SOLO PUNTO, senza CI: in zs_summarize.py le 30 celle per coppia di topologie han
 | FaceVerse v2 | joint_frame-xmymz | 0.00e+00 | 0 |
 | FaceVerse v2 | bfm_only_frame-xmymz | 0.00e+00 | 0 |
 | FaceVerse v2 | ict_only_frame-xmymz | 0.00e+00 | 0 |
+| FaceVerse v2 | bfm_only_flip | 4.42e-04 | 12 |
 | ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) | joint | 0.00e+00 | 0 |
 | ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) | bfm_only | 0.00e+00 | 0 |
 | ICT, pool id14500-id14999 (controllo e2e; NON held-out per congiunto e ICT-only) | ict_only | 0.00e+00 | 0 |
