@@ -69,8 +69,13 @@ def main() -> None:
 
     dataset = ebt.GTReadyDataset(str(args.data_dir))
     subj_map = ebt.build_subject_map(dataset.files, subject_re=ebt.SUBJECT_RE_ANY)
-    gt, name_to_idx = ebt.load_gt_distance_matrix(str(args.dist_npz), dtype=np.float64)
+    # SUBJECT_RE_ANY: il default a 4 cifre tronca gli id ICT (id14500 -> id1450) e l'intersezione con
+    # la vista resta vuota (jobs 1055742/1055744); sulla GT BFM i due regex danno lo stesso mapping.
+    gt, name_to_idx = ebt.load_gt_distance_matrix(str(args.dist_npz), subject_re=ebt.SUBJECT_RE_ANY,
+                                                  dtype=np.float64)
     subjects = sorted(set(subj_map) & set(name_to_idx))
+    if not subjects:
+        raise SystemExit(f"nessun soggetto in comune fra {args.data_dir} e {args.dist_npz}")
     if args.subject_split == "eval":
         _, subjects = rebuild_subject_split(subjects=subjects, eval_fraction=0.2,
                                             seed=int(cfg["seed"]), max_subjects=0)

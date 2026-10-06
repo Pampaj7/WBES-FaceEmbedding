@@ -22,7 +22,13 @@ Scrive in ``--out-dir`` un symlink per ogni mesh dei soggetti scelti (6 topologi
 una matrice di segni sugli assi, p.es. ``x,-y,-z`` (180 gradi attorno a x: dal frame ICT/HIFI3D,
 y in alto e naso verso +z, al frame dei dati BFM, y in basso e naso verso -z) o ``-x,y,-z``
 (180 gradi attorno a y). Solo segni: rotazioni proprie (determinante +1, verso dei triangoli
-invariato) o riflessioni, rifiutate. Il modello usa le coordinate xyz, quindi il frame entra nel
+invariato) o riflessioni, rifiutate.
+
+``--flip-faces``: inverte anche il verso dei triangoli (F[:, ::-1]). Serve perche' le mesh BFM di
+training hanno le normali verso l'INTERNO (7% dei triangoli verso l'esterno, contro 83-97% di
+ICT, HIFI3D e FaceVerse: aau/scratch/hifi3d/winding2.py): la convenzione BFM completa e' Rx(180)
+PIU' facce invertite. Massa, Laplaciano e autovettori non dipendono dal verso, gli operatori
+gradiente di DiffusionNet si' (il riferimento tangente segue la normale). Il modello usa le coordinate xyz, quindi il frame entra nel
 suo ingresso; Chamfer e GT no (distanze invarianti per rotazione, e maxabs prende il massimo dei
 valori assoluti, invariante per cambi di segno): Chamfer deve uscire IDENTICO, e' il controllo.
 """
@@ -69,9 +75,12 @@ def main() -> None:
     p.add_argument("--view-dir", type=Path, required=True)
     p.add_argument("--out-dir", type=Path, required=True)
     p.add_argument("--seed", type=int, required=True)
-    p.add_argument("--transform", default="", help="p.es. x,-y,-z; vuoto = symlink alle mesh originali")
+    p.add_argument("--transform", default="", help="p.es. x,-y,-z; vuoto = nessuna rotazione")
+    p.add_argument("--flip-faces", action="store_true", help="inverte il verso dei triangoli")
     a = p.parse_args()
     signs = parse_transform(a.transform) if a.transform else None
+    if signs is None and a.flip_faces:
+        signs = np.ones(3)
 
     subjects = select_subjects(a.view_dir, a.seed)
     a.out_dir.mkdir(parents=True, exist_ok=True)
@@ -87,13 +96,16 @@ def main() -> None:
             else:
                 with np.load(src) as d:
                     V, F = (d["V"], d["F"]) if "V" in d else (d["verts"], d["faces"])
-                np.savez(a.out_dir / src.name, V=(V * signs).astype(V.dtype), F=F)
+                np.savez(a.out_dir / src.name, V=(V * signs).astype(V.dtype),
+                         F=np.ascontiguousarray(F[:, ::-1]) if a.flip_faces else F)
     (a.out_dir.parent / "subjects.json").write_text(json.dumps(
-        {"seed": a.seed, "view_dir": str(a.view_dir), "transform": a.transform, "subjects": subjects},
+        {"seed": a.seed, "view_dir": str(a.view_dir), "transform": a.transform, "flip_faces": a.flip_faces,
+         "subjects": subjects},
         indent=1) + "\n")
     print(f"[zs-stage] {len(subjects)} soggetti (primi {subjects[:3]}), "
           f"{len(subjects) * len(TOPOLOGIES)} mesh in {a.out_dir}"
-          + (f", vertici trasformati {a.transform}" if signs is not None else ""))
+          + (f", vertici trasformati '{a.transform}'" if signs is not None else "")
+          + (", facce invertite" if a.flip_faces else ""))
 
 
 if __name__ == "__main__":

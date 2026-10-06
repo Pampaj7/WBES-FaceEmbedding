@@ -41,6 +41,8 @@
 # Varianti (si sommano nel nome della out dir del braccio, <arm><varianti>):
 #   WBES_ZS_FRAME=x,-y,-z      vertici trasformati prima degli operatori (zs_stage.py --transform):
 #                              test del frame. Suffisso _frame-<segni>.
+#   WBES_ZS_FLIP_FACES=1       verso dei triangoli invertito (le mesh BFM di training hanno le
+#                              normali verso l'interno). Suffisso _flip.
 #   WBES_ZS_EVAL_FRAME=rms     il forward ri-inquadra V_in nel frame rms (aau/models/eval_ablation.py,
 #                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
 #   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
@@ -91,6 +93,11 @@ FRAME_SUFFIX=""
 if [[ -n "${WBES_ZS_FRAME:-}" ]]; then
     FRAME_SUFFIX="_frame-$(echo "$WBES_ZS_FRAME" | tr -d ',' | tr '-' 'm')"   # x,-y,-z -> _frame-xmymz
 fi
+STAGE_FLIP=()
+if [[ "${WBES_ZS_FLIP_FACES:-0}" == 1 ]]; then
+    FRAME_SUFFIX="${FRAME_SUFFIX}_flip"
+    STAGE_FLIP=(--flip-faces)
+fi
 LAUNCH=()
 EVALFRAME_SUFFIX=""
 if [[ -n "${WBES_ZS_EVAL_FRAME:-}" ]]; then
@@ -135,7 +142,7 @@ trap 'rm -rf "$STAGE_TMP"' EXIT
 echo "[zs-zs] dominio=$WBES_ZS_DOMAIN ($ZS_LABEL) bracci=${TODO[*]} varianti='$SUFFIX' dati=data_$ZS_FP host=$(hostname) job=${SLURM_JOB_ID:-none}"
 echo "[zs-zs] a. soggetti valutati -> $STAGE_TMP/in"
 "$AAU_DIR/run.sh" aau/zs3dmm/zs_stage.py --view-dir "$ZS_DATA_DIR" \
-    --out-dir "$STAGE_TMP/in" --seed "$WBES_EVAL_SEED" --transform="${WBES_ZS_FRAME:-}"  # con "=": "-x,y,-z" altrimenti sembra un flag
+    --out-dir "$STAGE_TMP/in" --seed "$WBES_EVAL_SEED" --transform="${WBES_ZS_FRAME:-}" "${STAGE_FLIP[@]}"  # "=": "-x,y,-z" sembrerebbe un flag
 
 echo "[zs-zs] b. operatori (k_eig 128, area unitaria) su /tmp"
 N_SHARDS="${SLURM_CPUS_PER_TASK:-8}"

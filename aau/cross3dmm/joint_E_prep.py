@@ -31,6 +31,7 @@ Sottocomandi:
   stage-input  --dest D --what train|eval_ict: in D/ict_in i symlink alle mesh ICT che non hanno
                ancora operatori robusti, in D/ict_ra1 i symlink a quelli gia' calcolati.
   stage-view   --dest D --what train|eval_ict: vista e in D/view (BFM robusti da CephFS, ICT da D/ict_ra1).
+               Entrambi con --topologies a,b: solo quelle topologie (uno shard di joint_E_eval.sbatch).
   verify       --run-root R: seed e i 16 soggetti dell'eval online scritti dal run coincidono con lo
                split ricostruito; nessun soggetto di eval e' di training.
 
@@ -91,18 +92,18 @@ def select_subjects() -> dict[str, list[str]]:
     return {"bfm": bfm, "ict": sorted(ict[int(i)] for i in pick)}
 
 
-def files_of(sid: str) -> list[str]:
-    return [f"{sid}_GTready_{t}.npz" for t in TOPOLOGIES]
+def files_of(sid: str, topologies=TOPOLOGIES) -> list[str]:
+    return [f"{sid}_GTready_{t}.npz" for t in topologies]
 
 
-def build_view(out: Path, subjects: dict[str, list[str]], ops: dict[str, Path]) -> int:
+def build_view(out: Path, subjects: dict[str, list[str]], ops: dict[str, Path], topologies=TOPOLOGIES) -> int:
     out.mkdir(parents=True, exist_ok=True)
     for stale in out.glob("*.npz"):
         stale.unlink()
     n = 0
     for dom, subs in subjects.items():
         for sid in subs:
-            for name in files_of(sid):
+            for name in files_of(sid, topologies):
                 link(out / name, ops[dom] / name)
                 n += 1
     return n
@@ -204,7 +205,7 @@ def cmd_stage_input(args) -> None:
     ra1.mkdir(parents=True, exist_ok=True)
     reused = todo = 0
     for sid in subs["ict"]:
-        for name in files_of(sid):
+        for name in files_of(sid, args.topologies):
             if (ICT_RA1_DONE / name).is_file():
                 link(ra1 / name, ICT_RA1_DONE / name)
                 reused += 1
@@ -217,7 +218,7 @@ def cmd_stage_input(args) -> None:
 def cmd_stage_view(args) -> None:
     subs = staged_subjects(args.what, load_splits())
     ops = {"bfm": BFM_RA1, "ict": args.dest / "ict_ra1"}
-    n = build_view(args.dest / "view", subs, ops)
+    n = build_view(args.dest / "view", subs, ops, args.topologies)
     print(f"[joint-E] vista e ({args.what}): {n} file in {args.dest / 'view'}")
 
 
@@ -250,6 +251,8 @@ def main() -> None:
         s = sub.add_parser(name)
         s.add_argument("--dest", type=Path, required=True)
         s.add_argument("--what", required=True, choices=["train", "eval_ict"])
+        s.add_argument("--topologies", type=lambda v: tuple(v.split(",")), default=TOPOLOGIES,
+                       help="sottoinsieme separato da virgole (shard dell'eval)")
     v = sub.add_parser("verify")
     v.add_argument("--run-root", type=Path, required=True)
     args = ap.parse_args()

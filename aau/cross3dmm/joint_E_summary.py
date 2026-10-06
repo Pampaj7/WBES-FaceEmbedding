@@ -66,6 +66,12 @@ def eval_dir(root: Path, dom: str) -> Path:
     return RUNS / "eval" / f"{root.name}__{dom}"
 
 
+def eval_complete(d: Path) -> bool:
+    """cells e i 15 shard del breakdown (joint_E_eval.sbatch), 30 pair_metrics.csv."""
+    return ((d / ".done_cells").is_file() and len(list(d.glob(".done_topo__*"))) == 15
+            and len(list((d / "topology").glob("*/pair_metrics.csv"))) == 30)
+
+
 def arm_tables(root: Path, dom: str, splits: dict, bm, args) -> dict:
     """Margine per cella, mesh-pair all_cross con IC, gruppi, controllo leak di una (braccio, dominio)."""
     import numpy as np
@@ -93,6 +99,9 @@ def arm_tables(root: Path, dom: str, splits: dict, bm, args) -> dict:
            "chamfer_mean": float(np.mean([c["chamfer"] for c in per_cell])),
            "groups": {g: cells["groups"][g]["spearman"] for g in GROUPS if g in cells["groups"]},
            "n_subjects": len(seen), "leak": leak}
+    # Stesse coppie (soggetto minore in A) in eval_cells: controllo indipendente degli shard del breakdown.
+    ref = {(c["a"], c["b"]): c["latent_spearman"] for c in cells["cells"]}
+    out["cells_vs_breakdown"] = max(abs(c["latent"] - ref[(c["a"], c["b"])]) for c in per_cell)
     for metric, col in base.METRICS:
         rng = np.random.default_rng(base.stable_seed(args.seed, dom, "all_cross", metric))
         out[f"all_cross_{metric}"] = base.bootstrap_row(pm, col, args.n_bootstrap, rng, bm)
@@ -123,7 +132,7 @@ def main() -> int:
     roots = {"ctrl": args.ctrl_root, "e": args.e_root}
     missing = [f"{arm} {dom}: {eval_dir(r, dom) if r else 'run non indicato'}"
                for arm, r in roots.items() for dom in DOMAINS
-               if r is None or not (eval_dir(r, dom) / ".done").is_file()]
+               if r is None or not eval_complete(eval_dir(r, dom))]
     lines = [HEADER, "## Risultati", ""]
     if missing:
         lines += ["(in attesa delle eval)", "", "## Mancanti", ""] + [f"- {m}" for m in missing]
@@ -167,8 +176,9 @@ def main() -> int:
     for dom in DOMAINS:
         dch = max(abs(a["chamfer"] - b["chamfer"]) for a, b in zip(res["ctrl"][dom]["cells"], res["e"][dom]["cells"]))
         lines.append(f"- {dom}: Chamfer per cella fra i due bracci, differenza massima {dch:.2e} "
-                     f"({res['ctrl'][dom]['n_cells']} celle); leak ctrl {res['ctrl'][dom]['leak']}, "
-                     f"e {res['e'][dom]['leak']}")
+                     f"({res['ctrl'][dom]['n_cells']} celle); latent per cella breakdown contro eval_cells, differenza "
+                     f"massima ctrl {res['ctrl'][dom]['cells_vs_breakdown']:.1e}, e {res['e'][dom]['cells_vs_breakdown']:.1e}; "
+                     f"leak ctrl {res['ctrl'][dom]['leak']}, e {res['e'][dom]['leak']}")
     lines.append("")
 
     if args.ws3a_csv is not None and args.ws3a_csv.is_file():

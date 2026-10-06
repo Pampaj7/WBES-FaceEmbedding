@@ -593,3 +593,10 @@ Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di criti
 **Test sul frame:** tutti completati (hifi frameBFM, roty, rms; fv frameICT; ict frameBFM, e2e). Raccolta in `aau/runs/ws_frame/` in corso.
 
 **Smoke S5 della valanga:** ancora in coda (job 1056296).
+
+**Critic sul pilota del pozzo: RISERVE.**
+- **L'eval è coerente col training.** Il crollo di m55 c'era già nell'eval online: xtopo 0.357 contro 0.743.
+- **Ma il crollo non misura il pozzo.** La ROI non copre la stessa regione del viso nelle varie topologie (IoU con original: noisy 0.60, remesh 0.74; manca `--area-normalize`). Il pooling sulla ROI rompe quindi l'invarianza fra topologie per costruzione.
+- **"Il pozzo da solo non aiuta" si regge su w55 dell'autore** (agosto: crop −0.006, totale −0.013), non su questo pilota.
+- **Dual:** confronto appaiato e onesto, sotto il rumore (circa 0.03 fra run con lo stesso seed). Non raggiunge +0.05, ma non si può dire che peggiori ICT.
+- **Prossimo passo:** braccio `pot_m55_roi`, con una ROI coerente fra topologie (IoU ≥ 0.90 misurato PRIMA del training).

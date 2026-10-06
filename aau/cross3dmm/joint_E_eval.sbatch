@@ -7,19 +7,27 @@
 #SBATCH --gres=gpu:a10:1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=64G
-#SBATCH --time=03:00:00
+#SBATCH --time=01:15:00
 #
 # Eval di un braccio del confronto E congiunto / controllo congiunto su un dominio, sui soggetti
-# held-out dello split ricostruito (aau/runs/joint_E/splits.json): BFM 104, ICT 100.
+# held-out dello split ricostruito (aau/runs/joint_E/splits.json): BFM 104, ICT 100. Uno step per job:
 #
-#   WBES_CKPT=aau/runs/joint_E/joint_E_e_s1234_<job> WBES_JE_DOMAIN=ict sbatch ... aau/cross3dmm/joint_E_eval.sbatch
+#   WBES_CKPT=aau/runs/joint_E/joint_E_e_s1234_<job> WBES_JE_DOMAIN=ict WBES_JE_STEP=cells sbatch ... joint_E_eval.sbatch
+#   WBES_CKPT=... WBES_JE_DOMAIN=ict WBES_JE_STEP=topo WBES_JE_LABELS=crop,up60k sbatch ... joint_E_eval.sbatch
 #
 #   0. joint_E_prep.py verify: seed ed eval online del run = split ricostruito, nessun soggetto di eval
 #      nel training (lo split e' sull'unione dei due domini, come train_v2);
-#   1. aau/models/eval_cells.py: Spearman per gruppo crop/noisy/resample/all (eval_by_topology) e 30 celle;
-#   2. compare_model_vs_chamfer_topology_breakdown.py (repo), clean, coppie ordinate cross-topologia,
+#   cells: aau/models/eval_cells.py, Spearman per gruppo crop/noisy/resample/all (eval_by_topology) e 30 celle
+#      (~10 min su A10 per 624 mesh BFM);
+#   topo: compare_model_vs_chamfer_topology_breakdown.py (repo), clean, coppie ordinate cross-topologia,
 #      con pair_metrics.csv: protocollo mesh-pair di WS2 e Chamfer per cella (margine del criterio).
-# Entrambi lanciati da aau/models/eval_ablation.py con frame e token del braccio (joint_E_arm.txt).
+#      Uno shard per coppia NON ordinata di topologie (--topology_labels a,b: celle a->b e b->a), 15
+#      shard per eval. Intero non ci sta: 160680 coppie mesh BFM a 13.1 coppie/s su A10 = 3.4 h di
+#      Chamfer (jobs 1055741/1055743, TIMEOUT a 3 h all'83%). Lo shard e' esatto: le coppie di soggetti
+#      non dipendono dalle etichette (6 mesh per soggetto, filtro dopo la scelta delle mesh) e ogni cella
+#      ha una coppia mesh per coppia di soggetti. Il costo va con il prodotto dei vertici: lo shard
+#      remesh,up60k (il piu' pesante) e' ~16% del totale, ~34 min a quel ritmo; 1h15 di tetto.
+# Lanciati da aau/models/eval_ablation.py con frame e token del braccio (joint_E_arm.txt).
 # La vista di eval contiene SOLO i soggetti scelti, quindi --subject_split all (come ws2_eval.sbatch).
 #
 # Variabili PROPRIE per dati e GT: aau/submit.sh e env.sh esportano sempre i percorsi BFM (bug del
@@ -40,6 +48,12 @@ _m=("$RUNS_ROOT"/*/checkpoints/best_by_xtopo_mesh_clean.pth)
 [[ ${#_m[@]} -eq 1 && -f "${_m[0]}" ]] || { echo "ERRORE: checkpoint in $RUNS_ROOT: ${_m[*]}" >&2; exit 2; }
 CKPT="${_m[0]}"
 DOM="${WBES_JE_DOMAIN:?WBES_JE_DOMAIN=bfm|ict}"
+STEP="${WBES_JE_STEP:?WBES_JE_STEP=cells|topo}"
+TOPOS=crop,down8k,noisy,original,remesh,up60k
+if [[ "$STEP" == topo ]]; then
+    TOPOS="${WBES_JE_LABELS:?WBES_JE_LABELS=a,b per lo step topo}"
+    SHARD="${TOPOS/,/_}"
+fi
 ARM="$(sed -n 's/^arm=//p' "$RUNS_ROOT/joint_E_arm.txt")"
 FRAME="$(sed -n 's/^frame=//p' "$RUNS_ROOT/joint_E_arm.txt")"
 case "$DOM" in
@@ -55,7 +69,8 @@ if [[ "$ARM" == e && "$DOM" == ict ]]; then
     STAGE="/tmp/${SLURM_JOB_ID:-manual}"
     trap 'rm -rf "$STAGE"' EXIT
     mkdir -p "$STAGE"
-    AAU_NV="" "$AAU_DIR/run.sh" aau/cross3dmm/joint_E_prep.py stage-input --dest "$STAGE" --what eval_ict
+    AAU_NV="" "$AAU_DIR/run.sh" aau/cross3dmm/joint_E_prep.py stage-input --dest "$STAGE" --what eval_ict \
+        --topologies "$TOPOS"
     PROCS="${SLURM_CPUS_PER_TASK:-8}"
     pids=()
     for (( p = 0; p < PROCS; p++ )); do
@@ -68,7 +83,8 @@ if [[ "$ARM" == e && "$DOM" == ict ]]; then
     for i in "${!pids[@]}"; do
         wait "${pids[$i]}" || { echo "ERRORE: operatori robusti, shard $i" >&2; tail -5 "$STAGE/ra1_$i.log" >&2; exit 1; }
     done
-    AAU_NV="" "$AAU_DIR/run.sh" aau/cross3dmm/joint_E_prep.py stage-view --dest "$STAGE" --what eval_ict
+    AAU_NV="" "$AAU_DIR/run.sh" aau/cross3dmm/joint_E_prep.py stage-view --dest "$STAGE" --what eval_ict \
+        --topologies "$TOPOS"
     VIEW="$STAGE/view"
 else
     VIEW="$WBES_ROOT/datasets/JOINT_E/eval/${ARM}__${DOM}"
@@ -77,7 +93,7 @@ OUT="$AAU_DIR/runs/joint_E/eval/$(basename "$RUNS_ROOT")__${DOM}"
 mkdir -p "$OUT"
 
 echo "[$(timestamp)] host=$(hostname) job=${SLURM_JOB_ID:-none}"
-echo "[$(timestamp)] arm=$ARM frame=$FRAME dominio=$DOM ckpt=$CKPT"
+echo "[$(timestamp)] arm=$ARM frame=$FRAME dominio=$DOM step=$STEP topologie=$TOPOS ckpt=$CKPT"
 echo "[$(timestamp)] view=$VIEW gt=$GT out=$OUT"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
@@ -89,23 +105,30 @@ N_BAD=$(find "$VIEW" -maxdepth 1 -name 'id*.npz' -printf '%f\n' | sed 's/^id\([0
 echo "[$(timestamp)] vista: $N_FILES npz, $N_BAD fuori dal dominio $DOM"
 [[ "$N_BAD" == 0 && "$N_FILES" -gt 0 ]] || { echo "ERRORE: vista non tutta $DOM" >&2; exit 1; }
 
-echo "[$(timestamp)] 1/2 eval_cells (gruppi e 30 celle)"
-"$AAU_DIR/run.sh" "${LAUNCH[@]}" aau/models/eval_cells.py \
-  --checkpoint "$CKPT" --data-dir "$VIEW" --dist-npz "$GT" --subject-split all --n-subjects 0 \
-  --device cuda --tag cells --out-dir "$OUT" 2>&1 | tee "$OUT/cells.log"
+if [[ "$STEP" == cells ]]; then
+    echo "[$(timestamp)] eval_cells (gruppi e 30 celle)"
+    "$AAU_DIR/run.sh" "${LAUNCH[@]}" aau/models/eval_cells.py \
+      --checkpoint "$CKPT" --data-dir "$VIEW" --dist-npz "$GT" --subject-split all --n-subjects 0 \
+      --device cuda --tag cells --out-dir "$OUT" 2>&1 | tee "$OUT/cells.log"
+    DONE="$OUT/.done_cells"
+elif [[ "$STEP" == topo ]]; then
+    echo "[$(timestamp)] breakdown clean, shard $TOPOS (celle ordinate nei due versi) + pair_metrics"
+    "$AAU_DIR/run.sh" "${LAUNCH[@]}" \
+      face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_topology_breakdown.py \
+      --model_path "$CKPT" --checkpoint_selector best_by_clean \
+      --data_dir "$VIEW" --dist_npz "$GT" \
+      --subject_split all --max_subjects 0 --eval_fraction 0.2 \
+      --max_meshes_per_subject_eval 10 --preload_workers 8 --pair_mode cross_topology \
+      --rigid_rot_deg 20 --rigid_trans_scale 0.05 --rigid_rot_deg_min 1 --rigid_trans_scale_min 0.002 \
+      --chamfer_batch_pairs 256 --chamfer_cache_verts force --chamfer_cache_verts_max_mb 4096 \
+      --topology_labels "$TOPOS" --summary_filename "topology_breakdown_summary__${SHARD}.csv" \
+      --out_dir "$OUT/topology" --topology_pair_mode cross_only --ordered_topology_pairs --write_pair_metrics \
+      2>&1 | tee "$OUT/topology__${SHARD}.log"
+    DONE="$OUT/.done_topo__${SHARD}"
+else
+    echo "ERRORE: WBES_JE_STEP=$STEP" >&2; exit 2
+fi
 
-echo "[$(timestamp)] 2/2 breakdown per coppia ordinata di topologie (clean) + pair_metrics"
-"$AAU_DIR/run.sh" "${LAUNCH[@]}" \
-  face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_topology_breakdown.py \
-  --model_path "$CKPT" --checkpoint_selector best_by_clean \
-  --data_dir "$VIEW" --dist_npz "$GT" \
-  --subject_split all --max_subjects 0 --eval_fraction 0.2 \
-  --max_meshes_per_subject_eval 10 --preload_workers 8 --pair_mode cross_topology \
-  --rigid_rot_deg 20 --rigid_trans_scale 0.05 --rigid_rot_deg_min 1 --rigid_trans_scale_min 0.002 \
-  --chamfer_batch_pairs 256 --chamfer_cache_verts force --chamfer_cache_verts_max_mb 4096 \
-  --out_dir "$OUT/topology" --topology_pair_mode cross_only --ordered_topology_pairs --write_pair_metrics \
-  2>&1 | tee "$OUT/topology.log"
-
-printf 'completed=%s\njob=%s\nhost=%s\narm=%s\ndomain=%s\nckpt=%s\nview=%s\ngt=%s\n' "$(timestamp)" \
-    "${SLURM_JOB_ID:-none}" "$(hostname)" "$ARM" "$DOM" "$CKPT" "$VIEW" "$GT" > "$OUT/.done"
-echo "[$(timestamp)] OK, scritta $OUT/.done"
+printf 'completed=%s\njob=%s\nhost=%s\narm=%s\ndomain=%s\nstep=%s\ntopologies=%s\nckpt=%s\nview=%s\ngt=%s\n' \
+    "$(timestamp)" "${SLURM_JOB_ID:-none}" "$(hostname)" "$ARM" "$DOM" "$STEP" "$TOPOS" "$CKPT" "$VIEW" "$GT" > "$DONE"
+echo "[$(timestamp)] OK, scritta $DONE"
