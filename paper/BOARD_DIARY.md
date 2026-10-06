@@ -760,3 +760,18 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Leakage:** sui soggetti fuori dal training l'equalizzazione peggiora il congiunto (BFM −0.088, ICT −0.054).
 - **Formulazione sostenibile:** il crollo sul crop è GUIDATO dal supporto asimmetrico (diagnosi), ma un rimedio di protocollo applicabile non è ancora dimostrato.
 - **Prossimo passo:** maschera canonica non oracolare (raggio da un landmark automatico, su ogni mesh), con controllo negativo e controllo d'identità.
+
+**Critic sul benchmark delle espressioni: BLOCCANTE su (2).**
+- **(2) "Il protocollo decide il vincitore" si ROVESCIA con la GT sui coefficienti** (Spearman, FaceVerse con espressioni, senza crop):
+
+  | metodo | GT maxabs | GT coef |
+  |---|---|---|
+  | NICP | 0.194 | **0.281** |
+  | ICP | 0.259 | 0.255 |
+  | Chamfer | 0.319 | 0.197 |
+  | congiunto | 0.282 | 0.174 |
+
+  Con la GT coef, NICP vince anche il ranking. La GT maxabs favorisce Chamfer per costruzione. Si sostiene solo: "con la GT vertex-L2 maxabs NICP ordina peggio di Chamfer", cioè **la scelta della GT decide il vincitore** (era già vero sul neutro).
+- **(1) RISERVE.** Il congiunto perde in rank-1 e mAP; in AUC è pari alle Chamfer. Il dominio di ICP e NICP è solido: battono anche il confronto ideale con corrispondenza densa (0.880). L'espressione è reale (spostamento mediano pari a 0.45 della distanza dal soggetto più vicino), ma NON è la causa della sconfitta: fuori dominio il congiunto non batteva Chamfer neanche senza espressioni. Il frame nativo puro di FaceVerse non è stato valutato. L'orientazione di NICP dà un'incertezza di ±0.03 sul rank-1.
+- **(3) VIA LIBERA** come affermazione a sé: in dominio il congiunto batte Chamfer anche con espressioni. Ma il contrasto con FaceVerse è un effetto di DOMINIO, non di espressione.
+- **Quadro onesto:** fuori dominio la registrazione (ICP, NICP) domina il riconoscimento, e con la GT coef anche il ranking. La metrica appresa non è competitiva fuori dominio in nessun protocollo. NICP è vicino al tetto (rank-1 0.959): per misurare un eventuale ibrido serve un test più difficile.
