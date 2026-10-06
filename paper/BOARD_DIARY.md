@@ -644,3 +644,12 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 **Altre direzioni per la GT:**
 - giudizi umani (studio con 300 triplette, da distribuire);
 - verifica stessa/diversa persona su dati reali con più acquisizioni (Multiface, FaceScape su licenza).
+
+**Critic sui test del frame: BLOCCANTE su (a) e (d), VIA LIBERA su (b).** Il codice delle trasformazioni e il bootstrap appaiato sono corretti.
+- **(a) va riscritta.** "Il frame sposta ogni modello" è falso: ICT-only e BFM-only su ICT si spostano poco. "Circa metà del gap" vale solo senza crop. In subject-pair-mean il frame BFM peggiora BFM-only.
+- **(d) va riscritta.** "Con il crop sempre sotto Chamfer" è falso in subject-pair-mean (pari) e su FaceVerse. Manca la cella FaceVerse BFM-only nella convenzione BFM completa.
+- **Leakage.** Tutte le celle del congiunto e di ICT-only su ICT sono inquinate; quelle di BFM-only e di Chamfer sono pulite, quindi (b) regge.
+- **(c) solo su HIFI3D;** su FaceVerse va al contrario.
+- **(e):** prova solo il ri-inquadramento in eval.
+
+**Regola nuova, dichiarata il 6 ottobre:** protocollo PRIMARIO = mesh-pair cross-topologia SENZA crop; secondario = subject-pair-mean; crop a parte. La regola di selezione del frame è fissata prima dei numeri. Vale per il test sulle espressioni e per tutti i test futuri. Per i test sul frame è stata fissata dopo aver visto i numeri, e va detto.
