@@ -600,3 +600,7 @@ Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di criti
 - **"Il pozzo da solo non aiuta" si regge su w55 dell'autore** (agosto: crop −0.006, totale −0.013), non su questo pilota.
 - **Dual:** confronto appaiato e onesto, sotto il rumore (circa 0.03 fra run con lo stesso seed). Non raggiunge +0.05, ma non si può dire che peggiori ICT.
 - **Prossimo passo:** braccio `pot_m55_roi`, con una ROI coerente fra topologie (IoU ≥ 0.90 misurato PRIMA del training).
+
+**Decisione (6 ottobre, PI con l'utente): il crop non è più un obiettivo del modello.** Da settimane è il punto dove falliscono le metriche apprese, e tre tentativi di correggerlo via modello hanno dato risultati nulli o negativi: pozzo, crop casuali (F), pooling sulla ROI. Il braccio `pot_m55_roi` è annullato.
+- **Nella valutazione il crop resta**, ma come stress riportato a parte: tabelle con e senza crop. Il disallineamento del supporto è reale: pipeline di acquisizione diverse tagliano il viso in modo diverso, e Multiface e i 3DMM hanno maschere diverse.
+- **Per il framing B il crop diventa un argomento di protocollo, non di modello.** Il punto della checklist "equalize support", cioè valutare sul supporto comune, va testato come rimedio a livello di protocollo, per tutte le metriche.
