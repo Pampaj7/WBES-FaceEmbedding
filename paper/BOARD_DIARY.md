@@ -712,3 +712,31 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 1. raccogliere i risultati di espressioni ed equalize support, poi critic;
 2. cella FaceVerse `_flip` del frame, che l'agente stava ripresentando su A40;
 3. verificare il primo cambio di blocco della valanga.
+
+## 6 ottobre, sera: benchmark identità sotto espressione, FaceVerse fuori dominio (critic in corso)
+
+**Primario: riconoscimento senza crop, 100 soggetti, 2000 query.**
+
+| metodo | rank-1 | AUC |
+|---|---|---|
+| congiunto (conv. BFM) | 0.680 | 0.875 |
+| solo BFM | 0.649 | 0.873 |
+| Chamfer | 0.740 | 0.882 |
+| Chamfer regione stabile | 0.787 | 0.894 |
+| ICP + Chamfer | 0.918 | 0.986 |
+| NICP | 0.959 | 0.995 |
+
+- **Il congiunto perde** contro Chamfer di −0.060 di rank-1 [−0.093, −0.031], e contro NICP di −0.278.
+- **Secondario, provvisorio (Spearman con GT neutra):** congiunto 0.282, Chamfer 0.319, NICP 0.194.
+- **In dominio (ICT `rexpr`, solo original):** il congiunto batte Chamfer di +0.044 [+0.024, +0.067].
+
+**Lettura.**
+- L'ipotesi "Chamfer crolla con l'espressione, il modello resta invariante" NON regge fuori dominio.
+- Le baseline con registrazione dominano il riconoscimento.
+- Il vincitore dipende dal protocollo: NICP è il migliore nel riconoscimento e il peggiore nel ranking. Riconoscere la stessa persona e graduare la somiglianza fra persone diverse sono compiti diversi. Per il framing B è un risultato centrale.
+- Coerente con il risultato precedente: l'allineamento danneggia il ranking ma aiuta il riconoscimento.
+
+**Note.**
+- Il fit 3DMM non è stato fatto.
+- Le eval sono girate su A10 (L40S esaurite).
+- L'espressione è lieve: spostamento maxabs medio 0.039 su un diametro di 2.93. Da valutare.
