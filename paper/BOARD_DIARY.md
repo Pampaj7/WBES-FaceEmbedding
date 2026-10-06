@@ -775,3 +775,8 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **(1) RISERVE.** Il congiunto perde in rank-1 e mAP; in AUC è pari alle Chamfer. Il dominio di ICP e NICP è solido: battono anche il confronto ideale con corrispondenza densa (0.880). L'espressione è reale (spostamento mediano pari a 0.45 della distanza dal soggetto più vicino), ma NON è la causa della sconfitta: fuori dominio il congiunto non batteva Chamfer neanche senza espressioni. Il frame nativo puro di FaceVerse non è stato valutato. L'orientazione di NICP dà un'incertezza di ±0.03 sul rank-1.
 - **(3) VIA LIBERA** come affermazione a sé: in dominio il congiunto batte Chamfer anche con espressioni. Ma il contrasto con FaceVerse è un effetto di DOMINIO, non di espressione.
 - **Quadro onesto:** fuori dominio la registrazione (ICP, NICP) domina il riconoscimento, e con la GT coef anche il ranking. La metrica appresa non è competitiva fuori dominio in nessun protocollo. NICP è vicino al tetto (rank-1 0.959): per misurare un eventuale ibrido serve un test più difficile.
+
+**Valanga: run lungo 1056832 morto per OOM (cgroup) dopo 2h39, al primo cambio di blocco**, durante il caricamento della cache del blocco 1 (15500/20426).
+- **Errore mio:** avevo cancellato lo smoke S5 a blocchi di dimensione reale per non aspettare.
+- **Ipotesi:** al cambio coesistono la cache vecchia e quella nuova.
+- **Correzione affidata a coder:** liberare esplicitamente la cache vecchia, poi S5 obbligatorio con il picco del cgroup misurato, e rilancio solo con il 15% di margine.

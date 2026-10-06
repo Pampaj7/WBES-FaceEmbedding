@@ -49,6 +49,10 @@
 #                              righe senza crop del protocollo restano quelle della base
 #                              (eqsupport_summarize.py). Si somma al frame (si ritaglia, poi si ruota).
 #                              Suffisso _eqsupport.
+#   WBES_ZS_ALTVIEW=<nome>     come sopra con una vista qualsiasi $ZS_ROOT/<nome>_view (canonmask,
+#                              canonmask_offcenter, canonmask_identity: canonmask.py; tutte le righe
+#                              cambiano). WBES_ZS_EQSUPPORT=1 equivale a WBES_ZS_ALTVIEW=eqsupport.
+#                              Suffisso _<nome>.
 #   WBES_ZS_EVAL_FRAME=rms     il forward ri-inquadra V_in nel frame rms (aau/models/eval_ablation.py,
 #                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
 #   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
@@ -115,12 +119,16 @@ if [[ -n "${WBES_ZS_EVAL_FRAME:-}" ]]; then
     EVALFRAME_SUFFIX="_evalframe-rms"
     WBES_EVAL_SCENARIOS=clean   # il ri-inquadramento annullerebbe le perturbazioni del mixed
 fi
+ALT_NAME="${WBES_ZS_ALTVIEW:-}"
+if [[ "${WBES_ZS_EQSUPPORT:-0}" == 1 ]]; then
+    ALT_NAME="${ALT_NAME:-eqsupport}"
+fi
 EQ_SUFFIX=""
 STAGE_VIEW="$ZS_DATA_DIR"
-if [[ "${WBES_ZS_EQSUPPORT:-0}" == 1 ]]; then
-    zs_require_eq_view
-    EQ_SUFFIX="_eqsupport"
-    STAGE_VIEW="$ZS_EQ_DATA_DIR"
+if [[ -n "$ALT_NAME" ]]; then
+    zs_require_alt_view "$ALT_NAME"
+    EQ_SUFFIX="_$ALT_NAME"
+    STAGE_VIEW="$ZS_ROOT/${ALT_NAME}_view/npz"
 fi
 SUFFIX="$FRAME_SUFFIX$EQ_SUFFIX$EVALFRAME_SUFFIX$PART_SUFFIX"
 
@@ -221,15 +229,16 @@ run_arm() {  # <arm> <gpu>
         common_args+=(--subject_split all --max_subjects 0)
         mkdir -p "$WBES_EVAL_OUT"
         cp "$STAGE_TMP/subjects.json" "$WBES_EVAL_OUT/subjects.json"
-        # La vista equalizzata non entra nell'impronta dei dati: una vista ricostruita con un'altra
+        # La vista alternativa non entra nell'impronta dei dati: una vista ricostruita con un'altra
         # regola finirebbe nella stessa out dir e lo skip-if-done riuserebbe i numeri vecchi.
-        if [[ -n "$EQ_SUFFIX" ]]; then
-            if [[ -f "$WBES_EVAL_OUT/eqsupport_manifest.json" ]] \
-               && ! cmp -s "$ZS_EQ_DIR/manifest.json" "$WBES_EVAL_OUT/eqsupport_manifest.json"; then
-                echo "ERRORE: $WBES_EVAL_OUT viene da un'altra vista equalizzata (eqsupport_manifest.json diverso)" >&2
+        if [[ -n "$ALT_NAME" ]]; then
+            alt_man="$ZS_ROOT/${ALT_NAME}_view/manifest.json"
+            if [[ -f "$WBES_EVAL_OUT/${ALT_NAME}_manifest.json" ]] \
+               && ! cmp -s "$alt_man" "$WBES_EVAL_OUT/${ALT_NAME}_manifest.json"; then
+                echo "ERRORE: $WBES_EVAL_OUT viene da un'altra vista ${ALT_NAME} (${ALT_NAME}_manifest.json diverso)" >&2
                 exit 1
             fi
-            cp "$ZS_EQ_DIR/manifest.json" "$WBES_EVAL_OUT/eqsupport_manifest.json"
+            cp "$alt_man" "$WBES_EVAL_OUT/${ALT_NAME}_manifest.json"
         fi
 
         echo "[zs-zs] c. $arm$SUFFIX su GPU $gpu ckpt=$WBES_CKPT"

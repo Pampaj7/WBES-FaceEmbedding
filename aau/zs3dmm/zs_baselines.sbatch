@@ -31,6 +31,8 @@
 # WBES_ZS_EQSUPPORT=1: protocollo equalize-support. Mesh dalla vista equalizzata
 # ($ZS_EQ_DATA_DIR, eqsupport_view.py), solo le 10 coppie con crop (--settings
 # crop_cross_topology: le altre non cambiano nel protocollo), out in baselines_eqsupport/.
+# WBES_ZS_ALTVIEW=<nome>: lo stesso con $ZS_ROOT/<nome>_view, out in baselines_<nome>/, tutte le
+# coppie (eqsupport: solo crop).
 # Dominio bfm: set "heldout" di common (i 100 standard), vedi zs_bl.py.
 #
 #   WBES_ZS_DOMAIN=hifi WBES_ZS_EQSUPPORT=1 WBES_ZS_BL_STEPS=align aau/submit.sh zs3dmm/zs_baselines.sbatch
@@ -58,17 +60,24 @@ export WBES_EVAL_SEED="${WBES_EVAL_SEED:-1234}"
 ZS_FP="$(zs_data_fp)"
 OUT="$ZS_RUNS/data_$ZS_FP/baselines"
 EQ_ARGS=()
+ALT_NAME="${WBES_ZS_ALTVIEW:-}"
 if [[ "${WBES_ZS_EQSUPPORT:-0}" == 1 ]]; then
-    zs_require_eq_view
-    export WBES_REMESH_NOOPS_DIR="$ZS_EQ_DATA_DIR"
-    OUT="$ZS_RUNS/data_$ZS_FP/baselines_eqsupport"
-    EQ_ARGS=(--settings crop_cross_topology)
+    ALT_NAME="${ALT_NAME:-eqsupport}"
+fi
+if [[ -n "$ALT_NAME" ]]; then
+    zs_require_alt_view "$ALT_NAME"
+    export WBES_REMESH_NOOPS_DIR="$ZS_ROOT/${ALT_NAME}_view/npz"
+    OUT="$ZS_RUNS/data_$ZS_FP/baselines_$ALT_NAME"
+    # eqsupport cambia solo le coppie con crop; le altre viste cambiano tutte le mesh (default
+    # dello script: original->original + 30 coppie cross). WBES_ZS_BL_ARGS, dopo, vince.
+    [[ "$ALT_NAME" == eqsupport ]] && EQ_ARGS=(--settings crop_cross_topology)
     mkdir -p "$OUT"
-    if [[ -f "$OUT/eqsupport_manifest.json" ]] && ! cmp -s "$ZS_EQ_DIR/manifest.json" "$OUT/eqsupport_manifest.json"; then
-        echo "ERRORE: $OUT viene da un'altra vista equalizzata (eqsupport_manifest.json diverso)" >&2
+    alt_man="$ZS_ROOT/${ALT_NAME}_view/manifest.json"
+    if [[ -f "$OUT/${ALT_NAME}_manifest.json" ]] && ! cmp -s "$alt_man" "$OUT/${ALT_NAME}_manifest.json"; then
+        echo "ERRORE: $OUT viene da un'altra vista ${ALT_NAME} (${ALT_NAME}_manifest.json diverso)" >&2
         exit 1
     fi
-    cp "$ZS_EQ_DIR/manifest.json" "$OUT/eqsupport_manifest.json"
+    cp "$alt_man" "$OUT/${ALT_NAME}_manifest.json"
 fi
 STEPS="${WBES_ZS_BL_STEPS:-align rank}"
 SHARD="${WBES_ZS_BL_SHARD:-0/1}"

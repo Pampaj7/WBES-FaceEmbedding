@@ -76,6 +76,20 @@ zs_require_eq_view() {
     fi
 }
 
+# Vista alternativa generica, $ZS_ROOT/<nome>_view (npz/ + manifest.json): eqsupport (eqsupport_view.py),
+# canonmask, canonmask_offcenter, canonmask_identity (canonmask.py). WBES_ZS_ALTVIEW=<nome>.
+zs_require_alt_view() {
+    local name="$1"
+    if [[ ! "$name" =~ ^[a-z_]+$ ]]; then
+        echo "ERRORE: nome di vista alternativa non valido: '$name'" >&2
+        return 1
+    fi
+    if [[ ! -f "$ZS_ROOT/${name}_view/manifest.json" || ! -d "$ZS_ROOT/${name}_view/npz" ]]; then
+        echo "ERRORE: vista $ZS_ROOT/${name}_view assente o senza manifest.json" >&2
+        return 1
+    fi
+}
+
 # Impronta dei dati: sha1 dei manifest di identita' (file e sha256 del modello, seed, modi,
 # troncamento, layout, regione), GT e vista. Entra nel percorso di TUTTI i risultati
 # ($ZS_RUNS/data_<fp>/): eval_key.txt di eval_common.sh e lo skip-if-exists di
