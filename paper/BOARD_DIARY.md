@@ -681,3 +681,19 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Già noto:** il riconoscimento invariante all'espressione (Bronstein et al.; FR3DNet; Led3D; benchmark FRGC v2, Bosphorus, BU-3DFE).
 - **Da verificare:** se la variazione di connettività è già stata studiata. Il lavoro cross-qualità (Lock3DFace, Led3D) riguarda il sensore e la risoluzione, non il remeshing. Ricerca bibliografica in corso, in `literature/EXPRESSION_RECOGNITION_2026-10-06.md`.
 - **Da fare:** almeno un benchmark classico (Bosphorus o BU-3DFE), per il confronto con la letteratura; licenze da verificare.
+
+**Letteratura sul riconoscimento sotto espressione** (`literature/EXPRESSION_RECOGNITION_2026-10-06.md`; ricerca non esaustiva, molte fonti lette solo dall'abstract).
+- **Non trovati:**
+  - "stessa persona, connettività diversa" come protocollo: Kim, FR3DNet e Led3D proiettano su depth map a griglia fissa; il cross-quality esistente è sensore o rumore sulla z;
+  - encoder intrinseci (DiffusionNet, functional maps) per il riconoscimento di volti;
+  - leave-one-3DMM-out;
+  - critica della circolarità fra GT geometrica e Chamfer.
+- **Esiste già:**
+  - training solo sintetico su 3DMM con test su reali (Zhang et al., PR 2022: GPMM → FRGC/Bosphorus, rank-1 zero-shot 92.7–93.4);
+  - critica dei protocolli, ma per la ricostruzione (REALY ECCV 2022; Sariyanidi et al. FG 2025).
+- **Da leggere subito:** Lee et al., ACM TOMM 2025, "3D Facial Shape Similarity with Deep Perceptual Representations": è il più vicino.
+- **Benchmark reali:**
+  - FaceScape: accordo via email, non commerciale;
+  - BU-3DFE: la richiesta deve farla il supervisore;
+  - FRGC: richiesta scritta a Notre Dame;
+  - Bosphorus: termini incerti.
