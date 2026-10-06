@@ -697,3 +697,8 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
   - BU-3DFE: la richiesta deve farla il supervisore;
   - FRGC: richiesta scritta a Notre Dame;
   - Bosphorus: termini incerti.
+
+**IC appaiato congiunto-E (e − ctrl).**
+- **BFM, protocollo primario:** +0.030 [+0.017, +0.047]. Positivo con certezza, ma la soglia del margine (+0.03) è superata solo come valore puntuale (51.7% delle repliche).
+- **ICT:** −0.000 [−0.003, +0.003], nullo.
+- **Variabilità:** gli IC coprono i soggetti, non il seed.

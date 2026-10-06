@@ -43,6 +43,20 @@ di eval_by_topology, IC bootstrap per soggetto, WS3a Multiface) sono descrittive
 
 Gruppi crop/noisy/resample/all: uno Spearman su tutte le coppie del gruppo (eval_cells.py, aggregazione di eval_by_topology), stessi soggetti.
 
+## IC bootstrap appaiato del Delta e - ctrl
+
+1000 repliche, ricampionamento dei soggetti con reinserimento, STESSE repliche per i due bracci, pesi count[a]·count[b] per coppia (come weighted_bootstrap_spearman del repo); IC percentile 95%. Protocollo primario: mesh-pair cross-topologia senza crop (coppie con ne' A ne' B = crop, 20 celle ordinate). Il margine usa le 30 celle; il Chamfer e' identico riga per riga nei bracci.
+
+| dominio | statistica | ctrl | e | Δ | IC 95% del Δ | repliche con Δ > 0 |
+|---|---|---|---|---|---|---|
+| bfm | margine medio 30 celle | 0.4711 | 0.5026 | +0.0315 | [+0.0173, +0.0504] | 100.0% |
+| bfm | mesh-pair all_cross | 0.8446 | 0.8736 | +0.0290 | [+0.0147, +0.0469] | 100.0% |
+| bfm | mesh-pair cross senza crop (primario) | 0.8591 | 0.8896 | +0.0304 | [+0.0167, +0.0473] | 100.0% |
+| ict | mesh-pair all_cross | 0.9725 | 0.9733 | +0.0008 | [-0.0022, +0.0042] | 70.1% |
+| ict | mesh-pair cross senza crop (primario) | 0.9785 | 0.9784 | -0.0000 | [-0.0027, +0.0031] | 52.3% |
+
+Margine BFM: repliche con Δ >= +0.03 (soglia del criterio) 51.7%. Soggetti 104 BFM / 100 ICT; coppie mesh 160680 / 148500, senza crop 107120 / 99000. Numeri in `paired_delta_ci.json`.
+
 ## Controlli
 
 - bfm: Chamfer per cella fra i due bracci, differenza massima 0.00e+00 (30 celle); latent per cella breakdown contro eval_cells, differenza massima ctrl 1.1e-06, e 1.2e-06; leak ctrl {'pair_metrics': 0, 'cells': 0, 'pair_metrics_eq_split': True, 'cells_eq_split': True}, e {'pair_metrics': 0, 'cells': 0, 'pair_metrics_eq_split': True, 'cells_eq_split': True}
