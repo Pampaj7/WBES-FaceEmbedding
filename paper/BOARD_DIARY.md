@@ -653,3 +653,13 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **(e):** prova solo il ri-inquadramento in eval.
 
 **Regola nuova, dichiarata il 6 ottobre:** protocollo PRIMARIO = mesh-pair cross-topologia SENZA crop; secondario = subject-pair-mean; crop a parte. La regola di selezione del frame è fissata prima dei numeri. Vale per il test sulle espressioni e per tutti i test futuri. Per i test sul frame è stata fissata dopo aver visto i numeri, e va detto.
+
+**Congiunto-E (token di taglia + operatori robusti, addestrato su BFM e ICT): PASSA di un soffio, con un solo seed** (`aau/runs/joint_E/summary.md`).
+- **BFM:** margine +0.0315 (soglia +0.03); all_cross 0.874 contro 0.845.
+- **ICT:** invariato (+0.0008).
+- **Multiface crop:** E peggiora di circa −0.10 e down→up di −0.08/−0.10.
+- **Cause dei fallimenti precedenti:**
+  - una regex a 4 cifre in `eval_cells.py` troncava gli id ICT (id14500 → id1450);
+  - timeout sul breakdown Chamfer, risolto dividendolo in 15 shard.
+- **Lettura:** il token di taglia resta un guadagno solo in dominio e non regge sui dati reali. Nel framing B non è centrale.
+- **In corso:** IC appaiato sul Delta; niente altri seed.
