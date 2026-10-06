@@ -39,6 +39,8 @@ def main() -> None:
     ap.add_argument("--gt-dir", type=Path, required=True)
     ap.add_argument("--out-dir", type=Path, required=True)
     ap.add_argument("--id-offset", type=int, required=True)
+    ap.add_argument("--extra-manifest", type=Path, default=None,
+                    help="manifest dei dati da incorporare (vista con espressioni: entra nell'impronta zs_data_fp)")
     args = ap.parse_args()
 
     name_re = re.compile(rf"^{args.prefix}(?P<num>\d+)_GTready_(?P<variant>.+)\.npz$")
@@ -85,6 +87,8 @@ def main() -> None:
         "id_range": [renamed[0], renamed[-1]],
         "note": "vista di eval zero-shot, sola geometria: gli operatori si calcolano su /tmp nel job",
     }
+    if args.extra_manifest is not None:
+        meta["source_manifest"] = json.loads(args.extra_manifest.read_text())
     (args.out_dir / "manifest.json").write_text(json.dumps(meta, indent=2))
     print(json.dumps(meta, indent=2))
     if n_link != len(renamed) * 6:

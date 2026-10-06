@@ -668,3 +668,11 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Motivazione:** con la GT geometrica, fuori dominio Chamfer è imbattibile per costruzione. Con la GT d'identità sulle forme neutre e l'espressione come disturbo, l'invarianza appresa ha un vantaggio reale e misurabile, e corrisponde all'uso vero.
 - **Test in corso:** controllo su `joint__rexpr` con Chamfer appaiato; zero-shot su FaceVerse con espressioni; protocollo primario dichiarato prima dei numeri.
 - **Valanga lanciata:** job 1056832, catena di eval 1056833. Contiene 8 espressioni per identità ICT, quindi è già un training di invarianza all'espressione. Frame come il congiunto, senza augmentation. Lo smoke S5 è stato cancellato: il primo cambio di blocco del run fa da verifica della memoria, perché un OOM lì fallisce rumorosamente in circa 2–3 h.
+
+**Definizione d'identità per il benchmark sulle espressioni (decisa con l'utente, prima dei numeri).**
+- **La GT non si rifà con le espressioni.** La distanza resta definita fra le forme NEUTRE; le espressioni stanno solo negli input come disturbo.
+- **Metrica PRIMARIA: riconoscimento d'identità** (retrieval rank-1 e mAP; verifica AUC stessa/diversa persona con espressioni diverse). Usa solo le etichette d'identità, nessuna distanza arbitraria come GT. È il protocollo standard del riconoscimento facciale e vale anche sui dati reali.
+- **SECONDARIO:** ranking contro la GT neutra (mesh-pair senza crop).
+- **Baseline forti, perché battere il solo Chamfer sulle espressioni sarebbe troppo facile:**
+  - Chamfer ristretto alle regioni stabili all'espressione;
+  - fit 3DMM seguito dalla distanza fra i coefficienti d'identità, se fattibile.

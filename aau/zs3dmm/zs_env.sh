@@ -24,6 +24,26 @@ source "$WBES_ROOT/aau/zs3dmm/${WBES_ZS_DOMAIN}_env.sh"
 ZS_EQ_DIR="$ZS_ROOT/eqsupport_view"
 ZS_EQ_DATA_DIR="$ZS_EQ_DIR/npz"
 
+# WBES_ZS_EXPR=1: modalita' espressioni (GT d'identita'). Le mesh valutate vengono dalla vista con
+# un'espressione casuale per mesh (make_zs_expr_topologies.py, zs_build_expr.sbatch); GT e
+# identita' restano quelle NEUTRE del dominio (la vista ne copia le GT). Stessi nomi id e stesso
+# pool, quindi zs_stage.py e zs_bl.py estraggono gli stessi 100 soggetti. Risultati in
+# ${ZS_RUNS}_expr (aau/runs/ws_faceverse_expr). Solo fv: e' l'unico con una base d'espressione.
+ZS_NEUTRAL_VIEW_DIR="$ZS_VIEW_DIR"
+if [[ "${WBES_ZS_EXPR:-0}" == 1 ]]; then
+    if [[ "$WBES_ZS_DOMAIN" != fv ]]; then
+        echo "ERRORE: WBES_ZS_EXPR=1 solo con WBES_ZS_DOMAIN=fv (dato '$WBES_ZS_DOMAIN')" >&2
+        return 2
+    fi
+    ZS_LABEL="$ZS_LABEL con espressioni"
+    ZS_EXPR_TOPO_DIR="$ZS_ROOT/expr_topo"
+    ZS_VIEW_DIR="$ZS_ROOT/expr_view"
+    ZS_DATA_DIR="$ZS_VIEW_DIR/npz"
+    ZS_DIST_NPZ="$ZS_VIEW_DIR/gt_matrix.npz"
+    ZS_COEF_NPZ="$ZS_VIEW_DIR/gt_coef_matrix.npz"
+    ZS_RUNS="${ZS_RUNS}_expr"
+fi
+
 # Modelli da valutare: gli stessi tre della tabella WS2 (seed 1234, ricetta v1, area unitaria).
 # Non WBES_<DOM>_*: sono gli stessi per ogni dominio.
 _zs_run_dir="mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d"
