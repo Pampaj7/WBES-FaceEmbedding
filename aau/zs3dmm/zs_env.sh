@@ -6,15 +6,23 @@
 #   WBES_ZS_DOMAIN=fv    -> aau/zs3dmm/fv_env.sh   (WBES_FV_*,   output aau/runs/ws_faceverse)
 #   WBES_ZS_DOMAIN=ict   -> aau/zs3dmm/ict_env.sh  (WBES_ICTZS_*, output aau/runs/ws_ictzs):
 #                           controllo della pipeline sulle held-out di ICT, non un dominio nuovo
+#   WBES_ZS_DOMAIN=bfm   -> aau/zs3dmm/bfm_env.sh  (WBES_BFMZS_*, output aau/runs/ws_bfm): i 100
+#                           soggetti BFM standard, per il protocollo equalize-support (eqsupport_*)
 #
 # Il file del dominio esporta le sue WBES_<DOM>_* e riempie le ZS_* che usano gli sbatch.
 # Qui le parti comuni: i tre modelli valutati e i preflight.
 
 case "${WBES_ZS_DOMAIN:-}" in
-    hifi|fv|ict) ;;
-    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv|ict)" >&2; return 2 ;;
+    hifi|fv|ict|bfm) ;;
+    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv|ict|bfm)" >&2; return 2 ;;
 esac
 source "$WBES_ROOT/aau/zs3dmm/${WBES_ZS_DOMAIN}_env.sh"
+
+# Vista a supporto equalizzato (eqsupport_view.py): stessi nomi e stesso pool della vista, ogni
+# topologia ritagliata sulla regione del crop del suo soggetto. La usano zs_zeroshot.sbatch e
+# zs_baselines.sbatch con WBES_ZS_EQSUPPORT=1.
+ZS_EQ_DIR="$ZS_ROOT/eqsupport_view"
+ZS_EQ_DATA_DIR="$ZS_EQ_DIR/npz"
 
 # Modelli da valutare: gli stessi tre della tabella WS2 (seed 1234, ricetta v1, area unitaria).
 # Non WBES_<DOM>_*: sono gli stessi per ogni dominio.
@@ -32,9 +40,18 @@ zs_require_model() {
 }
 
 zs_require_view() {
-    if [[ ! -d "$ZS_DATA_DIR" || ! -f "$ZS_DIST_NPZ" || ! -f "$ZS_COEF_NPZ" ]]; then
+    # ZS_COEF_NPZ vuota solo per bfm (nessuna GT nei coefficienti): la usa solo zs_summarize.py.
+    if [[ ! -d "$ZS_DATA_DIR" || ! -f "$ZS_DIST_NPZ" || ( -n "$ZS_COEF_NPZ" && ! -f "$ZS_COEF_NPZ" ) ]]; then
         echo "ERRORE: vista $ZS_LABEL assente (data=$ZS_DATA_DIR, gt=$ZS_DIST_NPZ)." >&2
         echo "  Lancia prima WBES_ZS_DOMAIN=$WBES_ZS_DOMAIN aau/submit.sh zs3dmm/zs_build.sbatch" >&2
+        return 1
+    fi
+}
+
+zs_require_eq_view() {
+    if [[ ! -f "$ZS_EQ_DIR/manifest.json" || ! -d "$ZS_EQ_DATA_DIR" ]]; then
+        echo "ERRORE: vista a supporto equalizzato assente ($ZS_EQ_DIR)." >&2
+        echo "  Lancia prima WBES_ZS_DOMAIN=$WBES_ZS_DOMAIN aau/submit.sh zs3dmm/eqsupport_view.sbatch" >&2
         return 1
     fi
 }

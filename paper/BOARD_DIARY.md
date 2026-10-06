@@ -604,3 +604,22 @@ Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di criti
 **Decisione (6 ottobre, PI con l'utente): il crop non è più un obiettivo del modello.** Da settimane è il punto dove falliscono le metriche apprese, e tre tentativi di correggerlo via modello hanno dato risultati nulli o negativi: pozzo, crop casuali (F), pooling sulla ROI. Il braccio `pot_m55_roi` è annullato.
 - **Nella valutazione il crop resta**, ma come stress riportato a parte: tabelle con e senza crop. Il disallineamento del supporto è reale: pipeline di acquisizione diverse tagliano il viso in modo diverso, e Multiface e i 3DMM hanno maschere diverse.
 - **Per il framing B il crop diventa un argomento di protocollo, non di modello.** Il punto della checklist "equalize support", cioè valutare sul supporto comune, va testato come rimedio a livello di protocollo, per tutte le metriche.
+
+## 6 ottobre, mezzogiorno: test sul frame (`aau/runs/ws_frame/summary.md`), in attesa del critic
+
+**Convenzioni misurate:**
+- BFM: alto −y, naso −z, normali verso l'interno;
+- ICT e HIFI3D: +y, +z, normali verso l'esterno;
+- FaceVerse: −y, −z, normali verso l'esterno.
+
+Conta la rotazione (Rx 180°); l'inversione delle facce cambia pochissimo.
+
+**Risultati:**
+- **Il frame sposta molto i modelli** (±0.1–0.2), ma spiega solo circa metà del gap congiunto − BFM-only su HIFI3D senza crop (da +0.22 a circa +0.11).
+- **BFM-only su ICT non è un effetto del frame:** nel frame BFM scende da 0.294 a 0.247. La lettura "H5: dominio" regge.
+- **Il vantaggio del congiunto viene quasi tutto da ICT:** congiunto − ICT-only su HIFI3D +0.046, media per coppia di soggetti non significativa.
+- **Contro Chamfer, con IC appaiati:** il congiunto è sopra solo su HIFI3D senza crop (+0.056 [+0.015, +0.094]). Altrove è pari o sotto; con il crop sempre sotto.
+- **rms non risolve il crop.**
+- **La pipeline end-to-end su ICT riproduce 0.989.**
+
+**Decisione sulla valanga:** si lancia con il frame NON canonicalizzato, identico al congiunto 1019532. Così l'unica variabile è la quantità di dati ICT. Una variante canonica o con augmentation di rotazione, eventualmente, dopo.

@@ -404,7 +404,10 @@ def baseline_table(args, bm, gts) -> tuple[pd.DataFrame, list[str]]:
             for ta, tb in common.setting_topology_pairs(setting):
                 path = common.matrix_path(metric, ta, tb, root)
                 if not path.exists():
-                    raise SystemExit(f"matrice baseline mancante: {path}")
+                    # Baseline incomplete (p.es. un altro job le sta ancora scrivendo): tabella dei
+                    # modelli senza baseline, invece di fallire.
+                    print(f"[zs-sum] ATTENZIONE: baseline incomplete ({path} manca): sezione saltata", flush=True)
+                    return pd.DataFrame(), None
                 D, subj, _, _, _ = common.load_matrix(path)
                 if bl_subjects is None:
                     bl_subjects = subj

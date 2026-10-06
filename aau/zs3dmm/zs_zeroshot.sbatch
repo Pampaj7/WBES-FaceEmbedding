@@ -11,7 +11,7 @@
 #SBATCH --mem=96G
 #SBATCH --time=02:30:00
 #
-# Zero-shot su un 3DMM mai visto (WBES_ZS_DOMAIN=hifi|fv|ict): un modello mai addestrato su quel
+# Zero-shot su un 3DMM mai visto (WBES_ZS_DOMAIN=hifi|fv|ict|bfm): un modello mai addestrato su quel
 # dominio valutato sulle identita' di zs_build.sbatch. Protocollo IDENTICO a
 # aau/ict/ict_zeroshot_rank.sbatch (stessi due script, stessi common_args di eval_common.sh,
 # stesse sigma):
@@ -43,6 +43,12 @@
 #                              test del frame. Suffisso _frame-<segni>.
 #   WBES_ZS_FLIP_FACES=1       verso dei triangoli invertito (le mesh BFM di training hanno le
 #                              normali verso l'interno). Suffisso _flip.
+#   WBES_ZS_EQSUPPORT=1        le mesh vengono dalla vista a supporto equalizzato ($ZS_EQ_DATA_DIR,
+#                              eqsupport_view.py): ogni topologia ritagliata sulla regione del crop del
+#                              suo soggetto. Valgono SOLO le righe con crop (crop -> X equalizzata); le
+#                              righe senza crop del protocollo restano quelle della base
+#                              (eqsupport_summarize.py). Si somma al frame (si ritaglia, poi si ruota).
+#                              Suffisso _eqsupport.
 #   WBES_ZS_EVAL_FRAME=rms     il forward ri-inquadra V_in nel frame rms (aau/models/eval_ablation.py,
 #                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
 #   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
@@ -106,7 +112,14 @@ if [[ -n "${WBES_ZS_EVAL_FRAME:-}" ]]; then
     EVALFRAME_SUFFIX="_evalframe-rms"
     WBES_EVAL_SCENARIOS=clean   # il ri-inquadramento annullerebbe le perturbazioni del mixed
 fi
-SUFFIX="$FRAME_SUFFIX$EVALFRAME_SUFFIX$PART_SUFFIX"
+EQ_SUFFIX=""
+STAGE_VIEW="$ZS_DATA_DIR"
+if [[ "${WBES_ZS_EQSUPPORT:-0}" == 1 ]]; then
+    zs_require_eq_view
+    EQ_SUFFIX="_eqsupport"
+    STAGE_VIEW="$ZS_EQ_DATA_DIR"
+fi
+SUFFIX="$FRAME_SUFFIX$EQ_SUFFIX$EVALFRAME_SUFFIX$PART_SUFFIX"
 
 # Nessun braccio di ablazione o di pilota: questi tre checkpoint non hanno
 # ablation_arm.txt/pilot_arm.txt, e un checkpoint che li avesse vorrebbe frame, token o
@@ -140,8 +153,8 @@ mkdir -p "$STAGE_TMP"
 trap 'rm -rf "$STAGE_TMP"' EXIT
 
 echo "[zs-zs] dominio=$WBES_ZS_DOMAIN ($ZS_LABEL) bracci=${TODO[*]} varianti='$SUFFIX' dati=data_$ZS_FP host=$(hostname) job=${SLURM_JOB_ID:-none}"
-echo "[zs-zs] a. soggetti valutati -> $STAGE_TMP/in"
-"$AAU_DIR/run.sh" aau/zs3dmm/zs_stage.py --view-dir "$ZS_DATA_DIR" \
+echo "[zs-zs] a. soggetti valutati da $STAGE_VIEW -> $STAGE_TMP/in"
+"$AAU_DIR/run.sh" aau/zs3dmm/zs_stage.py --view-dir "$STAGE_VIEW" \
     --out-dir "$STAGE_TMP/in" --seed "$WBES_EVAL_SEED" --transform="${WBES_ZS_FRAME:-}" "${STAGE_FLIP[@]}"  # "=": "-x,y,-z" sembrerebbe un flag
 
 echo "[zs-zs] b. operatori (k_eig 128, area unitaria) su /tmp"
@@ -193,6 +206,16 @@ run_arm() {  # <arm> <gpu>
         common_args+=(--subject_split all --max_subjects 0)
         mkdir -p "$WBES_EVAL_OUT"
         cp "$STAGE_TMP/subjects.json" "$WBES_EVAL_OUT/subjects.json"
+        # La vista equalizzata non entra nell'impronta dei dati: una vista ricostruita con un'altra
+        # regola finirebbe nella stessa out dir e lo skip-if-done riuserebbe i numeri vecchi.
+        if [[ -n "$EQ_SUFFIX" ]]; then
+            if [[ -f "$WBES_EVAL_OUT/eqsupport_manifest.json" ]] \
+               && ! cmp -s "$ZS_EQ_DIR/manifest.json" "$WBES_EVAL_OUT/eqsupport_manifest.json"; then
+                echo "ERRORE: $WBES_EVAL_OUT viene da un'altra vista equalizzata (eqsupport_manifest.json diverso)" >&2
+                exit 1
+            fi
+            cp "$ZS_EQ_DIR/manifest.json" "$WBES_EVAL_OUT/eqsupport_manifest.json"
+        fi
 
         echo "[zs-zs] c. $arm$SUFFIX su GPU $gpu ckpt=$WBES_CKPT"
         echo "[zs-zs] data=$WBES_DATA_DIR gt=$WBES_DIST_NPZ out=$OUT_ROOT launch=${LAUNCH[*]:-}"

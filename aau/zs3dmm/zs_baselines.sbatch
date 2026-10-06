@@ -28,6 +28,13 @@
 # Partizione prioritized senza GPU e non cpu: la cpu ha UN nodo da 32 core, condiviso col
 # lavoro FLAME; i nodi GPU hanno decine di core liberi.
 #
+# WBES_ZS_EQSUPPORT=1: protocollo equalize-support. Mesh dalla vista equalizzata
+# ($ZS_EQ_DATA_DIR, eqsupport_view.py), solo le 10 coppie con crop (--settings
+# crop_cross_topology: le altre non cambiano nel protocollo), out in baselines_eqsupport/.
+# Dominio bfm: set "heldout" di common (i 100 standard), vedi zs_bl.py.
+#
+#   WBES_ZS_DOMAIN=hifi WBES_ZS_EQSUPPORT=1 WBES_ZS_BL_STEPS=align aau/submit.sh zs3dmm/zs_baselines.sbatch
+#
 # NON incluse: M3DFB RLR (vuole 51 landmark iBUG sulla topologia del modello), i controlli di
 # frame di outlineB e le metriche percettive (su ICT non sono state calcolate).
 #
@@ -50,6 +57,19 @@ export WBES_EVAL_SEED="${WBES_EVAL_SEED:-1234}"
 
 ZS_FP="$(zs_data_fp)"
 OUT="$ZS_RUNS/data_$ZS_FP/baselines"
+EQ_ARGS=()
+if [[ "${WBES_ZS_EQSUPPORT:-0}" == 1 ]]; then
+    zs_require_eq_view
+    export WBES_REMESH_NOOPS_DIR="$ZS_EQ_DATA_DIR"
+    OUT="$ZS_RUNS/data_$ZS_FP/baselines_eqsupport"
+    EQ_ARGS=(--settings crop_cross_topology)
+    mkdir -p "$OUT"
+    if [[ -f "$OUT/eqsupport_manifest.json" ]] && ! cmp -s "$ZS_EQ_DIR/manifest.json" "$OUT/eqsupport_manifest.json"; then
+        echo "ERRORE: $OUT viene da un'altra vista equalizzata (eqsupport_manifest.json diverso)" >&2
+        exit 1
+    fi
+    cp "$ZS_EQ_DIR/manifest.json" "$OUT/eqsupport_manifest.json"
+fi
 STEPS="${WBES_ZS_BL_STEPS:-align rank}"
 SHARD="${WBES_ZS_BL_SHARD:-0/1}"
 echo "[zs-bl] dominio=$WBES_ZS_DOMAIN host=$(hostname) job=${SLURM_JOB_ID:-none} passi=$STEPS shard=$SHARD out=$OUT"
@@ -60,7 +80,7 @@ for step in $STEPS; do
         align)
             "$AAU_DIR/outlineB/run_o3d.sh" aau/zs3dmm/zs_bl.py "$WBES_ZS_DOMAIN" "$ZS_ID_OFFSET" align \
                 --out-root "$OUT" --shard "$SHARD" \
-                --workers "${SLURM_CPUS_PER_TASK:-8}" ${WBES_ZS_BL_ARGS:-}
+                --workers "${SLURM_CPUS_PER_TASK:-8}" "${EQ_ARGS[@]}" ${WBES_ZS_BL_ARGS:-}
             ;;
         rank)
             # Il .tex e l'avviso finale del log di rank_from_matrix chiamano "gate di

@@ -4,7 +4,10 @@
     aau/outlineB/run_o3d.sh aau/zs3dmm/zs_bl.py hifi 900000 align --out-root <dir> --workers 30
     aau/run.sh              aau/zs3dmm/zs_bl.py hifi 900000 rank  --out-root <dir> --settings ...
 
-I primi due argomenti sono il dominio (``hifi``/``fv``) e il suo offset degli id.
+I primi due argomenti sono il dominio (``hifi``/``fv``/``ict``/``bfm``) e il suo offset degli id.
+Per ``bfm`` niente registrazione: il set e' ``heldout`` di ``common`` (i 100 soggetti standard,
+letti dalle pair table del paper), che coincide con ``select_subjects`` della vista BFM col seed
+1234 (verificato, aau/scratch/eqsupport/probe.py) e quindi coi soggetti di ``zs_stage.py``.
 
 Perche' un wrapper invece di una riga in ``aau/baselines/common.py``: ``common.py`` e'
 condiviso e lo sta modificando il lavoro FLAME in parallelo. Qui il set ``<dominio>_heldout``
@@ -62,8 +65,11 @@ def main() -> None:
     if len(sys.argv) < 4 or sys.argv[3] not in ("align", "rank"):
         raise SystemExit("uso: zs_bl.py <dominio> <id_offset> align|rank [argomenti dello script]")
     domain, id_offset, step = sys.argv[1], int(sys.argv[2]), sys.argv[3]
-    set_name = f"{domain}_heldout"
-    register(set_name, id_offset)
+    if domain == "bfm":
+        set_name = "heldout"
+    else:
+        set_name = f"{domain}_heldout"
+        register(set_name, id_offset)
     if step == "align":
         import alignment_matrix as target  # noqa: E402
     else:
