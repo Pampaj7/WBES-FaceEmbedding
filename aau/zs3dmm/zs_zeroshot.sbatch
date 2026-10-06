@@ -53,6 +53,9 @@
 #                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
 #   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
 #                              Suffisso _ranking / _topology.
+#   WBES_ZS_EMBED=1            in piu', l'embedding di ogni mesh in <stage>/embeddings.npz (zs_embed.py),
+#                              per retrieval e verifica d'identita'. Nessun suffisso.
+#   WBES_ZS_EXPR=1             vista con espressioni (zs_env.sh): output in ${ZS_RUNS}_expr.
 # Output in $ZS_RUNS/data_<fp>/<arm><varianti>/zs_zeroshot (fp = impronta dei manifest dei dati).
 #
 #   WBES_ZS_DOMAIN=hifi WBES_ZS_ARMS="joint bfm_only ict_only" WBES_ZS_FRAME=x,-y,-z \
@@ -239,6 +242,15 @@ run_arm() {  # <arm> <gpu>
                 exit 1
             fi
             rm -f "$key.prev_ckpt_gt"
+        fi
+
+        if [[ "${WBES_ZS_EMBED:-0}" == 1 ]]; then
+            # Embedding di ogni mesh (retrieval e verifica d'identita', zs_expr_summarize.py):
+            # pochi minuti, prima delle ore di Chamfer del breakdown.
+            echo "[$(timestamp)] 0/2 embedding di tutte le mesh valutate"
+            "$AAU_DIR/run.sh" "${LAUNCH[@]}" aau/zs3dmm/zs_embed.py "${common_args[@]}" \
+              --embeddings_out "$STAGE_OUT/embeddings.npz" \
+              2>&1 | tee "$STAGE_OUT/embed.log"
         fi
 
         if [[ "$WBES_ZS_PART" != topology ]]; then

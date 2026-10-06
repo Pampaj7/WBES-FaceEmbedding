@@ -676,3 +676,8 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Baseline forti, perché battere il solo Chamfer sulle espressioni sarebbe troppo facile:**
   - Chamfer ristretto alle regioni stabili all'espressione;
   - fit 3DMM seguito dalla distanza fra i coefficienti d'identità, se fattibile.
+
+**Novelty candidata (6 ottobre, con l'utente):** riconoscimento d'identità 3D fra mesh con discretizzazioni diverse (remesh, decimazione, rumore, risoluzione, mesh da pipeline diverse) insieme all'espressione, con un encoder agnostico alla discretizzazione (DiffusionNet), valutato fuori dominio.
+- **Già noto:** il riconoscimento invariante all'espressione (Bronstein et al.; FR3DNet; Led3D; benchmark FRGC v2, Bosphorus, BU-3DFE).
+- **Da verificare:** se la variazione di connettività è già stata studiata. Il lavoro cross-qualità (Lock3DFace, Led3D) riguarda il sensore e la risoluzione, non il remeshing. Ricerca bibliografica in corso, in `literature/EXPRESSION_RECOGNITION_2026-10-06.md`.
+- **Da fare:** almeno un benchmark classico (Bosphorus o BU-3DFE), per il confronto con la letteratura; licenze da verificare.
