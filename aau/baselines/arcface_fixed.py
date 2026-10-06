@@ -55,6 +55,21 @@ import numpy as np
 CALIBRATION_NAME = "arcface_align.json"
 
 
+def cpu_session_options():
+    """Un thread per sessione onnxruntime: il parallelismo e' sui processi.
+
+    OMP_NUM_THREADS non basta: onnxruntime dimensiona il suo pool intra-op sui core del NODO,
+    prova a pinnarli fuori dal cgroup Slurm (``pthread_setaffinity_np failed``) e con 32
+    processi x 64 thread la memoria non sta nei 48G del job (OOM, job 1057301 e 1057302).
+    """
+    import onnxruntime
+
+    so = onnxruntime.SessionOptions()
+    so.intra_op_num_threads = 1
+    so.inter_op_num_threads = 1
+    return so
+
+
 def calibration_path(out_root: Path) -> Path:
     return out_root / "renders" / CALIBRATION_NAME
 
@@ -69,6 +84,7 @@ class ArcFaceDetectorProbe:
             name="buffalo_l",
             providers=["CPUExecutionProvider"],
             allowed_modules=["detection"],
+            sess_options=cpu_session_options(),
         )
         self.app.prepare(ctx_id=-1, det_size=(det_size, det_size))
 
@@ -100,7 +116,8 @@ class ArcFaceFixedCrop:
         if not os.path.exists(path):
             raise SystemExit(f"pesi ArcFace assenti: {path}\n"
                              f"  Scaldali con: aau/submit.sh baselines/setup_env.sbatch")
-        self.rec_model = model_zoo.get_model(path, providers=["CPUExecutionProvider"])
+        self.rec_model = model_zoo.get_model(path, providers=["CPUExecutionProvider"],
+                                             sess_options=cpu_session_options())
         self.rec_model.prepare(ctx_id=-1)
         self.transforms = {float(y): np.asarray(M, dtype=np.float64)
                            for y, M in transforms.items()}

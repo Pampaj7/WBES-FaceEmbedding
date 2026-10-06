@@ -826,3 +826,29 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Integrazione come quarto dominio** di test e potenziale di training in `aau/zs3dmm/`: per ora solo i build.
 
 **Direzione approvata dall'utente (6 ottobre sera): encoder agnostico distillato dal riconoscimento 2D.** Piano in `paper/PLAN_DISTILL.md`; parte dopo il gate ArcFace-render.
+
+**Gate ArcFace-render** (`aau/runs/arcface_render_zs/summary.md`; protocollo dichiarato alle 19:21).
+
+**FaceVerse con espressioni, senza crop, rank-1:**
+- ArcFace ombreggiato: 0.750 [0.724, 0.775];
+- ArcFace a normal map: 0.867;
+- NICP: 0.959;
+- ICP: 0.918;
+- Chamfer: 0.740;
+- congiunto: 0.680.
+
+ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto NICP di −0.209.
+
+**HIFI3D neutro:** ArcFace 0.984, pari a NICP (0.990, che però ha 1965 distanze NaN); congiunto 0.397.
+
+**Con il crop:** ArcFace FaceVerse 0.881 contro NICP 0.909; HIFI3D 0.990 contro 0.777.
+
+**Note:**
+- Il detector fallisce su tutti i render `noisy`: debolezza dell'insegnante che lo studente agnostico dovrebbe superare.
+- Espressione contro dominio su FaceVerse: non separati (manca FaceVerse neutro).
+
+**Decisione:** procedere con il pilota della distillazione.
+- Insegnante: normal map, sempre sulla `original`.
+- Dati: BFM + ICT-5000.
+- Test: FaceVerse expr e HIFI3D.
+- Criterio: battere il congiunto e raggiungere almeno l'80% del rank-1 dell'insegnante.

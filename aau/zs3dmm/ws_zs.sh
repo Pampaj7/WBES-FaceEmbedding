@@ -4,6 +4,7 @@
 #
 #   aau/zs3dmm/ws_zs.sh hifi                 # HIFI3D   -> aau/runs/ws_hifi3d/summary.md
 #   aau/zs3dmm/ws_zs.sh fv                   # FaceVerse -> aau/runs/ws_faceverse/summary.md
+#   aau/zs3dmm/ws_zs.sh gnm                  # GNM Head  -> aau/runs/ws_gnm/summary.md
 #   aau/zs3dmm/ws_zs.sh hifi --skip-build    # dati gia' pronti: solo eval e tabella
 #
 # Opzioni sbatch in piu' per job (separate da spazi), p.es. per FaceVerse, che sta alla
@@ -22,7 +23,7 @@ SKIP_BUILD=0
 for arg in "$@"; do
     case "$arg" in
         --skip-build) SKIP_BUILD=1 ;;
-        *) echo "uso: aau/zs3dmm/ws_zs.sh hifi|fv [--skip-build]" >&2; exit 2 ;;
+        *) echo "uso: aau/zs3dmm/ws_zs.sh hifi|fv|gnm [--skip-build]" >&2; exit 2 ;;
     esac
 done
 

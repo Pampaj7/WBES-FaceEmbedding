@@ -4,6 +4,7 @@
 #
 #   WBES_ZS_DOMAIN=hifi  -> aau/zs3dmm/hifi_env.sh (WBES_HIFI_*, output aau/runs/ws_hifi3d)
 #   WBES_ZS_DOMAIN=fv    -> aau/zs3dmm/fv_env.sh   (WBES_FV_*,   output aau/runs/ws_faceverse)
+#   WBES_ZS_DOMAIN=gnm   -> aau/zs3dmm/gnm_env.sh  (WBES_GNM_*,  output aau/runs/ws_gnm)
 #   WBES_ZS_DOMAIN=ict   -> aau/zs3dmm/ict_env.sh  (WBES_ICTZS_*, output aau/runs/ws_ictzs):
 #                           controllo della pipeline sulle held-out di ICT, non un dominio nuovo
 #   WBES_ZS_DOMAIN=bfm   -> aau/zs3dmm/bfm_env.sh  (WBES_BFMZS_*, output aau/runs/ws_bfm): i 100
@@ -13,8 +14,8 @@
 # Qui le parti comuni: i tre modelli valutati e i preflight.
 
 case "${WBES_ZS_DOMAIN:-}" in
-    hifi|fv|ict|bfm) ;;
-    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv|ict|bfm)" >&2; return 2 ;;
+    hifi|fv|gnm|ict|bfm) ;;
+    *) echo "ERRORE: WBES_ZS_DOMAIN='${WBES_ZS_DOMAIN:-}' (hifi|fv|gnm|ict|bfm)" >&2; return 2 ;;
 esac
 source "$WBES_ROOT/aau/zs3dmm/${WBES_ZS_DOMAIN}_env.sh"
 
@@ -28,11 +29,12 @@ ZS_EQ_DATA_DIR="$ZS_EQ_DIR/npz"
 # un'espressione casuale per mesh (make_zs_expr_topologies.py, zs_build_expr.sbatch); GT e
 # identita' restano quelle NEUTRE del dominio (la vista ne copia le GT). Stessi nomi id e stesso
 # pool, quindi zs_stage.py e zs_bl.py estraggono gli stessi 100 soggetti. Risultati in
-# ${ZS_RUNS}_expr (aau/runs/ws_faceverse_expr). Solo fv: e' l'unico con una base d'espressione.
+# ${ZS_RUNS}_expr (aau/runs/ws_faceverse_expr, aau/runs/ws_gnm_expr). Solo fv e gnm: gli unici con
+# una base d'espressione.
 ZS_NEUTRAL_VIEW_DIR="$ZS_VIEW_DIR"
 if [[ "${WBES_ZS_EXPR:-0}" == 1 ]]; then
-    if [[ "$WBES_ZS_DOMAIN" != fv ]]; then
-        echo "ERRORE: WBES_ZS_EXPR=1 solo con WBES_ZS_DOMAIN=fv (dato '$WBES_ZS_DOMAIN')" >&2
+    if [[ "$WBES_ZS_DOMAIN" != fv && "$WBES_ZS_DOMAIN" != gnm ]]; then
+        echo "ERRORE: WBES_ZS_EXPR=1 solo con WBES_ZS_DOMAIN=fv|gnm (dato '$WBES_ZS_DOMAIN')" >&2
         return 2
     fi
     ZS_LABEL="$ZS_LABEL con espressioni"

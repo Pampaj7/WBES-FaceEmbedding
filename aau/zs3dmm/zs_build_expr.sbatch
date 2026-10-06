@@ -9,10 +9,11 @@
 #SBATCH --mem=64G
 #SBATCH --time=01:30:00
 #
-# Modalita' espressioni (WBES_ZS_EXPR=1, solo fv), dati: la vista con un'espressione casuale per
+# Modalita' espressioni (WBES_ZS_EXPR=1, fv e gnm), dati: la vista con un'espressione casuale per
 # mesh accanto a quella neutra di zs_build.sbatch, che deve esistere gia' (identita' e GT).
 #
-#   WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 aau/submit.sh zs3dmm/zs_build_expr.sbatch
+#   WBES_ZS_DOMAIN=fv  WBES_ZS_EXPR=1 aau/submit.sh zs3dmm/zs_build_expr.sbatch
+#   WBES_ZS_DOMAIN=gnm WBES_ZS_EXPR=1 aau/submit.sh zs3dmm/zs_build_expr.sbatch
 #
 #   1. topologie con espressione  make_zs_expr_topologies.py -> expr_topo/ (6 per identita')
 #   2. vista                      make_zs_view.py            -> expr_view/ (symlink + GT NEUTRE)
@@ -57,10 +58,15 @@ if [[ -f "$STAMP" ]] && ! cmp -s "$STAMP" "$ZS_IDENTITIES_DIR/manifest.json"; th
     rm -rf "$ZS_EXPR_TOPO_DIR" "$ZS_VIEW_DIR"
 fi
 
+# GNM: nel manifest anche lo spostamento relativo al soggetto piu' vicino (--gt-dir), la misura su
+# cui e' tarata la sua ampiezza. Non per fv: il suo manifest cambierebbe rispetto a quello della
+# build esistente, e con lui l'impronta dei risultati (zs_data_fp).
+GT_ARGS=()
+[[ "$WBES_ZS_DOMAIN" == gnm ]] && GT_ARGS=(--gt-dir "$ZS_GT_DIR")
 echo "[zs-build-expr] 1/2 topologie con espressione"
 "$AAU_DIR/run.sh" aau/zs3dmm/make_zs_expr_topologies.py --domain "$WBES_ZS_DOMAIN" --prefix "$ZS_PREFIX" \
     --model-file "$ZS_MODEL_FILE" --identities-dir "$ZS_IDENTITIES_DIR" \
-    --out-dir "$ZS_EXPR_TOPO_DIR" --n-cores "$N_CORES"
+    --out-dir "$ZS_EXPR_TOPO_DIR" --n-cores "$N_CORES" "${GT_ARGS[@]}"
 cp "$ZS_IDENTITIES_DIR/manifest.json" "$STAMP"
 N_ID=$(count_npz "$ZS_IDENTITIES_DIR" "$ZS_PREFIX[0-9]*.npz")
 N_TOPO=$(count_npz "$ZS_EXPR_TOPO_DIR" "$ZS_PREFIX*_GTready_*.npz")

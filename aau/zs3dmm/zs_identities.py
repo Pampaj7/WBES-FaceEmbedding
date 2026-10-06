@@ -4,20 +4,22 @@
     aau/run.sh aau/zs3dmm/zs_identities.py --domain hifi --model-file <AI-NEXT-Shape.mat> \
         --n-identities 500 --out-dir datasets/HIFI3D/identities
     aau/run.sh aau/zs3dmm/zs_identities.py --domain fv --model-file <faceverse_simple_v2.npy> ...
+    aau/run.sh aau/zs3dmm/zs_identities.py --domain gnm --model-file <gnm_head.npz> ...
 
 Gemello di ``v2_work/genict/generate_identities.py``: scrive ``<prefix>0000.npz`` ... (chiavi
 ``V`` float32 della patch del volto, ``F`` int32, ``weights``), un ``identity_weights.json``
 con tutti i vettori e un ``manifest.json`` con parametri, impronta del file del modello,
-descrizione del modello (layout, scala, regione: ``hifi_model`` / ``fv_model``) e controllo Z1mX.
-Prefisso ``hifi`` o ``fv``.
+descrizione del modello (layout, scala, regione: ``hifi_model`` / ``fv_model`` / ``gnm_model``) e
+controllo Z1mX. Prefisso ``hifi``, ``fv`` o ``gnm``.
 
 Coefficienti
 ------------
 Come ICT: tutti i modi del modello, N(0, 1) senza troncamento (``--trunc 0``). Per HIFI3D e'
 anche il campionatore ufficiale (``test_basis_io.py``: ``np.random.normal(size=[1, n_basis])``).
-Le basi di entrambi i modelli sono gia' scalate per la deviazione standard dei modi (verificato
-sulle norme in ``hifi_model`` / ``fv_model``): ``weights`` sono i coefficienti STANDARDIZZATI z,
-ed e' su questi che ``build_zs_gt.py`` calcola la GT nei coefficienti.
+GNM: le sole 170 basi ``head_*`` (occhi e denti a zero), espressione zero, posa neutra.
+Le basi dei tre modelli sono gia' scalate per la deviazione standard dei modi (verificato sulle
+norme in ``hifi_model`` / ``fv_model`` / ``gnm_model``): ``weights`` sono i coefficienti
+STANDARDIZZATI z, ed e' su questi che ``build_zs_gt.py`` calcola la GT nei coefficienti.
 
 Frame e unita'
 --------------
@@ -26,7 +28,8 @@ Il frame del modello resta com'e', come ICT tiene il suo. Le UNITA' non entrano 
 (xyz_dn) riceve le coordinate xyz come feature d'ingresso, e in training ha visto solo il frame
 dei suoi dati (BFM: y in basso, naso verso -z; ICT: y in alto, naso verso +z) con rotazioni di
 pochi gradi. HIFI3D e' nel frame ICT, FaceVerse in quello BFM (misurato, aau/scratch/hifi3d/
-frames.py). Operatori intrinseci, GT per vertice e Chamfer invece non dipendono dal frame.
+frames.py); GNM nel frame ICT (+Y alto, +Z naso, in metri: aau/scratch/gnm/frame_check.py).
+Operatori intrinseci, GT per vertice e Chamfer invece non dipendono dal frame.
 Il test del frame e' WBES_ZS_FRAME in zs_zeroshot.sbatch.
 
 Pool
@@ -52,6 +55,7 @@ sys.path.insert(0, str(THIS_DIR))
 sys.path.insert(0, str(REPO_ROOT / "v2_work" / "genict"))
 
 import fv_model  # noqa: E402
+import gnm_model  # noqa: E402
 import hifi_model  # noqa: E402
 from hifi_model import face_patch, sha256  # noqa: E402
 from generate_identities import min_triangle_area, sample_weights  # noqa: E402  (genict)
@@ -60,6 +64,7 @@ from pairdist import offdiag_stats, vertex_mean_l2_matrix  # noqa: E402
 DOMAINS = {
     "hifi": ("hifi", hifi_model.load_hifi, hifi_model.shape_mesh),
     "fv": ("fv", fv_model.load_fv, fv_model.shape_mesh),
+    "gnm": ("gnm", gnm_model.load_gnm, gnm_model.shape_mesh),
 }
 
 
