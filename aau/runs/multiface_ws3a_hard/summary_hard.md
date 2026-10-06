@@ -84,3 +84,23 @@ Coppie di topologie: hard. L'ultima colonna e' AUC(b_vs_c) meno la stessa AUC de
 | bbox_proxy | tracked->noisy | 0.971 [0.935, 0.992] | 0.951 [0.888, 0.988] | 0.985 [0.960, 0.998] | -0.005 |
 | bbox_proxy | down->up | 0.909 [0.809, 0.978] | 0.900 [0.792, 0.983] | 0.919 [0.803, 0.995] | -0.056 |
 | bbox_proxy | crop->crop | 0.967 [0.919, 0.993] | 0.953 [0.890, 0.990] | 0.979 [0.947, 0.997] | -0.003 |
+| latent_jointE_ctrl | tracked->tracked | 0.996 [0.989, 0.999] | 0.991 [0.972, 0.999] | 1.000 [0.998, 1.000] | +0.000 |
+| latent_jointE_ctrl | tracked->crop | 0.679 [0.425, 0.889] | 0.671 [0.400, 0.890] | 0.678 [0.384, 0.897] | -0.320 |
+| latent_jointE_ctrl | remesh->crop | 0.672 [0.410, 0.890] | 0.673 [0.388, 0.897] | 0.678 [0.379, 0.908] | -0.319 |
+| latent_jointE_ctrl | tracked->noisy | 0.994 [0.986, 0.998] | 0.989 [0.969, 0.998] | 0.998 [0.994, 1.000] | -0.003 |
+| latent_jointE_ctrl | down->up | 0.994 [0.984, 0.999] | 0.989 [0.967, 0.999] | 0.997 [0.989, 1.000] | -0.003 |
+| latent_jointE_ctrl | crop->crop | 0.992 [0.974, 0.999] | 0.988 [0.954, 0.999] | 0.996 [0.986, 1.000] | -0.004 |
+| latent_jointE_e_tokA | tracked->tracked | 0.999 [0.998, 1.000] | 0.999 [0.997, 1.000] | 1.000 [0.998, 1.000] | +0.000 |
+| latent_jointE_e_tokA | tracked->crop | 0.575 [0.412, 0.745] | 0.579 [0.418, 0.750] | 0.589 [0.413, 0.769] | -0.420 |
+| latent_jointE_e_tokA | remesh->crop | 0.561 [0.401, 0.741] | 0.564 [0.394, 0.743] | 0.570 [0.394, 0.765] | -0.434 |
+| latent_jointE_e_tokA | tracked->noisy | 0.992 [0.987, 0.997] | 0.992 [0.985, 0.997] | 0.992 [0.986, 0.997] | -0.006 |
+| latent_jointE_e_tokA | down->up | 0.922 [0.849, 0.977] | 0.913 [0.821, 0.980] | 0.942 [0.867, 0.990] | -0.086 |
+| latent_jointE_e_tokA | crop->crop | 0.982 [0.953, 0.997] | 0.977 [0.931, 0.996] | 0.987 [0.968, 0.997] | -0.022 |
+| latent_jointE_e_tok0 | tracked->tracked | 0.999 [0.997, 1.000] | 0.998 [0.996, 1.000] | 1.000 [0.998, 1.000] | +0.000 |
+| latent_jointE_e_tok0 | tracked->crop | 0.566 [0.400, 0.733] | 0.571 [0.411, 0.739] | 0.581 [0.404, 0.763] | -0.427 |
+| latent_jointE_e_tok0 | remesh->crop | 0.555 [0.398, 0.737] | 0.560 [0.392, 0.738] | 0.565 [0.391, 0.760] | -0.439 |
+| latent_jointE_e_tok0 | tracked->noisy | 0.991 [0.984, 0.997] | 0.991 [0.981, 0.996] | 0.992 [0.984, 0.997] | -0.008 |
+| latent_jointE_e_tok0 | down->up | 0.905 [0.827, 0.969] | 0.891 [0.790, 0.972] | 0.928 [0.838, 0.984] | -0.107 |
+| latent_jointE_e_tok0 | crop->crop | 0.978 [0.945, 0.995] | 0.971 [0.917, 0.995] | 0.984 [0.961, 0.996] | -0.027 |
+
+Righe latent_jointE_*: E congiunto e controllo congiunto (BFM 500 + ICT 1500, aau/runs/joint_E/summary.md), analizzate a parte in summary_hard_jointE e accodate.

@@ -623,3 +623,24 @@ Conta la rotazione (Rx 180°); l'inversione delle facce cambia pochissimo.
 - **La pipeline end-to-end su ICT riproduce 0.989.**
 
 **Decisione sulla valanga:** si lancia con il frame NON canonicalizzato, identico al congiunto 1019532. Così l'unica variabile è la quantità di dati ICT. Una variante canonica o con augmentation di rotazione, eventualmente, dopo.
+
+## 6 ottobre, primo pomeriggio: decisione e nuova direzione
+
+**Framing B adottato** (decisione con l'utente; il gate del 24 ottobre è anticipato). Valanga e leave-one-out restano come prove di robustezza, a priorità più bassa.
+
+**Il problema della GT.** La GT è la L2 media per vertice fra mesh `original` in corrispondenza, dopo maxabs: è quasi la stessa misura di Chamfer. Fuori dominio Chamfer parte quindi avvantaggiato per costruzione: una metrica appresa può al massimo eguagliarlo sulla geometria pulita.
+
+**Proposta: GT d'identità separata dai disturbi.**
+- GT calcolata sulle forme NEUTRE (solo identità);
+- input con espressioni casuali diverse, più le perturbazioni topologiche;
+- crop declassato.
+
+Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metrica appresa con espressioni in training può restare invariante. È anche la definizione più vicina all'uso reale: riconoscere la stessa persona con espressioni diverse. La valanga, con 8 espressioni per identità, è già il training giusto per questo scenario.
+
+**Test lanciati:**
+1. controllo su `joint__rexpr` con Chamfer appaiato;
+2. zero-shot su FaceVerse con espressioni, usando le sue 52 basi.
+
+**Altre direzioni per la GT:**
+- giudizi umani (studio con 300 triplette, da distribuire);
+- verifica stessa/diversa persona su dati reali con più acquisizioni (Multiface, FaceScape su licenza).
