@@ -788,3 +788,23 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **(d) Contro Chamfer:** sopra solo il congiunto su HIFI3D (+0.056 [+0.016, +0.092]). Altrove pari, oppure sotto (ICT-only su FaceVerse −0.159).
 - **(e) Crop:** rms non lo risolve.
 - Chiuso al secondo giro di correzioni: niente terzo critic. Le riserve note sono l'aritmetica GPU A10/L40S (±4e-4) e le celle del congiunto in `_flip` mancanti su FaceVerse.
+
+## 6 ottobre, sera: ricerca di una strada che risolva il fuori dominio (su richiesta dell'utente, che ha scartato il "benchmark B" come ripiego)
+
+**Diagnosi.** L'identità viene appresa SOLO da 3DMM sintetici: architettura e operatori non spostano il problema.
+
+**Tre ricerche bibliografiche** (`literature/DIRECTIONS_{GENERALIZATION,2D_DISTILL,NEURAL_FIT}_2026-10-06.md`):
+- **Generalizzazione:** nessun lavoro sul leave-one-3DMM-out per l'identità. Direzioni: togliere xyz dall'ingresso (HKS, frame canonico), randomizzare i sintetici in stile SynthSeg, fine-tuning contrastivo su scansioni reali.
+- **Distillazione 2D:**
+  - riconoscimento 3D da depth/normal map con reti 2D affinate arriva al 98–99%, ma su scansioni allineate e rappresentazione fissa;
+  - MICA usa ArcFace da foto;
+  - Diff3F/MeshFM proiettano feature 2D semantiche sulle mesh, mai per l'identità;
+  - Head Similarity (2026) distilla AdaFace fuori distribuzione;
+  - SPAZIO LIBERO: encoder 3D agnostico alla discretizzazione distillato dal riconoscimento facciale, con valutazione cross-topologia e cross-3DMM.
+
+**Indizio chiave (scout).** ArcFace (`buffalo_l` `w600k_r50`) su render di SOLA GEOMETRIA (grigio ombreggiato, 3 viste) dà AUC b_vs_c 1.000 su Multiface, crop e cross-topologia compresi; le geometriche stanno a 0.60–0.73. Il campione è di soli 13 soggetti. Nel ranking sintetico invece ArcFace è basso (0.29–0.38): riconoscere non è graduare.
+
+**Test di falsificazione lanciato:** ArcFace su render, riconoscimento sul benchmark FaceVerse con espressioni, contro NICP (0.959).
+- **Se ci si avvicina:** la strada è distillarlo in DiffusionNet.
+
+**Licenza dei pesi `buffalo_l`:** non indicata nel repo; da verificare (insightface di solito è solo ricerca non commerciale).
