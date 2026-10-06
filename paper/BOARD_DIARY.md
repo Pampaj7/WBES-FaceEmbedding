@@ -808,3 +808,15 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - **Se ci si avvicina:** la strada è distillarlo in DiffusionNet.
 
 **Licenza dei pesi `buffalo_l`:** non indicata nel repo; da verificare (insightface di solito è solo ricerca non commerciale).
+
+**Terza ricerca: modelli neurali di testa e fit-then-compare** (`literature/DIRECTIONS_NEURAL_FIT_2026-10-06.md`).
+- **Vuoto in letteratura:** nessuno usa i codici d'identità di NPHM, MonoNPHM, ImFace++, i3DMM o imHead per il riconoscimento.
+- **Limiti di questi modelli:**
+  - training piccoli (NPHM 255 identità, ImFace++ 831);
+  - fitting poco robusto in-the-wild e su scansioni rumorose;
+  - richiedono un allineamento canonico;
+  - pesi spesso senza licenza dichiarata.
+- **GNM Head** (Google, 2026, Apache-2.0, circa 5000 identità reali, lineare, con espressioni): candidato utile sia come baseline fit-then-compare sia come DOMINIO DI TRAINING aggiuntivo derivato da dati reali. Il fitting a scansioni va scritto da noi.
+- **Shape My Face** (IJCV 2021): embedding separati identità/espressione da point cloud, ma senza riconoscimento.
+
+**Sintesi del PI.** Direzione principale = distillazione del riconoscimento 2D in DiffusionNet, condizionata al test ArcFace-render su FaceVerse. Il fit-then-compare resta secondario; GNM Head va valutato come dominio di training e come baseline.
