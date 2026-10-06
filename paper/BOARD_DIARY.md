@@ -740,3 +740,14 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 - Il fit 3DMM non è stato fatto.
 - Le eval sono girate su A10 (L40S esaurite).
 - L'espressione è lieve: spostamento maxabs medio 0.039 su un diametro di 2.93. Da valutare.
+
+**Equalize support** (`aau/runs/eqsupport/summary.md`; critic in corso).
+- **Regola:** la regione è quella del crop del soggetto, riportata sulla original e sulle altre topologie con la regola del punto più vicino.
+- **Controllo:** righe non-crop identiche (Δ esattamente 0).
+- **Righe crop, Spearman prima → dopo:**
+  - **BFM:** Chamfer 0.012→0.454 (+0.44), ICP +0.42, NICP +0.24. Il latente del congiunto, che non aveva gap, scende di −0.044 [−0.063, −0.027].
+  - **ICT:** le geometriche salgono di 0.20–0.28; il latente scende di −0.043. Leakage: sui 20 soggetti fuori training la stessa direzione.
+  - **HIFI3D:** latente congiunto 0.049→0.392 (+0.34), Chamfer +0.14, ICP +0.19.
+  - **Eccezione:** crop↔down8k, dove il bordo equalizzato è frastagliato.
+- **Lettura provvisoria:** il gap del crop è un artefatto di supporto. Le metriche geometriche crollano sul crop in dominio, e l'equalizzazione le recupera; le metriche apprese erano robuste in dominio e fragili fuori.
+- **Domanda per il critic:** la regola usa la corrispondenza sintetica. Come si applica a dati reali?

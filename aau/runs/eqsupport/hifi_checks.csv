@@ -1,0 +1,5 @@
+who,n_rows,n_crop_rows,n_nocrop_rows,nocrop_rows_match_base,nocrop_max_abs_diff,crop_gt_max_abs_diff
+joint,148500,49500,99000,True,0.0,0.0
+bfm_only,148500,49500,99000,True,0.0,0.0
+joint_frame-xmymz_flip,148500,49500,99000,True,0.0,0.0
+bfm_only_frame-xmymz_flip,148500,49500,99000,True,0.0,0.0
