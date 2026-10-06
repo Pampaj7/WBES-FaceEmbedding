@@ -824,3 +824,5 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
 **GNM Head scaricato** (`~/data/gnm_head/`, Apache-2.0 per codice e pesi, verificato; i dati di training non sono rilasciati).
 - **Caratteristiche:** 17 821 vertici; identità 170 basi della testa (più denti e occhi); 383 espressioni; unità in metri; frame +Y/+Z come ICT; regioni `hockey_mask` e `skin_exterior` pronte.
 - **Integrazione come quarto dominio** di test e potenziale di training in `aau/zs3dmm/`: per ora solo i build.
+
+**Direzione approvata dall'utente (6 ottobre sera): encoder agnostico distillato dal riconoscimento 2D.** Piano in `paper/PLAN_DISTILL.md`; parte dopo il gate ArcFace-render.
