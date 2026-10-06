@@ -129,6 +129,41 @@ def load_fv(path: Path | str | None = None, n_shape: int = 0) -> dict:
     return _load_cached(str(path.resolve()), int(n_shape))
 
 
+@lru_cache(maxsize=2)
+def _load_expressions_cached(path: str) -> dict:
+    d = np.load(path, allow_pickle=True).item()
+    nv = len(d["meanshape"])
+    E = np.asarray(d["exBase"], dtype=np.float64)        # (3n, 52), come idBase
+    names = [str(n) for n in d["exp_name_list"]]
+    if E.shape != (3 * nv, len(names)):
+        raise ValueError(f"exBase {E.shape} incompatibile con {nv} vertici e {len(names)} nomi")
+    # Stesso layout di idBase (interlacciato, verificato sugli spigoli in _load_cached): lo si
+    # ricontrolla qui sull'espressione piu' ampia, jawOpen a 1.0.
+    layout = load_fv(path)["info"]["layout"]
+    F = load_fv(path)["f"]
+    mu = np.asarray(d["meanshape"], dtype=np.float64)
+    j = names.index("jawOpen")
+    edges = {lay: _mean_edge(mu + _to_vertices(E[:, j], lay), F) / _mean_edge(mu, F)
+             for lay in ("interleaved", "planar")}
+    if min(edges, key=edges.get) != layout:
+        raise ValueError(f"layout di exBase {edges} diverso da quello di idBase ({layout})")
+    return {"names": names,
+            "exprdirs": np.ascontiguousarray(np.moveaxis(_to_vertices(E.T, layout), 0, -1)),  # (nv, 3, 52)
+            "mean_edge_by_layout": edges}
+
+
+def load_fv_expressions(path: Path | str | None = None) -> dict:
+    """Base d'espressione di FaceVerse v2: ``exBase`` (52 blendshape ARKit, ``exp_name_list``).
+
+    Forward di FaceVerse: ``V = meanshape + idBase @ id + exBase @ exp``; i coefficienti ARKit
+    stanno in [0, 1]. ``exprdirs`` e' (nv, 3, 52) sulla testa intera, come ``shapedirs``.
+    """
+    path = Path(path or os.environ.get("WBES_FV_NPY", ""))
+    if not path.is_file():
+        raise FileNotFoundError(f"modello FaceVerse non trovato: '{path}' (WBES_FV_NPY)")
+    return _load_expressions_cached(str(path.resolve()))
+
+
 def _self_check() -> None:
     import json
 

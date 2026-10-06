@@ -72,6 +72,78 @@ def eval_complete(d: Path) -> bool:
             and len(list((d / "topology").glob("*/pair_metrics.csv"))) == 30)
 
 
+def load_pair_metrics(d: Path):
+    import pandas as pd
+    return pd.concat([pd.read_csv(p) for p in sorted((d / "topology").glob("*/pair_metrics.csv"))],
+                     ignore_index=True)
+
+
+def paired_delta_ci(pm_c, pm_e, dom: str, bm, args) -> dict:
+    """IC bootstrap APPAIATO per soggetto del Delta e - ctrl: stesse estrazioni di soggetti per i due bracci,
+    pesi count[a] * count[b] per coppia come weighted_bootstrap_spearman del repo (con np.repeat e la sua
+    finite_spearman), Delta calcolato replica per replica. Statistiche:
+      - margine: media sulle 30 celle di (latent - Chamfer); il Chamfer e' identico riga per riga nei due
+        bracci (controllato qui), quindi il Delta del margine e' la media sulle celle del Delta latent;
+      - all_cross: uno Spearman mesh-pair su tutte le coppie cross-topologia;
+      - no_crop: protocollo primario, uno Spearman mesh-pair sulle coppie cross-topologia senza crop
+        (ne' topology_a ne' topology_b = crop, 20 celle ordinate)."""
+    import numpy as np
+
+    sys.path.insert(0, str(AAU_DIR / "ict"))
+    import ict_summarize as base
+
+    key = ["subject_a", "subject_b", "topology_a", "topology_b"]
+    cols = key + ["gt_distance", "raw_chamfer", "latent_distance"]
+    m = pm_c[cols].merge(pm_e[cols], on=key, suffixes=("_c", "_e"), validate="one_to_one")
+    if not len(m) == len(pm_c) == len(pm_e):
+        raise SystemExit(f"{dom}: righe non appaiabili ({len(pm_c)} ctrl, {len(pm_e)} e, {len(m)} comuni)")
+    for c in ("gt_distance", "raw_chamfer"):
+        if not np.array_equal(m[f"{c}_c"].to_numpy(), m[f"{c}_e"].to_numpy()):
+            raise SystemExit(f"{dom}: {c} diverso fra i bracci, il Delta non e' appaiato")
+    subjects = np.array(sorted(set(m["subject_a"]) | set(m["subject_b"])))
+    idx = {s: i for i, s in enumerate(subjects)}
+    sa = m["subject_a"].map(idx).to_numpy()
+    sb = m["subject_b"].map(idx).to_numpy()
+    gt = m["gt_distance_c"].to_numpy(dtype=np.float64)
+    ch = m["raw_chamfer_c"].to_numpy(dtype=np.float64)
+    lat = {"ctrl": m["latent_distance_c"].to_numpy(dtype=np.float64),
+           "e": m["latent_distance_e"].to_numpy(dtype=np.float64)}
+    ta, tb = m["topology_a"].to_numpy(), m["topology_b"].to_numpy()
+    cells = [(ta == a) & (tb == b) for a, b in sorted(set(zip(ta, tb)))]
+    no_crop = (ta != "crop") & (tb != "crop")
+
+    def sp(mask, values, w):
+        k = mask & (w > 0)
+        return bm.finite_spearman(np.repeat(gt[k], w[k]), np.repeat(values[k], w[k]))
+
+    everything = np.ones(len(m), dtype=bool)
+
+    def stats(w):
+        out = {}
+        for arm in ("ctrl", "e"):
+            out[f"margin_{arm}"] = float(np.mean([sp(c, lat[arm], w) - sp(c, ch, w) for c in cells]))
+            out[f"all_cross_{arm}"] = sp(everything, lat[arm], w)
+            out[f"no_crop_{arm}"] = sp(no_crop, lat[arm], w)
+        return {k: out[f"{k}_e"] - out[f"{k}_ctrl"] for k in ("margin", "all_cross", "no_crop")} | out
+
+    point = stats(np.ones(len(m), dtype=np.int64))
+    rng = np.random.default_rng(base.stable_seed(args.seed, dom, "paired_delta"))
+    boot = []
+    for _ in range(args.n_bootstrap):
+        counts = np.bincount(rng.integers(0, len(subjects), size=len(subjects)), minlength=len(subjects))
+        boot.append(stats(counts[sa] * counts[sb]))
+    out = {"n_subjects": len(subjects), "n_pairs": len(m), "n_cells": len(cells),
+           "n_pairs_no_crop": int(no_crop.sum()), "n_bootstrap": args.n_bootstrap}
+    for k in ("margin", "all_cross", "no_crop"):
+        v = np.array([b[k] for b in boot])
+        lo, hi = np.percentile(v, [2.5, 97.5])
+        out[k] = {"delta": point[k], "ci_low": float(lo), "ci_high": float(hi), "frac_pos": float((v > 0).mean()),
+                  "ctrl": point[f"{k}_ctrl"], "e": point[f"{k}_e"]}
+        if k == "margin":
+            out[k]["frac_ge_threshold"] = float((v >= BFM_MIN_GAIN).mean())
+    return out
+
+
 def arm_tables(root: Path, dom: str, splits: dict, bm, args) -> dict:
     """Margine per cella, mesh-pair all_cross con IC, gruppi, controllo leak di una (braccio, dominio)."""
     import numpy as np
@@ -82,8 +154,7 @@ def arm_tables(root: Path, dom: str, splits: dict, bm, args) -> dict:
 
     d = eval_dir(root, dom)
     cells = json.loads((d / "cells.json").read_text())
-    pm = pd.concat([pd.read_csv(p) for p in sorted((d / "topology").glob("*/pair_metrics.csv"))],
-                   ignore_index=True)
+    pm = load_pair_metrics(d)
     expected = set(splits["eval_subjects"][dom])
     seen = set(pm["subject_a"]) | set(pm["subject_b"])
     leak = {"pair_metrics": len(seen & set(splits["train"])), "cells": len(set(cells["subjects"]) & set(splits["train"])),
@@ -171,6 +242,27 @@ def main() -> int:
                          f"{r['all_cross_chamfer']['spearman']:.4f} | {grp} |")
     lines += ["", "Gruppi crop/noisy/resample/all: uno Spearman su tutte le coppie del gruppo "
               "(eval_cells.py, aggregazione di eval_by_topology), stessi soggetti.", ""]
+
+    paired = {dom: paired_delta_ci(load_pair_metrics(eval_dir(roots["ctrl"], dom)),
+                                   load_pair_metrics(eval_dir(roots["e"], dom)), dom, bm, args) for dom in DOMAINS}
+    (RUNS / "paired_delta_ci.json").write_text(json.dumps(paired, indent=1))
+    lines += ["## IC bootstrap appaiato del Delta e - ctrl", "",
+              f"{args.n_bootstrap} repliche, ricampionamento dei soggetti con reinserimento, STESSE repliche per i due "
+              "bracci, pesi count[a]·count[b] per coppia (come weighted_bootstrap_spearman del repo); IC percentile "
+              "95%. Protocollo primario: mesh-pair cross-topologia senza crop (coppie con ne' A ne' B = crop, 20 celle "
+              "ordinate). Il margine usa le 30 celle; il Chamfer e' identico riga per riga nei bracci.", "",
+              "| dominio | statistica | ctrl | e | Δ | IC 95% del Δ | repliche con Δ > 0 |", "|---|---|---|---|---|---|---|"]
+    names = {"margin": "margine medio 30 celle", "all_cross": "mesh-pair all_cross",
+             "no_crop": "mesh-pair cross senza crop (primario)"}
+    for dom, k in (("bfm", "margin"), ("bfm", "all_cross"), ("bfm", "no_crop"), ("ict", "all_cross"), ("ict", "no_crop")):
+        r = paired[dom][k]
+        lines.append(f"| {dom} | {names[k]} | {r['ctrl']:.4f} | {r['e']:.4f} | {r['delta']:+.4f} | "
+                     f"[{r['ci_low']:+.4f}, {r['ci_high']:+.4f}] | {r['frac_pos']:.1%} |")
+    pm_ = paired["bfm"]["margin"]
+    lines += ["", f"Margine BFM: repliche con Δ >= +{BFM_MIN_GAIN:.2f} (soglia del criterio) {pm_['frac_ge_threshold']:.1%}. "
+              f"Soggetti {paired['bfm']['n_subjects']} BFM / {paired['ict']['n_subjects']} ICT; coppie mesh "
+              f"{paired['bfm']['n_pairs']} / {paired['ict']['n_pairs']}, senza crop {paired['bfm']['n_pairs_no_crop']} / "
+              f"{paired['ict']['n_pairs_no_crop']}. Numeri in `paired_delta_ci.json`.", ""]
 
     lines += ["## Controlli", ""]
     for dom in DOMAINS:

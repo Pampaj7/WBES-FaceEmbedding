@@ -145,9 +145,10 @@ if (( ${#TODO[@]} == 0 )); then
     exit 0
 fi
 
-# Percorso FISSO (niente job id): eval_common.sh mette la data dir nella chiave della out dir,
-# e una risottomissione deve ritrovare la stessa chiave.
-STAGE_TMP="/tmp/wbes_zs_${WBES_ZS_DOMAIN}${SUFFIX}"
+# Il job id nel percorso: due job dello stesso dominio e della stessa variante sullo stesso nodo
+# si cancellerebbero /tmp a vicenda (rm -rf qui sotto e trap all'uscita). Il percorso cambia a ogni
+# sottomissione, quindi la data dir in eval_key.txt anche: vedi run_arm.
+STAGE_TMP="/tmp/wbes_zs_${SLURM_JOB_ID:-manual}_${WBES_ZS_DOMAIN}${SUFFIX}"
 rm -rf "$STAGE_TMP"
 mkdir -p "$STAGE_TMP"
 trap 'rm -rf "$STAGE_TMP"' EXIT
@@ -201,6 +202,17 @@ run_arm() {  # <arm> <gpu>
         export WBES_DIST_NPZ="$ZS_DIST_NPZ"
         export WBES_CKPT="$(ckpt_of "$arm")"
         export WBES_EVAL_OUT="$ZS_RUNS/data_$ZS_FP/$arm$SUFFIX"
+        # eval_key.txt di una sottomissione precedente NON completata (niente .done: chi e' completo
+        # e' gia' saltato sopra) ha la data dir /tmp del job di allora, che non esiste piu': la si
+        # toglie, altrimenti aau_eval_check_key rifiuterebbe la out dir. Le altre righe (checkpoint,
+        # GT, seed) restano controllate. Una chiave con una data dir NON in /tmp/wbes_zs_ si lascia.
+        key="$WBES_EVAL_OUT/eval_key.txt"
+        if [[ -f "$key" ]] && grep -q "^data_dir=/tmp/wbes_zs_" "$key" \
+           && ! grep -qx "data_dir=$(realpath "$WBES_DATA_DIR")" "$key"; then
+            echo "[zs-zs] $arm$SUFFIX: eval_key.txt di un job precedente non completato, rigenerata"
+            grep -v "^data_dir=" "$key" > "$key.prev_ckpt_gt"
+            rm -f "$key"
+        fi
         source "$WBES_ROOT/aau/eval_common.sh"
         # La data dir e' gia' il set di eval: tutti i suoi soggetti, nessun ricampionamento.
         common_args+=(--subject_split all --max_subjects 0)
@@ -220,6 +232,14 @@ run_arm() {  # <arm> <gpu>
         echo "[zs-zs] c. $arm$SUFFIX su GPU $gpu ckpt=$WBES_CKPT"
         echo "[zs-zs] data=$WBES_DATA_DIR gt=$WBES_DIST_NPZ out=$OUT_ROOT launch=${LAUNCH[*]:-}"
         aau_eval_begin "$WBES_EVAL_STAGE"
+        if [[ -f "$key.prev_ckpt_gt" ]]; then
+            # La chiave rigenerata deve coincidere con la vecchia a meno della data dir /tmp.
+            if ! diff -q <(grep -v "^data_dir=" "$key") "$key.prev_ckpt_gt" >/dev/null; then
+                echo "ERRORE: $WBES_EVAL_OUT conteneva un'altra combinazione (checkpoint/GT/seed): vedi $key.prev_ckpt_gt" >&2
+                exit 1
+            fi
+            rm -f "$key.prev_ckpt_gt"
+        fi
 
         if [[ "$WBES_ZS_PART" != topology ]]; then
             echo "[$(timestamp)] 1/2 ranking aggregato, scenari: $WBES_EVAL_SCENARIOS"

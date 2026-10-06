@@ -663,3 +663,8 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
   - timeout sul breakdown Chamfer, risolto dividendolo in 15 shard.
 - **Lettura:** il token di taglia resta un guadagno solo in dominio e non regge sui dati reali. Nel framing B non è centrale.
 - **In corso:** IC appaiato sul Delta; niente altri seed.
+
+**Svolta (6 ottobre, decisione con l'utente): il fuoco passa alle ESPRESSIONI.**
+- **Motivazione:** con la GT geometrica, fuori dominio Chamfer è imbattibile per costruzione. Con la GT d'identità sulle forme neutre e l'espressione come disturbo, l'invarianza appresa ha un vantaggio reale e misurabile, e corrisponde all'uso vero.
+- **Test in corso:** controllo su `joint__rexpr` con Chamfer appaiato; zero-shot su FaceVerse con espressioni; protocollo primario dichiarato prima dei numeri.
+- **Valanga lanciata:** job 1056832, catena di eval 1056833. Contiene 8 espressioni per identità ICT, quindi è già un training di invarianza all'espressione. Frame come il congiunto, senza augmentation. Lo smoke S5 è stato cancellato: il primo cambio di blocco del run fa da verifica della memoria, perché un OOM lì fallisce rumorosamente in circa 2–3 h.

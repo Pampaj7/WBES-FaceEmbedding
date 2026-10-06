@@ -561,6 +561,7 @@ def write_markdown(path: Path, table, topo, bl, checks, meta, args, paired, cham
     parts.append("\nSorgenti dei bracci: " + "; ".join(f"{ARM_LABEL[a]}: {meta['sources'][a]}" for a in ARMS)
                  + ".\n")
     parts.append("\n## Matrici per coppia di topologie (clean, mesh-pair, GT maxabs; righe A, colonne B)\n")
+    parts.append("SOLO PUNTO, senza CI: per le 30 celle n_bootstrap=0 (i CI sono sugli aggregati qui sopra).\n")
     for arm in ARMS:
         parts.append(f"\n### {ARM_LABEL[arm]}, latent\n")
         parts.append(topology_matrix(topo, arm, "latent"))
