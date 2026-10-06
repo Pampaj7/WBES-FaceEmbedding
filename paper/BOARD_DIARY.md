@@ -751,3 +751,12 @@ Chamfer misura la geometria e quindi l'espressione la confonde, mentre una metri
   - **Eccezione:** crop↔down8k, dove il bordo equalizzato è frastagliato.
 - **Lettura provvisoria:** il gap del crop è un artefatto di supporto. Le metriche geometriche crollano sul crop in dominio, e l'equalizzazione le recupera; le metriche apprese erano robuste in dominio e fragili fuori.
 - **Domanda per il critic:** la regola usa la corrispondenza sintetica. Come si applica a dati reali?
+
+**Critic su equalize support: BLOCCANTE sulla conclusione. Ritiro "il gap si chiude".**
+- **Il "dopo" non è il confronto giusto.** Il "dopo" di crop↔X equivale a original↔X con le mesh ritagliate, e crop↔original diventa una coppia della stessa topologia, che gonfia la media.
+- **Confronto per tipo di coppia:** su HIFI il latente congiunto NON chiude (noisy 0.545 contro 0.749, remesh 0.413 contro 0.571). Chamfer su BFM chiude solo su up60k e down8k.
+- **Costo del supporto ridotto:** 0.06–0.08 sui latenti anche senza crop (BFM 0.853→0.772, ICT 0.991→0.922, HIFI 0.428→0.369).
+- **La regola è oracolare:** usa crop, original e connettività sintetici, quindi non è applicabile a dati reali.
+- **Leakage:** sui soggetti fuori dal training l'equalizzazione peggiora il congiunto (BFM −0.088, ICT −0.054).
+- **Formulazione sostenibile:** il crollo sul crop è GUIDATO dal supporto asimmetrico (diagnosi), ma un rimedio di protocollo applicabile non è ancora dimostrato.
+- **Prossimo passo:** maschera canonica non oracolare (raggio da un landmark automatico, su ogni mesh), con controllo negativo e controllo d'identità.
