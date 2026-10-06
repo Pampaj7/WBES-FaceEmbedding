@@ -581,3 +581,15 @@ Correzioni affidate a coder; poi nuovo smoke a 2 blocchi e secondo giro di criti
 - **Pilota del pozzo:** in training.
 
 **FaceVerse chiuso, con IC appaiati (dal report dell'agente; da passare al critic).** FaceVerse è nativamente nel frame BFM. Lì il congiunto è pari al solo BFM, ed entrambi battono il solo ICT: è lo specchio esatto di HIFI3D, che è nel frame ICT. Indizio forte che lo zero-shot misuri in buona parte il frame, non il dominio.
+
+## 6 ottobre, mattina
+
+**Pilota del pozzo: NON PASSA nessuno dei due bracci** (`aau/runs/pilot_pot/summary.md`).
+- **pot_m55:** crolla ovunque, all 0.401 (−0.380), zero-shot ICT 0.131 (−0.238). Un crollo così ampio è sospetto: critic in corso per escludere un artefatto (operatori o maschera diversi fra training ed eval).
+- **pot_dual:** neutro, all 0.771 (−0.011), ICT 0.315 (−0.054).
+
+**Congiunto-E: eval fallite.** Due in TIMEOUT a 3 h, una fallita in 49 s; summary mai scritto. Diagnosi e rilancio affidati.
+
+**Test sul frame:** tutti completati (hifi frameBFM, roty, rms; fv frameICT; ict frameBFM, e2e). Raccolta in `aau/runs/ws_frame/` in corso.
+
+**Smoke S5 della valanga:** ancora in coda (job 1056296).

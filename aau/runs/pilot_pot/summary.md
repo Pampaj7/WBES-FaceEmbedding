@@ -23,11 +23,16 @@ Entrambe le condizioni. Un seed solo: e' un pilota, un passaggio va confermato s
 
 ## Risultati
 
-In attesa: training, eval appaiate e zero-shot ICT in coda (la tabella la riscrive aau/models/pilot_summary.py, job con afterany sulle eval).
+| braccio | crop (Δ) | noisy (Δ) | resample (Δ) | all (Δ) | ICT all_cross [CI 95%] (Δ) | esito |
+| --- | --- | --- | --- | --- | --- | --- |
+| controllo | 0.7653 | 0.7829 | 0.8048 | 0.7816 | 0.3693 [0.308, 0.429] | controllo |
+| pot_m55 | 0.4280 (-0.3373) | 0.3576 (-0.4253) | 0.4352 (-0.3696) | 0.4014 (-0.3802) | 0.1314 [0.080, 0.178] (-0.2380) | NON PASSA (crop -0.337, ICT -0.238) |
+| pot_dual | 0.7568 (-0.0085) | 0.7780 (-0.0050) | 0.7923 (-0.0125) | 0.7710 (-0.0105) | 0.3151 [0.255, 0.374] (-0.0543) | NON PASSA (crop -0.009, ICT -0.054) |
 
-Primo tentativo perso (1055016 m55 a epoca 93, 1055017 dual a epoca 16): morti alle 10:24 del
-5 ottobre insieme a 1055540-1055545, che hanno saturato la quota da 1 TB; exit 1 senza traceback,
-MaxRSS 39 e 62 GB su 180 e 200. Rifatti da zero (train_runner.py non ha resume: il checkpoint
-non ha lo stato di ReduceLROnPlateau), su L40S, run dir su /tmp con sync nella home:
-training 1056124 (m55) e 1056125 (dual); eval BFM 1056126/1056128, ICT 1056127/1056129, ICT del
-controllo riusato (1055264), tabella 1056130.
+Coppie per gruppo (BFM): crop 49500, noisy 39600, resample 59400, all 148500
+
+## Sorgenti
+
+- `controllo`: checkpoint `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/remesh_v1recipe_current_s1234_1055026`; eval BFM `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_frame/remesh_v1recipe_current_s1234_1055026_maxabs`; ICT `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d_41fb92c8/ict_zeroshot_pilot_clean` (data `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ICT/eval_view_heldout`)
+- `pot_m55`: checkpoint `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/pilot_pot_m55_s1234_1056124`; eval BFM `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_frame/pilot_pot_m55_s1234_1056124_maxabs`; ICT `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__9a81466d_40210e73/ict_zeroshot_pilot_clean` (data `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ICT/eval_view_heldout_pot055`)
+- `pot_dual`: checkpoint `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/pilot_pot_dual_s1234_1056125`; eval BFM `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_frame/pilot_pot_dual_s1234_1056125_maxabs`; ICT `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/eval_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w103_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__84e790e5_bcfda4f6/ict_zeroshot_pilot_clean` (data `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ICT/eval_view_heldout`)
