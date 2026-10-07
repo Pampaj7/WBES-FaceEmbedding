@@ -96,6 +96,7 @@ cg_file() {  # cgroup del JOB (dove Slurm applica --mem), non dello step o del t
     done
   done
 }
+CG=$(cg_file || true)
 CGD=$(dirname "${CG:-/nonexistent}")
 cg_stat() {  # anon / shmem (tmpfs) / page cache in GiB, v1 (total_*) o v2
   awk '$1=="total_rss"||$1=="anon"{a=$2} $1=="total_shmem"||$1=="shmem"{s=$2}

@@ -874,3 +874,8 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 **Costo dell'insegnante:** circa 1.4–2.4 CPU-s per mesh, quindi a scala è economico.
 
 **Prossima decisione (all'utente):** tentativo con input molto più vari (GNM campionabile senza limiti, valanga ICT, deformazioni casuali, frame canonico + augmentation di rotazione) oppure stop.
+
+**Decisione dell'utente (7 ottobre): tentativo v2 della distillazione con input molto vari.**
+- **Dati:** GNM circa 10k identità con espressioni, valanga ICT circa 10k, BFM e ICT-5000, deformazioni casuali, frame canonico ICT + rotazioni ±30°.
+- **Criterio identico al pilota.**
+- **Esito:** se fallisce, si chiude la strada degli encoder appresi.
