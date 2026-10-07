@@ -1,0 +1,289 @@
+{
+ "participant": "P1V7V1OC",
+ "started": "2026-10-07T16:23:32.990Z",
+ "finished": "2026-10-07T16:25:19.861Z",
+ "source": "manual (pagina non connessa al db)",
+ "trials": [
+  {
+   "triplet_id": "c0019",
+   "control": true,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 3688
+  },
+  {
+   "triplet_id": "t0280",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 12035
+  },
+  {
+   "triplet_id": "t0145",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 5243
+  },
+  {
+   "triplet_id": "t0024",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 2452
+  },
+  {
+   "triplet_id": "t0121",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 2755
+  },
+  {
+   "triplet_id": "t0167",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1770
+  },
+  {
+   "triplet_id": "t0043",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 6596
+  },
+  {
+   "triplet_id": "t0196",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1779
+  },
+  {
+   "triplet_id": "t0044",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1836
+  },
+  {
+   "triplet_id": "t0214",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 3322
+  },
+  {
+   "triplet_id": "c0012",
+   "control": true,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1223
+  },
+  {
+   "triplet_id": "t0225",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 1802
+  },
+  {
+   "triplet_id": "t0292",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 2812
+  },
+  {
+   "triplet_id": "t0094",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 1451
+  },
+  {
+   "triplet_id": "t0052",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1891
+  },
+  {
+   "triplet_id": "t0009",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 2755
+  },
+  {
+   "triplet_id": "t0241",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1123
+  },
+  {
+   "triplet_id": "t0118",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1492
+  },
+  {
+   "triplet_id": "t0201",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1596
+  },
+  {
+   "triplet_id": "t0005",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1979
+  },
+  {
+   "triplet_id": "t0106",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1380
+  },
+  {
+   "triplet_id": "t0255",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1324
+  },
+  {
+   "triplet_id": "t0079",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 3661
+  },
+  {
+   "triplet_id": "t0090",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 2179
+  },
+  {
+   "triplet_id": "c0017",
+   "control": true,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1547
+  },
+  {
+   "triplet_id": "t0070",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1811
+  },
+  {
+   "triplet_id": "t0178",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1075
+  },
+  {
+   "triplet_id": "t0226",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1547
+  },
+  {
+   "triplet_id": "t0285",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1132
+  },
+  {
+   "triplet_id": "t0253",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 818
+  },
+  {
+   "triplet_id": "t0267",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 4708
+  },
+  {
+   "triplet_id": "t0071",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 1826
+  },
+  {
+   "triplet_id": "t0191",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1763
+  },
+  {
+   "triplet_id": "t0238",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1891
+  },
+  {
+   "triplet_id": "t0156",
+   "control": false,
+   "shown_left": "b",
+   "choice": "c",
+   "rt_ms": 1658
+  },
+  {
+   "triplet_id": "t0132",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 987
+  },
+  {
+   "triplet_id": "t0084",
+   "control": false,
+   "shown_left": "c",
+   "choice": "b",
+   "rt_ms": 1331
+  },
+  {
+   "triplet_id": "t0032",
+   "control": false,
+   "shown_left": "c",
+   "choice": "c",
+   "rt_ms": 1933
+  },
+  {
+   "triplet_id": "t0207",
+   "control": false,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 1548
+  },
+  {
+   "triplet_id": "c0001",
+   "control": true,
+   "shown_left": "b",
+   "choice": "b",
+   "rt_ms": 1091
+  }
+ ],
+ "user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:157.0) Gecko/20100101 Firefox/157.0"
+}
