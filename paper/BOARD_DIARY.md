@@ -956,3 +956,12 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Fuori dominio:** le metriche apprese stanno nettamente sotto Chamfer, coerente con HIFI3D e FaceVerse.
 - **ICP e NICP sotto Chamfer:** effetto della GT maxabs, come già visto.
 - **Manca uno script di riepilogo FLAME:** da integrare in `aau/zs3dmm` per le tabelle del paper.
+
+**Baseline extra e quasi-duplicati (7 ottobre sera; commit 5524209, 7132c8e).**
+- **CLIP L/14 e DINOv2 B/14** (render a normal map): molto sotto ArcFace e NICP.
+  - Rank-1 FaceVerse expr: CLIP 0.304, DINOv2 0.251, contro ArcFace 0.867.
+  - HIFI3D: 0.597 e 0.510.
+  - BFM, Spearman: 0.13 e 0.11, contro 0.79 del modello NeurIPS.
+  - Negli embedding pesa più la topologia dell'identità. ArcFace resta la baseline percettiva di riferimento.
+- **Besnier 2023 e Ma 2021:** nessun codice o peso pubblico, quindi non integrabili (documentato).
+- **Quasi-duplicati: nessuno.** Il NN test→train minimo è 3.9× la soglia (NeurIPS BFM), 3.6× (congiunto BFM) e 2.1× (congiunto ICT). Il punto 9 del rebuttal è chiuso.
