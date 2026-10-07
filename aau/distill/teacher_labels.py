@@ -29,6 +29,10 @@ I render stanno in ``--stage`` (su /tmp, si cancella col job). In ``--out-dir`` 
 ``subjects``, ``topologies``, ``split``, ``files``, ``yaws``), ``camera.json``,
 ``arcface_align.json``, ``timing.json`` e qualche png di controllo.
 
+v2 (``--domain ictscale|gnm``): soggetti, mesh da etichettare e split vengono da ``distill_data.py``
+(``teacher_meshes``: la ``original`` e le espressioni che entrano nello studente), la geometria e'
+estratta dagli shard in ``--stage``; stesse regole per camera (``--camera-sample``: su un campione) e crop.
+
 ``--limit N``: solo i primi N soggetti di training e i primi N di validazione, per misurare il costo
 per mesh prima di generare (``timing.json``: secondi di parete e CPU-secondi per mesh di ogni fase).
 """
@@ -63,6 +67,9 @@ DOMAINS = {
     # dominio: (rotazione verso il frame del renderer, filtro sugli id dello split)
     "bfm": ("none", lambda n: n < 1000),
     "ict": ("x180", lambda n: ICT_OFFSET <= n < ICT_OFFSET + 5000),
+    # v2 (distill_data.py): soggetti, mesh e split decisi li', geometria dagli shard
+    "ictscale": ("x180", None),
+    "gnm": ("x180", None),
 }
 
 
@@ -77,6 +84,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--size", type=int, default=512)
     p.add_argument("--limit", type=int, default=0, help=">0: solo i primi N soggetti (misura del costo)")
+    p.add_argument("--camera-sample", type=int, default=0,
+                   help=">0: camera su un campione di N mesh (seed) invece che su tutte; v2: la camera "
+                        "su tutte e' seriale e su 20.000 mesh costerebbe ~20 min")
     p.add_argument("--frame-check", type=int, default=0, help=">0: solo il controllo del frame, poi esce")
     return p.parse_args()
 
@@ -146,16 +156,31 @@ def main() -> None:
     rot_name = DOMAINS[args.domain][0]
     rot = zar.BASE_ROTATIONS[rot_name]
     yaws = [float(y) for y in render.VIEW_YAWS]
-    train, val = subjects_of(args.domain, args.n_val_ict, args.seed)
-    if args.limit > 0:
-        train, val = train[: args.limit], val[: args.limit]
     files = {}
     split_of = {}
-    for subjects, tag in ((train, "train"), (val, "val")):
-        for s in subjects:
-            for t, f in source_files(args.domain, s).items():
-                files[(s, t)] = f
-                split_of[(s, t)] = tag
+    if DOMAINS[args.domain][1] is None:
+        import distill_data as dd
+
+        rows = dd.teacher_meshes(args.domain)
+        train = sorted({s for s, _, sp in rows if sp == "train"})
+        val = sorted({s for s, _, sp in rows if sp == "val"})
+        if args.limit > 0:
+            train, val = train[: args.limit], val[: args.limit]
+        keep = set(train) | set(val)
+        rows = [r for r in rows if r[0] in keep]
+        geom = dd.extract(args.domain, [f"{s}_GTready_{t}.npz" for s, t, _ in rows], args.stage / "geom")
+        for s, t, sp in rows:
+            files[(s, t)] = geom[f"{s}_GTready_{t}.npz"]
+            split_of[(s, t)] = sp
+    else:
+        train, val = subjects_of(args.domain, args.n_val_ict, args.seed)
+        if args.limit > 0:
+            train, val = train[: args.limit], val[: args.limit]
+        for subjects, tag in ((train, "train"), (val, "val")):
+            for s in subjects:
+                for t, f in source_files(args.domain, s).items():
+                    files[(s, t)] = f
+                    split_of[(s, t)] = tag
     meshes = sorted(files)
     n_expr = sum(t != "original" for _, t in meshes)
     print(f"[teacher] {args.domain}: {len(train)} soggetti di training, {len(val)} di validazione, "
@@ -173,10 +198,14 @@ def main() -> None:
 
     timing = {"domain": args.domain, "n_meshes": len(meshes), "workers": args.workers, "yaws": yaws}
     t0 = time.time()
-    camera = zar.compute_camera(view, meshes, yaws, rot)
+    cam_meshes = meshes
+    if 0 < args.camera_sample < len(meshes):
+        pick = np.random.default_rng(args.seed).choice(len(meshes), size=args.camera_sample, replace=False)
+        cam_meshes = [meshes[int(i)] for i in sorted(pick)]
+    camera = zar.compute_camera(view, cam_meshes, yaws, rot)
     camera.update(base_rotation=rot_name, view_dir=str(view))
     timing["camera_s"] = time.time() - t0
-    print(f"[teacher] camera su {len(meshes)} mesh in {timing['camera_s']:.0f}s: "
+    print(f"[teacher] camera su {len(cam_meshes)}/{len(meshes)} mesh in {timing['camera_s']:.0f}s: "
           f"center={np.round(camera['center'], 4).tolist()} scale={camera['scale']:.4f}", flush=True)
 
     # Crop: detector sui render ombreggiati delle original di un campione di soggetti di training.

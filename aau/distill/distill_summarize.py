@@ -48,12 +48,15 @@ DOMAINS = {
     "hifi3d": ("datasets/HIFI3D/eval_view/npz", "aau/runs/ws_hifi3d/data_328f2bfc1a",
                "joint_frame-xmymz_flip_ranking/zs_zeroshot"),
 }
-REFERENCE = "student@bfm"
+REFERENCE = "student@bfm"   # --reference ict: lo studente in convenzione ICT (v2, addestrato in quel frame)
 BASELINES = ("arcface_normals_3v", "arcface_shaded_3v", "nicp_p2tri", "rigid_icp_chamfer", "chamfer", "joint@bfm")
 SECONDARY = (("student@ict", "joint@bfm"), ("student@ict", "student@bfm"), ("student@ict", "arcface_normals_3v"))
+SECONDARY_ICT = (("student@bfm", "joint@bfm"), ("student@bfm", "student@ict"),
+                 ("ablation@ict", "student@ict"), ("ablation@ict", "joint@bfm"))
 TEACHER = "arcface_normals_3v"
-LABELS = {"student@bfm": "Studente distillato, convenzione BFM (riferimento)",
-          "student@ict": "Studente distillato, convenzione ICT"}
+LABELS = {"student@bfm": "Studente distillato, convenzione BFM",
+          "student@ict": "Studente distillato, convenzione ICT",
+          "ablation@ict": "Ablazione (senza GNM), convenzione ICT"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -65,15 +68,28 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--n-bootstrap", type=int, default=1000)
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--eval-seed", type=int, default=1234)
+    p.add_argument("--reference", choices=("bfm", "ict"), default="bfm",
+                   help="convenzione d'ingresso della riga di riferimento (pilota: bfm; v2: ict)")
+    p.add_argument("--student-label", default="Studente distillato")
+    p.add_argument("--ablation-root", type=Path, default=None,
+                   help="<eval>/<domain> del braccio di ablazione: riga ablation@ict (solo convenzione ICT)")
     return p.parse_args()
 
 
 def label(name: str) -> str:
-    return LABELS.get(name) or zas.label(name).replace(" (riferimento)", "")
+    if name in LABELS:
+        return LABELS[name] + (" (riferimento)" if name == REFERENCE else "")
+    return zas.label(name).replace(" (riferimento)", "")
 
 
 def main() -> None:
+    global REFERENCE, SECONDARY
     args = parse_args()
+    REFERENCE = f"student@{args.reference}"
+    if args.reference == "ict":
+        SECONDARY = SECONDARY_ICT
+    for k in ("student@bfm", "student@ict"):
+        LABELS[k] = LABELS[k].replace("Studente distillato", args.student_label)
     view_dir, runs, joint_rel = (Path(x) for x in DOMAINS[args.domain])
     student_root = args.student_root or args.out_dir / "eval" / args.domain
     arc_root = args.arcface_root or Path("aau/runs/arcface_render_zs") / args.domain
@@ -90,6 +106,10 @@ def main() -> None:
         if sorted(json.loads((stage / "subjects.json").read_text())["subjects"]) != subjects:
             raise SystemExit(f"{stage}: zs_stage ha valutato soggetti diversi")
         D[f"student@{conv}"] = zes.model_distances(stage, idx)
+    if args.ablation_root is not None and (args.ablation_root / "ict" / "embeddings.npz").exists():
+        if sorted(json.loads((args.ablation_root / "ict" / "subjects.json").read_text())["subjects"]) != subjects:
+            raise SystemExit(f"{args.ablation_root}: zs_stage ha valutato soggetti diversi")
+        D["ablation@ict"] = zes.model_distances(args.ablation_root / "ict", idx)
     if REFERENCE not in D:
         raise SystemExit(f"riga di riferimento {REFERENCE} assente")
     for mode in ("normals", "shaded"):
@@ -118,7 +138,7 @@ def main() -> None:
             r[m], (r[f"{m}_ci_low"], r[f"{m}_ci_high"]) = float(vals[m][0]), zes.ci(vals[m])
         rows.append(r)
     rec_table = pd.DataFrame(rows)
-    comparisons = [(REFERENCE, b) for b in BASELINES] + [c for c in SECONDARY if c[0] in D]
+    comparisons = [(REFERENCE, b) for b in BASELINES] + [c for c in SECONDARY if c[0] in D and c[1] in D]
     deltas = []
     for blk in blocks:
         for a_name, b_name in comparisons:
@@ -133,7 +153,7 @@ def main() -> None:
     # Criterio: rank-1 studente / insegnante normal map, punto e CI sulle stesse repliche
     ratios = {}
     for blk in blocks:
-        for s_name in [n for n in D if n.startswith("student@")]:
+        for s_name in [n for n in D if n.startswith(("student@", "ablation@"))]:
             rr = rec[(blk, s_name)][0]["rank1"] / rec[(blk, TEACHER)][0]["rank1"]
             ratios[(blk, s_name)] = (float(rr[0]), *zes.ci(rr))
 
@@ -144,7 +164,8 @@ def main() -> None:
     pd.DataFrame([{"block": b, "model": s, "ratio_rank1_vs_teacher_normals": v[0], "ci_low": v[1], "ci_high": v[2]}
                   for (b, s), v in ratios.items()]).to_csv(out / "ratio_teacher.csv", index=False)
 
-    order = [n for n in D if n.startswith("student@")] + [n for n in BASELINES if n in D]
+    order = [REFERENCE] + [n for n in D if n.startswith(("student@", "ablation@")) and n != REFERENCE] \
+        + [n for n in BASELINES if n in D]
 
     def rec_md(blk: str) -> list[str]:
         lines = ["| metodo | rank-1 | mAP | AUC verifica | distanze NaN |", "| --- | --- | --- | --- | --- |"]
@@ -179,17 +200,17 @@ def main() -> None:
     check = (f"- riproduzione di `aau/runs/arcface_render_zs/{args.domain}/recognition.csv` (stesse repliche): "
              f"max |diff| su punto e CI = {max(diffs.values()):.2e} su {len(diffs)} righe "
              f"({', '.join(sorted({m for _, m in diffs}))})" if diffs else "- nessuna riga in comune col gate")
-    missing = sorted({m for m in D if not m.startswith("student@")} - {m for _, m in diffs})
+    missing = sorted({m for m in D if not m.startswith(("student@", "ablation@"))} - {m for _, m in diffs})
     if missing:
         check += f"; righe non presenti nel csv del gate (calcolate qui): {', '.join(missing)}"
     primary = [(REFERENCE, b) for b in BASELINES]
-    secondary = [c for c in SECONDARY if c[0] in D]
+    secondary = [c for c in SECONDARY if c[0] in D and c[1] in D]
     parts = [f"# Risultati: {zas.DOMAIN_LABEL[args.domain]}\n",
              f"Soggetti: {len(subjects)} (`select_subjects`, seed {args.eval_seed}), mesh da `{view_dir}`; studente "
              f"da `{student_root}`, insegnante da `{arc_root}`, baseline da `{runs / 'baselines'}`, congiunto da "
              f"`{runs / joint_rel}`. CI 95% bootstrap per soggetto, {args.n_bootstrap} repliche (le stesse del gate).\n",
              "## PRIMARIO: riconoscimento d'identita', 5 topologie senza crop\n", *rec_md("nocrop"),
-             "\n### Delta appaiati, studente (convenzione BFM) - baseline\n", *delta_md("nocrop", primary),
+             f"\n### Delta appaiati, {label(REFERENCE)} - baseline\n", *delta_md("nocrop", primary),
              "\n### Criterio: rapporto con l'insegnante a normal map\n", *ratio_md("nocrop"),
              "\n### Secondari\n", *delta_md("nocrop", secondary),
              "\n## A parte: crop (coppie di topologie con crop da un lato)\n", *rec_md("crop"),

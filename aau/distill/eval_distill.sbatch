@@ -37,7 +37,7 @@ case "${WBES_DISTILL_DOMAIN:-}" in
              declare -A STAGE_ARGS=([bfm]="--transform=x,-y,-z --flip-faces" [ict]="") ;;
     *) echo "ERRORE: WBES_DISTILL_DOMAIN='${WBES_DISTILL_DOMAIN:-}' (fv_expr|hifi3d)" >&2; exit 2 ;;
 esac
-OUT="$AAU_RUNS/distill_pilot/eval${WBES_DISTILL_EVAL_SUFFIX:-}/$WBES_DISTILL_DOMAIN"
+OUT="${WBES_DISTILL_EVAL_ROOT:-$AAU_RUNS/distill_pilot/eval${WBES_DISTILL_EVAL_SUFFIX:-}}/$WBES_DISTILL_DOMAIN"
 TMP="/tmp/wbes_distill_eval_${SLURM_JOB_ID:-manual}"
 rm -rf "$TMP"
 trap 'rm -rf "$TMP"' EXIT

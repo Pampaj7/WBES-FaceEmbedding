@@ -13,6 +13,8 @@
 #
 #   aau/submit.sh distill/distill_summarize.sbatch
 #   WBES_DISTILL_OUT=<dir con protocol.md> WBES_DISTILL_STUDENT_ROOT=<eval dir> ...   prova su altri dati
+#   v2: WBES_DISTILL_OUT=aau/runs/distill_v2 WBES_DISTILL_ABLATION_ROOT=aau/runs/distill_v2/eval_nognm \
+#       WBES_DISTILL_SUM_ARGS="--reference ict" WBES_DISTILL_STUDENT_LABEL="Studente v2" ...
 set -euo pipefail
 
 export AAU_NV=""
@@ -25,6 +27,9 @@ echo "[distill-sum] host=$(hostname) job=${SLURM_JOB_ID:-none} out=$OUT"
 for dom in ${WBES_DISTILL_DOMAINS:-fv_expr hifi3d}; do
     extra=()
     [[ -n "${WBES_DISTILL_STUDENT_ROOT:-}" ]] && extra=(--student-root "$WBES_DISTILL_STUDENT_ROOT/$dom")
-    "$AAU_DIR/run.sh" aau/distill/distill_summarize.py --domain "$dom" --out-dir "$OUT" "${extra[@]}"
+    [[ -n "${WBES_DISTILL_ABLATION_ROOT:-}" ]] && extra+=(--ablation-root "$WBES_DISTILL_ABLATION_ROOT/$dom")
+    [[ -n "${WBES_DISTILL_STUDENT_LABEL:-}" ]] && extra+=(--student-label "$WBES_DISTILL_STUDENT_LABEL")
+    # shellcheck disable=SC2086
+    "$AAU_DIR/run.sh" aau/distill/distill_summarize.py --domain "$dom" --out-dir "$OUT" "${extra[@]}" ${WBES_DISTILL_SUM_ARGS:-}
 done
 echo "[distill-sum] OK"

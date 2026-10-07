@@ -879,3 +879,11 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Dati:** GNM circa 10k identità con espressioni, valanga ICT circa 10k, BFM e ICT-5000, deformazioni casuali, frame canonico ICT + rotazioni ±30°.
 - **Criterio identico al pilota.**
 - **Esito:** se fallisce, si chiude la strada degli encoder appresi.
+
+**Direzione dell'utente (7 ottobre): non buttare il paper NeurIPS, VENDERE la metrica appresa originale.** Posizionamento onesto:
+- metrica d'identità 3D appresa, veloce (un embedding per mesh, confronto O(1)) e agnostica alla discretizzazione;
+- molto forte nella distribuzione di training (0.86–0.98 contro 0.25–0.35 di Chamfer, anche con espressioni);
+- la copertura si estende aggiungendo un 3DMM al training: il congiunto funziona su entrambi i domini;
+- il fuori dominio è un limite dichiarato, con analisi.
+
+**Mancano:** riconoscimento IN DOMINIO con etichette (risponde alla critica di circolarità della GT) contro NICP, ICP, Chamfer e ArcFace, più i tempi. Lanciato (`aau/runs/indomain_recog/`). La distillazione v2 continua come estensione dello stesso encoder.
