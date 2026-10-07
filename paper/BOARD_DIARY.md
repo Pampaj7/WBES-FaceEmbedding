@@ -922,3 +922,16 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **(3) Tempi da riformulare.** Il congiunto vince solo nella RICERCA su una galleria già iscritta. L'iscrizione costa 2.3 s per mesh, dello stesso ordine di un NICP su template (circa 1.4 s, stima). Il nodo era condiviso: misure da rifare.
 - **(1) Soffitto a N = 100.** Estrapolando, a N = 10.000 su BFM il congiunto probabilmente scende sotto NICP, mentre su ICT resta sopra. Galleria ICT di 992 held-out disponibile senza generare nulla. ArcFace non configurato al meglio (camera fissa, normali per faccia).
 - **Correzioni affidate a coder:** ICP di similarità come standard, NICP su template, galleria 992, tempi su nodo esclusivo, ArcFace migliorato.
+
+**NoW validation** (`aau/runs/now_eval/summary.md`; critic in corso per verificare eventuali svantaggi ingiusti al latente).
+- **Dati:** 20 soggetti, 352 immagini.
+- **Ricostruzioni:** 3DDFA-V2, SynergyNet, PRNet, MICA. DECA ed EMOCA non fatti (pytorch3d da compilare).
+- **Errore NoW ufficiale (mediana, mm):** MICA 0.91 (riproduce i valori pubblicati), SynergyNet 1.35, 3DDFA-V2 1.39, PRNet 1.56.
+- **Concordanza con NoW, tau per immagine:**
+  - latente congiunto −0.236 [−0.355, −0.117], CONTRO il benchmark: mette MICA ultimo;
+  - Chamfer +0.176;
+  - ICP+Chamfer +0.455;
+  - ArcFace +0.488.
+- **Dentro un singolo metodo** il latente segue NoW meglio di Chamfer (3DDFA-V2: 0.65 contro 0.45).
+- **Identità fra ricostruzioni (AUC):** il latente è ultimo con tutti i metodi (MICA 0.887 contro 0.981 di ArcFace).
+- **Bug trovato:** `crop_region` in `ws3b_prepare_meshes` (indici di vertice sbagliati); corretto per NoW, in WS3b da verificare.
