@@ -16,7 +16,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 fz = json.loads((HERE / "heldout_frozen.json").read_text())
-held = set(fz["bfm"]) | set(fz["ict_view"])
+held = set(fz["bfm"]) | set(fz["ict_view"]) | set(fz.get("gnm", []))
 bfm = [f"id{i:04d}" for i in range(500)]
 ict = [f"id{i:05d}" for i in range(10000, 15000)]
 new = [f"id{i:05d}" for i in range(20000, 70000)]
@@ -43,3 +43,30 @@ smoke = ([s for s in bfm if s not in held][:40] + [s for s in ict if s not in he
      "online_eval": online}, indent=0) + "\n")
 print(json.loads((HERE / "split_scale.json").read_text())["counts"], "smoke train", len(smoke),
       "online_eval", online)
+
+
+# --- 7 ottobre: run con GNM (datasets/GNM_DISTILL, id100000-110099) --------------------------------
+import random  # noqa: E402
+
+gnm = [f"id{i}" for i in range(100000, 110100)]
+gnm_val = [s for s in gnm if s in held]
+assert len(gnm_val) == 100, len(gnm_val)
+train_all = [s for s in bfm + ict + new + gnm if s not in held]
+# eval online in piu' su GNM: 16 dei 100 di validazione, seme dichiarato (non scelgono i best_by_*)
+gnm_online = sorted(random.Random(20261007).sample(gnm_val, 16))
+heldout_all = sorted(held, key=lambda s: int(s[2:]))
+(HERE / "split_scale_all.json").write_text(json.dumps(
+    {"source": "aau/data_scale/heldout_frozen.json", "note": note, "train": train_all, "heldout": heldout_all,
+     "online_eval": online, "online_eval_extra": {"gnm": gnm_online},
+     "counts": {"train_bfm": sum(s in set(bfm) for s in train_all),
+                "train_ict5000": sum(s in set(ict) for s in train_all),
+                "train_ict_new": sum(s in set(new) for s in train_all),
+                "train_gnm": sum(s in set(gnm) for s in train_all),
+                "heldout_bfm": len(fz["bfm"]), "heldout_ict": len(fz["ict_view"]), "heldout_gnm": len(gnm_val)}},
+    indent=0) + "\n")
+smoke_all = ([s for s in bfm if s not in held][:40] + [s for s in ict if s not in held][:60] + new[:250]
+             + [s for s in gnm if s not in held][:250])
+(HERE / "split_smoke_all.json").write_text(json.dumps(
+    {"source": "split_scale_all.json ridotto per lo smoke", "train": smoke_all, "heldout": heldout_all,
+     "online_eval": online, "online_eval_extra": {"gnm": gnm_online}}, indent=0) + "\n")
+print("con GNM:", json.loads((HERE / "split_scale_all.json").read_text())["counts"], "gnm online", gnm_online[:4])

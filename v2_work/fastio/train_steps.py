@@ -387,6 +387,8 @@ def partition_blocks(train: list[str], spec: dict) -> list[list[str]]:
 
 def domain_of_name(name: str) -> str:
     num = int(name.split("_GTready_")[0][2:])
+    if 100000 <= num < 200000:          # GNM Head, come train_v2.GNM_RANGE
+        return "gnm"
     return "bfm" if num < 1000 else ("ict" if num >= 10000 else "flame")
 
 
@@ -410,12 +412,18 @@ def install_label_groups(groups: dict) -> dict:
     """Fonde etichette di topologia (es. rexpr1..4 -> rexprA) nel nome che il trainer legge."""
     import robustness.data_utils as du
     import robustness.train_runner as tr
-    inv = {lab: g for g, labs in groups.items() for lab in labs}
+    # due forme: {gruppo: [etichette]} per tutti i domini, oppure {"by_domain": {dominio: {...}}}
+    if "by_domain" in groups:
+        inv_dom = {d: {lab: g for g, labs in gr.items() for lab in labs} for d, gr in groups["by_domain"].items()}
+    else:
+        inv_dom = {None: {lab: g for g, labs in groups.items() for lab in labs}}
+    inv = inv_dom.get(None, {})
     orig = du.infer_topology_label_from_name
 
     def infer(name, subject_id):
         lab = orig(name, subject_id)
-        return inv.get(lab, lab)
+        table = inv_dom.get(domain_of_name(str(subject_id) + "_GTready_x.npz"), inv)
+        return table.get(lab, lab)
     du.infer_topology_label_from_name = infer
     tr.infer_topology_label_from_name = infer
     print(f"[steps] gruppi di etichette: {groups}", flush=True)
@@ -531,7 +539,7 @@ def install(known: argparse.Namespace) -> None:
     frozen = set()
     if known.frozen_heldout:
         fz = json.loads(Path(known.frozen_heldout).read_text())
-        frozen = set(fz["bfm"]) | set(fz["ict_view"])
+        frozen = set(fz["bfm"]) | set(fz["ict_view"]) | set(fz.get("gnm", []))
     split = json.loads(Path(known.split_json).read_text()) if known.split_json else None
 
     if split is not None and split.get("online_eval"):
@@ -589,7 +597,11 @@ def install(known: argparse.Namespace) -> None:
         online = tr._select_online_eval_subjects(eval_subjects=held,
                                                  max_subjects_eval_train=args.max_subjects_eval_train,
                                                  seed=args.seed)
-        eval_names = [n for n in ds.files if _split_name(n)[0] in set(online)]
+        extra_ids = sorted({s_ for ids in (split or {}).get("online_eval_extra", {}).values() for s_ in ids})
+        bad = sorted(set(extra_ids) - set(held))
+        if bad:
+            raise SystemExit(f"online_eval_extra: {bad[:3]} non sono held-out")
+        eval_names = [n for n in ds.files if _split_name(n)[0] in set(online) | set(extra_ids)]
         K = int(cfg["spec"].get("n_blocks", 1))
         if K > cfg["epochs"]:
             raise SystemExit(f"n_blocks={K} > epoche={cfg['epochs']}: qualche blocco non verrebbe mai addestrato")
@@ -611,9 +623,16 @@ def install(known: argparse.Namespace) -> None:
         by_sid: dict[str, list[int]] = {}
         for i, n in enumerate(ds.files):
             by_sid.setdefault(_split_name(n)[0], []).append(i)
-        sid = next((s for s in train if any("rexpr" in ds.files[i] for i in by_sid.get(s, []))), None)
-        if sid is None:
-            return
+        # un soggetto per (dominio, numero di espressioni): GNM ne ha 1 o 2, ICT nuovi 8
+        picks = {}
+        for s_ in train:
+            n_ex = sum("rexpr" in ds.files[i] for i in by_sid.get(s_, []))
+            if n_ex:
+                picks.setdefault((domain_of_name(s_ + "_GTready_x.npz"), n_ex), s_)
+        for (dom, n_ex), sid in sorted(picks.items()):
+            _expr_fraction_one(ds, by_sid, sid, f"{dom}, {n_ex} espressioni")
+
+    def _expr_fraction_one(ds, by_sid, sid, tag):
         topo: dict[str, list[int]] = {}
         for i in by_sid[sid]:
             topo.setdefault(tr.infer_topology_label_from_name(ds.files[i], sid), []).append(i)
@@ -626,7 +645,7 @@ def install(known: argparse.Namespace) -> None:
                 n_expr += "rexpr" in ds.files[idx]
         frac = n_expr / max(n_tot, 1)
         cfg["expr_fraction"] = frac
-        print(f"[steps] {sid}: etichette {sorted(topo)} -> mesh d'espressione scelte {frac:.3f} "
+        print(f"[steps] {sid} ({tag}): etichette {sorted(topo)} -> mesh d'espressione scelte {frac:.3f} "
               f"(simulazione del campionatore v1, 4000 estrazioni)", flush=True)
 
     def _names_of(k: int) -> list[str]:
@@ -723,6 +742,48 @@ def install(known: argparse.Namespace) -> None:
             STATE["steps"] = n
             return super().step(*a, **kw)
     tr.optim = _Fwd(tr.optim, Adam=CountingAdam)
+
+    # run dir, per scriverci extra_eval.csv
+    orig_make_run_dir = tr.make_run_dir
+
+    def make_run_dir(*a, **kw):
+        cfg["run_dir"] = orig_make_run_dir(*a, **kw)
+        return cfg["run_dir"]
+    tr.make_run_dir = make_run_dir
+
+    extra = (split or {}).get("online_eval_extra") or {}
+    if extra:
+        import dataclasses
+        orig_eval = tr.evaluate_subject_robustness_grid
+
+        def evaluate(*a, **kw):
+            """Eval online di sempre (sceglie i best_by_*), poi la stessa funzione su ogni insieme
+            ``online_eval_extra`` (p.es. 16 GNM di validazione): solo registrata, non sceglie niente."""
+            res = orig_eval(*a, **kw)
+            main_ctx = kw["eval_ctx"]
+            args = cfg["args"]
+            for dom, ids in extra.items():
+                key = f"extra_ctx_{dom}"
+                if key not in cfg:
+                    plan = tr.build_eval_plan(subj_map=main_ctx.subj_map, eval_subjects=ids,
+                                              max_meshes_per_subject_eval=int(args.max_meshes_per_subject_eval),
+                                              seed=int(args.seed) + 91_000)
+                    cache = tr.preload_eval_samples(dataset=main_ctx.dataset, eval_plan=plan, workers=2)
+                    cfg[key] = dataclasses.replace(main_ctx, eval_subjects=list(ids), eval_plan=plan,
+                                                   sample_cache=cache)
+                r = orig_eval(*a, **{**kw, "eval_ctx": cfg[key]})
+                vals = {k: float(r[k]) for k in ("spearman_clean", "pearson_clean", "auc_r")}
+                print(f"[steps] eval extra {dom} ({len(ids)} soggetti, passo {STATE['steps']}): "
+                      + " ".join(f"{k}={v:.4f}" for k, v in vals.items()), flush=True)
+                csv = Path(cfg["run_dir"]) / "extra_eval.csv"
+                new_file = not csv.exists()
+                with open(csv, "a") as fh:
+                    if new_file:
+                        fh.write("step,domain,n_subjects,spearman_clean,pearson_clean,auc_r\n")
+                    fh.write(f"{STATE['steps']},{dom},{len(ids)},{vals['spearman_clean']:.6f},"
+                             f"{vals['pearson_clean']:.6f},{vals['auc_r']:.6f}\n")
+            return res
+        tr.evaluate_subject_robustness_grid = evaluate
 
     if lr_steps:
         class FixedSchedule:

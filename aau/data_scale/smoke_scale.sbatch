@@ -28,6 +28,9 @@
 #       run grande: verifica il bilancio di memoria su un blocco vero
 #         WBES_DS_SMOKE=S5 WBES_DS_MEM_EVERY=5 aau/submit.sh data_scale/smoke_scale.sbatch --mem=600G --time=04:00:00
 #       (--mem largo apposta: si misura il picco vero attraverso il cambio di blocco, poi si dimensiona)
+#   S6  (7 ottobre) percorso a TRE domini del run grande: BFM + ICT-5000 dalle viste, ICT nuove e GNM dai
+#       tar via SCALE_ALL (indice unito), GT congiunta BFM+ICT+GNM, etichette d'espressione per dominio,
+#       eval online in piu' su 16 GNM di validazione; split_smoke_all.json, 2 blocchi piccoli, 600 passi
 # Split ridotto aau/data_scale/split_smoke.json (40 BFM + 60 ICT-5000 + 500 nuove in training).
 #
 #   WBES_DS_SMOKE=S1 aau/submit.sh data_scale/smoke_scale.sbatch
@@ -55,9 +58,11 @@ case "$ARM" in
       FRAME='"canon": null, "aug": null'; NB=2; T=600 ;;
   S5) BFM_SRC="\"views\": [\"$D/REMESH/npz_data_topo_500_withops_areanorm\", \"$D/ICT/train_ready/npz_withops\"], \"geom_dirs\": [], \"tar_index\": \"$SH/index.npz\""
       FRAME='"canon": null, "aug": null'; NB=2; T=2930 ;;
+  S6) BFM_SRC="\"views\": [\"$D/REMESH/npz_data_topo_500_withops_areanorm\", \"$D/ICT/train_ready/npz_withops\"], \"geom_dirs\": [], \"tar_index\": \"$D/SCALE_ALL/shards/index.npz\""
+      FRAME='"canon": null, "aug": null'; NB=2; T=600 ;;
   S2) BFM_SRC="\"views\": [\"$D/ICT/train_ready/npz_withops\"], \"geom_dirs\": [\"$D/REMESH/npz_data_topo_500\"]"
       FRAME='"canon": {"bfm": [[-1,0,0],[0,1,0],[0,0,1]]}, "aug": {"rot_deg": 180, "reflect_p": 0.5}'; NB=1; T=30 ;;
-  *) echo "WBES_DS_SMOKE=$ARM, attesi S1|S2|S3|S4|S5" >&2; exit 2 ;;
+  *) echo "WBES_DS_SMOKE=$ARM, attesi S1|S2|S3|S4|S5|S6" >&2; exit 2 ;;
 esac
 TARLIST="\"$SH/shard_00000.tar\", \"$SH/shard_00001.tar\""
 SPLIT="$AAU_DIR/data_scale/split_smoke.json"; S_EP=15; EV=10; LRB=300
@@ -76,6 +81,12 @@ json.dump({"source": "blocchi 0 e 1 della partizione del run grande", "train": k
            "heldout": split["heldout"], "online_eval": split["online_eval"]}, open(sys.argv[1], "w"))
 print("[smoke] S5:", len(blocks[0]), len(blocks[1]), "soggetti nei blocchi reali 0 e 1 ->", len(keep))
 ' "$SPLIT"
+fi
+GTF="$D/ICT_SCALE/gt_joint_bfm_ict.npz"
+if [[ "$ARM" == S6 ]]; then
+  TARLIST="\"$D/SCALE_ALL/shards/shard_00000.tar\", \"$D/SCALE_ALL/shards/gnm_shard_00000.tar\""
+  SPLIT="$AAU_DIR/data_scale/split_smoke_all.json"; GTF="$D/SCALE_ALL/gt_joint_bfm_ict_gnm.npz"
+  EXPR_GROUPS='{"by_domain": {"ict": {"rexprA": ["rexpr1","rexpr2","rexpr3","rexpr4"], "rexprB": ["rexpr5","rexpr6","rexpr7","rexpr8"]}, "gnm": {"rexprA": ["rexpr1"], "rexprB": ["rexpr2"]}}}'
 fi
 cat > "$ROOT/spec.json" <<JSON
 {$BFM_SRC, "tars": [$TARLIST],
@@ -110,7 +121,7 @@ cg_stat() {  # anon / shmem (tmpfs) / page cache in GiB, v1 (total_*) o v2
   done ) > "$ROOT/mem.log" 2>&1 &
 SAMPLER=$!
 T_THREADS=(); P_PROC=30; LR=(--plateau-patience 8)
-if [[ "$ARM" == S3 || "$ARM" == S4 || "$ARM" == S5 ]]; then
+if [[ "$ARM" == S3 || "$ARM" == S4 || "$ARM" == S5 || "$ARM" == S6 ]]; then
   T_THREADS=(--train-threads 8); P_PROC=22; LR=(--lr-steps "$LRB:5e-5"); export OMP_NUM_THREADS=8
 fi
 t0=$SECONDS
@@ -122,7 +133,7 @@ rc=0
     --domain-blocked --eval_domain bfm --gt-keep-scale "${LR[@]}" \
     --cache-residency ram --cache-workers 16 --cache-max-gb 240 --frame current \
     "${RECIPE_V1[@]}" --epochs $(( T / S_EP )) --eval_every "$EV" --save_every $(( T / S_EP )) --seed 1234 \
-    --data_dir "$STAGE/stage" --dist_npz "$D/ICT_SCALE/gt_joint_bfm_ict.npz" --runs_root "$ROOT" \
+    --data_dir "$STAGE/stage" --dist_npz "$GTF" --runs_root "$ROOT" \
     > "$ROOT/train.log" 2>&1 || rc=$?
 kill "$SAMPLER" 2> /dev/null || true
 for f in "$CGD/memory.max_usage_in_bytes" "$CGD/memory.peak"; do

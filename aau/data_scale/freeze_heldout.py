@@ -136,11 +136,13 @@ def main() -> None:
     std = set(sources["bfm_v1_seed1234"])
     joint_train = set(ws2["models"]["joint"]["train"])
     policy = {
-        "policy": "joint_exact",
+        "policy": "joint_exact+gnm_val100",
         "reason": ("congela ESATTAMENTE gli held-out del congiunto x3dmm_joint_bfm_ict_s1234_1019532, "
                    "ne' piu' ne' meno, perche' il run grande deve essere confrontabile con lui: stesso "
                    "training BFM (392 soggetti) e stessi held-out. Decisione del PI, 6 ottobre (prima: "
-                   "joint_compare = congiunto + 100 BFM standard, 189 BFM; prima ancora: unione dei 15 run)."),
+                   "joint_compare = congiunto + 100 BFM standard, 189 BFM; prima ancora: unione dei 15 run). "
+                   "7 ottobre: piu' i 100 GNM di validazione id110000-110099 (dominio di training GNM); "
+                   "HIFI3D, FaceVerse e FLAME restano domini di test, fuori dal training per costruzione."),
         "bfm_standard_100_not_frozen": {
             "n": len(std - set(pol_bfm)),
             "of_which_in_joint_1019532_training": len((std - set(pol_bfm)) & joint_train),
@@ -150,9 +152,11 @@ def main() -> None:
         "online_eval_joint_1019532": list(ws2["models"]["joint"]["online_eval"]),
         "bfm": pol_bfm,
         "ict_view": pol_ict,
+        # 7 ottobre: i 100 GNM tenuti come validazione dalla distillazione v2 (datasets/GNM_DISTILL)
+        "gnm": [f"id{i}" for i in range(110000, 110100)],
         "ict_raw": sorted(ict_view_to_raw(s) for s in pol_ict),
-        "counts": {"bfm": len(pol_bfm), "ict": len(pol_ict)},
-        "test_domains": out["test_domains"],
+        "counts": {"bfm": len(pol_bfm), "ict": len(pol_ict), "gnm": 100},
+        "test_domains": ["hifi3d", "faceverse", "flame"],
         "reserved_id_ranges": out["reserved_id_ranges"],
         "new_id_range": out["new_id_range"],
         "generation_guard": "gli shard sono stati controllati contro heldout_frozen_union15.json, che contiene questo insieme",

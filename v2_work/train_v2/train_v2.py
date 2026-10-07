@@ -84,9 +84,17 @@ SUBJECT_ID_RE = re.compile(r"^id\d+$", re.IGNORECASE)
 STATS = {"blocked_permutations": 0, "batches": 0}
 
 
+# GNM Head (datasets/GNM_DISTILL, id100000-110099) is a training domain of its own: an explicit
+# range checked BEFORE the offsets, so every id outside [100000, 200000) -- BFM, ICT, and the
+# zero-shot views at 900000+ -- keeps exactly the domain it had.
+GNM_RANGE = (100000, 200000)
+
+
 def domain_of(subject_id: str) -> str:
-    """bfm/flame/facescape/ict from the id offset (BFM 0, FLAME 1000, FaceScape 3000, ICT 10000)."""
+    """bfm/flame/facescape/ict/gnm from the id (BFM 0, FLAME 1000, FaceScape 3000, ICT 10000, GNM 100000-199999)."""
     num = int(str(subject_id).lower().lstrip("id"))
+    if GNM_RANGE[0] <= num < GNM_RANGE[1]:
+        return "gnm"
     for offset, name in DOMAIN_OFFSETS:
         if num >= offset:
             return name

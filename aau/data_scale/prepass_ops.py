@@ -56,6 +56,8 @@ SPARSE = ("L", "gradX", "gradY")
 def domain_of_name(name: str) -> str:
     """bfm/flame/ict dall'id, come train_v2.domain_of (BFM <1000, FLAME 1000-9999, ICT >=10000)."""
     num = int(name.split("_GTready_")[0][2:])
+    if 100000 <= num < 200000:          # GNM Head, come train_v2.GNM_RANGE
+        return "gnm"
     return "bfm" if num < 1000 else ("ict" if num >= 10000 else "flame")
 
 

@@ -61,9 +61,17 @@ import common  # noqa: E402  (solo I/O delle matrici e setting: legge env all'im
 from intrinsic_utils import SUBJECT_RE_ANY, load_gt_distance_matrix  # noqa: E402
 
 ARMS = ("joint", "bfm_only", "ict_only")
-ARM_LABEL = {"joint": "BFM+ICT", "bfm_only": "BFM-only", "ict_only": "ICT-only"}
+# bracci opzionali: entrano nelle tabelle SOLO se hanno risultati (senza, il summary e' quello di sempre)
+OPTIONAL_ARMS = ("scale",)
+ARM_LABEL = {"joint": "BFM+ICT", "bfm_only": "BFM-only", "ict_only": "ICT-only",
+             "scale": "BFM+ICT+GNM (10^5)"}
 ARM_CKPT_ENV = {"joint": "WBES_ZS_CKPT_JOINT", "bfm_only": "WBES_ZS_CKPT_BFM_ONLY",
-                "ict_only": "WBES_ZS_CKPT_ICT_ONLY"}
+                "ict_only": "WBES_ZS_CKPT_ICT_ONLY", "scale": "WBES_ZS_CKPT_SCALE"}
+
+
+def arm_present(runs: Path, name: str) -> bool:
+    return ((runs / name / STAGE / ".done").exists()
+            or (runs / f"{name}_topology" / STAGE / ".done").exists())
 STAGE = "zs_zeroshot"
 TOPOLOGIES = ("crop", "down8k", "noisy", "original", "remesh", "up60k")
 BL_METRICS = ("chamfer", "rigid_icp_chamfer", "nicp_p2p", "nicp_p2tri")
@@ -571,7 +579,12 @@ def write_markdown(path: Path, table, topo, bl, checks, meta, args, paired, cham
 
 
 def main() -> None:
+    global ARMS
     args = parse_args()
+    extra = tuple(a for a in OPTIONAL_ARMS if arm_present(args.runs, a + (args.variant or "")))
+    if extra:
+        ARMS = ARMS + extra
+        print(f"[zs-sum] bracci opzionali con risultati: {extra}", flush=True)
     bm = base.load_bootstrap_module()
     gts = {"maxabs": load_gt(args.gt), "coef": load_gt(args.gt_coef)}
     checks = gt_checks(gts)

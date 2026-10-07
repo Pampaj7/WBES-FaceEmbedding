@@ -73,7 +73,8 @@ CANON="${WBES_DS_CANON:-null}"
 AUG="${WBES_DS_AUG:-null}"
 EPOCHS=$(( (T + S - 1) / S ))
 D="$WBES_ROOT/datasets"
-RUN_NAME="${WBES_RUN_NAME:-scale_bfm_ict55k_s${SEED}}"
+RUN_NAME="${WBES_RUN_NAME:-scale_bfm_ict_gnm_s${SEED}}"
+SAVE_EVERY="${WBES_DS_SAVE_EVERY:-$(( EPOCHS / 10 ))}"   # checkpoint ogni ~10% (curva fuori dominio)
 RUNS_ROOT="${WBES_RUNS_ROOT:-$AAU_RUNS/data_scale_runs/${RUN_NAME}_${SLURM_JOB_ID:-manual}}"
 # un nuovo tentativo (requeue o rilancio a mano con la stessa WBES_RUNS_ROOT) non deve sovrascrivere
 if (( ${SLURM_RESTART_COUNT:-0} > 0 )); then
@@ -115,6 +116,7 @@ final_sync() {
 SYNC_PID=""
 cleanup() {
     [[ -n "$SYNC_PID" ]] && kill "$SYNC_PID" 2> /dev/null
+    [[ -n "${MEM_PID:-}" ]] && kill "$MEM_PID" 2> /dev/null
     final_sync || true
     rm -rf "$STAGE"
 }
@@ -125,33 +127,52 @@ if [[ "$CANON" == "null" ]]; then
 else
     BFM_SRC="\"views\": [\"$D/ICT/train_ready/npz_withops\"], \"geom_dirs\": [\"$D/REMESH/npz_data_topo_500\"]"
 fi
-TARS=$(find "$D/ICT_SCALE/shards" -maxdepth 1 -name 'shard_*.tar' | sort | sed 's/.*/"&"/' | paste -sd, -)
-N_TARS=$(find "$D/ICT_SCALE/shards" -maxdepth 1 -name 'shard_*.tar' | wc -l)
-[[ "$N_TARS" == 200 ]] || { echo "ERRORE: $N_TARS shard, attesi 200" >&2; exit 1; }
-[[ -f "$D/ICT_SCALE/shards/index.npz" ]] || { echo "ERRORE: indice dei tar assente (cache_budget.py index)" >&2; exit 1; }
+# dati: BFM + ICT-5000 dalle viste, ICT_SCALE (200 tar) + GNM (41 tar) co-locati in SCALE_ALL con l'indice
+# unito (build_scale_all.py)
+SH="$D/SCALE_ALL/shards"
+TARS=$(find "$SH" -maxdepth 1 -name '*shard_*.tar' | sort | sed 's/.*/"&"/' | paste -sd, -)
+N_TARS=$(find "$SH" -maxdepth 1 -name '*shard_*.tar' | wc -l)
+[[ "$N_TARS" == 241 ]] || { echo "ERRORE: $N_TARS shard in $SH, attesi 241 (200 ICT + 41 GNM)" >&2; exit 1; }
+[[ -f "$SH/index.npz" ]] || { echo "ERRORE: indice unito assente (build_scale_all.py)" >&2; exit 1; }
+GT="$D/SCALE_ALL/gt_joint_bfm_ict_gnm.npz"
+[[ -f "$GT" ]] || { echo "ERRORE: GT congiunta assente (build_scale_all.py)" >&2; exit 1; }
 cat > "$RUNS_ROOT/spec.json" <<JSON
-{$BFM_SRC, "tars": [$TARS], "tar_index": "$D/ICT_SCALE/shards/index.npz",
+{$BFM_SRC, "tars": [$TARS], "tar_index": "$SH/index.npz",
  "labels": null,
- "label_groups": {"rexprA": ["rexpr1","rexpr2","rexpr3","rexpr4"], "rexprB": ["rexpr5","rexpr6","rexpr7","rexpr8"]},
+ "label_groups": {"by_domain": {
+   "ict": {"rexprA": ["rexpr1","rexpr2","rexpr3","rexpr4"], "rexprB": ["rexpr5","rexpr6","rexpr7","rexpr8"]},
+   "gnm": {"rexprA": ["rexpr1"], "rexprB": ["rexpr2"]}}},
  "canon": $CANON, "aug": $AUG,
  "pin_domains": ["bfm"], "domain_step_share": {"bfm": $BFM_SHARE},
  "convention": "areanorm", "n_blocks": $NB, "block_seed": $SEED}
 JSON
+
+# memoria del cgroup del JOB (dove Slurm applica --mem), lato host, ogni 30 s: totale, picco, rss, /tmp
+# (shmem) e page cache. Il trainer gira nel container, dove il cgroup non si legge.
+JOBCG="/sys/fs/cgroup/memory/slurm/uid_$(id -u)/job_${SLURM_JOB_ID:-none}"
+( while [[ -r "$JOBCG/memory.usage_in_bytes" ]]; do
+    awk -v t="$(date +%F_%T)" -v u="$(cat $JOBCG/memory.usage_in_bytes)" -v p="$(cat $JOBCG/memory.max_usage_in_bytes)" '
+      $1=="total_rss"{r=$2} $1=="total_shmem"{s=$2} $1=="total_cache"{c=$2}
+      END{printf "%s usage=%.1f peak=%.1f rss=%.1f shmem=%.1f cache=%.1f GiB\n", t, u/2^30, p/2^30, r/2^30, s/2^30, c/2^30}' \
+      "$JOBCG/memory.stat" >> "$RUNS_ROOT/mem_job.log" 2> /dev/null
+    sleep 30
+  done ) &
+MEM_PID=$!
 
 echo "[scale] host=$(hostname) job=${SLURM_JOB_ID:-none} T=$T S=$S epoche=$EPOCHS blocchi=$NB lr=$LR_STEPS canon=$CANON aug=$AUG runs_root=$RUNS_ROOT"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
 CMD=(
   v2_work/fastio/train_steps.py --total-steps "$T" --steps-per-epoch "$S"
-  --split-json "$AAU_DIR/data_scale/split_scale.json"
+  --split-json "$AAU_DIR/data_scale/split_scale_all.json"
   --frozen-heldout "$AAU_DIR/data_scale/heldout_frozen.json"
   --data-spec "$RUNS_ROOT/spec.json" --stage-root "$STAGE/stage" --prepass-proc "$PREPASS_PROC"
   --train-threads "$TRAIN_THREADS"
   --domain-blocked --eval_domain bfm --gt-keep-scale --lr-steps "$LR_STEPS"
   --cache-residency ram --cache-workers 16 --cache-max-gb "$CACHE_MAX_GB" --frame current
   "${RECIPE_V1[@]}"
-  --epochs "$EPOCHS" --eval_every "$EVAL_EVERY" --save_every "$EPOCHS" --seed "$SEED"
-  --data_dir "$STAGE/stage" --dist_npz "$D/ICT_SCALE/gt_joint_bfm_ict.npz" --runs_root "$RUN_TMP"
+  --epochs "$EPOCHS" --eval_every "$EVAL_EVERY" --save_every "$SAVE_EVERY" --seed "$SEED"
+  --data_dir "$STAGE/stage" --dist_npz "$GT" --runs_root "$RUN_TMP"
 )
 printf '%q ' "${CMD[@]}" > "$RUNS_ROOT/launch.txt"; echo >> "$RUNS_ROOT/launch.txt"
 

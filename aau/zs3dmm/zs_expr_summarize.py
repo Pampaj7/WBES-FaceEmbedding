@@ -60,7 +60,9 @@ CONVENTIONS = {"bfm": "_flip", "ict": "_frame-xmymz"}
 CONV_LABEL = {"bfm": "convenzione BFM (nativa + facce invertite)", "ict": "convenzione ICT (Rx 180)"}
 # (braccio, convenzione, riferimento secondo il protocollo)
 MODEL_ROWS = (("joint", "bfm", True), ("joint", "ict", True), ("bfm_only", "bfm", True),
-              ("ict_only", "ict", True), ("bfm_only", "ict", False), ("ict_only", "bfm", False))
+              ("ict_only", "ict", True), ("bfm_only", "ict", False), ("ict_only", "bfm", False),
+              # run grande BFM+ICT+GNM (aau/data_scale): righe saltate se mancano gli embedding
+              ("scale", "bfm", True), ("scale", "ict", True))
 BL_FACEBENCH = zsum.BL_METRICS
 BL_REGION = ("chamfer_stable", "chamfer_full")
 BL_LABEL = {**zsum.BL_LABEL, "chamfer_stable": "Chamfer regione stabile",

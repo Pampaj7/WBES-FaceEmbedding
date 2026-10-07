@@ -897,3 +897,5 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 **Osservazione non pianificata:** lo smoke della distillazione dopo 2 epoche fa 0.54–0.58 su HIFI3D, contro 0.22–0.36 dopo 50 epoche. Il training lungo si specializza sui domini di training. Si terranno checkpoint intermedi per la curva fuori dominio.
 
 **Training mastodontico affidato a coder.** Sequenza: correzione OOM → dominio GNM → GT e indice uniti → smoke S5 con picco misurato → run su BFM + ICT-5000 + ICT_SCALE + GNM.
+
+**Distillazione v2 cancellata** (job 1058158 e 1058159), per liberare gli slot QOS per la direzione principale: training su scala e riconoscimento in dominio. Etichette dell'insegnante e dati GNM restano su disco.
