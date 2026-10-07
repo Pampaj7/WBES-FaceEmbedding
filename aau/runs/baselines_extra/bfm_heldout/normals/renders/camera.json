@@ -1,0 +1,17 @@
+{
+  "center": [
+    -0.004441555404060645,
+    -0.03216242290086026,
+    -0.040505568753145094
+  ],
+  "scale": 1.876468753587623,
+  "yaws": [
+    0.0,
+    -30.0,
+    30.0
+  ],
+  "n_meshes": 600,
+  "base_rotation": "none",
+  "mode": "normals",
+  "view_dir": "datasets/REMESH/npz_data_topo_500"
+}
