@@ -6,7 +6,7 @@
 #SBATCH --partition=prioritized
 #SBATCH --gres=gpu:l40s:1
 #SBATCH --cpus-per-task=32
-#SBATCH --mem=430G
+#SBATCH --mem=510G
 #SBATCH --time=72:00:00
 #SBATCH --no-requeue
 #
@@ -42,15 +42,17 @@
 # limite il pre-pass portava il training da 0.75 a ~35 s/passo (smoke S1). Requeue: --no-requeue, e una
 # run dir che contiene gia' risultati non viene mai riusata (nuova cartella _restartN / _rerunN).
 #
-# Memoria, dal cgroup (non da MaxRSS: la memoria pinned non vi compare, e qui e' spenta) [misure: smoke
-# S4 job 1056277, proiezione esatta cache_budget.py blocks job 1056278]:
-#   cache del blocco, ESATTA dagli header/indice: max 220.4 GiB sui 40 blocchi (blocco 30), min 218.0
-#   anon fisso (S4: anon 85.1 GiB = cache 41.4 + GT float64 22.9 + resto 20.8)         ~ 46 GiB
-#   /tmp (shmem) del blocco successivo durante il suo pre-pass, 5.67 MiB/mesh x 17.500  ~ 97 GiB
-#   -> ~363 GiB non recuperabili + page cache (recuperabile, 21.5 GiB in S4); --mem 430G = +18%.
-# Tempo [stima]: pre-pass di un blocco ~44 min con 22 processi; S4 (cache non pinned): 1.26-1.91
-# s/passo col pre-pass in corso, 0.73-1.11 senza (S3 pinned: 0.70-0.79); ~65 min per blocco, ~44 h.
-# train_runner non ha resume: 72 h.
+# Dati (7 ottobre): BFM 392 + ICT-5000 4.008 + ICT_SCALE 50.000 + GNM 10.000 = 64.400 soggetti di training;
+# held-out = congiunto 1019532 (108 BFM, 992 ICT) + 100 GNM di validazione (split_scale_all.json). Passi
+# per dominio: BFM 8.87% come nel congiunto (78/879), il resto a ICT e GNM in proporzione ai soggetti del
+# blocco (ICT ~77%, GNM ~14%). Espressioni per soggetto: ICT nuovi 25%, GNM 25% (2 espr.) o 14.3% (1).
+#
+# Memoria, MISURATA sul cgroup del job nello smoke S5 a blocchi reali (job 1057289, 2 blocchi da 1.743
+# soggetti, cache 218.3/218.9 GiB, attraverso il cambio di blocco): picco grezzo 432.3 GiB (comprende
+# page cache recuperabile), picco non recuperabile rss+shmem 355.8 GiB. Qui la cache massima e' 214.0 GiB
+# (-4.9) e la GT 65.600^2 float64 pesa +9.1 GiB: ~436.5 GiB grezzi, --mem 510G = +16.8%.
+# Tempo [stima da S5]: ~1.4 s/passo col pre-pass in corso, ~0.83 senza; ~2.293 passi per blocco ->
+# ~49 min di GPU + ~10 min di cambio; ~46-48 h. train_runner non ha resume: 72 h.
 set -euo pipefail
 
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
@@ -64,11 +66,11 @@ T="${WBES_DS_STEPS:-105480}"
 S="${WBES_DS_STEPS_PER_EPOCH:-293}"
 EVAL_EVERY="${WBES_DS_EVAL_EVERY:-6}"
 LR_STEPS="${WBES_DS_LR_STEPS:-81747:5e-5}"
-NB="${WBES_DS_BLOCKS:-40}"
+NB="${WBES_DS_BLOCKS:-46}"   # stratificati per dominio; cache esatta max 214.0 GiB (cache_blocks_all_K46.json)
 BFM_SHARE="${WBES_DS_BFM_SHARE:-0.0887372}"   # 78/879
 TRAIN_THREADS="${WBES_DS_TRAIN_THREADS:-8}"
 PREPASS_PROC="${WBES_DS_PREPASS_PROC:-22}"
-CACHE_MAX_GB="${WBES_DS_CACHE_MAX_GB:-240}"   # GiB; cache esatta massima 220.4 (blocco 30)
+CACHE_MAX_GB="${WBES_DS_CACHE_MAX_GB:-240}"   # GiB; cache esatta massima 214.0 (46 blocchi)
 CANON="${WBES_DS_CANON:-null}"
 AUG="${WBES_DS_AUG:-null}"
 EPOCHS=$(( (T + S - 1) / S ))
@@ -136,14 +138,16 @@ N_TARS=$(find "$SH" -maxdepth 1 -name '*shard_*.tar' | wc -l)
 [[ -f "$SH/index.npz" ]] || { echo "ERRORE: indice unito assente (build_scale_all.py)" >&2; exit 1; }
 GT="$D/SCALE_ALL/gt_joint_bfm_ict_gnm.npz"
 [[ -f "$GT" ]] || { echo "ERRORE: GT congiunta assente (build_scale_all.py)" >&2; exit 1; }
+VB="$AAU_DIR/data_scale/view_bytes_all.json"   # cache_budget.py blocks (view_bytes_out); se manca, header letti dal trainer
+VBJ=null; [[ -f "$VB" && "$CANON" == "null" ]] && VBJ="\"$VB\""
 cat > "$RUNS_ROOT/spec.json" <<JSON
-{$BFM_SRC, "tars": [$TARS], "tar_index": "$SH/index.npz",
+{$BFM_SRC, "tars": [$TARS], "tar_index": "$SH/index.npz", "view_bytes_json": $VBJ,
  "labels": null,
  "label_groups": {"by_domain": {
    "ict": {"rexprA": ["rexpr1","rexpr2","rexpr3","rexpr4"], "rexprB": ["rexpr5","rexpr6","rexpr7","rexpr8"]},
    "gnm": {"rexprA": ["rexpr1"], "rexprB": ["rexpr2"]}}},
  "canon": $CANON, "aug": $AUG,
- "pin_domains": ["bfm"], "domain_step_share": {"bfm": $BFM_SHARE},
+ "pin_domains": ["bfm"], "domain_step_share": {"bfm": $BFM_SHARE}, "stratify_blocks": true,
  "convention": "areanorm", "n_blocks": $NB, "block_seed": $SEED}
 JSON
 

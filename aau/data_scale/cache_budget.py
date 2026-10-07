@@ -151,6 +151,10 @@ def blocks_report(spec_path: Path, split_path: Path) -> dict:
     with ThreadPoolExecutor(16) as ex:
         for n, v in zip(views, ex.map(lambda n: npz_sample_bytes(Path(sources[n][1])), views)):
             cache[n] = v
+    if spec.get("view_bytes_out"):
+        # byte per campione delle viste, per il trainer (train_steps.block_gib li legge invece di
+        # rileggere gli header su CephFS a ogni blocco, ~3 min di GPU ferma a cambio)
+        Path(spec["view_bytes_out"]).write_text(json.dumps({n: cache[n] for n in views}))
     per_block = []
     for k, b in enumerate(blocks):
         names = [n for s in b for n in by_sid[s]]

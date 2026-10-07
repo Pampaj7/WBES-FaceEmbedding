@@ -11,7 +11,7 @@ set -euo pipefail
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/env.sh"
 export WBES_DS_CANON="${WBES_DS_CANON:-null}" WBES_DS_AUG="${WBES_DS_AUG:-null}"
 TAG="$( [[ "$WBES_DS_CANON" == null ]] && echo nocanon || echo canon )_$( [[ "$WBES_DS_AUG" == null ]] && echo noaug || echo aug )"
-export WBES_RUNS_ROOT="${WBES_RUNS_ROOT:-$AAU_RUNS/data_scale_runs/scale_bfm_ict55k_s${WBES_DS_SEED:-1234}_${TAG}_$(date +%Y%m%d_%H%M)}"
+export WBES_RUNS_ROOT="${WBES_RUNS_ROOT:-$AAU_RUNS/data_scale_runs/scale_bfm_ict_gnm_s${WBES_DS_SEED:-1234}_${TAG}_$(date +%Y%m%d_%H%M)}"
 mkdir -p "$WBES_RUNS_ROOT"
 TRAIN=$("$AAU_DIR/submit.sh" data_scale/train_scale.sbatch --parsable)
 # la catena legge la run dir VERA scritta dal training (puo' avere un suffisso _rerunN)

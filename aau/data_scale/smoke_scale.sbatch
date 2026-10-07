@@ -84,7 +84,7 @@ print("[smoke] S5:", len(blocks[0]), len(blocks[1]), "soggetti nei blocchi reali
 fi
 GTF="$D/ICT_SCALE/gt_joint_bfm_ict.npz"
 if [[ "$ARM" == S6 ]]; then
-  TARLIST="\"$D/SCALE_ALL/shards/shard_00000.tar\", \"$D/SCALE_ALL/shards/gnm_shard_00000.tar\""
+  TARLIST="\"$D/SCALE_ALL/shards/shard_00000.tar\", \"$D/SCALE_ALL/shards/gnm_shard_00000.tar\", \"$D/SCALE_ALL/shards/gnm_shard_00040.tar\""   # 00040: i 100 GNM di validazione
   SPLIT="$AAU_DIR/data_scale/split_smoke_all.json"; GTF="$D/SCALE_ALL/gt_joint_bfm_ict_gnm.npz"
   EXPR_GROUPS='{"by_domain": {"ict": {"rexprA": ["rexpr1","rexpr2","rexpr3","rexpr4"], "rexprB": ["rexpr5","rexpr6","rexpr7","rexpr8"]}, "gnm": {"rexprA": ["rexpr1"], "rexprB": ["rexpr2"]}}}'
 fi

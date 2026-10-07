@@ -33,9 +33,9 @@ note = f"politica {fz['policy']}: {fz['reason']}"
 (HERE / "split_scale.json").write_text(json.dumps(
     {"source": "aau/data_scale/heldout_frozen.json", "note": note, "train": train, "heldout": heldout,
      "online_eval": online,
-     "counts": {"train_bfm": sum(s in set(bfm) for s in train),
-                "train_ict5000": sum(s in set(ict) for s in train),
-                "train_ict_new": sum(s in set(new) for s in train),
+     "counts": {"train_bfm": len(set(train) & set(bfm)),
+                "train_ict5000": len(set(train) & set(ict)),
+                "train_ict_new": len(set(train) & set(new)),
                 "heldout_bfm": len(fz["bfm"]), "heldout_ict": len(fz["ict_view"])}}, indent=0) + "\n")
 smoke = ([s for s in bfm if s not in held][:40] + [s for s in ict if s not in held][:60] + new[:500])
 (HERE / "split_smoke.json").write_text(json.dumps(
@@ -58,10 +58,10 @@ heldout_all = sorted(held, key=lambda s: int(s[2:]))
 (HERE / "split_scale_all.json").write_text(json.dumps(
     {"source": "aau/data_scale/heldout_frozen.json", "note": note, "train": train_all, "heldout": heldout_all,
      "online_eval": online, "online_eval_extra": {"gnm": gnm_online},
-     "counts": {"train_bfm": sum(s in set(bfm) for s in train_all),
-                "train_ict5000": sum(s in set(ict) for s in train_all),
-                "train_ict_new": sum(s in set(new) for s in train_all),
-                "train_gnm": sum(s in set(gnm) for s in train_all),
+     "counts": {"train_bfm": len(set(train_all) & set(bfm)),
+                "train_ict5000": len(set(train_all) & set(ict)),
+                "train_ict_new": len(set(train_all) & set(new)),
+                "train_gnm": len(set(train_all) & set(gnm)),
                 "heldout_bfm": len(fz["bfm"]), "heldout_ict": len(fz["ict_view"]), "heldout_gnm": len(gnm_val)}},
     indent=0) + "\n")
 smoke_all = ([s for s in bfm if s not in held][:40] + [s for s in ict if s not in held][:60] + new[:250]

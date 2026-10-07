@@ -1,0 +1,273 @@
+{
+ "n_blocks": 44,
+ "max_gib": 220.60631266608834,
+ "min_gib": 217.71479441970587,
+ "mean_gib": 219.33436830959874,
+ "argmax": 41,
+ "blocks": [
+  {
+   "block": 0,
+   "subjects": 1848,
+   "samples": 20493,
+   "gib": 219.16811786592007
+  },
+  {
+   "block": 1,
+   "subjects": 1848,
+   "samples": 20491,
+   "gib": 219.14933376014233
+  },
+  {
+   "block": 2,
+   "subjects": 1848,
+   "samples": 20580,
+   "gib": 219.91986997425556
+  },
+  {
+   "block": 3,
+   "subjects": 1848,
+   "samples": 20520,
+   "gib": 219.39841577410698
+  },
+  {
+   "block": 4,
+   "subjects": 1848,
+   "samples": 20594,
+   "gib": 220.03935519233346
+  },
+  {
+   "block": 5,
+   "subjects": 1848,
+   "samples": 20524,
+   "gib": 219.42880990356207
+  },
+  {
+   "block": 6,
+   "subjects": 1848,
+   "samples": 20590,
+   "gib": 220.01194063946605
+  },
+  {
+   "block": 7,
+   "subjects": 1848,
+   "samples": 20583,
+   "gib": 219.94451559707522
+  },
+  {
+   "block": 8,
+   "subjects": 1848,
+   "samples": 20576,
+   "gib": 219.88471705839038
+  },
+  {
+   "block": 9,
+   "subjects": 1848,
+   "samples": 20503,
+   "gib": 219.24894594028592
+  },
+  {
+   "block": 10,
+   "subjects": 1848,
+   "samples": 20445,
+   "gib": 218.74509334936738
+  },
+  {
+   "block": 11,
+   "subjects": 1848,
+   "samples": 20451,
+   "gib": 218.80041668191552
+  },
+  {
+   "block": 12,
+   "subjects": 1847,
+   "samples": 20514,
+   "gib": 219.34361588582397
+  },
+  {
+   "block": 13,
+   "subjects": 1847,
+   "samples": 20554,
+   "gib": 219.69132639467716
+  },
+  {
+   "block": 14,
+   "subjects": 1847,
+   "samples": 20540,
+   "gib": 219.57171495631337
+  },
+  {
+   "block": 15,
+   "subjects": 1847,
+   "samples": 20486,
+   "gib": 219.10593716800213
+  },
+  {
+   "block": 16,
+   "subjects": 1847,
+   "samples": 20614,
+   "gib": 220.2110591866076
+  },
+  {
+   "block": 17,
+   "subjects": 1847,
+   "samples": 20420,
+   "gib": 218.53466248884797
+  },
+  {
+   "block": 18,
+   "subjects": 1847,
+   "samples": 20576,
+   "gib": 219.874591127038
+  },
+  {
+   "block": 19,
+   "subjects": 1847,
+   "samples": 20477,
+   "gib": 219.0227420516312
+  },
+  {
+   "block": 20,
+   "subjects": 1846,
+   "samples": 20377,
+   "gib": 218.14950351417065
+  },
+  {
+   "block": 21,
+   "subjects": 1846,
+   "samples": 20476,
+   "gib": 219.01373794674873
+  },
+  {
+   "block": 22,
+   "subjects": 1846,
+   "samples": 20445,
+   "gib": 218.7421564757824
+  },
+  {
+   "block": 23,
+   "subjects": 1846,
+   "samples": 20327,
+   "gib": 217.71479441970587
+  },
+  {
+   "block": 24,
+   "subjects": 1846,
+   "samples": 20561,
+   "gib": 219.74981417134404
+  },
+  {
+   "block": 25,
+   "subjects": 1846,
+   "samples": 20496,
+   "gib": 219.17987948656082
+  },
+  {
+   "block": 26,
+   "subjects": 1846,
+   "samples": 20487,
+   "gib": 219.10828229784966
+  },
+  {
+   "block": 27,
+   "subjects": 1846,
+   "samples": 20548,
+   "gib": 219.63662522286177
+  },
+  {
+   "block": 28,
+   "subjects": 1846,
+   "samples": 20590,
+   "gib": 219.99926679953933
+  },
+  {
+   "block": 29,
+   "subjects": 1846,
+   "samples": 20547,
+   "gib": 219.6266727782786
+  },
+  {
+   "block": 30,
+   "subjects": 1846,
+   "samples": 20433,
+   "gib": 218.64207626134157
+  },
+  {
+   "block": 31,
+   "subjects": 1846,
+   "samples": 20532,
+   "gib": 219.49710581079125
+  },
+  {
+   "block": 32,
+   "subjects": 1846,
+   "samples": 20423,
+   "gib": 218.54438587650657
+  },
+  {
+   "block": 33,
+   "subjects": 1846,
+   "samples": 20544,
+   "gib": 219.59807592630386
+  },
+  {
+   "block": 34,
+   "subjects": 1846,
+   "samples": 20560,
+   "gib": 219.73491839319468
+  },
+  {
+   "block": 35,
+   "subjects": 1846,
+   "samples": 20561,
+   "gib": 219.74655210226774
+  },
+  {
+   "block": 36,
+   "subjects": 1846,
+   "samples": 20569,
+   "gib": 219.8145801126957
+  },
+  {
+   "block": 37,
+   "subjects": 1846,
+   "samples": 20550,
+   "gib": 219.65813236311078
+  },
+  {
+   "block": 38,
+   "subjects": 1846,
+   "samples": 20462,
+   "gib": 218.89182266965508
+  },
+  {
+   "block": 39,
+   "subjects": 1846,
+   "samples": 20504,
+   "gib": 219.25364562496543
+  },
+  {
+   "block": 40,
+   "subjects": 1846,
+   "samples": 20535,
+   "gib": 219.52246949449182
+  },
+  {
+   "block": 41,
+   "subjects": 1846,
+   "samples": 20660,
+   "gib": 220.60631266608834
+  },
+  {
+   "block": 42,
+   "subjects": 1846,
+   "samples": 20412,
+   "gib": 218.45054242014885
+  },
+  {
+   "block": 43,
+   "subjects": 1846,
+   "samples": 20444,
+   "gib": 218.73567179217935
+  }
+ ]
+}

@@ -245,6 +245,9 @@ class BlockedDataset:
         """
         sys.path.insert(0, str(REPO_ROOT / "aau/data_scale"))
         from cache_budget import load_index, npz_sample_bytes, predicted_bytes
+        if "view_bytes" not in self.cfg and self.cfg.get("view_bytes_json"):
+            self.cfg["view_bytes"] = {k: int(v) for k, v in json.loads(Path(self.cfg["view_bytes_json"]).read_text()).items()}
+            print(f"[steps] byte delle viste da {self.cfg['view_bytes_json']} ({len(self.cfg['view_bytes'])} file)", flush=True)
         vb = self.cfg.setdefault("view_bytes", {})
         tar_names = [n for n in names if self.sources[n][0] == "tar"]
         if tar_names and "index" not in self.cfg:
@@ -380,9 +383,21 @@ def partition_blocks(train: list[str], spec: dict) -> list[list[str]]:
     pinned_dom = set(spec.get("pin_domains") or [])
     pinned = sorted(s for s in train if domain_of_name(s + "_GTready_x.npz") in pinned_dom)
     rest = [s for s in train if s not in set(pinned)]
-    perm = rng.permutation(np.array(rest, dtype=object)).tolist()
     K = int(spec.get("n_blocks", 1))
-    return [sorted(perm[k::K] + pinned) for k in range(K)]
+    if not spec.get("stratify_blocks"):
+        perm = rng.permutation(np.array(rest, dtype=object)).tolist()
+        return [sorted(perm[k::K] + pinned) for k in range(K)]
+    # stratificata per dominio (run con GNM): ogni dominio permutato e distribuito a strisce per conto
+    # suo, cosi' ogni blocco ha lo stesso numero di soggetti per dominio (+-1). Con la striscia sulla
+    # permutazione mista i GNM per blocco varierebbero di ~+-15 attorno a ~217, sotto i 210 che servono
+    # a un'epoca (nessun soggetto due volte nella stessa epoca).
+    blocks: list[list[str]] = [list(pinned) for _ in range(K)]
+    for dom in sorted({domain_of_name(s + "_GTready_x.npz") for s in rest}):
+        pool = sorted(s for s in rest if domain_of_name(s + "_GTready_x.npz") == dom)
+        perm = rng.permutation(np.array(pool, dtype=object)).tolist()
+        for k in range(K):
+            blocks[k] += perm[k::K]
+    return [sorted(b) for b in blocks]
 
 
 def domain_of_name(name: str) -> str:
@@ -824,7 +839,7 @@ def install(known: argparse.Namespace) -> None:
             "prepass_proc": int(known.prepass_proc), "cache_workers": int(known.cache_workers),
             "cache_residency": known.cache_residency, "cache_max_gb": float(known.cache_max_gb),
             "device": None, "canon": spec.get("canon") or None, "aug": aug, "train_set": set(),
-            "tar_index": spec.get("tar_index"),
+            "tar_index": spec.get("tar_index"), "view_bytes_json": spec.get("view_bytes_json"),
             "aug_rng": np.random.default_rng(int(spec.get("aug_seed", 0)))})
         print(f"[steps] frame: canon={spec.get('canon') or 'spento'} aug={aug or 'spento'}", flush=True)
         if not known.pin_cache:

@@ -453,6 +453,41 @@ Configurazione come il run grande: 8 thread di training, 22 processi di pre-pass
 - **Verifica**: smoke S5 (job 1057289, L40S, `--mem=600G` per misurare il picco senza essere
   uccisi), 2 blocchi di grandezza reale, cgroup del job campionato ogni 5 s attraverso il cambio.
 
+### Smoke S5 a blocchi reali e run lungo con GNM (7 ottobre)
+
+- **S5** (job 1057289, L40S, `--mem=600G`; due blocchi da 1743 soggetti dei blocchi 0 e 1 reali; cgroup
+  del job campionato ogni 5 s con `srun --overlap`, perché il campionatore dello script era rotto):
+  - cambio di blocco: RSS da 250.4 a **29.6 GiB** dopo `gc` + `malloc_trim`, poi 252.5 con il blocco 1;
+  - **picco non recuperabile (rss + shmem) 355.8 GiB**, durante il training del blocco 0 con il blocco 1
+    su `/tmp`; picco grezzo del cgroup **432.3 GiB**, compresa la page cache [M].
+- **Dominio `gnm`** (100000 ≤ id < 200000) in `train_v2.domain_of`, `train_steps.domain_of_name` e
+  `prepass_ops.domain_of_name`. Ogni id fuori da quel range mantiene il dominio di prima (verificato,
+  compresi 200000 e 900000+).
+- **Dati**: `datasets/SCALE_ALL` (`build_scale_all.py`, job 1058498): 241 tar collegati (200 ICT + 41
+  GNM), indice unito da 775.788 membri, GT congiunta 65.600 (BFM 0.834, ICT 1.186 alla scala attuale,
+  GNM 1.0, NaN fra domini).
+- **Split** `split_scale_all.json`: in training BFM 392, ICT-5000 4008, ICT nuove 50.000, GNM 10.000
+  (64.400 soggetti); congelati gli held-out del congiunto (108 BFM, 992 ICT) più 100 GNM di
+  validazione. HIFI3D, FaceVerse e FLAME sono fuori per costruzione.
+- **Ricetta**:
+  - 105.480 passi come il congiunto, perché il confronto sia a parità di calcolo, e per la nota sulla
+    specializzazione non aggiungo passi;
+  - S = 293, lr 1e-4 e poi 5e-5 dal passo 81.748;
+  - quota di passi: BFM 8.87% (come nel congiunto), il resto a ICT e GNM in proporzione ai soggetti
+    del blocco (circa 77% e 14%);
+  - espressioni scelte per soggetto: ICT nuovi 25%, GNM 25% (con 2 espressioni) o 14.2% (con 1).
+- **Eval online**: i 16 BFM del congiunto (scelgono i `best_by_*`) più 16 GNM di validazione, solo
+  registrati in `extra_eval.csv`. Checkpoint ogni 36 epoche (10%), per la curva fuori dominio.
+- **Blocchi**: 46, stratificati per dominio, perché con la striscia mista alcuni blocchi avrebbero
+  avuto meno GNM di quanti ne serva un'epoca. Cache esatta massima 214.0 GiB, sotto i 218.9 di S5.
+- **Memoria**: 432.3 GiB (S5) − 4.9 (cache) + 9.1 (GT da 65.600²) ≈ 436.5 GiB; `--mem=510G` = +16.8%.
+- **Smoke S6** (job 1059051): percorso a tre domini dai tar via indice unito, GT congiunta, eval GNM,
+  2 blocchi, 600/600 passi, rc 0 [M].
+- **Run lungo: job 1060130** (L40S `a768-l40s-02`, partito il 7 ottobre alle 14:12), catena di eval
+  1060131. Le tre celle ws2 del congiunto, lo zero-shot HIFI3D e FaceVerse (braccio `scale` in
+  `aau/zs3dmm`) e il test FaceVerse con espressioni (`zs_expr_summarize`). Stima: circa 60 minuti per
+  blocco, circa 46-48 ore.
+
 ## 7. Stato degli script in `aau/data_scale/`
 
 | file | stato |

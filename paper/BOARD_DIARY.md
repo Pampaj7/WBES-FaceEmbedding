@@ -899,3 +899,9 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 **Training mastodontico affidato a coder.** Sequenza: correzione OOM → dominio GNM → GT e indice uniti → smoke S5 con picco misurato → run su BFM + ICT-5000 + ICT_SCALE + GNM.
 
 **Distillazione v2 cancellata** (job 1058158 e 1058159), per liberare gli slot QOS per la direzione principale: training su scala e riconoscimento in dominio. Etichette dell'insegnante e dati GNM restano su disco.
+
+**Training mastodontico partito (7 ottobre, 14:12):** job 1060130, catena di eval 1060131. Run dir `aau/runs/data_scale_runs/scale_bfm_ict_gnm_s1234_nocanon_noaug_20261007_1411`.
+- **Dati:** 64.400 soggetti (BFM 392, ICT-5000 4008, ICT nuove 50.000, GNM 10.000); 105.480 passi; 46 blocchi; checkpoint ogni 10%.
+- **Causa dell'OOM:** la memoria non tornava al sistema. Corretto con gc.collect() + malloc_trim(0) al cambio di blocco. S5 ha misurato un picco non recuperabile di 356 GiB; --mem 510G (+16.8%).
+- **Stima:** 46-48 h. Da controllare il primo cambio di blocco in mem_job.log.
+- **Stop per limite d'uso.**
