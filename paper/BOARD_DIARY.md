@@ -942,3 +942,5 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Il riconoscimento fra ricostruzioni** (stesso metodo, stessa storia della mesh) è affidabile: il latente è ultimo.
 - **Formulazione:** "su ricostruzioni reali il latente attuale è la metrica meno concorde con NoW, e la storia della mesh è un confondente misurato".
 - **Correzioni del summary e fragilità di `--overwrite`:** affidate.
+
+**Studio umano:** la condivisione è in sola visualizzazione, quindi i partecipanti non scrivono nel db. Primo JSON manuale salvato in `aau/human_study/responses_manual/` (P0EKZC2T, controlli 4/4). Partecipanti validi: 2 (utente + P0EKZC2T).
