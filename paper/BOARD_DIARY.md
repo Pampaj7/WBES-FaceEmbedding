@@ -887,3 +887,5 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - il fuori dominio è un limite dichiarato, con analisi.
 
 **Mancano:** riconoscimento IN DOMINIO con etichette (risponde alla critica di circolarità della GT) contro NICP, ICP, Chamfer e ArcFace, più i tempi. Lanciato (`aau/runs/indomain_recog/`). La distillazione v2 continua come estensione dello stesso encoder.
+
+**Piano di risposta alle critiche:** `paper/REBUTTAL_PLAN.md`, 11 punti con azione e stato. Priorità: training mastodontico (valanga + GNM) e valutazione su ricostruzione reale. La distillazione v2 passa in pausa: l'agente completa solo i dati GNM, che servono al training su scala.
