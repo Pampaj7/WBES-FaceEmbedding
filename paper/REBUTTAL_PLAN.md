@@ -37,3 +37,20 @@ Scritto il 7 ottobre 2026. Obiettivo: risolvere le critiche dei reviewer e risot
 **Da riusare:**
 - elementi del loro protocollo umano (istruzioni "ignora lo shading", sessione di prova, controllo dei partecipanti, PLCC e SRCC);
 - Besnier 2023 e Ma 2021 come baseline, se il codice è disponibile.
+
+## Passo successivo deciso con l'utente (7 ottobre): modello di massima generalizzazione
+
+Parte dopo i risultati del training su scala (job 1060130), se quei risultati mostrano che la varietà aiuta fuori dominio.
+
+**Dati:** tutti i 3DMM (BFM, ICT-55k, GNM, FLAME 2020/2023 Open, FaceScape bilineare, HIFI3D, FaceVerse) e scansioni reali con identità (FaMoS; FaceScape completo se arriva la licenza; Multiface).
+
+**Training:**
+- GT di distanza solo dentro ciascun 3DMM;
+- perdita contrastiva d'identità sulle scansioni reali (stessa persona con espressioni diverse);
+- opzionale, distillazione da ArcFace;
+- frame canonico con augmentation di rotazione, normalizzazione di scala coerente, varie storie di tassellazione, deformazioni casuali;
+- modello più grande, multi-GPU con cache condivisa.
+
+**Valutazione:** leave-one-3DMM-out più il modello finale testato solo su domini mai visti (NoW e persone reali escluse dal training).
+
+**Dall'utente:** scaricare FaMoS (registrazione MPI già fatta).
