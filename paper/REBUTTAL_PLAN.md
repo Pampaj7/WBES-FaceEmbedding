@@ -22,3 +22,18 @@ Scritto il 7 ottobre 2026. Obiettivo: risolvere le critiche dei reviewer e risot
 - **FaceScape completo:** modulo firmato da un DOCENTE (gli studenti sono esclusi). Il bilineare v1.6 è scaricabile senza chiave e lo scarichiamo noi.
 - **Facoltativo:** il form del NeRSemble Benchmark (secondo set reale con riferimento 3D).
 - Licenze verificate in `literature/DATA_ACCESS_2026-10-07.md`.
+
+## Lavoro più vicino: Lee et al., ACM TOMM 2025 (`literature/LEE2025_NOTES.md`)
+
+**Cosa fanno:** render a 5 viste (profondità e normali); VGG19 addestrata con triplet loss sull'identità; SVR verso il MOS umano (25 partecipanti, 200 coppie, BT.500); scansioni reali (FRGCv2, BU-3DFE, Bosphorus, ...); solo baseline geometriche; robustezza provata solo al sotto-campionamento.
+
+**Come ci differenziamo:**
+- mesh nativa, senza render né landmark;
+- invarianza alla CONNETTIVITÀ (remesh) e non solo alla risoluzione;
+- baseline percettive su render (ArcFace, LPIPS);
+- espressioni;
+- valutazione cross-3DMM e su ricostruzioni (NoW).
+
+**Da riusare:**
+- elementi del loro protocollo umano (istruzioni "ignora lo shading", sessione di prova, controllo dei partecipanti, PLCC e SRCC);
+- Besnier 2023 e Ma 2021 come baseline, se il codice è disponibile.
