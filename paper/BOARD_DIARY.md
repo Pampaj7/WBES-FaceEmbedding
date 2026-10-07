@@ -852,3 +852,25 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - Dati: BFM + ICT-5000.
 - Test: FaceVerse expr e HIFI3D.
 - Criterio: battere il congiunto e raggiungere almeno l'80% del rank-1 dell'insegnante.
+
+## 7 ottobre, notte: pilota della distillazione, NON PASSA (`aau/runs/distill_pilot/summary.md`)
+
+**Configurazione.** Studente DiffusionNet a 512 dimensioni, insegnante ArcFace a normal map sulla `original`, training su BFM + ICT-5000 (6590 mesh), 50 epoche, loss puntuale + relazionale.
+
+**Rank-1, protocollo primario:**
+
+| | FaceVerse expr | HIFI3D |
+|---|---|---|
+| studente, conv. BFM | 0.332 | 0.224 |
+| studente, conv. ICT | 0.570 | 0.355 |
+| congiunto | 0.680 | 0.397 |
+| insegnante a normal map | 0.867 | 0.998 |
+
+- **Contro il congiunto:** −0.348 su FaceVerse e −0.173 su HIFI3D.
+- **In dominio:** validazione rank-1 0.91, ma il coseno con l'insegnante è solo 0.62.
+
+**Lettura.** Lo studente impara la mappa solo sulla distribuzione d'ingresso che vede (2 3DMM) e dipende dal frame: distillare non trasferisce la generalità dell'insegnante se gli input sono poco vari.
+
+**Costo dell'insegnante:** circa 1.4–2.4 CPU-s per mesh, quindi a scala è economico.
+
+**Prossima decisione (all'utente):** tentativo con input molto più vari (GNM campionabile senza limiti, valanga ICT, deformazioni casuali, frame canonico + augmentation di rotazione) oppure stop.
