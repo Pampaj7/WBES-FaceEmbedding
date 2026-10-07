@@ -916,3 +916,9 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 **7 ottobre pomeriggio: FLAME e NoW caricati dall'utente** (`external_data/`, ora in .gitignore).
 - **FLAME:** estratto in `v2_work/genflame/official/` (ignorato da git). Zero-shot lanciato: build 1060215, congiunto 1060216, BFM-only 1060217, baseline 1060218.
 - **NoW:** affidato a coder (dati in ~/data/now, codice ufficiale, ricostruzioni 3DDFA-V2 e altri, metriche, identità su reale).
+
+**Critic sul riconoscimento in dominio:** (1) RISERVE, (2) BLOCCANTE, (3) BLOCCANTE, (4) VIA LIBERA.
+- **(2) Il crollo di NICP sul crop è un artefatto di preprocessing.** Area unitaria + maxabs per mesh + ICP rigido senza scala. Con ICP di similarità NICP fa 1.000 sul crop (40 soggetti). Inoltre il congiunto ha il crop nel training. **La frase "più robusta della registrazione sul crop" è ritirata.**
+- **(3) Tempi da riformulare.** Il congiunto vince solo nella RICERCA su una galleria già iscritta. L'iscrizione costa 2.3 s per mesh, dello stesso ordine di un NICP su template (circa 1.4 s, stima). Il nodo era condiviso: misure da rifare.
+- **(1) Soffitto a N = 100.** Estrapolando, a N = 10.000 su BFM il congiunto probabilmente scende sotto NICP, mentre su ICT resta sopra. Galleria ICT di 992 held-out disponibile senza generare nulla. ArcFace non configurato al meglio (camera fissa, normali per faccia).
+- **Correzioni affidate a coder:** ICP di similarità come standard, NICP su template, galleria 992, tempi su nodo esclusivo, ArcFace migliorato.
