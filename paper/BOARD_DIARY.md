@@ -912,3 +912,7 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Espressioni ICT (solo original):** congiunto 0.822, il peggiore. NICP 0.905, Chamfer 0.867, ArcFace 1.000.
 - **Tempi:** embedding 2.3 s/mesh (operatori), confronto 2.3 µs, ricerca 1:10.000 in 2.2 ms su CPU. NICP 1.42 s per coppia, quindi una ricerca 1:10.000 costerebbe circa 4 h.
 - **Lettura:** in dominio il congiunto è pari a NICP a costo per confronto circa 600.000 volte più basso, e molto più robusto di NICP al crop. Debole sulle espressioni: il training su scala, con espressioni, deve correggerlo.
+
+**7 ottobre pomeriggio: FLAME e NoW caricati dall'utente** (`external_data/`, ora in .gitignore).
+- **FLAME:** estratto in `v2_work/genflame/official/` (ignorato da git). Zero-shot lanciato: build 1060215, congiunto 1060216, BFM-only 1060217, baseline 1060218.
+- **NoW:** affidato a coder (dati in ~/data/now, codice ufficiale, ricostruzioni 3DDFA-V2 e altri, metriche, identità su reale).
