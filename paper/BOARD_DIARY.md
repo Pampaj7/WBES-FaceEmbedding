@@ -889,3 +889,11 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 **Mancano:** riconoscimento IN DOMINIO con etichette (risponde alla critica di circolarità della GT) contro NICP, ICP, Chamfer e ArcFace, più i tempi. Lanciato (`aau/runs/indomain_recog/`). La distillazione v2 continua come estensione dello stesso encoder.
 
 **Piano di risposta alle critiche:** `paper/REBUTTAL_PLAN.md`, 11 punti con azione e stato. Priorità: training mastodontico (valanga + GNM) e valutazione su ricostruzione reale. La distillazione v2 passa in pausa: l'agente completa solo i dati GNM, che servono al training su scala.
+
+**Dati GNM pronti** (`datasets/GNM_DISTILL/`): 10.100 identità, 75.788 mesh (6 topologie + 1-2 espressioni), volto `hockey_mask` da 9.022 vertici, GT maxabs, 16 GB, PNG di controllo verificati.
+
+**Distillazione v2:** i due training (1058158 completo, 1058159 senza GNM) restano accesi senza eval. Le etichette dell'insegnante sono generate (20k ICT, 20k GNM).
+
+**Osservazione non pianificata:** lo smoke della distillazione dopo 2 epoche fa 0.54–0.58 su HIFI3D, contro 0.22–0.36 dopo 50 epoche. Il training lungo si specializza sui domini di training. Si terranno checkpoint intermedi per la curva fuori dominio.
+
+**Training mastodontico affidato a coder.** Sequenza: correzione OOM → dominio GNM → GT e indice uniti → smoke S5 con picco misurato → run su BFM + ICT-5000 + ICT_SCALE + GNM.
