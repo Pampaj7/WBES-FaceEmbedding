@@ -905,3 +905,10 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Causa dell'OOM:** la memoria non tornava al sistema. Corretto con gc.collect() + malloc_trim(0) al cambio di blocco. S5 ha misurato un picco non recuperabile di 356 GiB; --mem 510G (+16.8%).
 - **Stima:** 46-48 h. Da controllare il primo cambio di blocco in mem_job.log.
 - **Stop per limite d'uso.**
+
+**Riconoscimento in dominio + tempi** (`aau/runs/indomain_recog/summary.md`, protocollo pre-dichiarato; critic non ancora passato).
+- **Senza crop, rank-1:** congiunto BFM 0.998, ICT 1.000, pari a NICP (1.000). Sopra ICP (0.934/0.670), Chamfer (0.652/0.381) e ArcFace-normali (0.981/0.981).
+- **Crop:** congiunto 0.944/0.993, contro NICP 0.686/0.600 e Chamfer 0.04/0.10. ArcFace 0.984/0.993, leggermente sopra su BFM.
+- **Espressioni ICT (solo original):** congiunto 0.822, il peggiore. NICP 0.905, Chamfer 0.867, ArcFace 1.000.
+- **Tempi:** embedding 2.3 s/mesh (operatori), confronto 2.3 µs, ricerca 1:10.000 in 2.2 ms su CPU. NICP 1.42 s per coppia, quindi una ricerca 1:10.000 costerebbe circa 4 h.
+- **Lettura:** in dominio il congiunto è pari a NICP a costo per confronto circa 600.000 volte più basso, e molto più robusto di NICP al crop. Debole sulle espressioni: il training su scala, con espressioni, deve correggerlo.
