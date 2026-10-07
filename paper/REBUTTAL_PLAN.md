@@ -17,5 +17,8 @@ Scritto il 7 ottobre 2026. Obiettivo: risolvere le critiche dei reviewer e risot
 | 11 | Novità tecnica limitata (bhBZ) | Scala, multi-3DMM, protocollo di riconoscimento, analisi dei confondenti (frame, supporto, GT), tempi contro la registrazione. | In corso. |
 
 ## Cosa serve dall'utente
-- Distribuire lo studio umano (300 triplette).
-- Registrarsi a NoW; richiedere la licenza FLAME (e FaceScape, BU-3DFE via supervisore, se servono).
+- Distribuire lo studio umano: https://claude.ai/code/artifact/204feff5-053b-44ce-aa7f-53b49182bacc (provarlo, condividerlo, 25-30 partecipanti).
+- **Una sola registrazione MPI** (is.tue.mpg.de) per NoW, FLAME e FaMoS.
+- **FaceScape completo:** modulo firmato da un DOCENTE (gli studenti sono esclusi). Il bilineare v1.6 è scaricabile senza chiave e lo scarichiamo noi.
+- **Facoltativo:** il form del NeRSemble Benchmark (secondo set reale con riferimento 3D).
+- Licenze verificate in `literature/DATA_ACCESS_2026-10-07.md`.
