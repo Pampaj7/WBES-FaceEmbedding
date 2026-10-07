@@ -7,7 +7,8 @@
 #SBATCH --gres=gpu:l40s:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=48G
-#SBATCH --time=01:30:00
+#SBATCH --time=01:00:00
+#SBATCH --exclusive
 #
 # Riconoscimento in dominio, tempi (aau/indomain/ir_timing.py): modello, faceBench e ArcFace in
 # fila nello stesso job, cioe' sullo stesso nodo e con lo stesso hardware. Parti CPU a un thread.
@@ -18,6 +19,9 @@
 #
 # --cpus-per-task=4: tutto gira a un thread, ma il job non deve contendersi il core coi propri
 # processi di contorno (singularity, I/O).
+# --exclusive (revisione 1 del protocollo): la prima misura (job 1058495) girava su un nodo che
+# ospitava un job faceBench da 48 core; qui il nodo e' tutto nostro. Vuole anche le iscrizioni del
+# template (ir_template.sbatch) e la calibrazione di arcface_best (WBES_IR_ARCFACE_BEST=1).
 set -euo pipefail
 
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
@@ -34,7 +38,7 @@ echo "[ir-timing] host=$(hostname) job=${SLURM_JOB_ID:-none} out=$OUT"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 lscpu | grep -E "Model name|^CPU\(s\)" || true
 
-for part in ${WBES_IR_TIMING_PARTS:-model facebench arcface}; do
+for part in ${WBES_IR_TIMING_PARTS:-model facebench template arcface}; do
     case "$part" in
         model)
             (
@@ -45,13 +49,13 @@ for part in ${WBES_IR_TIMING_PARTS:-model facebench arcface}; do
                 "$AAU_DIR/run.sh" aau/indomain/ir_timing.py model --stage-dir "$STAGE" --out "$OUT/model.json" \
                     -- "${common_args[@]}" --subject_split all --max_subjects 0
             ) ;;
-        facebench)
-            AAU_NV="" "$AAU_DIR/outlineB/run_o3d.sh" aau/indomain/ir_timing.py facebench --stage-dir "$STAGE" \
-                --out "$OUT/facebench.json" ;;
+        facebench|template)
+            AAU_NV="" "$AAU_DIR/outlineB/run_o3d.sh" aau/indomain/ir_timing.py "$part" --stage-dir "$STAGE" \
+                --out "$OUT/$part.json" ;;
         arcface)
             AAU_NV="" "$AAU_DIR/baselines/run_bl.sh" aau/indomain/ir_timing.py arcface --stage-dir "$STAGE" \
                 --out "$OUT/arcface.json" ;;
-        *) echo "ERRORE: parte sconosciuta: $part (model|facebench|arcface)" >&2; exit 2 ;;
+        *) echo "ERRORE: parte sconosciuta: $part (model|facebench|template|arcface)" >&2; exit 2 ;;
     esac
 done
 echo "[ir-timing] OK"

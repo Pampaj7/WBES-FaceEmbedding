@@ -17,6 +17,8 @@
 # (serve solo a filtrare i soggetti). Frame nativo dei dati: niente trasformazioni.
 #
 #   aau/submit.sh indomain/ir_embed.sbatch
+#   WBES_IR_EMBED_COMBOS=joint:ict992 aau/submit.sh indomain/ir_embed.sbatch --time=02:00:00
+#     (galleria grande, revisione 1 del protocollo: 5952 mesh lette da CephFS)
 #
 # Output: aau/runs/indomain_recog/embeddings/<modello>__<insieme>.npz
 set -euo pipefail
@@ -33,11 +35,13 @@ declare -A VIEW=(
     [bfm]="$WBES_ROOT/datasets/WS2_CROSS3DMM/joint__bfm"
     [ict]="$WBES_ROOT/datasets/WS2_CROSS3DMM/joint__ict"
     [rexpr]="$WBES_ROOT/datasets/INDOMAIN_RECOG/joint__rexpr6"
+    [ict992]="$WBES_ROOT/datasets/INDOMAIN_RECOG/joint__ict992"
 )
 declare -A GT=(
     [bfm]="$WBES_ROOT/face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz"
     [ict]="$WBES_ROOT/datasets/ICT/train_ready/gt_matrix.npz"
     [rexpr]="$WBES_ROOT/datasets/ICT/train_ready/gt_matrix.npz"
+    [ict992]="$WBES_ROOT/datasets/ICT/train_ready/gt_matrix.npz"
 )
 OUT="$AAU_RUNS/indomain_recog/embeddings"
 mkdir -p "$OUT"

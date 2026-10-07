@@ -30,6 +30,14 @@ Cosa cambia rispetto a Multiface:
    stesso riquadro del volto, quindi si copia ``arcface_align.json`` dai render ombreggiati
    (``--calibration-from``) e la differenza fra le due righe e' solo l'aspetto del render.
 
+4. Due flag della configurazione "migliore" (aau/runs/indomain_recog/protocol.md, revisione 1), con
+   default che lasciano tutto come prima (i risultati di aau/runs/arcface_render_zs non cambiano):
+   ``--camera mesh`` inquadra OGNI mesh da sola invece di una camera unica per dominio: centro ed
+   estensione dai vertici dentro i percentili 0.5-99.5 per asse, cosi' un vertice isolato (``noisy``)
+   non rimpicciolisce il volto; ``camera.json`` tiene allora ``per_mesh`` e la normal map la rilegge.
+   ``--normals vertex``: normali di faccia girate verso la camera, mediate per area sui vertici, e
+   colore del triangolo = media normalizzata delle sue tre normali di vertice (normali smussate).
+
 Scrive ``<out-root>/arcface_views.npz``: ``E`` (n_mesh, n_yaw, 512) float32 L2-normalizzati per
 vista, ``subjects``, ``topologies``, ``yaws``; e in ``<out-root>/control/`` i png di controllo
 (render delle 6 topologie e delle 3 viste, e i ritagli 112x112 che vede ArcFace).
@@ -70,6 +78,7 @@ BASE_ROTATIONS = {"none": np.eye(3), "x180": np.diag([1.0, -1.0, -1.0]),
 _VIEW_DIR: Path | None = None
 _ROT = np.eye(3)
 _MODE = "shaded"
+_SMOOTH = False
 
 
 def parse_args() -> argparse.Namespace:
@@ -87,6 +96,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--frame-check", type=int, default=0,
                    help=">0: solo il controllo del frame sui primi N soggetti, poi esce")
+    p.add_argument("--camera", choices=("domain", "mesh"), default="domain",
+                   help="domain: camera unica per dominio (default storico); mesh: inquadratura per mesh")
+    p.add_argument("--normals", choices=("face", "vertex"), default="face",
+                   help="--mode normals: normali di faccia (default storico) o smussate per vertice")
     p.add_argument("--overwrite", action="store_true")
     a = p.parse_args()
     # Attributi che calibrate_arcface / stage_embed di ws3a_perceptual leggono da args.
@@ -106,14 +119,31 @@ def load_verts_faces(view_dir: Path, subject: str, topology: str, rot: np.ndarra
         return render.normalize_maxabs(V), np.asarray(F, np.int64)
 
 
-def render_normals(V: np.ndarray, F: np.ndarray, size: int, scale: float, center: np.ndarray) -> np.ndarray:
+def vertex_smoothed_normals(tri: np.ndarray, F: np.ndarray, n_vertices: int) -> np.ndarray:
+    """Per triangolo, la media normalizzata delle normali di vertice (pesate per area, girate verso la camera)."""
+    n_area = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    n_area = np.where(n_area[:, 2:3] < 0, -n_area, n_area)   # due facce, come _normals
+    vn = np.zeros((n_vertices, 3))
+    for k in range(3):
+        np.add.at(vn, F[:, k], n_area)
+    vn /= np.linalg.norm(vn, axis=1, keepdims=True) + 1e-12
+    n = vn[F].mean(axis=1)
+    n /= np.linalg.norm(n, axis=1, keepdims=True) + 1e-12
+    return np.where(n[:, 2:3] < 0, -n, n)
+
+
+def render_normals(V: np.ndarray, F: np.ndarray, size: int, scale: float, center: np.ndarray,
+                   smooth: bool = False) -> np.ndarray:
     """Gemello di ``render_mesh`` con colore = normale in spazio camera invece del grigio.
 
     Stessa proiezione, stesso painter's, stesso SSAA: cambia solo il riempimento dei triangoli.
+    ``smooth``: normali smussate per vertice (``vertex_smoothed_normals``) invece che di faccia.
     """
     S = _to_screen(np.asarray(V, dtype=np.float64))
-    tri = S[np.asarray(F, dtype=np.int64)]
-    rgb = np.round(255.0 * (_normals(tri) + 1.0) / 2.0).astype(np.uint8)
+    F = np.asarray(F, dtype=np.int64)
+    tri = S[F]
+    n = vertex_smoothed_normals(tri, F, len(S)) if smooth else _normals(tri)
+    rgb = np.round(255.0 * (n + 1.0) / 2.0).astype(np.uint8)
     res = size * SSAA
     centre = _to_screen(np.asarray(center, float)[None])[0]
     px_per_unit = FACE_SPAN * res / max(float(scale), 1e-12)
@@ -134,9 +164,9 @@ def render_normals(V: np.ndarray, F: np.ndarray, size: int, scale: float, center
     return np.asarray(img, dtype=np.uint8)
 
 
-def draw(V, F, size, scale, center, mode: str) -> np.ndarray:
+def draw(V, F, size, scale, center, mode: str, smooth: bool = False) -> np.ndarray:
     if mode == "normals":
-        return render_normals(V, F, size, scale, center)
+        return render_normals(V, F, size, scale, center, smooth=smooth)
     return render_mesh(V, F, size=size, scale=scale, center=center)
 
 
@@ -156,9 +186,29 @@ def compute_camera(view_dir: Path, meshes, yaws, rot: np.ndarray, margin: float 
             "yaws": [float(y) for y in yaws], "n_meshes": len(meshes)}
 
 
-def _init_render_worker(view_dir: Path, rot: np.ndarray, mode: str) -> None:
-    global _VIEW_DIR, _ROT, _MODE
-    _VIEW_DIR, _ROT, _MODE = view_dir, rot, mode
+def compute_mesh_camera(V: np.ndarray, yaws, margin: float = 1.2, q: float = 0.5) -> dict:
+    """Inquadratura di UNA mesh: come ``compute_camera`` ma sui vertici dentro i percentili q, 100-q per asse.
+
+    ``margin`` 1.2 e non 1.02: con l'estensione minima il volto riempie il fotogramma e il detector della
+    calibrazione non scatta (0 detection a yaw -30, job 1060307); 1.2 riporta il volto alla dimensione
+    media della camera di dominio (BFM: scala 1.83 contro ~1.54 di estensione minima per mesh).
+    """
+    lo, hi = np.percentile(V, [q, 100.0 - q], axis=0)
+    core = V[np.all((V >= lo) & (V <= hi), axis=1)]
+    center = (core.min(axis=0) + core.max(axis=0)) / 2.0
+    extent = max(render._required_extent(core, center, yaw) for yaw in yaws)
+    return {"center": center.tolist(), "scale": float(extent * margin)}
+
+
+def _mesh_camera_one(task) -> tuple[str, dict]:
+    subject, topology, yaws = task
+    V, _ = load_verts_faces(_VIEW_DIR, subject, topology, _ROT)
+    return f"{subject}|{topology}", compute_mesh_camera(V, yaws)
+
+
+def _init_render_worker(view_dir: Path, rot: np.ndarray, mode: str, smooth: bool = False) -> None:
+    global _VIEW_DIR, _ROT, _MODE, _SMOOTH
+    _VIEW_DIR, _ROT, _MODE, _SMOOTH = view_dir, rot, mode, smooth
 
 
 def _render_one(task) -> str:
@@ -169,7 +219,7 @@ def _render_one(task) -> str:
     center = np.asarray(center, dtype=np.float64)
     if yaw:
         V = _yaw_rotate(V, yaw, center)
-    Image.fromarray(draw(V, F, size, scale, center, _MODE)).save(out_path)
+    Image.fromarray(draw(V, F, size, scale, center, _MODE, _SMOOTH)).save(out_path)
     return out_path
 
 
@@ -265,23 +315,41 @@ def main() -> None:
     elif camera_path.exists() and not args.overwrite:
         camera = json.loads(camera_path.read_text())
         print(f"[arcface-zs] camera dalla cache: {camera_path}", flush=True)
+    elif args.camera == "mesh":
+        with mp.get_context("fork").Pool(args.workers, initializer=_init_render_worker,
+                                         initargs=(args.view_dir, rot, args.mode)) as pool:
+            per_mesh = dict(pool.map(_mesh_camera_one, [(s, t, yaws) for s, t in meshes], chunksize=8))
+        camera = {"per_mesh": per_mesh, "yaws": [float(y) for y in yaws], "n_meshes": len(meshes)}
+        print(f"[arcface-zs] inquadratura per mesh su {len(meshes)} mesh in {time.time() - t0:.0f}s", flush=True)
     else:
         camera = compute_camera(args.view_dir, meshes, yaws, rot)
         print(f"[arcface-zs] camera su {len(meshes)} mesh in {time.time() - t0:.0f}s", flush=True)
     if camera.get("base_rotation", args.base_rotation) != args.base_rotation or camera["yaws"] != yaws:
         raise SystemExit(f"camera {camera.get('base_rotation')} {camera['yaws']} != {args.base_rotation} {yaws}")
+    if ("per_mesh" in camera) != (args.camera == "mesh"):
+        raise SystemExit(f"camera.json {'per mesh' if 'per_mesh' in camera else 'unica'}, ma --camera {args.camera}")
     camera.update(base_rotation=args.base_rotation, mode=args.mode, view_dir=str(args.view_dir))
+    if args.camera == "mesh":
+        camera.update(camera_mode="mesh", normals=args.normals)
     camera_path.write_text(json.dumps(camera, indent=2), encoding="utf-8")
-    print(f"[arcface-zs] center={np.round(camera['center'], 4).tolist()} scale={camera['scale']:.4f}", flush=True)
+    if "per_mesh" in camera:
+        scales = [c["scale"] for c in camera["per_mesh"].values()]
+        print(f"[arcface-zs] inquadratura per mesh: scala min {min(scales):.4f} mediana {np.median(scales):.4f} "
+              f"max {max(scales):.4f}", flush=True)
+    else:
+        print(f"[arcface-zs] center={np.round(camera['center'], 4).tolist()} scale={camera['scale']:.4f}", flush=True)
 
-    tasks = [(s, t, y, camera["center"], camera["scale"], args.size, str(render.render_path(args.out_root, t, s, y)))
+    def cam(s: str, t: str) -> dict:
+        return camera["per_mesh"][f"{s}|{t}"] if "per_mesh" in camera else camera
+
+    tasks = [(s, t, y, cam(s, t)["center"], cam(s, t)["scale"], args.size, str(render.render_path(args.out_root, t, s, y)))
              for s, t in meshes for y in yaws
              if args.overwrite or not render.render_path(args.out_root, t, s, y).exists()]
     print(f"[arcface-zs] {len(tasks)}/{len(meshes) * len(yaws)} render da fare con {args.workers} worker", flush=True)
     if tasks:
         t1 = time.time()
         with mp.get_context("fork").Pool(args.workers, initializer=_init_render_worker,
-                                         initargs=(args.view_dir, rot, args.mode)) as pool:
+                                         initargs=(args.view_dir, rot, args.mode, args.normals == "vertex")) as pool:
             for done, _ in enumerate(pool.imap_unordered(_render_one, tasks, chunksize=4), start=1):
                 if done % 600 == 0 or done == len(tasks):
                     print(f"[arcface-zs] render {done}/{len(tasks)} ({done / max(time.time() - t1, 1e-9):.1f}/s)",

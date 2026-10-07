@@ -14,6 +14,10 @@ soggetto valutato e' nel training del congiunto; per il BFM-only, i soli 19 sogg
 non erano nel suo training (``bfm19``). Se no lo script si ferma.
 
 Scrive ``aau/runs/indomain_recog/sets.json`` (insieme -> vista, etichette, soggetti) e
+``ict992`` (revisione 1 del protocollo): i 992 held-out ICT del congiunto, vista
+``datasets/INDOMAIN_RECOG/joint__ict992`` a symlink sulla data dir del suo training, con le 100 query
+del protocollo in ``queries``.
+
 ``subjects/<insieme>.json`` nel formato di ``zs_stage.py`` (``view_dir``, ``subjects``), che
 ``zs_arcface_render.py`` rilegge.
 """
@@ -21,6 +25,7 @@ Scrive ``aau/runs/indomain_recog/sets.json`` (insieme -> vista, etichette, sogge
 from __future__ import annotations
 
 import json
+import random
 import re
 from pathlib import Path
 
@@ -34,6 +39,9 @@ WS2 = DATASETS / "WS2_CROSS3DMM"
 ICT_DIR = DATASETS / "ICT" / "train_ready" / "npz_withops"
 ICT_REXPR_DIR = DATASETS / "ICT" / "expressions_random_withops"
 REXPR6 = DATASETS / "INDOMAIN_RECOG" / "joint__rexpr6"
+JOINT_DIR = DATASETS / "JOINT_BFM_ICT" / "npz_withops"
+ICT992 = DATASETS / "INDOMAIN_RECOG" / "joint__ict992"
+N_QUERIES_992 = 100
 
 TOPOLOGIES = ("crop", "down8k", "noisy", "original", "remesh", "up60k")
 EXPR_LABELS = ("neutral", "rexpr1", "rexpr2", "rexpr3", "rexpr4", "rexpr5")
@@ -75,6 +83,20 @@ def build_rexpr6(subjects: list[str]) -> int:
     return n
 
 
+def build_ict992(subjects: list[str]) -> int:
+    """Vista piatta dei 992 held-out ICT del congiunto, 6 topologie, dalla data dir del suo training."""
+    ICT992.mkdir(parents=True, exist_ok=True)
+    for stale in ICT992.glob("*.npz"):
+        stale.unlink()
+    for sid in subjects:
+        for t in TOPOLOGIES:
+            src = JOINT_DIR / f"{sid}_GTready_{t}.npz"
+            if not src.exists():
+                raise SystemExit(f"mesh mancante: {src}")
+            (ICT992 / src.name).symlink_to(src.resolve())
+    return len(subjects) * len(TOPOLOGIES)
+
+
 def main() -> None:
     splits = json.loads(SPLITS.read_text())
     joint_train = set(splits["models"]["joint"]["train"])
@@ -87,6 +109,14 @@ def main() -> None:
     n_links = build_rexpr6(ict)
     rexpr = view_subjects(REXPR6, EXPR_LABELS)
     bfm19 = sorted(set(bfm) - bfm_only_train)
+    # Galleria grande (revisione 1 del protocollo): TUTTI gli held-out ICT del congiunto. Query: 100
+    # soggetti estratti con random.Random(1234) dalla lista ordinata (stdlib: lo script non usa numpy).
+    ict992_all = sorted(s for s in splits["models"]["joint"]["heldout"] if int(s[2:]) >= 10000)
+    if len(ict992_all) != 992 or not set(ict).issubset(ict992_all):
+        raise SystemExit(f"held-out ICT del congiunto: {len(ict992_all)}, attesi 992 che contengano i 89")
+    n_992 = build_ict992(ict992_all)
+    ict992 = view_subjects(ICT992, TOPOLOGIES)
+    queries_992 = sorted(random.Random(1234).sample(ict992, N_QUERIES_992))
 
     sets = {
         "bfm": {"view_dir": str(WS2 / "joint__bfm"), "labels": TOPOLOGIES, "subjects": bfm, "domain": "bfm"},
@@ -95,6 +125,8 @@ def main() -> None:
         # Sottoinsieme di bfm, stesse mesh: niente vista propria.
         "bfm19": {"view_dir": str(WS2 / "joint__bfm"), "labels": TOPOLOGIES, "subjects": bfm19, "domain": "bfm",
                   "subset_of": "bfm"},
+        "ict992": {"view_dir": str(ICT992), "labels": TOPOLOGIES, "subjects": ict992, "domain": "ict",
+                   "queries": queries_992},
     }
     leak = {}
     for name, s in sets.items():
@@ -117,7 +149,8 @@ def main() -> None:
     for name in ("bfm", "ict", "rexpr"):
         (OUT / "subjects" / f"{name}.json").write_text(json.dumps(
             {"view_dir": sets[name]["view_dir"], "subjects": sets[name]["subjects"]}, indent=1) + "\n")
-    print(f"[ir-views] vista rexpr6: {n_links} symlink in {REXPR6}; scritto {OUT / 'sets.json'}")
+    print(f"[ir-views] vista rexpr6: {n_links} symlink in {REXPR6}; vista ict992: {n_992} symlink in {ICT992}, "
+          f"{len(queries_992)} query (prime {queries_992[:3]}); scritto {OUT / 'sets.json'}")
 
 
 if __name__ == "__main__":

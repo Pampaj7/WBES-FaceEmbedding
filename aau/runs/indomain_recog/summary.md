@@ -101,155 +101,67 @@ nel csv). Dati letti da `/tmp` (copiati a inizio job), quindi il tempo di lettur
 - Lettura per l'utente: costo di un confronto 1:1 e di un 1:N di ogni metodo; per le pipeline a coppie
   un 1:N costa N volte la coppia (stima, non misurata, e dichiarata come tale).
 
+## Revisione 1 -- 2026-10-07 16:25 CEST, dopo la revisione del critic e PRIMA di qualunque numero nuovo
+
+Gia' visti a quest'ora: tutti i numeri della prima tornata (summary.md del 2026-10-07 ~15:00). Nessun
+numero esiste per le varianti qui sotto. La prima tornata resta com'e'; le sue righe restano nelle tabelle.
+
+**Perche'.** Le mesh sono ad area unitaria: il crop ha meno area e quindi esce ingrandito (~8%) rispetto
+alle altre topologie dello stesso soggetto. faceBench normalizza maxabs per mesh, prealinea col bbox e fa
+un ICP RIGIDO (senza scala): l'errore di scala del crop non viene mai corretto, e le righe faceBench con
+crop della prima tornata misurano anche questo artefatto. Inoltre il congiunto ha visto la topologia crop
+(e noisy, down8k, ...) dei soggetti di training: e' un'augmentation che le baseline non hanno.
+
+**A. ICP di similarita' (baseline standard da qui in poi).** Stessa pipeline faceBench (maxabs, 4096 punti,
+`prealign_by_bbox`), ma l'ICP di open3d con `TransformationEstimationPointToPoint(with_scaling=True)`
+(soglia 1000 come `icp_align`). Due righe nuove: **ICP di similarita' + Chamfer** (media P2P sulle
+corrispondenze Chamfer, come `rigid_p2p`) e **ICP di similarita' + NICP P2Tri** (`nonrigid_icp_align` e
+`p2tri_distance` di faceBench sul risultato). Tutte le coppie, con crop e senza, su BFM (108) e ICT (89),
+stesse regole della prima tornata. rexpr NON si rifa': niente crop, stessa topologia (dichiarato).
+
+**B. NICP su template (baseline "iscrivi una volta, confronta in corrispondenza densa").** Template per
+dominio = media vertice per vertice delle mesh `original` (maxabs) di 100 soggetti di TRAINING del congiunto
+(`rng(1234)`), stessa topologia del 3DMM; 4096 vertici del template scelti una volta (`rng(0)`). Iscrizione
+di una mesh: maxabs, 4096 punti campionati (seme fisso per mesh), ICP di similarita' template -> mesh,
+`nonrigid_icp_align` del template sulla mesh, poi similarita' (Procrustes con scala) dei 4096 punti
+registrati verso il template, cioe' tutto in un frame canonico. Confronto = distanza L2 media per vertice
+fra due mesh iscritte. Insiemi: bfm, ict, rexpr, ict992.
+
+**C. ArcFace configurato al meglio (righe nuove; le vecchie restano come secondarie).** Inquadratura PER
+MESH invece della camera unica per dominio: centro ed estensione dai vertici dentro i percentili 0.5-99.5
+per asse (un vertice isolato non rimpicciolisce il volto), stesse 3 viste; normali smussate per vertice
+(normali di faccia girate verso la camera, mediate per area sui vertici, colore del triangolo = media
+normalizzata delle sue 3 normali di vertice). Crop ricalibrato su questi render ombreggiati e copiato alla
+normal map, come prima. Flag nuovi in `zs_arcface_render.py` (`--camera mesh`, `--normals vertex`) con i
+default di prima: i risultati in `aau/runs/arcface_render_zs` non cambiano.
+
+**D. Galleria grande (effetto soffitto).** `ict992`: i 992 soggetti ICT held-out del congiunto (0 nel suo
+training, ricontrollato), 6 topologie. Query: 100 soggetti scelti con `rng(1234)` fra i 992. Due blocchi:
+**noisy -> original** (senza crop, PRIMARIO del blocco) e **crop -> original** (a parte); galleria = i 992
+in `original`. Metodi sugli stessi blocchi: congiunto, ICP di similarita' + NICP P2Tri (a coppie, X = query),
+NICP su template, Chamfer faceBench. In piu', solo per congiunto e template (costano un'iscrizione per
+mesh): tutte le 992 query su tutte le 20 coppie senza crop e le 10 con crop (secondario).
+Bootstrap sulle query (galleria fissa), 1000 repliche. Verifica sulle coppie query x galleria: 100
+genuine e 99.100 impostori per blocco; TAR@FAR = 1e-3 e 1e-4 si appoggia a ~99 e ~10 impostori sopra
+soglia: la seconda e' rumorosa e lo si dice.
+
+**E. Misure.** Si aggiunge TAR@FAR 1e-3 e 1e-4 (soglia = quantile pesato degli impostori; TAR = frazione
+pesata dei genuini sopra soglia) a tutte le tabelle. Lettura invariata (CI dei delta appaiati).
+
+**F. Tempi.** Si rifanno tutti su un nodo L40S in `--exclusive`. Tabella divisa in **iscrizione** (per mesh:
+congiunto = operatori + embedding; template = ICP di similarita' + NICP + Procrustes; ArcFace = render +
+embedding) e **ricerca su galleria gia' iscritta** (1:N, N = 100, 1.000, 10.000: congiunto L2 su 256-d,
+template L2 media per vertice su 4096 x 3, ArcFace coseno su 512-d). Per i metodi a coppie (ICP di
+similarita' + Chamfer, ICP di similarita' + NICP P2Tri) la ricerca 1:N costa N coppie: tempo per coppia
+misurato, 1:N stimato come N x mediana (dichiarato).
+
 ---
 
 # Risultati
 
-CI 95% bootstrap per soggetto, 1000 repliche, le stesse per tutti i metodi di un insieme. mAP = MRR (un solo rilevante). Distanze NaN (coppie faceBench fallite) = +inf.
+CI 95% bootstrap per soggetto, 20 repliche (salvo dove detto), le stesse per tutti i metodi di un blocco. mAP = MRR (un solo rilevante). Distanze NaN (coppie fallite) = +inf.
 
-## BFM, 108 held-out del congiunto
-
-### PRIMARIO, 5 topologie senza crop
-
-Retrieval: 2160 query (20 coppie ordinate x 108), galleria di 108. Verifica: 1080 coppie stessa persona, 115560 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.998 [0.996, 1.000] | 0.999 [0.998, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.652 [0.624, 0.679] | 0.726 [0.702, 0.748] | 0.931 [0.920, 0.943] | 0 |
-| Rigid ICP + Chamfer | 0.934 [0.920, 0.948] | 0.954 [0.944, 0.964] | 0.992 [0.990, 0.995] | 0 |
-| Rigid ICP + NICP + P2Tri | 1.000 [0.999, 1.000] | 1.000 [0.999, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| ArcFace, normal map, 3 viste | 0.981 [0.968, 0.992] | 0.989 [0.979, 0.996] | 0.978 [0.971, 0.983] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.919 [0.896, 0.943] | 0.948 [0.931, 0.965] | 0.959 [0.950, 0.967] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | +0.346 [+0.319, +0.374] (0.000) | +0.273 [+0.250, +0.296] (0.000) | +0.069 [+0.057, +0.080] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.064 [+0.051, +0.077] (0.000) | +0.045 [+0.036, +0.055] (0.000) | +0.008 [+0.005, +0.010] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | -0.001 [-0.003, +0.000] (0.945) | -0.001 [-0.002, +0.000] (0.945) | +0.000 [-0.000, +0.000] (0.088) | pari / pari |
-| ArcFace, normal map, 3 viste | +0.017 [+0.006, +0.030] (0.000) | +0.010 [+0.004, +0.020] (0.000) | +0.022 [+0.016, +0.028] (0.000) | sopra / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | +0.079 [+0.055, +0.103] (0.000) | +0.051 [+0.034, +0.068] (0.000) | +0.041 [+0.033, +0.050] (0.000) | sopra / sopra |
-
-### a parte: crop da un lato
-
-Retrieval: 1080 query (10 coppie ordinate x 108), galleria di 108. Verifica: 540 coppie stessa persona, 57780 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.944 [0.911, 0.970] | 0.965 [0.944, 0.982] | 0.991 [0.986, 0.995] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.044 [0.024, 0.069] | 0.099 [0.075, 0.127] | 0.568 [0.556, 0.582] | 0 |
-| Rigid ICP + Chamfer | 0.106 [0.065, 0.154] | 0.181 [0.137, 0.230] | 0.651 [0.631, 0.674] | 0 |
-| Rigid ICP + NICP + P2Tri | 0.686 [0.637, 0.736] | 0.776 [0.736, 0.816] | 0.970 [0.959, 0.979] | 0 |
-| ArcFace, normal map, 3 viste | 0.984 [0.975, 0.993] | 0.989 [0.982, 0.995] | 0.984 [0.980, 0.988] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.947 [0.934, 0.960] | 0.965 [0.956, 0.975] | 0.966 [0.960, 0.973] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | +0.899 [+0.862, +0.931] (0.000) | +0.866 [+0.833, +0.896] (0.000) | +0.423 [+0.409, +0.435] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.838 [+0.781, +0.888] (0.000) | +0.784 [+0.730, +0.833] (0.000) | +0.339 [+0.316, +0.360] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | +0.257 [+0.193, +0.320] (0.000) | +0.189 [+0.140, +0.236] (0.000) | +0.021 [+0.010, +0.033] (0.000) | sopra / sopra |
-| ArcFace, normal map, 3 viste | -0.041 [-0.073, -0.014] (0.999) | -0.024 [-0.045, -0.006] (0.995) | +0.007 [+0.000, +0.013] (0.024) | sotto / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | -0.004 [-0.038, +0.024] (0.601) | -0.000 [-0.022, +0.017] (0.499) | +0.025 [+0.017, +0.032] (0.000) | pari / sopra |
-
-## ICT, 89 held-out del congiunto
-
-### PRIMARIO, 5 topologie senza crop
-
-Retrieval: 1780 query (20 coppie ordinate x 89), galleria di 89. Verifica: 890 coppie stessa persona, 78320 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.381 [0.347, 0.416] | 0.472 [0.444, 0.502] | 0.689 [0.675, 0.705] | 0 |
-| Rigid ICP + Chamfer | 0.670 [0.654, 0.687] | 0.726 [0.712, 0.742] | 0.816 [0.798, 0.834] | 0 |
-| Rigid ICP + NICP + P2Tri | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.994 [0.991, 0.996] | 0 |
-| ArcFace, normal map, 3 viste | 0.981 [0.970, 0.991] | 0.990 [0.983, 0.995] | 0.994 [0.992, 0.997] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.971 [0.956, 0.983] | 0.982 [0.972, 0.990] | 0.978 [0.972, 0.983] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | +0.619 [+0.584, +0.653] (0.000) | +0.528 [+0.498, +0.556] (0.000) | +0.311 [+0.295, +0.325] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.330 [+0.313, +0.346] (0.000) | +0.274 [+0.258, +0.288] (0.000) | +0.184 [+0.166, +0.202] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | +0.000 [+0.000, +0.000] (1.000) | +0.000 [+0.000, +0.000] (1.000) | +0.006 [+0.004, +0.009] (0.000) | pari / sopra |
-| ArcFace, normal map, 3 viste | +0.019 [+0.009, +0.030] (0.000) | +0.010 [+0.005, +0.017] (0.000) | +0.006 [+0.003, +0.008] (0.000) | sopra / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | +0.029 [+0.017, +0.044] (0.000) | +0.018 [+0.010, +0.028] (0.000) | +0.022 [+0.017, +0.028] (0.000) | sopra / sopra |
-
-### a parte: crop da un lato
-
-Retrieval: 890 query (10 coppie ordinate x 89), galleria di 89. Verifica: 445 coppie stessa persona, 39160 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.993 [0.980, 1.000] | 0.996 [0.989, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.097 [0.067, 0.131] | 0.228 [0.199, 0.263] | 0.708 [0.693, 0.724] | 0 |
-| Rigid ICP + Chamfer | 0.306 [0.273, 0.342] | 0.405 [0.372, 0.441] | 0.833 [0.809, 0.860] | 0 |
-| Rigid ICP + NICP + P2Tri | 0.600 [0.554, 0.647] | 0.698 [0.659, 0.737] | 0.962 [0.951, 0.973] | 0 |
-| ArcFace, normal map, 3 viste | 0.993 [0.988, 0.998] | 0.995 [0.991, 0.999] | 0.995 [0.993, 0.997] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.981 [0.971, 0.990] | 0.988 [0.981, 0.994] | 0.985 [0.981, 0.989] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | +0.897 [+0.861, +0.929] (0.000) | +0.768 [+0.733, +0.798] (0.000) | +0.292 [+0.276, +0.306] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.688 [+0.648, +0.721] (0.000) | +0.592 [+0.556, +0.625] (0.000) | +0.167 [+0.140, +0.191] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | +0.393 [+0.338, +0.442] (0.000) | +0.298 [+0.256, +0.341] (0.000) | +0.037 [+0.027, +0.049] (0.000) | sopra / sopra |
-| ArcFace, normal map, 3 viste | +0.000 [-0.015, +0.009] (0.507) | +0.001 [-0.006, +0.006] (0.338) | +0.005 [+0.003, +0.006] (0.000) | pari / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | +0.012 [-0.004, +0.026] (0.067) | +0.008 [-0.001, +0.016] (0.032) | +0.015 [+0.011, +0.019] (0.000) | pari / sopra |
-
-## ICT con espressioni casuali, 89 held-out del congiunto
-
-### PRIMARIO, espressione contro espressione (k != k')
-
-Retrieval: 1780 query (20 coppie ordinate x 89), galleria di 89. Verifica: 890 coppie stessa persona, 78320 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.822 [0.785, 0.860] | 0.865 [0.834, 0.895] | 0.978 [0.968, 0.985] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.867 [0.835, 0.898] | 0.901 [0.876, 0.926] | 0.979 [0.971, 0.987] | 0 |
-| Rigid ICP + Chamfer | 0.896 [0.867, 0.922] | 0.923 [0.899, 0.944] | 0.981 [0.972, 0.989] | 0 |
-| Rigid ICP + NICP + P2Tri | 0.905 [0.878, 0.929] | 0.929 [0.906, 0.949] | 0.977 [0.966, 0.986] | 0 |
-| ArcFace, normal map, 3 viste | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | -0.046 [-0.069, -0.021] (1.000) | -0.036 [-0.054, -0.019] (1.000) | -0.001 [-0.006, +0.004] (0.709) | sotto / pari |
-| Rigid ICP + Chamfer | -0.074 [-0.098, -0.050] (1.000) | -0.058 [-0.078, -0.038] (1.000) | -0.003 [-0.010, +0.005] (0.812) | sotto / pari |
-| Rigid ICP + NICP + P2Tri | -0.083 [-0.110, -0.055] (1.000) | -0.064 [-0.086, -0.042] (1.000) | +0.001 [-0.007, +0.011] (0.404) | sotto / pari |
-| ArcFace, normal map, 3 viste | -0.178 [-0.215, -0.140] (1.000) | -0.135 [-0.166, -0.105] (1.000) | -0.022 [-0.032, -0.015] (1.000) | sotto / sotto |
-| ArcFace, ombreggiato, 3 viste (secondaria) | -0.178 [-0.215, -0.140] (1.000) | -0.135 [-0.166, -0.105] (1.000) | -0.022 [-0.032, -0.015] (1.000) | sotto / sotto |
-
-### secondario: galleria neutra, query con espressione
-
-Retrieval: 445 query (5 coppie ordinate x 89), galleria di 89. Verifica: 445 coppie stessa persona, 39160 persone diverse.
-
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.962 [0.942, 0.980] | 0.976 [0.962, 0.987] | 0.992 [0.987, 0.995] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.998 [0.993, 1.000] | 0.999 [0.996, 1.000] | 0.994 [0.990, 0.997] | 0 |
-| Rigid ICP + Chamfer | 0.998 [0.993, 1.000] | 0.999 [0.997, 1.000] | 0.997 [0.995, 0.999] | 0 |
-| Rigid ICP + NICP + P2Tri | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.997 [0.995, 0.999] | 0 |
-| ArcFace, normal map, 3 viste | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-
-Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
-
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| Chamfer (faceBench, 4096 pt) | -0.036 [-0.056, -0.020] (1.000) | -0.023 [-0.035, -0.012] (1.000) | -0.002 [-0.005, +0.001] (0.883) | sotto / pari |
-| Rigid ICP + Chamfer | -0.036 [-0.056, -0.018] (1.000) | -0.023 [-0.037, -0.012] (1.000) | -0.005 [-0.009, -0.002] (1.000) | sotto / sotto |
-| Rigid ICP + NICP + P2Tri | -0.038 [-0.058, -0.020] (1.000) | -0.024 [-0.038, -0.013] (1.000) | -0.005 [-0.009, -0.002] (1.000) | sotto / sotto |
-| ArcFace, normal map, 3 viste | -0.038 [-0.058, -0.020] (1.000) | -0.024 [-0.038, -0.013] (1.000) | -0.008 [-0.013, -0.005] (1.000) | sotto / sotto |
-| ArcFace, ombreggiato, 3 viste (secondaria) | -0.038 [-0.058, -0.020] (1.000) | -0.024 [-0.038, -0.013] (1.000) | -0.008 [-0.013, -0.005] (1.000) | sotto / sotto |
+**Nota (revisione 1):** il congiunto ha visto in training la topologia crop (e noisy, down8k, remesh, up60k) dei soggetti di training, cioe' un'augmentation che nessuna baseline ha avuto. Le righe ICP rigido (prima tornata) portano l'artefatto di scala del crop; le righe ICP di similarita' no.
 
 ## BFM-19, held-out di congiunto E BFM-only
 
@@ -257,51 +169,99 @@ Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
 
 Retrieval: 380 query (20 coppie ordinate x 19), galleria di 19. Verifica: 190 coppie stessa persona, 3420 persone diverse.
 
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| BFM-only (1019310) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.750 [0.708, 0.797] | 0.832 [0.803, 0.862] | 0.917 [0.888, 0.941] | 0 |
-| Rigid ICP + Chamfer | 0.945 [0.921, 0.966] | 0.965 [0.950, 0.978] | 0.985 [0.975, 0.993] | 0 |
-| Rigid ICP + NICP + P2Tri | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.999 [0.998, 1.000] | 0 |
-| ArcFace, normal map, 3 viste | 0.992 [0.976, 1.000] | 0.996 [0.988, 1.000] | 0.955 [0.929, 0.976] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.950 [0.911, 0.984] | 0.973 [0.952, 0.992] | 0.927 [0.897, 0.952] | 0 |
+| metodo | rank-1 | mAP | AUC verifica | TAR@FAR 0.001 | TAR@FAR 0.0001 | NaN |
+| --- | --- | --- | --- | --- | --- | --- |
+| BFM+ICT congiunto | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.968 [0.936, 1.000] | 0.953 [0.929, 1.000] | 0 |
+| BFM-only (1019310) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
+| ICP rigido + NICP P2Tri (prima tornata) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.999 [0.999, 1.000] | 0.905 [0.876, 0.979] | 0.868 [0.854, 0.968] | 0 |
+| ICP rigido + Chamfer (prima tornata) | 0.945 [0.917, 0.961] | 0.965 [0.950, 0.975] | 0.985 [0.977, 0.992] | 0.774 [0.731, 0.853] | 0.732 [0.729, 0.824] | 0 |
+| Chamfer faceBench | 0.750 [0.725, 0.805] | 0.832 [0.818, 0.868] | 0.917 [0.893, 0.946] | 0.263 [0.228, 0.443] | 0.226 [0.216, 0.377] | 0 |
+| ArcFace, normal map, camera di dominio (prima tornata) | 0.992 [0.984, 1.000] | 0.996 [0.992, 1.000] | 0.955 [0.933, 0.972] | 0.600 [0.600, 0.619] | 0.600 [0.600, 0.611] | 0 |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | 0.950 [0.906, 0.967] | 0.973 [0.946, 0.984] | 0.927 [0.901, 0.942] | 0.600 [0.600, 0.608] | 0.600 [0.600, 0.606] | 0 |
 
 Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
 
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| BFM-only (1019310) | +0.000 [+0.000, +0.000] (1.000) | +0.000 [+0.000, +0.000] (1.000) | -0.000 [-0.000, +0.000] (1.000) | pari / pari |
-| Chamfer (faceBench, 4096 pt) | +0.250 [+0.203, +0.292] (0.000) | +0.168 [+0.138, +0.197] (0.000) | +0.083 [+0.059, +0.112] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.055 [+0.034, +0.079] (0.000) | +0.035 [+0.022, +0.050] (0.000) | +0.015 [+0.007, +0.025] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | +0.000 [+0.000, +0.000] (1.000) | +0.000 [+0.000, +0.000] (1.000) | +0.001 [-0.000, +0.002] (0.078) | pari / pari |
-| ArcFace, normal map, 3 viste | +0.008 [+0.000, +0.024] (0.372) | +0.004 [+0.000, +0.012] (0.372) | +0.045 [+0.024, +0.071] (0.000) | pari / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | +0.050 [+0.016, +0.089] (0.000) | +0.027 [+0.008, +0.048] (0.000) | +0.073 [+0.048, +0.103] (0.000) | sopra / sopra |
+| metodo | rank-1: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | TAR@FAR 0.001: delta [CI] | TAR@FAR 0.0001: delta [CI] | lettura rank-1 / AUC |
+| --- | --- | --- | --- | --- | --- |
+| BFM-only (1019310) | +0.000 [+0.000, +0.000] (1.000) | -0.000 [-0.000, +0.000] (1.000) | -0.032 [-0.064, +0.000] | -0.047 [-0.071, +0.000] | pari / pari |
+| ICP rigido + NICP P2Tri (prima tornata) | +0.000 [+0.000, +0.000] (1.000) | +0.001 [-0.000, +0.001] (0.050) | +0.063 [-0.035, +0.119] | +0.084 [-0.022, +0.135] | pari / pari |
+| ICP rigido + Chamfer (prima tornata) | +0.055 [+0.039, +0.083] (0.000) | +0.015 [+0.008, +0.022] (0.000) | +0.195 [+0.095, +0.266] | +0.221 [+0.129, +0.266] | sopra / sopra |
+| Chamfer faceBench | +0.250 [+0.195, +0.275] (0.000) | +0.083 [+0.054, +0.107] (0.000) | +0.705 [+0.539, +0.767] | +0.726 [+0.602, +0.774] | sopra / sopra |
+| ArcFace, normal map, camera di dominio (prima tornata) | +0.008 [+0.000, +0.016] (0.550) | +0.045 [+0.028, +0.067] (0.000) | +0.368 [+0.336, +0.400] | +0.353 [+0.329, +0.400] | pari / sopra |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | +0.050 [+0.033, +0.094] (0.000) | +0.073 [+0.058, +0.099] (0.000) | +0.368 [+0.336, +0.400] | +0.353 [+0.329, +0.400] | sopra / sopra |
 
 ### a parte: crop da un lato
 
 Retrieval: 190 query (10 coppie ordinate x 19), galleria di 19. Verifica: 95 coppie stessa persona, 1710 persone diverse.
 
-| metodo | rank-1 | mAP | AUC verifica | distanze NaN |
-| --- | --- | --- | --- | --- |
-| BFM+ICT congiunto | 0.979 [0.953, 1.000] | 0.989 [0.976, 1.000] | 0.995 [0.988, 1.000] | 0 |
-| BFM-only (1019310) | 0.942 [0.863, 1.000] | 0.970 [0.930, 1.000] | 0.990 [0.977, 1.000] | 0 |
-| Chamfer (faceBench, 4096 pt) | 0.105 [0.026, 0.190] | 0.253 [0.180, 0.326] | 0.554 [0.530, 0.594] | 0 |
-| Rigid ICP + Chamfer | 0.184 [0.095, 0.268] | 0.348 [0.267, 0.431] | 0.664 [0.624, 0.704] | 0 |
-| Rigid ICP + NICP + P2Tri | 0.911 [0.832, 0.974] | 0.951 [0.906, 0.986] | 0.981 [0.964, 0.992] | 0 |
-| ArcFace, normal map, 3 viste | 0.989 [0.974, 1.000] | 0.994 [0.984, 1.000] | 0.968 [0.947, 0.984] | 0 |
-| ArcFace, ombreggiato, 3 viste (secondaria) | 0.953 [0.926, 0.979] | 0.971 [0.952, 0.987] | 0.941 [0.920, 0.962] | 0 |
+| metodo | rank-1 | mAP | AUC verifica | TAR@FAR 0.001 | TAR@FAR 0.0001 | NaN |
+| --- | --- | --- | --- | --- | --- | --- |
+| BFM+ICT congiunto | 0.979 [0.958, 0.995] | 0.989 [0.979, 0.997] | 0.995 [0.988, 0.998] | 0.842 [0.730, 0.942] | 0.800 [0.730, 0.932] | 0 |
+| BFM-only (1019310) | 0.942 [0.863, 0.979] | 0.970 [0.928, 0.989] | 0.990 [0.975, 0.996] | 0.800 [0.612, 0.896] | 0.758 [0.602, 0.874] | 0 |
+| ICP rigido + NICP P2Tri (prima tornata) | 0.911 [0.839, 0.967] | 0.951 [0.914, 0.983] | 0.981 [0.968, 0.988] | 0.411 [0.331, 0.639] | 0.411 [0.316, 0.522] | 0 |
+| ICP rigido + Chamfer (prima tornata) | 0.184 [0.113, 0.261] | 0.348 [0.276, 0.422] | 0.664 [0.632, 0.692] | 0.011 [0.000, 0.085] | 0.011 [0.000, 0.048] | 0 |
+| Chamfer faceBench | 0.105 [0.050, 0.171] | 0.253 [0.199, 0.319] | 0.554 [0.534, 0.582] | 0.000 [0.000, 0.000] | 0.000 [0.000, 0.000] | 0 |
+| ArcFace, normal map, camera di dominio (prima tornata) | 0.989 [0.973, 0.997] | 0.994 [0.984, 0.999] | 0.968 [0.952, 0.980] | 0.800 [0.800, 0.800] | 0.800 [0.800, 0.800] | 0 |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | 0.953 [0.918, 0.971] | 0.971 [0.950, 0.984] | 0.941 [0.924, 0.953] | 0.800 [0.800, 0.800] | 0.800 [0.800, 0.800] | 0 |
 
 Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
 
-| metodo | rank-1: delta [CI] (P<=0) | mAP: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | lettura rank-1 / AUC |
-| --- | --- | --- | --- | --- |
-| BFM-only (1019310) | +0.037 [-0.005, +0.095] (0.078) | +0.019 [-0.003, +0.049] (0.077) | +0.005 [-0.002, +0.013] (0.096) | pari / pari |
-| Chamfer (faceBench, 4096 pt) | +0.874 [+0.784, +0.958] (0.000) | +0.737 [+0.666, +0.809] (0.000) | +0.441 [+0.403, +0.466] (0.000) | sopra / sopra |
-| Rigid ICP + Chamfer | +0.795 [+0.705, +0.884] (0.000) | +0.642 [+0.558, +0.723] (0.000) | +0.331 [+0.292, +0.370] (0.000) | sopra / sopra |
-| Rigid ICP + NICP + P2Tri | +0.068 [+0.000, +0.153] (0.031) | +0.039 [+0.001, +0.089] (0.021) | +0.014 [+0.002, +0.032] (0.009) | pari / sopra |
-| ArcFace, normal map, 3 viste | -0.011 [-0.037, +0.016] (0.812) | -0.004 [-0.018, +0.011] (0.725) | +0.027 [+0.012, +0.048] (0.000) | pari / sopra |
-| ArcFace, ombreggiato, 3 viste (secondaria) | +0.026 [-0.011, +0.063] (0.119) | +0.018 [-0.004, +0.039] (0.060) | +0.054 [+0.036, +0.073] (0.000) | pari / sopra |
+| metodo | rank-1: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | TAR@FAR 0.001: delta [CI] | TAR@FAR 0.0001: delta [CI] | lettura rank-1 / AUC |
+| --- | --- | --- | --- | --- | --- |
+| BFM-only (1019310) | +0.037 [+0.008, +0.095] (0.000) | +0.005 [+0.001, +0.015] (0.000) | +0.042 [-0.011, +0.169] | +0.042 [-0.011, +0.180] | sopra / sopra |
+| ICP rigido + NICP P2Tri (prima tornata) | +0.068 [-0.004, +0.145] (0.050) | +0.014 [+0.007, +0.028] (0.000) | +0.432 [+0.195, +0.553] | +0.389 [+0.305, +0.559] | pari / sopra |
+| ICP rigido + Chamfer (prima tornata) | +0.795 [+0.723, +0.863] (0.000) | +0.331 [+0.303, +0.364] (0.000) | +0.832 [+0.700, +0.927] | +0.789 [+0.720, +0.927] | sopra / sopra |
+| Chamfer faceBench | +0.874 [+0.792, +0.929] (0.000) | +0.441 [+0.415, +0.461] (0.000) | +0.842 [+0.730, +0.942] | +0.800 [+0.730, +0.932] | sopra / sopra |
+| ArcFace, normal map, camera di dominio (prima tornata) | -0.011 [-0.029, +0.014] (0.850) | +0.027 [+0.016, +0.044] (0.000) | +0.042 [-0.070, +0.142] | +0.000 [-0.070, +0.132] | pari / sopra |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | +0.026 [+0.003, +0.069] (0.050) | +0.054 [+0.044, +0.070] (0.000) | +0.042 [-0.070, +0.142] | +0.000 [-0.070, +0.132] | sopra / sopra |
+
+## ICT con espressioni casuali, 89 held-out del congiunto
+
+### PRIMARIO, espressione contro espressione (k != k')
+
+Retrieval: 1780 query (20 coppie ordinate x 89), galleria di 89. Verifica: 890 coppie stessa persona, 78320 persone diverse.
+
+| metodo | rank-1 | mAP | AUC verifica | TAR@FAR 0.001 | TAR@FAR 0.0001 | NaN |
+| --- | --- | --- | --- | --- | --- | --- |
+| BFM+ICT congiunto | 0.822 [0.787, 0.843] | 0.865 [0.840, 0.883] | 0.978 [0.972, 0.985] | 0.670 [0.636, 0.714] | 0.590 [0.550, 0.644] | 0 |
+| ICP rigido + NICP P2Tri (prima tornata) | 0.905 [0.890, 0.922] | 0.929 [0.916, 0.943] | 0.977 [0.969, 0.983] | 0.745 [0.690, 0.799] | 0.609 [0.514, 0.705] | 0 |
+| ICP rigido + Chamfer (prima tornata) | 0.896 [0.878, 0.913] | 0.923 [0.908, 0.937] | 0.981 [0.975, 0.987] | 0.717 [0.685, 0.764] | 0.630 [0.597, 0.674] | 0 |
+| Chamfer faceBench | 0.867 [0.849, 0.894] | 0.901 [0.888, 0.921] | 0.979 [0.972, 0.985] | 0.696 [0.662, 0.754] | 0.601 [0.560, 0.691] | 0 |
+| ArcFace, normal map, camera di dominio (prima tornata) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.998 [0.993, 1.000] | 0 |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.999 [0.996, 1.000] | 0 |
+
+Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
+
+| metodo | rank-1: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | TAR@FAR 0.001: delta [CI] | TAR@FAR 0.0001: delta [CI] | lettura rank-1 / AUC |
+| --- | --- | --- | --- | --- | --- |
+| ICP rigido + NICP P2Tri (prima tornata) | -0.083 [-0.111, -0.065] (1.000) | +0.001 [-0.006, +0.009] (0.350) | -0.075 [-0.109, -0.007] | -0.019 [-0.082, +0.086] | sotto / pari |
+| ICP rigido + Chamfer (prima tornata) | -0.074 [-0.101, -0.059] (1.000) | -0.003 [-0.009, +0.003] (0.850) | -0.047 [-0.089, +0.002] | -0.040 [-0.100, +0.022] | sotto / pari |
+| Chamfer faceBench | -0.046 [-0.071, -0.028] (1.000) | -0.001 [-0.005, +0.003] (0.800) | -0.026 [-0.076, +0.005] | -0.011 [-0.108, +0.034] | sotto / pari |
+| ArcFace, normal map, camera di dominio (prima tornata) | -0.178 [-0.213, -0.157] (1.000) | -0.022 [-0.028, -0.015] (1.000) | -0.330 [-0.364, -0.286] | -0.408 [-0.447, -0.354] | sotto / sotto |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | -0.178 [-0.213, -0.157] (1.000) | -0.022 [-0.028, -0.015] (1.000) | -0.330 [-0.364, -0.286] | -0.409 [-0.448, -0.354] | sotto / sotto |
+
+### secondario: galleria neutra, query con espressione
+
+Retrieval: 445 query (5 coppie ordinate x 89), galleria di 89. Verifica: 445 coppie stessa persona, 39160 persone diverse.
+
+| metodo | rank-1 | mAP | AUC verifica | TAR@FAR 0.001 | TAR@FAR 0.0001 | NaN |
+| --- | --- | --- | --- | --- | --- | --- |
+| BFM+ICT congiunto | 0.962 [0.949, 0.978] | 0.976 [0.967, 0.986] | 0.992 [0.988, 0.995] | 0.800 [0.783, 0.849] | 0.735 [0.682, 0.801] | 0 |
+| ICP rigido + NICP P2Tri (prima tornata) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0.997 [0.996, 0.998] | 0.874 [0.825, 0.913] | 0.764 [0.723, 0.864] | 0 |
+| ICP rigido + Chamfer (prima tornata) | 0.998 [0.992, 1.000] | 0.999 [0.996, 1.000] | 0.997 [0.996, 0.998] | 0.849 [0.837, 0.890] | 0.778 [0.746, 0.857] | 0 |
+| Chamfer faceBench | 0.998 [0.994, 1.000] | 0.999 [0.996, 1.000] | 0.994 [0.991, 0.997] | 0.834 [0.798, 0.862] | 0.766 [0.743, 0.837] | 0 |
+| ArcFace, normal map, camera di dominio (prima tornata) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | 0 |
+
+Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
+
+| metodo | rank-1: delta [CI] (P<=0) | AUC: delta [CI] (P<=0) | TAR@FAR 0.001: delta [CI] | TAR@FAR 0.0001: delta [CI] | lettura rank-1 / AUC |
+| --- | --- | --- | --- | --- | --- |
+| ICP rigido + NICP P2Tri (prima tornata) | -0.038 [-0.051, -0.022] (1.000) | -0.005 [-0.009, -0.003] (1.000) | -0.074 [-0.101, -0.012] | -0.029 [-0.146, +0.040] | sotto / sotto |
+| ICP rigido + Chamfer (prima tornata) | -0.036 [-0.049, -0.019] (1.000) | -0.005 [-0.009, -0.002] (1.000) | -0.049 [-0.088, -0.029] | -0.043 [-0.148, +0.028] | sotto / sotto |
+| Chamfer faceBench | -0.036 [-0.049, -0.022] (1.000) | -0.002 [-0.004, +0.001] (0.900) | -0.034 [-0.051, +0.011] | -0.031 [-0.090, +0.035] | sotto / pari |
+| ArcFace, normal map, camera di dominio (prima tornata) | -0.038 [-0.051, -0.022] (1.000) | -0.008 [-0.012, -0.005] (1.000) | -0.200 [-0.217, -0.151] | -0.265 [-0.318, -0.199] | sotto / sotto |
+| ArcFace, ombreggiato, camera di dominio (prima tornata, secondaria) | -0.038 [-0.051, -0.022] (1.000) | -0.008 [-0.012, -0.005] (1.000) | -0.200 [-0.217, -0.151] | -0.265 [-0.318, -0.199] | sotto / sotto |
 
 ## Tempi
 
@@ -310,34 +270,41 @@ Delta appaiati congiunto - metodo (lettura del protocollo su rank-1 e AUC):
 - arcface: host `a768-l40s-05.srv.aau.dk`, CPU AMD EPYC 9454 48-Core Processor, job 1058495, OMP_NUM_THREADS=1
 - campione: 60 mesh, vertici da 3275 a 60435 (mediana 12955)
 
-| voce | per | n | mediana | IQR (25-75%) |
-| --- | --- | --- | --- | --- |
-| congiunto: operatori DiffusionNet (k=128), CPU 1 thread | mesh | 60 | 2.28 s | 1.27 s - 4.79 s |
-| congiunto: embedding (caricamento + forward), GPU | mesh | 60 | 56.77 ms | 40.70 ms - 98.00 ms |
-| congiunto: embedding (caricamento + forward), CPU 1 thread | mesh | 60 | 442.80 ms | 271.95 ms - 936.74 ms |
-| congiunto: confronto ||z_a - z_b||, CPU | coppia di embedding | 1000 | 2.3 us | 2.3 us - 2.4 us |
-| congiunto: retrieval 1:100 (distanze + argsort), CPU 1 thread | query | 100 | 19.8 us | 19.6 us - 19.9 us |
-| congiunto: retrieval 1:100 (distanze + argsort), GPU | query | 100 | 40.7 us | 40.4 us - 41.3 us |
-| congiunto: retrieval 1:1,000 (distanze + argsort), CPU 1 thread | query | 100 | 187.9 us | 187.0 us - 188.9 us |
-| congiunto: retrieval 1:1,000 (distanze + argsort), GPU | query | 100 | 50.1 us | 49.7 us - 50.8 us |
-| congiunto: retrieval 1:10,000 (distanze + argsort), CPU 1 thread | query | 100 | 2.21 ms | 2.14 ms - 2.26 ms |
-| congiunto: retrieval 1:10,000 (distanze + argsort), GPU | query | 100 | 68.9 us | 68.5 us - 69.5 us |
-| ICP rigido + Chamfer, CPU 1 thread | coppia di mesh | 60 | 33.93 ms | 30.30 ms - 41.59 ms |
-| NICP P2Tri (con l'ICP rigido che la precede), CPU 1 thread | coppia di mesh | 60 | 1.42 s | 1.37 s - 1.82 s |
-| ArcFace normal map: lettura + 3 render, CPU 1 thread | mesh | 60 | 197.25 ms | 136.54 ms - 319.35 ms |
-| ArcFace normal map: 3 embedding + media, CPU 1 thread | mesh | 60 | 345.17 ms | 344.78 ms - 350.74 ms |
-| ArcFace normal map: totale | mesh | 60 | 543.17 ms | 483.23 ms - 664.58 ms |
-| congiunto: operatori + embedding GPU (totale per mesh) | mesh | 60 | 2.34 s | 1.31 s - 4.89 s |
+### iscrizione (per mesh)
+
+| voce | n | mediana | IQR (25-75%) |
+| --- | --- | --- | --- |
+| congiunto: operatori DiffusionNet (k=128), CPU 1 thread | 60 | 2.28 s | 1.27 s - 4.79 s |
+| congiunto: embedding (lettura + forward), GPU | 60 | 56.77 ms | 40.70 ms - 98.00 ms |
+| congiunto: totale (operatori CPU + embedding GPU) | 60 | 2.34 s | 1.31 s - 4.89 s |
+| congiunto: embedding (lettura + forward), CPU 1 thread | 60 | 442.80 ms | 271.95 ms - 936.74 ms |
+
+### ricerca su galleria iscritta (per query)
+
+| voce | n | mediana | IQR (25-75%) |
+| --- | --- | --- | --- |
+| congiunto: un confronto ||z_a - z_b|| (1:1), CPU | 1000 | 2.3 us | 2.3 us - 2.4 us |
+| congiunto 1:100 (256-d, distanze + argsort), CPU 1 thread | 100 | 19.8 us | 19.6 us - 19.9 us |
+| congiunto 1:100 (256-d, distanze + argsort), GPU | 100 | 40.7 us | 40.4 us - 41.3 us |
+| congiunto 1:1,000 (256-d, distanze + argsort), CPU 1 thread | 100 | 187.9 us | 187.0 us - 188.9 us |
+| congiunto 1:1,000 (256-d, distanze + argsort), GPU | 100 | 50.1 us | 49.7 us - 50.8 us |
+| congiunto 1:10,000 (256-d, distanze + argsort), CPU 1 thread | 100 | 2.21 ms | 2.14 ms - 2.26 ms |
+| congiunto 1:10,000 (256-d, distanze + argsort), GPU | 100 | 68.9 us | 68.5 us - 69.5 us |
+
+### a coppie (per coppia)
+
+| voce | n | mediana | IQR (25-75%) |
+| --- | --- | --- | --- |
+| ICP rigido + Chamfer (prima tornata), CPU 1 thread | 60 | 33.93 ms | 30.30 ms - 41.59 ms |
+| ICP rigido + NICP P2Tri (prima tornata), CPU 1 thread | 60 | 1.42 s | 1.37 s - 1.82 s |
 
 ## Controlli
 
-- BFM, 108 held-out del congiunto, BFM+ICT congiunto: max |diff| contro `latent_distance` WS2 = 3.14e-03 su 173340 coppie (mediana di latent_distance 0.763)
-- ICT, 89 held-out del congiunto, BFM+ICT congiunto: max |diff| contro `latent_distance` WS2 = 2.28e-03 su 117480 coppie (mediana di latent_distance 1.173)
-- ICT con espressioni casuali, 89 held-out del congiunto, BFM+ICT congiunto: max |diff| contro `latent_distance` WS2 = 2.11e-03 su 82236 coppie (mediana di latent_distance 1.266)
 - BFM-19, held-out di congiunto E BFM-only, BFM+ICT congiunto: max |diff| contro `latent_distance` WS2 = 2.32e-03 su 5130 coppie (mediana di latent_distance 0.750)
 - BFM-19, held-out di congiunto E BFM-only, BFM-only (1019310): max |diff| contro `latent_distance` WS2 = 8.62e-04 su 5130 coppie (mediana di latent_distance 0.509)
-- faceBench: NICP asimmetrico, orientazione della coppia = ordine delle etichette, non query -> galleria.
-- leak (`sets.json`): {"bfm": {"n": 108, "in_joint_train": 0, "in_bfm_only_train": 89, "in_joint_online_eval": 16, "in_bfm_only_online_eval": 2}, "ict": {"n": 89, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 0, "in_bfm_only_online_eval": 0}, "rexpr": {"n": 89, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 0, "in_bfm_only_online_eval": 0}, "bfm19": {"n": 19, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 5, "in_bfm_only_online_eval": 2}}
+- ICT con espressioni casuali, 89 held-out del congiunto, BFM+ICT congiunto: max |diff| contro `latent_distance` WS2 = 2.11e-03 su 82236 coppie (mediana di latent_distance 1.266)
+- faceBench: NICP asimmetrico, orientazione della coppia = ordine delle etichette (insiemi quadrati) o query -> galleria (ict992), non sempre query -> galleria.
+- leak (`sets.json`): {"bfm": {"n": 108, "in_joint_train": 0, "in_bfm_only_train": 89, "in_joint_online_eval": 16, "in_bfm_only_online_eval": 2}, "ict": {"n": 89, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 0, "in_bfm_only_online_eval": 0}, "rexpr": {"n": 89, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 0, "in_bfm_only_online_eval": 0}, "bfm19": {"n": 19, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 5, "in_bfm_only_online_eval": 2}, "ict992": {"n": 992, "in_joint_train": 0, "in_bfm_only_train": 0, "in_joint_online_eval": 0, "in_bfm_only_online_eval": 0}}
 
 ---
 

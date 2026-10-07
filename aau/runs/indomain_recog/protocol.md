@@ -100,3 +100,63 @@ nel csv). Dati letti da `/tmp` (copiati a inizio job), quindi il tempo di lettur
   dominio, riportata a parte se misurabile, non nel tempo per mesh).
 - Lettura per l'utente: costo di un confronto 1:1 e di un 1:N di ogni metodo; per le pipeline a coppie
   un 1:N costa N volte la coppia (stima, non misurata, e dichiarata come tale).
+
+## Revisione 1 -- 2026-10-07 16:25 CEST, dopo la revisione del critic e PRIMA di qualunque numero nuovo
+
+Gia' visti a quest'ora: tutti i numeri della prima tornata (summary.md del 2026-10-07 ~15:00). Nessun
+numero esiste per le varianti qui sotto. La prima tornata resta com'e'; le sue righe restano nelle tabelle.
+
+**Perche'.** Le mesh sono ad area unitaria: il crop ha meno area e quindi esce ingrandito (~8%) rispetto
+alle altre topologie dello stesso soggetto. faceBench normalizza maxabs per mesh, prealinea col bbox e fa
+un ICP RIGIDO (senza scala): l'errore di scala del crop non viene mai corretto, e le righe faceBench con
+crop della prima tornata misurano anche questo artefatto. Inoltre il congiunto ha visto la topologia crop
+(e noisy, down8k, ...) dei soggetti di training: e' un'augmentation che le baseline non hanno.
+
+**A. ICP di similarita' (baseline standard da qui in poi).** Stessa pipeline faceBench (maxabs, 4096 punti,
+`prealign_by_bbox`), ma l'ICP di open3d con `TransformationEstimationPointToPoint(with_scaling=True)`
+(soglia 1000 come `icp_align`). Due righe nuove: **ICP di similarita' + Chamfer** (media P2P sulle
+corrispondenze Chamfer, come `rigid_p2p`) e **ICP di similarita' + NICP P2Tri** (`nonrigid_icp_align` e
+`p2tri_distance` di faceBench sul risultato). Tutte le coppie, con crop e senza, su BFM (108) e ICT (89),
+stesse regole della prima tornata. rexpr NON si rifa': niente crop, stessa topologia (dichiarato).
+
+**B. NICP su template (baseline "iscrivi una volta, confronta in corrispondenza densa").** Template per
+dominio = media vertice per vertice delle mesh `original` (maxabs) di 100 soggetti di TRAINING del congiunto
+(`rng(1234)`), stessa topologia del 3DMM; 4096 vertici del template scelti una volta (`rng(0)`). Iscrizione
+di una mesh: maxabs, 4096 punti campionati (seme fisso per mesh), ICP di similarita' template -> mesh,
+`nonrigid_icp_align` del template sulla mesh, poi similarita' (Procrustes con scala) dei 4096 punti
+registrati verso il template, cioe' tutto in un frame canonico. Confronto = distanza L2 media per vertice
+fra due mesh iscritte. Insiemi: bfm, ict, rexpr, ict992.
+
+**C. ArcFace configurato al meglio (righe nuove; le vecchie restano come secondarie).** Inquadratura PER
+MESH invece della camera unica per dominio: centro ed estensione dai vertici dentro i percentili 0.5-99.5
+per asse (un vertice isolato non rimpicciolisce il volto), stesse 3 viste; normali smussate per vertice
+(normali di faccia girate verso la camera, mediate per area sui vertici, colore del triangolo = media
+normalizzata delle sue 3 normali di vertice). Crop ricalibrato su questi render ombreggiati e copiato alla
+normal map, come prima. Flag nuovi in `zs_arcface_render.py` (`--camera mesh`, `--normals vertex`) con i
+default di prima: i risultati in `aau/runs/arcface_render_zs` non cambiano.
+
+**D. Galleria grande (effetto soffitto).** `ict992`: i 992 soggetti ICT held-out del congiunto (0 nel suo
+training, ricontrollato), 6 topologie. Query: 100 soggetti scelti con `rng(1234)` fra i 992. Due blocchi:
+**noisy -> original** (senza crop, PRIMARIO del blocco) e **crop -> original** (a parte); galleria = i 992
+in `original`. Metodi sugli stessi blocchi: congiunto, ICP di similarita' + NICP P2Tri (a coppie, X = query),
+NICP su template, Chamfer faceBench. In piu', solo per congiunto e template (costano un'iscrizione per
+mesh): tutte le 992 query su tutte le 20 coppie senza crop e le 10 con crop (secondario).
+Bootstrap sulle query (galleria fissa), 1000 repliche. Verifica sulle coppie query x galleria: 100
+genuine e 99.100 impostori per blocco; TAR@FAR = 1e-3 e 1e-4 si appoggia a ~99 e ~10 impostori sopra
+soglia: la seconda e' rumorosa e lo si dice.
+
+**E. Misure.** Si aggiunge TAR@FAR 1e-3 e 1e-4 (soglia = quantile pesato degli impostori; TAR = frazione
+pesata dei genuini sopra soglia) a tutte le tabelle. Lettura invariata (CI dei delta appaiati).
+
+**F. Tempi.** Si rifanno tutti su un nodo L40S in `--exclusive`. Tabella divisa in **iscrizione** (per mesh:
+congiunto = operatori + embedding; template = ICP di similarita' + NICP + Procrustes; ArcFace = render +
+embedding) e **ricerca su galleria gia' iscritta** (1:N, N = 100, 1.000, 10.000: congiunto L2 su 256-d,
+template L2 media per vertice su 4096 x 3, ArcFace coseno su 512-d). Per i metodi a coppie (ICP di
+similarita' + Chamfer, ICP di similarita' + NICP P2Tri) la ricerca 1:N costa N coppie: tempo per coppia
+misurato, 1:N stimato come N x mediana (dichiarato).
+
+*Precisazione al punto C, 2026-10-07 17:15 CEST, prima di qualunque embedding della configurazione nuova:*
+l'inquadratura per mesh con margine minimo (1.02, come la camera di dominio) fa riempire al volto tutto il
+fotogramma, e il detector della calibrazione non scatta su nessun render a yaw -30 (job 1060307, fallito
+prima degli embedding). Il margine per mesh diventa 1.2, cioe' la dimensione media del volto della camera
+di dominio (BFM: scala 1.83 contro ~1.54 di estensione minima per mesh). Nient'altro cambia.

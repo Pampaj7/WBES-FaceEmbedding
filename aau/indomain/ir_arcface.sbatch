@@ -15,6 +15,9 @@
 #
 #   WBES_IR_ARCFACE_FRAMECHECK=1 aau/submit.sh indomain/ir_arcface.sbatch --time=00:15:00   # prima
 #   aau/submit.sh indomain/ir_arcface.sbatch
+#   WBES_IR_ARCFACE_BEST=1 aau/submit.sh indomain/ir_arcface.sbatch
+#     configurazione "migliore" (protocollo, revisione 1, punto C): inquadratura per mesh
+#     (--camera mesh) e normali smussate per vertice (--normals vertex); out in arcface_best/.
 #
 # Render su /tmp del nodo (contano contro --mem), poi si copia indietro tutto tranne i png dei
 # render: arcface_views.npz, camera e calibrazione, png di controllo. Disco: pochi MB per insieme.
@@ -28,6 +31,11 @@ source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
 
 OUT="$AAU_RUNS/indomain_recog/arcface"
+BEST=()
+if [[ "${WBES_IR_ARCFACE_BEST:-0}" == 1 ]]; then
+    OUT="$AAU_RUNS/indomain_recog/arcface_best"
+    BEST=(--camera mesh)
+fi
 TMP_OUT="${TMPDIR:-/tmp}/wbes_ir_arcface_${SLURM_JOB_ID:-manual}"
 trap 'rm -rf "$TMP_OUT"' EXIT
 CORES="${SLURM_CPUS_PER_TASK:-8}"
@@ -53,9 +61,10 @@ for set in ${WBES_IR_ARCFACE_SETS:-bfm ict rexpr}; do
     for mode in shaded normals; do
         extra=()
         [[ "$mode" == normals ]] && extra=(--calibration-from "$TMP_OUT/$set/shaded/renders/arcface_align.json")
+        [[ "$mode" == normals && ${#BEST[@]} -gt 0 ]] && extra+=(--normals vertex)
         "$AAU_DIR/baselines/run_bl.sh" aau/indomain/ir_arcface_render.py "$set" --view-dir "$VIEW" \
             --subjects-json "$SUBJ" --out-root "$TMP_OUT/$set/$mode" --base-rotation "${ROT[$set]}" \
-            --mode "$mode" --workers "$CORES" "${extra[@]}"
+            --mode "$mode" --workers "$CORES" "${BEST[@]}" "${extra[@]}"
     done
     mkdir -p "$OUT/$set"
     rsync -a --exclude='renders/*/' "$TMP_OUT/$set/" "$OUT/$set/"

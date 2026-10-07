@@ -935,3 +935,10 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Dentro un singolo metodo** il latente segue NoW meglio di Chamfer (3DDFA-V2: 0.65 contro 0.45).
 - **Identità fra ricostruzioni (AUC):** il latente è ultimo con tutti i metodi (MICA 0.887 contro 0.981 di ArcFace).
 - **Bug trovato:** `crop_region` in `ws3b_prepare_meshes` (indici di vertice sbagliati); corretto per NoW, in WS3b da verificare.
+
+**Critic su NoW: RISERVE.** Niente errori di frame o di regione: il frame nativo è il migliore, le patch NoW sono nella distribuzione di training, WS3b è pulito dal bug di `crop_region`.
+- **Il segno dipende da MICA** (aggiunto fuori protocollo). Sui 3 metodi pre-registrati il tau del latente è +0.131, positivo ma ultimo (Chamfer +0.246, ArcFace +0.271, ICP+Chamfer +0.612). Con MICA è −0.236.
+- **La tassellazione di MICA penalizza il latente:** la sola storia della mesh sposta il latente del 26% della distanza fra soggetti. Con una storia densa (Loop) il tau di MICA va da −0.183 a −0.097 (100 immagini): resta negativo.
+- **Il riconoscimento fra ricostruzioni** (stesso metodo, stessa storia della mesh) è affidabile: il latente è ultimo.
+- **Formulazione:** "su ricostruzioni reali il latente attuale è la metrica meno concorde con NoW, e la storia della mesh è un confondente misurato".
+- **Correzioni del summary e fragilità di `--overwrite`:** affidate.
