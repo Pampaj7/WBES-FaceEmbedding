@@ -13,6 +13,12 @@
 # now_prepare_meshes.py, poi now_latent.py.
 #
 #   WBES_CKPT=<congiunto> aau/submit.sh recon/now_ops_latent.sbatch
+#   WBES_NOW_OVERWRITE=1 WBES_CKPT=<congiunto> aau/submit.sh recon/now_ops_latent.sbatch
+#
+# Operatori e latenti si riprendono dai file esistenti: se le patch sono cambiate (nuova
+# now_prepare_meshes.py) va dato WBES_NOW_OVERWRITE=1, che passa --overwrite sia a
+# areanorm_operators.py sia a now_latent.py, altrimenti si riusano operatori e latenti VECCHI
+# senza nessun errore.
 #
 # Operatori come ws3b_ops_areanorm.sbatch: v2_work/potential/areanorm_operators.py verbatim,
 # un processo per core con --shard i/n, ripartibile.  ~1100 mesh da ~2.7k vertici: pochi
@@ -27,7 +33,8 @@ aau_require_diffusion_net
 aau_require_checkpoint
 
 WORK="${WBES_NOW_WORK:-$HOME/data/now_eval_work}"
-METHODS="${WBES_NOW_METHODS:-3ddfa_v2 synergynet prnet}"
+METHODS="${WBES_NOW_METHODS:-3ddfa_v2 synergynet prnet mica}"
+OVERWRITE=(); [[ "${WBES_NOW_OVERWRITE:-0}" == "1" ]] && OVERWRITE=(--overwrite)
 N_SHARDS="${SLURM_CPUS_PER_TASK:-8}"
 SUFFIX="_withops_areanorm"
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
@@ -48,7 +55,7 @@ for pair in $PAIRS; do
     t0=$(date +%s); pids=()
     for (( i = 0; i < N_SHARDS; i++ )); do
         "$AAU_DIR/run.sh" v2_work/potential/areanorm_operators.py \
-            --input-dir "$IN_DIR" --output-dir "$OUT_DIR" --k-eig 128 --shard "$i/$N_SHARDS" \
+            --input-dir "$IN_DIR" --output-dir "$OUT_DIR" --k-eig 128 --shard "$i/$N_SHARDS" "${OVERWRITE[@]}" \
             > "$SHARD_LOGS/$tag-shard$i.log" 2>&1 &
         pids+=($!)
     done
@@ -61,6 +68,6 @@ for pair in $PAIRS; do
     (( N_OUT == N_IN )) || { echo "ERRORE: operatori incompleti per ${pair%%:*}" >&2; exit 1; }
 done
 
-AAU_NV="--nv" "$AAU_DIR/run.sh" aau/recon/now_latent.py --methods "${METHODS// /,}" "$@"
+AAU_NV="--nv" "$AAU_DIR/run.sh" aau/recon/now_latent.py --methods "${METHODS// /,}" "${OVERWRITE[@]}" "$@"
 
 echo "[now-latent] OK"

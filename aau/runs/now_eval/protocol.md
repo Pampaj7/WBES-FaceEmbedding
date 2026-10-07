@@ -154,3 +154,8 @@ Tutte del 7 ottobre 2026.
    metriche (b)-(d) ricalcolate. L'errore NoW ufficiale non ne dipende (usa la scansione
    grezza). I numeri della corsa col bug restano in `_superseded_crop_bug/` (e quelli
    prima del punto 3 in `_superseded_winding_misto/`) e NON vanno citati.
+5. **Primaria sui 3 metodi pre-registrati** (revisione del critic). La concordanza
+   PRIMARIA e il delta pre-registrato si calcolano solo su 3DDFA_V2, SynergyNet e PRNet,
+   come scritto sopra; la versione con MICA (deviazione 1) e' secondaria, perche' il segno
+   del latente dipende da MICA. Aggiunta l'analisi di sensibilita' sulla storia di
+   tassellazione di MICA (Loop x2 al posto del punto medio) su tutte le 352 immagini.

@@ -140,6 +140,45 @@ def spearman(x: np.ndarray, y: np.ndarray) -> float:
     return float(np.corrcoef(rankdata(x), rankdata(y))[0, 1])
 
 
+PREREGISTERED = ("3ddfa_v2", "synergynet", "prnet")
+
+
+def concordance(dc, methods, metrics, names, by_name, s2i, counts):
+    """Concordanza con NoW su un insieme di metodi: tau per immagine e Spearman per
+    ricostruzione, con repliche bootstrap sui soggetti; piu' il delta pre-registrato."""
+    dc = dc[dc["method"].isin(methods)]
+    wide = {col: dc.pivot(index="name", columns="method", values=col)[methods].loc[names]
+            for col in ["now_median"] + metrics}
+    img_s = np.asarray([s2i[by_name[n].subject] for n in names])
+    rows_s = dc["s"].to_numpy()
+    conc, reps = [], {}
+    for metric in metrics:
+        tau_i = kendall_rows(wide[metric].to_numpy(), wide["now_median"].to_numpy())
+        t_reps = np.asarray([(c[img_s] * tau_i).sum() / c[img_s].sum() for c in counts])
+        x, y = dc[metric].to_numpy(), dc["now_median"].to_numpy()
+        rho = spearman(x, y)
+        r_reps = np.asarray([spearman(x[idx], y[idx]) for idx in
+                             (np.repeat(np.arange(len(x)), c[rows_s]) for c in counts)])
+        reps[metric] = (t_reps, r_reps)
+        conc.append({"metric": metric, "methods": "+".join(methods), "tau_image": float(tau_i.mean()),
+                     **dict(zip(("tau_image_ci_low", "tau_image_ci_high"), ci(np.concatenate([[tau_i.mean()], t_reps])))),
+                     "spearman": rho, **dict(zip(("spearman_ci_low", "spearman_ci_high"), ci(np.concatenate([[rho], r_reps])))),
+                     **{f"spearman_{m}": spearman(dc.loc[dc["method"] == m, metric], dc.loc[dc["method"] == m, "now_median"])
+                        for m in methods}})
+    deltas = []
+    a_, b_ = PRIMARY_DELTA
+    if a_ in reps and b_ in reps:
+        ra = next(r for r in conc if r["metric"] == a_)
+        rb = next(r for r in conc if r["metric"] == b_)
+        for col, j in (("tau_image", 0), ("spearman", 1)):
+            d = reps[a_][j] - reps[b_][j]
+            point = float(ra[col] - rb[col])
+            lo, hi = ci(np.concatenate([[point], d]))
+            deltas.append({"methods": "+".join(methods), "concordance": col, "delta": point,
+                           "ci_low": lo, "ci_high": hi, "p_le0": float((d <= 0).mean())})
+    return conc, reps, deltas
+
+
 # ----------------------------------------------------------------------- (d) identita'
 
 def retrieval(D: np.ndarray, subj: np.ndarray, n_subj: int, queries: np.ndarray, gallery: np.ndarray):
@@ -264,40 +303,35 @@ def main() -> None:
                              "p_tau1": float((t_reps == 1).mean())})
     rank_table, tau_table = pd.DataFrame(rank_rows), pd.DataFrame(tau_rows)
 
-    # Concordanza per immagine e per ricostruzione
-    wide = {col: dc.pivot(index="name", columns="method", values=col)[methods].loc[common_names]
-            for col in ["now_median"] + metrics}
-    img_s = np.asarray([s2i[by_name[n].subject] for n in common_names])
-    rows_s = dc["s"].to_numpy()
-    conc, conc_reps = [], {}
-    for metric in metrics:
-        tau_i = kendall_rows(wide[metric].to_numpy(), wide["now_median"].to_numpy())
-        t_reps = np.asarray([(c[img_s] * tau_i).sum() / c[img_s].sum() for c in counts])
-        x, y = dc[metric].to_numpy(), dc["now_median"].to_numpy()
-        rho = spearman(x, y)
-        r_reps = []
-        for c in counts:
-            idx = np.repeat(np.arange(len(x)), c[rows_s])
-            r_reps.append(spearman(x[idx], y[idx]))
-        r_reps = np.asarray(r_reps)
-        conc_reps[metric] = (t_reps, r_reps)
-        per_method = {f"spearman_{m}": spearman(dc.loc[dc["method"] == m, metric], dc.loc[dc["method"] == m, "now_median"])
-                      for m in methods}
-        conc.append({"metric": metric, "tau_image": float(tau_i.mean()),
-                     **dict(zip(("tau_image_ci_low", "tau_image_ci_high"), ci(np.concatenate([[tau_i.mean()], t_reps])))),
-                     "spearman": rho, **dict(zip(("spearman_ci_low", "spearman_ci_high"), ci(np.concatenate([[rho], r_reps])))),
-                     **per_method})
-    conc_table = pd.DataFrame(conc)
-    deltas_c = []
-    a_, b_ = PRIMARY_DELTA
-    if a_ in conc_reps and b_ in conc_reps:
-        ra, rb = conc_table.set_index("metric").loc[a_], conc_table.set_index("metric").loc[b_]
-        for k, (col, j) in enumerate((("tau_image", 0), ("spearman", 1))):
-            d = conc_reps[a_][j] - conc_reps[b_][j]
-            point = float(ra[col] - rb[col])
-            lo, hi = ci(np.concatenate([[point], d]))
-            deltas_c.append({"concordance": col, "delta": point, "ci_low": lo, "ci_high": hi,
-                             "p_le0": float((d <= 0).mean())})
+    # Concordanza per immagine e per ricostruzione.  PRIMARIA sui 3 metodi pre-registrati;
+    # con MICA (deviazione dal protocollo) secondaria; MICA con Loop x2 come sensibilita'.
+    prereg = [m for m in PREREGISTERED if m in methods]
+    conc, conc_reps, deltas_c = concordance(dc, prereg, metrics, common_names, by_name, s2i, counts)
+    conc_all, _, deltas_all = concordance(dc, methods, metrics, common_names, by_name, s2i, counts)
+    mica_last, sens = {}, None
+    if "mica" in methods:
+        for col in ["now_median"] + metrics:
+            w = dc.pivot(index="name", columns="method", values=col)[methods].loc[common_names]
+            mica_last[col] = int((w.to_numpy().argmax(1) == methods.index("mica")).sum())
+        loop_path = common.gt_csv_path("latent_joint", "mica_loop2")
+        if loop_path.exists():
+            loop = {r["name"]: float(r["latent_joint"]) for r in common.read_rows(loop_path)}
+            dl = dc.copy()
+            is_mica = dl["method"] == "mica"
+            dl.loc[is_mica, "latent_joint"] = dl.loc[is_mica, "name"].map(loop).to_numpy()
+            sens_conc, _, _ = concordance(dl, methods, ["latent_joint"], common_names, by_name, s2i, counts)
+            sub = dc[is_mica].set_index("name").loc[common_names]
+            native, looped = sub["latent_joint"].to_numpy(), np.asarray([loop[n] for n in common_names])
+            ss = sub["s"].to_numpy()
+            pen = native - looped
+            pen_reps = np.asarray([(c[ss] * pen).sum() / c[ss].sum() for c in counts])
+            others = dc[dc["method"].isin(prereg)].groupby("method")["latent_joint"].mean()
+            wl = dl.pivot(index="name", columns="method", values="latent_joint")[methods].loc[common_names]
+            sens = {"conc": sens_conc[0], "penalty": float(pen.mean()),
+                    "penalty_ci": ci(np.concatenate([[pen.mean()], pen_reps])),
+                    "native_mean": float(native.mean()), "loop_mean": float(looped.mean()),
+                    "others": others.to_dict(),
+                    "mica_last_loop": int((wl.to_numpy().argmax(1) == methods.index("mica")).sum())}
 
     # (d) identita' fra ricostruzioni -----------------------------------------------------
     tasks = []
@@ -338,8 +372,8 @@ def main() -> None:
     a_table.to_csv(out / "official.csv", index=False)
     rank_table.to_csv(out / "ranking.csv", index=False)
     tau_table.to_csv(out / "ranking_kendall.csv", index=False)
-    conc_table.to_csv(out / "concordance.csv", index=False)
-    pd.DataFrame(deltas_c).to_csv(out / "concordance_paired.csv", index=False)
+    pd.DataFrame(conc + conc_all + ([sens["conc"]] if sens else [])).to_csv(out / "concordance.csv", index=False)
+    pd.DataFrame(deltas_c + deltas_all).to_csv(out / "concordance_paired.csv", index=False)
     rec_table.to_csv(out / "recognition.csv", index=False)
     rec_delta_table.to_csv(out / "recognition_paired.csv", index=False)
 
@@ -373,20 +407,53 @@ def main() -> None:
                                          f"{taus.loc[metric, 'p_tau1']:.2f}")
         L.append(f"| {LABEL[metric]} | " + " | ".join(cells) + f" | {t} |")
 
-    L += ["\n### Concordanza con NoW per immagine e per ricostruzione\n",
-          "Per immagine: Kendall tau fra l'ordine dei metodi secondo la metrica e secondo l'errore NoW mediano "
-          "dell'immagine, medio sulle immagini (PRIMARIA). Per ricostruzione: Spearman su tutte le ricostruzioni "
-          "di tutti i metodi; accanto lo Spearman dentro ciascun metodo.\n",
-          "| metrica | tau per immagine [CI] | Spearman [CI] | " + " | ".join(f"Spearman {m}" for m in methods) + " |",
-          "| --- | --- | --- | " + " | ".join("---" for _ in methods) + " |"]
-    for r in conc:
-        L.append(f"| {LABEL[r['metric']]} | {fmt(r['tau_image'], r['tau_image_ci_low'], r['tau_image_ci_high'])} | "
-                 f"{fmt(r['spearman'], r['spearman_ci_low'], r['spearman_ci_high'])} | "
-                 + " | ".join(f"{r[f'spearman_{m}']:.3f}" for m in methods) + " |")
+    def conc_md(rows, ms):
+        out = ["| metrica | tau per immagine [CI] | Spearman [CI] | " + " | ".join(f"Spearman {m}" for m in ms) + " |",
+               "| --- | --- | --- | " + " | ".join("---" for _ in ms) + " |"]
+        for r in rows:
+            out.append(f"| {LABEL[r['metric']]} | {fmt(r['tau_image'], r['tau_image_ci_low'], r['tau_image_ci_high'])} | "
+                       f"{fmt(r['spearman'], r['spearman_ci_low'], r['spearman_ci_high'])} | "
+                       + " | ".join(f"{r[f'spearman_{m}']:.3f}" for m in ms) + " |")
+        return out
+
+    def delta_md(ds):
+        return (f"\nDelta appaiato pre-registrato {LABEL[PRIMARY_DELTA[0]]} - {LABEL[PRIMARY_DELTA[1]]}: "
+                + "; ".join(f"{r['concordance']} {fmt(r['delta'], r['ci_low'], r['ci_high'], signed=True)} "
+                            f"(P<=0 {r['p_le0']:.3f})" for r in ds) + ".")
+
+    L += ["\n### PRIMARIA: concordanza con NoW sui 3 metodi pre-registrati\n",
+          f"Metodi: {', '.join(prereg)} (quelli del protocollo). Per immagine: Kendall tau fra l'ordine dei metodi "
+          "secondo la metrica e secondo l'errore NoW mediano dell'immagine, medio sulle immagini. Per ricostruzione: "
+          "Spearman su tutte le ricostruzioni dei metodi; accanto lo Spearman dentro ciascun metodo.\n",
+          *conc_md(conc, prereg)]
     if deltas_c:
-        L.append(f"\nDelta appaiato pre-registrato {LABEL[a_]} - {LABEL[b_]}: "
-                 + "; ".join(f"{r['concordance']} {fmt(r['delta'], r['ci_low'], r['ci_high'], signed=True)} "
-                             f"(P<=0 {r['p_le0']:.3f})" for r in deltas_c) + ".")
+        L.append(delta_md(deltas_c))
+    if "mica" in methods:
+        L += ["\n### Secondaria: con MICA (deviazione dal protocollo)\n",
+              "MICA non era fra i metodi pre-registrati: e' stato aggiunto dopo (deviazione 1). Il segno della "
+              "concordanza del latente dipende da MICA: il latente mette MICA ULTIMO (distanza dalla scansione piu' "
+              f"grande dei 4 metodi) in {mica_last.get('latent_joint', 0)} immagini su {len(common_names)}, NoW in "
+              f"{mica_last['now_median']}; le altre metriche in "
+              + ", ".join(f"{mica_last[m]} ({LABEL[m]})" for m in metrics if m != "latent_joint") + ".\n",
+              *conc_md(conc_all, methods)]
+        if deltas_all:
+            L.append(delta_md(deltas_all))
+    if sens:
+        r = sens["conc"]
+        lo, hi = sens["penalty_ci"]
+        L += ["\n### Sensibilita': storia di tassellazione di MICA\n",
+              "Il ritaglio FLAME di MICA ha meno triangoli del bersaglio e passa da una suddivisione 1->4 a punto medio "
+              "(superficie a faccette) prima della decimazione. Variante: due passi di Loop (`igl.loop`, superficie "
+              "levigata, `--subdivision loop2`), stessa decimazione, tutte le "
+              f"{len(common_names)} immagini.\n",
+              f"- latente di MICA dalla scansione: punto medio {sens['native_mean']:.3f}, Loop x2 {sens['loop_mean']:.3f}; "
+              f"penalita' della storia a punto medio {sens['penalty']:+.3f} [{lo:+.3f}, {hi:+.3f}] (CI bootstrap sui soggetti). "
+              "Riferimento, gli altri metodi: " + ", ".join(f"{m} {v:.3f}" for m, v in sens["others"].items()) + ".",
+              f"- con Loop x2 il latente mette MICA ultimo in {sens['mica_last_loop']} immagini su {len(common_names)} "
+              f"(punto medio: {mica_last.get('latent_joint', 0)}).",
+              f"- tau per immagine del latente sui 4 metodi con MICA Loop x2: "
+              f"{fmt(r['tau_image'], r['tau_image_ci_low'], r['tau_image_ci_high'])}; Spearman "
+              f"{fmt(r['spearman'], r['spearman_ci_low'], r['spearman_ci_high'])}."]
 
     L += ["\n## (d) Identita' fra ricostruzioni\n",
           "Retrieval: query = ogni ricostruzione, distanza dal soggetto = minimo sulle altre ricostruzioni di quel "

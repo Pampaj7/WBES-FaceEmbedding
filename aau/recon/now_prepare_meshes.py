@@ -16,6 +16,9 @@ Quattro passi, per ogni mesh (le 20 scansioni e ogni ricostruzione di ogni metod
    collasso quadrico di WS3b: le patch hanno la risoluzione di ``gt_face``.  Se il ritaglio
    ha meno triangoli del bersaglio (MICA: la topologia FLAME ne ha ~4k nel volto) prima si
    suddivide 1->4 a punto medio (``mesh_ops.subdivide_midpoint``), poi si decima.
+   ``--subdivision loop2`` (analisi di sensibilita' su MICA): due passi di Loop
+   (``igl.loop``) al posto del punto medio, uscita in ``recon_face/<metodo>_loop2`` e
+   ``prep_<metodo>_loop2.csv``; le scansioni non si toccano e il template si rilegge.
 4. **Verso dei triangoli**: coerente e verso l'esterno (``orient_outward``), dopo la
    decimazione, quindi senza toccare i vertici.
 
@@ -55,6 +58,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--methods", type=str, default=",".join(common.METHODS))
     p.add_argument("--target-faces", type=int, default=common.TARGET_FACES)
     p.add_argument("--workers", type=int, default=16)
+    p.add_argument("--subdivision", type=str, default="midpoint", choices=("midpoint", "loop2"),
+                   help="come si porta sopra il bersaglio un ritaglio con meno triangoli (MICA)")
     p.add_argument("--overwrite", action="store_true")
     return p.parse_args()
 
@@ -146,7 +151,7 @@ def patch_quality(V: np.ndarray, F: np.ndarray) -> tuple[float, int]:
     return float((a * (n[:, 2] > 0)).sum() / max(a.sum(), 1e-12)), folds // 2
 
 
-def canonical_patch(V, F, lmk, template, target_faces):
+def canonical_patch(V, F, lmk, template, target_faces, subdivision: str = "midpoint"):
     """Frame canonico, ritaglio NoW, decimazione; piu' i controlli della riga di prep."""
     Vc, Lc, scale = common.to_canonical(V, lmk, template)
     centre, radius = common.now_mask(Lc)
@@ -154,8 +159,15 @@ def canonical_patch(V, F, lmk, template, target_faces):
     Vm, Fm = make_manifold(Vk, Fk)
     # MICA (FLAME, 9976 facce su tutta la testa) ha nel ritaglio meno triangoli del bersaglio:
     # suddivisione 1->4 a punto medio, che non sposta la geometria, poi la stessa decimazione.
+    # Con ``loop2`` la superficie viene invece levigata da due passi di Loop (storia densa).
     if len(Fm) < target_faces:
-        Vm, Fm = mo.subdivide_midpoint(Vm, Fm, 1)
+        if subdivision == "loop2":
+            import igl
+
+            Vm, Fm = (np.asarray(x) for x in igl.loop(np.asarray(Vm, dtype=np.float64),
+                                                      np.asarray(Fm, dtype=np.int64), 2))
+        else:
+            Vm, Fm = mo.subdivide_midpoint(Vm, Fm, 1)
     Vd, Fd = mo.decimate_to(Vm, Fm, target_faces)
     if len(Fd) < 0.9 * target_faces:
         raise RuntimeError(f"decimazione a {len(Fd)} triangoli invece di {target_faces}")
@@ -172,8 +184,8 @@ def canonical_patch(V, F, lmk, template, target_faces):
 def _prep_recon(name: str) -> dict:
     method, template = _STATE["method"], _STATE["template"]
     V, F, lmk = common.load_recon(method, name)
-    Vd, Fd, row = canonical_patch(V, F, lmk, template, _STATE["target_faces"])
-    mo.save_variant(Vd, Fd, common.recon_face_dir(method) / f"{name}.npz")
+    Vd, Fd, row = canonical_patch(V, F, lmk, template, _STATE["target_faces"], _STATE["subdivision"])
+    mo.save_variant(Vd, Fd, common.recon_face_dir(_STATE["out_name"]) / f"{name}.npz")
     return {"name": name, **row}
 
 
@@ -182,6 +194,12 @@ def main() -> None:
     methods = [m.strip() for m in args.methods.split(",") if m.strip()]
     items = common.load_items()
     subjects = common.subjects_of(items)
+
+    if args.subdivision != "midpoint":
+        # Variante di sensibilita': solo le ricostruzioni, col template gia' scritto.
+        template = np.asarray(json.loads(common.template_path().read_text())["landmarks_mm"])
+        prep_recons(args, methods, items, template, suffix=f"_{args.subdivision}")
+        return
 
     # --- scansioni e template -------------------------------------------------------
     t0 = time.time()
@@ -213,24 +231,30 @@ def main() -> None:
           f"residuo landmark {med['lmk_residual_mm']:.2f} mm; verso+z minimo "
           f"{min(r['outward_area'] for r in rows):.3f}, pieghe massime {max(r['n_folds'] for r in rows)}", flush=True)
 
-    # --- ricostruzioni -----------------------------------------------------------------
+    prep_recons(args, methods, items, template)
+
+
+def prep_recons(args, methods, items, template, suffix: str = "") -> None:
+    """Patch delle ricostruzioni di ogni metodo in ``recon_face/<metodo><suffix>``."""
     by_name = {it.name: it for it in items}
     for method in methods:
         names = [it.name for it in items if (common.recon_dir(method) / f"{it.name}.npz").is_file()]
         if len(names) != len(items):
             print(f"[now-prep] ATTENZIONE {method}: {len(names)}/{len(items)} ricostruzioni", flush=True)
-        common.recon_face_dir(method).mkdir(parents=True, exist_ok=True)
+        common.recon_face_dir(method + suffix).mkdir(parents=True, exist_ok=True)
         t0 = time.time()
         _STATE.clear()
-        _STATE.update(method=method, template=template, target_faces=args.target_faces)
+        _STATE.update(method=method, template=template, target_faces=args.target_faces,
+                      subdivision=args.subdivision, out_name=method + suffix)
         with mp.get_context("fork").Pool(processes=args.workers) as pool:
             rows = pool.map(_prep_recon, names, chunksize=8)
         rows = [{**r, "subject": by_name[r["name"]].subject,
                  "challenge": by_name[r["name"]].challenge} for r in rows]
-        common.write_rows(common.OUT_ROOT / f"prep_{method}.csv", PREP_FIELDS, rows,
-                          target_faces=args.target_faces, template=str(common.template_path()))
+        common.write_rows(common.OUT_ROOT / f"prep_{method}{suffix}.csv", PREP_FIELDS, rows,
+                          target_faces=args.target_faces, template=str(common.template_path()),
+                          subdivision=args.subdivision)
         med = {k: float(np.median([r[k] for r in rows])) for k in PREP_FIELDS[3:]}
-        print(f"[now-prep] {method}: {len(rows)} mesh in {time.time() - t0:.0f}s; scala {med['scale_to_mm']:.3f} mm/px, "
+        print(f"[now-prep] {method}{suffix}: {len(rows)} mesh in {time.time() - t0:.0f}s; scala {med['scale_to_mm']:.3f} mm/px, "
               f"raggio mediano {med['crop_radius_mm']:.1f} mm, {med['n_vertices_crop']:.0f} vertici nel ritaglio -> "
               f"{med['n_vertices']:.0f}, residuo landmark {med['lmk_residual_mm']:.2f} mm; verso+z minimo "
               f"{min(r['outward_area'] for r in rows):.3f}, pieghe massime {max(r['n_folds'] for r in rows)}", flush=True)

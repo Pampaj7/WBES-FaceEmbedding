@@ -154,6 +154,11 @@ Tutte del 7 ottobre 2026.
    metriche (b)-(d) ricalcolate. L'errore NoW ufficiale non ne dipende (usa la scansione
    grezza). I numeri della corsa col bug restano in `_superseded_crop_bug/` (e quelli
    prima del punto 3 in `_superseded_winding_misto/`) e NON vanno citati.
+5. **Primaria sui 3 metodi pre-registrati** (revisione del critic). La concordanza
+   PRIMARIA e il delta pre-registrato si calcolano solo su 3DDFA_V2, SynergyNet e PRNet,
+   come scritto sopra; la versione con MICA (deviazione 1) e' secondaria, perche' il segno
+   del latente dipende da MICA. Aggiunta l'analisi di sensibilita' sulla storia di
+   tassellazione di MICA (Loop x2 al posto del punto medio) su tutte le 352 immagini.
 
 ---
 
@@ -205,9 +210,23 @@ Punteggio: NoW = mediana ufficiale sull'insieme comune; le altre = media delle d
 | ArcFace su normal map | mica 0.5870 [0.5558, 0.6167] (1.00) | 3ddfa_v2 0.7004 [0.6596, 0.7461] (0.00) | synergynet 0.7219 [0.6787, 0.7631] (0.00) | prnet 0.7863 [0.7612, 0.8123] (0.00) | +0.67; +0.72; 0.17 |
 | ArcFace su render ombreggiato (secondaria) | mica 0.5905 [0.5697, 0.6126] (1.00) | 3ddfa_v2 0.7136 [0.6711, 0.7546] (0.00) | synergynet 0.7279 [0.6834, 0.7707] (0.00) | prnet 0.7516 [0.7226, 0.7831] (0.00) | +0.67; +0.70; 0.16 |
 
-### Concordanza con NoW per immagine e per ricostruzione
+### PRIMARIA: concordanza con NoW sui 3 metodi pre-registrati
 
-Per immagine: Kendall tau fra l'ordine dei metodi secondo la metrica e secondo l'errore NoW mediano dell'immagine, medio sulle immagini (PRIMARIA). Per ricostruzione: Spearman su tutte le ricostruzioni di tutti i metodi; accanto lo Spearman dentro ciascun metodo.
+Metodi: 3ddfa_v2, synergynet, prnet (quelli del protocollo). Per immagine: Kendall tau fra l'ordine dei metodi secondo la metrica e secondo l'errore NoW mediano dell'immagine, medio sulle immagini. Per ricostruzione: Spearman su tutte le ricostruzioni dei metodi; accanto lo Spearman dentro ciascun metodo.
+
+| metrica | tau per immagine [CI] | Spearman [CI] | Spearman 3ddfa_v2 | Spearman synergynet | Spearman prnet |
+| --- | --- | --- | --- | --- | --- |
+| latente congiunto BFM+ICT | 0.131 [-0.014, 0.268] | 0.485 [0.291, 0.608] | 0.647 | 0.516 | 0.373 |
+| Chamfer grezza (maxabs) | 0.246 [0.123, 0.373] | 0.466 [0.245, 0.637] | 0.449 | 0.487 | 0.424 |
+| ICP + Chamfer (mm) | 0.612 [0.537, 0.686] | 0.866 [0.758, 0.924] | 0.853 | 0.837 | 0.865 |
+| ArcFace su normal map | 0.271 [0.145, 0.396] | 0.134 [-0.198, 0.485] | 0.042 | 0.151 | 0.094 |
+| ArcFace su render ombreggiato (secondaria) | 0.269 [0.173, 0.365] | 0.234 [-0.084, 0.553] | 0.142 | 0.255 | 0.255 |
+
+Delta appaiato pre-registrato latente congiunto BFM+ICT - Chamfer grezza (maxabs): tau_image -0.116 [-0.192, -0.042] (P<=0 1.000); spearman +0.019 [-0.120, +0.156] (P<=0 0.490).
+
+### Secondaria: con MICA (deviazione dal protocollo)
+
+MICA non era fra i metodi pre-registrati: e' stato aggiunto dopo (deviazione 1). Il segno della concordanza del latente dipende da MICA: il latente mette MICA ULTIMO (distanza dalla scansione piu' grande dei 4 metodi) in 280 immagini su 352, NoW in 4; le altre metriche in 96 (Chamfer grezza (maxabs)), 70 (ICP + Chamfer (mm)), 2 (ArcFace su normal map), 6 (ArcFace su render ombreggiato (secondaria)).
 
 | metrica | tau per immagine [CI] | Spearman [CI] | Spearman 3ddfa_v2 | Spearman synergynet | Spearman prnet | Spearman mica |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -218,6 +237,14 @@ Per immagine: Kendall tau fra l'ordine dei metodi secondo la metrica e secondo l
 | ArcFace su render ombreggiato (secondaria) | 0.479 [0.390, 0.561] | 0.503 [0.294, 0.698] | 0.142 | 0.255 | 0.255 | 0.252 |
 
 Delta appaiato pre-registrato latente congiunto BFM+ICT - Chamfer grezza (maxabs): tau_image -0.412 [-0.541, -0.311] (P<=0 1.000); spearman -0.354 [-0.487, -0.236] (P<=0 1.000).
+
+### Sensibilita': storia di tassellazione di MICA
+
+Il ritaglio FLAME di MICA ha meno triangoli del bersaglio e passa da una suddivisione 1->4 a punto medio (superficie a faccette) prima della decimazione. Variante: due passi di Loop (`igl.loop`, superficie levigata, `--subdivision loop2`), stessa decimazione, tutte le 352 immagini.
+
+- latente di MICA dalla scansione: punto medio 1.820, Loop x2 1.642; penalita' della storia a punto medio +0.178 [+0.097, +0.263] (CI bootstrap sui soggetti). Riferimento, gli altri metodi: 3ddfa_v2 1.424, prnet 1.352, synergynet 1.310.
+- con Loop x2 il latente mette MICA ultimo in 247 immagini su 352 (punto medio: 280).
+- tau per immagine del latente sui 4 metodi con MICA Loop x2: -0.191 [-0.311, -0.070]; Spearman 0.065 [-0.103, 0.195].
 
 ## (d) Identita' fra ricostruzioni
 
