@@ -142,3 +142,6 @@ generic_model.pkl
 FLAME_masks.pkl
 *FLAME*.pkl
 /paper/review.md
+
+# dati con licenza caricati dall utente (FLAME, NoW): mai versionare
+/external_data/
