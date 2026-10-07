@@ -944,3 +944,15 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Correzioni del summary e fragilità di `--overwrite`:** affidate.
 
 **Studio umano:** la condivisione è in sola visualizzazione, quindi i partecipanti non scrivono nel db. Primo JSON manuale salvato in `aau/human_study/responses_manual/` (P0EKZC2T, controlli 4/4). Partecipanti validi: 2 (utente + P0EKZC2T).
+
+**Zero-shot FLAME** (`aau/runs/ws_flame/b6649295c3f8/`; numeri raccolti dal verifier con il bootstrap di `ws_frame_summary`; FLAME ha lo stesso frame di ICT).
+
+| Spearman | congiunto | solo BFM | Chamfer | ICP | NICP |
+|---|---|---|---|---|---|
+| mesh-pair, tutte le topologie | 0.216 | 0.274 | 0.555 | 0.300 | 0.252 |
+| mesh-pair senza crop | 0.355 | 0.319 | 0.589 | 0.387 | 0.314 |
+| subject-pair-mean `clean` | 0.719 | 0.751 | 0.866 | — | — |
+
+- **Fuori dominio:** le metriche apprese stanno nettamente sotto Chamfer, coerente con HIFI3D e FaceVerse.
+- **ICP e NICP sotto Chamfer:** effetto della GT maxabs, come già visto.
+- **Manca uno script di riepilogo FLAME:** da integrare in `aau/zs3dmm` per le tabelle del paper.
