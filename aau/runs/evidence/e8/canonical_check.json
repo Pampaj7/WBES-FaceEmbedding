@@ -1,0 +1,58 @@
+{
+  "flame": {
+    "mesh": "v_template di FLAME 2020",
+    "normal_z": 0.9999779578480493,
+    "nose_mm": 0.0,
+    "rms_to_flame_mm": 0.0,
+    "n_region_points": 1478
+  },
+  "bfm": {
+    "mesh": "REMESH id0007 original",
+    "normal_z": 0.9999534471353482,
+    "nose_mm": 3.8282662581127402,
+    "rms_to_flame_mm": 3.063432143702081,
+    "n_region_points": 1478
+  },
+  "ict": {
+    "mesh": "ICT-5000 ict0007",
+    "normal_z": 0.9999065333801966,
+    "nose_mm": 4.932785894200581,
+    "rms_to_flame_mm": 3.5659212928032247,
+    "n_region_points": 1478
+  },
+  "gnm": {
+    "mesh": "GNM_DISTILL id100007 (patch)",
+    "normal_z": 0.9999464764266177,
+    "nose_mm": 1.9347703398237404,
+    "rms_to_flame_mm": 3.8819302521798593,
+    "n_region_points": 1478
+  },
+  "hifi3d": {
+    "mesh": "HIFI3D hifi0007 (patch)",
+    "normal_z": 0.9999960685789442,
+    "nose_mm": 13.44063402561878,
+    "rms_to_flame_mm": 6.491089240338755,
+    "n_region_points": 1462
+  },
+  "faceverse": {
+    "mesh": "FaceVerse fv0007",
+    "normal_z": 0.9999993362908091,
+    "nose_mm": 11.731163677726638,
+    "rms_to_flame_mm": 4.754362205892599,
+    "n_region_points": 1478
+  },
+  "facescape": {
+    "mesh": "template FaceScape (nessuna identita' su disco)",
+    "normal_z": 0.9994118961881782,
+    "nose_mm": 8.38820727543224,
+    "rms_to_flame_mm": 3.7367780478329897,
+    "n_region_points": 1478
+  },
+  "multiface": {
+    "mesh": "template Multiface (le mesh tracked hanno pose per frame)",
+    "normal_z": 0.9999951686629769,
+    "nose_mm": 3.109219171908338,
+    "rms_to_flame_mm": 1.8762954257986995,
+    "n_region_points": 1478
+  }
+}

@@ -1,0 +1,47 @@
+domain,what,published,recomputed,abs_diff
+hifi3d,scale_e072 subject_pair_mean (punto),0.7924081496581239,0.7924081496581239,0.0
+hifi3d,scale_e036 subject_pair_mean (punto),0.7669700137828912,0.7669700137828912,0.0
+hifi3d,scale_e108 subject_pair_mean (punto),0.795356197606009,0.795356197606009,0.0
+hifi3d,chamfer_eval subject_pair_mean (punto),0.7431205729817077,0.7431205729817077,0.0
+hifi3d,arcface_shaded_3v subject_pair_mean (punto),0.2964943858584251,0.2964943858584251,0.0
+hifi3d,arcface_normals_3v subject_pair_mean (punto),0.2696914526425674,0.2696914526425674,0.0
+hifi3d,chamfer_eval nocrop_cross (punto),0.3721124771740325,0.3721124771740325,0.0
+hifi3d,scale_e036 nocrop_cross (punto),0.6772517077999018,0.6772517077999018,0.0
+hifi3d,scale_e072 nocrop_cross (punto),0.6632911149522916,0.6632911149522916,0.0
+hifi3d,arcface_normals_3v nocrop_cross (punto),0.2415033010457551,0.24150330104575513,2.7755575615628914e-17
+hifi3d,scale_e108 nocrop_cross (punto),0.6298708752343959,0.6298708752343959,0.0
+hifi3d,arcface_shaded_3v nocrop_cross (punto),0.2447176711330001,0.2447176711330001,0.0
+hifi3d,e108 - Chamfer eval subject_pair_mean (point),0.0522356246243012,0.0522356246243012,0.0
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_low),-0.0038702624799676,-0.003870262479967687,8.673617379884035e-17
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_high),0.1061379486092348,0.10613794860923487,6.938893903907228e-17
+hifi3d,e108 - Chamfer eval nocrop_cross (point),0.2577583980603634,0.2577583980603634,0.0
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_low),0.2075985914463175,0.20759859144631754,2.7755575615628914e-17
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_high),0.3010273129792126,0.30102731297921265,5.551115123125783e-17
+hifi3d,fb_chamfer nocrop_cross GT maxabs (punto),0.3253014793286933,0.3253012802845015,1.9904419179539445e-07
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT maxabs (punto),0.3553148218141641,0.35531453629148646,2.855226776121711e-07
+hifi3d,fb_nicp_p2tri nocrop_cross GT maxabs (punto),0.3892741856459524,0.38927385292951816,3.327164342370459e-07
+hifi3d,fb_chamfer nocrop_cross GT coef (punto),0.0688296083983852,0.06882960839838523,2.7755575615628914e-17
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT coef (punto),0.1552521488860999,0.15525214888609992,2.7755575615628914e-17
+hifi3d,fb_nicp_p2tri nocrop_cross GT coef (punto),0.1391021333995664,0.13910213339956648,8.326672684688674e-17
+hifi3d,fb_chamfer original_to_original GT maxabs (punto),0.8757954638657777,0.8757954638657777,0.0
+hifi3d,fb_rigid_icp_chamfer original_to_original GT maxabs (punto),0.4005111074465085,0.40051110744650853,5.551115123125783e-17
+hifi3d,fb_nicp_p2tri original_to_original GT maxabs (punto),0.4311462417599019,0.4311462417599019,0.0
+hifi3d,fb_chamfer original_to_original GT coef (punto),0.1615250862215183,0.16152508622151832,2.7755575615628914e-17
+hifi3d,fb_rigid_icp_chamfer original_to_original GT coef (punto),0.1654195187240565,0.16541951872405655,5.551115123125783e-17
+hifi3d,fb_nicp_p2tri original_to_original GT coef (punto),0.1370847480130312,0.13708474801303128,8.326672684688674e-17
+hifi3d,joint nocrop_cross GT maxabs (punto),0.4277150465021949,0.4277150465021949,0.0
+hifi3d,scale_e108 nocrop_cross GT maxabs (punto),0.6298708752343959,0.6298708752343959,0.0
+hifi3d,joint nocrop_cross GT coef (punto),0.1054195674753888,0.10541956747538889,8.326672684688674e-17
+hifi3d,scale_e108 nocrop_cross GT coef (punto),0.1312854269996385,0.13128542699963855,5.551115123125783e-17
+hifi3d,joint subject_pair_mean GT maxabs (punto),0.7200543423171277,0.7200543423171277,0.0
+hifi3d,scale_e108 subject_pair_mean GT maxabs (punto),0.795356197606009,0.795356197606009,0.0
+hifi3d,joint subject_pair_mean GT coef (punto),0.1611710912590694,0.16117109125906945,5.551115123125783e-17
+hifi3d,scale_e108 subject_pair_mean GT coef (punto),0.1599242674431987,0.1599242674431987,0.0
+faceverse,chamfer_eval mesh_pair_nocrop (punto),0.3168148664768579,0.3168148664768579,0.0
+faceverse,fb_chamfer mesh_pair_nocrop (punto),0.3189147201537393,0.31891472015373934,5.551115123125783e-17
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop (punto),0.2593145648936326,0.25931456489363264,5.551115123125783e-17
+faceverse,fb_nicp_p2tri mesh_pair_nocrop (punto),0.1942635989382942,0.1942635989382942,0.0
+faceverse,chamfer_eval subject_pair_mean_nocrop (punto),0.4261902959678476,0.4261902959678476,0.0
+faceverse,fb_chamfer subject_pair_mean_nocrop (punto),0.4615770286869178,0.4615770286869178,0.0
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop (punto),0.2999581010479073,0.2999581010479073,0.0
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop (punto),0.2401883533220548,0.24018835332205482,2.7755575615628914e-17

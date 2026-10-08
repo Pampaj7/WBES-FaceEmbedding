@@ -1112,3 +1112,24 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
   - emendamento al protocollo prima dei numeri.
 - **Ipotesi nuova, H8:** il modello è sensibile alla forma del supporto, cioè a quale regione copre la mesh. Si lega alla regione del volto comune della GT unificata e a un'eventuale armonizzazione del supporto.
 - **Eccezione A100 autorizzata dall'utente:** `-p aicentre-a100 --qos=unprivileged`, solo per job brevi o ripartibili.
+
+### 8 ottobre: E8, GT unificata (`aau/runs/evidence/e8/summary.md`): risultato che ridimensiona
+- **Regione:** maschera `face` ufficiale di FLAME, senza interno di occhi e bocca. La parte comune a tutti gli 8 domini è di 1.478 vertici, il 59% dell'area: il crop BFM taglia le guance.
+- **Corrispondenze:** residuo sui landmark tenuti fuori 0.61-1.28 mm.
+- **Spearman fra GT unificata e GT maxabs:** 0.54 su HIFI3D, 0.69 su FaceVerse. Lo scarto viene dal Procrustes, non dalla regione: la mappa FLAME contro la GT nativa sulla stessa regione dà 0.999.
+- **Quasi-duplicati:** nessuno. GNM è il dominio di training più vicino a HIFI3D (6% più di ICT, 13% più di BFM). Le medie dei domini formano due gruppi:
+  - FLAME, BFM, ICT e Multiface;
+  - FaceScape, HIFI3D e FaceVerse;
+  - GNM sta in mezzo.
+- **HIFI3D senza crop:**
+
+  | Metodo | GT maxabs | GT unificata |
+  |---|---|---|
+  | NICP P2Tri | 0.389 | **0.577** |
+  | ICP+Chamfer | 0.355 | 0.522 |
+  | e108 | **0.630** | 0.301 |
+  | Chamfer | 0.372 | 0.230 |
+
+  Con la GT unificata, e108 − Chamfer scende a +0.071 [+0.015, +0.123]. Su FaceVerse con espressioni nessuna differenza è significativa.
+- **Lettura:** il vantaggio sulla distanza graduata dipende dalla GT con cui il modello è addestrato e valutato (la maxabs, non invariante alla similarità). È la critica 4, la circolarità della D_GT, in forma concreta.
+- **Esperimento decisivo lanciato, E11:** cella C3F-UGT, addestrata sulla GT unificata, confrontata con C3F e con le baseline con allineamento su quella GT. Tutte le celle di E1 saranno valutate con entrambe le GT.
