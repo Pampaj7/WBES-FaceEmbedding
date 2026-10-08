@@ -1013,3 +1013,16 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 - **Prossimo:**
   - regola di scelta del checkpoint dichiarata ora: **l'ultimo checkpoint del run**, nessuna selezione su OOD;
   - poi critic sul risultato positivo.
+
+### 8 ottobre: ArcFace contro modello su scala, HIFI3D (`aau/runs/data_scale_ood/arcface_vs_scale_hifi3d.md`)
+- **Distanza graduata** (Spearman con la GT, senza crop):
+  - e036 0.677, e108 0.630;
+  - Chamfer 0.372, NICP per coppia 0.389, ICP+Chamfer 0.355;
+  - **ArcFace 0.245** (render ombreggiati) e 0.242 (normal map).
+  - ArcFace − e108 = −0.385 [−0.466, −0.293].
+- **Riconoscimento, rank-1:**
+  - ArcFace 0.984 (ombreggiati) e 0.998 (normal map);
+  - modello su scala da 0.782 a 0.811;
+  - Chamfer 0.477.
+- **Lettura:** riconoscere e misurare la distanza graduata sono capacità separate. ArcFace riconosce ma non misura; il nostro modello misura. Le righe di riferimento sono riprodotte identiche.
+- **Aperto:** NICP su template per HIFI3D, il competitor più diretto sulla distanza graduata. L'ho chiesto all'agente dei competitori.

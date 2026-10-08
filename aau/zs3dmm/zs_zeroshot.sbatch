@@ -57,6 +57,8 @@
 #                              ablation_hooks.py); solo scenario clean. Suffisso _evalframe-rms.
 #   WBES_ZS_PART=ranking|topology  uno solo dei due script (FaceVerse: in serie passano le 10 h).
 #                              Suffisso _ranking / _topology.
+#   WBES_ZS_PART=embed         nessuno dei due script, solo embeddings.npz (come WBES_ZS_EMBED=1): per
+#                              il riconoscimento di bracci gia' valutati col solo breakdown. Suffisso _embed.
 #   WBES_ZS_EMBED=1            in piu', l'embedding di ogni mesh in <stage>/embeddings.npz (zs_embed.py),
 #                              per retrieval e verifica d'identita'. Nessun suffisso.
 #   WBES_ZS_EXPR=1             vista con espressioni (zs_env.sh): output in ${ZS_RUNS}_expr.
@@ -105,8 +107,8 @@ ZS_FP="$(zs_data_fp)"
 WBES_ZS_PART="${WBES_ZS_PART:-all}"
 case "$WBES_ZS_PART" in
     all) PART_SUFFIX="" ;;
-    ranking|topology) PART_SUFFIX="_$WBES_ZS_PART" ;;
-    *) echo "ERRORE: WBES_ZS_PART=$WBES_ZS_PART (all|ranking|topology)" >&2; exit 2 ;;
+    ranking|topology|embed) PART_SUFFIX="_$WBES_ZS_PART" ;;
+    *) echo "ERRORE: WBES_ZS_PART=$WBES_ZS_PART (all|ranking|topology|embed)" >&2; exit 2 ;;
 esac
 FRAME_SUFFIX=""
 if [[ -n "${WBES_ZS_FRAME:-}" ]]; then
@@ -259,7 +261,7 @@ run_arm() {  # <arm> <gpu>
             rm -f "$key.prev_ckpt_gt"
         fi
 
-        if [[ "${WBES_ZS_EMBED:-0}" == 1 ]]; then
+        if [[ "${WBES_ZS_EMBED:-0}" == 1 || "$WBES_ZS_PART" == embed ]]; then
             # Embedding di ogni mesh (retrieval e verifica d'identita', zs_expr_summarize.py):
             # pochi minuti, prima delle ore di Chamfer del breakdown.
             echo "[$(timestamp)] 0/2 embedding di tutte le mesh valutate"
@@ -268,7 +270,7 @@ run_arm() {  # <arm> <gpu>
               2>&1 | tee "$STAGE_OUT/embed.log"
         fi
 
-        if [[ "$WBES_ZS_PART" != topology ]]; then
+        if [[ "$WBES_ZS_PART" != topology && "$WBES_ZS_PART" != embed ]]; then
             echo "[$(timestamp)] 1/2 ranking aggregato, scenari: $WBES_EVAL_SCENARIOS"
             "$AAU_DIR/run.sh" "${LAUNCH[@]}" "$PERT/compare_model_vs_chamfer_rankings.py" \
               "${common_args[@]}" \
@@ -284,7 +286,7 @@ run_arm() {  # <arm> <gpu>
               2>&1 | tee "$STAGE_OUT/ranking.log"
         fi
 
-        if [[ "$WBES_ZS_PART" != ranking ]]; then
+        if [[ "$WBES_ZS_PART" != ranking && "$WBES_ZS_PART" != embed ]]; then
             echo "[$(timestamp)] 2/2 breakdown per coppia di topologie (clean) + pair_metrics"
             "$AAU_DIR/run.sh" "${LAUNCH[@]}" "$PERT/compare_model_vs_chamfer_topology_breakdown.py" \
               "${common_args[@]}" \
