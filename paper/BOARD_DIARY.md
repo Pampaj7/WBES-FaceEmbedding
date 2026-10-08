@@ -1026,3 +1026,24 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
   - Chamfer 0.477.
 - **Lettura:** riconoscere e misurare la distanza graduata sono capacità separate. ArcFace riconosce ma non misura; il nostro modello misura. Le righe di riferimento sono riprodotte identiche.
 - **Aperto:** NICP su template per HIFI3D, il competitor più diretto sulla distanza graduata. L'ho chiesto all'agente dei competitori.
+
+### 8 ottobre: niente tetto di agenti (piano da 200 $); evidenze prima del run massivo
+Decisioni dell'utente:
+- il run massivo aspetta;
+- prima si raccolgono le evidenze (`paper/PLAN_MASSIVE.md` §13).
+
+Agenti lanciati in parallelo, con la proprietà dei file separata. Nessuno tocca `v2_work/` o `face_embedding/`.
+
+| Agente | Compito | Cartelle |
+|---|---|---|
+| coder E1 | fattoriale varietà×quantità (C2F, C2M, C3F, G1; C3M = run su scala) | `aau/evidence/e1_factorial/`, `aau/runs/evidence/e1/` |
+| coder E2+E3 | canonicalizzazione rigida su e108; da dove vengono gli errori di riconoscimento | `aau/evidence/e2_canon/`, `e3_breakdown/` |
+| coder E9 | misure: operatori/s per nodo, forward a gruppi S/M/L, NCCL fra nodi | `aau/evidence/e9_bench/` |
+| coder D1 | libreria 3DMM uniforme (`v3_work/mm/`) e set di sviluppo FaceScape | `datasets/DEV_FACESCAPE/` |
+| coder D2/E8 | GT unificata sulla regione FLAME, trasformazioni canoniche, quasi-duplicati fra domini (GNM↔HIFI3D) | `v3_work/unified_gt/`, `datasets/UNIFIED_GT/` |
+| coder trainer v3 | fork con flag (gruppi, loss, campionatore, taglia, pooling, EMA, DDP) e test di equivalenza con v2; ablazioni E4-E7 solo preparate | `v3_work/trainer/` |
+
+Ancora attivi:
+- critic sul design;
+- coder dei competitori (spettrali, NICP su template, Uni3D, OpenShape);
+- agente FaceVerse (e072 e convenzione ICT).
