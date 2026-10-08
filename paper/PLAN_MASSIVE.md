@@ -320,3 +320,15 @@ Ha la precedenza sulle sezioni precedenti dove le contraddice.
    - mai misurato su GPU;
    - i gruppi vanno fatti a blocchi diagonali o con bucket larghi;
    - niente fp16 sui valori sparsi.
+
+## 15. Evidenze raccolte (8 ottobre, sera)
+
+| # | Esito | Conseguenza per il design |
+|---|---|---|
+| E2 | La canonicalizzazione rigida al test NON aiuta. HIFI3D peggiora (Spearman −0.074, rank-1 −0.050); FaceVerse e NoW sono neutri. | **Niente canonicalizzazione al test.** La decisione 3 della §12 è revocata. |
+| E3 | Il 74% degli errori su HIFI3D cade sulle coppie con down8k. La causa: centro e pooling sono medie per vertice. Pesati per area SOLO al test, original↔down8k arriva a 1.00 ma noisy scende a 0.7. Su FaceVerse, nelle stesse identità neutre, e108 guadagna +0.291 di rank-1: domina l'espressione. | **Centro e pooling per area, con aree robuste,** addestrati con le viste noisy. **Più fonti di espressioni** (FLAME, BFM 2019, GNM, ICT, FaMoS reali). |
+| E3b | Il rimesh uniforme al test sistema down8k ma peggiora noisy, crop e la graduata (−0.174); su FaceVerse +0.142 di rank-1. | Non va adottato come pre-elaborazione; conferma che il problema è la densità. |
+| E3c | La struttura locale di e108 non è peggiore delle baseline nello stesso decile: batte Chamfer (+0.079) ed è pari a ICP+Chamfer. | **La loss resta v2.** Le varianti log sono archiviate. |
+| E8 | Con la GT unificata (Procrustes) e108 scende a 0.301 su HIFI3D, contro NICP 0.577 e ICP+Chamfer 0.522. | **Il target del training è la domanda aperta:** cella E1 C3F-UGT. Arbitro della GT: lo studio umano. |
+| E9 | `build_grad` vettorizzato; 42-126 viste/s per nodo. | P1 è fattibile. Pre-pass E1 1.64× più veloce. |
+| D1 | Sul dev FaceScape e108 ≈ Chamfer nella graduata (+0.032 n.s.) e peggiore nel rank-1 con espressioni (−0.139). | Il vantaggio di HIFI3D non è generale; vedi H8, il supporto simile a GNM. |

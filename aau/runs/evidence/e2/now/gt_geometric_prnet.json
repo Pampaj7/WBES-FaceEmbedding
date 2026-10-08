@@ -1,0 +1,12 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "prnet",
+    "seconds": 18.04275870323181,
+    "sample_points": 4096,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "variant": "facebench",
+    "units": "chamfer_raw adimensionale (maxabs), icp_chamfer_mm in mm"
+  }
+}

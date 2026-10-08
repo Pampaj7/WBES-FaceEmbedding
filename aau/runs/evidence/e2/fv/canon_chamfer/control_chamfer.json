@@ -1,0 +1,26 @@
+[
+ {
+  "kind": "x",
+  "pair": "original->down8k",
+  "max_abs_diff": 0.0,
+  "n": 4950
+ },
+ {
+  "kind": "s",
+  "pair": "original->down8k",
+  "max_abs_diff": 0.0,
+  "n": 100
+ },
+ {
+  "kind": "x",
+  "pair": "noisy->remesh",
+  "max_abs_diff": 0.0,
+  "n": 4950
+ },
+ {
+  "kind": "s",
+  "pair": "noisy->remesh",
+  "max_abs_diff": 0.0,
+  "n": 100
+ }
+]

@@ -1,0 +1,12 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "mica",
+    "seconds": 15.69163990020752,
+    "sample_points": 4096,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "variant": "facebench",
+    "units": "chamfer_raw adimensionale (maxabs), icp_chamfer_mm in mm"
+  }
+}

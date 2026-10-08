@@ -1,0 +1,12 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "3ddfa_v2",
+    "seconds": 18.90831708908081,
+    "sample_points": 4096,
+    "icp_points": 4096,
+    "icp_iter": 30,
+    "variant": "facebench",
+    "units": "chamfer_raw adimensionale (maxabs), icp_chamfer_mm in mm"
+  }
+}

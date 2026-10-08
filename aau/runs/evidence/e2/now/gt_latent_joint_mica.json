@@ -1,0 +1,10 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "mica",
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_runs/scale_bfm_ict_gnm_s1234_nocanon_noaug_20261007_1411/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__3167d36d/checkpoints/epoch108.pth",
+    "latent_dim": 256,
+    "ops": "k_eig 128, area unitaria",
+    "recon_dir": "/tmp/wbes_e2_1061776_now/work/recon_face_withops_areanorm/mica"
+  }
+}
