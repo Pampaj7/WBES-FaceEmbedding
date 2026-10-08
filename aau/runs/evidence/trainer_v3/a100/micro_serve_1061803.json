@@ -1,0 +1,45 @@
+{
+ "rows": [
+  {
+   "file": "id0001_GTready_original.npz",
+   "n": 23470,
+   "v2_ms": 50.26620685821399,
+   "nocoal_ms": 0.029157346580177546,
+   "compact_ms": 17.68699469976127,
+   "nocoal_identical": true,
+   "to_gpu_v1_8keys_ms": 2.2687404532916844,
+   "to_gpu_6keys_ms": 1.6796529409475625
+  },
+  {
+   "file": "id0001_GTready_up60k.npz",
+   "n": 60439,
+   "v2_ms": 61.27900679130107,
+   "nocoal_ms": 0.026977260131388903,
+   "compact_ms": 44.72756125032902,
+   "nocoal_identical": true,
+   "to_gpu_v1_8keys_ms": 5.282782600261271,
+   "to_gpu_6keys_ms": 4.260241496376693
+  },
+  {
+   "file": "id10000_GTready_down8k.npz",
+   "n": 3281,
+   "v2_ms": 3.1242364086210728,
+   "nocoal_ms": 0.02754729939624667,
+   "compact_ms": 2.720131096430123,
+   "nocoal_identical": true,
+   "to_gpu_v1_8keys_ms": 0.5376699496991932,
+   "to_gpu_6keys_ms": 0.36700135096907616
+  },
+  {
+   "file": "id10000_GTready_original.npz",
+   "n": 9409,
+   "v2_ms": 10.255197447258979,
+   "nocoal_ms": 0.03179989289492369,
+   "compact_ms": 7.098410755861551,
+   "nocoal_identical": true,
+   "to_gpu_v1_8keys_ms": 0.9656596463173628,
+   "to_gpu_6keys_ms": 0.7043174002319574
+  }
+ ],
+ "cuda": true
+}

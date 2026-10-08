@@ -1,0 +1,85 @@
+{
+ "packed_fp32_pass": false,
+ "criterion": "|dL| <= 1e-05 e max|dG| <= 1e-05 (pre e post clip), stesse mesh lette",
+ "checks": {
+  "topology_map_equal": true,
+  "name_to_idx_equal": true,
+  "gt_equal": true
+ },
+ "v2_vs_v3": [],
+ "packed_vs_sequential": [
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "init",
+   "domain": "bfm",
+   "epoch": 3,
+   "loss_seq": 0.17347612977027893,
+   "loss_packed": 0.17346464097499847,
+   "d_loss": 1.1488795280456543e-05,
+   "d_grad": 0.0010242462158203125,
+   "d_grad_rel": 0.009083113741499943
+  },
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "init",
+   "domain": "gnm",
+   "epoch": 3,
+   "loss_seq": 0.11987725645303726,
+   "loss_packed": 0.11987833678722382,
+   "d_loss": 1.080334186553955e-06,
+   "d_grad": 0.001565437763929367,
+   "d_grad_rel": 0.012251087067180384
+  },
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "init",
+   "domain": "ict",
+   "epoch": 3,
+   "loss_seq": 0.1525488942861557,
+   "loss_packed": 0.15255169570446014,
+   "d_loss": 2.8014183044433594e-06,
+   "d_grad": 1.2211035937070847e-05,
+   "d_grad_rel": 9.752340026069909e-05
+  },
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "trained",
+   "domain": "bfm",
+   "epoch": 3,
+   "loss_seq": 0.024953126907348633,
+   "loss_packed": 0.0249532088637352,
+   "d_loss": 8.195638656616211e-08,
+   "d_grad": 2.6870984584093094e-06,
+   "d_grad_rel": 0.00014436151756489775
+  },
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "trained",
+   "domain": "gnm",
+   "epoch": 3,
+   "loss_seq": 0.010832110419869423,
+   "loss_packed": 0.010832127183675766,
+   "d_loss": 1.6763806343078613e-08,
+   "d_grad": 1.499574864283204e-07,
+   "d_grad_rel": 1.4765913289948993e-05
+  },
+  {
+   "tf32": false,
+   "matmul_rel_err_vs_fp64": null,
+   "model": "trained",
+   "domain": "ict",
+   "epoch": 3,
+   "loss_seq": 0.015833744779229164,
+   "loss_packed": 0.015833662822842598,
+   "d_loss": 8.195638656616211e-08,
+   "d_grad": 4.367902874946594e-07,
+   "d_grad_rel": 2.6236218153762362e-05
+  }
+ ],
+ "all_pass": true
+}

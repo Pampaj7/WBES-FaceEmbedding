@@ -1,0 +1,160 @@
+{
+ "v2_vs_v3": {
+  "a": "/tmp/1061939/v2a/runs/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__a778e16e",
+  "b": "/tmp/1061939/v3/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_seed1234__70e72ab3",
+  "train_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0,
+    "stress": 0.0,
+    "rank": 0.0,
+    "id": 0.0,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.0,
+    "pearson_clean": 0.0,
+    "auc_r": 0.0,
+    "spearman_noisy_max": 0.0,
+    "ratio_noisy_max": 0.0,
+    "intra_clean": 4.000000000110415e-12
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 0.0,
+    "xtopo_mesh_pearson": 0.0
+   }
+  },
+  "mixed_train_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "subject_stress": 0.0,
+    "subject_rank": 0.0,
+    "mesh_stress": 0.0,
+    "mesh_rank": 0.0,
+    "lambda_subject": 0.0,
+    "lambda_mesh": 0.0
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    0,
+    0
+   ],
+   "max_abs": {}
+  },
+  "checkpoints_max_abs": {
+   "epoch002.pth": 0.0,
+   "epoch004.pth": 0.0,
+   "epoch006.pth": 0.0,
+   "epoch008.pth": 0.0
+  },
+  "best_by_auc.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ],
+  "best_by_clean.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ],
+  "best_by_xtopo_mesh_clean.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ]
+ },
+ "v2_vs_v2bis": {
+  "a": "/tmp/1061939/v2a/runs/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__a778e16e",
+  "b": "/tmp/1061939/v2b/runs/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__a778e16e",
+  "train_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0,
+    "stress": 0.0,
+    "rank": 0.0,
+    "id": 0.0,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.0,
+    "pearson_clean": 0.0,
+    "auc_r": 0.0,
+    "spearman_noisy_max": 0.0,
+    "ratio_noisy_max": 0.0,
+    "intra_clean": 0.0
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 1.000000000001e-06,
+    "xtopo_mesh_pearson": 0.0
+   }
+  },
+  "mixed_train_log.csv": {
+   "rows": [
+    8,
+    8
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "subject_stress": 0.0,
+    "subject_rank": 0.0,
+    "mesh_stress": 0.0,
+    "mesh_rank": 0.0,
+    "lambda_subject": 0.0,
+    "lambda_mesh": 0.0
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    0,
+    0
+   ],
+   "max_abs": {}
+  },
+  "checkpoints_max_abs": {
+   "epoch002.pth": 0.0,
+   "epoch004.pth": 0.0,
+   "epoch006.pth": 0.0,
+   "epoch008.pth": 0.0
+  },
+  "best_by_auc.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ],
+  "best_by_clean.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ],
+  "best_by_xtopo_mesh_clean.txt": [
+   "best_epoch=2",
+   "best_epoch=2"
+  ]
+ }
+}

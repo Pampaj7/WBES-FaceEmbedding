@@ -1,0 +1,124 @@
+{
+ "interrotto_vs_continuo": {
+  "a": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_views_1061894/runs_I/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__d6b23b3b",
+  "b": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_views_1061894/runs_R/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__d6b23b3b",
+  "steps_a": 60,
+  "steps_b": 60,
+  "steps_missing_or_extra": [],
+  "loss_max_abs": 0.0,
+  "loss_first_diff_step": null,
+  "final_step_loss": [
+   0.05652704,
+   0.05652704
+  ],
+  "train_log.csv": {
+   "rows": [
+    20,
+    20
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0,
+    "stress": 0.0,
+    "rank": 0.0,
+    "id": 0.0,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.0,
+    "pearson_clean": 0.0,
+    "auc_r": 0.0,
+    "spearman_noisy_max": 0.0,
+    "ratio_noisy_max": 0.0,
+    "intra_clean": 0.0
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    20,
+    20
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 0.0,
+    "xtopo_mesh_pearson": 0.0
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    0,
+    0
+   ],
+   "max_abs": {}
+  },
+  "checkpoint": [
+   "epoch020.pth",
+   "epoch020.pth"
+  ],
+  "weights_max_abs": 0.0,
+  "ema_weights_max_abs": 0.0
+ },
+ "pavimento_continuo_vs_continuo": {
+  "a": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_views_1061894/runs_R2/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__d6b23b3b",
+  "b": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_views_1061894/runs_R/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__d6b23b3b",
+  "steps_a": 60,
+  "steps_b": 60,
+  "steps_missing_or_extra": [],
+  "loss_max_abs": 0.0,
+  "loss_first_diff_step": null,
+  "final_step_loss": [
+   0.05652704,
+   0.05652704
+  ],
+  "train_log.csv": {
+   "rows": [
+    20,
+    20
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0,
+    "stress": 0.0,
+    "rank": 0.0,
+    "id": 0.0,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.0,
+    "pearson_clean": 0.0,
+    "auc_r": 0.0,
+    "spearman_noisy_max": 0.0,
+    "ratio_noisy_max": 0.0,
+    "intra_clean": 0.0
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    20,
+    20
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 0.0,
+    "xtopo_mesh_pearson": 0.0
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    0,
+    0
+   ],
+   "max_abs": {}
+  },
+  "checkpoint": [
+   "epoch020.pth",
+   "epoch020.pth"
+  ],
+  "weights_max_abs": 0.0,
+  "ema_weights_max_abs": 0.0
+ }
+}

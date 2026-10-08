@@ -1,0 +1,5 @@
+epoch,subject_stress,subject_rank,mesh_stress,mesh_rank,lambda_subject,lambda_mesh,train_pair_mode
+1,0.026737,0.049316,0.456258,0.049253,1.000000,1.000000,cross_topology
+2,0.028581,0.049118,0.388892,0.049005,1.000000,1.000000,cross_topology
+3,0.034768,0.049244,0.317370,0.049846,1.000000,1.000000,cross_topology
+4,0.035398,0.048971,0.385910,0.049561,1.000000,1.000000,cross_topology

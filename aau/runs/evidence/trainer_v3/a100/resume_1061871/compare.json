@@ -1,0 +1,136 @@
+{
+ "interrotto_vs_continuo": {
+  "a": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_1061871/runs_I/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__f2510a94",
+  "b": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_1061871/runs_R/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__f2510a94",
+  "steps_a": 60,
+  "steps_b": 60,
+  "steps_missing_or_extra": [],
+  "loss_max_abs": 0.006981270000000012,
+  "loss_first_diff_step": 5,
+  "final_step_loss": [
+   0.08967025,
+   0.08268898
+  ],
+  "train_log.csv": {
+   "rows": [
+    6,
+    6
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0017550000000000066,
+    "stress": 0.0014870000000000022,
+    "rank": 0.0007720000000000088,
+    "id": 9.99999999999999e-07,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.00039600000000000746,
+    "pearson_clean": 0.00022699999999997722,
+    "auc_r": 0.0021729999999999805,
+    "spearman_noisy_max": 0.0010950000000000126,
+    "ratio_noisy_max": 0.0031210000000000404,
+    "intra_clean": 3.2220000000000007e-09
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    6,
+    6
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 0.0003710000000000102,
+    "xtopo_mesh_pearson": 0.0003120000000000067
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    2,
+    2
+   ],
+   "max_abs": {
+    "step": 0.0,
+    "n_subjects": 0.0,
+    "spearman_clean": 0.0006739999999999524,
+    "pearson_clean": 0.0004049999999999887,
+    "auc_r": 0.00041599999999997195
+   }
+  },
+  "checkpoint": [
+   "epoch006.pth",
+   "epoch006.pth"
+  ],
+  "weights_max_abs": 0.004589982330799103,
+  "ema_weights_max_abs": 0.0001230984926223755
+ },
+ "pavimento_continuo_vs_continuo": {
+  "a": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_1061871/runs_R2/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__aa130dcd",
+  "b": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/a100/resume_1061871/runs_R/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_emadecay-0.999_compactcache-true_seed1234__f2510a94",
+  "steps_a": 60,
+  "steps_b": 60,
+  "steps_missing_or_extra": [],
+  "loss_max_abs": 0.007517769999999993,
+  "loss_first_diff_step": 1,
+  "final_step_loss": [
+   0.08034098,
+   0.08268898
+  ],
+  "train_log.csv": {
+   "rows": [
+    6,
+    6
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "loss": 0.0023390000000000077,
+    "stress": 0.0019619999999999985,
+    "rank": 0.0008460000000000134,
+    "id": 0.0,
+    "smooth": 0.0,
+    "teacher": 0.0,
+    "lr": 0.0,
+    "n_eval": 0.0,
+    "spearman_clean": 0.003917000000000004,
+    "pearson_clean": 0.0033290000000000264,
+    "auc_r": 0.0022130000000000205,
+    "spearman_noisy_max": 0.0005809999999999982,
+    "ratio_noisy_max": 0.006762000000000046,
+    "intra_clean": 7.690000000000514e-10
+   }
+  },
+  "xtopo_mesh_log.csv": {
+   "rows": [
+    6,
+    6
+   ],
+   "max_abs": {
+    "epoch": 0.0,
+    "xtopo_mesh_n_pairs": 0.0,
+    "xtopo_mesh_clean": 0.0016250000000000153,
+    "xtopo_mesh_pearson": 0.0012150000000000216
+   }
+  },
+  "extra_eval.csv": {
+   "rows": [
+    2,
+    2
+   ],
+   "max_abs": {
+    "step": 0.0,
+    "n_subjects": 0.0,
+    "spearman_clean": 0.0008340000000000014,
+    "pearson_clean": 0.0006200000000000649,
+    "auc_r": 0.0005660000000000664
+   }
+  },
+  "checkpoint": [
+   "epoch006.pth",
+   "epoch006.pth"
+  ],
+  "weights_max_abs": 0.004589982330799103,
+  "ema_weights_max_abs": 0.00015490129590034485
+ }
+}

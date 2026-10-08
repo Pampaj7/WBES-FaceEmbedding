@@ -1,0 +1,17 @@
+{
+ "scale": "current",
+ "global_max": 1.1858539581298828,
+ "n_total": 5624,
+ "n_bfm_ict": 55500,
+ "n_gnm": 10100,
+ "blocks_max": {
+  "bfm": 0.834269106388092,
+  "ict": 1.1858539581298828,
+  "gnm": 1.0
+ },
+ "sources": {
+  "bfm_ict": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ICT_SCALE/gt_joint_bfm_ict.npz",
+  "gnm": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/GNM_DISTILL/gt/gnm_matrix_distances_maxabs.npz"
+ },
+ "note": "ritaglio di gt_joint_bfm_ict_gnm.npz su 5624 soggetti (make_testdata.py); valori identici"
+}

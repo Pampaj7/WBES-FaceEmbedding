@@ -1,0 +1,120 @@
+{
+ "blocks": [
+  {
+   "block": 0,
+   "subjects": 1043,
+   "domains": {
+    "bfm": 392,
+    "gnm": 102,
+    "ict": 549
+   },
+   "cache_v2_gib": 128.6,
+   "cache_compact_gib": 93.1,
+   "prepass_tmp_gib": 49.4
+  },
+  {
+   "block": 1,
+   "subjects": 1043,
+   "domains": {
+    "bfm": 392,
+    "gnm": 102,
+    "ict": 549
+   },
+   "cache_v2_gib": 128.7,
+   "cache_compact_gib": 93.3,
+   "prepass_tmp_gib": 49.6
+  },
+  {
+   "block": 2,
+   "subjects": 1042,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 549
+   },
+   "cache_v2_gib": 128.8,
+   "cache_compact_gib": 93.3,
+   "prepass_tmp_gib": 49.8
+  },
+  {
+   "block": 3,
+   "subjects": 1042,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 549
+   },
+   "cache_v2_gib": 129.0,
+   "cache_compact_gib": 93.4,
+   "prepass_tmp_gib": 49.9
+  },
+  {
+   "block": 4,
+   "subjects": 1042,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 549
+   },
+   "cache_v2_gib": 129.1,
+   "cache_compact_gib": 93.5,
+   "prepass_tmp_gib": 50.1
+  },
+  {
+   "block": 5,
+   "subjects": 1042,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 549
+   },
+   "cache_v2_gib": 128.0,
+   "cache_compact_gib": 92.7,
+   "prepass_tmp_gib": 48.7
+  },
+  {
+   "block": 6,
+   "subjects": 1041,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 548
+   },
+   "cache_v2_gib": 129.0,
+   "cache_compact_gib": 93.5,
+   "prepass_tmp_gib": 50.1
+  },
+  {
+   "block": 7,
+   "subjects": 1041,
+   "domains": {
+    "bfm": 392,
+    "gnm": 101,
+    "ict": 548
+   },
+   "cache_v2_gib": 128.7,
+   "cache_compact_gib": 93.3,
+   "prepass_tmp_gib": 49.7
+  }
+ ],
+ "compact_over_v2_by_label": {
+  "crop": 0.7248847606876564,
+  "down8k": 0.7257100203465418,
+  "noisy": 0.7245749154146004,
+  "original": 0.7245749154146004,
+  "remesh": 0.7248293782530532,
+  "rexpr1": 0.7245749154146004,
+  "up60k": 0.7239149168986158,
+  "rexpr2": 0.724582543506862,
+  "rexpr3": 0.7245922027894449,
+  "rexpr4": 0.7245922027894449,
+  "rexpr5": 0.7245922027894449,
+  "rexpr6": 0.7245922027894449,
+  "rexpr7": 0.7245922027894449,
+  "rexpr8": 0.7245922027894449
+ },
+ "peak_cache_plus_next_prepass_gib": {
+  "compact": 143.6,
+  "v2": 179.2
+ }
+}

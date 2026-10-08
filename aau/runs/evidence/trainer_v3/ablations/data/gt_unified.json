@@ -1,0 +1,66 @@
+{
+ "scale": "unified",
+ "global_max": 1.0,
+ "mm_per_unit": 14.163881301879883,
+ "n_total": 5624,
+ "n_by_domain": {
+  "bfm": 500,
+  "ict": 55000,
+  "gnm": 10100
+ },
+ "names_source": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/SCALE_ALL/gt_joint_bfm_ict_gnm.npz",
+ "names_identical_to_run_gt": true,
+ "cross_domain": "riempite (GT unificata, stessa scala per tutti i domini); nessun NaN",
+ "definition": "g_ij = ||s_i - s_j|| / sqrt(A) (RMS pesato per area in mm sulla regione unificata, dopo Procrustes di similarita' verso mu), diviso per il massimo: D_orig * mm_per_unit = mm",
+ "space": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/unified_space.npz",
+ "sources": {
+  "bfm": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500_withops_areanorm",
+  "ict5000": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ICT/train_ready/npz_withops",
+  "ict_new_gnm": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/SCALE_ALL/shards/index.npz"
+ },
+ "check_vs_shapes_py": {
+  "bfm": {
+   "n": 500,
+   "max_mm": 2.4105943734129058e-06,
+   "median_mm": 2.085010339269058e-06
+  },
+  "ict": {
+   "n": 55000,
+   "max_mm": 3.6527413755254747e-06,
+   "median_mm": 3.011417256921924e-06
+  },
+  "gnm": {
+   "n": 10100,
+   "max_mm": 7.339146431619459e-06,
+   "median_mm": 6.039539751304682e-06
+  }
+ },
+ "blocks_sample": {
+  "bfm|bfm": {
+   "median_mm": 3.9766587738245107,
+   "max_mm_sample": 9.869577286349227
+  },
+  "bfm|ict": {
+   "median_mm": 4.356407069719637,
+   "max_mm_sample": 10.131983511196836
+  },
+  "bfm|gnm": {
+   "median_mm": 4.470732695852121,
+   "max_mm_sample": 11.501931559729883
+  },
+  "ict|ict": {
+   "median_mm": 3.574149742127389,
+   "max_mm_sample": 11.72858788914732
+  },
+  "gnm|ict": {
+   "median_mm": 4.274082943992767,
+   "max_mm_sample": 11.07795009196218
+  },
+  "gnm|gnm": {
+   "median_mm": 4.125952957640493,
+   "max_mm_sample": 12.583769017804343
+  }
+ },
+ "note": "ritaglio di gt_unified_bfm_ict_gnm.npz su 5624 soggetti (make_testdata.py); valori identici",
+ "seconds": 296.18546652793884
+}

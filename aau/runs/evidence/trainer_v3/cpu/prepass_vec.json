@@ -1,0 +1,902 @@
+{
+ "n_meshes": 22,
+ "seconds": {
+  "orig": 59.7337749004364,
+  "orig2": 34.40235376358032,
+  "vec": 24.145841121673584
+ },
+ "orig_vs_orig2": {
+  "max_abs_all": 12.345266342163086,
+  "max_abs_gradXY": 0.0,
+  "max_abs_evecs_up_to_sign": 2.384185791015625e-07,
+  "rows": [
+   {
+    "file": "id100004_GTready_crop.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_down8k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_noisy.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_original.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_remesh.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 9.272331237792969,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 2.384185791015625e-07
+    }
+   },
+   {
+    "file": "id100004_GTready_rexpr1.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_rexpr2.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_up60k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_crop.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 12.345266342163086,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_down8k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 10.526155471801758,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_noisy.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_original.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_remesh.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr1.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr2.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr3.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr4.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr5.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr6.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr7.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr8.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_up60k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   }
+  ]
+ },
+ "orig_vs_vec": {
+  "max_abs_all": 12.345266342163086,
+  "max_abs_gradXY": 1.1641532182693481e-10,
+  "max_abs_evecs_up_to_sign": 2.384185791015625e-07,
+  "rows": [
+   {
+    "file": "id100004_GTready_crop.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 2.9103830456733704e-11,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 3.637978807091713e-12,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_down8k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 11.005824089050293,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id100004_GTready_noisy.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_original.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 2.9103830456733704e-11,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 4.547473508864641e-13,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_remesh.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 9.272331237792969,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 2.384185791015625e-07
+    }
+   },
+   {
+    "file": "id100004_GTready_rexpr1.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 1.1641532182693481e-10,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 5.684341886080802e-14,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_rexpr2.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 9.094947017729282e-13,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 1.1368683772161603e-13,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id100004_GTready_up60k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 7.275957614183426e-12,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 1.1368683772161603e-13,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_crop.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 12.345266342163086,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_down8k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 10.526155471801758,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_noisy.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 12.19205379486084,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 1.4901161193847656e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_original.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_remesh.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr1.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 11.459659576416016,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr2.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 12.173839569091797,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 5.960464477539063e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr3.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr4.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr5.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr6.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr7.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   },
+   {
+    "file": "id20000_GTready_rexpr8.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 11.391518592834473,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 2.9802322387695312e-08
+    }
+   },
+   {
+    "file": "id20000_GTready_up60k.npz",
+    "per_key": {
+     "verts": 0.0,
+     "faces": 0.0,
+     "mass": 0.0,
+     "evals": 0.0,
+     "evecs": 0.0,
+     "L_indices": 0.0,
+     "L_values": 0.0,
+     "L_shape": 0.0,
+     "gradX_indices": 0.0,
+     "gradX_values": 0.0,
+     "gradX_shape": 0.0,
+     "gradY_indices": 0.0,
+     "gradY_values": 0.0,
+     "gradY_shape": 0.0,
+     "evecs_up_to_sign": 0.0
+    }
+   }
+  ]
+ }
+}
