@@ -1158,3 +1158,11 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
 
 - **AUC di e108 in convenzione ICT:** pari a Chamfer (−0.003).
 - **Lettura:** il frame NON spiega il ritardo su FaceVerse. La causa è l'espressione, coerente con E3 (+0.291 sulle neutre).
+
+### 8 ottobre, 21:15: stato prima del riavvio della sessione (per riattivare il bypass)
+- **FaMoS:** scaricato completo alle 17:19 (registrazioni 67.6 GB in 7 volumi; scansioni di test 23.1 GB in 3 volumi). Estrazione in `external_data/famos/extracted/` con i job CPU 1062020 (registrazioni) e 1062021 (scansioni di test). DOPO: un agente sceglie le persone di test, sottocampiona i fotogrammi e prepara la GT unificata e il set di test reale.
+- **E1:** training V100 in corso (C2F, C3F, C2F-GNM) e il resto in coda; valutazioni su A100; riepilogo 1061866.
+- **Ablazioni v3:** store 1062011, custode 1062017, bracci 1061976-1061984 (pari), valutazioni 1061977-1061985 (dispari). Protocollo sha256 `b68df254…`.
+- **Run su scala:** 1060130 in corso; poi la catena di valutazione 1060131.
+- **Nessun agente attivo.**
+- **Dall'utente:** studio umano (link precompilato del Google Form e attivazione di GitHub Pages).
