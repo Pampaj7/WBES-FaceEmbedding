@@ -286,3 +286,37 @@ Il run massivo non parte finché le scelte principali non hanno un'evidenza misu
 - **Se E1 smentisce la tesi** (conta solo la quantità), il piano cambia: più identità dagli stessi domini, che costa meno.
 
 **Ordine:** prima E2, E3 ed E1, perché toccano la tesi centrale e costano poco. Poi E8 ed E9, che servono comunque al trainer. Infine E4-E7, che richiedono modifiche al trainer.
+
+## 14. Revisione dopo il critic (8 ottobre, verdetto BLOCCANTE)
+
+Ha la precedenza sulle sezioni precedenti dove le contraddice.
+
+1. **Le loss della §6 collassano.** Il critic lo ha verificato su un modello giocattolo: con normalizzatori senza gradiente e senza ancora di scala, la distanza mediana scende a 1e-6 e compaiono NaN. **Correzioni:**
+   - normalizzatori con gradiente (come lo stress di `latent_loss.py`), oppure un'ancora di scala (la hinge a margine fisso);
+   - test anti-collasso obbligatorio per ogni variante;
+   - L_nbr spento di default: con σ_m al terzo vicino cade sulle viste sorelle, a g=0.
+2. **La diagnosi H4 è sbagliata.** Rank-1 di e108 per coppia: original↔noisy circa 1.00, remesh↔up60k 0.98-1.00, ma original↔down8k 0.33-0.36. Il guasto è fra mesh native e rimeshate, cioè densità, pooling per vertice e normalizzazione (H7), non fra identità vicine. **Nuova priorità:**
+   - pooling per area e normalizzazione sqrt(area);
+   - test SENZA training: rimesh dell'input a una densità comune (E3b).
+3. **La stima di P1 è smentita.**
+   - `compute_operators` costa 2.95 s per V=9.4k: la eigsh 1.2 s, il resto è il loop Python di `build_grad`. Con 16 processi si erano misurate 1.67 mesh/s.
+   - **Gate:** `build_grad` vettorizzato + k_eig 64 + V ≤ 10k devono dare almeno 20 viste/s per nodo (E9d).
+   - Se il gate non passa, si sceglie fra P2 e un pool fisso di viste precalcolate: si decide con le misure.
+4. **La GT primaria resta la maxabs,** già dichiarata. Questa decisione rivede la §3 e la decisione 2. Il critic segnala che la maxabs penalizza l'allineamento (ICP+Chamfer 0.401 contro Chamfer 0.876 su original→original) e che con la GT unificata nessun metodo è ancora stato misurato. L'unificata diventa secondaria, misurata ORA su tutti i metodi esistenti prima di qualsiasi training nuovo.
+5. **Popolazione e test.**
+   - FaceScape bilineare resta SOLO dev, mai in training: così HIFI3D e FaceVerse restano fuori popolazione, come vuole la risposta alla critica 8.
+   - HIFI3D, con 37 bracci già valutati, e FaceVerse sono in pratica "visti durante lo sviluppo" e vanno dichiarati così.
+   - I test intatti sono: scansioni di test FaMoS (persone escluse dal training), NoW e Multiface.
+6. **Simmetria delle baseline.** Ogni canonicalizzazione applicata al nostro modello si applica anche a Chamfer.
+7. **Calendario e ablazioni ridotti:**
+   - (a) pooling/normalizzazione;
+   - (b) loss v2 contro una loss log ancorata;
+   - (c) bilanciamento.
+
+   Niente S/M/L a calcolo piccolo: la taglia si decide con il throughput.
+
+   Il run massivo parte dopo le evidenze E1, E3b, E8 ed E9: realisticamente dopo il 16 ottobre. La rete di sicurezza resta il run su scala.
+8. **`batched.py`:**
+   - mai misurato su GPU;
+   - i gruppi vanno fatti a blocchi diagonali o con bucket larghi;
+   - niente fp16 sui valori sparsi.
