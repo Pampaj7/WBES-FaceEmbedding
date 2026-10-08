@@ -258,3 +258,31 @@ Un milione di viste precalcolate non entra né in RAM né su disco.
 - **Fase 0:** 2 coder Opus in parallelo (uno per GT e dati, uno per il trainer), più 1 critic su questo design.
 - **Fase 1:** un runner Haiku lancia i run e raccoglie i risultati.
 - **Fase 3:** 1 critic sul risultato finale.
+
+## 13. Evidenze prima del run (decisione dell'utente dell'8 ottobre)
+
+Il run massivo non parte finché le scelte principali non hanno un'evidenza misurata. Ogni esperimento costa al massimo 1 GPU per poche ore oppure nessun training.
+
+| # | Scelta da sostenere | Evidenza già in mano | Cosa manca | Esperimento | Costo |
+|---|---|---|---|---|---|
+| E1 | La varietà di 3DMM, non la quantità, migliora il fuori dominio | HIFI3D, distanza graduata senza crop: BFM-only 0.206, ICT-only 0.382, BFM+ICT 0.428, BFM+ICT+GNM su scala 0.63-0.68 | Il salto confonde varietà e quantità (64k identità contro circa 4k) e forse la vicinanza GNM-HIFI3D | **Fattoriale 2×2** (2 o 3 domini × poche o molte identità, stessi passi) più **GNM-only**; più avanti FLAME e FaceScape. Matrice di trasferimento su HIFI3D, FaceVerse, FaceScape (dev) e NoW | 5-6 run piccoli, trainer attuale |
+| E2 | La canonicalizzazione rigida al test aiuta | Studio del frame (`aau/runs/ws_frame/`); su NoW ICP + Chamfer 0.612 contro Chamfer 0.246 | Effetto sul nostro modello | e108 rivalutato con canonicalizzazione su HIFI3D, FaceVerse e NoW | nessun training |
+| E3 | Il riconoscimento debole è un problema di invarianza e di risoluzione fine (H4) | Graduata forte (0.63) ma rank-1 0.78 | Da dove viene l'errore: topologia (noisy? up60k?), espressione, vicini | Breakdown per coppia di topologie; dispersione intra-identità contro distanza dal vicino più prossimo, sugli embedding e108 | nessun training |
+| E4 | La loss nuova migliora il riconoscimento senza peggiorare la graduata | nessuna | tutto | Ablazione a scala piccola: loss attuale contro log, +inv, +nbr | 3-4 run piccoli, modifica del trainer |
+| E5 | Il bilanciamento per dominio riduce la specializzazione | e036 → e108 su HIFI3D cala da 0.677 a 0.630, IC sovrapposti | confronto diretto | bilanciato contro attuale, stessi dati e passi | 1 run |
+| E6 | Un modello più grande aiuta | nessuna | tutto | S contro M a calcolo fisso | 1 run |
+| E7 | Pooling per area e sqrt(area) sono più robusti al supporto | ricetta BFM-only con area-norm | confronto | ablazione | 1-2 run |
+| E8 | La GT unificata è valida | Spearman fra GT maxabs e GT dei coefficienti su HIFI3D: 0.089, quindi la scelta della GT pesa | corrispondenze; correlazione con la maxabs; accordo con lo studio umano | costruzione della GT più i controlli | CPU, studio umano |
+| E9 | P1 regge il throughput | stime | misure | eigsh/s su un nodo L40S, forward a gruppi per taglia, NCCL fra due nodi | job brevi |
+
+**Regola di avvio del run massivo:**
+- **Condizioni necessarie:**
+  - E1 mostra che i domini aggiunti aiutano a parità di identità;
+  - E9 dà almeno 20 viste fresche/s per nodo;
+  - E8 ha corrispondenze con un residuo sui landmark accettabile.
+- **Configurazione:**
+  - E4-E7 decidono la configurazione;
+  - una scelta che non mostra un vantaggio sul dev torna all'impostazione attuale.
+- **Se E1 smentisce la tesi** (conta solo la quantità), il piano cambia: più identità dagli stessi domini, che costa meno.
+
+**Ordine:** prima E2, E3 ed E1, perché toccano la tesi centrale e costano poco. Poi E8 ed E9, che servono comunque al trainer. Infine E4-E7, che richiedono modifiche al trainer.
