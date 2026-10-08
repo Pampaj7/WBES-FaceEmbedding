@@ -1,0 +1,1605 @@
+{
+ "bfm2019": {
+  "describe": {
+   "name": "bfm2019",
+   "role": "train",
+   "region": "mesh di model2019_bfm.h5",
+   "n_verts": 47439,
+   "n_faces": 94464,
+   "n_id": 199,
+   "n_expr": 101,
+   "expr_kind": "pca",
+   "expr_pool": 100,
+   "expr_scale": 0.5,
+   "expr_note": "coefficiente 0 = deformazione media, fisso a s",
+   "id_sigma_first5": [
+    801.0890634005684,
+    365.40166255779405,
+    278.8955757761317,
+    237.10002504217496,
+    228.74509899121335
+   ],
+   "landmark_scheme": "bfm2019",
+   "n_landmarks": 60,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "mm",
+    "mm_per_unit": 1.0,
+    "note": "misurato: landmark con nome sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/external_data/bfm2019/model2019_bfm.npz",
+    "n_verts": 47439,
+    "n_faces": 94464,
+    "n_id": 199,
+    "n_expr_pca": 100,
+    "landmark_snap_mm": {
+     "median": 0.8539479827536742,
+     "max": 5.145592137359093
+    }
+   }
+  },
+  "load_seconds": 4.1,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "fallback (assi e unita' del frame nativo)",
+   "bbox_mm": [
+    178.5,
+    212.1,
+    148.2
+   ],
+   "normal_sum_dot_z": 0.9533968827858539,
+   "frac_outward": 0.9106961382113821,
+   "eye_outer_mm": 83.93127355152491,
+   "cos_left_x": 0.9999956016025785,
+   "cos_up_y": 0.9898414529723145,
+   "nose_ahead_mm": 42.93012237548828,
+   "frame_ok": true,
+   "json_vs_fallback": null
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1539791887581845,
+    "excess_kurtosis": 0.12100893877074625,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08755527638190955,
+    "frac_abs_gt3": 0.013170854271356783
+   },
+   "coef_normal_trunc": {
+    "std": 0.9977989227029265,
+    "excess_kurtosis": -0.06443441237698488,
+    "max_abs": 3.499749027267475,
+    "frac_abs_gt2": 0.04535678391959799,
+    "frac_abs_gt3": 0.0022537688442211055
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 4.919269609574602,
+    "pair_mm_median": 6.901214805621922,
+    "pair_mm_min": 3.05052806545564,
+    "pair_maxabs_median": 0.05887859283290618,
+    "nn_over_median_maxabs": 0.5940804138015031
+   },
+   "expression": {
+    "shift_maxabs_median": 0.018969310985830816,
+    "shift_maxabs_mean": 0.019992564840414256,
+    "shift_mm_median": 1.8714450523573085,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.5
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0248831784934904,
+    "max_disp_mm_max": 2.9874809361369405,
+    "radius_mm_range": [
+     10.057665716188215,
+     29.543358539621003
+    ],
+    "frac_vertices_moved_median": 0.006334450557558127,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12090632410240329,
+     "max": 0.22934150168421125
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.19258778506276275,
+     "max": 0.36215627783872045
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.3180421129501684,
+     "max": 0.5842413363936384
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 42.6
+ },
+ "bfm2019_face12": {
+  "describe": {
+   "name": "bfm2019_face12",
+   "role": "train",
+   "region": "mesh di model2019_face12.h5",
+   "n_verts": 27657,
+   "n_faces": 55040,
+   "n_id": 199,
+   "n_expr": 101,
+   "expr_kind": "pca",
+   "expr_pool": 100,
+   "expr_scale": 0.5,
+   "expr_note": "coefficiente 0 = deformazione media, fisso a s",
+   "id_sigma_first5": [
+    543.6122526672849,
+    249.88339468139935,
+    205.56270902999407,
+    185.73175591764053,
+    159.59149511330483
+   ],
+   "landmark_scheme": "bfm2019",
+   "n_landmarks": 40,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "mm",
+    "mm_per_unit": 1.0,
+    "note": "misurato: landmark con nome sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/external_data/bfm2019/model2019_face12.npz",
+    "n_verts": 27657,
+    "n_faces": 55040,
+    "n_id": 199,
+    "n_expr_pca": 100,
+    "landmark_snap_mm": {
+     "median": 0.6730050443715979,
+     "max": 4.33437673377867
+    }
+   }
+  },
+  "load_seconds": 2.2,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "fallback (assi e unita' del frame nativo)",
+   "bbox_mm": [
+    140.2,
+    166.7,
+    81.7
+   ],
+   "normal_sum_dot_z": 0.9827592631440502,
+   "frac_outward": 0.8012899709302326,
+   "eye_outer_mm": 83.93127355152491,
+   "cos_left_x": 0.9999956016025785,
+   "cos_up_y": 0.9898414529723145,
+   "nose_ahead_mm": 42.93012237548828,
+   "frame_ok": true,
+   "json_vs_fallback": null
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1539791887581845,
+    "excess_kurtosis": 0.12100893877074625,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08755527638190955,
+    "frac_abs_gt3": 0.013170854271356783
+   },
+   "coef_normal_trunc": {
+    "std": 0.9977989227029265,
+    "excess_kurtosis": -0.06443441237698488,
+    "max_abs": 3.499749027267475,
+    "frac_abs_gt2": 0.04535678391959799,
+    "frac_abs_gt3": 0.0022537688442211055
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 4.451407335868227,
+    "pair_mm_median": 6.290800808106789,
+    "pair_mm_min": 2.6593492286308895,
+    "pair_maxabs_median": 0.057328679087058784,
+    "nn_over_median_maxabs": 0.6197708345555074
+   },
+   "expression": {
+    "shift_maxabs_median": 0.01921975358156703,
+    "shift_maxabs_mean": 0.02052861003661626,
+    "shift_mm_median": 1.5391719388157297,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.5
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0248831784934909,
+    "max_disp_mm_max": 2.9874809361369397,
+    "radius_mm_range": [
+     10.057665716188215,
+     29.543358539621003
+    ],
+    "frac_vertices_moved_median": 0.019633365874823734,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.11759704386129975,
+     "max": 0.3352969393712953
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.20754861054550186,
+     "max": 0.4127233575417117
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.3076577287425818,
+     "max": 0.7899602223775231
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 24.8
+ },
+ "bfm2019_fullhead": {
+  "describe": {
+   "name": "bfm2019_fullhead",
+   "role": "train",
+   "region": "mesh di model2019_fullHead.h5",
+   "n_verts": 58203,
+   "n_faces": 116160,
+   "n_id": 199,
+   "n_expr": 101,
+   "expr_kind": "pca",
+   "expr_pool": 100,
+   "expr_scale": 0.5,
+   "expr_note": "coefficiente 0 = deformazione media, fisso a s",
+   "id_sigma_first5": [
+    978.0932662583871,
+    386.3577317396405,
+    316.9725071871376,
+    265.2840017085463,
+    241.0004295250322
+   ],
+   "landmark_scheme": "bfm2019",
+   "n_landmarks": 60,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "mm",
+    "mm_per_unit": 1.0,
+    "note": "misurato: landmark con nome sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/external_data/bfm2019/model2019_fullHead.npz",
+    "n_verts": 58203,
+    "n_faces": 116160,
+    "n_id": 199,
+    "n_expr_pca": 100,
+    "landmark_snap_mm": {
+     "median": 0.8539479827536742,
+     "max": 5.145592137359093
+    }
+   }
+  },
+  "load_seconds": 4.5,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "fallback (assi e unita' del frame nativo)",
+   "bbox_mm": [
+    178.5,
+    249.2,
+    213.5
+   ],
+   "normal_sum_dot_z": 0.22661575972549594,
+   "frac_outward": 0.9299414600550964,
+   "eye_outer_mm": 83.93127355152491,
+   "cos_left_x": 0.9999956016025785,
+   "cos_up_y": 0.9898414529723145,
+   "nose_ahead_mm": 42.93012237548828,
+   "frame_ok": true,
+   "json_vs_fallback": null
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1539791887581845,
+    "excess_kurtosis": 0.12100893877074625,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08755527638190955,
+    "frac_abs_gt3": 0.013170854271356783
+   },
+   "coef_normal_trunc": {
+    "std": 0.9977989227029265,
+    "excess_kurtosis": -0.06443441237698488,
+    "max_abs": 3.499749027267475,
+    "frac_abs_gt2": 0.04535678391959799,
+    "frac_abs_gt3": 0.0022537688442211055
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 5.034171940237979,
+    "pair_mm_median": 7.201951438722032,
+    "pair_mm_min": 3.0245735438435926,
+    "pair_maxabs_median": 0.04437428137704731,
+    "nn_over_median_maxabs": 0.6541549471971357
+   },
+   "expression": {
+    "shift_maxabs_median": 0.01780530177356972,
+    "shift_maxabs_mean": 0.01870384490300404,
+    "shift_mm_median": 2.149557227010313,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.5
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0248831784934884,
+    "max_disp_mm_max": 2.9874809361369463,
+    "radius_mm_range": [
+     10.057665716188215,
+     29.543358539621003
+    ],
+    "frac_vertices_moved_median": 0.0032987990309777844,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12669679857535793,
+     "max": 0.17130928379775417
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.21512589920671832,
+     "max": 0.2939650593633602
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.31437740723129626,
+     "max": 0.5194539579867136
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 51.4
+ },
+ "bfm3ddfa": {
+  "describe": {
+   "name": "bfm3ddfa",
+   "role": "train",
+   "region": "crop p23470 (dati REMESH)",
+   "n_verts": 23470,
+   "n_faces": 46440,
+   "n_id": 40,
+   "n_expr": 10,
+   "expr_kind": "pca",
+   "expr_pool": 10,
+   "expr_scale": 1.0,
+   "expr_note": "w_exp_sim x param_std[52:62]; media u_exp = espressione 0",
+   "id_sigma_first5": [
+    587858.3125,
+    347658.96875,
+    269366.9375,
+    267655.46875,
+    159342.765625
+   ],
+   "landmark_scheme": "ibug51",
+   "n_landmarks": 51,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "inward",
+    "units": "um",
+    "mm_per_unit": 0.001,
+    "note": "misurato: landmark 68 di keypoints_sim sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/external/3DDFA_v1/train.configs",
+    "faces_source": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/REMESH/npz_data_topo_500/id0000_GTready_original.npz (contiene i 46326 di tri.mat, stesso verso)",
+    "param_mean_id_first3_not_used": [
+     -304704.8125,
+     37490.0703125,
+     19555.88671875
+    ]
+   }
+  },
+  "load_seconds": 0.3,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "fallback (assi e unita' del frame nativo)",
+   "bbox_mm": [
+    133.1,
+    173.3,
+    72.6
+   ],
+   "normal_sum_dot_z": 0.9952700503412945,
+   "frac_outward": 0.9313307493540052,
+   "eye_outer_mm": 89.80417963498003,
+   "cos_left_x": 0.9999917795726988,
+   "cos_up_y": 0.9823637571425814,
+   "nose_ahead_mm": 45.928207031250025,
+   "frame_ok": true,
+   "json_vs_fallback": null
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1547443396673027,
+    "excess_kurtosis": 0.1276781433055061,
+    "max_abs": 3.4994381004760418,
+    "frac_abs_gt2": 0.0885,
+    "frac_abs_gt3": 0.012975
+   },
+   "coef_normal_trunc": {
+    "std": 0.9947759347716516,
+    "excess_kurtosis": -0.06751318324631495,
+    "max_abs": 3.480001849170675,
+    "frac_abs_gt2": 0.0449,
+    "frac_abs_gt3": 0.0021875
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 2.109714560585128,
+    "pair_mm_median": 3.2075111430262604,
+    "pair_mm_min": 0.988445379314763,
+    "pair_maxabs_median": 0.028986548224123568,
+    "nn_over_median_maxabs": 0.4766532900104552
+   },
+   "expression": {
+    "shift_maxabs_median": 0.01822103794864687,
+    "shift_maxabs_mean": 0.01861078069993032,
+    "shift_mm_median": 1.6033515952785127,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0010107806244672,
+    "max_disp_mm_max": 2.93955281524039,
+    "radius_mm_range": [
+     10.209333290601638,
+     29.781460210340125
+    ],
+    "frac_vertices_moved_median": 0.03402215594375799,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.10763025099823603,
+     "max": 0.19537837655490292
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.21903131110678462,
+     "max": 0.42137748925626994
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.302989673782635,
+     "max": 0.8108681300687688
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 13.0
+ },
+ "ict": {
+  "describe": {
+   "name": "ict",
+   "role": "train",
+   "region": "geometria #0 Face del README",
+   "n_verts": 9409,
+   "n_faces": 18460,
+   "n_id": 100,
+   "n_expr": 53,
+   "expr_kind": "blendshape",
+   "expr_pool": 45,
+   "expr_scale": 1.0,
+   "expr_note": "ricetta WS5, pool senza eyeLook*",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": "ibug68",
+   "n_landmarks": 68,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "cm",
+    "mm_per_unit": 10.0,
+    "note": "misurato: landmark 68 del README"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/external/ICT-FaceKit/FaceXModel",
+    "identity": "deltas identityNNN - neutro, gia' a +1 sigma (randomize_identity)"
+   }
+  },
+  "load_seconds": 5.7,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    177.4,
+    279.6,
+    156.2
+   ],
+   "normal_sum_dot_z": 0.9982763681345753,
+   "frac_outward": 0.8373781148429036,
+   "eye_outer_mm": 86.02334556045129,
+   "cos_left_x": 0.9997684260102017,
+   "cos_up_y": 0.9614050054835003,
+   "nose_ahead_mm": 44.599473454480844,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 3.3628366194177977,
+    "scale_ratio": 0.9646078874591415,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1503784304349185,
+    "excess_kurtosis": 0.13705280737858727,
+    "max_abs": 3.4998872141866335,
+    "frac_abs_gt2": 0.086515,
+    "frac_abs_gt3": 0.01309
+   },
+   "coef_normal_trunc": {
+    "std": 0.9966873755080652,
+    "excess_kurtosis": -0.06464043362885796,
+    "max_abs": 3.495260668157155,
+    "frac_abs_gt2": 0.044685,
+    "frac_abs_gt3": 0.00218
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 5.503952123519774,
+    "pair_mm_median": 7.722390633964098,
+    "pair_mm_min": 3.2790068677931,
+    "pair_maxabs_median": 0.044529518752136794,
+    "nn_over_median_maxabs": 0.534124030960087
+   },
+   "expression": {
+    "shift_maxabs_median": 0.014039782385562607,
+    "shift_maxabs_mean": 0.015827576333689312,
+    "shift_mm_median": 1.9514996836092737,
+    "ict_reference": 0.017,
+    "kind": "blendshape",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.005886015264619,
+    "max_disp_mm_max": 2.997261897426668,
+    "radius_mm_range": [
+     10.03629223267656,
+     29.99061315637226
+    ],
+    "frac_vertices_moved_median": 0.007280263577425869,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12963112252057804,
+     "max": 0.24301471629747848
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.23071927387191438,
+     "max": 0.5608417288150862
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.3372692644542253,
+     "max": 0.9523095430034622
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 12.0
+ },
+ "gnm": {
+  "describe": {
+   "name": "gnm",
+   "role": "train",
+   "region": "hockey_mask, quad a ventaglio dal centro",
+   "n_verts": 9022,
+   "n_faces": 17720,
+   "n_id": 170,
+   "n_expr": 383,
+   "expr_kind": "pca",
+   "expr_pool": 350,
+   "expr_scale": 0.5,
+   "expr_note": "pool di 350 (lower_face, occhi); sigma 0.5 = GNM_DISTILL",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": null,
+   "n_landmarks": null,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "m",
+    "mm_per_unit": 1000.0,
+    "note": "gnm_model (+Y alto, +Z naso), gruppo 'left' a +x"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/data/gnm_head/gnm_head.npz",
+    "n_head_basis_in_file": 170,
+    "pose_neutral_max_dev_m": 6.417489040178026e-09
+   }
+  },
+  "load_seconds": 1.4,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    146.0,
+    175.4,
+    106.1
+   ],
+   "normal_sum_dot_z": 0.9977613176999244,
+   "frac_outward": 0.8965575620767494,
+   "nose_tip_offset_x_mm": -0.8552054041099245,
+   "nose_tip_rel_height": 0.4795847354817414,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 3.113858552877792,
+    "scale_ratio": 0.9855794377980476,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.152961055894081,
+    "excess_kurtosis": 0.13206247512012315,
+    "max_abs": 3.4999180995322434,
+    "frac_abs_gt2": 0.08709705882352942,
+    "frac_abs_gt3": 0.013411764705882352
+   },
+   "coef_normal_trunc": {
+    "std": 0.9982024293660453,
+    "excess_kurtosis": -0.0630637935859486,
+    "max_abs": 3.498200763893279,
+    "frac_abs_gt2": 0.04552647058823529,
+    "frac_abs_gt3": 0.0022794117647058822
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 4.20843987476324,
+    "pair_mm_median": 5.796085902067876,
+    "pair_mm_min": 2.1299703707746436,
+    "pair_maxabs_median": 0.05647706647189597,
+    "nn_over_median_maxabs": 0.538985060993149
+   },
+   "expression": {
+    "shift_maxabs_median": 0.016446083060252255,
+    "shift_maxabs_mean": 0.0175828536843622,
+    "shift_mm_median": 1.4412910755285147,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.5
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0093408154719126,
+    "max_disp_mm_max": 2.9742609317592694,
+    "radius_mm_range": [
+     10.082080349646109,
+     29.95371488839978
+    ],
+    "frac_vertices_moved_median": 0.017845267124806028,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12040257490560083,
+     "max": 0.20502255296090763
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.21022150244429827,
+     "max": 0.39518153860747735
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.27874532371909616,
+     "max": 0.5548663762883086
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 8.9
+ },
+ "flame2020": {
+  "describe": {
+   "name": "flame2020",
+   "role": "train",
+   "region": "maschera face di FLAME_masks.pkl",
+   "n_verts": 1787,
+   "n_faces": 3408,
+   "n_id": 300,
+   "n_expr": 100,
+   "expr_kind": "pca",
+   "expr_pool": 100,
+   "expr_scale": 0.75,
+   "expr_note": "",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": "ibug51",
+   "n_landmarks": 51,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "m",
+    "mm_per_unit": 1000.0,
+    "note": "misurato: landmark 51 sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME2020/generic_model.pkl",
+    "masks": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME_masks.pkl"
+   }
+  },
+  "load_seconds": 0.1,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    151.0,
+    179.0,
+    115.0
+   ],
+   "normal_sum_dot_z": 0.9993802051473342,
+   "frac_outward": 0.8547535211267606,
+   "eye_outer_mm": 92.25529653084517,
+   "cos_left_x": 0.9996587178593037,
+   "cos_up_y": 0.961521289826776,
+   "nose_ahead_mm": 48.053668069320736,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 0.0,
+    "scale_ratio": 1.0,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1547355065101566,
+    "excess_kurtosis": 0.13094763451372637,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08757833333333333,
+    "frac_abs_gt3": 0.013583333333333333
+   },
+   "coef_normal_trunc": {
+    "std": 0.9990275870508615,
+    "excess_kurtosis": -0.05917397300760863,
+    "max_abs": 3.4998534584621175,
+    "frac_abs_gt2": 0.045275,
+    "frac_abs_gt3": 0.0023216666666666668
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 4.001168666509962,
+    "pair_mm_median": 5.713057928461266,
+    "pair_mm_min": 2.428373397821314,
+    "pair_maxabs_median": 0.05403326381339288,
+    "nn_over_median_maxabs": 0.5515856071659353
+   },
+   "expression": {
+    "shift_maxabs_median": 0.015955920995645932,
+    "shift_maxabs_mean": 0.01631897460658328,
+    "shift_mm_median": 1.4593435923035099,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.75
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.043532797362308,
+    "max_disp_mm_max": 2.896888932329973,
+    "radius_mm_range": [
+     10.086826784344616,
+     29.03185202095413
+    ],
+    "frac_vertices_moved_median": 0.00783435926133184,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.11211873722592464,
+     "max": 0.2231055117759914
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.19714274053965916,
+     "max": 0.39515496287439833
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.3108996120754397,
+     "max": 0.7837945039872688
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 2.2
+ },
+ "flame2023": {
+  "describe": {
+   "name": "flame2023",
+   "role": "train",
+   "region": "maschera face di FLAME_masks.pkl",
+   "n_verts": 1787,
+   "n_faces": 3408,
+   "n_id": 300,
+   "n_expr": 100,
+   "expr_kind": "pca",
+   "expr_pool": 100,
+   "expr_scale": 1.0,
+   "expr_note": "",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": "ibug51",
+   "n_landmarks": 51,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "m",
+    "mm_per_unit": 1000.0,
+    "note": "misurato: landmark 51 sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME2023Open/flame2023_Open.pkl",
+    "masks": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME_masks.pkl"
+   }
+  },
+  "load_seconds": 0.6,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    150.2,
+    182.0,
+    112.2
+   ],
+   "normal_sum_dot_z": 0.9984622527785065,
+   "frac_outward": 0.8309859154929577,
+   "eye_outer_mm": 91.56729986620896,
+   "cos_left_x": 0.999631382471547,
+   "cos_up_y": 0.973986121171365,
+   "nose_ahead_mm": 46.633875723303376,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 0.0,
+    "scale_ratio": 1.0,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1547355065101566,
+    "excess_kurtosis": 0.13094763451372637,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08757833333333333,
+    "frac_abs_gt3": 0.013583333333333333
+   },
+   "coef_normal_trunc": {
+    "std": 0.9990275870508615,
+    "excess_kurtosis": -0.05917397300760863,
+    "max_abs": 3.4998534584621175,
+    "frac_abs_gt2": 0.045275,
+    "frac_abs_gt3": 0.0023216666666666668
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 4.411261403725586,
+    "pair_mm_median": 6.186610443477018,
+    "pair_mm_min": 2.2645024909493143,
+    "pair_maxabs_median": 0.05789667472871757,
+    "nn_over_median_maxabs": 0.5931431852866275
+   },
+   "expression": {
+    "shift_maxabs_median": 0.019450433494610446,
+    "shift_maxabs_mean": 0.019675535717662566,
+    "shift_mm_median": 1.7851562666120073,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.0435327973623076,
+    "max_disp_mm_max": 2.8968889323299694,
+    "radius_mm_range": [
+     10.086826784344616,
+     29.03185202095413
+    ],
+    "frac_vertices_moved_median": 0.009513150531617236,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12395141000598135,
+     "max": 0.2896509193363524
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.2398233174935676,
+     "max": 0.4252010499562682
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.2928279040719726,
+     "max": 0.6398119053635262
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": false,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 3.2
+ },
+ "facescape": {
+  "describe": {
+   "name": "facescape",
+   "role": "dev",
+   "region": "fv_indices_front (toolkit FaceScape v1.6)",
+   "n_verts": 12596,
+   "n_faces": 24765,
+   "n_id": 300,
+   "n_expr": 51,
+   "expr_kind": "blendshape",
+   "expr_pool": 51,
+   "expr_scale": 1.0,
+   "expr_note": "ricetta WS5 sui 51 blendshape (nessun nome nel file: niente esclusione dello sguardo)",
+   "id_sigma_first5": [
+    0.00023911097688051241,
+    0.03436027402436741,
+    0.03436039768902728,
+    0.03436030451706461,
+    0.03436012833666284
+   ],
+   "landmark_scheme": "ibug68",
+   "n_landmarks": 68,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "mm",
+    "mm_per_unit": 1.0,
+    "note": "misurato: landmark 68 lm_list_v16 sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/data/facescape_bilinear/facescape_bm_v1.6_847_300_52_id.npz",
+    "core_shape_file": [
+     78834,
+     52,
+     300
+    ]
+   }
+  },
+  "load_seconds": 34.1,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 4.593466798041845e-05,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    155.9,
+    200.6,
+    97.1
+   ],
+   "normal_sum_dot_z": 0.998803702075583,
+   "frac_outward": 0.8616192206743388,
+   "eye_outer_mm": 88.26116641261041,
+   "cos_left_x": 0.9998204122308141,
+   "cos_up_y": 0.9781832054806037,
+   "nose_ahead_mm": 34.584197444583154,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 5.787174364395487,
+    "scale_ratio": 1.0029613658948517,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1547355065101566,
+    "excess_kurtosis": 0.13094763451372637,
+    "max_abs": 3.499936393171848,
+    "frac_abs_gt2": 0.08757833333333333,
+    "frac_abs_gt3": 0.013583333333333333
+   },
+   "coef_normal_trunc": {
+    "std": 0.9990275870508615,
+    "excess_kurtosis": -0.05917397300760863,
+    "max_abs": 3.4998534584621175,
+    "frac_abs_gt2": 0.045275,
+    "frac_abs_gt3": 0.0023216666666666668
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 2.5747757152932915,
+    "pair_mm_median": 3.693318982979642,
+    "pair_mm_min": 1.6907840450073883,
+    "pair_maxabs_median": 0.031592560536283606,
+    "nn_over_median_maxabs": 0.5839434244169153
+   },
+   "expression": {
+    "shift_maxabs_median": 0.02402191369028505,
+    "shift_maxabs_mean": 0.027029016257548607,
+    "shift_mm_median": 2.4303576231160737,
+    "ict_reference": 0.017,
+    "kind": "blendshape",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.005074325894568,
+    "max_disp_mm_max": 2.9889684651855415,
+    "radius_mm_range": [
+     10.433015629437165,
+     29.823211904378283
+    ],
+    "frac_vertices_moved_median": 0.003334391870435059,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.11618778856151513,
+     "max": 0.23277468846070962
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.22826251861078356,
+     "max": 0.3460724259733629
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.31485402625166314,
+     "max": 0.6611730129268237
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": true,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 56.6
+ },
+ "facescape50": {
+  "describe": {
+   "name": "facescape50",
+   "role": "dev",
+   "region": "fv_indices_front (toolkit FaceScape v1.6)",
+   "n_verts": 12596,
+   "n_faces": 24765,
+   "n_id": 50,
+   "n_expr": 51,
+   "expr_kind": "blendshape",
+   "expr_pool": 51,
+   "expr_scale": 1.0,
+   "expr_note": "ricetta WS5 sui 51 blendshape (nessun nome nel file: niente esclusione dello sguardo)",
+   "id_sigma_first5": [
+    0.00023910689832153166,
+    0.03436027910648549,
+    0.034360401077093886,
+    0.03436027741244621,
+    0.03436012325452246
+   ],
+   "landmark_scheme": "ibug68",
+   "n_landmarks": 68,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "mm",
+    "mm_per_unit": 1.0,
+    "note": "misurato: landmark 68 lm_list_v16 sulla media"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/data/facescape_bilinear/facescape_bm_v1.6_847_50_52_id_exp.npz",
+    "core_shape_file": [
+     78834,
+     52,
+     50
+    ],
+    "expr_mix_cache": "/home/create.aau.dk/ga41wf/.cache/wbes_mm/facescape50_umix_signed_784476371_4197265251.npz",
+    "expr_mix_rel_residual": 1.8719961378436265e-07
+   }
+  },
+  "load_seconds": 5.1,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 4.2199064651526896e-05,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    155.9,
+    200.6,
+    97.1
+   ],
+   "normal_sum_dot_z": 0.9988036902926759,
+   "frac_outward": 0.8615788411064002,
+   "eye_outer_mm": 88.261845341907,
+   "cos_left_x": 0.9998204222007476,
+   "cos_up_y": 0.9781831482981184,
+   "nose_ahead_mm": 34.58445523940195,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 5.787174364395487,
+    "scale_ratio": 1.0029613658948517,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1559726644165338,
+    "excess_kurtosis": 0.1313097210992713,
+    "max_abs": 3.4980356385547657,
+    "frac_abs_gt2": 0.08797,
+    "frac_abs_gt3": 0.01344
+   },
+   "coef_normal_trunc": {
+    "std": 0.9931419941206036,
+    "excess_kurtosis": -0.054208456080608425,
+    "max_abs": 3.4908877802326588,
+    "frac_abs_gt2": 0.04466,
+    "frac_abs_gt3": 0.002
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 2.4521615265707473,
+    "pair_mm_median": 3.5479497782289053,
+    "pair_mm_min": 1.5020896211830665,
+    "pair_maxabs_median": 0.030810040119339466,
+    "nn_over_median_maxabs": 0.5653631796933437
+   },
+   "expression": {
+    "shift_maxabs_median": 0.024483873048968815,
+    "shift_maxabs_mean": 0.02587190252064884,
+    "shift_mm_median": 2.4994495327814183,
+    "ict_reference": 0.017,
+    "kind": "blendshape",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.1448902932725107,
+    "max_disp_mm_max": 2.980071069101913,
+    "radius_mm_range": [
+     10.233356564717957,
+     29.89018714479819
+    ],
+    "frac_vertices_moved_median": 0.005438234360114322,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12972644614045448,
+     "max": 0.20264008133725273
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.20490531156843952,
+     "max": 0.42341004545102867
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.29406209374947156,
+     "max": 0.505080342169751
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": true,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 18.4
+ },
+ "hifi3d": {
+  "describe": {
+   "name": "hifi3d",
+   "role": "test",
+   "region": "mask_face del .mat",
+   "n_verts": 9518,
+   "n_faces": 18684,
+   "n_id": 500,
+   "n_expr": 199,
+   "expr_kind": "pca",
+   "expr_pool": 199,
+   "expr_scale": 0.5,
+   "expr_note": "",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": "hifi86",
+   "n_landmarks": 78,
+   "frame": {
+    "left": "+x",
+    "up": "+y",
+    "forward": "+z",
+    "normals": "outward",
+    "units": "cm",
+    "mm_per_unit": 10.0,
+    "note": "frame ICT (zs_identities.py); cm stimati dalla bbox"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/data/hifi3d/files/AI-NEXT-Shape.mat"
+   }
+  },
+  "load_seconds": 0.6,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    147.6,
+    165.3,
+    102.6
+   ],
+   "normal_sum_dot_z": 0.9841310362856763,
+   "frac_outward": 0.852922286448298,
+   "nose_tip_offset_x_mm": -2.438278342359003,
+   "nose_tip_rel_height": 0.5493643606406154,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 8.958647558911718,
+    "scale_ratio": 0.9306644059192661,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.1542650298079327,
+    "excess_kurtosis": 0.12271337169484697,
+    "max_abs": 3.4999952481928167,
+    "frac_abs_gt2": 0.087276,
+    "frac_abs_gt3": 0.013283
+   },
+   "coef_normal_trunc": {
+    "std": 0.9972321121085967,
+    "excess_kurtosis": -0.05736300986613374,
+    "max_abs": 3.4991451132527738,
+    "frac_abs_gt2": 0.044903,
+    "frac_abs_gt3": 0.002272
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 8.226771043370508,
+    "pair_mm_median": 11.31669628645389,
+    "pair_mm_min": 3.581673761153552,
+    "pair_maxabs_median": 0.068335281876969,
+    "nn_over_median_maxabs": 0.5971982546947636
+   },
+   "expression": {
+    "shift_maxabs_median": 0.01869248685325891,
+    "shift_maxabs_mean": 0.0195601139647015,
+    "shift_mm_median": 1.8041844756602727,
+    "ict_reference": 0.017,
+    "kind": "pca",
+    "scale": 0.5
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.096575986349216,
+    "max_disp_mm_max": 2.990928089791311,
+    "radius_mm_range": [
+     10.09721029065908,
+     29.922600027632033
+    ],
+    "frac_vertices_moved_median": 0.006934229880226938,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.13638570385328158,
+     "max": 0.2962032683912933
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.21771573030462854,
+     "max": 0.42174186283528226
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.29760173519675537,
+     "max": 0.6718151397492651
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": true,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 10.8
+ },
+ "faceverse": {
+  "describe": {
+   "name": "faceverse",
+   "role": "test",
+   "region": "mesh piena",
+   "n_verts": 28632,
+   "n_faces": 56698,
+   "n_id": 150,
+   "n_expr": 52,
+   "expr_kind": "blendshape",
+   "expr_pool": 44,
+   "expr_scale": 1.0,
+   "expr_note": "ricetta WS5, pool senza eyeLook* (come FACEVERSE_ZS/expr_topo)",
+   "id_sigma_first5": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "landmark_scheme": "faceverse66",
+   "n_landmarks": 66,
+   "frame": {
+    "left": "+x",
+    "up": "-y",
+    "forward": "-z",
+    "normals": "outward",
+    "units": "faceverse",
+    "mm_per_unit": 162.5857644397952,
+    "note": "misurato sui keypoints; mm per unita' = 90 mm / 0.5536"
+   },
+   "info": {
+    "file": "/home/create.aau.dk/ga41wf/data/faceverse/faceverse_simple_v2.npy"
+   }
+  },
+  "load_seconds": 0.6,
+  "checks": {
+   "patch_clean": true,
+   "mesh_zero_is_mean": true,
+   "mesh_zero_expr_is_mean": true,
+   "expr_additive_max_abs": 0.0,
+   "expr_additive_ok": true,
+   "canonical_source": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json",
+   "bbox_mm": [
+    156.2,
+    165.5,
+    96.0
+   ],
+   "normal_sum_dot_z": 0.9974199912655969,
+   "frac_outward": 0.9852552118240502,
+   "eye_outer_mm": 91.7881020707791,
+   "cos_left_x": 0.9997685133935785,
+   "cos_up_y": 0.9066391980037652,
+   "nose_ahead_mm": 36.96225341086062,
+   "frame_ok": true,
+   "json_vs_fallback": {
+    "angle_deg": 4.788778217158098,
+    "scale_ratio": 1.019867800786435,
+    "flip_faces_agree": true
+   }
+  },
+  "stats": {
+   "coef_tails": {
+    "std": 1.152100577879691,
+    "excess_kurtosis": 0.1392691109743831,
+    "max_abs": 3.4999177432576385,
+    "frac_abs_gt2": 0.08715333333333333,
+    "frac_abs_gt3": 0.013246666666666667
+   },
+   "coef_normal_trunc": {
+    "std": 0.9975238539205565,
+    "excess_kurtosis": -0.06104427802717671,
+    "max_abs": 3.499010482717675,
+    "frac_abs_gt2": 0.045213333333333335,
+    "frac_abs_gt3": 0.0023166666666666665
+   },
+   "identity": {
+    "n": 100,
+    "dist_from_mean_mm_median": 6.495668033959881,
+    "pair_mm_median": 9.253039353968376,
+    "pair_mm_min": 6.652870178844516,
+    "pair_maxabs_median": 0.11010496963074984,
+    "nn_over_median_maxabs": 0.7943081683488332
+   },
+   "expression": {
+    "shift_maxabs_median": 0.0326944243751761,
+    "shift_maxabs_mean": 0.0389204892302713,
+    "shift_mm_median": 2.4807422493058695,
+    "ict_reference": 0.017,
+    "kind": "blendshape",
+    "scale": 1.0
+   },
+   "rbf": {
+    "max_disp_mm_min": 1.015687347226503,
+    "max_disp_mm_max": 2.982446045834933,
+    "radius_mm_range": [
+     11.36405764367423,
+     28.90079268353894
+    ],
+    "frac_vertices_moved_median": 0.020169740150880133,
+    "in_spec": true
+   },
+   "perturbation_pairs": {
+    "0.2": {
+     "gt_over_median_pair_median": 0.12613109738424882,
+     "max": 0.20780437295487955
+    },
+    "0.35": {
+     "gt_over_median_pair_median": 0.21579412501690193,
+     "max": 0.2767431679693879
+    },
+    "0.5": {
+     "gt_over_median_pair_median": 0.31060464991764725,
+     "max": 0.4568324446004172
+    }
+   }
+  },
+  "determinism": {
+   "same_seed_identical": true,
+   "other_seed_differs": true
+  },
+  "roles": {
+   "train_sampler_raises": true,
+   "guard_ok": true
+  },
+  "json_hook": {
+   "json_applied": true,
+   "missing_entry_falls_back": true
+  },
+  "seconds": 21.9
+ },
+ "facescape50_vs_300_mean_mm": {
+  "mean": 0.0005268672022514104,
+  "max": 0.0011020555903578156
+ }
+}

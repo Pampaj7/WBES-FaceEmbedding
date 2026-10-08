@@ -1081,3 +1081,15 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
 - **`build_grad` vettorizzato:** circa 197 volte più veloce, identico bit per bit dopo il cast a fp32; gli embedding e108 coincidono.
 - **Forward+backward su L40S:** i gruppi grandi peggiorano. Con gruppi quasi singoli S fa 170 mesh/s (93 con un forward per mesh), M 68, L 39. Il trainer attuale (38.7 mesh/s) perde più di metà del passo in overhead.
 - **Rete:** RoCE (`mlx5_bond_0`) visibile nei container; gloo su TCP fra nodi a 1.16 GB/s. Il test NCCL fra due nodi è in coda (1061639).
+
+### 8 ottobre: D1, libreria 3DMM e set di sviluppo FaceScape (`aau/runs/evidence/dev_facescape/results.md`)
+- **Libreria `v3_work/mm/`:** 12 modelli con ruoli. FaceScape è `dev`, HIFI3D e FaceVerse sono `test`; i campionatori di training sollevano `RoleError` su questi ruoli. BFM 2019 (199/100) aggiunto in tre varianti: bfm 47k, face12 28k, fullhead 58k vertici.
+- **e108 sul dev FaceScape:**
+
+  | Misura | e108 | Chamfer | Delta |
+  |---|---|---|---|
+  | graduata senza crop | 0.394 | 0.361 | +0.032 [−0.016, +0.086] |
+  | rank-1 con espressioni | 0.285 | 0.424 | −0.139 |
+  | punteggio dev | 0.340 [0.302, 0.376] | 0.393 [0.353, 0.431] | |
+
+- **Lettura:** il vantaggio enorme su HIFI3D (+0.26) NON si ripete su FaceScape. Rafforza il dubbio che HIFI3D sia vicino a un dominio di training (GNM?); D2 lo sta misurando.
