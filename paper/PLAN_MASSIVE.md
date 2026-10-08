@@ -332,3 +332,25 @@ Ha la precedenza sulle sezioni precedenti dove le contraddice.
 | E8 | Con la GT unificata (Procrustes) e108 scende a 0.301 su HIFI3D, contro NICP 0.577 e ICP+Chamfer 0.522. | **Il target del training è la domanda aperta:** cella E1 C3F-UGT. Arbitro della GT: lo studio umano. |
 | E9 | `build_grad` vettorizzato; 42-126 viste/s per nodo. | P1 è fattibile. Pre-pass E1 1.64× più veloce. |
 | D1 | Sul dev FaceScape e108 ≈ Chamfer nella graduata (+0.032 n.s.) e peggiore nel rank-1 con espressioni (−0.139). | Il vantaggio di HIFI3D non è generale; vedi H8, il supporto simile a GNM. |
+
+## 16. Revisione dei risultati delle evidenze (critic del 9 ottobre, BLOCCANTE)
+
+Correzioni d'interpretazione, che hanno la precedenza sulla §15:
+1. **E8: il ribaltamento di classifica è un effetto del DIVISORE DI SCALA, non della posa.** Su 500 identità HIFI3D (job 1062067):
+   - ρ(maxabs, maxabs con allineamento rigido) = 0.975;
+   - ρ(maxabs, normalizzazione per centroid size) = 0.638.
+
+   La GT maxabs divide di fatto per l'estensione verticale della patch, cioè un vertice del bordo; quella unificata divide per la centroid size. Nessuna delle due conserva la dimensione del volto. Il modello e108 normalizza l'ingresso con lo stesso divisore della maxabs, quindi parte del suo vantaggio con quella GT nasce dalla costruzione. **La domanda per lo studio umano diventa: quale normalizzazione di scala corrisponde alla somiglianza percepita?**
+2. **E3c: la conclusione "la loss non va cambiata" è RITIRATA.**
+   - Il calo dal globale al locale di e108 è maggiore di quello delle baseline.
+   - Il vantaggio di e108 sta solo nel decile più lontano.
+   - Il confronto "pari a ICP+Chamfer" è assenza di prova, non equivalenza.
+
+   Si aggiunge un braccio `log+inv` alle ablazioni v3.
+3. **E3: la causa di down8k va riformulata** come "centro, scala e pooling per vertice": la variante cambiava anche la scala.
+4. **Competitori:**
+   - va aggiunta la riga di riconoscimento di e108 (0.782, sotto NICP su template 0.875 e ICP+Chamfer 0.996);
+   - tutti i competitori vanno valutati anche con la GT unificata;
+   - OpenShape e Uni3D vanno valutati anche nel frame esatto del loro training.
+5. **C3F-UGT e `ugtmix`:** la GT unificata va TARATA (mediane per dominio allineate alla maxabs), altrimenti il confronto mescola contenuto e scala della GT.
+6. **Promossi:** ArcFace contro modello (VIA LIBERA; e108 era fissato prima, anche se e036 fa meglio) e FaMoS (VIA LIBERA). E10 passa con riserve sui confronti di velocità.
