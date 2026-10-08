@@ -245,6 +245,8 @@ Un milione di viste precalcolate non entra né in RAM né su disco.
 
 ## 12. Decisioni per l'utente
 
+**Approvate dall'utente l'8 ottobre 2026: tutte e cinque.** L'utente fornisce FaMoS e richiede BFM 2017/2019. Il piano resta soggetto alle correzioni del critic sul design.
+
 1. **Test fissi fuori dal training** (HIFI3D, FaceVerse, NoW, Multiface, 15 persone FaMoS), con LODO solo come analisi. Raccomandato.
 2. **GT unificata come primaria,** dichiarata ora, con la maxabs come secondaria.
 3. **Canonicalizzazione rigida al test** come impostazione primaria.
