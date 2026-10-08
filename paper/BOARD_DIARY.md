@@ -1066,3 +1066,18 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
 - **Lettura:** sulla GT maxabs e108 batte tutti di +0.28 o più.
 - **Riserva aperta (critic):** la GT maxabs penalizza i metodi che allineano. NICP su template applica Procrustes e scarta la scala. Prima di affermare il vantaggio sulla distanza graduata serve la GT unificata, invariante alla similarità, che D2 sta calcolando su tutti i metodi.
 - **Stato:** non ancora rivisto da critic o verifier.
+
+### 8 ottobre: E9, fattibilità di P1 (`aau/runs/evidence/e9/tables.md`)
+- **Viste fresche/s per nodo** (100 CPU, a768-l40s-05):
+
+  | Configurazione | Viste/s |
+  |---|---|
+  | codice attuale | 6.7-7.8 |
+  | `build_grad` vettorizzato, k 128, V ≤ 10k | 41-43 |
+  | `build_grad` vettorizzato, k 64, V ≤ 10k | **123-126** |
+  | fino a 60k vertici | 9-24 |
+
+  **Il gate da 20 viste/s è superato.**
+- **`build_grad` vettorizzato:** circa 197 volte più veloce, identico bit per bit dopo il cast a fp32; gli embedding e108 coincidono.
+- **Forward+backward su L40S:** i gruppi grandi peggiorano. Con gruppi quasi singoli S fa 170 mesh/s (93 con un forward per mesh), M 68, L 39. Il trainer attuale (38.7 mesh/s) perde più di metà del passo in overhead.
+- **Rete:** RoCE (`mlx5_bond_0`) visibile nei container; gloo su TCP fra nodi a 1.16 GB/s. Il test NCCL fra due nodi è in coda (1061639).

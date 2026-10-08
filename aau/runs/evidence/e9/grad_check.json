@@ -1,0 +1,544 @@
+{
+ "ckpt": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/data_scale_runs/scale_bfm_ict_gnm_s1234_nocanon_noaug_20261007_1411/mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_ks0_poolmeanmax_noise60_sig5e-4-2e-2_latentnoise_seed1234__3167d36d/checkpoints/epoch108.pth",
+ "meshes": [
+  {
+   "name": "id0000_GTready_down8k.npz",
+   "V": 8129,
+   "t_orig_s": 0.6757366119418293,
+   "t_vec_s": 0.0031572890002280474,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.2179125326989507e-12,
+    "max_abs_over_max_ref": 3.3210720041707863e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 56435,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 56435,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0000_GTready_original.npz",
+   "V": 23470,
+   "t_orig_s": 1.9556821670848876,
+   "t_vec_s": 0.009431448066607118,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 2.6812987050722663e-13,
+    "max_abs_over_max_ref": 7.879818525982248e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0000_GTready_remesh.npz",
+   "V": 16502,
+   "t_orig_s": 1.385690099094063,
+   "t_vec_s": 0.008556299144402146,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.1211274638365022e-12,
+    "max_abs_over_max_ref": 2.988254744345109e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0000_GTready_up60k.npz",
+   "V": 60432,
+   "t_orig_s": 5.190794056979939,
+   "t_vec_s": 0.027391643961891532,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 9.726912229921027e-13,
+    "max_abs_over_max_ref": 2.7347703130773535e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 421632,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 421632,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10000_GTready_down8k.npz",
+   "V": 3281,
+   "t_orig_s": 0.2685963287949562,
+   "t_vec_s": 0.0014228371437638998,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.6572562045795678e-13,
+    "max_abs_over_max_ref": 8.670477038246971e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 22567,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 22567,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10000_GTready_original.npz",
+   "V": 9409,
+   "t_orig_s": 0.7708881190046668,
+   "t_vec_s": 0.0038530000019818544,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.1718571004216928e-13,
+    "max_abs_over_max_ref": 4.1199387232228177e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 65151,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 65151,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10000_GTready_remesh.npz",
+   "V": 6600,
+   "t_orig_s": 0.5383541348855942,
+   "t_vec_s": 0.002512536011636257,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.6077746776921858e-13,
+    "max_abs_over_max_ref": 5.225597432542871e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 45646,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 45646,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10000_GTready_up60k.npz",
+   "V": 24126,
+   "t_orig_s": 1.9927665118593723,
+   "t_vec_s": 0.010767694795504212,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 9.099386826154683e-14,
+    "max_abs_over_max_ref": 3.1991053278925814e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 167782,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 167782,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0020_GTready_down8k.npz",
+   "V": 8132,
+   "t_orig_s": 0.7449069730937481,
+   "t_vec_s": 0.0030849820468574762,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 9.3794332531474e-13,
+    "max_abs_over_max_ref": 2.5520392379628492e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 56442,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 56442,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0020_GTready_original.npz",
+   "V": 23470,
+   "t_orig_s": 1.9385683271102607,
+   "t_vec_s": 0.008192806970328093,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.6958021990576863e-12,
+    "max_abs_over_max_ref": 4.745618683932175e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0020_GTready_remesh.npz",
+   "V": 16502,
+   "t_orig_s": 1.3667583039496094,
+   "t_vec_s": 0.007962603121995926,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.2840197312103235e-12,
+    "max_abs_over_max_ref": 4.149392201137125e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0020_GTready_up60k.npz",
+   "V": 60440,
+   "t_orig_s": 5.074113023001701,
+   "t_vec_s": 0.02606591279618442,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 3.4959857934347736e-12,
+    "max_abs_over_max_ref": 8.899707319601232e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 421602,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 421602,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10200_GTready_down8k.npz",
+   "V": 3276,
+   "t_orig_s": 0.26755646290257573,
+   "t_vec_s": 0.0015080941375344992,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.5338509587737478e-13,
+    "max_abs_over_max_ref": 7.355165893999471e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 22552,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 22552,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10200_GTready_original.npz",
+   "V": 9409,
+   "t_orig_s": 0.7670460620429367,
+   "t_vec_s": 0.0038673800881952047,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.1718571004216928e-13,
+    "max_abs_over_max_ref": 3.7308399892046634e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 65151,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 65151,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10200_GTready_remesh.npz",
+   "V": 6601,
+   "t_orig_s": 0.5395091481041163,
+   "t_vec_s": 0.002489269943907857,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.7112135109858138e-13,
+    "max_abs_over_max_ref": 5.498325065250592e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 45649,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 45649,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id10200_GTready_up60k.npz",
+   "V": 24125,
+   "t_orig_s": 1.9908829869236797,
+   "t_vec_s": 0.01241892296820879,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.5177199488856151e-13,
+    "max_abs_over_max_ref": 4.831971373621761e-16
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 167779,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 167779,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0040_GTready_down8k.npz",
+   "V": 8136,
+   "t_orig_s": 0.6706244638189673,
+   "t_vec_s": 0.003172001102939248,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.7302262739604459e-12,
+    "max_abs_over_max_ref": 4.717976957843758e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 56452,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 56452,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0040_GTready_original.npz",
+   "V": 23470,
+   "t_orig_s": 1.9570402291137725,
+   "t_vec_s": 0.01017511892132461,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 2.423690330639129e-12,
+    "max_abs_over_max_ref": 6.731958957343959e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 163290,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0040_GTready_remesh.npz",
+   "V": 16502,
+   "t_orig_s": 1.4432441159151495,
+   "t_vec_s": 0.006173727801069617,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.7026952492358486e-12,
+    "max_abs_over_max_ref": 5.05233659231465e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 114518,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  },
+  {
+   "name": "id0040_GTready_up60k.npz",
+   "V": 60429,
+   "t_orig_s": 5.0432300181128085,
+   "t_vec_s": 0.02299457206390798,
+   "complex128": {
+    "same_structure": true,
+    "max_abs": 1.6720566782263097e-12,
+    "max_abs_over_max_ref": 4.688655386613388e-15
+   },
+   "gradX": {
+    "same_structure": true,
+    "nnz": 421577,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   },
+   "gradY": {
+    "same_structure": true,
+    "nnz": 421577,
+    "max_abs": 0.0,
+    "max_abs_over_max_ref": 0.0,
+    "max_rel_elementwise": 0.0
+   }
+  }
+ ],
+ "worst": {
+  "max_abs": 0.0,
+  "max_abs_over_max_ref": 0.0,
+  "max_rel_elementwise": 0.0
+ },
+ "all_same_structure": true,
+ "worst_complex128": {
+  "max_abs": 3.4959857934347736e-12,
+  "max_abs_over_max_ref": 8.899707319601232e-15
+ },
+ "speedup_total": 197.38787253261916,
+ "embedding": {
+  "max_abs_component": 0.0,
+  "max_dz": 0.0,
+  "median_pairwise_dist": 2.240783214569092,
+  "max_dz_rel": 0.0,
+  "files": [
+   "id0000_GTready_down8k.npz",
+   "id0000_GTready_original.npz",
+   "id0000_GTready_remesh.npz",
+   "id0000_GTready_up60k.npz",
+   "id0020_GTready_down8k.npz",
+   "id0020_GTready_original.npz",
+   "id0020_GTready_remesh.npz",
+   "id0020_GTready_up60k.npz",
+   "id0040_GTready_down8k.npz",
+   "id0040_GTready_original.npz",
+   "id0040_GTready_remesh.npz",
+   "id0040_GTready_up60k.npz",
+   "id10000_GTready_down8k.npz",
+   "id10000_GTready_original.npz",
+   "id10000_GTready_remesh.npz",
+   "id10000_GTready_up60k.npz",
+   "id10200_GTready_down8k.npz",
+   "id10200_GTready_original.npz",
+   "id10200_GTready_remesh.npz",
+   "id10200_GTready_up60k.npz"
+  ]
+ }
+}

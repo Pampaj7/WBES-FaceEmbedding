@@ -1,0 +1,46 @@
+{
+ "backend": "gloo",
+ "world": 2,
+ "hosts": [
+  "a768-l40s-01.srv.aau.dk",
+  "a768-l40s-02.srv.aau.dk"
+ ],
+ "nccl": null,
+ "torch": "2.5.0a0+e000cf0ad9.nv24.10",
+ "gpu": null,
+ "env": {
+  "NCCL_VERSION": "2.22.3",
+  "NCCL_DEBUG_SUBSYS": "INIT,NET,GRAPH",
+  "NCCL_DEBUG": "INFO"
+ },
+ "results": {
+  "8B": {
+   "bytes": 8,
+   "iters": 300,
+   "time_ms": 0.24156020663212985,
+   "algbw_GBps": 3.3118037575547935e-05,
+   "busbw_GBps": 3.3118037575547935e-05
+  },
+  "10MB": {
+   "bytes": 10000000,
+   "iters": 30,
+   "time_ms": 8.655858226120472,
+   "algbw_GBps": 1.1552869442597107,
+   "busbw_GBps": 1.1552869442597107
+  },
+  "50MB": {
+   "bytes": 50000000,
+   "iters": 30,
+   "time_ms": 43.36939379572868,
+   "algbw_GBps": 1.1528867623905859,
+   "busbw_GBps": 1.1528867623905859
+  },
+  "100MB": {
+   "bytes": 100000000,
+   "iters": 30,
+   "time_ms": 85.3353962302208,
+   "algbw_GBps": 1.1718466711072217,
+   "busbw_GBps": 1.1718466711072217
+  }
+ }
+}
