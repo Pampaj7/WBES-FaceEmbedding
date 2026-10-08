@@ -19,6 +19,7 @@ case "$ARM" in
   bal)        EXTRA=(--sampler balanced --domain-alpha 0.0) ;;
   ugtmix)     EXTRA=(--gt unified --sampler balanced --domain-alpha 1.0 --batch-domains mixed --no-domain-blocked)
               GT="$C/gt_unified.npz" ;;
+  loginv)     EXTRA=(--loss log+inv) ;;   # emendamento del 9 ottobre (ablation_protocol_emendamento_2026-10-09.md)
   *) echo "ERRORE: braccio $ARM" >&2; exit 2 ;;
 esac
 [[ -f "$STORE/index.npz" && -f "$STORE/manifest.json" ]] || { echo "ERRORE: store $STORE incompleto su $(hostname)" >&2; exit 3; }

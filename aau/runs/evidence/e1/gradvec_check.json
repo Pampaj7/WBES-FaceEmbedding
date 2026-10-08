@@ -1,0 +1,126 @@
+{
+ "host": "nv-ai-03.srv.aau.dk",
+ "n_files": 57,
+ "n_arrays": 798,
+ "topologies": {
+  "crop": 5,
+  "down8k": 5,
+  "noisy": 5,
+  "original": 5,
+  "remesh": 5,
+  "rexpr1": 5,
+  "up60k": 5,
+  "rexpr2": 4,
+  "rexpr3": 3,
+  "rexpr4": 3,
+  "rexpr5": 3,
+  "rexpr6": 3,
+  "rexpr7": 3,
+  "rexpr8": 3
+ },
+ "hook_lines_vec": 1,
+ "identical": false,
+ "n_files_different": 10,
+ "n_arrays_different": 19,
+ "max_abs_diff": 1.1641532182693481e-10,
+ "max_rel_diff": 3.6618013149789734e-13,
+ "max_ulp_fp32": 2810183680.0,
+ "frac_elements_different": 6.293402350979116e-05,
+ "differences": [
+  {
+   "file": "id100000_GTready_crop.npz",
+   "array": "gradX_values",
+   "n_diff": 11,
+   "n": 58454,
+   "max_abs": 3.637978807091713e-12,
+   "max_rel": 1.1723314897508276e-14,
+   "max_ulp32": 1.0
+  },
+  {
+   "file": "id100000_GTready_crop.npz",
+   "array": "gradY_values",
+   "n_diff": 3,
+   "n": 58454,
+   "max_abs": 7.105427357601002e-15,
+   "max_rel": 2.33049733708529e-17,
+   "max_ulp32": 2.0
+  },
+  {
+   "file": "id100000_GTready_down8k.npz",
+   "array": "gradY_values",
+   "n_diff": 1,
+   "n": 21725,
+   "max_abs": 3.552713678800501e-15,
+   "max_rel": 1.378744124995068e-17,
+   "max_ulp32": 1.0
+  },
+  {
+   "file": "id100000_GTready_original.npz",
+   "array": "gradX_values",
+   "n_diff": 6,
+   "n": 62514,
+   "max_abs": 1.8189894035458565e-12,
+   "max_rel": 5.834152166067616e-15,
+   "max_ulp32": 1.0
+  },
+  {
+   "file": "id100000_GTready_original.npz",
+   "array": "gradY_values",
+   "n_diff": 1,
+   "n": 62514,
+   "max_abs": 9.094947017729282e-13,
+   "max_rel": 2.9264878742563877e-15,
+   "max_ulp32": 1.0
+  },
+  {
+   "file": "id100000_GTready_rexpr1.npz",
+   "array": "gradX_values",
+   "n_diff": 9,
+   "n": 62514,
+   "max_abs": 5.820766091346741e-11,
+   "max_rel": 1.827128203607473e-13,
+   "max_ulp32": 2151677952.0
+  },
+  {
+   "file": "id100000_GTready_rexpr1.npz",
+   "array": "gradY_values",
+   "n_diff": 6,
+   "n": 62514,
+   "max_abs": 4.547473508864641e-13,
+   "max_rel": 1.528140221254144e-15,
+   "max_ulp32": 2147483648.0
+  },
+  {
+   "file": "id100000_GTready_up60k.npz",
+   "array": "gradX_values",
+   "n_diff": 1,
+   "n": 161097,
+   "max_abs": 1.4210854715202004e-14,
+   "max_rel": 4.5274461914686493e-17,
+   "max_ulp32": 8.0
+  },
+  {
+   "file": "id100000_GTready_up60k.npz",
+   "array": "gradY_values",
+   "n_diff": 2,
+   "n": 161097,
+   "max_abs": 1.4551915228366852e-11,
+   "max_rel": 4.7271742583695594e-14,
+   "max_ulp32": 1.0
+  },
+  {
+   "file": "id100004_GTready_crop.npz",
+   "array": "gradX_values",
+   "n_diff": 10,
+   "n": 58616,
+   "max_abs": 2.9103830456733704e-11,
+   "max_rel": 9.098833591106373e-14,
+   "max_ulp32": 6.0
+  }
+ ],
+ "cpu_seconds_orig": 262.939537525177,
+ "cpu_seconds_vec": 160.0973300933838,
+ "cpu_s_per_mesh_orig": 4.612974342546965,
+ "cpu_s_per_mesh_vec": 2.80872508935761,
+ "speedup": 1.6423730325284374
+}

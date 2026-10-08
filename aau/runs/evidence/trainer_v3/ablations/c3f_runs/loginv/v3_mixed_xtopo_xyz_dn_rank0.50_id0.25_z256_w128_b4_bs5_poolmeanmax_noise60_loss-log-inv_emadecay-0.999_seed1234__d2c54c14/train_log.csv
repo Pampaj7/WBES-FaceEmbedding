@@ -1,0 +1,6 @@
+epoch,loss,stress,rank,id,smooth,teacher,lr,spearman_clean,pearson_clean,auc_r,gate_mean_clean,gate_mean_noisy_max,spearman_noisy_max,ratio_noisy_max,intra_clean,n_eval
+1,1.044735,0.000000,0.000000,0.000000,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+2,0.459687,0.000000,0.000000,0.000000,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+3,0.389660,0.000000,0.000000,0.000000,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+4,0.305401,0.000000,0.000000,0.000000,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+5,0.229167,0.000000,0.000000,0.000000,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0

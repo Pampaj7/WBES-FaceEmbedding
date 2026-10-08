@@ -1,0 +1,20 @@
+{
+  "seed": 1234,
+  "sigma": 1.0,
+  "n_shape": 100,
+  "n_identities": 500,
+  "gender": "neutral",
+  "truncation_sigma": 0.0,
+  "frame": "flame",
+  "model_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME2020/generic_model.pkl",
+  "min_pairwise_beta_l2": 9.895054525742902,
+  "source_identities": "/tmp/wbes-flame-ga41wf@create.aau.dk/build/identities_full",
+  "model_sha256": "efcd14cc4a69f3a3d9af8ded80146b5b6b50df3bd74cf69108213b144eba725b",
+  "crop": "mask",
+  "mask_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v2_work/genflame/official/FLAME_masks.pkl",
+  "mask_sha256": "ccefbe1ac0774ff78c68caf2c627b4abc067a6555ebeb0be5d5b0812366ab492",
+  "mask_region": "face",
+  "n_verts": 1787,
+  "n_faces": 3408,
+  "model_is_official_flame2020": true
+}

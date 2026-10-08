@@ -75,106 +75,88 @@ non 10x. La regola primaria (varieta') non ne dipende; le letture di quantita' v
 
 ---
 
+# E1, emendamento 1 al protocollo (scritto PRIMA di ogni numero delle celle nuove)
+
+8 ottobre 2026, sera. Rimanda a `protocol.md` (sha256 493941994cd41864d2d2b815ca257e53bf6cc46913b075c1aec7155a3deb29f6,
+registrato in `protocol.sha256` alle 15:30), che resta invariato. Scritto dopo la revisione del critic
+(BLOCCANTE sul disegno) e le decisioni del PI, quando nessuna cella nuova di E1 aveva ancora un checkpoint ne' un
+numero: gli unici numeri esistenti sono quelli di C3M su L40S (run su scala 1060130, gia' in
+`aau/runs/data_scale_ood/curve.md`) e degli smoke di plumbing (che non producono metriche di test). Dove questo
+file e la versione originale divergono, vale questo file. Lo sha256 di questo file e' in `protocol_amendment.sha256`.
+
+## 1. Celle e hardware
+
+- **Tutte le celle si addestrano su V100** (container PyTorch 24.10): C2M, C2F, C3F, C2F-GNM, C3F-UGT, i secondi
+  semi C2F-s2 e C3F-s2, C2F40, C3F40, G1 e **C3M rifatta su V100** (stesso split del run su scala, K=46, fermata
+  all'epoca 72). Le valutazioni girano tutte sulle A100.
+- **La C3M della regola e' quella rifatta su V100.** La C3M su L40S (1060130) resta solo come riferimento.
+- **C2F-GNM** = BFM 392 + GNM 5.401 (stratificate per 1/2 espressioni), nessuna ICT: lo stesso totale non-BFM
+  di C2F e C3F. Le 844 GNM di C3F sono un suo sottoinsieme.
+- **C3F-UGT** = C3F (stesso split, passi, seme, hardware) con la GT di training UNIFICATA
+  (`datasets/UNIFIED_GT/train/gt_unified_bfm_ict_gnm.npz`, verificata da `check_train_gt.py`).
+- **Secondi semi:** C2F-s2 e C3F-s2 = C2F e C3F con `--seed` e `block_seed` 2345, stesso split.
+- **C2F40 e C3F40:** ICT a 1/40 (1.350 non-BFM, un solo blocco), annidate in C2F e C3F. Servono SOLO alla
+  lettura della quantita' (circa 10x contro le celle M); non entrano nella regola sulla varieta'.
+
+## 2. Regola sulla varieta' (sostituisce la regola primaria di protocol.md)
+
+Metrica: Spearman con la GT `maxabs` di HIFI3D, mesh-pair `nocrop_cross` (20 coppie ordinate senza crop),
+clean, seme 1234 delle celle. Effetto minimo: **+0.05**.
+
+Delta = Sp(C3F) - max(Sp(C2F), Sp(C2F-GNM)). Il massimo si prende in OGNI replica bootstrap: 1000 repliche per
+soggetto, le stesse per tutte le celle. IC 95% = percentili.
+
+Gli esiti si dichiarano a 21.096 passi (lettura principale) e a 10.548 (accanto):
+
+- **SOSTENUTA** se valgono TUTTE:
+  - (a) Delta >= +0.05 e IC di Delta con estremo inferiore > 0;
+  - (b) dev FaceScape: Delta (stessa definizione, GT `maxabs`, `nocrop_cross`) con punto > 0, cioe' stessa
+    direzione;
+  - (c) non inferiorita' su FaceVerse con espressioni (convenzione BFM): rank-1(C3F) - max(rank-1(C2F),
+    rank-1(C2F-GNM)), con il massimo per replica, ha IC con estremo inferiore > -0.05;
+  - (d) Delta maggiore del pavimento del rumore (sotto);
+  - (e) secondo seme: Sp(C3F-s2) - Sp(C2F-s2) > 0 (punto).
+- **SMENTITA** se:
+  - Delta <= 0 con IC che esclude +0.05 (estremo superiore < +0.05);
+  - e sul dev FaceScape Delta <= 0 (punto).
+- **NON CONCLUDENTE** in ogni altro caso, con l'elenco delle condizioni mancate.
+
+**Pavimento del rumore,** su HIFI3D `nocrop_cross` (GT `maxabs`) allo stesso numero di passi: il massimo fra
+|Sp(C3M V100) - Sp(C3M L40S)| (stesso seme, hardware diverso), |Sp(C2F) - Sp(C2F-s2)| e |Sp(C3F) - Sp(C3F-s2)|.
+Se e' grande quanto Delta o piu', l'esito e' NON CONCLUDENTE, anche se valgono (a)-(c).
+
+C3M - C2M e C3F - C2F (il confronto originale) restano riportati, solo come descrittivi.
+
+## 3. Quantita' e G1 (descrittive, nessuna regola di decisione)
+
+- **Circa 2.5x:** C2M - C2F, C3M - C3F.
+- **Circa 10x:** C2M - C2F40, C3M - C3F40.
+- **G1** contro C3M e contro C3F.
+- Stessa metrica, stessi IC.
+
+## 4. GT unificata
+
+Tutte le celle si valutano con ENTRAMBE le GT, `maxabs` e unificata, sulle stesse righe e repliche:
+- HIFI3D: `datasets/UNIFIED_GT/gt/hifi3d_unified.npz`;
+- dev FaceScape e FLAME: con la GT unificata del set di valutazione, se il suo agente la fornisce nel formato di
+  `aau/zs3dmm`; altrimenti "-".
+
+**Domanda dichiarata:** addestrando sulla GT unificata, il modello raggiunge le baseline con allineamento su
+quella GT?
+- Confronto: C3F-UGT - ICP+Chamfer (`rigid_icp_chamfer` di faceBench) con la GT unificata di HIFI3D,
+  `nocrop_cross`, sulle righe dove la baseline e' finita.
+- **RAGGIUNGE** se l'IC 95% della differenza include lo 0 o e' tutto positivo (estremo superiore >= 0);
+  **NO** altrimenti.
+- Accanto, descrittivi: C3F-UGT - NICP P2Tri, e C3F-UGT - C3F con entrambe le GT.
+
+## 5. Invariato
+
+Domini e misure di `protocol.md`, IC (1000 repliche per soggetto, seme 1234), "un seme per cella" tranne i
+secondi semi qui sopra, limiti dichiarati.
+
+---
+
 # Risultati
 
-Generato da `aau/evidence/e1_factorial/e1_summarize.py`. Protocollo qui sopra invariato: sha256 493941994cd41864.. = quello registrato prima dei numeri (protocol.sha256).
-
-## Regola primaria: varieta' (HIFI3D, `nocrop_cross`)
-
-| passi | C3F - C2F [IC 95%] (P<=0) | C3M - C2M [IC 95%] (P<=0) | varieta' sostenuta? |
-| --- | --- | --- | --- |
-| 21096 | - | - | non valutabile (manca una cella) |
-| 10548 | - | - | non valutabile (manca una cella) |
-
-## Matrice celle x domini di test, 10548 passi
-
-Punto [IC 95% bootstrap per soggetto, 1000 repliche]. Spearman con la GT `maxabs` (HIFI3D, FLAME), riconoscimento sulle 5 topologie senza crop (HIFI3D, FaceVerse con espressioni in convenzione BFM), tau di Kendall per immagine sui 3 metodi pre-registrati (NoW).
-
-| cella | HIFI3D nocrop | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME all_cross | FLAME subj-pair-mean |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| C3M | 0.677 [0.609, 0.737] | 0.509 [0.434, 0.578] | 0.767 [0.706, 0.825] | 0.811 [0.785, 0.839] | 0.968 [0.960, 0.975] | - | - | 0.299 [0.216, 0.398] | - | - | - |
-| C2M | - | - | - | - | - | - | - | - | - | - | - |
-| C2F | - | - | - | - | - | - | - | - | - | - | - |
-| C3F | - | - | - | - | - | - | - | - | - | - | - |
-| G1 | - | - | - | - | - | - | - | - | - | - | - |
-
-## Matrice celle x domini di test, 21096 passi
-
-Punto [IC 95% bootstrap per soggetto, 1000 repliche]. Spearman con la GT `maxabs` (HIFI3D, FLAME), riconoscimento sulle 5 topologie senza crop (HIFI3D, FaceVerse con espressioni in convenzione BFM), tau di Kendall per immagine sui 3 metodi pre-registrati (NoW).
-
-| cella | HIFI3D nocrop | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME all_cross | FLAME subj-pair-mean |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| C3M | 0.663 [0.591, 0.725] | 0.557 [0.482, 0.627] | 0.792 [0.734, 0.838] | 0.784 [0.758, 0.809] | 0.954 [0.943, 0.964] | - | - | 0.348 [0.228, 0.474] | - | - | - |
-| C2M | - | - | - | - | - | - | - | - | - | - | - |
-| C2F | - | - | - | - | - | - | - | - | - | - | - |
-| C3F | - | - | - | - | - | - | - | - | - | - | - |
-| G1 | - | - | - | - | - | - | - | - | - | - | - |
-
-## Differenze appaiate
-
-a - b sulle stesse righe e sulle stesse repliche (un seme per dominio e scenario; riconoscimento e NoW: le repliche dei loro summarizer). Cella: differenza [IC 95%] (P(boot <= 0)).
-
-
-### 21096 passi
-
-| contrasto | lettura | HIFI3D nocrop | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME all_cross | FLAME subj-pair-mean |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| C3M - C2M | varieta', molte identita' | - | - | - | - | - | - | - | - | - | - | - |
-| C3F - C2F | varieta', poche identita' | - | - | - | - | - | - | - | - | - | - | - |
-| C2M - C2F | quantita', 2 domini | - | - | - | - | - | - | - | - | - | - | - |
-| C3M - C3F | quantita', 3 domini | - | - | - | - | - | - | - | - | - | - | - |
-| G1 - C3M | solo GNM contro C3M | - | - | - | - | - | - | - | - | - | - | - |
-| G1 - C3F | solo GNM contro C3F | - | - | - | - | - | - | - | - | - | - | - |
-
-### 10548 passi
-
-| contrasto | lettura | HIFI3D nocrop | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME all_cross | FLAME subj-pair-mean |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| C3M - C2M | varieta', molte identita' | - | - | - | - | - | - | - | - | - | - | - |
-| C3F - C2F | varieta', poche identita' | - | - | - | - | - | - | - | - | - | - | - |
-| C2M - C2F | quantita', 2 domini | - | - | - | - | - | - | - | - | - | - | - |
-| C3M - C3F | quantita', 3 domini | - | - | - | - | - | - | - | - | - | - | - |
-| G1 - C3M | solo GNM contro C3M | - | - | - | - | - | - | - | - | - | - | - |
-| G1 - C3F | solo GNM contro C3F | - | - | - | - | - | - | - | - | - | - | - |
-
-## Identita' viste per cella (design.json, calcolato prima dei numeri)
-
-| cella | passi | viste per dominio | viste totali | esposizioni mediana |
-| --- | --- | --- | --- | --- |
-| C3M | 10548 | {'bfm': 392, 'gnm': 1090, 'ict': 5874} | 7356 | 8 |
-| C3M | 21096 | {'bfm': 392, 'gnm': 2172, 'ict': 11695} | 14259 | 8 |
-| C2M | 10548 | {'bfm': 392, 'ict': 6755} | 7147 | 8 |
-| C2M | 21096 | {'bfm': 392, 'ict': 13493} | 13885 | 8 |
-| C2F | 10548 | {'bfm': 392, 'ict': 2701} | 3093 | 18 |
-| C2F | 21096 | {'bfm': 392, 'ict': 5401} | 5793 | 18 |
-| C3F | 10548 | {'bfm': 392, 'gnm': 422, 'ict': 2279} | 3093 | 18 |
-| C3F | 21096 | {'bfm': 392, 'gnm': 844, 'ict': 4557} | 5793 | 18 |
-| G1 | 10548 | {'gnm': 5001} | 5001 | 11 |
-| G1 | 21096 | {'gnm': 10000} | 10000 | 11 |
-
-## Run
-
-| cella | run dir (job) | passi eseguiti | blocchi (train.log) | picco rss+shmem (GiB) | picco cgroup con page cache (GiB) | --mem |
-| --- | --- | --- | --- | --- | --- | --- |
-| C2M | - | - | - | - | - | - |
-| C2F | - | - | - | - | - | - |
-| C3F | - | - | - | - | - | - |
-| G1 | - | - | - | - | - | - |
-
-## Controlli
-
-| controllo | valore | atteso |
-| --- | --- | --- |
-| hifi: stessi soggetti valutati in tutte le celle presenti | True | True |
-| hifi C3M 10548: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff| | 6.12e-07 | < 1e-4 |
-| hifi C3M 21096: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff| | 6.20e-07 | < 1e-4 |
-| NoW C3M 10548: tau ricalcolato contro concordance.csv della cella | 0.299242 / 0.299242 | uguali |
-| NoW C3M 21096: tau ricalcolato contro concordance.csv della cella | 0.348485 / 0.348485 | uguali |
-| HIFI3D C3M 10548 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 0.00e+00 | 0 |
-| HIFI3D C3M 10548 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 0.00e+00 | 0 |
-| HIFI3D C3M 10548 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 0.00e+00 | 0 |
-| HIFI3D C3M 21096 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 0.00e+00 | 0 |
-| HIFI3D C3M 21096 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 5.55e-17 | 0 |
-| HIFI3D C3M 21096 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC | 0.00e+00 | 0 |
-| hifi riconoscimento C3M 10548 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC | 0.00e+00 | 0 |
-| hifi riconoscimento C3M 21096 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC | 1.11e-16 | 0 |
+Non ancora disponibili: training (V100) e valutazioni (A100) in coda o in corso, vedi `jobs.md` e `status.md`.
+Questo file viene riscritto da `aau/evidence/e1_factorial/e1_summarize.py` (job di riepilogo) con i due testi qui sopra invariati in testa.

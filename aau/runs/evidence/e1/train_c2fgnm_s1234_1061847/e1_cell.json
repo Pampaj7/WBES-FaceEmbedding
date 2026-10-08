@@ -1,0 +1,4 @@
+{"cell": "c2fgnm", "split": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/evidence/e1_factorial/split_c2fgnm.json", "gpu": "Tesla V100-SXM3-32GB, 32768 MiB", "container": "/home/container/pytorch/pytorch_24.10.sif", "stage": "/raid/ga41wf@create.aau.dk/e1_1061847", "n_blocks": 4, "total_steps_nominal": 21096, "steps_per_epoch": 293,
+ "epochs_nominal": 72, "stop_after_epoch": 0, "save_every": 36, "seed": 1234,
+ "gradvec": 1, "job": "1061847", "host": "nv-ai-02.srv.aau.dk", "mem_request": "245760M",
+ "smoke": "0"}

@@ -1,63 +1,98 @@
-# E1: stato al 8 ottobre 2026, 16:10 (dettagli del report al PI)
+# E1: stato all'8 ottobre 2026, 17:30 (catena corretta dopo il critic)
 
-## Cosa e' pronto e verificato
+Regole: `protocol.md` (15:30) + `protocol_amendment.md` (16:55; scritto dopo il critic e prima di ogni numero delle
+celle nuove), entrambi con sha256. Job: `jobs.md` (l'ultima sottomissione e' quella valida). Codice:
+`aau/evidence/e1_factorial/` (README).
 
-- Split delle celle (`aau/evidence/e1_factorial/split_*.json`, `subsets.json`): heldout, online_eval e online_eval_extra
-  identici a `split_scale_all.json` (controllato); C3F annidata in C2F; nessun soggetto congelato in training.
-  C2F: BFM 392 + 401 ICT-5000 + 5.000 nuove; C3F: BFM 392 + 338 + 4.219 + 844 GNM (419 con 1 espressione, 425 con 2).
-- Disegno (`design.md`) calcolato con `partition_blocks` ed `epoch_subset` del trainer: tutte le 72 epoche di ogni
-  cella sono realizzabili; C2M cambia blocco alle stesse epoche di C3M (9, 17, 25, 33, 41, 48, 56, 64, 72); passi per
-  epoca BFM 26, ICT 267 (2 domini) o 225 + GNM 42 (3 domini), G1 GNM 293.
-- Smoke del training sul nodo cpu (job 1061646 = C3F, 1061647 = G1): split esplicito, blocchi, BFM residente (C3F) o
-  assente (G1), checkpoint, arresto dopo l'epoca voluta (rc 143 trattato come voluto), sync, mem_job.log: rc 0.
-- Riepilogo (`e1_summarize.py`) provato sui dati di C3M: HIFI3D (3 scenari, 2 passi), riconoscimento HIFI3D e NoW
-  riproducono `aau/runs/data_scale_ood` a 0 / 1e-16 (`controls.csv`); il percorso delle differenze appaiate provato
-  con un alias (`scratch/test_summarize_alias.py`), anche per FLAME (risultati del congiunto e del BFM-only) e
-  FaceVerse.
-- Corpo della valutazione (`e1_eval_body.sh`) provato sul nodo cpu per C3M, passi FaceVerse e NoW, in una cartella di
-  prova poi cancellata (job 1061694, rc 0): NoW tau 0.299 / 0.348 identici a curve.md; FaceVerse rank-1 e036 0.519
-  [0.476, 0.566] contro 0.518 [0.475, 0.565] pubblicato (embedding su CPU, max |diff| 5e-4). HIFI3D e FLAME non
-  provati qui (stesse chiamate gia' usate da data_scale_ood / ws_flame, con la sola cartella di uscita cambiata):
-  FLAME lo esercita per prima la eval di C3M (1061667), HIFI3D la prima eval di una cella.
+## Catena in coda (17:25)
 
-## Deviazioni e scelte (da confermare o correggere prima che i job partano)
+| priorita' | cella | training (V100) | eval (A100) |
+| --- | --- | --- | --- |
+| 1 | C2F / C3F / C2F-GNM / C3F-UGT | 1061843 / 1061845 / 1061847 / 1061850 | 1061844 / 1061846 / 1061848 / 1061851 |
+| 2 | C2F s2 / C3F s2 (seme 2345) | 1061852 / 1061854 | 1061853 / 1061855 |
+| 3 | C3M rifatta / C2M | 1061856 / 1061858 | 1061857 / 1061859 |
+| 4 | C2F40 / C3F40 / G1 | 1061860 / 1061862 / 1061864 | 1061861 / 1061863 / 1061865 |
+| rif. | C3M L40S (1060130) | - | 1061841 (in corso su nv-ai-04) |
 
-1. **Quantita' effettiva ~2.5x, non 10x.** C3M (e quindi C2M) a 21.096 passi ha visto 10 blocchi su 46: 14.259
-   identita' (13.867 non-BFM), a 10.548 passi 7.356. C2F/C3F ne vedono 5.793 / 3.093. Ho seguito la specifica
-   (ICT a 1/10 del totale). Per un contrasto ~10x a 21.096 passi servirebbero celle F con ICT ~1/40 (1.350, un solo
-   blocco, RAM ~260 GiB, 2 run in piu'): non lanciate.
-2. **C2M fermato all'epoca 72 di un T nominale 91.709** (non `--total-steps 21096`): con 21.096 i 54.008 ICT
-   sarebbero stati spalmati su tutti i blocchi (54k identita' viste, 1.8 esposizioni) e C3M - C2M confonderebbe
-   varieta' e quantita'. Con K=40 / E=313 lo schedule dei blocchi e' quello di C3M (97% delle identita' viste).
-3. K per cella imposto dal trainer (un blocco deve contenere i soggetti di un'epoca): C2F/C3F 4 blocchi da 18 epoche,
-   G1 6 da 12. Nelle celle F a 10.548 passi e' stata vista meta' delle identita'.
-4. Nessuna modifica al trainer; stessa spec, GT e flag di C3M (controllo automatico nel job).
-5. Valutazione: HIFI3D e NoW di C3M riusati da `aau/runs/data_scale_ood` (stessi file); FaceVerse ed FLAME di C3M
-   rifatti (FLAME non c'era; FaceVerse e072 di C3M era ancora in coda per un altro agente). I bracci HIFI3D nuovi
-   stanno in `aau/runs/evidence/e1/hifi_runs` (WBES_HIFI_RUNS), non in `ws_hifi3d`: il summary di ws_hifi3d,
-   se rigenerato, non li raccoglie con un'etichetta sbagliata.
+- **Cancelli.** Smoke V100 1061840 (in corso), poi il cancello 1061842: la loss dell'epoca 1 deve stare entro il
+  5% di quella del run su scala su L40S (`e1_gate_smoke.py` -> `smoke_v100.json`). Solo allora partono i
+  training; se non torna, i training e le loro eval si cancellano da soli. La GT unificata e' verificata
+  (cancello 1061849 passato alle 17:25).
+- **Riepilogo:** 1061866, afterany su tutte le eval -> `summary.md`.
+- **Dipendenze:** eval afterok sul suo training, `--kill-on-invalid-dep`; un training fallito non blocca il
+  riepilogo.
 
-## Memoria (--mem)
+## Cosa e' cambiato rispetto alla prima catena (cancellata: 1061659-1061704)
 
-Prevista con componenti MISURATE (cache esatta per blocco con la formula del trainer; RSS di base 40.0 GiB e /tmp
-5.92 MiB per mesh misurati su 1060130; la previsione per C3M, 352.0 GiB, sta 9.8 GiB sotto il picco misurato 361.8):
-C2M 361.7, C2F 360.6, C3F 343.2, G1 224.6 GiB di rss+shmem. Richiesti 430G, 430G, 410G, 270G (~15% sopra
-previsione + 9.8). Le celle "piccole" non costano meno di C3M: la RAM la decide la grandezza del blocco (i soggetti
-di un'epoca, piu' i 392 BFM residenti), non il numero di identita'. Il picco vero lo scrive `mem_job.log` di ogni
-run e il riepilogo lo riporta.
+- **Celle nuove:**
+  - C2F-GNM: BFM 392 + 5.401 GNM, nessuna ICT; le GNM di C3F sono un suo sottoinsieme;
+  - C3F-UGT: C3F con `--dist_npz` = GT unificata;
+  - C2F s2 e C3F s2;
+  - C3M rifatta su V100: split del run su scala, K=46, fermata all'epoca 72;
+  - C2F40 e C3F40: 1.350 non-BFM, un blocco, annidate in C2F e C3F.
 
-## Job (anche in `jobs.md`)
+  Gli split vecchi sono identici byte per byte (sha256 controllato).
+- **Regola:** C3F > max(C2F, C2F-GNM), con tre esiti, effetto minimo +0.05, dev FaceScape, non inferiorita' su
+  FaceVerse, pavimento del rumore e secondo seme (emendamento, sezione 2). C3M - C2M resta solo descrittivo.
+- **Valutazione:**
+  - dev FaceScape in tutte le celle (`dev_facescape_env.sh`, uscita in `devfs/`);
+  - GT unificata applicata alle stesse righe (`datasets/UNIFIED_GT/eval/*_gt_matrix.npz`): HIFI3D e dev
+    FaceScape. FLAME non ce l'ha: colonna "-";
+  - tutte le eval girano sulle A100 (QoS unprivileged, `--requeue`), compresa C3M L40S.
+- **Hardware e staging:**
+  - training su V100 (container 24.10, controllato nel job);
+  - staging del pre-pass su `/raid/$USER` (disco locale, bind esplicito nel container), quindi fuori da
+    `--mem`: 320G per le celle con ICT, 240G per C2F-GNM e G1 (previsione in `design.md`, +20%).
+- **Robustezza:** ogni job esegue una copia privata del corpo presa all'avvio. Il primo smoke V100 si era
+  corrotto perche' ho modificato il corpo mentre girava: cancellato e rifatto (1061840).
 
-Training 1061659 (C2M), 1061661 (C2F), 1061663 (C3F), 1061665 (G1); eval 1061700-1061703 (afterok, si cancellano se
-il training fallisce), eval C3M 1061667; riepilogo 1061704 (afterany) -> `summary.md`.
-**Coda L40S:** Slurm stima la partenza dei training al 9 ottobre alle 22:08 (tutte le L40S occupate, ~30 job
-L40S di altri utenti davanti in FIFO). Libere ora: il nodo A100 nv-ai-04 (8 GPU, 980 GB, 256 CPU: 2 celle per volta)
-e 9 V100 su nv-ai-02 (1.2 TB liberi, container 24.10 compatibile). Il vincolo "solo L40S" e' del PI: non li ho usati.
-I job in coda si possono spostare senza perdere niente (`scontrol update JobId=... Partition=... Gres=...`; il
-corpo dello sbatch e' letto all'avvio).
+## Misure di questa sessione che contano per i tempi
 
-## Quando i job finiscono
+- **Il pre-pass sui nodi V100 (Xeon 8168) e' il collo di bottiglia.** Una identita' ICT (14 mesh):
+  - 1 processo: 4.98 CPU-s per mesh, contro 3.9 su L40S (EPYC 9354);
+  - 16 processi: 10.0 contro 4.9 CPU-s per mesh, cioe' 1.58 contro 3.2 mesh/s;
+  - nello smoke a 36 processi, sul nodo carico: 1.2-2.2 mesh/s.
 
-`summary.md` viene riscritto dal job di riepilogo; a mano:
-`aau/submit.sh evidence/e1_factorial/e1_summarize.sbatch`. Se un training fallisce (OOM, tempo), la sua eval si
-cancella e il riepilogo esce con la cella mancante e la regola "non valutabile".
+  Script: `scratch/prepass_bench/bench.sh`, job 1061829-1061837.
+- **Stima, non misurata:** un blocco F (~17.500 mesh) richiede circa 2-3 h di pre-pass, quindi una cella F
+  circa 12-15 h e una cella M (10 blocchi) circa 25-30 h. Limiti richiesti: 30 h e 60 h, poi abbassati a 24 h e 40 h con grad_vec (sotto). La velocita' del
+  training su V100 la misura lo smoke (`smoke_v100.json`, riga "epoca 1").
+- **Capienza:**
+  - nv-ai-02/03 hanno 96 CPU e 1.47 TB ciascuno: con 32 CPU per job girano circa 3 celle alla volta, il resto
+    aspetta in ordine di priorita';
+  - il tetto delle 12 GPU vale anche qui;
+  - blocchi piu' piccoli non servono (la RAM sta) e non sono possibili senza cambiare S per tutte le celle
+    (C3M compresa).
+- **A100 per il training: no.** Il trainer non riprende da un checkpoint: `run_training` riparte sempre
+  dall'epoca 1 e `--init_checkpoint` carica solo i pesi, non l'ottimizzatore, i passi o il blocco. Su un job
+  prelazionabile si perderebbe tutto. Non ho fatto lo smoke "interrompi e rilancia": il codice non ha un
+  percorso di ripresa.
+
+## Gia' verificato
+
+- Smoke di plumbing su CPU (1061646 C3F, 1061647 G1): rc 0.
+- `e1_summarize.py` provato con alias su dati esistenti:
+  - C3M L40S su HIFI3D (3 scenari, GT maxabs) identica a curve.md;
+  - GT unificata identica a E8 (ICP+Chamfer 0.522, NICP 0.577, e036 0.340);
+  - NoW identico;
+  - regola a tre esiti e domanda su C3F-UGT calcolate.
+- Corpo della eval su CPU (1061694): NoW identico, FaceVerse 0.519 contro 0.518.
+- HIFI3D, dev FaceScape e FLAME li esercita per prima la eval di C3M L40S (1061841).
+
+## build_grad vettorizzato di E9: ADOTTATO in tutte le celle (decisione del PI, 17:47)
+
+Il controllo (`gradvec_check.json`, 57 mesh) ha trovato operatori NON identici bit per bit:
+- 19 array su 798 diversi, il 6.3e-5 degli elementi;
+- |differenza| massima 1.2e-10, relativa al massimo 3.7e-13;
+- guadagno sul pre-pass 1.64x.
+
+Dopo il controllo il PI ha abbassato la soglia e ha deciso di adottarlo, perche' nessun training era partito.
+Nota tecnica datata con sha256: `nota_tecnica_gradvec.md`.
+- **Attivazione:** `e1_train_body.sh` esporta `WBES_E1_GRADVEC=1` e mette `gradvec_site/` in testa a PYTHONPATH.
+  I training lo prendono all'avvio (copia privata del corpo); `e1_cell.json` registra `gradvec: 1` e il job
+  conta le righe `[e1-gradvec]` nei log del pre-pass.
+- **Limiti di tempo abbassati** con `scontrol`: celle F e G1 da 30 a 24 h, C3M rifatta e C2M da 60 a 40 h.
+- **Valutazioni e smoke:** usano il `build_grad` originale; vale per tutte le celle allo stesso modo.
+
+## Emendamento 2 (9 ottobre, 00:55): GT unificata tarata per C3F-UGT
+Fattori per dominio (mediana maxabs / mediana unificata): BFM 1.229, ICT 0.913, GNM 1.024; verifica col loader del trainer ok (`datasets/UNIFIED_GT/train/check_calib.json`). C3F-UGT (1061850) usa la tarata; C3F-UGT non tarata (1062087) in fondo alla coda. Riepilogo ora 1062089.

@@ -1,0 +1,7 @@
+riga,scenario,e8,ricalcolato,max_abs_diff
+"BFM+ICT+GNM (10^5), e108 (solo punto)",nocrop_cross,0.3010,0.3010,3.757388911118653e-08
+Chamfer eval (solo punto),nocrop_cross,0.2297,0.2297,4.1538046058331446e-08
+"delta BFM+ICT+GNM (10^5), e108 - Chamfer eval (punto, CI, P)",nocrop_cross,"+0.0713 [+0.0151, +0.1229]","+0.0713 [+0.0151, +0.1229]",3.202442521582638e-07
+"BFM+ICT+GNM (10^5), e108 (solo punto)",subject_pair_mean,0.4099,0.4099,4.24649266306254e-08
+Chamfer eval (solo punto),subject_pair_mean,0.4547,0.4547,4.622680982446781e-08
+"delta BFM+ICT+GNM (10^5), e108 - Chamfer eval (punto, CI, P)",subject_pair_mean,"-0.0448 [-0.1233, +0.0298]","-0.0448 [-0.1233, +0.0298]",2.5815074088803014e-08

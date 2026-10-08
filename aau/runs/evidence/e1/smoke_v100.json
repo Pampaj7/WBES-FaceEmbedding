@@ -1,0 +1,35 @@
+{
+ "smoke_run": "aau/runs/evidence/e1/train_c3mv_s1234_smokev100_1061840",
+ "reference": "aau/runs/data_scale_runs/scale_bfm_ict_gnm_s1234_nocanon_noaug_20261007_1411",
+ "tolerance_rel": 0.05,
+ "l40s_epoch1": {
+  "loss": 0.066127,
+  "stress": 0.038788,
+  "rank": 0.054668,
+  "subject_stress": 0.011658,
+  "subject_rank": 0.026189,
+  "mesh_stress": 0.02713,
+  "mesh_rank": 0.02848
+ },
+ "v100_epoch1": {
+  "loss": 0.067301,
+  "stress": 0.039755,
+  "rank": 0.055084,
+  "subject_stress": 0.012136,
+  "subject_rank": 0.026428,
+  "mesh_stress": 0.027619,
+  "mesh_rank": 0.028657
+ },
+ "rel_diff": {
+  "loss": 0.01775371633372139,
+  "stress": 0.024930390842528502,
+  "rank": 0.007609570498280524,
+  "subject_stress": 0.04100188711614336,
+  "subject_rank": 0.009125968918248106,
+  "mesh_stress": 0.0180243273129377,
+  "mesh_rank": 0.006214887640449441
+ },
+ "max_rel_diff": 0.04100188711614336,
+ "ok": true,
+ "epoch1_speed_line": "[steps] epoca 1: 293 passi in 3066s (10.47 s/passo), pre-pass in corso all'inizio=si alla fine=no"
+}

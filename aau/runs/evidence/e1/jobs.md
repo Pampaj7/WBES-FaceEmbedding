@@ -13,3 +13,27 @@
 - c3f: eval 1061702 (afterok:1061663)
 - g1: eval 1061703 (afterok:1061665)
 - riepilogo 1061704 (afterany:1061700:1061701:1061702:1061703:1061667)
+
+## Sottomissione 2026-10-08_17:25:47 (catena corretta: emendamento del protocollo)
+- c3ml (C3M L40S, riferimento): eval 1061841 su A100, subito
+- cancello smoke V100 1061842 (afterany:1061840): tutti i training ne dipendono
+- c2f: training 1061843 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061844 (A100, afterok:1061843)
+- c3f: training 1061845 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061846 (A100, afterok:1061845)
+- c2fgnm: training 1061847 (V100, --mem 240G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061848 (A100, afterok:1061847)
+- c3fugt: cancello GT unificata 1061849
+- c3fugt: training 1061850 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061851 (A100, afterok:1061850)
+- c2fs2: training 1061852 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061853 (A100, afterok:1061852)
+- c3fs2: training 1061854 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061855 (A100, afterok:1061854)
+- c3mv: training 1061856 (V100, --mem 320G, --time 60:00:00, 32 CPU, pre-pass 22), eval 1061857 (A100, afterok:1061856)
+- c2m: training 1061858 (V100, --mem 320G, --time 60:00:00, 32 CPU, pre-pass 22), eval 1061859 (A100, afterok:1061858)
+- c2f40: training 1061860 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061861 (A100, afterok:1061860)
+- c3f40: training 1061862 (V100, --mem 320G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061863 (A100, afterok:1061862)
+- g1: training 1061864 (V100, --mem 240G, --time 30:00:00, 32 CPU, pre-pass 22), eval 1061865 (A100, afterok:1061864)
+- riepilogo 1061866 (afterany sulle eval)
+
+## 2026-10-08_17:47:15: build_grad vettorizzato adottato in tutte le celle (nota_tecnica_gradvec.md); TimeLimit dei training abbassati con scontrol: F e G1 24 h, c3mv e c2m 40 h. Nessun job risottomesso.
+
+## 2026-10-09_00:54:53: emendamento 2 (GT unificata tarata)
+- c3fugt (1061850) tenuto fermo fino alla verifica della GT tarata (1062071, check_calib.json ok), poi rilasciato: usa gt_unified_bfm_ict_gnm_calib.npz
+- c3fugtraw: training 1062087 (V100, 320G, 24 h, in fondo alla coda), eval 1062088 (A100, afterok)
+- riepilogo 1062089 (sostituisce 1061866; afterany su tutte le eval, compresa 1062088)

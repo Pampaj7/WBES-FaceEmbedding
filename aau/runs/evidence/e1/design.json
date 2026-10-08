@@ -11,6 +11,7 @@
  "cells": {
   "c3m": {
    "split": "aau/data_scale/split_scale_all.json",
+   "seed": 1234,
    "n_blocks": 46,
    "T_nominal": 105480,
    "E_nominal": 360,
@@ -182,10 +183,189 @@
     10
    ],
    "predicted_peak_gib": 352.0339528967465,
+   "predicted_peak_v100_gib": 253.28767190501094,
+   "cache_max_gib": 213.28767190501094
+  },
+  "c3mv": {
+   "split": "aau/data_scale/split_scale_all.json",
+   "seed": 1234,
+   "n_blocks": 46,
+   "T_nominal": 105480,
+   "E_nominal": 360,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "gnm": 10000,
+    "ict": 54008
+   },
+   "block_sizes": [
+    1785,
+    1785,
+    1785,
+    1785,
+    1784,
+    1784,
+    1784,
+    1784,
+    1784,
+    1784,
+    1784,
+    1784
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "gnm": 218,
+    "ict": 1175
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "gnm": 42,
+    "ict": 225
+   },
+   "block_change_epochs": [
+    9,
+    17,
+    25,
+    33,
+    41,
+    48,
+    56,
+    64,
+    72
+   ],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 1090,
+      "ict": 5874
+     },
+     "seen_total": 7356,
+     "exposures_median": 8.0,
+     "exposures_mean": 7.169657422512235,
+     "seen_non_bfm": 6964
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 2172,
+      "ict": 11695
+     },
+     "seen_total": 14259,
+     "exposures_median": 8.0,
+     "exposures_mean": 7.397433200084158,
+     "seen_non_bfm": 13867
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1785,
+     "cache_gib": 211.74479787051678,
+     "tar_cache_gib": 150.8072916455567,
+     "tar_meshes": 16741
+    },
+    "1": {
+     "subjects": 1785,
+     "cache_gib": 211.59568090364337,
+     "tar_cache_gib": 150.54461201652884,
+     "tar_meshes": 16712
+    },
+    "2": {
+     "subjects": 1785,
+     "cache_gib": 211.88752627372742,
+     "tar_cache_gib": 151.00659136846662,
+     "tar_meshes": 16764
+    },
+    "3": {
+     "subjects": 1785,
+     "cache_gib": 212.91580106317997,
+     "tar_cache_gib": 152.94304417073727,
+     "tar_meshes": 16978
+    },
+    "4": {
+     "subjects": 1784,
+     "cache_gib": 212.10322883725166,
+     "tar_cache_gib": 151.5629727318883,
+     "tar_meshes": 16825
+    },
+    "5": {
+     "subjects": 1784,
+     "cache_gib": 211.47062987834215,
+     "tar_cache_gib": 150.41916694119573,
+     "tar_meshes": 16698
+    },
+    "6": {
+     "subjects": 1784,
+     "cache_gib": 213.28767190501094,
+     "tar_cache_gib": 153.7694000415504,
+     "tar_meshes": 17069
+    },
+    "7": {
+     "subjects": 1784,
+     "cache_gib": 212.96027794480324,
+     "tar_cache_gib": 153.1011134982109,
+     "tar_meshes": 16996
+    },
+    "8": {
+     "subjects": 1784,
+     "cache_gib": 211.62428168579936,
+     "tar_cache_gib": 150.6292709223926,
+     "tar_meshes": 16722
+    },
+    "9": {
+     "subjects": 1784,
+     "cache_gib": 211.71796519309282,
+     "tar_cache_gib": 150.8369222842157,
+     "tar_meshes": 16745
+    },
+    "10": {
+     "subjects": 1784,
+     "cache_gib": 212.19853641092777,
+     "tar_cache_gib": 151.71470089629292,
+     "tar_meshes": 16842
+    }
+   },
+   "next_blocks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+   ],
+   "predicted_peak_gib": 352.0339528967465,
+   "predicted_peak_v100_gib": 253.28767190501094,
    "cache_max_gib": 213.28767190501094
   },
   "c2m": {
    "split": "aau/evidence/e1_factorial/split_c2m.json",
+   "seed": 1234,
    "n_blocks": 40,
    "T_nominal": 91709,
    "E_nominal": 313,
@@ -352,10 +532,12 @@
     10
    ],
    "predicted_peak_gib": 361.7201115379402,
+   "predicted_peak_v100_gib": 259.67052476108074,
    "cache_max_gib": 219.67052476108074
   },
   "c2f": {
    "split": "aau/evidence/e1_factorial/split_c2f.json",
+   "seed": 1234,
    "n_blocks": 4,
    "T_nominal": 21096,
    "E_nominal": 72,
@@ -450,10 +632,12 @@
     3
    ],
    "predicted_peak_gib": 360.60791260313147,
+   "predicted_peak_v100_gib": 259.8069091178477,
    "cache_max_gib": 219.80690911784768
   },
   "c3f": {
    "split": "aau/evidence/e1_factorial/split_c3f.json",
+   "seed": 1234,
    "n_blocks": 4,
    "T_nominal": 21096,
    "E_nominal": 72,
@@ -553,10 +737,561 @@
     3
    ],
    "predicted_peak_gib": 343.1557404819845,
+   "predicted_peak_v100_gib": 248.01359172165394,
    "cache_max_gib": 208.01359172165394
+  },
+  "c2fgnm": {
+   "split": "aau/evidence/e1_factorial/split_c2fgnm.json",
+   "seed": 1234,
+   "n_blocks": 4,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "gnm": 5401
+   },
+   "block_sizes": [
+    1743,
+    1742,
+    1742,
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "gnm": 1351
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "gnm": 267
+   },
+   "block_change_epochs": [
+    19,
+    37,
+    55
+   ],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0,
+      1
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 2701
+     },
+     "seen_total": 3093,
+     "exposures_median": 18.0,
+     "exposures_mean": 17.05140640155189,
+     "seen_non_bfm": 2701
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 5401
+     },
+     "seen_total": 5793,
+     "exposures_median": 18.0,
+     "exposures_mean": 18.208182288969446,
+     "seen_non_bfm": 5401
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1743,
+     "cache_gib": 146.10181995108724,
+     "tar_cache_gib": 90.61264238506556,
+     "tar_meshes": 10123
+    },
+    "1": {
+     "subjects": 1742,
+     "cache_gib": 146.31295626237988,
+     "tar_cache_gib": 90.8237786963582,
+     "tar_meshes": 10149
+    },
+    "2": {
+     "subjects": 1742,
+     "cache_gib": 146.09578785300255,
+     "tar_cache_gib": 90.60661028698087,
+     "tar_meshes": 10123
+    },
+    "3": {
+     "subjects": 1742,
+     "cache_gib": 146.17863707244396,
+     "tar_cache_gib": 90.68945950642228,
+     "tar_meshes": 10133
+    }
+   },
+   "next_blocks": [
+    1,
+    2,
+    3
+   ],
+   "predicted_peak_gib": 245.02617940287575,
+   "predicted_peak_v100_gib": 186.31295626237988,
+   "cache_max_gib": 146.31295626237988
+  },
+  "c3fugt": {
+   "split": "aau/evidence/e1_factorial/split_c3f.json",
+   "seed": 1234,
+   "n_blocks": 4,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "gnm": 844,
+    "ict": 4557
+   },
+   "block_sizes": [
+    1743,
+    1742,
+    1742,
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "gnm": 211,
+    "ict": 1140
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "gnm": 42,
+    "ict": 225
+   },
+   "block_change_epochs": [
+    19,
+    37,
+    55
+   ],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0,
+      1
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 422,
+      "ict": 2279
+     },
+     "seen_total": 3093,
+     "exposures_median": 18.0,
+     "exposures_mean": 17.05140640155189,
+     "seen_non_bfm": 2701
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 844,
+      "ict": 4557
+     },
+     "seen_total": 5793,
+     "exposures_median": 18.0,
+     "exposures_mean": 18.208182288969446,
+     "seen_non_bfm": 5401
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1743,
+     "cache_gib": 207.30295335501432,
+     "tar_cache_gib": 146.70580433309078,
+     "tar_meshes": 16286
+    },
+    "1": {
+     "subjects": 1742,
+     "cache_gib": 207.21787037700415,
+     "tar_cache_gib": 146.62010677158833,
+     "tar_meshes": 16277
+    },
+    "2": {
+     "subjects": 1742,
+     "cache_gib": 207.73626316338778,
+     "tar_cache_gib": 147.64995527639985,
+     "tar_meshes": 16390
+    },
+    "3": {
+     "subjects": 1742,
+     "cache_gib": 208.01359172165394,
+     "tar_cache_gib": 148.15322928875685,
+     "tar_meshes": 16446
+    }
+   },
+   "next_blocks": [
+    1,
+    2,
+    3
+   ],
+   "predicted_peak_gib": 343.1557404819845,
+   "predicted_peak_v100_gib": 248.01359172165394,
+   "cache_max_gib": 208.01359172165394
+  },
+  "c2fs2": {
+   "split": "aau/evidence/e1_factorial/split_c2f.json",
+   "seed": 2345,
+   "n_blocks": 4,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "ict": 5401
+   },
+   "block_sizes": [
+    1743,
+    1742,
+    1742,
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "ict": 1351
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "ict": 267
+   },
+   "block_change_epochs": [
+    19,
+    37,
+    55
+   ],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0,
+      1
+     ],
+     "seen": {
+      "bfm": 392,
+      "ict": 2701
+     },
+     "seen_total": 3093,
+     "exposures_median": 18.0,
+     "exposures_mean": 17.05140640155189,
+     "seen_non_bfm": 2701
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "seen": {
+      "bfm": 392,
+      "ict": 5401
+     },
+     "seen_total": 5793,
+     "exposures_median": 18.0,
+     "exposures_mean": 18.208182288969446,
+     "seen_non_bfm": 5401
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1743,
+     "cache_gib": 218.21199947968125,
+     "tar_cache_gib": 156.36628272011876,
+     "tar_meshes": 17346
+    },
+    "1": {
+     "subjects": 1742,
+     "cache_gib": 219.264589574188,
+     "tar_cache_gib": 158.38292947784066,
+     "tar_meshes": 17570
+    },
+    "2": {
+     "subjects": 1742,
+     "cache_gib": 219.12491414695978,
+     "tar_cache_gib": 158.13038266077638,
+     "tar_meshes": 17542
+    },
+    "3": {
+     "subjects": 1742,
+     "cache_gib": 219.12571841850877,
+     "tar_cache_gib": 158.1307982802391,
+     "tar_meshes": 17542
+    }
+   },
+   "next_blocks": [
+    1,
+    2,
+    3
+   ],
+   "predicted_peak_gib": 360.9092176733615,
+   "predicted_peak_v100_gib": 259.264589574188,
+   "cache_max_gib": 219.264589574188
+  },
+  "c3fs2": {
+   "split": "aau/evidence/e1_factorial/split_c3f.json",
+   "seed": 2345,
+   "n_blocks": 4,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "gnm": 844,
+    "ict": 4557
+   },
+   "block_sizes": [
+    1743,
+    1742,
+    1742,
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "gnm": 211,
+    "ict": 1140
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "gnm": 42,
+    "ict": 225
+   },
+   "block_change_epochs": [
+    19,
+    37,
+    55
+   ],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0,
+      1
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 422,
+      "ict": 2279
+     },
+     "seen_total": 3093,
+     "exposures_median": 18.0,
+     "exposures_mean": 17.05140640155189,
+     "seen_non_bfm": 2701
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 844,
+      "ict": 4557
+     },
+     "seen_total": 5793,
+     "exposures_median": 18.0,
+     "exposures_mean": 18.208182288969446,
+     "seen_non_bfm": 5401
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1743,
+     "cache_gib": 208.5883021093905,
+     "tar_cache_gib": 149.01167506724596,
+     "tar_meshes": 16542
+    },
+    "1": {
+     "subjects": 1742,
+     "cache_gib": 207.17871445789933,
+     "tar_cache_gib": 146.58126243576407,
+     "tar_meshes": 16272
+    },
+    "2": {
+     "subjects": 1742,
+     "cache_gib": 207.0826257020235,
+     "tar_cache_gib": 146.4854982048273,
+     "tar_meshes": 16261
+    },
+    "3": {
+     "subjects": 1742,
+     "cache_gib": 207.42103634774685,
+     "tar_cache_gib": 147.05065996199846,
+     "tar_meshes": 16324
+    }
+   },
+   "next_blocks": [
+    1,
+    2,
+    3
+   ],
+   "predicted_peak_gib": 342.7238392994731,
+   "predicted_peak_v100_gib": 248.5883021093905,
+   "cache_max_gib": 208.5883021093905
+  },
+  "c2f40": {
+   "split": "aau/evidence/e1_factorial/split_c2f40.json",
+   "seed": 1234,
+   "n_blocks": 1,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "ict": 1350
+   },
+   "block_sizes": [
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "ict": 1350
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "ict": 267
+   },
+   "block_change_epochs": [],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0
+     ],
+     "seen": {
+      "bfm": 392,
+      "ict": 1350
+     },
+     "seen_total": 1742,
+     "exposures_median": 36.0,
+     "exposures_mean": 30.275545350172216,
+     "seen_non_bfm": 1350
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0
+     ],
+     "seen": {
+      "bfm": 392,
+      "ict": 1350
+     },
+     "seen_total": 1742,
+     "exposures_median": 71.0,
+     "exposures_mean": 60.55109070034443,
+     "seen_non_bfm": 1350
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1742,
+     "cache_gib": 218.9180900491774,
+     "tar_cache_gib": 157.75344998389482,
+     "tar_meshes": 17500
+    }
+   },
+   "next_blocks": [],
+   "predicted_peak_gib": 258.9180900491774,
+   "predicted_peak_v100_gib": 258.9180900491774,
+   "cache_max_gib": 218.9180900491774
+  },
+  "c3f40": {
+   "split": "aau/evidence/e1_factorial/split_c3f40.json",
+   "seed": 1234,
+   "n_blocks": 1,
+   "T_nominal": 21096,
+   "E_nominal": 72,
+   "stop_epoch": 72,
+   "train_counts": {
+    "bfm": 392,
+    "gnm": 211,
+    "ict": 1139
+   },
+   "block_sizes": [
+    1742
+   ],
+   "block_domains_first": {
+    "bfm": 392,
+    "gnm": 211,
+    "ict": 1139
+   },
+   "feasible": true,
+   "steps_per_epoch_by_domain": {
+    "bfm": 26,
+    "gnm": 42,
+    "ict": 225
+   },
+   "block_change_epochs": [],
+   "at": {
+    "36": {
+     "steps": 10548,
+     "blocks_touched": [
+      0
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 211,
+      "ict": 1139
+     },
+     "seen_total": 1742,
+     "exposures_median": 36.0,
+     "exposures_mean": 30.275545350172216,
+     "seen_non_bfm": 1350
+    },
+    "72": {
+     "steps": 21096,
+     "blocks_touched": [
+      0
+     ],
+     "seen": {
+      "bfm": 392,
+      "gnm": 211,
+      "ict": 1139
+     },
+     "seen_total": 1742,
+     "exposures_median": 71.0,
+     "exposures_mean": 60.55109070034443,
+     "seen_non_bfm": 1350
+    }
+   },
+   "blocks_mem": {
+    "0": {
+     "subjects": 1742,
+     "cache_gib": 207.5687217861414,
+     "tar_cache_gib": 147.31200072169304,
+     "tar_meshes": 16353
+    }
+   },
+   "next_blocks": [],
+   "predicted_peak_gib": 247.5687217861414,
+   "predicted_peak_v100_gib": 247.5687217861414,
+   "cache_max_gib": 207.5687217861414
   },
   "g1": {
    "split": "aau/evidence/e1_factorial/split_g1.json",
+   "seed": 1234,
    "n_blocks": 6,
    "T_nominal": 21096,
    "E_nominal": 72,
@@ -667,6 +1402,7 @@
     5
    ],
    "predicted_peak_gib": 224.61158146967205,
+   "predicted_peak_v100_gib": 152.33224262669683,
    "cache_max_gib": 112.33224262669683
   }
  },

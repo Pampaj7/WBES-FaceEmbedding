@@ -88,3 +88,43 @@ partenza stimata 2026-10-09 22:21 (job 1061553), con 7G stimata 17:44 (job 10615
 libere aveva 8 GB di RAM non allocati); entrambi cancellati. Stesso codice, stessa precisione, stessi punti.
 Il checkpoint di Uni3D contiene un `set` fuori dai pesi: caricato con `weights_only=True` ammettendo solo quel
 tipo builtin. Caricamento `strict=True` riuscito per entrambi (Uni3D-g 1017.4 M parametri, OpenShape 32.3 M).
+
+## Aggiunta -- 2026-10-09 00:44 CEST, revisione del critic, prima di calcolare le righe nuove
+
+Gia' visti a quest'ora: tutti i numeri del summary dell'8 ottobre; quelli di
+`aau/runs/data_scale_ood/arcface_vs_scale_hifi3d.md` (riconoscimento di e108, nocrop: rank-1 0.782) e di
+`aau/runs/evidence/e8/methods_spearman.csv` (GT unificata, nocrop: e108 0.301, Chamfer eval 0.230). Nessun numero
+esiste per le righe 2, 3, 4 qui sotto ne' per i competitori con la GT unificata. Le sezioni dell'8 ottobre restano
+come sono; le righe nuove stanno in una sezione datata del summary.
+
+1. **Riconoscimento di e108 (correzione).** Il summary dell'8 ottobre dice che e108 non ha la riga di
+   riconoscimento perche' mancano gli embedding per mesh: e' FALSO, esistono
+   (`aau/runs/ws_hifi3d/data_328f2bfc1a/scale_e108_embed`, gli stessi di arcface_vs_scale_hifi3d.md). Si aggiunge
+   la riga, letta con `zs_arcface_vs_scale.distances_b` (stesso checkpoint del breakdown, controllato), sulle
+   stesse repliche delle altre righe di riconoscimento, nei blocchi nocrop (primario) e crop, con i delta appaiati
+   e108 - NICP su template, e108 - ICP rigido + Chamfer, e108 - ArcFace (3 viste), e108 - Chamfer faceBench.
+   Controllo: la riga nocrop deve coincidere con `arcface_vs_scale_hifi3d/recognition.csv`.
+2. **GT unificata.** Tutte le righe di Spearman (e108, Chamfer eval, tutti i competitori e le ablazioni) anche con
+   la GT unificata di `datasets/UNIFIED_GT/eval/hifi3d_gt_matrix.npz` (v3_work/unified_gt/make_eval_gt.py),
+   sostituita per nome di soggetto con `zs_summarize.with_gt`: stesse righe, stessi scenari, STESSI semi delle
+   righe maxabs (cambia solo la GT, come in v3_work/unified_gt/eval_methods.py). Delta appaiati competitore - e108
+   e competitore - Chamfer eval con la GT unificata. Controllo: e108, Chamfer eval e la differenza appaiata
+   e108 - Chamfer eval devono coincidere con `aau/runs/evidence/e8/methods_*.csv` (GT `unified`, che per HIFI3D
+   coincide con questa a 3e-8).
+3. **Frame esatto del training (ablazione dichiarata).** Rx(+90) non e' la trasformazione del training di
+   OpenShape: `src/data.py` (commit abe5aa42b7c9) fa `xyz[:, [1, 2]] = xyz[:, [2, 1]]` (scambio y/z, una
+   RIFLESSIONE, det -1), poi `normalize_pc` e, in training, una rotazione casuale attorno a z. Riga nuova
+   OpenShape con lo scambio y/z esatto, (x, y, z) -> (x, z, y), poi la stessa normalizzazione; tutto il resto
+   (punti, semi, RGB, FPS) come le righe dell'8 ottobre. Uni3D, stessa verifica (commit 64e03c3c42c1): il dataset
+   di pre-training (`data/datasets.py`, `Ensembled_embedding`) applica `pc_norm` SENZA scambio e ruota attorno a y
+   (`rotate_point_cloud`); lo scambio y/z c'e' solo nei dataset di valutazione con `--openshape_setting`, che
+   `scripts/pretrain.sh` e `scripts/inference.sh` non passano. La trasformazione esatta di Uni3D e' quindi
+   l'identita', cioe' la riga primaria gia' calcolata: nessuna riga nuova per Uni3D. Le righe primarie restano
+   quelle del frame nativo.
+4. **ShapeDNA normalizzata.** Accanto alla riga grezza, ShapeDNA k=50 e k=100 con gli autovalori divisi per il
+   primo non nullo, (lambda_1, ..., lambda_k) / lambda_1 (normalizzazione di scala di Reuter et al. 2006),
+   distanza L2, dagli stessi autovalori. Le righe dell'8 ottobre sono gia' riscalate per area (mesh ad area 1,
+   cioe' lambda_i x A): la variante "riscalata per area" coincide con quelle e non si ripete.
+
+Stesse misure e stesse repliche delle altre righe (Spearman con IC e delta appaiati con GT maxabs e unificata,
+riconoscimento). Nessun iperparametro nuovo.

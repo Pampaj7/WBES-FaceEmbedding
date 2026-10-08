@@ -7,10 +7,10 @@
     (comp_embed.sbatch)
 
 Protocollo in ``aau/runs/competitors_hifi3d/protocol.md``. In breve: 10.000 punti uniformi per
-area sulla superficie (seme per mesh), rotazione opzionale (``--rotation rx90``, ablazione),
-normalizzazione del loro codice (centro = media, scala = raggio massimo), RGB 0.4, encoder di
-punti del modello, embedding prima della normalizzazione L2 (la distanza 1 - coseno la fa il
-summary).
+area sulla superficie (seme per mesh), trasformazione opzionale del frame (ablazioni: ``--rotation rx90``;
+``--rotation yzswap``, scambio y/z del training di OpenShape), normalizzazione del loro codice
+(centro = media, scala = raggio massimo), RGB 0.4, encoder di punti del modello, embedding prima della
+normalizzazione L2 (la distanza 1 - coseno la fa il summary).
 
 Il codice dei modelli e' quello dei loro repo, importato dai cloni in external_models/ senza
 modificarlo. Le sole dipendenze sostituite sono le FPS da estensioni CUDA (``pointnet2_ops`` per
@@ -46,7 +46,10 @@ N_POINTS = 10_000
 RGB = 0.4
 SAMPLE_SEED = 1234
 # Rx(+90): (x, y, z) -> (x, -z, y), l'alto +y di HIFI3D va in +z (asse verticale dei dati di training)
-ROTATIONS = {"none": np.eye(3), "rx90": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])}
+# yzswap: (x, y, z) -> (x, z, y), lo scambio y/z ESATTO del training di OpenShape (src/data.py, y_up), una
+# riflessione (det -1), non una rotazione (aggiunta del 9 ottobre al protocollo)
+ROTATIONS = {"none": np.eye(3), "rx90": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]]),
+             "yzswap": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]])}
 
 
 def parse_args() -> argparse.Namespace:

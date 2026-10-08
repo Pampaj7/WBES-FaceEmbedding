@@ -18,6 +18,7 @@
 #   WBES_COMP_LIMIT=16 WBES_COMP_MODELS=uni3d aau/submit.sh competitors/comp_embed.sbatch --time=00:15:00  (prova)
 #   WBES_COMP_DEVICE=cpu aau/submit.sh competitors/comp_embed.sbatch --gres=NONE --cpus-per-task=32 --mem=32G
 #     (stesso calcolo su CPU, fp32: quando nessuna L40S e' schedulabile a breve)
+#   WBES_COMP_MODELS=openshape WBES_COMP_ROTATIONS=yzswap ...  (scambio y/z esatto del training, aggiunta 9 ottobre)
 set -euo pipefail
 
 device="${WBES_COMP_DEVICE:-cuda}"

@@ -1,0 +1,4 @@
+step,domain,n_subjects,spearman_clean,pearson_clean,auc_r
+1758,gnm,16,0.539419,0.544210,0.989883
+3516,gnm,16,0.692180,0.694962,0.970249
+5274,gnm,16,0.752177,0.759795,0.980216
