@@ -1093,3 +1093,22 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
   | punteggio dev | 0.340 [0.302, 0.376] | 0.393 [0.353, 0.431] | |
 
 - **Lettura:** il vantaggio enorme su HIFI3D (+0.26) NON si ripete su FaceScape. Rafforza il dubbio che HIFI3D sia vicino a un dominio di training (GNM?); D2 lo sta misurando.
+
+### 8 ottobre: critic sul disegno di E1, BLOCCANTE
+- **Split corretti,** verificati: nessuna sovrapposizione, sottoinsiemi annidati, LR costante.
+- **Difetto principale:** C3−C2 misura "aggiungere GNM", non la varietà. Forma del supporto (sd3/sd1 delle `original`):
+  - HIFI3D 0.445, GNM 0.447, FaceVerse 0.467, FLAME 0.489;
+  - ICT 0.78, BFM 0.35, FaceScape 0.396.
+
+  GNM ha un supporto quasi identico a HIFI3D, il che spiegherebbe sia il salto su HIFI3D sia l'assenza di vantaggio su FaceScape.
+- **Correzioni passate a E1:**
+  - cella C2F-GNM e regola C3F > max(C2F, C2F-GNM);
+  - effetto minimo 0.05, tre esiti (sostenuta / smentita / non concludente);
+  - stessa direzione sul dev FaceScape;
+  - non inferiorità su FaceVerse;
+  - secondo seme per C2F e C3F;
+  - C3M rifatta sullo stesso hardware come pavimento del rumore;
+  - valutazioni sulle A100;
+  - emendamento al protocollo prima dei numeri.
+- **Ipotesi nuova, H8:** il modello è sensibile alla forma del supporto, cioè a quale regione copre la mesh. Si lega alla regione del volto comune della GT unificata e a un'eventuale armonizzazione del supporto.
+- **Eccezione A100 autorizzata dall'utente:** `-p aicentre-a100 --qos=unprivileged`, solo per job brevi o ripartibili.

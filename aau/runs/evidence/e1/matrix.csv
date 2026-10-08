@@ -1,0 +1,11 @@
+cell,steps,hifi_nocrop_cross,hifi_nocrop_cross_lo,hifi_nocrop_cross_hi,hifi_all_cross,hifi_all_cross_lo,hifi_all_cross_hi,hifi_subject_pair_mean,hifi_subject_pair_mean_lo,hifi_subject_pair_mean_hi,flame_nocrop_cross,flame_nocrop_cross_lo,flame_nocrop_cross_hi,flame_all_cross,flame_all_cross_lo,flame_all_cross_hi,flame_subject_pair_mean,flame_subject_pair_mean_lo,flame_subject_pair_mean_hi,hifi_rec_rank1,hifi_rec_rank1_lo,hifi_rec_rank1_hi,hifi_rec_auc,hifi_rec_auc_lo,hifi_rec_auc_hi,fv_rec_rank1,fv_rec_rank1_lo,fv_rec_rank1_hi,fv_rec_auc,fv_rec_auc_lo,fv_rec_auc_hi,now_tau,now_tau_lo,now_tau_hi
+C3M,10548,0.6772517077999018,0.6093785776630944,0.736777781533357,0.5093420480698524,0.4335918749433259,0.5779622170020073,0.7669700137828912,0.7060461135030981,0.8251625736597258,,,,,,,,,,0.811,0.785,0.839,0.9682836868686868,0.9602059995519268,0.9754843964663064,,,,,,,0.2992424242424242,0.21649487589597768,0.397559343974072
+C3M,21096,0.6632911149522916,0.5911577506859408,0.7251638983428672,0.5574210054688847,0.48225019655494483,0.6266404451651183,0.7924081496581239,0.734033561051442,0.8379465350800219,,,,,,,,,,0.7845,0.7584875,0.8090125,0.9539002121212121,0.9426302446249237,0.9638042429575863,,,,,,,0.34848484848484845,0.2275487695766075,0.4737048503611971
+C2M,10548,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+C2M,21096,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+C2F,10548,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+C2F,21096,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+C3F,10548,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+C3F,21096,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+G1,10548,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+G1,21096,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,

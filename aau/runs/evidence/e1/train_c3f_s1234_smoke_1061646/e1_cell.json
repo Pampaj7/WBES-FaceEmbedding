@@ -1,0 +1,3 @@
+{"cell": "c3f", "split": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/evidence/e1_factorial/smoke/split_c3f_smoke.json", "n_blocks": 2, "total_steps_nominal": 20, "steps_per_epoch": 2,
+ "epochs_nominal": 10, "stop_after_epoch": 2, "save_every": 1, "seed": 1234,
+ "job": "1061646", "host": "a512-mi100-01.srv.aau.dk", "smoke": 1}

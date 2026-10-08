@@ -1,0 +1,14 @@
+controllo,valore,atteso
+hifi: stessi soggetti valutati in tutte le celle presenti,True,True
+"hifi C3M 10548: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff|",6.12e-07,< 1e-4
+"hifi C3M 21096: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff|",6.20e-07,< 1e-4
+NoW C3M 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
+NoW C3M 21096: tau ricalcolato contro concordance.csv della cella,0.348485 / 0.348485,uguali
+"HIFI3D C3M 10548 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
+"HIFI3D C3M 10548 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
+"HIFI3D C3M 10548 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
+"HIFI3D C3M 21096 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
+"HIFI3D C3M 21096 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",5.55e-17,0
+"HIFI3D C3M 21096 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
+"hifi riconoscimento C3M 10548 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC",0.00e+00,0
+"hifi riconoscimento C3M 21096 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC",1.11e-16,0
