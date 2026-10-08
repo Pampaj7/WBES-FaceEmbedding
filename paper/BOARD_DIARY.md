@@ -1166,3 +1166,14 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
 - **Run su scala:** 1060130 in corso; poi la catena di valutazione 1060131.
 - **Nessun agente attivo.**
 - **Dall'utente:** studio umano (link precompilato del Google Form e attivazione di GitHub Pages).
+
+### 9 ottobre: FaMoS preparato (`aau/runs/evidence/famos/`)
+- **Contenuto:** 95 soggetti, 605.802 registrazioni FLAME, 8.350 scansioni di test.
+- **Split** (`aau/famos/split.json`, dichiarato prima dell'uso): TEST = soggetti 079-093 (15, le scansioni di test di TEMPEH), TRAIN = 80. Zero sovrapposizioni.
+- **Sottocampionamento:** 1 fotogramma ogni 10, 3.74 GB. La neutra di riferimento è robusta (rumore 0.23 mm). A regime FaMoS occupa 10.2 GB; archivi e file grezzi non usati sono cancellati.
+- **GT unificata:** FaMoS dista 2.8-3.9 mm dalle medie degli altri domini. Fra TRAIN e TEST nessun quasi-duplicato: la distanza minima è 2.17 mm.
+- **Set di test reale:** 851 scansioni grezze e 433 registrazioni delle 15 persone di test.
+- **Prova di e108, 15 persone, IC larghi:**
+  - riconoscimento scansione con espressione → scansione neutra: 0.514, contro Chamfer 0.495 e Chamfer su regione stabile 0.596;
+  - Spearman con la GT unificata: 0.37, contro Chamfer 0.50 (n.s.).
+- **Riserva:** le scansioni NoW vengono dallo stesso sistema MPI; la sovrapposizione di persone con FaMoS non è verificabile.
