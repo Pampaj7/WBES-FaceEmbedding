@@ -34,5 +34,5 @@ opts=()
 [[ -n "${WBES_ZS_SUM_BOOTSTRAP:-}" ]] && opts+=(--n-bootstrap "$WBES_ZS_SUM_BOOTSTRAP")
 ZS_FP="$(zs_data_fp)"
 echo "[zs-expr-sum] dominio=$WBES_ZS_DOMAIN host=$(hostname) job=${SLURM_JOB_ID:-none} risultati da $ZS_RUNS/data_$ZS_FP"
-"$AAU_DIR/run.sh" aau/zs3dmm/zs_expr_summarize.py --runs "$ZS_RUNS/data_$ZS_FP" --summary-dir "$ZS_RUNS" \
+"$AAU_DIR/run.sh" aau/zs3dmm/zs_expr_summarize.py --runs "$ZS_RUNS/data_$ZS_FP" --summary-dir "${WBES_ZS_SUMMARY_DIR:-$ZS_RUNS}" \
     --gt "$ZS_DIST_NPZ" --view-dir "$ZS_DATA_DIR" --eval-seed "${WBES_EVAL_SEED:-1234}" "${opts[@]}"

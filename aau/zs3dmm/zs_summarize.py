@@ -72,6 +72,28 @@ ARM_CKPT_ENV = {"joint": "WBES_ZS_CKPT_JOINT", "bfm_only": "WBES_ZS_CKPT_BFM_ONL
 def arm_present(runs: Path, name: str) -> bool:
     return ((runs / name / STAGE / ".done").exists()
             or (runs / f"{name}_topology" / STAGE / ".done").exists())
+
+
+def discover_scale_arms(runs: Path, suffix: str = "") -> tuple:
+    """Bracci ``scale`` / ``scale_<tag>`` (run grande, anche checkpoint intermedi) con risultati in
+    ``runs`` per la variante ``suffix``; registra etichetta e variabile del checkpoint di ognuno."""
+    found = set()
+    for d in runs.iterdir() if runs.is_dir() else []:
+        n = d.name
+        for tail in ("_topology", "_ranking", ""):
+            if tail and n.endswith(tail):
+                n = n[: -len(tail)]
+                break
+        if suffix:
+            if not n.endswith(suffix):
+                continue
+            n = n[: -len(suffix)]
+        if (n == "scale" or (n.startswith("scale_") and n[6:].isalnum())) and arm_present(runs, n + suffix):
+            found.add(n)
+    for a in found:
+        ARM_LABEL.setdefault(a, "BFM+ICT+GNM (10^5)" + ("" if a == "scale" else f", {a[6:]}"))
+        ARM_CKPT_ENV.setdefault(a, "WBES_ZS_CKPT_" + a.upper())
+    return tuple(sorted(found))
 STAGE = "zs_zeroshot"
 TOPOLOGIES = ("crop", "down8k", "noisy", "original", "remesh", "up60k")
 BL_METRICS = ("chamfer", "rigid_icp_chamfer", "nicp_p2p", "nicp_p2tri")
@@ -581,7 +603,7 @@ def write_markdown(path: Path, table, topo, bl, checks, meta, args, paired, cham
 def main() -> None:
     global ARMS
     args = parse_args()
-    extra = tuple(a for a in OPTIONAL_ARMS if arm_present(args.runs, a + (args.variant or "")))
+    extra = discover_scale_arms(args.runs, args.variant or "")
     if extra:
         ARMS = ARMS + extra
         print(f"[zs-sum] bracci opzionali con risultati: {extra}", flush=True)

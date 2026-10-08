@@ -35,5 +35,5 @@ echo "[zs-sum] dominio=$WBES_ZS_DOMAIN host=$(hostname) job=${SLURM_JOB_ID:-none
 ZS_FP="$(zs_data_fp)"
 echo "[zs-sum] risultati da $ZS_RUNS/data_$ZS_FP"
 "$AAU_DIR/run.sh" aau/zs3dmm/zs_summarize.py --label "$ZS_LABEL" --runs "$ZS_RUNS/data_$ZS_FP" \
-    --summary-dir "$ZS_RUNS" --variant "${WBES_ZS_SUM_VARIANT:-}" \
+    --summary-dir "${WBES_ZS_SUMMARY_DIR:-$ZS_RUNS}" --variant "${WBES_ZS_SUM_VARIANT:-}" \
     --gt "$ZS_DIST_NPZ" --gt-coef "$ZS_COEF_NPZ" --root "$ZS_ROOT" "${opts[@]}"

@@ -80,9 +80,12 @@ read -ra ARMS <<< "${WBES_ZS_ARMS:-${WBES_ZS_ARM:-joint}}"
 for arm in "${ARMS[@]}"; do
     case "$arm" in
         joint|bfm_only|ict_only) ;;
-        # run grande BFM+ICT+GNM (aau/data_scale): checkpoint esplicito, nessun default
-        scale) [[ -n "${WBES_ZS_CKPT_SCALE:-}" ]] || { echo "ERRORE: braccio scale senza WBES_ZS_CKPT_SCALE" >&2; exit 2; } ;;
-        *) echo "ERRORE: braccio '$arm' (joint|bfm_only|ict_only|scale)" >&2; exit 2 ;;
+        # run grande BFM+ICT+GNM (aau/data_scale): checkpoint esplicito per braccio, nessun default.
+        # scale -> WBES_ZS_CKPT_SCALE; scale_e036 -> WBES_ZS_CKPT_SCALE_E036 (checkpoint intermedi)
+        scale|scale_[a-z0-9]*)
+            v="WBES_ZS_CKPT_$(echo "$arm" | tr 'a-z' 'A-Z')"
+            [[ -n "${!v:-}" ]] || { echo "ERRORE: braccio $arm senza $v" >&2; exit 2; } ;;
+        *) echo "ERRORE: braccio '$arm' (joint|bfm_only|ict_only|scale[_<tag>])" >&2; exit 2 ;;
     esac
 done
 ckpt_of() {
@@ -90,7 +93,7 @@ ckpt_of() {
         joint)    echo "$WBES_ZS_CKPT_JOINT" ;;
         bfm_only) echo "$WBES_ZS_CKPT_BFM_ONLY" ;;
         ict_only) echo "$WBES_ZS_CKPT_ICT_ONLY" ;;
-        scale)    echo "$WBES_ZS_CKPT_SCALE" ;;
+        scale|scale_*) v="WBES_ZS_CKPT_$(echo "$1" | tr 'a-z' 'A-Z')"; echo "${!v}" ;;
     esac
 }
 

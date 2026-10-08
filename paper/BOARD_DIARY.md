@@ -983,3 +983,22 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
 | per coppia | — | — | — | 45 ms | 1.29 s |
 
 **Lettura:** in dominio resta solo l'argomento del costo contro le pipeline a coppie, conveniente da circa 50 confronti per query in su. Nessun vantaggio di accuratezza; nessun vantaggio di costo contro ArcFace.
+
+## 8 ottobre: primo segnale positivo fuori dominio (checkpoint intermedi del training su scala; `aau/runs/data_scale_ood/hifi/summary.md`; non ancora passato da critic)
+
+**HIFI3D zero-shot, Spearman GT maxabs:**
+
+| | senza crop | tutte le topologie | subject-pair-mean |
+|---|---|---|---|
+| Chamfer | 0.372 | 0.336 | 0.743 |
+| congiunto BFM+ICT | 0.428 | 0.246 | 0.720 |
+| scala e036 | 0.677 [0.61, 0.74] | 0.509 | 0.767 |
+| scala e072 | 0.663 | 0.557 | 0.792 |
+| scala e108 | 0.630 [0.57, 0.69] | 0.541 | 0.795 |
+
+- **Il modello addestrato su 64k identità da BFM + ICT + GNM batte Chamfer fuori dominio con margine largo.**
+- **Cautele:**
+  - lieve specializzazione col training (senza crop da 0.677 a 0.630);
+  - possibile vicinanza GNM ↔ HIFI3D;
+  - con la GT coef tutti i valori sono bassi (scala 0.10–0.13, Chamfer 0.08).
+- **In arrivo:** FaceVerse expr (riconoscimento), NoW, FLAME.
