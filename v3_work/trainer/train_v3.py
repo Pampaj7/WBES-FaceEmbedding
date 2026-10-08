@@ -143,6 +143,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--frozen-heldout", default="")
     p.add_argument("--data-spec", default="")
     p.add_argument("--stage-root", default="")
+    p.add_argument("--store", default="", help="store in mmap degli operatori (tools/build_store.py): niente "
+                                               "staging ne' pre-pass; la data-spec resta per gruppi, blocchi e quote")
     p.add_argument("--prepass-proc", type=int, default=16)
     p.add_argument("--prepass-tolerate", type=int, default=0,
                    help="mesh fallite nel pre-pass tollerate per blocco (scartate con avviso); 0 = errore, come v2")
@@ -218,8 +220,8 @@ def check_args(a: argparse.Namespace) -> None:
     import area_v3
     lo, hi = (float(x) for x in a.winsor_pct.split(","))
     area_v3.CFG.update(k=int(a.area_smooth_k), lo=lo, hi=hi)
-    if a.data_spec and not (a.split_json and a.stage_root and a.total_steps > 0):
-        raise SystemExit("--data-spec richiede --split-json, --stage-root e --total-steps")
+    if a.data_spec and not (a.split_json and (a.stage_root or a.store) and a.total_steps > 0):
+        raise SystemExit("--data-spec richiede --split-json, --stage-root (o --store) e --total-steps")
     if not a.data_spec and not a.data_dir:
         raise SystemExit("serve --data-spec o --data_dir")
     if a.lr_steps and a.plateau_patience is not None:
@@ -396,7 +398,10 @@ class Data:
             aug = None
         self.transform = dv.ServeTransform(args.input_norm, aug, int(spec.get("aug_seed", 0)),
                                            area_weights=args.area_weights)
-        if args.data_spec:
+        if args.store:
+            self.dataset = dv.StoreDataset(dv.MmapStore(args.store), self.transform)
+            log0(f"[v3] store {args.store}: {len(self.dataset)} mesh in mmap (nessuno staging)")
+        elif args.data_spec:
             sources = dv.collect_sources(spec)
             self.dataset = dv.BlockedDataset(sources, {
                 "labels": spec.get("labels"), "convention": spec.get("convention", "areanorm"),
@@ -459,7 +464,7 @@ class Data:
             if K > epochs:
                 raise SystemExit(f"n_blocks={K} > epoche={epochs}: qualche blocco non verrebbe mai addestrato")
             self.blocks = partition_blocks_logged(self.train, self.spec)
-            if eval_ids:
+            if eval_ids and not args.store:
                 names = self.dataset.names_of(eval_ids)
                 root = self.root()
                 self.dataset.stage(names, root / "eval")
@@ -505,6 +510,10 @@ class Data:
         return (epoch - 1) * len(self.blocks) // epochs
 
     def switch_block(self, k: int) -> None:
+        if self.args.store:        # tutto in mmap: il blocco e' solo il pool del campionatore
+            self.dataset.resident_block = k
+            log0(f"[v3] blocco {k} ({len(self.my(self.blocks[k]))} soggetti) dallo store")
+            return
         ds: dv.BlockedDataset = self.dataset
         root = self.root()
         dest = root / f"block{k:03d}"

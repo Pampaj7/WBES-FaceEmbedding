@@ -192,11 +192,19 @@ class _CompactSparse:
 
     __slots__ = ("indices", "values", "shape")
 
-    def __init__(self, t: torch.Tensor) -> None:
+    def __init__(self, t: torch.Tensor | None) -> None:
+        if t is None:
+            return
         c = t.coalesce()
         self.indices = c.indices().to(torch.int32)
         self.values = c.values()
         self.shape = tuple(c.shape)
+
+    @classmethod
+    def from_parts(cls, indices: torch.Tensor, values: torch.Tensor, shape) -> "_CompactSparse":
+        o = cls(None)
+        o.indices, o.values, o.shape = indices, values, tuple(shape)
+        return o
 
     def nbytes(self) -> int:
         return self.indices.numel() * 4 + self.values.numel() * self.values.element_size()
@@ -301,6 +309,84 @@ class CachedDataset:
         if s is None:
             return self._base[int(idx)]
         return _serve(s)
+
+
+# --- store in mmap, condiviso fra processi (tools/build_store.py) ------------------------------------
+
+STORE_FIELDS = (("verts", np.float32), ("faces", np.int32), ("mass", np.float32), ("evals", np.float32),
+                ("evecs", np.float32), ("gxi", np.int32), ("gxv", np.float32), ("gyi", np.int32), ("gyv", np.float32))
+
+
+def store_shapes(n: int, m: int, k: int, nx: int, ny: int, evecs_f: bool = False) -> dict:
+    """Forme su disco. ``evecs_f``: evecs scritto come (k, n) contiguo, cioe' la memoria di un (n, k) in ordine
+    colonna, che e' il layout del loader (stride (1, n)); si serve con .t(), senza copia."""
+    return {"verts": (n, 3), "faces": (m, 3), "mass": (n,), "evals": (k,), "evecs": (k, n) if evecs_f else (n, k),
+            "gxi": (2, nx), "gxv": (nx,), "gyi": (2, ny), "gyv": (ny,)}
+
+
+class MmapStore:
+    """Campioni GIA' preparati dal loader congelato, in formato compatto, in shard binari letti con memmap.
+
+    Piu' processi sullo stesso nodo leggono gli stessi file: il kernel ne tiene UNA copia nella page cache.
+    ``compact_sample(i)`` restituisce viste numpy zero-copy (memmap in copy-on-write, mai scritto) nel formato
+    della cache compatta, che data_v3._serve trasforma nei tensori del loader (identici, tools/build_store.py
+    li verifica a campione, valori e stride).
+
+    Lo stride conta: sotto TF32 (acceso dal container) cuBLAS sceglie il kernel dal layout, quindi evecs in ordine
+    riga invece che colonna cambia gli arrotondamenti e la traiettoria si separa da v2 (misurato: Z del passo 1
+    a 2e-5). Gli store senza ``evecs_f`` nell'indice (scritti prima della correzione) servono evecs in ordine riga."""
+
+    def __init__(self, root: str | Path) -> None:
+        self.root = Path(root)
+        z = np.load(self.root / "index.npz")
+        self.names = [str(x) for x in z["names"]]
+        self.shard = z["shard"]
+        self.dims = {k: z[k] for k in ("n", "m", "k", "nx", "ny")}
+        self.off = {f: z[f"off_{f}"] for f, _ in STORE_FIELDS}
+        if "evecs_f" in z.files:
+            self.evecs_f = z["evecs_f"].astype(bool)
+        else:
+            self.evecs_f = np.zeros(len(self.names), dtype=bool)
+            print(f"[store] AVVISO: {self.root} senza evecs_f (formato vecchio): evecs in ordine riga, non nel layout "
+                  "del loader; la traiettoria non e' identica a v2 sotto TF32", flush=True)
+        self._mm: dict = {}
+
+    def _map(self, k: int):
+        mm = self._mm.get(k)
+        if mm is None:
+            mm = np.memmap(self.root / "shards" / f"shard_{k:03d}.bin", dtype=np.uint8, mode="c")
+            self._mm[k] = mm
+        return mm
+
+    def compact_sample(self, i: int) -> Dict[str, object]:
+        mm = self._map(int(self.shard[i]))
+        ef = bool(self.evecs_f[i])
+        sh = store_shapes(*(int(self.dims[k][i]) for k in ("n", "m", "k", "nx", "ny")), evecs_f=ef)
+        a = {f: torch.from_numpy(np.ndarray(sh[f], dtype=dt, buffer=mm, offset=int(self.off[f][i])))
+             for f, dt in STORE_FIELDS}
+        n = sh["verts"][0]
+        evecs = a["evecs"].t() if ef else a["evecs"]
+        return {"verts": a["verts"], "faces": a["faces"], "mass": a["mass"], "evals": a["evals"], "evecs": evecs,
+                "gradX": _CompactSparse.from_parts(a["gxi"], a["gxv"], (n, n)),
+                "gradY": _CompactSparse.from_parts(a["gyi"], a["gyv"], (n, n)),
+                "name": self.names[i][:-4]}
+
+
+class StoreDataset:
+    """Dataset sullo store: tutte le mesh sempre disponibili (nessuno staging). ``resident_block`` resta come
+    stato del campionatore a blocchi, che sceglie i soggetti dell'epoca come in v2."""
+
+    def __init__(self, store: MmapStore, transform) -> None:
+        self.store = store
+        self.files = list(store.names)
+        self.transform = transform
+        self.resident_block = -1
+
+    def __len__(self) -> int:
+        return len(self.files)
+
+    def __getitem__(self, idx: int):
+        return self.transform(self.files[int(idx)], _serve(self.store.compact_sample(int(idx))))
 
 
 # --- trasformazioni al servizio ------------------------------------------------------------------

@@ -29,10 +29,18 @@ import common  # noqa: E402,F401
 
 
 def _ckpt_args(script_args: list[str]) -> tuple[Path, dict]:
+    """Checkpoint dello script: --model_path (script zs/perturbated), --checkpoint o $WBES_CKPT (NoW)."""
+    import os
     import torch
-    if "--model_path" not in script_args:
-        raise SystemExit("eval_v3: lo script non ha --model_path")
-    path = Path(script_args[script_args.index("--model_path") + 1]).expanduser().resolve()
+    if "--model_path" in script_args:
+        raw = script_args[script_args.index("--model_path") + 1]
+    elif "--checkpoint" in script_args:
+        raw = script_args[script_args.index("--checkpoint") + 1]
+    elif os.environ.get("WBES_CKPT"):
+        raw = os.environ["WBES_CKPT"]
+    else:
+        raise SystemExit("eval_v3: checkpoint non trovato (--model_path, --checkpoint o WBES_CKPT)")
+    path = Path(raw).expanduser().resolve()
     if path.is_dir():
         sel = script_args[script_args.index("--checkpoint_selector") + 1] if "--checkpoint_selector" in script_args \
             else "best_by_auc"
