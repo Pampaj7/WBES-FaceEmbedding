@@ -145,3 +145,6 @@ FLAME_masks.pkl
 
 # dati con licenza caricati dall utente (FLAME, NoW): mai versionare
 /external_data/
+
+# Codice e pesi di terzi per i competitori (Uni3D, OpenShape) e il loro venv: mai in git.
+/external_models/

@@ -1047,3 +1047,22 @@ Ancora attivi:
 - critic sul design;
 - coder dei competitori (spettrali, NICP su template, Uni3D, OpenShape);
 - agente FaceVerse (e072 e convenzione ICT).
+
+### 8 ottobre: competitori diretti su HIFI3D (`aau/runs/competitors_hifi3d/summary.md`)
+Distanza graduata (Spearman con la GT maxabs, senza crop):
+
+| Metodo | Spearman | Rank-1 |
+|---|---|---|
+| e108 | 0.630 | 0.782, da `arcface_vs_scale` |
+| Chamfer | 0.372 | |
+| NICP su template | 0.351 | 0.875 |
+| OpenShape | 0.138 | 0.617 |
+| Uni3D | 0.132 | 0.539 |
+| ShapeDNA k=50 | 0.108 | 0.575 |
+| HKS | 0.077 | |
+| WKS | 0.025 | |
+
+- **Ablazione del frame:** con il frame ruotato OpenShape sale a 0.291, sempre molto sotto e108.
+- **Lettura:** sulla GT maxabs e108 batte tutti di +0.28 o più.
+- **Riserva aperta (critic):** la GT maxabs penalizza i metodi che allineano. NICP su template applica Procrustes e scarta la scala. Prima di affermare il vantaggio sulla distanza graduata serve la GT unificata, invariante alla similarità, che D2 sta calcolando su tutti i metodi.
+- **Stato:** non ancora rivisto da critic o verifier.
