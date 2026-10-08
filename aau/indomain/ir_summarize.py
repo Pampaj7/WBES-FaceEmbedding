@@ -89,7 +89,7 @@ WS2_STAGES = {("joint", "bfm"): [RUNS / f"{_EV}_13da6115" / "ws2_cell"],
               ("joint", "ict"): [RUNS / f"{_EV}_60d50ab6" / "ws2_cell"],
               ("joint", "rexpr"): [RUNS / f"{_EV}_8afd021f" / "ws2_rexpr" / v for v in ("mixed", "neutral")],
               ("bfm_only", "bfm19"): [RUNS / f"{_EV}_16aab77d" / "ws2_cell"]}
-GALLERY_BLOCKS = {"g_noisy": ("noisy", "original"), "g_crop": ("crop", "original")}
+GALLERY_BLOCKS = {"g_remesh": ("remesh", "original"), "g_noisy": ("noisy", "original"), "g_crop": ("crop", "original")}
 GALLERY_METHODS = ("joint", "sim_nicp_p2tri", "template", "chamfer_sim")
 
 
@@ -289,7 +289,8 @@ def blocks_for(name: str, labels) -> dict:
 BLOCK_LABEL = {"nocrop": "PRIMARIO, 5 topologie senza crop", "crop": "a parte: crop da un lato",
                "expr": "PRIMARIO, espressione contro espressione (k != k')",
                "neutral_gallery": "secondario: galleria neutra, query con espressione",
-               "g_noisy": "PRIMARIO della galleria grande: 100 query in noisy, galleria di 992 in original",
+               "g_remesh": "PRIMARIO della galleria grande: 100 query in remesh, galleria di 992 in original",
+               "g_noisy": "galleria grande, blocco degenere (noisy = original perturbata): 100 query in noisy, 992 in original",
                "g_crop": "a parte: 100 query in crop, galleria di 992 in original",
                "full_nocrop": "secondario: tutte le 992 query, 20 coppie di topologie senza crop (solo metodi a iscrizione)",
                "full_crop": "secondario: tutte le 992 query, coppie con crop (solo metodi a iscrizione)"}

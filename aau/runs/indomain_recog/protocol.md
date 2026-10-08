@@ -160,3 +160,13 @@ l'inquadratura per mesh con margine minimo (1.02, come la camera di dominio) fa 
 fotogramma, e il detector della calibrazione non scatta su nessun render a yaw -30 (job 1060307, fallito
 prima degli embedding). Il margine per mesh diventa 1.2, cioe' la dimensione media del volto della camera
 di dominio (BFM: scala 1.83 contro ~1.54 di estensione minima per mesh). Nient'altro cambia.
+
+*Aggiunta al punto D, 2026-10-08 02:25 CEST, dopo aver visto il blocco noisy -> original e PRIMA di
+calcolare il blocco nuovo:* su noisy -> original la Chamfer grezza fa rank-1 1.000 con 992 soggetti. Non e'
+un risultato ma un difetto del blocco: `noisy` e' la `original` con i vertici perturbati, quindi le due
+mesh campionano la stessa superficie con gli stessi vertici, e qualunque metodo a punti le appaia. Il
+blocco resta riportato ma non misura il soffitto. Si aggiunge **remesh -> original** (stesse 100 query,
+galleria di 992 in `original`): `remesh` e' una ritassellazione senza vertici in comune con `original`
+(down8k e up60k invece li condividono in parte). Diventa il PRIMARIO senza crop della galleria grande.
+Stessi metodi (congiunto, ICP di similarita' + NICP P2Tri, NICP su template, Chamfer). Anche crop ->
+original condivide i vertici della `original` (e' un suo ritaglio): lo si dice nella lettura.

@@ -965,3 +965,21 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
   - Negli embedding pesa più la topologia dell'identità. ArcFace resta la baseline percettiva di riferimento.
 - **Besnier 2023 e Ma 2021:** nessun codice o peso pubblico, quindi non integrabili (documentato).
 - **Quasi-duplicati: nessuno.** Il NN test→train minimo è 3.9× la soglia (NeurIPS BFM), 3.6× (congiunto BFM) e 2.1× (congiunto ICT). Il punto 9 del rebuttal è chiuso.
+
+## 8 ottobre, mattina: riconoscimento in dominio, secondo giro (`aau/runs/indomain_recog/summary.md`; non ancora passato da critic)
+
+**Con ICP di similarità, la pipeline geometrica eguaglia il congiunto ovunque in dominio e lo supera sul crop BFM.**
+- **Crop BFM:** congiunto 0.944 contro ICP sim. + NICP 1.000 (Δ −0.056 [−0.089, −0.030]).
+- **Galleria di 992 soggetti ICT:** soffitto per tutti (rank-1 1.000).
+- **NICP su template** (implementazione semplice): 0.86–0.90 senza crop, crolla sul crop.
+- **ArcFace migliorato:** rank-1 circa 0.98, TAR basso a causa della topologia noisy.
+
+**Tempi** (nodo esclusivo):
+
+| fase | congiunto | template | ArcFace | ICP sim. + Chamfer | NICP |
+|---|---|---|---|---|---|
+| iscrizione | 2.08 s | 1.15 s | 0.57 s | — | — |
+| ricerca 1:10k | 1.96 ms CPU | 811 ms | 0.88 ms | — | — |
+| per coppia | — | — | — | 45 ms | 1.29 s |
+
+**Lettura:** in dominio resta solo l'argomento del costo contro le pipeline a coppie, conveniente da circa 50 confronti per query in su. Nessun vantaggio di accuratezza; nessun vantaggio di costo contro ArcFace.

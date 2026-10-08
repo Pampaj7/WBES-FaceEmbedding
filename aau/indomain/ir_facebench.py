@@ -57,7 +57,7 @@ SETS_JSON = AAU_DIR / "runs" / "indomain_recog" / "sets.json"
 VARIANTS = {"rigid": (("bfm", "ict", "rexpr"), am._run_chunk, tuple(am.PIPELINE_METRICS.values())),
             "sim": (("bfm", "ict"), ir_simicp._run_chunk, tuple(ir_simicp.SIM_METRICS.values()))}
 # Blocchi della galleria grande (protocollo, punto D): (etichetta delle query, etichetta della galleria).
-GALLERY_BLOCKS = (("noisy", "original"), ("crop", "original"))
+GALLERY_BLOCKS = (("noisy", "original"), ("crop", "original"), ("remesh", "original"))
 
 
 def units(sets: dict, variant: str = "rigid") -> list[tuple[str, str, str, str]]:
@@ -100,6 +100,7 @@ def main() -> None:
     p.add_argument("--shard", default="0/1")
     p.add_argument("--max-subjects", type=int, default=0, help="0 = tutti; >0 per un test rapido")
     p.add_argument("--variant", choices=sorted(VARIANTS), default="rigid")
+    p.add_argument("--only", default="", help="solo queste unita', p.es. ict992:remesh:original (ignora --shard)")
     p.add_argument("--overwrite", action="store_true")
     a = p.parse_args()
 
@@ -107,6 +108,9 @@ def main() -> None:
     _, worker, _ = VARIANTS[a.variant]
     k, n_shards = (int(x) for x in a.shard.split("/"))
     mine = units(sets, a.variant)[k::n_shards]
+    if a.only:
+        wanted = {tuple(u.split(":")) for u in a.only.split(",")}
+        mine = [u for u in units(sets, a.variant) if u[:3] in wanted]
     todo = [u for u in mine
             if a.overwrite or not all(q.exists() for q in unit_paths(a.out_root, *u, variant=a.variant).values())]
     print(f"[ir-fb] shard {a.shard}: {len(mine)} unita', {len(todo)} da fare: {todo}", flush=True)

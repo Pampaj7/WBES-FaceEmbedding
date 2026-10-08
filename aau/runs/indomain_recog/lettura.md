@@ -1,48 +1,93 @@
-# Lettura (scritta dopo i risultati, con le regole fissate nel protocollo)
+# Lettura (revisione 1; scritta dopo i risultati, con le regole fissate nel protocollo)
 
-**Leak.** Nessun soggetto valutato e' nel training del congiunto (0/108 BFM, 0/89 ICT, ricontrollato su
-`splits.json`). Restano le due note del protocollo: 16 dei 108 soggetti BFM (5 dei 19 di BFM-19) erano
-nell'eval online del congiunto, cioe' hanno pesato sulla scelta del checkpoint; il BFM-only e' confrontabile
-solo su 19 soggetti, perche' 89 dei 108 erano nel suo training.
+La lettura della prima tornata e' in `lettura_tornata1.md`. Su crop e ICP quella e' superata da questa.
 
-**1. In dominio, senza crop, il compito e' saturo.** Il congiunto fa rank-1 0.998 (BFM) e 1.000 (ICT),
-AUC 1.000; NICP P2Tri fa lo stesso (1.000 / 1.000 su BFM, 1.000 / 0.994 su ICT). Lettura del protocollo:
-congiunto **pari** a NICP sul rank-1 in entrambi i domini, pari sull'AUC in BFM e **sopra** in ICT
-(+0.006 [+0.004, +0.009]); **sopra** a Chamfer, ICP + Chamfer e ArcFace su normal map su rank-1 e AUC in
-entrambi i domini. Il riconoscimento in dominio fra topologie diverse non separa il congiunto da NICP: lo
-separa da tutto il resto. Anche il congiunto contro il BFM-only (BFM-19) e' pari, 1.000 contro 1.000.
+**Leak.** Nessun soggetto valutato e' nel training del congiunto: 0/108 BFM, 0/89 ICT, 0/992 ICT nella
+galleria grande. Restano due note.
+- 16 dei 108 soggetti BFM erano nell'eval online del congiunto, cioe' hanno pesato sulla scelta del
+  checkpoint.
+- Il BFM-only e' confrontabile solo su 19 soggetti.
 
-**2. Con il crop da un lato il congiunto stacca le pipeline geometriche, non ArcFace.** Rank-1 0.944 (BFM)
-e 0.993 (ICT) contro 0.686 e 0.600 di NICP P2Tri (delta +0.257 e +0.393, **sopra**), e Chamfer / ICP sotto
-0.31. Contro ArcFace su normal map: **sotto** sul rank-1 in BFM (-0.041 [-0.073, -0.014]), pari in ICT, e
-**sopra** sull'AUC in entrambi. BFM-19, crop: congiunto 0.979 contro BFM-only 0.942, delta +0.037
-[-0.005, +0.095], pari (19 soggetti: il test e' senza potenza).
+Il congiunto ha visto in training le topologie crop e noisy dei soggetti di training; nessuna baseline ha
+avuto un'augmentation simile.
 
-**3. Con le espressioni il congiunto e' il metodo peggiore.** Espressione contro espressione (stessa
-topologia ICT): rank-1 0.822, **sotto** Chamfer (0.867), ICP + Chamfer (0.896), NICP P2Tri (0.905) e ArcFace
-(1.000); AUC 0.978, **pari** alle tre geometriche e **sotto** ArcFace (1.000). Con la galleria neutra il
-congiunto sale a 0.962 ma resta **sotto** tutti (gli altri da 0.998 a 1.000). Due avvertenze che non cambiano
-il segno: (a) qui non varia la topologia, cioe' manca proprio la difficolta' in cui le pipeline geometriche
-crollano (punto 2), e Chamfer su mesh con la stessa connettivita' e' quasi una distanza vertice-vertice;
-(b) il congiunto non ha mai visto espressioni ICT in training. ArcFace a 1.000 non e' un errore di
-indicizzazione: i png di controllo (`arcface/rexpr/normals/control`) mostrano espressioni diverse per lo
-stesso soggetto, e su ICT neutro fra topologie lo stesso ArcFace fa 0.981. Per il paper: il riconoscimento
-d'identita' attraverso le espressioni e' un limite da dichiarare, non un risultato.
+**1. Con l'ICP di similarita' il vantaggio del congiunto sul crop sparisce: era l'artefatto di scala.**
+- **Con il crop.** Rank-1 congiunto contro ICP di similarita' + NICP P2Tri:
+  - BFM: 0.944 contro 1.000, delta -0.056 [-0.089, -0.030], **sotto**;
+  - ICT: 0.993 contro 1.000, delta -0.007 [-0.020, +0.000], pari.
 
-**4. Tempi (stesso nodo L40S, AMD EPYC 9454; parti CPU a un thread).** Congiunto: 2.34 s per mesh
-[IQR 1.31-4.89], quasi tutto operatori DiffusionNet su CPU (2.28 s; l'embedding sulla GPU e' 57 ms, sulla CPU
-443 ms); confronto fra due embedding 2.3 us; retrieval 1:100 / 1:1.000 / 1:10.000 in 0.02 / 0.19 / 2.2 ms
-su CPU (0.04 / 0.05 / 0.07 ms su GPU). NICP P2Tri 1.42 s per coppia [1.37-1.82], ICP + Chamfer 34 ms per
-coppia, ArcFace su normal map 0.54 s per mesh (render 0.20 s + 3 embedding 0.35 s). Quindi, a parita' di
-accuratezza senza crop, un confronto 1:1 da zero costa al congiunto due iscrizioni (~4.7 s) contro 1.4 s di
-NICP, ma con la galleria gia' iscritta una query 1:N costa ~2.3 s + N x 2.3 us, contro N x 1.42 s per NICP
-(stima, non misurata: 1:10.000 ~ 4 ore a un core). Il punto di pareggio e' a N = 2.
-Avvertenze: (i) il nodo dei tempi ospitava nello stesso momento un mio job faceBench a 48 core (core
-diversi, ma memoria e frequenza condivise): tutte le voci sono state misurate in quelle condizioni, in fila
-nello stesso job, e i tempi assoluti possono essere gonfiati; (ii) l'embedding comprende la lettura degli
-operatori precalcolati da /tmp, che in uso reale verrebbero dalla memoria: totale per mesh leggermente
-sovrastimato.
+  Anche la sola **ICP di similarita' + Chamfer**, senza NICP, fa 1.000 in tutti e due i domini, con e
+  senza crop. Con l'ICP rigido, sul crop, la stessa Chamfer scendeva a 0.11 (BFM) e 0.31 (ICT).
+- **Senza crop.** Il congiunto e' pari alle due varianti di similarita' sul rank-1 (BFM 0.998 contro
+  1.000; ICT 1.000 contro 1.000). Sul TAR@FAR 1e-3 e' sotto in BFM (0.969 contro 1.000) e alla pari o
+  sopra in ICT (1.000 contro 0.997 NICP e 0.962 Chamfer). BFM-19: congiunto, BFM-only e similarita' tutti a
+  1.000.
 
-**Controlli.** Le distanze del congiunto dagli embedding coincidono con `latent_distance` delle eval WS2 a
-meno di 3.1e-3 (mediana delle distanze 0.76-1.27, cioe' < 0.5%): stesso modello e stessa catena, differenze
-numeriche fra esecuzioni GPU. faceBench: 0 coppie fallite su 412.590.
+In dominio, quindi, una pipeline geometrica configurata bene riconosce le persone attraverso topologie e
+crop **almeno quanto** il congiunto. La differenza della prima tornata (congiunto 0.944 / 0.993 contro
+NICP rigido 0.686 / 0.600 sul crop) veniva dalla scala non corretta.
+
+**2. La galleria grande non rompe il soffitto.**
+- **Blocchi rettangolari (100 query, galleria di 992).**
+  - remesh -> original (primario): congiunto e ICP di similarita' + NICP P2Tri entrambi a 1.000 su
+    rank-1, AUC e TAR@FAR 1e-3 e 1e-4. La Chamfer cade a 0.16, il template a 0.82.
+  - crop -> original: rank-1 1.000 per entrambi; il TAR del congiunto e' 0.98 / 0.97, quello di NICP
+    1.00 / 1.00.
+- **Tutte le 992 query, solo congiunto.**
+  - senza crop: rank-1 1.000, TAR@FAR 1e-4 0.995;
+  - con crop: rank-1 0.996, TAR@FAR 1e-4 0.926.
+- **noisy -> original e' degenere.** La noisy e' la original perturbata: anche la Chamfer grezza fa
+  1.000. Lo stesso vale in parte per crop -> original, che e' un ritaglio della original. Il blocco
+  remesh -> original e' stato aggiunto per questo, prima di calcolarlo.
+
+Con 992 identita' ICT il compito resta saturo per i due metodi migliori; per separarli servono dati piu'
+difficili, non piu' soggetti dello stesso 3DMM.
+
+**3. Espressioni (rexpr), invariato.** Il congiunto resta il metodo peggiore fra i forti: rank-1 0.822,
+contro 0.905 di NICP rigido e 1.000 di ArcFace. Il template fa 0.388. Le varianti di similarita' non sono
+state calcolate su rexpr (niente crop, stessa topologia; dichiarato nel protocollo).
+
+**4. Baseline "NICP su template".**
+- **Senza crop.** Rank-1 0.856 (BFM) e 0.898 (ICT) sui 108/89; sulla galleria grande 0.82 (remesh) e
+  0.34 (noisy).
+- **Con il crop.** Crolla: 0.00-0.05. Il template copre tutta la faccia, e registrandolo su un ritaglio la
+  NICP inventa la parte mancante, che poi entra nella distanza media per vertice.
+
+E' l'implementazione semplice dichiarata, con i parametri NICP di faceBench non ritoccati: va letta come
+limite inferiore della famiglia "iscrivi una volta", non come il suo valore migliore.
+
+**5. ArcFace migliore.** Con l'inquadratura per mesh e le normali smussate:
+- rank-1 BFM 0.987 senza crop (0.981 prima) e 0.988 con il crop; ICT 0.981 e 0.980;
+- il TAR@FAR resta inchiodato a 0.600 senza crop e 0.800 con il crop: le coppie con la `noisy` non
+  passano mai una soglia stretta, perche' la media sull'1-anello non basta a togliere quel rumore;
+- su rexpr fa 1.000.
+
+Il congiunto e' **sopra** ArcFace migliore senza crop (BFM +0.012 [+0.003, +0.021], ICT +0.019), **sotto**
+con il crop in BFM (-0.044 [-0.077, -0.018]) e **pari** in ICT.
+
+**6. Tempi** (job 1060419, `a768-l40s-06` in `--exclusive`, AMD EPYC 9454 + L40S; CPU a un thread).
+
+| fase | metodo | tempo (mediana) |
+| --- | --- | --- |
+| iscrizione, per mesh | congiunto (operatori CPU 2.03 s + embedding GPU 55 ms) | 2.08 s [1.27-4.42] |
+| iscrizione, per mesh | NICP su template | 1.15 s |
+| iscrizione, per mesh | ArcFace migliore | 0.57 s |
+| ricerca 1:10.000, per query | congiunto | 1.96 ms su CPU, 68 us su GPU |
+| ricerca 1:10.000, per query | template (L2 media per vertice) | 811 ms |
+| ricerca 1:10.000, per query | ArcFace | 0.88 ms |
+| per coppia | ICP di similarita' + Chamfer | 45 ms |
+| per coppia | ICP di similarita' + NICP P2Tri | 1.29 s |
+
+Per i metodi a coppie, una ricerca 1:10.000 costerebbe circa 7.5 minuti (ICP + Chamfer) e 3.6 ore (NICP).
+E' una STIMA (N x tempo per coppia), non una misura.
+
+**Conclusione per il paper.** In dominio, il riconoscimento non e' piu' un argomento d'accuratezza a favore
+del congiunto: ICP di similarita' + Chamfer lo eguaglia o lo supera (crop BFM) a 45 ms per coppia.
+L'argomento che resta e' il costo della ricerca su gallerie grandi:
+- il congiunto si iscrive una volta (circa 2 s) e poi confronta in microsecondi;
+- la Chamfer va rifatta per ogni coppia, quindi il congiunto conviene da circa 50 confronti per query in
+  su (stima: 2.08 s / 45 ms);
+- fra i metodi che si iscrivono una volta, il congiunto domina il template (accuratezza) e ArcFace sulle
+  topologie senza crop (TAR).
+
+Restano a sfavore: espressioni e crop BFM contro ICP di similarita'.
