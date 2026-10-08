@@ -1142,3 +1142,19 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
 - **Decisione:**
   - il pre-pass del training resta su CPU (`grad_vec`): togliere 1 GPU su 8 al training non conviene;
   - la via GPU (`compute_batch(method="bk")`) serve all'iscrizione al test, ed è utile per l'argomento del costo contro NICP su template (1.15 s per mesh).
+
+### 8 ottobre: FaceVerse con espressioni, curva completa e convenzione ICT (`aau/runs/data_scale_ood/curve.md`)
+- **Rank-1 per checkpoint** (convenzione BFM salvo dove indicato):
+
+  | Checkpoint | Rank-1 | Δ vs Chamfer |
+  |---|---|---|
+  | e036 | 0.518 | |
+  | e072 | 0.624 | |
+  | e108 | 0.625 | |
+  | e108, convenzione ICT | 0.640 | −0.100 [−0.134, −0.065] |
+  | Chamfer | 0.740 | |
+  | congiunto, convenzione BFM | 0.680 | |
+  | congiunto, convenzione ICT | 0.562 | |
+
+- **AUC di e108 in convenzione ICT:** pari a Chamfer (−0.003).
+- **Lettura:** il frame NON spiega il ritardo su FaceVerse. La causa è l'espressione, coerente con E3 (+0.291 sulle neutre).
