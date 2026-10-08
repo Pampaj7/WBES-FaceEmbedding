@@ -488,6 +488,20 @@ Configurazione come il run grande: 8 thread di training, 22 processi di pre-pass
   `aau/zs3dmm`) e il test FaceVerse con espressioni (`zs_expr_summarize`). Stima: circa 60 minuti per
   blocco, circa 46-48 ore.
 
+### Segnale fuori dominio anticipato (8 ottobre)
+
+Checkpoint intermedi del run 1060130 (`epoch036/072/108`) con i bracci `scale_eNNN` di `aau/zs3dmm`
+(checkpoint per braccio in `WBES_ZS_CKPT_SCALE_ENNN`, riepiloghi in `aau/runs/data_scale_ood/`, quelli degli
+altri agenti invariati) e NoW in cartelle separate (`ood_now.sbatch`). Tabella in
+`aau/runs/data_scale_ood/curve.md`. In breve [M]:
+- **HIFI3D senza crop**: 0.677 / 0.663 / 0.630 contro congiunto 0.428 e Chamfer 0.372.
+- **NoW tau**: 0.299 / 0.348 / 0.277 contro congiunto 0.131 e Chamfer 0.246; differenza appaiata con
+  Chamfer non significativa.
+- **FaceVerse con espressioni, rank-1**: 0.518 (e036), 0.625 (e108) contro congiunto 0.680 e Chamfer 0.740.
+- e072 su FaceVerse ancora in coda.
+- Memoria del run lungo, dal cgroup: non recuperabile al massimo 361.8 GiB; il totale tocca 510 solo per
+  la page cache.
+
 ## 7. Stato degli script in `aau/data_scale/`
 
 | file | stato |

@@ -1,0 +1,206 @@
+# Zero-shot su un 3DMM mai visto: HIFI3D
+
+Modelli: BFM+ICT congiunto (job 1019532), BFM-only (1019310), ICT-only (1019531): gli stessi della tabella WS2, seed 1234, ricetta v1, operatori ad area unitaria. Nessuno ha visto HIFI3D. Dati: 500 identita' dal 3DMM `/home/create.aau.dk/ga41wf/data/hifi3d/files/AI-NEXT-Shape.mat` (sha256 53e252f41e0b..), 500 modi, z ~ N(0,1) senza troncamento, seed 1234; scala: as_is (N(0,1) su basis_shape, come test_basis_io). Regione: `mask_face` del .mat, 9518 vertici / 18684 triangoli (modello intero 20481 vertici). Stesse 6 topologie e stessi operatori di ICT (calcolati su /tmp nel job di eval, per i soli soggetti valutati). Valutati 100 soggetti estratti dal pool con `rebuild_subject_split` seed 1234, gli stessi per i tre modelli e per le baseline. CI 95% bootstrap per soggetto, 1000 ricampionamenti. Risultati da `/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ws_hifi3d/data_328f2bfc1a`.
+
+GT `maxabs` = protocollo ICT (vertex-mean-L2 fra le `original` dopo la normalizzazione maxabs, quella di `datasets/ICT/train_ready/gt_matrix.npz`). GT `coef` = distanza L2 fra i coefficienti di identita' standardizzati z. Spearman fra le due GT sul pool: 0.089.
+
+## Mesh-pair cross-topology, clean (protocollo dello 0.301 zero-shot)
+
+| modello | latent (GT maxabs) | chamfer eval (GT maxabs) | latent (GT coef) | chamfer eval (GT coef) |
+| --- | --- | --- | --- | --- |
+| BFM+ICT | 0.246 [0.21, 0.28] | 0.336 [0.29, 0.38] | 0.066 [0.04, 0.09] | 0.073 [0.03, 0.11] |
+| BFM-only | 0.180 [0.14, 0.22] | 0.336 [0.29, 0.38] | 0.046 [0.02, 0.07] | 0.073 [0.03, 0.11] |
+| ICT-only | 0.222 [0.18, 0.26] | 0.336 [0.29, 0.38] | 0.047 [0.02, 0.07] | 0.073 [0.03, 0.11] |
+| BFM+ICT+GNM (10^5), e036 | 0.509 [0.43, 0.58] | 0.336 [0.29, 0.38] | 0.081 [0.02, 0.14] | 0.073 [0.03, 0.12] |
+| BFM+ICT+GNM (10^5), e072 | 0.557 [0.48, 0.63] | 0.336 [0.29, 0.38] | 0.104 [0.03, 0.17] | 0.073 [0.03, 0.11] |
+| BFM+ICT+GNM (10^5), e108 | 0.541 [0.47, 0.61] | 0.336 [0.29, 0.38] | 0.112 [0.04, 0.18] | 0.073 [0.03, 0.11] |
+
+### Senza crop (colonna della Tabella 2 del paper)
+
+| modello | latent (GT maxabs) | chamfer eval (GT maxabs) | latent (GT coef) | chamfer eval (GT coef) |
+| --- | --- | --- | --- | --- |
+| BFM+ICT | 0.428 [0.38, 0.48] | 0.372 [0.32, 0.42] | 0.105 [0.05, 0.15] | 0.080 [0.03, 0.12] |
+| BFM-only | 0.206 [0.17, 0.24] | 0.372 [0.32, 0.42] | 0.049 [0.02, 0.08] | 0.080 [0.04, 0.12] |
+| ICT-only | 0.382 [0.33, 0.43] | 0.372 [0.33, 0.42] | 0.078 [0.04, 0.12] | 0.080 [0.04, 0.12] |
+| BFM+ICT+GNM (10^5), e036 | 0.677 [0.61, 0.74] | 0.372 [0.33, 0.42] | 0.110 [0.03, 0.19] | 0.080 [0.04, 0.12] |
+| BFM+ICT+GNM (10^5), e072 | 0.663 [0.59, 0.73] | 0.372 [0.32, 0.42] | 0.128 [0.05, 0.21] | 0.080 [0.03, 0.12] |
+| BFM+ICT+GNM (10^5), e108 | 0.630 [0.57, 0.69] | 0.372 [0.32, 0.42] | 0.131 [0.06, 0.20] | 0.080 [0.04, 0.12] |
+
+## Subject-pair-mean (script di ranking), clean
+
+| modello | latent (GT maxabs) | chamfer eval (GT maxabs) | latent (GT coef) | chamfer eval (GT coef) |
+| --- | --- | --- | --- | --- |
+| BFM+ICT | 0.720 [0.66, 0.78] | 0.743 [0.68, 0.80] | 0.161 [0.09, 0.24] | 0.115 [0.03, 0.20] |
+| BFM-only | 0.607 [0.53, 0.68] | 0.743 [0.69, 0.80] | 0.130 [0.05, 0.21] | 0.115 [0.03, 0.20] |
+| ICT-only | 0.713 [0.64, 0.78] | 0.743 [0.68, 0.80] | 0.127 [0.05, 0.20] | 0.115 [0.03, 0.20] |
+| BFM+ICT+GNM (10^5), e036 | 0.767 [0.71, 0.83] | 0.743 [0.68, 0.80] | 0.118 [0.03, 0.21] | 0.115 [0.03, 0.20] |
+| BFM+ICT+GNM (10^5), e072 | 0.792 [0.73, 0.84] | 0.743 [0.68, 0.80] | 0.144 [0.05, 0.24] | 0.115 [0.03, 0.20] |
+| BFM+ICT+GNM (10^5), e108 | 0.795 [0.74, 0.84] | 0.743 [0.68, 0.80] | 0.160 [0.07, 0.25] | 0.115 [0.03, 0.20] |
+
+## Subject-pair-mean, mixed (solo punto, solo GT dello script)
+
+| modello | latent (GT maxabs) | chamfer eval (GT maxabs) | latent (GT coef) | chamfer eval (GT coef) |
+| --- | --- | --- | --- | --- |
+| BFM+ICT | 0.685 | 0.700 | - | - |
+| BFM-only | 0.583 | 0.700 | - | - |
+| ICT-only | 0.688 | 0.700 | - | - |
+| BFM+ICT+GNM (10^5), e036 | - | - | - | - |
+| BFM+ICT+GNM (10^5), e072 | - | - | - | - |
+| BFM+ICT+GNM (10^5), e108 | - | - | - | - |
+
+## Differenze appaiate (stesse repliche bootstrap per soggetto)
+
+Differenza degli Spearman con la GT, a - b, CI 95% sulle stesse 1000 repliche; P(boot <= 0) e' la frazione di repliche con differenza <= 0. Scenari: `all_cross` = 30 coppie ordinate di topologie, `nocrop_cross` = 20, `subject_pair_mean` = media per coppia di soggetti sulle 30 (clean).
+
+| confronto | scenario | GT maxabs: differenza [CI 95%] (a / b) | P(boot <= 0) | GT coef: differenza [CI 95%] |
+| --- | --- | --- | --- | --- |
+| BFM+ICT - Chamfer eval | all_cross | -0.090 [-0.123, -0.059] (0.246 / 0.336) | 1.000 | -0.007 [-0.034, +0.020] |
+| BFM+ICT - Chamfer eval | nocrop_cross | +0.056 [+0.015, +0.094] (0.428 / 0.372) | 0.002 | +0.026 [-0.011, +0.065] |
+| BFM+ICT - Chamfer eval | subject_pair_mean | -0.023 [-0.083, +0.036] (0.720 / 0.743) | 0.765 | +0.046 [-0.015, +0.108] |
+| BFM-only - Chamfer eval | all_cross | -0.156 [-0.194, -0.117] (0.180 / 0.336) | 1.000 | -0.027 [-0.053, +0.000] |
+| BFM-only - Chamfer eval | nocrop_cross | -0.166 [-0.203, -0.124] (0.206 / 0.372) | 1.000 | -0.031 [-0.060, +0.000] |
+| BFM-only - Chamfer eval | subject_pair_mean | -0.136 [-0.210, -0.065] (0.607 / 0.743) | 0.999 | +0.014 [-0.050, +0.080] |
+| ICT-only - Chamfer eval | all_cross | -0.114 [-0.136, -0.091] (0.222 / 0.336) | 1.000 | -0.025 [-0.051, +0.002] |
+| ICT-only - Chamfer eval | nocrop_cross | +0.010 [-0.019, +0.038] (0.382 / 0.372) | 0.282 | -0.002 [-0.032, +0.026] |
+| ICT-only - Chamfer eval | subject_pair_mean | -0.030 [-0.086, +0.023] (0.713 / 0.743) | 0.863 | +0.011 [-0.039, +0.067] |
+| BFM+ICT+GNM (10^5), e036 - Chamfer eval | all_cross | +0.173 [+0.122, +0.221] (0.509 / 0.336) | 0.000 | +0.009 [-0.033, +0.049] |
+| BFM+ICT+GNM (10^5), e036 - Chamfer eval | nocrop_cross | +0.305 [+0.254, +0.349] (0.677 / 0.372) | 0.000 | +0.030 [-0.025, +0.084] |
+| BFM+ICT+GNM (10^5), e036 - Chamfer eval | subject_pair_mean | +0.024 [-0.035, +0.078] (0.767 / 0.743) | 0.215 | +0.003 [-0.071, +0.060] |
+| BFM+ICT+GNM (10^5), e072 - Chamfer eval | all_cross | +0.221 [+0.161, +0.277] (0.557 / 0.336) | 0.000 | +0.031 [-0.017, +0.078] |
+| BFM+ICT+GNM (10^5), e072 - Chamfer eval | nocrop_cross | +0.291 [+0.236, +0.342] (0.663 / 0.372) | 0.000 | +0.048 [-0.013, +0.102] |
+| BFM+ICT+GNM (10^5), e072 - Chamfer eval | subject_pair_mean | +0.049 [-0.014, +0.107] (0.792 / 0.743) | 0.060 | +0.028 [-0.054, +0.097] |
+| BFM+ICT+GNM (10^5), e108 - Chamfer eval | all_cross | +0.205 [+0.152, +0.252] (0.541 / 0.336) | 0.000 | +0.040 [-0.009, +0.087] |
+| BFM+ICT+GNM (10^5), e108 - Chamfer eval | nocrop_cross | +0.258 [+0.208, +0.301] (0.630 / 0.372) | 0.000 | +0.051 [-0.005, +0.101] |
+| BFM+ICT+GNM (10^5), e108 - Chamfer eval | subject_pair_mean | +0.052 [-0.004, +0.106] (0.795 / 0.743) | 0.039 | +0.045 [-0.024, +0.114] |
+| BFM+ICT - ICT-only | all_cross | +0.024 [+0.004, +0.044] (0.246 / 0.222) | 0.010 | +0.018 [+0.002, +0.035] |
+| BFM+ICT - ICT-only | nocrop_cross | +0.046 [+0.018, +0.075] (0.428 / 0.382) | 0.000 | +0.028 [+0.004, +0.053] |
+| BFM+ICT - ICT-only | subject_pair_mean | +0.007 [-0.040, +0.063] (0.720 / 0.713) | 0.385 | +0.034 [-0.012, +0.080] |
+| BFM+ICT - BFM-only | all_cross | +0.066 [+0.036, +0.093] (0.246 / 0.180) | 0.000 | +0.020 [-0.004, +0.042] |
+| BFM+ICT - BFM-only | nocrop_cross | +0.222 [+0.182, +0.260] (0.428 / 0.206) | 0.000 | +0.057 [+0.019, +0.092] |
+| BFM+ICT - BFM-only | subject_pair_mean | +0.113 [+0.044, +0.181] (0.720 / 0.607) | 0.002 | +0.031 [-0.037, +0.101] |
+
+## Riferimento: le stesse celle su ICT (tabella WS2)
+
+| modello | ICT mesh-pair all cross, latent | ICT nocrop, latent | ICT subject-pair-mean, latent |
+| --- | --- | --- | --- |
+| BFM+ICT | 0.981 [0.97, 0.99] | 0.985 [0.98, 0.99] | 0.993 [0.99, 0.99] |
+| BFM-only | 0.294 [0.24, 0.34] | 0.259 [0.21, 0.31] | 0.836 [0.79, 0.88] |
+| ICT-only | 0.986 [0.98, 0.99] | 0.988 [0.98, 0.99] | 0.994 [0.99, 1.00] |
+| BFM+ICT+GNM (10^5), e036 | - | - | - |
+| BFM+ICT+GNM (10^5), e072 | - | - | - |
+| BFM+ICT+GNM (10^5), e108 | - | - | - |
+
+## Baseline geometriche (pipeline faceBench, stessi soggetti)
+
+| metodo | setting | GT maxabs | GT coef | NaN |
+| --- | --- | --- | --- | --- |
+| Chamfer (faceBench, 4096 pt) | original_to_original | 0.876 [0.84, 0.90] | 0.162 [0.07, 0.25] | 0 |
+| Chamfer (faceBench, 4096 pt) | nocrop_cross_topology | 0.325 [0.28, 0.37] | 0.069 [0.03, 0.11] | 0 |
+| Chamfer (faceBench, 4096 pt) | all_cross_topology | 0.291 [0.25, 0.33] | 0.062 [0.02, 0.10] | 0 |
+| Rigid ICP + Chamfer | original_to_original | 0.401 [0.31, 0.49] | 0.165 [0.07, 0.25] | 0 |
+| Rigid ICP + Chamfer | nocrop_cross_topology | 0.355 [0.27, 0.44] | 0.155 [0.06, 0.24] | 0 |
+| Rigid ICP + Chamfer | all_cross_topology | 0.263 [0.19, 0.33] | 0.115 [0.05, 0.18] | 0 |
+| Rigid ICP + NICP + P2P | original_to_original | 0.409 [0.31, 0.51] | 0.131 [0.04, 0.22] | 0 |
+| Rigid ICP + NICP + P2P | nocrop_cross_topology | 0.355 [0.27, 0.44] | 0.128 [0.05, 0.21] | 776 |
+| Rigid ICP + NICP + P2P | all_cross_topology | 0.320 [0.24, 0.39] | 0.121 [0.04, 0.20] | 970 |
+| Rigid ICP + NICP + P2Tri | original_to_original | 0.431 [0.33, 0.52] | 0.137 [0.05, 0.22] | 0 |
+| Rigid ICP + NICP + P2Tri | nocrop_cross_topology | 0.389 [0.31, 0.47] | 0.139 [0.06, 0.22] | 776 |
+| Rigid ICP + NICP + P2Tri | all_cross_topology | 0.346 [0.27, 0.42] | 0.129 [0.05, 0.21] | 970 |
+
+`chamfer eval` nelle tabelle dei modelli e' la Chamfer degli script di eval (media delle distanze al quadrato su tutti i vertici); la riga `Chamfer (faceBench)` qui sopra e' quella della Tabella 2 (4096 punti campionati). `all_cross_topology` = le 30 coppie ordinate cross.
+
+
+## Controlli
+
+| gt | n_subjects | diag_max_abs | symmetric_max_abs | offdiag_min | offdiag_median | offdiag_std | offdiag_max |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| maxabs | 500 | 0.0000 | 0.0000 | 0.1357 | 0.3352 | 0.0965 | 1.0000 |
+| coef | 500 | 0.0000 | 0.0000 | 0.7513 | 0.8684 | 0.0281 | 1.0000 |
+
+Soggetti: identici nei tre bracci (e nelle baseline, se ci sono) = True (100, primi id900001, id900004, id900018).
+
+
+Sorgenti dei bracci: BFM+ICT: joint/ (completo); BFM-only: bfm_only/ (completo); ICT-only: ict_only/ (completo); BFM+ICT+GNM (10^5), e036: solo breakdown da scale_e036_topology/zs_zeroshot (niente ranking: punto clean dalle pair_metrics, niente mixed); BFM+ICT+GNM (10^5), e072: solo breakdown da scale_e072_topology/zs_zeroshot (niente ranking: punto clean dalle pair_metrics, niente mixed); BFM+ICT+GNM (10^5), e108: solo breakdown da scale_e108_topology/zs_zeroshot (niente ranking: punto clean dalle pair_metrics, niente mixed).
+
+
+## Matrici per coppia di topologie (clean, mesh-pair, GT maxabs; righe A, colonne B)
+
+SOLO PUNTO, senza CI: per le 30 celle n_bootstrap=0 (i CI sono sugli aggregati qui sopra).
+
+
+### BFM+ICT, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.042 | 0.113 | 0.140 | 0.067 | 0.069 |
+| down8k | -0.026 | - | 0.134 | 0.131 | 0.355 | 0.382 |
+| noisy | 0.050 | 0.219 | - | 0.746 | 0.605 | 0.585 |
+| original | 0.087 | 0.214 | 0.751 | - | 0.593 | 0.539 |
+| remesh | 0.010 | 0.436 | 0.576 | 0.549 | - | 0.742 |
+| up60k | 0.006 | 0.468 | 0.519 | 0.464 | 0.714 | - |
+
+### BFM-only, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.064 | 0.388 | 0.362 | 0.152 | 0.172 |
+| down8k | 0.041 | - | 0.105 | 0.117 | 0.293 | 0.243 |
+| noisy | 0.396 | 0.098 | - | 0.634 | 0.258 | 0.277 |
+| original | 0.379 | 0.112 | 0.663 | - | 0.306 | 0.325 |
+| remesh | 0.141 | 0.280 | 0.306 | 0.355 | - | 0.642 |
+| up60k | 0.175 | 0.239 | 0.328 | 0.371 | 0.619 | - |
+
+### ICT-only, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.023 | 0.091 | 0.114 | 0.048 | 0.043 |
+| down8k | -0.031 | - | 0.088 | 0.076 | 0.290 | 0.334 |
+| noisy | 0.056 | 0.143 | - | 0.780 | 0.566 | 0.528 |
+| original | 0.080 | 0.128 | 0.777 | - | 0.503 | 0.458 |
+| remesh | -0.002 | 0.329 | 0.538 | 0.479 | - | 0.749 |
+| up60k | -0.006 | 0.369 | 0.487 | 0.421 | 0.735 | - |
+
+### BFM+ICT+GNM (10^5), e036, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.190 | 0.412 | 0.419 | 0.279 | 0.298 |
+| down8k | 0.164 | - | 0.533 | 0.559 | 0.663 | 0.670 |
+| noisy | 0.436 | 0.553 | - | 0.794 | 0.695 | 0.709 |
+| original | 0.433 | 0.571 | 0.784 | - | 0.710 | 0.722 |
+| remesh | 0.278 | 0.676 | 0.699 | 0.723 | - | 0.748 |
+| up60k | 0.296 | 0.685 | 0.699 | 0.723 | 0.739 | - |
+
+### BFM+ICT+GNM (10^5), e072, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.314 | 0.580 | 0.595 | 0.438 | 0.438 |
+| down8k | 0.290 | - | 0.511 | 0.538 | 0.660 | 0.682 |
+| noisy | 0.594 | 0.547 | - | 0.815 | 0.712 | 0.699 |
+| original | 0.597 | 0.564 | 0.807 | - | 0.729 | 0.710 |
+| remesh | 0.435 | 0.675 | 0.709 | 0.733 | - | 0.750 |
+| up60k | 0.433 | 0.697 | 0.674 | 0.696 | 0.737 | - |
+
+### BFM+ICT+GNM (10^5), e108, latent
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.334 | 0.625 | 0.643 | 0.495 | 0.471 |
+| down8k | 0.278 | - | 0.455 | 0.473 | 0.643 | 0.670 |
+| noisy | 0.624 | 0.502 | - | 0.807 | 0.706 | 0.676 |
+| original | 0.633 | 0.518 | 0.803 | - | 0.719 | 0.682 |
+| remesh | 0.463 | 0.665 | 0.692 | 0.708 | - | 0.754 |
+| up60k | 0.430 | 0.692 | 0.637 | 0.649 | 0.741 | - |
+
+### Chamfer eval (uguale per i tre bracci a meno del campione: si riporta il congiunto)
+
+| A \ B | crop | down8k | noisy | original | remesh | up60k |
+| --- | --- | --- | --- | --- | --- | --- |
+| crop | - | 0.099 | 0.651 | 0.646 | 0.306 | 0.326 |
+| down8k | 0.036 | - | 0.084 | 0.103 | 0.398 | 0.369 |
+| noisy | 0.656 | 0.139 | - | 0.829 | 0.449 | 0.478 |
+| original | 0.650 | 0.157 | 0.829 | - | 0.512 | 0.535 |
+| remesh | 0.287 | 0.441 | 0.436 | 0.502 | - | 0.789 |
+| up60k | 0.304 | 0.404 | 0.457 | 0.517 | 0.794 | - |

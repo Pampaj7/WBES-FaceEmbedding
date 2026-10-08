@@ -1002,3 +1002,14 @@ ArcFace batte il congiunto di +0.070 [+0.022, +0.118] (AUC pari) e resta sotto N
   - possibile vicinanza GNM ↔ HIFI3D;
   - con la GT coef tutti i valori sono bassi (scala 0.10–0.13, Chamfer 0.08).
 - **In arrivo:** FaceVerse expr (riconoscimento), NoW, FLAME.
+
+### 8 ottobre: curva OOD dei checkpoint intermedi (`aau/runs/data_scale_ood/curve.md`)
+- **HIFI3D senza crop:** e036 0.677, e072 0.663, e108 0.630, contro Chamfer 0.372 e congiunto 0.428. e108 − Chamfer = +0.258 [+0.208, +0.301].
+- **NoW tau:**
+  - e036 0.299, e072 0.348, e108 0.277; Chamfer 0.246, congiunto 0.131;
+  - tutti alla pari o meglio di Chamfer, nessuno significativo. e072: +0.102 [−0.029, +0.229].
+- **FaceVerse con espressioni, rank-1:** e036 0.518, e108 0.625, contro Chamfer 0.740 e congiunto 0.680. È sotto, ma sale col training. AUC di e108 alla pari con Chamfer.
+- **Confondente aperto:** FaceVerse valutato solo nella convenzione BFM, mentre il 91% del training è nel frame ICT. Ho chiesto la convenzione ICT per e108. e072 di FaceVerse è in coda (1061482).
+- **Prossimo:**
+  - regola di scelta del checkpoint dichiarata ora: **l'ultimo checkpoint del run**, nessuna selezione su OOD;
+  - poi critic sul risultato positivo.
