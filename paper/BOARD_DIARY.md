@@ -1133,3 +1133,12 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
   Con la GT unificata, e108 − Chamfer scende a +0.071 [+0.015, +0.123]. Su FaceVerse con espressioni nessuna differenza è significativa.
 - **Lettura:** il vantaggio sulla distanza graduata dipende dalla GT con cui il modello è addestrato e valutato (la maxabs, non invariante alla similarità). È la critica 4, la circolarità della D_GT, in forma concreta.
 - **Esperimento decisivo lanciato, E11:** cella C3F-UGT, addestrata sulla GT unificata, confrontata con C3F e con le baseline con allineamento su quella GT. Tutte le celle di E1 saranno valutate con entrambe le GT.
+
+### 8 ottobre: E10, operatori su GPU (`aau/runs/evidence/e10/E10.md`)
+- **Pipeline:** `compute_operators` interamente su GPU, in batch. Gli autovettori con shift-invert cuDSS e Krylov a blocchi sono esatti: 0.09 s a 9.4k vertici.
+- **Correttezza:** embedding e108 entro 1.4e-6 da quelli CPU, cioè quanto il rumore della CPU stessa.
+- **Throughput:** una V100 vale circa un nodo CPU da 100 CPU logiche, da 0.45× (k 64, V ≤ 10k) a 1.78× (k 128, mesh fino a 60k).
+- **Latenza:** 97 ms per mesh a 9.4k vertici, contro 0.64 s di un processo CPU.
+- **Decisione:**
+  - il pre-pass del training resta su CPU (`grad_vec`): togliere 1 GPU su 8 al training non conviene;
+  - la via GPU (`compute_batch(method="bk")`) serve all'iscrizione al test, ed è utile per l'argomento del costo contro NICP su template (1.15 s per mesh).
