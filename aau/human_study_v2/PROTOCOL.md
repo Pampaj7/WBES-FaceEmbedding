@@ -1,126 +1,164 @@
-# Studio umano v2: protocollo (scritto il 9 ottobre 2026, PRIMA di ogni risposta umana)
+# Studio umano v2: protocollo (9 ottobre 2026, revisione 2, PRIMA di ogni risposta umana)
 
-Nessuna risposta alla v2 esiste a quest'ora: la pagina `docs/human_study_v2/index.html` non e' stata ancora
-distribuita. Le sole "risposte" analizzate finora sono i partecipanti simulati del self-test. Hash del file in
-`PROTOCOL.sha256`. Ogni modifica successiva va in un emendamento datato in fondo, con il motivo, e non puo'
+Nessuna risposta alla v2 esiste: la pagina `docs/human_study_v2/index.html` non e' mai stata distribuita, e le
+sole risposte analizzate sono quelle simulate del self-test. Questa revisione sostituisce la prima (hash
+`0c7ed04d...`, dominio BFM REMESH, 4 strati da 9 prove), scartata prima della raccolta su richiesta del PI. I motivi:
+- su BFM la taglia era gia' normalizzata (CV 1.9%);
+- la potenza era insufficiente con un numero di partecipanti realistico;
+- E12 ha fissato F = rigida robusta.
+Hash di questo file in `PROTOCOL.sha256`. Ogni modifica successiva va in un emendamento datato in fondo, senza
 guardare i dati.
 
 ## 0. Scopo
 
-Arbitro (b) di `paper/PLAN_MASSIVE.md` §19: quale GT di E12 (`aau/runs/evidence/e12/protocol.md`, Emendamento 1)
-somiglia di piu' al giudizio umano di somiglianza della forma del volto. GT a confronto: **GT-F** (forma metrica in
-mm, frame canonico), **GT-S** (forma senza taglia, centroid size), **GT-EDM** (distanze interne, senza
-allineamento), **maxabs** (legacy, quella della v1 e del paper). La v1 non puo' farlo: i suoi render normalizzano
-ogni mesh con maxabs (`aau/baselines/render_cache.py`, righe 7-18), quindi mostrano volti alti uguali, e sono solo
-frontali, quindi nascondono la profondita'.
+Arbitro (b) di `paper/PLAN_MASSIVE.md` §19. Due domande, in ordine d'importanza:
+1. **Form contro shape:** nel giudizio umano di somiglianza della forma del volto conta la taglia assoluta (GT-F)
+   o no (GT-S)?
+2. **Shape contro maxabs:** la normalizzazione legacy per max|coord| e' peggiore della shape di Procrustes?
+
+La v1 non puo' rispondere. I suoi render normalizzano ogni mesh con maxabs (`aau/baselines/render_cache.py`) e
+sono solo frontali.
 
 ## 1. Stimoli
 
-- **Dominio:** BFM REMESH, topologia `original`, i 100 soggetti held-out della v1 (`common.subject_set("heldout")`).
-  Motivi: (i) i render JPEG dei volti BFM sintetici sono gia' pubblicati con la v1, mentre la licenza di FaceScape
-  vieta la distribuzione e permette i render solo dei soggetti "portrait-authorized"
-  (`literature/DATA_ACCESS_2026-10-07.md`); (ii) la variabilita' di taglia non e' migliore su FaceScape dev: CV
-  della centroid size della regione 1.5% (100 identita' dev) contro 1.9% (BFM, 100 held-out), misurati qui;
-  (iii) continuita' con la v1, stessi volti.
-- **Geometria:** mesh intera della REMESH nel frame di GT-F in mm, `f = u_d R_d V + t_d` con il frame di E12
-  (`aau/runs/evidence/e12/frames.json`, dominio `bfm`: u = 0.001, unita' dichiarata). Una trasformazione per il
-  dominio, nessuna per mesh.
-- **Camera:** ortografica, 1.959 px/mm, finestra di 196 mm (semilato 98), uguale per ogni volto e ogni vista,
-  calcolata una volta sull'unione dei 100 volti nelle 3 viste (`render_v2.compute_camera`). Nessuna inquadratura
-  per volto.
-- **Viste:** la testa ruota attorno a +y per un punto fisso (centroide della regione unificata sulla media FLAME):
-  0 gradi (frontale), 45 (3/4), 90 (profilo, naso a destra). Ray casting (visibilita' esatta).
-- **Materiale e luce:** grigio uniforme (albedo 0.8), Lambert con normali interpolate, luce direzionale fissa nel
-  frame della camera (alto a sinistra, davanti) + ambiente 0.22, sfondo nero, supersampling 3x3.
-- **Immagine:** una striscia verticale per volto (frontale, 3/4, profilo; 384 x 1160 px, JPEG q90).
-- **Pagina:** tre colonne, candidato | riferimento | candidato. Le righe allineano la stessa vista dei tre volti.
-  Il riferimento sta al centro, con una cornice colorata.
-- **Controllo della scala** (`render_check.json`): l'altezza della silhouette in pixel contro l'altezza della mesh
-  in mm ha r = 0.9999 in ogni vista. L'errore massimo e' di 0.6 px. Nessuna silhouette tocca il bordo. Le altezze
-  vanno da 158 a 182 mm, cioe' da 309 a 357 px. La centroid size va da 51.7 a 56.5 mm (rapporto 1.094).
+- **Dominio: GNM Head v3.0** (`~/data/gnm_head/gnm_head.npz`). Licenza Apache-2.0 su codice e pesi (scheda HF:
+  "suitable for both academic research and commercial applications"): render pubblicabili, con citazione
+  (ploumpis2026gnmhead).
+  - 100 identita' campionate come i set zero-shot: z ~ N(0, 1) sui 170 modi `head_*`, senza code ne' troncamento
+    (`v3_work.mm`, `sample_identity(tails=False, trunc=0)`), seed 1234.
+  - Testa nel frame metrico del modello, nessuna normalizzazione.
+  - CV della centroid size della regione: 5.3% (E12, `size_cv.csv`: 5.3% su 10.100 identita' GNM; qui 5.28% sulle
+    100). Gli altri domini: ICT 4.8% (MIT), BFM REMESH 1.9%, FaceScape 1.6%. GNM ha la variabilita' piu' vicina
+    ai valori antropometrici attesi (4-8%) ed e' pubblicabile.
+- **Geometria dei render:** la mesh va nel frame di GT-F di E12 (`frames.json`, dominio `gnm`: u = 1000, una
+  trasformazione per dominio). Poi si applica la rigida robusta della sua regione verso mu, la stessa della GT F:
+  rotazione e traslazione, mai scala. Rotazione mediana 0.97 gradi, massima 3.9; IRLS a convergenza in 99 casi su 100.
+- **Area renderizzata:** triangoli di `hockey_mask` ∩ `skin_exterior`, piu' `eye_exteriors` (gli occhi non restano
+  fori). La regione unificata su cui si misurano le GT sta tutta dentro `hockey_mask` (verificato: 1478 su 1478).
+- **Camera:** ortografica, 1.745 px/mm (finestra di 220 mm), uguale per ogni volto e ogni vista. E' calcolata una
+  volta sull'unione dei 100 volti nelle 3 viste: nessuna inquadratura per volto.
+- **Viste:** rotazione della testa attorno a +y per un punto fisso, a 0, 45 e 90 gradi (naso a destra). Ray
+  casting.
+- **Materiale e luce:** grigio uniforme (albedo 0.8), Lambert, normali interpolate, luce fissa nel frame della
+  camera piu' ambiente 0.22, sfondo nero, supersampling 3x3.
+- **Immagine:** una striscia verticale per volto (frontale, 3/4, profilo), 384 x 1160 px, JPEG q90.
+- **Pagina:** candidato | riferimento | candidato, con le righe allineate per vista.
+- **Controllo della scala** (`render_check.json`): altezza della silhouette in px contro altezza della mesh in mm,
+  r = 0.99998. Errore massimo 0.7 px, nessuna silhouette sul bordo. Altezza frontale da 259 a 351 px (148-201 mm).
+  Centroid size della regione da 48.7 a 63.3 mm (rapporto 1.30).
 
-## 2. Triplette
+## 2. GT (`gt_v2.py`, funzioni di `v3_work/canonical_gt/cgt.py`)
 
-GT: le matrici di E12 calcolate con lo stesso codice (`cgt.all_gts`) sui 100 soggetti (`gt_v2.py`). E12 non
-produce matrici BFM. Maxabs e' la GT legacy della v1 (`common.load_gt_submatrix`). Stato: **definitivo**. E12 ha
-concluso il passo delle GT (`gt.json`) e le triplette sono identiche a quelle della selezione provvisoria (stesse
-distanze, stessa impronta `d46022b22bdb7bd1`). Se E12 cambiasse ancora `cgt.py` o `gt.py` prima dell'avvio della
-raccolta, si rifanno `HS2_STEPS="gt select"`. Una volta avviata la raccolta, l'insieme non si cambia.
+Punti della regione unificata (1478) nel frame di GT-F in mm (X0). Rigida robusta per identita' verso mu
+(`rigid_robust`, IRLS Tukey, E12 Emendamento 1) -> a_i.
 
-- Pool completo: 485.100 triplette (A riferimento, {B, C}).
-- **Tipi** (4 x 60 = 240 test): `F_vs_S`, `F_vs_maxabs`, `S_vs_maxabs`, `EDM_vs_F`. Una tripletta e' del tipo
-  `X_vs_Y` se X e Y ordinano d(A,B) e d(A,C) al contrario, ciascuna con margine relativo
-  `|d(A,B) - d(A,C)| / media >= 0.10`. Estrazione casuale (seed 1234) fra le 300 col margine minimo piu' grande.
-  Nessuna tripletta e' riusata fra i tipi. Un soggetto compare in al massimo 15 test.
-  Margine minimo mediano nelle scelte: 0.138 (F_vs_S), 0.133 (F_vs_maxabs), 0.167 (S_vs_maxabs), 0.378 (EDM_vs_F).
-- **Controlli:** 30 triplette unanimi su F, S, EDM, EDM_s, unified, maxabs, con margine >= 0.40 su ognuna.
-- **Prova:** 6 triplette unanimi con la stessa regola, disgiunte dai controlli.
-- Ogni tripletta porta le distanze e la risposta attesa di tutte le 12 GT su disco. Sono in `triplets.json` e
-  servono solo all'analisi. La pagina non le riceve.
+- **F** = RMS pesata fra le a_i: forma metrica con taglia. E' la GT form di riferimento di E12; la F pura misura la
+  posizione del volto nel frame del modello, che non e' osservabile.
+- **S** = a_i centrata sul suo centroide pesato e scalata alla centroid size di mu: Procrustes pieno con la
+  rotazione robusta. La S di E12 "a punto fisso" non e' usata, perche' non toglie la traslazione.
+- **maxabs** = GT legacy della pipeline zero-shot: patch `hockey_mask` di `v3_work.mm`, maxabs per mesh, media
+  per vertice della distanza L2 (`gt.maxabs_matrix`).
+- **Registrate per l'analisi secondaria:** EDM, EDM_s, unified, F_rig_ls, F_pure, "solo taglia", "solo altezza".
+- **Spearman sulle 4.950 coppie:**
+  - F con S 0.59 (su BFM era 0.96);
+  - F con "solo taglia" 0.80;
+  - S con maxabs 0.68;
+  - S con unified 0.999.
 
-## 3. Sessione
+## 3. Triplette (`select_triplets_v2.py`, seed 1234)
 
-3 prove di prova, poi una schermata di transizione. Seguono 36 test, 9 per tipo pescati a giro, e 4 controlli, uno
-per blocco di 9 test. Ordine e lato (sinistra/destra) sono casuali e seminati dal codice partecipante. Istruzioni:
-"Pick the candidate that looks more similar to the reference", "Ignore light and shadows: look at the shape",
-"same camera, at the same scale". Non si chiede esplicitamente di guardare la taglia: si dice solo che la scala e'
-la stessa per tutti. Invio al Google Form condiviso con la v1, con `study_version: "v2"`, id `v2_*` e
-`triplets_hash`.
+Pool di 485.100 triplette. Uno strato `X_vs_Y` contiene le triplette in cui X e Y ordinano d(A,B) e d(A,C) al
+contrario, ciascuna con margine relativo ≥ 0.10.
 
-## 4. Analisi (`analyze_v2.py`), fissata ora
+**Margini piu' grandi possibile:** dentro ogni strato si estrae a caso fra le 3n triplette col margine minimo piu'
+grande. Margine minimo mediano nelle scelte: 0.48 (F_vs_S) e 0.42 (S_vs_maxabs), contro 0.13-0.17 nella prima
+revisione.
 
-- **Inclusione:** payload con `study_version == "v2"` e `triplets_hash` uguale a quello di `triplets.json`. Un
-  codice partecipante ripetuto conta una volta (la sessione piu' lunga). Le prove di prova non contano.
-- **Esclusione** (regola della v1): fuori chi sbaglia piu' di 1 controllo sui 4. Chi non ha nessun controllo
-  (sessione interrotta presto) e' fuori.
-- **Test primari (4):** per ogni tipo `X_vs_Y`, la quota q delle risposte che stanno con X. Dentro lo strato
-  accordo(X) - accordo(Y) = 2q - 1. H0: q = 0.5. Statistica: sum_p (risposte con X - risposte con Y). p a due code
-  dalla permutazione a segni ribaltati per partecipante (10.000). Correzione di Holm sui 4 tipi, alfa 0.05. IC 95%
-  di q: bootstrap sui partecipanti (2.000 repliche, seed 1234).
-- **Lettura** (dichiarata ora):
-  - `F_vs_S` con q > 0.5 significativo: la taglia assoluta conta per la somiglianza percepita (a favore di F).
-    Con q < 0.5: no (a favore di S).
-  - `F_vs_maxabs` e `S_vs_maxabs` con q > 0.5: la normalizzazione maxabs e' peggiore della GT principiata.
-  - `EDM_vs_F`: vedi i limiti (sez. 6). Un esito a favore di EDM non distingue "senza allineamento" da
-    "insensibile alla posa residua".
-- **Secondarie:** accordo complessivo di ogni GT su tutte le 240 triplette (stesse risposte, stesse repliche). Le
-  differenze appaiate fra GT si leggono con IC bootstrap, P(diff <= 0) e p a segni ribaltati, senza correzione,
-  come descrittive. Sensibilita': bootstrap incrociato partecipanti x triplette. Maggioranza per tripletta
-  (>= 3 voti) e kappa di Fleiss, come la v1.
-- **Numerosita'** (sez. 5): obiettivo 100 partecipanti tenuti, minimo 60. Una sola analisi confermativa, quando si
-  raggiungono 100 tenuti o alla chiusura della raccolta. Prima di allora si contano solo partecipanti ed esclusi,
-  senza calcolare l'accordo.
+| strato | ruolo | triplette | prove per sessione | disponibili |
+|---|---|---:|---:|---:|
+| `F_vs_S` | principale | 120 | 36 | 57.506 |
+| `S_vs_maxabs` | secondario confermativo | 80 | 24 | 37.523 |
 
-## 5. Potenza (`power_v2.py`, `power_v2.md`)
+`F_vs_S` contrappone "con taglia" a "senza taglia". Dalla parte di F stanno EDM e "solo taglia" (100% delle
+triplette). Dalla parte di S stanno unified ed EDM_s (100%) e maxabs (97%). `EDM_vs_F` e `F_vs_maxabs` sono
+eliminati. Nessuna tripletta e' riusata e ogni soggetto compare al massimo in 15 test. Controlli: 30 triplette
+unanimi su F, S, EDM, unified e maxabs, con margine ≥ 0.40 su ognuna. Prova: 6 triplette con la stessa regola,
+disgiunte dai controlli. Impronta delle triplette mostrate: **`triplets_hash` = `30f02a3b4150927c`**.
 
-Simulazione: 9 prove per strato e partecipante su 60 triplette, effetti casuali logit per partecipante
-(sd 0.5) e per tripletta (sd 0 oppure 0.8), test come sopra (approssimazione normale della permutazione), 4.000
-studi per cella. Differenziale realistico: nella v1 (7 partecipanti, triplette dove le metriche litigano)
-l'accordo per risposta era 0.619 per LPIPS e 0.488 per la GT maxabs, un differenziale di 0.13. La sd fra
-partecipanti oltre la binomiale era 0.21-0.38 logit, quindi 0.5 e' prudente.
+Stato: definitivo. E12 ha concluso il passo GT (`gt.json`); impronta di `cgt.py` + `gt.py` nel manifest. Una
+volta avviata la raccolta, l'insieme non cambia.
 
-| q nello strato | differenziale | N per 80%, alfa 0.05 | N per 80%, alfa 0.0125 (Holm, caso peggiore) | N per 90%, alfa 0.0125 |
-|---:|---:|---:|---:|---:|
-| 0.55 | 0.10 | 140-200 | 200-300 | 250->400 |
-| 0.575 | 0.15 | 60-70 | 90-100 | 120-160 |
-| 0.60 | 0.20 | 35 | 50 | 70 |
-| 0.65 | 0.30 | 15-20 | 25 | 30 |
+## 4. Sessione
 
-Gli intervalli vanno da sd fra triplette 0 a 0.8. Con 100 partecipanti tenuti si rileva un differenziale di 0.15
-in uno strato all'80% anche alla soglia prudente. Un differenziale di 0.10 richiede 200-300 partecipanti: se l'esito
-e' nullo con 100, si riporta l'IC, non "nessuna differenza".
+La sessione ha questa sequenza:
+1. 3 prove di prova;
+2. una schermata di transizione;
+3. 60 test, 36 F_vs_S e 24 S_vs_maxabs, estratti a caso dentro lo strato;
+4. 4 controlli, uno per blocco di 15.
 
-## 6. Limiti dichiarati ora
+Le 64 prove richiedono circa 10 minuti. Ordine e lato sono casuali, seminati dal codice partecipante. Istruzioni:
+- "Pick the candidate that looks more similar to the reference";
+- "Ignore light and shadows: look at the shape";
+- "same camera, at the same scale".
 
-- **Taglia poco variabile.** Le REMESH sono state allineate per similarita' una per una prima di esistere qui
-  (`v3_work/unified_gt/domains.py`, `bfm()`). La CV della centroid size e' 1.9%, quella dell'altezza 3.5%.
-  `F_vs_S` sceglie proprio le triplette dove la taglia decide: la baseline "solo taglia" sta con F nel 100% dello
-  strato. Il contrasto visivo resta pero' di pochi punti percentuali (fino a 48 px di differenza d'altezza su
-  ~330).
-- **EDM_vs_F e posa residua.** Su BFM, F conserva il residuo rigido di quell'allineamento: Spearman fra F e
-  F_rig_ls 0.81 sulle 4.950 coppie. Nello strato `EDM_vs_F`:
-  - le varianti rigide di F stanno con EDM nel 65-67% delle triplette;
-  - "solo taglia" sta con EDM nel 97%.
-  Lo strato confronta quindi soprattutto posa residua e taglia. La posa e' visibile nei render, come la vedrebbe
-  F. Le GT rigide (`F_rig_ls`, `F_rig_rob`) sono nelle secondarie.
-- **Un solo dominio.** Le conclusioni valgono per volti BFM sintetici in topologia unica.
+Non si chiede esplicitamente di guardare la taglia. La pagina invia al Google Form condiviso con la v1, con
+`study_version: "v2"`, id `v2_*` e `triplets_hash`.
+
+## 5. Analisi (`analyze_v2.py`), fissata ora
+
+- **Inclusione:** `study_version == "v2"` e `triplets_hash == 30f02a3b4150927c`. Un codice ripetuto conta una
+  volta (la sessione piu' lunga). Le prove di prova non contano.
+- **Esclusione** (regola della v1): piu' di 1 errore sui 4 controlli, oppure nessun controllo visto.
+- **Test primari (2):** in ogni strato `X_vs_Y` si misura la quota q delle risposte con X; accordo(X) - accordo(Y)
+  = 2q - 1, con H0 q = 0.5.
+  - Il p a due code viene dalla permutazione a segni ribaltati per partecipante (10.000), con correzione di Holm
+    sui 2 strati, alfa 0.05.
+  - L'IC 95% di q viene dal bootstrap sui partecipanti (2.000 repliche, seed 1234).
+- **Lettura:**
+  - `F_vs_S` con q significativamente > 0.5: la taglia assoluta conta per la somiglianza percepita, a favore di F
+    (e del ramo "form" della §19).
+  - `F_vs_S` con q < 0.5: a favore di S.
+  - Un esito non significativo si riporta con l'IC, non come "nessuna differenza".
+  - `S_vs_maxabs` con q > 0.5: maxabs e' peggiore della shape di Procrustes.
+- **Secondarie, descrittive:**
+  - accordo complessivo di ogni GT sulle 200 triplette;
+  - differenze appaiate (IC bootstrap, P(diff ≤ 0), p a segni ribaltati, senza correzione);
+  - bootstrap incrociato partecipanti x triplette;
+  - maggioranza per tripletta e kappa di Fleiss, come la v1.
+- **Numerosita':** obiettivo 40 partecipanti tenuti, minimo 25 (sez. 6). Una sola analisi confermativa, a 40
+  tenuti o alla chiusura. Prima di allora si contano solo partecipanti ed esclusi.
+
+## 6. Potenza (`power_v2.py`, `power_v2.md`)
+
+**Modello della simulazione:**
+- prove per partecipante come nella sessione: 36 su 120 triplette e 24 su 80;
+- effetti logit per partecipante con sd 0.5 (nella v1: 0.21-0.38 oltre la binomiale);
+- effetti per tripletta con sd 0 oppure 0.8;
+- 4.000 studi per cella.
+
+La soglia prudente per uno strato con Holm su 2 e' alfa = 0.025. N tenuti:
+
+| q | 2q - 1 | F_vs_S, 80% | F_vs_S, 90% | S_vs_maxabs, 80% | S_vs_maxabs, 90% |
+|---:|---:|---:|---:|---:|---:|
+| 0.55 | 0.10 | 100 | 120-150 | 100-120 | 150->200 |
+| 0.575 | 0.15 | 40 | 50 | 50 | 60-70 |
+| 0.60 | 0.20 | 25 | 30 | 25-30 | 35 |
+| 0.65 | 0.30 | 12 | 15 | 12-15 | 15-18 |
+
+**Differenziale realistico.** Nella v1 l'accordo per risposta su triplette con margine ≥ 0.15 era 0.619 per LPIPS
+e 0.488 per maxabs, cioe' 0.13. Qui i margini sono circa 3 volte maggiori (mediana 0.42-0.48) e lo strato
+principale contrappone una differenza di taglia fino al 30%, visibile. Si pianifica su **q = 0.60 (differenziale
+0.20)**, con q = 0.575 come caso prudente. **40 partecipanti tenuti** danno:
+- per F_vs_S, l'80% anche nel caso prudente e oltre il 90% a q = 0.60;
+- per S_vs_maxabs, il 90% a q = 0.60.
+
+## 7. Limiti dichiarati ora
+
+- **Un solo dominio, sintetico.** Le identita' GNM sono campionate dal modello. La taglia varia con la
+  distribuzione del modello (CV 5.3%), non con quella di una popolazione reale.
+- **Nessun riferimento all'ambiente.** La taglia si vede solo per confronto fra i tre volti, a parita' di camera;
+  manca un oggetto di riferimento nella scena. E' il caso d'uso di una ricostruzione metrica.
+- **Rigida robusta anche nei render.** I render usano la rigida robusta per identita', come la GT F. La F pura
+  (posizione nel frame del modello) e' nelle secondarie.
+- **Un caso non a convergenza.** Su un'identita' su 100 l'IRLS della rigida robusta non converge entro 100 giri.
+  Resta nello studio con la stima all'ultimo giro.

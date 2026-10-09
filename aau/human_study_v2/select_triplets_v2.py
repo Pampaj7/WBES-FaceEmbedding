@@ -3,13 +3,14 @@
 
     v3_work/unified_gt/run.sh aau/human_study_v2/select_triplets_v2.py      (run.sbatch, passo ``select``)
 
-Pool completo sui 100 soggetti (100 x C(99,2) = 485.100 triplette, A riferimento, {B, C} non ordinata), come la
-v1 (``aau/human_study/select_triplets.py``). Una tripletta e' del tipo ``X_vs_Y`` (``--pairs``) se le GT X e Y
-ordinano d(A,B) e d(A,C) al contrario, CIASCUNA con margine relativo ``|d(A,B) - d(A,C)| / media >= --margin``.
-Tipi di default: F contro S, F contro maxabs, S contro maxabs, EDM contro F. I tipi si riempiono dal pool piu'
-piccolo al piu' grande senza riusare una tripletta; dentro un tipo si estrae a caso fra le ``--pool-factor x
---n-per-pair`` con il margine piu' grande (il minimo dei due margini), cosi' il disaccordo e' netto ma non
-ristretto ai pochi casi estremi, con un tetto di ``--max-uses`` comparse per soggetto nei test.
+Pool completo sulle 100 identita' (100 x C(99,2) = 485.100 triplette, A riferimento, {B, C} non ordinata), come la
+v1 (``aau/human_study/select_triplets.py``). Una tripletta e' dello strato ``X_vs_Y`` se le GT X e Y ordinano
+d(A,B) e d(A,C) al contrario, CIASCUNA con margine relativo ``|d(A,B) - d(A,C)| / media >= --margin``.
+Strati (``--strata``, ``X:Y:triplette:prove per sessione``): **F contro S** (principale, 120 triplette, 36 prove)
+e **S contro maxabs** (80, 24). Gli strati si riempiono dal pool piu' piccolo al piu' grande senza riusare una
+tripletta; dentro uno strato si estrae a caso fra le ``--pool-factor x n`` col margine minimo (dei due) piu'
+grande: lo studio cerca disaccordi netti, che alzano il differenziale atteso. Tetto di ``--max-uses`` comparse
+per soggetto nei test. Le quote per sessione vanno nel meta: le usa la pagina.
 
 Controlli (attention check) e prove della sessione di prova: triplette in cui TUTTE le ``--control-gts`` sono
 d'accordo con margine >= ``--control-margin`` su ognuna; i due insiemi sono disgiunti.
@@ -38,11 +39,11 @@ import numpy as np
 
 import hs2
 
-PRINCIPAL = ("F", "S", "EDM", "maxabs")
+PRINCIPAL = ("F", "S", "maxabs")
 # Lo stesso Google Form riceve v1 e v2: gli id della v2 hanno un prefisso che non si confonde con la v1
 ID_PREFIX = "v2_"
-PAIRS = "F:S,F:maxabs,S:maxabs,EDM:F"
-CONTROL_GTS = "F,S,EDM,EDM_s,unified,maxabs"
+STRATA = "F:S:120:36,S:maxabs:80:24"
+CONTROL_GTS = "F,S,EDM,unified,maxabs"
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,15 +52,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--renders", type=Path, default=hs2.RENDER_DIR)
     p.add_argument("--out-dir", type=Path, default=hs2.THIS_DIR)
     p.add_argument("--docs-dir", type=Path, default=hs2.DOCS_DIR)
-    p.add_argument("--pairs", default=PAIRS, help="tipi di disaccordo X:Y separati da virgole")
+    p.add_argument("--strata", default=STRATA, help="X:Y:triplette:prove per sessione, separati da virgole")
     p.add_argument("--control-gts", default=CONTROL_GTS)
-    p.add_argument("--n-per-pair", type=int, default=60)
     p.add_argument("--n-control", type=int, default=30)
     p.add_argument("--n-practice", type=int, default=6)
     p.add_argument("--margin", type=float, default=0.10,
                    help="margine relativo minimo per OGNUNA delle due GT in disaccordo")
-    p.add_argument("--pool-factor", type=int, default=5,
-                   help="si estrae fra le n-per-pair x pool-factor col margine minimo piu' grande")
+    p.add_argument("--pool-factor", type=int, default=3,
+                   help="si estrae fra le n x pool-factor col margine minimo piu' grande")
     p.add_argument("--max-uses", type=int, default=15, help="comparse massime di un soggetto nei test")
     p.add_argument("--control-margin", type=float, default=0.40)
     p.add_argument("--control-pool-factor", type=int, default=10)
@@ -119,7 +119,7 @@ def pair_pools(pairs, view, margin_thr) -> dict:
     return out
 
 
-def take_pairs(pools: dict, n: int, factor: int, max_uses: int, abc, rng) -> dict:
+def take_pairs(pools: dict, n_of: dict, factor: int, max_uses: int, abc, rng) -> dict:
     """Dal tipo piu' raro al piu' comune: le n*factor col margine piu' grande fra quelle non ancora usate, in
     ordine casuale, poi il resto del pool per margine decrescente; si accetta una tripletta solo se nessuno dei
     suoi tre soggetti e' gia' comparso ``max_uses`` volte nei test (i disaccordi si concentrano sui volti
@@ -130,6 +130,7 @@ def take_pairs(pools: dict, n: int, factor: int, max_uses: int, abc, rng) -> dic
     taken = {}
     for label in sorted(pools, key=lambda t: (len(pools[t][0]), t)):
         idx, m = pools[label]
+        n = n_of[label]
         free = np.array([i not in used for i in idx], dtype=bool)
         idx, m = idx[free], m[free]
         order = idx[np.argsort(-m, kind="stable")]
@@ -202,12 +203,12 @@ def write_stats(path: Path, args, meta, entries, pools, view_names) -> None:
         f"**Stato delle GT: {meta['gt_status']}** (frame di GT-F: {fr['source']}, E12 concluso: "
         f"{fr.get('e12_complete')}, impronta di cgt.py+gt.py `{fr['code_sha256'][:12]}`).", "",
         "| parametro | valore |", "|---|---|",
-        f"| soggetti | {meta['n_subjects']} (BFM REMESH `{meta['topology']}`, held-out della v1) |",
+        f"| identita' | {meta['n_subjects']} GNM Head ({meta['identities']}) |",
         f"| GT su disco | {', '.join(meta['gts'])} |",
-        f"| tipi | {', '.join(meta['types'])} |",
+        f"| strati (prove per sessione) | {', '.join(f'{t} ({q})' for t, q in meta['session_quota'].items())} |",
         f"| pool completo | {meta['pool_size']} triplette (A, {{B, C}}) |",
         f"| margine relativo | >= {args.margin:.2f} su entrambe le GT in disaccordo; estrazione fra le "
-        f"{args.pool_factor} x {args.n_per_pair} col margine minimo piu' grande, <= {args.max_uses} comparse per "
+        f"{args.pool_factor} x n col margine minimo piu' grande, <= {args.max_uses} comparse per "
         f"soggetto nei test |",
         f"| controlli | {len(ctrl)}, unanimi su {args.control_gts} con margine >= {args.control_margin:.2f} |",
         f"| prova | {len(prac)} triplette unanimi (stessa regola, disgiunte dai controlli), escluse dall'analisi |",
@@ -251,7 +252,10 @@ def main() -> None:
     args = parse_args()
     rng = np.random.default_rng(args.seed)
     subjects, D, man = load_gts(args.gt_dir)
-    pairs = [tuple(p.split(":")) for p in args.pairs.split(",") if p.strip()]
+    strata = [p.split(":") for p in args.strata.split(",") if p.strip()]
+    pairs = [(x, y) for x, y, _, _ in strata]
+    n_of = {f"{x}_vs_{y}": int(n) for x, y, n, _ in strata}
+    quota = {f"{x}_vs_{y}": int(q) for x, y, _, q in strata}
     control_gts = [g for g in args.control_gts.split(",") if g.strip()]
     for g in {x for p in pairs for x in p} | set(control_gts):
         if g not in D:
@@ -265,7 +269,11 @@ def main() -> None:
     for label, (idx, m) in pools.items():
         print(f"[hs2-select] {label:<18} {idx.size:>7} disponibili, margine minimo mediano "
               f"{np.median(m) if idx.size else float('nan'):.3f}", flush=True)
-    taken = take_pairs(pools, args.n_per_pair, args.pool_factor, args.max_uses, (a, b, c), rng)
+    for label, (idx, m) in pools.items():
+        top = np.sort(m)[::-1][: n_of[label] * args.pool_factor]
+        print(f"[hs2-select] {label}: margine minimo fra le {top.size} migliori: {top.min():.3f}-{top.max():.3f}",
+              flush=True)
+    taken = take_pairs(pools, n_of, args.pool_factor, args.max_uses, (a, b, c), rng)
     used = {int(i) for v in taken.values() for i in v}
 
     upool, umin = unanimous(view, control_gts, args.control_margin)
@@ -305,7 +313,7 @@ def main() -> None:
     status = "definitivo (E12 concluso)" if man["frame"].get("e12_complete") else "PROVVISORIO (E12 non concluso)"
     meta = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "seed": args.seed,
             "study": "v2", "study_version": "v2", "id_prefix": ID_PREFIX, "domain": hs2.DOMAIN,
-            "topology": hs2.TOPOLOGY, "subject_set": hs2.SUBJECT_SET,
+            "identities": f"{hs2.N_SUBJECTS} campionate, seed {hs2.SEED}", "session_quota": quota,
             "n_subjects": len(subjects), "gts": list(D), "principal_gts": list(PRINCIPAL),
             "types": [f"{x}_vs_{y}" for x, y in pairs], "control_gts": control_gts, "margin": args.margin,
             "pool_factor": args.pool_factor, "max_uses": args.max_uses, "control_margin": args.control_margin,
@@ -321,7 +329,7 @@ def main() -> None:
     # sessioni fatte su QUESTE triplette (una rigenerazione con contenuto diverso cambia l'impronta).
     meta["triplets_hash"] = hashlib.sha256(json.dumps(shown, sort_keys=True).encode()).hexdigest()[:16]
     public_meta = {k: meta[k] for k in ("generated_at", "seed", "study", "study_version", "n_test", "n_control",
-                                        "n_practice", "types", "gt_status", "triplets_hash")}
+                                        "n_practice", "types", "session_quota", "gt_status", "triplets_hash")}
     public = {"meta": public_meta, "triplets": shown}
     args.out_dir.mkdir(parents=True, exist_ok=True)
     (args.out_dir / "triplets.json").write_text(json.dumps({"meta": meta, "triplets": entries}, indent=1),

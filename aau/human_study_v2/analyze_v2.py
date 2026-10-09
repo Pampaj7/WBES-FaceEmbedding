@@ -10,9 +10,10 @@ Regole fissate in ``PROTOCOL.md`` prima dei dati. In breve:
     per tutte le GT) in cui la scelta umana coincide con la risposta attesa dalla GT; IC 95% bootstrap sui
     PARTECIPANTI (l'unita' campionaria: le risposte della stessa persona sono correlate), le stesse repliche per
     tutte le GT, quindi le differenze fra GT sono appaiate;
-  - **test primari**: per ogni tipo ``X_vs_Y`` la quota delle risposte che sta con X dentro lo strato (X e Y vi
-    danno risposte opposte, quindi accordo(X) - accordo(Y) = 2 quota - 1), H0 quota = 0.5, p a due code dal test
-    di permutazione a segni ribaltati per partecipante (``--n-perm``), correzione di Holm sui tipi, alfa 0.05;
+  - **test primari**: per ogni strato ``X_vs_Y`` (F_vs_S principale, S_vs_maxabs) la quota delle risposte che sta
+    con X dentro lo strato (X e Y vi danno risposte opposte, quindi accordo(X) - accordo(Y) = 2 quota - 1), H0
+    quota = 0.5, p a due code dal test di permutazione a segni ribaltati per partecipante (``--n-perm``),
+    correzione di Holm sugli strati, alfa 0.05;
   - **secondari**: accordo complessivo di ogni GT e differenze appaiate fra tutte le coppie di GT (IC bootstrap,
     P(diff <= 0), p a segni ribaltati); sensibilita' col bootstrap incrociato partecipanti x triplette;
     maggioranza per tripletta e kappa di Fleiss come la v1.
@@ -350,7 +351,7 @@ def simulate(triplets: dict, meta: dict, out_dir: Path, args) -> None:
     """Partecipanti che seguono ``--sim-follow`` con probabilita' ``--sim-accuracy``; l'ultimo risponde a caso e
     sbaglia 2 controlli (deve essere escluso); il primo compare due volte (duplicato); un payload della v1 e uno
     su triplette con un'altra impronta devono essere ignorati. Stessa composizione della
-    sessione della pagina: 9 test per tipo, 4 controlli, 3 prove di prova."""
+    sessione della pagina: le quote per strato del meta, 4 controlli, 3 prove di prova."""
     rng = np.random.default_rng(args.seed)
     out_dir.mkdir(parents=True, exist_ok=True)
     by_type = {}
@@ -364,7 +365,8 @@ def simulate(triplets: dict, meta: dict, out_dir: Path, args) -> None:
         for tid in rng.choice(practice, 3, replace=False):
             trials.append({"triplet_id": str(tid), "kind": "practice", "shown_left": "b",
                            "choice": triplets[tid]["metrics"]["F"]["expected"], "rt_ms": 5000})
-        ids = [str(x) for ty in meta["types"] for x in rng.choice(by_type[("test", ty)], 9, replace=False)]
+        ids = [str(x) for ty, q in meta["session_quota"].items()
+               for x in rng.choice(by_type[("test", ty)], q, replace=False)]
         ids += [str(x) for x in rng.choice(controls, 4, replace=False)]
         n_ctrl = 0
         for tid in rng.permutation(ids):

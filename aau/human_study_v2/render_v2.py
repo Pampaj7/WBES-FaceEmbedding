@@ -5,8 +5,10 @@
 
 Differenze dalla v1 (``aau/baselines/render_cache.py``), che normalizzava ogni mesh con maxabs prima di una camera
 fissa e cosi' mostrava volti "alti uguali":
-  - **nessuna normalizzazione per mesh**: ogni ``original`` REMESH va nel frame di GT-F in mm con la trasformazione
-    del DOMINIO (``hs2.to_mm``: f = u R V + t, la stessa per tutti i 100 soggetti);
+  - **nessuna normalizzazione di scala per mesh**: ogni testa GNM va nel frame di GT-F in mm con la trasformazione
+    del DOMINIO (``hs2.to_mm``: f = u R V + t), poi con la sua rigida robusta verso mu (``hs2.robust_rigid``, la
+    stessa della GT F): rotazione e traslazione, mai scala. Si renderizzano i triangoli della maschera del volto
+    (``hs2.RENDER_GROUPS``), che contiene tutta la regione su cui si misurano le GT;
   - **una camera**: ortografica, ``px_per_mm`` unico, stesso centro e stessa finestra per ogni volto e ogni vista.
     La finestra si calcola UNA volta sull'unione di tutti i soggetti e di tutte le viste (``camera.json``), poi
     ogni render legge solo quella: nessuna inquadratura sul singolo volto, quindi una testa piu' grande occupa piu'
@@ -67,12 +69,13 @@ def view_coords(X: np.ndarray, pivot: np.ndarray, yaw: float) -> np.ndarray:
     return (X - pivot) @ yaw_matrix(yaw).T
 
 
-def compute_camera(meshes_mm: dict, pivot: np.ndarray, tile: int) -> dict:
-    """UNA finestra per tutti: centro e semilato dall'unione dei bbox di tutti i volti in tutte le viste."""
+def compute_camera(meshes_mm: dict, used: np.ndarray, pivot: np.ndarray, tile: int) -> dict:
+    """UNA finestra per tutti: centro e semilato dall'unione dei bbox di tutti i volti (vertici renderizzati
+    ``used``) in tutte le viste."""
     lo, hi = np.full(2, np.inf), np.full(2, -np.inf)
     for X in meshes_mm.values():
         for yaw in YAWS:
-            Y = view_coords(X, pivot, yaw)[:, :2]
+            Y = view_coords(X[used], pivot, yaw)[:, :2]
             lo, hi = np.minimum(lo, Y.min(0)), np.maximum(hi, Y.max(0))
     offset = 0.5 * (lo + hi)
     half = float(np.ceil(0.5 * (hi - lo).max() * MARGIN))      # mm, intero
@@ -101,7 +104,7 @@ def render_view(surf, Vn: np.ndarray, view) -> tuple[np.ndarray, np.ndarray]:
     tri = np.maximum(hit["tri"], 0)
     n = np.einsum("nkd,nk->nd", Vn[surf.F[tri]], hit["bary"]) @ view.R.T
     n /= np.linalg.norm(n, axis=1, keepdims=True) + 1e-12
-    n[n[:, 2] < 0] *= -1.0                                   # due facce: BFM ha le normali verso l'interno
+    n[n[:, 2] < 0] *= -1.0                                   # due facce: il verso dei triangoli non conta
     shade = ALBEDO * (AMBIENT + (1.0 - AMBIENT) * np.clip(n @ LIGHT, 0.0, 1.0))
     img = np.where(hit["hit"], shade, BACKGROUND)
     return img.reshape(res, res), hit["hit"].reshape(res, res)
@@ -144,15 +147,12 @@ def main() -> None:
         subj = subj[: a.max_subjects]
     cn, frame = hs2.canon()
     pivot = cn.W @ cn.mu                                     # punto fisso, mm, uguale per tutti
+    rob = hs2.robust_rigid(cn, subj)
     meshes, faces = {}, None
-    for s in subj:
-        V, F = hs2.load_mesh(s)
-        if faces is None:
-            faces = F
-        elif not np.array_equal(F, faces):
-            raise SystemExit(f"{s}: facce diverse dalla prima original")
-        meshes[s] = hs2.to_mm(cn, V)
-    cam = compute_camera(meshes, pivot, a.tile)
+    for k, s in enumerate(subj):
+        V, faces = hs2.load_mesh(s)
+        meshes[s] = hs2.apply_rigid(hs2.to_mm(cn, V), rob["R"][k], rob["t"][k])
+    cam = compute_camera(meshes, np.unique(faces), pivot, a.tile)
     cam["frame"] = frame
     hs2.RENDER_DIR.mkdir(parents=True, exist_ok=True)
     hs2.write_json(hs2.RENDER_DIR / "camera.json", cam)
@@ -160,17 +160,18 @@ def main() -> None:
           f"{len(subj)} soggetti, frame {frame['source']}", flush=True)
 
     views = [make_view(cam, y) for y in YAWS]
+    used = np.unique(faces)
     rows = []
     for k, s in enumerate(subj):
         X = meshes[s]
-        surf = Surface(X, faces)
+        surf = Surface(X, faces)          # i vertici fuori dalla maschera non hanno triangoli: non si vedono
         Vn = vertex_normals(X, faces)
         tiles = []
         for name, yaw, view in zip(VIEW_NAMES, YAWS, views):
             img, mask = render_view(surf, Vn, view)
             tiles.append(downsample(img, cam["ssaa"]))
             w_px, h_px = silhouette_extent(mask, cam["ssaa"])
-            Y = view_coords(X, pivot, yaw)
+            Y = view_coords(X[used], pivot, yaw)
             w_mm, h_mm = np.ptp(Y[:, 0]), np.ptp(Y[:, 1])
             rows.append({"subject": s, "view": name, "sil_w_px": w_px, "sil_h_px": h_px, "mesh_w_mm": w_mm,
                          "mesh_h_mm": h_mm, "err_w_px": w_px - w_mm * cam["px_per_mm"],

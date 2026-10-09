@@ -192,9 +192,9 @@ window.WBES_FORM = {
      no photograph of anyone is used.</p>
   <h2>What you will do</h2>
   <p>After <span id="hs-consent-np">3</span> practice screens you will see
-     <span id="hs-consent-n">40</span> screens. Each shows one reference face in the middle
+     <span id="hs-consent-n">64</span> screens. Each shows one reference face in the middle
      and two other faces on its left and right. You pick the one that looks more similar to
-     the reference. It takes about <b>10 to 15 minutes</b>.</p>
+     the reference. It takes about <b>10 minutes</b>.</p>
   <h2>What is recorded</h2>
   <p>Only your choices, how long each one took and which browser you used. <b>No personal
      data</b>: no name, no e-mail, no IP address, no cookie. Your answers are stored under a
@@ -228,7 +228,7 @@ window.WBES_FORM = {
       same grey material, the same lighting and the same camera, at the same scale, with no
       hair, skin tone or texture.</li>
     <li>Go with your first impression. There is no right answer and no time limit, but
-      about 10 to 15 seconds per screen is the right pace.</li>
+      about 5 to 10 seconds per screen is the right pace.</li>
     <li>You cannot go back to a previous screen.</li>
   </ul>
   <p class="muted">The first <span id="hs-instr-np">3</span> screens are practice. Some
@@ -239,7 +239,7 @@ window.WBES_FORM = {
 
 <section id="hs-screen-ready" hidden>
   <h1>Practice done</h1>
-  <p>The study starts now: <span id="hs-ready-n">40</span> screens, same task.</p>
+  <p>The study starts now: <span id="hs-ready-n">64</span> screens, same task.</p>
   <p class="muted">Ignore light and shadows: look at the shape.</p>
   <button id="hs-ready-next" class="primary">Start the study</button>
 </section>
@@ -253,7 +253,7 @@ window.WBES_FORM = {
 <section id="hs-screen-trial" hidden>
   <div class="practice-banner" id="hs-practice-banner" hidden>Practice</div>
   <div class="bar"><div id="hs-trial-bar"></div></div>
-  <div class="counter" id="hs-trial-counter">1 / 40</div>
+  <div class="counter" id="hs-trial-counter">1 / 64</div>
   <div class="board">
     <button class="option" id="hs-opt-left"><span class="tag">1 &mdash; left</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-left" alt="candidate 1"></span></button>
     <div class="reference"><span class="tag">Reference</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-a" alt="reference face"></span></div>
@@ -305,10 +305,11 @@ window.WBES_FORM = {
 const DATA = window.WBES_TRIPLETS || null;
 const FORM = window.WBES_FORM || {};
 
-// Quante prove vede un partecipante: 3 di prova, poi 36 test (9 per tipo di disaccordo) +
-// 4 controlli mescolati = 40.
+// Quante prove vede un partecipante: 3 di prova, poi i test con le quote per strato di
+// triplets.js (meta.session_quota: 36 F_vs_S + 24 S_vs_maxabs = 60) + 4 controlli = 64.
 const N_PRACTICE = 3;
-const N_TEST = 36;
+const QUOTA = (DATA && DATA.meta && DATA.meta.session_quota) || {};
+const N_TEST = Object.values(QUOTA).reduce((s, q) => s + q, 0);
 const N_CONTROL = 4;
 const ITI_MS = 300;           // schermo vuoto fra una risposta e la prova dopo
 const SEND_TIMEOUT_MS = 20000;
@@ -353,25 +354,14 @@ function shuffled(items, rand) {
 
 /* --- costruzione della sessione ------------------------------------------------- */
 
-// I test si pescano a giro fra i tipi di disaccordo, cosi' ogni partecipante li copre
-// tutti (9 per tipo con 4 tipi) invece di prendersene molti dello stesso tipo per caso.
-function drawTests(triplets, n, rand) {
-  const byType = new Map();
-  for (const t of triplets) {
-    if (t.kind !== "test") continue;
-    if (!byType.has(t.disagreement_type)) byType.set(t.disagreement_type, []);
-    byType.get(t.disagreement_type).push(t);
-  }
-  const queues = shuffled([...byType.keys()], rand).map((k) => shuffled(byType.get(k), rand));
+// Ogni strato contribuisce la sua quota fissa (meta.session_quota), cosi' ogni
+// partecipante vede lo stesso numero di prove per strato; dentro lo strato le triplette
+// si pescano a caso senza ripetizioni, poi tutto si mescola.
+function drawTests(triplets, quota, rand) {
   const picked = [];
-  let round = 0;
-  while (picked.length < n) {
-    let progressed = false;
-    for (const q of queues) {
-      if (round < q.length && picked.length < n) { picked.push(q[round]); progressed = true; }
-    }
-    if (!progressed) break;   // pool esaurito: meno di n triplette disponibili
-    round++;
+  for (const type of Object.keys(quota).sort()) {
+    const pool = triplets.filter((t) => t.kind === "test" && t.disagreement_type === type);
+    picked.push(...shuffled(pool, rand).slice(0, quota[type]));
   }
   return shuffled(picked, rand);
 }
@@ -397,7 +387,7 @@ function buildSession(data, seed) {
   const rand = mulberry32(seed);
   const practice = shuffled(data.triplets.filter((t) => t.kind === "practice"), rand)
       .slice(0, N_PRACTICE);
-  const tests = drawTests(data.triplets, N_TEST, rand);
+  const tests = drawTests(data.triplets, QUOTA, rand);
   const controls = shuffled(data.triplets.filter((t) => t.kind === "control"), rand)
       .slice(0, N_CONTROL);
   const order = practice.concat(interleave(tests, controls, rand));
@@ -691,7 +681,7 @@ function resume(found) {
 }
 
 function boot(data) {
-  if (!data || !Array.isArray(data.triplets) || data.triplets.length === 0) {
+  if (!data || !Array.isArray(data.triplets) || data.triplets.length === 0 || N_TEST === 0) {
     show("hs-screen-error");
     return;
   }
