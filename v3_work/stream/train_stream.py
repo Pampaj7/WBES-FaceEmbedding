@@ -72,6 +72,7 @@ def build_parser():
                    help="anelli in piu', separati da virgola (es. un anello condiviso su CephFS di produttori solo CPU): "
                         "letti da tutti i rank, shard divisi col rank globale")
     g.add_argument("--stream-extra-refresh-s", type=float, default=10.0, help="rilettura delle directory in piu'")
+    g.add_argument("--stream-extra-mirror-threads", type=int, default=1, help="copie parallele per rank")
     g.add_argument("--stream-extra-mirror", default="",
                    help="directory locale (su /tmp) dove un thread per rank copia gli shard degli anelli in piu' prima "
                         "dell'uso (consigliato con CephFS: letto direttamente costa ~2 s per passo)")
@@ -117,7 +118,8 @@ def consumer():
             shard_rank=sr, shard_world=sw, extra_refresh_s=args.stream_extra_refresh_s,
             extra_rings=[(r, rank, world) for r in args.stream_extra.split(",") if r],
             domains=sources.parse_sources(args.stream_sources) if args.stream_sources else None,
-            log_views=args.stream_log_views, extra_mirror=args.stream_extra_mirror)
+            log_views=args.stream_log_views, extra_mirror=args.stream_extra_mirror,
+            mirror_threads=args.stream_extra_mirror_threads)
         STREAM["log"] = STREAM["run_dir"] / f"stream_stats_rank{rank}.jsonl"
         unit = {"unified": "mm (unificata)", "fr": "mm (GT-FR di E12)", "sr": "d_P (GT-SR di E12)"}[args.stream_gt]
         tv.log0(f"[stream] anello {args.stream}: rank {rank}/{world} (shard {sr} di {sw}), riuso <= "
@@ -132,8 +134,80 @@ def consumer():
 def stream_epoch_plans(args, data, epoch, S, steps, B, drawcfg, seed_r):
     from consumer import StreamPlans
     rng = np.random.default_rng(int(seed_r) + 977 + int(epoch))
-    return StreamPlans(consumer(), steps, B, int(args.max_meshes_per_subject_train), drawcfg, rng, epoch,
-                       STREAM["log"])
+    plans = StreamPlans(consumer(), steps, B, int(args.max_meshes_per_subject_train), drawcfg, rng, epoch,
+                        STREAM["log"])
+    return ProfiledPlans(plans) if PROF else plans
+
+
+# --- profilo del passo (WBES_STREAM_PROFILE=1): tempi per fase, con sincronizzazione CUDA --------------------
+
+PROF: dict = {}
+
+
+class ProfiledPlans:
+    """StreamPlans con il tempo speso a estrarre il piano successivo (attesa dei dati nel thread principale)."""
+
+    def __init__(self, plans) -> None:
+        self.plans = plans
+
+    def __len__(self) -> int:
+        return len(self.plans)
+
+    def __iter__(self):
+        it = iter(self.plans)
+        while True:
+            t0 = time.perf_counter()
+            try:
+                plan = next(it)
+            except StopIteration:
+                return
+            PROF["cur"]["data"] += time.perf_counter() - t0
+            yield plan
+
+
+def install_profile(run_dir: Path, rank: int) -> None:
+    """Tempi per passo in <run_dir>/profile_rank<r>.csv: piano (data), forward (con il servizio delle viste:
+    serve = attesa dei campioni preparati in thread), backward (con la all_reduce di DDP e l'attesa del rank piu'
+    lento), ottimizzatore, resto (loss, EMA, log, checkpoint), totale fra due passi."""
+    import torch
+    sync = torch.cuda.synchronize if torch.cuda.is_available() else (lambda: None)
+    PROF.update(cur={k: 0.0 for k in ("data", "fwd", "serve", "bwd", "opt")}, t_last=None, step=0,
+                path=run_dir / f"profile_rank{rank}.csv")
+    with open(PROF["path"], "w") as fh:
+        fh.write("step,data,fwd,serve,bwd,opt,rest,total\n")
+
+    def timed(key, fn):
+        def wrap(*a, **kw):
+            sync()
+            t0 = time.perf_counter()
+            out = fn(*a, **kw)
+            sync()
+            PROF["cur"][key] += time.perf_counter() - t0
+            return out
+        return wrap
+
+    torch.Tensor.backward = timed("bwd", torch.Tensor.backward)
+    step0 = torch.optim.Adam.step
+
+    def opt_step(self, *a, **kw):
+        sync()
+        t0 = time.perf_counter()
+        out = step0(self, *a, **kw)
+        sync()
+        now = time.perf_counter()
+        c = PROF["cur"]
+        c["opt"] += now - t0
+        if PROF["t_last"] is not None:
+            total = now - PROF["t_last"]
+            rest = total - sum(c[k] for k in ("data", "fwd", "bwd", "opt"))
+            with open(PROF["path"], "a") as fh:
+                fh.write(f"{PROF['step']},{c['data']:.4f},{c['fwd']:.4f},{c['serve']:.4f},{c['bwd']:.4f},"
+                         f"{c['opt']:.4f},{rest:.4f},{total:.4f}\n")
+        PROF["t_last"], PROF["step"] = now, PROF["step"] + 1
+        PROF["cur"] = {k: 0.0 for k in c}
+        return out
+
+    torch.optim.Adam.step = opt_step
 
 
 class StreamLogCS:
@@ -193,6 +267,18 @@ def install() -> None:
         def bind(self, dataset, perturbation) -> None:
             super().bind(consumer(), perturbation)
 
+        def forward(self, *a, **kw):
+            if not PROF:
+                return super().forward(*a, **kw)
+            import torch
+            torch.cuda.synchronize()
+            t0, s0 = time.perf_counter(), consumer().c["serve_s"]
+            out = super().forward(*a, **kw)
+            torch.cuda.synchronize()
+            PROF["cur"]["fwd"] += time.perf_counter() - t0
+            PROF["cur"]["serve"] += consumer().c["serve_s"] - s0
+            return out
+
     def stream_step_batch(**kw):
         kw["gt"], kw["name_to_idx"] = STREAM["gt"], STREAM["gt"].name_to_idx
         return losses_v3.StepBatch(**kw)
@@ -235,6 +321,10 @@ def main() -> None:
         # la run dir PRIMA che run() riscriva epochs e save_every negli args (l'hash li contiene)
         STREAM["run_dir"] = tv.make_run_dir(args)
         install()
+        if os.environ.get("WBES_STREAM_PROFILE", "0") == "1":
+            from common import dist_info
+            STREAM["run_dir"].mkdir(parents=True, exist_ok=True)
+            install_profile(STREAM["run_dir"], dist_info()[0])
     try:
         tv.run(args)
     finally:

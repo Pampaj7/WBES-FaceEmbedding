@@ -24,6 +24,9 @@ Embedding di un passo (``--forward``):
     vuole una base per mesh, gira per bucket di taglia (max/min <= ``bucket_ratio``) con padding a zero
     (righe di evecs e massa nulle: il padding non contribuisce, vedi v2_work/fastio/batched.py). Stessa
     matematica del sequenziale; dropout e rumore latente estraggono numeri casuali in un altro ordine.
+  ``groups`` vale anche per le teste fattorizzate (factorized_v3.py, aggiunto il 10 ottobre): s dalla testa
+  della taglia sulle stesse feature aggregate; factorized2 normalizza ogni mesh prima del gruppo
+  (``group_normalize``) e somma log(R L0) a s dopo. Scarti contro il sequenziale: rumore numerico (accettato).
 """
 from __future__ import annotations
 
@@ -189,7 +192,9 @@ class StepEmbedder(nn.Module):
                   "evals": s["evals"].to(device), "evecs": s["evecs"].to(device),
                   "gradX": s["gradX"], "gradY": s["gradY"]}
             aw = getattr(self.model, "area_weights", None)
-            if aw is not None:   # pesi del pooling per area, come in EncoderV3.forward
+            if hasattr(self.model, "group_normalize"):     # factorized2: ingresso normalizzato per mesh, come forward
+                it = self.model.group_normalize(it, s["faces"].to(device))
+            elif aw is not None:   # pesi del pooling per area, come in EncoderV3.forward
                 with torch.no_grad():
                     it["pool_w"] = area_v3.pool_weights(aw, it["verts"], s["faces"].to(device) if aw == "smooth"
                                                         else None, it["mass"], it["evecs"])
@@ -244,15 +249,21 @@ def _pool_masked(model, x: torch.Tensor, mask: torch.Tensor, mass: torch.Tensor)
         w = mass.clamp_min(0) * mask
         w = (w / w.sum(dim=-1, keepdim=True).clamp_min(1e-30)).to(x.dtype)
         z_mean = (w.unsqueeze(-1) * x).sum(dim=-2)
+    size_head = getattr(model, "size_head", None)      # testa fattorizzata: [s, u] dalle stesse feature
+    full = size_head is not None and getattr(model, "out_mode", "u") != "u"
     if pooling in ("meanmax", "area_meanmax"):
-        if getattr(model, "pool_mode", "meanmax") != "meanmax":
+        if getattr(model, "pool_mode", "meanmax") != "meanmax" and size_head is None:
             return model.pool_proj(z_mean)
         z_max = x.masked_fill(~m, float("-inf")).max(dim=-2).values
-        return model.pool_proj(torch.cat([z_mean, z_max], dim=-1))
+        feat = torch.cat([z_mean, z_max], dim=-1)
+        u = model.pool_proj(feat)
+        return torch.cat([size_head(feat), u], dim=-1) if full else u
     logits = (model.attn(x) + torch.log(w.clamp_min(1e-30)).unsqueeze(-1)).masked_fill(~m, float("-inf"))
     alpha = torch.softmax(logits, dim=-2)                                   # [B, N, H]
     z_att = torch.einsum("bnh,bnd->bhd", alpha, x).reshape(x.shape[0], -1)  # [B, H*D]
-    return model.pool_proj(torch.cat([z_mean, z_att], dim=-1))
+    feat = torch.cat([z_mean, z_att], dim=-1)
+    u = model.pool_proj(feat)
+    return torch.cat([size_head(feat), u], dim=-1) if full else u
 
 
 def embed_groups(model, items: Sequence[Dict], device, add_noise: bool, pad_slack: float = 0.05) -> torch.Tensor:
@@ -274,7 +285,7 @@ def embed_groups(model, items: Sequence[Dict], device, add_noise: bool, pad_slac
         poolw = torch.zeros(B, N, device=device)
         for b, i in enumerate(g):
             n = ns[i]
-            verts[b, :n] = items[i]["verts"]
+            verts[b, :n] = items[i]["verts"].to(verts.dtype)
             mass[b, :n] = items[i]["mass"].reshape(-1)
             poolw[b, :n] = items[i].get("pool_w", items[i]["mass"]).reshape(-1)
             evecs[b, :n] = items[i]["evecs"]
@@ -286,7 +297,11 @@ def embed_groups(model, items: Sequence[Dict], device, add_noise: bool, pad_slac
         x = model.vertex_bottleneck(x)
         if add_noise:
             x = x + 0.01 * torch.randn_like(x)
-        outs.append(_pool_masked(model, x, mask, poolw))
+        out = _pool_masked(model, x, mask, poolw)
+        if "s_shift" in items[g[0]] and getattr(model, "out_mode", "u") != "u":     # factorized2: s += log(R L0)
+            shift = torch.as_tensor([float(items[i]["s_shift"]) for i in g], dtype=out.dtype, device=out.device)
+            out = torch.cat([out[:, :1] + shift.unsqueeze(1), out[:, 1:]], dim=1)
+        outs.append(out)
         order += g
     z = torch.cat(outs, dim=0)
     inv = torch.empty(len(order), dtype=torch.long, device=z.device)

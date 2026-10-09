@@ -128,7 +128,7 @@ class StreamConsumer:
                  gt: StreamGT | None = None, gt_kind: str = "unified", global_unit_mm: float = 100.0,
                  global_ops: str = "areanorm", shard_rank: int | None = None, shard_world: int | None = None,
                  extra_rings=(), extra_refresh_s: float = 10.0, domains=None, log_views: bool = False,
-                 extra_mirror: str | Path = "") -> None:
+                 extra_mirror: str | Path = "", mirror_threads: int = 1) -> None:
         self.ring = Ring(root)
         self.extra = [(Ring(r), int(er), int(ew)) for r, er, ew in extra_rings]
         self.extra_refresh_s = float(extra_refresh_s)
@@ -142,6 +142,7 @@ class StreamConsumer:
         if extra_mirror and self.extra:
             self.mirror = [Ring(Path(extra_mirror) / f"rank{self.rank:03d}_x{i}") for i in range(1, len(self.extra) + 1)]
             self.mstat = {"copied": 0, "bytes": 0, "seconds": 0.0, "missed": 0, "removed": 0}
+            self.mirror_threads = max(1, int(mirror_threads))
             threading.Thread(target=self._mirror_loop, daemon=True).start()
         self.shard_rank = self.rank if shard_rank is None else int(shard_rank)
         self.shard_world = self.world if shard_world is None else int(shard_world)
@@ -222,10 +223,12 @@ class StreamConsumer:
                     continue
                 have = dst.seqs()
                 todo = sorted(set(want) - set(have), reverse=True)
-                busy |= len(todo) > 16
-                for seq in todo[:16]:
+                n = 16 * self.mirror_threads
+                busy |= len(todo) > n
+
+                def copy(seq, dst=dst, want=want) -> None:
                     t0 = time.time()
-                    tmp = dst.tmp / f"{seq:010d}.{os.getpid()}"
+                    tmp = dst.tmp / f"{seq:010d}.{os.getpid()}.{threading.get_ident()}"
                     out = dst.shards / f"{seq:010d}.shard"
                     try:
                         shutil.copyfile(want[seq], tmp)
@@ -233,10 +236,17 @@ class StreamConsumer:
                     except OSError:                    # uscito dall'anello condiviso prima della copia
                         self.mstat["missed"] += 1
                         tmp.unlink(missing_ok=True)
-                        continue
+                        return
                     self.mstat["copied"] += 1
                     self.mstat["bytes"] += out.stat().st_size
                     self.mstat["seconds"] += time.time() - t0
+
+                if self.mirror_threads == 1:
+                    for seq in todo[:n]:
+                        copy(seq)
+                else:                                  # CephFS scala coi flussi paralleli (bench_ceph.py)
+                    with ThreadPoolExecutor(self.mirror_threads) as ex:
+                        list(ex.map(copy, todo[:n]))
                 for seq in set(have) - set(want):
                     try:
                         have[seq].unlink(missing_ok=True)

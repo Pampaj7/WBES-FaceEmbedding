@@ -47,7 +47,7 @@ def dtype_of(field: str, v: dict):
 
 
 class Ring:
-    def __init__(self, root: str | Path, budget_bytes: int = 0, evict_every: int = 1) -> None:
+    def __init__(self, root: str | Path, budget_bytes: int = 0, evict_every: int = 1, by_count: bool = False) -> None:
         self.root = Path(root)
         self.shards = self.root / "shards"
         self.tmp = self.root / "tmp"
@@ -56,6 +56,11 @@ class Ring:
         # scritture di questo processo (lo sforamento resta di qualche shard per produttore)
         self.evict_every = max(1, int(evict_every))
         self._writes = 0
+        # by_count (anello condiviso da centinaia di produttori): budget come NUMERO di shard = budget / dimensione
+        # media degli shard scritti da questo processo, contato coi soli nomi (niente stat): si applica a ogni
+        # scrittura e lo sforamento resta di pochi shard (con evict_every su CephFS arrivava a ~7 GiB su 40)
+        self.by_count = bool(by_count)
+        self._avg = 0.0
         for d in (self.shards, self.tmp, self.root / "stats"):
             d.mkdir(parents=True, exist_ok=True)
 
@@ -137,6 +142,7 @@ class Ring:
             nbytes = data_start + cur
         os.replace(tmp, self.shards / f"{seq:010d}.shard")
         self._writes += 1
+        self._avg = nbytes if self._avg == 0 else 0.9 * self._avg + 0.1 * nbytes
         if self._writes % self.evict_every == 0:
             self.evict()
         return seq, nbytes
@@ -160,6 +166,17 @@ class Ring:
         """Cancella gli shard piu' vecchi oltre il budget (ne resta sempre almeno uno). Shard cancellati."""
         if self.budget <= 0:
             return 0
+        if self.by_count and self._avg > 0:
+            names = sorted(self.seqs().items())
+            extra = len(names) - max(1, int(self.budget / self._avg))
+            n = 0
+            for _, p in names[:max(0, min(extra, len(names) - 1))]:
+                try:
+                    p.unlink()
+                    n += 1
+                except FileNotFoundError:
+                    pass
+            return n
         lst = self.listing()
         total = sum(b for _, b, _ in lst)
         n = 0

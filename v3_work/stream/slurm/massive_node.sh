@@ -23,7 +23,7 @@ S="${STREAM_SPE:-200}"
 R="${STREAM_REUSE:-4}"
 EF="${STREAM_EXPR_FRAC:-0.5}"
 MMAUG="${STREAM_MM_AUG-hybrid=0.3,expr_transfer=0.15,rbf=0.15}"    # vuoto = solo identita' pure
-CPR="${STREAM_TRAIN_CPUS_PER_RANK:-4}"
+CPR="${STREAM_TRAIN_CPUS_PER_RANK:-8}"     # ottimo misurato il 10 ottobre: groups 8 / 12 / 16 CPU = 108 / 112 / 110 mesh/s
 RGB=$(( ${STREAM_RING_GB_PER_GPU:-10} * G ))
 SEED="${STREAM_SEED:-1234}"
 E="$STREAM_OUT/node$NODE"
@@ -110,13 +110,13 @@ case "$ARM" in
   *) log "ERRORE: STREAM_ARM=$ARM"; exit 2 ;;
 esac
 EXTRA=()
-[[ -n "${STREAM_EXTRA:-}" ]] && EXTRA+=(--stream-extra "$STREAM_EXTRA" --stream-extra-mirror "$JOBTMP/mirror")
+[[ -n "${STREAM_EXTRA:-}" ]] && EXTRA+=(--stream-extra "$STREAM_EXTRA" --stream-extra-mirror "$JOBTMP/mirror" --stream-extra-mirror-threads "${STREAM_MIRROR_THREADS:-2}")
 EP=$(( (T + S - 1) / S ))
 CMD=(v3_work/stream/train_stream.py --stream "$RING" --stream-reuse "$R" --stream-sources "$SOURCES" --stream-log-views
   --stream-wait-s 1800 --total-steps "$T" --steps-per-epoch "$S" --epochs "$EP"
   --data_dir datasets/REMESH/npz_data_topo_500_withops_areanorm --no-cache
   "${RECIPE_V1[@]}" --batch_subjects 16 --max_meshes_per_subject_train 4 --max_subjects_eval_train 8
-  --forward sequential --fast-data --ema-decay 0.999 --train-threads "$CPR"
+  --forward "${STREAM_FORWARD:-groups}" --fast-data --ema-decay 0.999 --train-threads "$CPR"
   --eval_every "${STREAM_EVAL_EVERY:-$(( EP > 10 ? EP / 10 : 1 ))}" --save_every "${STREAM_SAVE_EVERY:-$EP}"
   --seed "$SEED" --runs_root "$STREAM_OUT/runs" --log-every 50 --ckpt-minutes "${STREAM_CKPT_MIN:-20}"
   "${ARMF[@]}" "${EXTRA[@]}")

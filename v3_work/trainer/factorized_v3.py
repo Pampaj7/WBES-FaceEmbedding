@@ -86,6 +86,23 @@ class FactorizedNormEncoderV3(FactorizedEncoderV3):
         with torch.no_grad():
             self.size_head[-1].bias.zero_()
 
+    def group_normalize(self, it: dict, faces: torch.Tensor) -> dict:
+        """Per ``--forward groups`` (model_v3.embed_groups): la normalizzazione di ``forward`` su una mesh, gia'
+        perturbata: verts -> Xn, pesi del pooling, ``s_shift`` = log(R L0) da sommare a s dopo il pooling."""
+        import area_v3
+        V = it["verts"]
+        with torch.no_grad():
+            w = area_v3.pool_weights(self.area_weights, V.detach().double(), faces, it["mass"].double(),
+                                     it["evecs"].double())
+            wn = w / w.sum()
+            c = (wn.unsqueeze(1) * V.double()).sum(0, keepdim=True)
+            R = torch.sqrt((wn * ((V.double() - c) ** 2).sum(1)).sum())
+        out = dict(it)
+        out["verts"] = ((V.double() - c) / R).to(V.dtype)
+        out["pool_w"] = w.to(V.dtype)
+        out["s_shift"] = float(torch.log(R * self.unit_mm))
+        return out
+
     def forward(self, V, mass, L, evals, evecs, faces, gradX, gradY, return_per_vertex: bool = False,
                 add_noise: bool = True):
         import area_v3

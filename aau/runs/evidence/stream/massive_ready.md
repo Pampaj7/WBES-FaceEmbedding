@@ -261,3 +261,89 @@ pin_memory e piu' consumer non servono: l'attesa dei dati e' gia' ~0.
 - **Pesi di dominio:** FaMoS al 20% con sole 80 persone.
 - **Pulizia:** l'anello `datasets/STREAM/shared_ring` va cancellato a mano a fine run. Quello delle prove e'
   gia' cancellato.
+
+## 14. Massima velocita' (10 ottobre, decisione dell'utente: scarti numerici di groups accettati)
+
+### Forward a gruppi per factorized e factorized2
+
+`model_v3._pool_masked` calcola anche la testa della taglia; `factorized_v3.group_normalize` fa la normalizzazione
+per mesh di factorized2; `train_v3.check_args` ammette groups (packed resta vietato). I default sono invariati.
+
+**Equivalenza** (`v3_work/trainer/tests/test_groups_factorized.py`, `trainer_v3/groups_factorized.json`, 64 viste vere):
+
+| | Z relativo | s (max) | gradienti relativi (max) |
+|---|---|---|---|
+| fp32 | 6-7e-8 | 0 e 5e-7 | 1.4-3.1e-4 |
+| TF32 | 8-9e-5 | | |
+
+**Mesh/s per GPU**, solo forward + backward: sequenziale 84-86, groups 126-144.
+
+### CPU per rank
+
+Nel trainer completo, factorized con groups, mediane. L'ottimo e' 8 CPU per rank:
+
+| CPU per rank | mesh/s per GPU |
+|---|---|
+| 8 | 108 (GPU 68%) |
+| 12 | 112 |
+| 16 | 110 |
+
+- factorized2 con groups e 8 CPU: 106 mesh/s;
+- nuovi default di massive.sbatch: `--cpus-per-gpu=20`, 8 CPU per rank, `--forward groups`, 2 copie del mirror per
+  rank. Su un nodo da 6 GPU restano 72 CPU ai produttori.
+
+### bf16 sulle MLP
+
+Misurato con MiniMLP e SpatialGradientFeatures in autocast: groups 144 -> 147 mesh/s (+2%), sequenziale 86 -> 77.
+L'autocast di tutto il forward fallisce (spmm sparso). NON adottato.
+
+### Flotta di produttori (solo CPU, `--gres=NONE`: non conta nel tetto delle 12 GPU, QoS normal = solo gres/gpu)
+
+Viste/s per nodo con tutte le CPU del job:
+
+| nodo (CPU) | k64 | k128 |
+|---|---|---|
+| a768-l40s (EPYC 9354, 64) | 93.5 | 43.6 |
+| a512-l4-06 (EPYC 7543, 96) | 69.9 | 27.8 |
+| a256-a40 (EPYC 7302, 44) | 39.8 | 14.6 |
+| i256-a40 (Xeon 5317, 48; partizione aicentre, solo `--qos=unprivileged`) | 33.1 | 13.9 |
+
+Rapporto k64/k128 2.1-2.7. Partizione `cpu`: nodo in fail. Nodi A10 e T4: memoria piena (229-243 GB su 244).
+nv-ai-04: 158 CPU libere ma 965 GB di memoria su 980 occupati dai job A100.
+
+**Prova della flotta** (k64, tre job, 204 CPU, 15 min):
+- **produzione:** 206 viste/s (38.7 + 76.0 + 91.3), nessun fallimento, ~515 MB/s scritti su CephFS;
+- **lettura:** un nodo simulato (6 rank su 12, 2 copie per rank) legge 263 MB/s, cioe' 100 viste/s, la sua meta';
+  persi 27 shard su 5080.
+- Il budget dell'anello sforava di ~7 GiB su 40 con `--evict-every 8`. Ora c'e' `--evict-by-count`, il budget
+  contato in numero di shard, attivo negli extra.
+
+### Configurazione consigliata
+
+- **Training:** 12 L40S = 6 + 6 nodi, `--cpus-per-gpu=20`, groups, 8 CPU per rank, mirror a 2-4 copie, k da
+  decidere.
+- **Flotta:** a256-a40-04..07, a512-l4-06, a768-l40s-01/03 (le CPU libere), i256-a40-01/02 (unprivileged), e
+  nv-ai-04 se la memoria si libera. Tutti con `extra_producers.sbatch`, anello <= 150 GiB.
+
+**Stima per 48 h:**
+
+| | k64 | k128 |
+|---|---|---|
+| consumo | ~1300 mesh/s (12 x 108), ~293k passi | stesso |
+| viste fresche locali | ~160/s | ~86/s |
+| flotta (misurata 206 su 204 CPU, ~450 con tutte le CPU libere di oggi) | ~450/s | ~190/s |
+| tetto di lettura CephFS (stima: ~600 MB/s per nodo con 16 flussi) | ~480 viste/s | |
+| **totale** | **~610 viste/s** | **~280 viste/s** |
+| riuso | ~2.1 | ~4.7 |
+| viste uniche | ~105M | ~48M |
+| identita' | ~26M | ~12M |
+
+La flotta dipende da cosa e' libero, e le CPU unprivileged sono prelazionabili: e' una stima.
+
+### k64 contro k128
+
+Ablazione C3F ancora in corso:
+- k128 (1065293): epoca ~30 di 72, ~3.5 h al termine;
+- k64 (1065295): in coda sulle A100 (Priority).
+
+Regola: k64 se le metriche del protocollo non peggiorano oltre il rumore.

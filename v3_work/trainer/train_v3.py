@@ -17,7 +17,7 @@ Flag v3 (default = v2):
   --input-norm maxabs|sqrt_area|global  frame dei vertici prima del rumore (data_v3.reframe_sqrt_area; global:
                                    mm nel frame canonico / --global-unit-mm, global_v3.py, con --scale-table)
   --head embed|factorized          z = (s, u): log centroid size + forma (factorized_v3.py, --size-table,
-                                   --lambda-size, --scale-aug lo,hi)
+                                   --lambda-size, --scale-aug lo,hi); --forward sequential o groups
   --width / --n_blocks             taglia (flag v1)
   --ema-decay D                    EMA dei pesi (0 = spenta); i checkpoint *_ema.pth hanno i pesi EMA
   --compact-cache                  cache senza perdita: int32 per facce e indici, niente L (-~28% RAM)
@@ -258,8 +258,8 @@ def check_args(a: argparse.Namespace) -> None:
     if a.head in ("factorized", "factorized2"):
         if not a.size_table:
             raise SystemExit("--head factorized richiede --size-table")
-        if a.forward != "sequential":
-            raise SystemExit("--head factorized: solo --forward sequential (packed e groups chiamano pool_proj)")
+        if a.forward == "packed":     # groups: model_v3._pool_masked e factorized_v3.group_normalize (10 ottobre)
+            raise SystemExit("--head factorized: --forward sequential o groups (packed chiama solo pool_proj)")
         if a.pooling == "meanmax":
             raise SystemExit("--head factorized richiede un pooling per area (--area on|robust)")
         import factorized_v3

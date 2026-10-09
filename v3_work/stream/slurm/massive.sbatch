@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=l40s:1
-#SBATCH --cpus-per-gpu=14
+#SBATCH --cpus-per-gpu=20
 #SBATCH --mem-per-gpu=80G
 #SBATCH --time=02:00:00
 #SBATCH --requeue
@@ -29,9 +29,11 @@
 # Variabili (default = la prova breve):
 #   STREAM_ARM      factorized | factorized2 | ctrlfr (testa standard su GT-FR) | unified (la GT unificata di prima)
 #   STREAM_SOURCES  massive (bfm2019, ict, gnm, flame2023, famos) | open_core (gnm, ict, flame2023) | lista
-#   STREAM_STEPS, STREAM_SPE (passi per epoca), STREAM_K (64|128), STREAM_REUSE, STREAM_EXPR_FRAC (0.5)
+#   STREAM_STEPS, STREAM_SPE (passi per epoca), STREAM_K (64|128), STREAM_REUSE, STREAM_EXPR_FRAC (0.5),
+#   STREAM_FORWARD (groups; sequential = il percorso v2), WBES_STREAM_PROFILE=1 (tempi per fase)
 #   STREAM_MM_AUG   probabilita' dei moltiplicatori (default hybrid=0.3,expr_transfer=0.15,rbf=0.15; vuoto = puri)
-#   STREAM_RING_GB_PER_GPU (10), STREAM_TRAIN_CPUS_PER_RANK (4), STREAM_EXTRA (anelli condivisi, es. CephFS)
+#   STREAM_RING_GB_PER_GPU (10), STREAM_TRAIN_CPUS_PER_RANK (8), STREAM_EXTRA (anelli condivisi, es. CephFS),
+#   STREAM_MIRROR_THREADS (2)
 #   STREAM_OUT (aau/runs/evidence/stream/massive_<job>), STREAM_SEED (1234), STREAM_TEST_CRASH (passo, solo test)
 set -euo pipefail
 source "${WBES_ROOT:-$PWD}/aau/env.sh"

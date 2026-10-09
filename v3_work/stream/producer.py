@@ -71,6 +71,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--ring-gb", type=float, default=32.0, help="budget dell'anello in GiB (FIFO)")
     p.add_argument("--evict-every", type=int, default=1,
                    help="budget applicato ogni N scritture del processo (anello condiviso su CephFS: es. 8)")
+    p.add_argument("--evict-by-count", action="store_true",
+                   help="budget come numero di shard (dimensione media), contato coi soli nomi: per l'anello condiviso")
     p.add_argument("--n-proc", type=int, default=8)
     p.add_argument("--k-eig", type=int, default=128, choices=[64, 128])
     p.add_argument("--evecs-dtype", default="fp16", choices=["fp16", "fp32"])
@@ -333,7 +335,7 @@ def worker(wid: int, cfg, srcs: dict, uni: S.Unified, stop_at: float, tg=None, a
     VW.install_grad_vec()
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
     rng = np.random.default_rng(np.random.SeedSequence([cfg.seed, wid]))
-    ring = Ring(cfg.ring, int(cfg.ring_gb * 2 ** 30), cfg.evict_every)
+    ring = Ring(cfg.ring, int(cfg.ring_gb * 2 ** 30), cfg.evict_every, cfg.evict_by_count)
     doms = list(cfg.probs)
     p = np.asarray([cfg.probs[d] for d in doms])
     st = {"wid": wid, "pid": os.getpid(), "t_start": time.time(), "views": 0, "groups": 0, "shards": 0, "bytes": 0,
