@@ -1,0 +1,297 @@
+% =====================================================================
+% DRAFT (10 Oct 2026) -- Section: evaluation protocol
+% Every number carries a "% fonte:" comment. Missing numbers are \todo{}.
+% Labels referenced from sec_gt.tex: sec:protocol_baselines,
+% sec:trivial_baselines, sec:protocol_human.
+% =====================================================================
+
+\section{Evaluation Protocol}
+\label{sec:protocol}
+
+The protocol below was fixed before the corresponding numbers were computed.
+Each experiment has a written protocol whose SHA-256 hash was recorded before
+the first job ran; later changes are dated amendments, also hashed before any
+new number exists.
+% fonte: aau/runs/evidence/e12/protocol.md (+ protocol.sha256, protocol_amend1.sha256); aau/runs/evidence/trainer_v3/factorized_protocol.md (+ .sha256 ed emendamenti 1-3); aau/human_study_v2/PROTOCOL.md (+ PROTOCOL.sha256)
+We release the protocols with their hashes \todo{decidere se rilasciarli nel materiale supplementare}.
+
+\subsection{Domains and Roles}
+\label{sec:protocol_domains}
+
+Table~\ref{tab:domain_roles} lists every data source and its role. Three rules
+apply. (i) Test domains are never used for training or for model selection;
+the data pipeline refuses them by construction (loading HIFI3D, FaceVerse or
+FaceScape as a training source raises an error).
+% fonte: aau/runs/evidence/stream/massive_ready.md, sez. 1 ("Domini vietati: FaceScape, FaceScape50, HIFI3D e FaceVerse sollevano RoleError")
+(ii) Hyperparameters are chosen only on the development domain, FaceScape,
+with a score declared in advance (the mean of the graded Spearman correlation
+without crop and the rank-1 accuracy with expressions); the reported
+checkpoint is the last exponential-moving-average checkpoint, with no
+selection.
+% fonte: paper/PLAN_MASSIVE.md, sez. 9 (Dev, Punteggio dev, Checkpoint finale) e sez. 14.5 (FaceScape solo dev, mai in training)
+\todo{dichiarare con quale GT si calcola il punteggio dev (FR?) per il run finale}
+(iii) We distinguish \emph{untouched} test sets from test sets that we
+inspected during development. HIFI3D and FaceVerse were evaluated repeatedly
+while the method was developed (37 configurations on HIFI3D alone) and are
+therefore reported as \emph{seen during development}; the untouched tests are
+the FaMoS test subjects, NoW and Multiface.
+% fonte: paper/PLAN_MASSIVE.md, sez. 14.5 ("HIFI3D, con 37 bracci gia' valutati, e FaceVerse sono in pratica 'visti durante lo sviluppo' e vanno dichiarati cosi'")
+One caveat applies to FaMoS: all 95 FaMoS subjects, test subjects included,
+entered the identifiability arbiter that selected the reference
+(Sect.~\ref{sec:gt_arbiter}). No model was trained or selected there, but the
+choice of FR is not independent of these 15 people.
+% fonte: aau/runs/evidence/e12/protocol.md, Emendamento 1, E2 ("Persone: tutte le 95 registrate (TRAIN + TEST)")
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Data sources and roles. Training sources follow the configuration
+of the final run \todo{confermare dopo la revisione con l'utente del run
+massivo}. ``Seen'' test sets were inspected during development.}
+\label{tab:domain_roles}
+% fonte: aau/runs/evidence/stream/massive_ready.md, sez. 1 (preset massive: bfm2019, ict, gnm, flame2023, famos 80 TRAIN); paper/PLAN_MASSIVE.md, sez. 2, 9, 14.5
+\begin{tabular}{llll}
+\toprule
+Source & Type & Units & Role \\
+\midrule
+BFM 2019~\cite{bfm2019}            & 3DMM          & mm (declared)       & training \\
+ICT-FaceKit (Light)~\cite{ict-facekit} & 3DMM      & cm (declared)       & training \\
+GNM Head~\cite{gnm}                & 3DMM          & m (declared)        & training \\
+FLAME 2023 Open~\cite{flame}       & 3DMM          & m (declared)        & training \\
+FaMoS, 80 subjects~\cite{famos}    & real, FLAME registrations & mm      & training \\
+\midrule
+FaceScape bilinear~\cite{facescape} & 3DMM from real scans & mm (declared) & development only \\
+\midrule
+HIFI3D~\cite{hifi3d}               & 3DMM          & IPD-calibrated      & test (seen) \\
+FaceVerse~\cite{faceverse}         & 3DMM, expressions & IPD-calibrated  & test (seen) \\
+FaMoS, 15 subjects~\cite{famos}    & real scans and registrations & mm   & test (untouched) \\
+NoW validation~\cite{now}          & real images, scans & mm (scans)     & test (untouched) \\
+Multiface~\cite{wuu2022multiface}  & real, tracked meshes & mm           & test (untouched) \\
+\bottomrule
+\end{tabular}
+\end{table}
+% fonte unita': aau/runs/evidence/e12/summary.md, sez. 1 (unita' dichiarate e IPD; HIFI3D 9.34 mm/unita', FaceVerse 161.8 mm/unita')
+% fonte BFM 2019 in mm: aau/runs/evidence/stream/massive_ready.md, sez. 2 ("BFM 2019: mm dichiarati")
+
+\paragraph{Splits and near-duplicates.}
+The FaMoS test subjects are subjects 079--093, the 15 people with test scans,
+fixed before use; the closest pair between FaMoS training and test subjects is
+2.17\,mm apart in the common region.
+% fonte: paper/BOARD_DIARY.md, "9 ottobre: FaMoS preparato" (split TEST = 079-093, distanza minima 2.17 mm); aau/famos/split.json
+On HIFI3D no test identity has a training neighbour closer than the closest
+pair inside the HIFI3D pool itself; GNM is, however, systematically the
+training domain closest to HIFI3D (median nearest-neighbour distance 2.73\,mm,
+against 2.79\,mm for ICT, 3.45\,mm for BFM and 2.54\,mm inside the HIFI3D pool).
+% fonte: aau/runs/evidence/e8/summary.md, Conclusioni 5
+The means of the domains form two groups 3.2--3.8\,mm apart: FLAME, BFM, ICT
+and Multiface on one side, FaceScape, HIFI3D and FaceVerse on the other. The
+second group consists of models built on East-Asian populations; this is a
+hypothesis about the cause, which we did not verify.
+% fonte: aau/runs/evidence/e8/summary.md, Conclusioni 6
+Since FaceScape lies 0.84\,mm from HIFI3D, it is used for development only
+and never for training.
+% fonte: aau/runs/evidence/e8/summary.md, Conclusioni 6 ("FaceScape dista 0.84 mm da HIFI3D"); paper/PLAN_MASSIVE.md, sez. 14.5
+
+\paragraph{Topologies.}
+On the 3DMM test and development domains each identity is realized in the six
+topologies of REMESH (Sect.~\ref{sec:remesh_benchmark}): original, noisy,
+remesh, crop, down8k and up60k. Graded results use 100 identities per domain
+(drawn with a fixed seed from a pool of 500) and all cross-topology pairs of
+different subjects; the primary group is \emph{no-crop cross}, the 20 ordered
+pairs of distinct topologies without crop. We also report all 30 ordered
+pairs and the per-subject-pair mean, and crop separately.
+% fonte: aau/runs/evidence/e12/protocol.md, sez. 4 (100 soggetti di select_subjects(...,1234); nocrop_cross 20 coppie ordinate PRIMARIO, all_cross 30, subject_pair_mean); aau/runs/competitors_hifi3d/summary.md, Dati (600 mesh = 100 x 6 topologie)
+A seventh tessellation generator, never used in training, is held out as an
+additional test topology \todo{stato del ``remesher mai visto'' (PLAN\_MASSIVE sez. 2.5): generatore, numeri}.
+% fonte: paper/PLAN_MASSIVE.md, sez. 2 (Discretizzazioni, punto 5) e sez. 9
+
+\subsection{Metrics}
+\label{sec:protocol_metrics}
+
+\paragraph{Graded distance.}
+On domains with dense correspondence, the primary statistic is the Spearman
+correlation between a candidate distance and the reference over cross-subject
+mesh pairs (Eq.~\eqref{eq:spearman_correlation}). The reference is FR for
+metric data and SR for scale-free data (Sect.~\ref{sec:gt_definition}); every
+table also reports the legacy maxabs reference and the full Procrustes
+reference so that the conclusions can be checked under each
+\todo{colonna SR per tutti i metodi: non ancora calcolata su HIFI3D}.
+% fonte: paper/PLAN_MASSIVE.md, sez. 19 ("(c) robustezza: le conclusioni del paper devono reggere con GT-F e con GT-S") e sez. 20 (decisione GT = FR)
+
+\paragraph{Recognition.}
+Recognition uses identity labels only and is therefore independent of any
+reference distance. On HIFI3D we use the five topologies without crop: each
+of the 2{,}000 queries is retrieved against a gallery of the 100 identities
+in another topology (rank-1, and mAP, which here equals the mean reciprocal
+rank), and verification uses 1{,}000 genuine and 99{,}000 impostor pairs
+(AUC); crop is reported separately.
+% fonte: aau/runs/data_scale_ood/arcface_vs_scale_hifi3d.md, sez. (b) ("5 topologie senza crop: 2000 query di retrieval (galleria di 100 mesh in un'altra topologia; mAP = MRR), verifica su 1000 coppie stessa persona e 99000 diverse")
+We additionally report TAR at FAR $=10^{-3}$ and $10^{-4}$; with 99{,}000
+impostors the latter rests on about ten impostors above threshold and is
+noisy.
+% fonte: aau/runs/indomain_recog/summary.md, Revisione 1, punto D-E (TAR@FAR 1e-3 e 1e-4; "la seconda e' rumorosa")
+On FaceVerse the queries carry expressions and the gallery is neutral; on the
+FaMoS test subjects, raw scans with expressions are retrieved against neutral
+scans \todo{protocollo FaMoS test definitivo (scansioni grezze vs registrazioni)}.
+% fonte: paper/PLAN_MASSIVE.md, sez. 9 (Metriche di test: rank-1, mAP, AUC, TAR@FAR); paper/BOARD_DIARY.md, "9 ottobre: FaMoS preparato" (riconoscimento scansione con espressione -> scansione neutra)
+On NoW, where no dense correspondence exists, we compare the ranking of
+reconstruction methods induced by each distance with the ranking induced by
+the official NoW error \todo{definire la statistica (Kendall $\tau$) e il riferimento SR per NoW; aau/runs/now\_eval/protocol.md}.
+% fonte: aau/runs/now_eval/summary.md (protocollo NoW: 3DDFA_V2, SynergyNet, PRNet; errore ufficiale)
+
+\paragraph{Uncertainty and decision rules.}
+All intervals are 95\% bootstrap intervals with 1{,}000 replicates that
+resample \emph{subjects} (or persons, on FaMoS), not pairs; a pair is weighted
+by the product of the multiplicities of its two subjects. Differences between
+methods, or between references, are paired: both sides are computed on the
+same replicates, and we report the interval of the difference together with
+the fraction of replicates in which it is $\le 0$. Two methods whose paired
+interval contains zero are reported as not distinguishable, not as
+equivalent.
+% fonte: aau/runs/evidence/e12/protocol.md, sez. 3-4 (bootstrap per soggetto, 1000 repliche, seme 1234, peso = prodotto dei conteggi; delta appaiati con P(delta <= 0)); paper/PLAN_MASSIVE.md, sez. 16.2 ("assenza di prova, non equivalenza")
+Decision rules are declared with the protocol. For example, the question
+whether a model trained on FR approaches pairwise NICP on HIFI3D is decided
+by the fraction $g=(\rho-0.194)/(0.367-0.194)$ of the gap between the
+size-blind encoder and NICP that it closes: it ``reaches NICP'' if
+$\rho\ge0.289$ (the lower end of the NICP interval) and its interval contains
+0.367 or lies above; it ``approaches NICP'' if $g\ge0.5$ and the lower end of
+its interval exceeds 0.194; the verdict counts only if both training seeds
+agree.
+% fonte: aau/runs/evidence/trainer_v3/factorized_protocol.md, sez. "Regola"
+Outcome: \todo{esito dei bracci factorized e ctrl-FR secondo questa regola}.
+
+\subsection{Baselines and Nuisance Removal}
+\label{sec:protocol_baselines}
+
+We evaluate 22 distances on HIFI3D under every reference: pairwise rigid ICP
+followed by Chamfer, pairwise rigid ICP followed by non-rigid ICP with
+point-to-triangle distance (NICP P2Tri), non-rigid registration to a domain
+template at enrolment followed by a per-vertex distance (NICP on template),
+two Chamfer variants, ArcFace~\cite{deng2019arcface} on shaded renders and on
+normal maps (three views), the spectral descriptors
+ShapeDNA~\cite{reuter2006shapedna} (two truncations, two normalizations),
+HKS~\cite{sun2009hks} and WKS~\cite{aubry2011wks}, the zero-shot 3D foundation
+encoders Uni3D~\cite{uni3d} and OpenShape~\cite{openshape} (native frame and
+the exact frame of their training as ablations), and four earlier learned
+checkpoints.
+% fonte: aau/runs/evidence/e12/summary.md, sez. 5 (15 righe in tabella + 7 solo nei csv: uni3d_rx90, openshape_rx90, openshape_yzswap, shapedna_k50_l1, shapedna_k100_l1, hks, wks); aau/runs/competitors_hifi3d/summary.md (definizioni dei competitori)
+All hyperparameters of the competitors were fixed before any of their numbers
+existed.
+% fonte: aau/runs/competitors_hifi3d/summary.md, protocollo ("Nessun iperparametro si sceglie guardando le metriche")
+
+\paragraph{Nuisance removal consistent with the reference.}
+A fair comparison gives every method the nuisance removal that its reference
+declares unobservable, and nothing more. Under FR, registration baselines
+operate in millimetres with a rigid ICP without scale; under SR, they use a
+similarity ICP. Any canonicalization applied to our model is also applied to
+the geometric baselines. We do not canonicalize at test time, because a
+per-mesh rigid canonicalization lowered the graded correlation on HIFI3D
+($-0.074$) and was neutral elsewhere.
+% fonte: paper/PLAN_MASSIVE.md, sez. 19 ("Baseline eque: ... Per GT-F: ICP rigido, senza scala, in mm. Per GT-S: ICP di similarita'"), sez. 14.6 (simmetria), sez. 15 (E2: Spearman -0.074 su HIFI3D)
+The registration baselines currently reported (Table~\ref{tab:gt_reeval})
+normalize each mesh by its maximum absolute coordinate before a rigid ICP,
+and the template baseline ends with a Procrustes step that includes scale;
+both therefore remove size and are consistent with SR rather than FR.
+% fonte: aau/runs/indomain_recog/summary.md, Revisione 1 (faceBench: maxabs per mesh, prealline bbox, ICP rigido senza scala; punto B: Procrustes con scala); aau/runs/competitors_hifi3d/summary.md, Aggiunta 14:28
+\todo{rieseguire Chamfer, ICP+Chamfer, NICP P2Tri e NICP su template in mm con ICP rigido senza scala (riga FR) e con ICP di similarita' (riga SR) su HIFI3D, FaceScape dev, FaceVerse, FaMoS test}
+
+\paragraph{Pairwise versus enrolment baselines.}
+Pairwise pipelines (ICP, NICP) estimate one transformation per pair and pay
+the registration for every comparison; enrolment baselines (NICP on
+template, ArcFace, our encoder) pay once per mesh and compare cheaply
+afterwards (Sect.~\ref{sec:cost}). We keep the two families separate in every
+table, since only the second scales to retrieval in large galleries.
+
+\subsection{Trivial Baselines}
+\label{sec:trivial_baselines}
+
+To measure how much of a reference a single number explains, we report two
+trivial distances: \emph{size only}, $|\log S_i-\log S_j|$ with $S_i$ the
+centroid size of Sect.~\ref{sec:gt_definition}, and \emph{height only},
+$|\log H_i-\log H_j|$ with $H_i$ the vertical extent of the common region in
+millimetres.
+% fonte: aau/runs/evidence/e12/protocol.md, Emendamento 1, E1 ("Baseline banali (obbligatorie)")
+Both are oracles computed on the reference shapes, not on the observed
+meshes.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Spearman correlation of the oracle trivial distances with each
+reference (100 identities; FaMoS: 15 test subjects). 95\% subject-level
+bootstrap intervals.}
+\label{tab:trivial}
+% fonte: aau/runs/evidence/e12/summary.md, sez. 3 (righe "F + rigida robusta" (FaMoS: "F (forma, mm)", che include la rigida robusta), "maxabs (legacy)", "unificata"; colonne "solo taglia", "solo altezza")
+\begin{tabular}{llccc}
+\toprule
+Domain & Trivial distance & FR & Full Procrustes & maxabs \\
+\midrule
+HIFI3D     & size only   & 0.736 [0.66, 0.80] & 0.094 [0.01, 0.18]  & 0.139 [0.04, 0.24] \\
+           & height only & 0.591 [0.49, 0.69] & 0.212 [0.09, 0.35]  & 0.172 [0.07, 0.29] \\
+FaceVerse  & size only   & 0.209 [0.11, 0.31] & 0.019 [-0.07, 0.11] & 0.024 [-0.06, 0.11] \\
+           & height only & 0.100 [0.02, 0.19] & 0.092 [0.01, 0.18]  & 0.116 [0.01, 0.20] \\
+FaceScape  & size only   & 0.464 [0.34, 0.57] & 0.116 [0.02, 0.22]  & 0.068 [-0.03, 0.17] \\
+           & height only & 0.526 [0.41, 0.61] & 0.322 [0.21, 0.43]  & 0.186 [0.09, 0.29] \\
+FaMoS test & size only   & 0.787 [0.55, 0.90] & 0.213 [-0.24, 0.57] & 0.058 [-0.29, 0.38] \\
+           & height only & 0.543 [0.23, 0.72] & 0.134 [-0.21, 0.46] & 0.099 [-0.24, 0.40] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:trivial} shows that FR is strongly driven by size on the
+domains where size varies (HIFI3D, FaMoS), and weakly where the model
+compresses it (FaceVerse). This is expected from Eq.~\eqref{eq:size_shape}
+and is the intended behaviour of a form reference, but it also sets a floor:
+on HIFI3D an oracle size scalar exceeds every evaluated method under FR
+(Table~\ref{tab:gt_reeval}). We therefore report, next to every method, the
+same trivial distances estimated from the observed meshes (centroid size and
+height of each realization, across topologies)
+\todo{baseline banali misurate sulle mesh osservate, non oracolo: Spearman con FR e riconoscimento},
+and on FaMoS their identifiability (size only: AUC 0.939; height only: 0.889;
+Table~\ref{tab:gt_arbiter}).
+% fonte: aau/runs/evidence/e12/summary.md, sez. 4, famos95_first (solo taglia 0.939, solo altezza 0.889)
+A distance that does not exceed the mesh-based size-only baseline is not
+measuring shape beyond size.
+
+\subsection{Human Study}
+\label{sec:protocol_human}
+
+The perceptual arbiter is a two-alternative forced-choice study (``Which face
+is more similar to the reference face?'') designed to test whether size
+matters for perceived similarity, which a render pipeline that normalizes each
+mesh cannot test. The earlier version of the study rendered every face after
+per-mesh maxabs normalization, so participants saw faces of equal height; it
+is biased towards maxabs and cannot arbitrate size.
+% fonte: paper/PLAN_MASSIVE.md, sez. 19, Arbitri (b) ("i render attuali normalizzano ogni mesh con maxabs ... lo studio cosi' e' sbilanciato verso maxabs")
+The new version uses 100 GNM Head identities rendered at absolute scale: the
+same orthographic camera and magnification for all faces (2.327\,px/mm; the
+rendered face height is linear in its height in millimetres, $r=0.99998$),
+three views, uniform grey material and fixed light, with the same robust rigid
+fit as FR and never a per-mesh scale.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 1 (GNM Head v3.0, 100 identita', 2.327 px/mm, r = 0.99998, viste 0/45/90 gradi, rigida robusta, mai una scala per mesh)
+Triplets are drawn from three strata in which two references disagree, each
+with relative margin $\ge0.10$: FR vs.\ S (primary, 200 triplets), FR vs.\
+size at nearly equal size (80), and S vs.\ maxabs at nearly equal size (80).
+Each session has 2 practice trials, 18 test trials (12/3/3) and 2 attention
+controls; a participant who fails a control is excluded.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 3-5
+The statistic in each stratum is the share $q$ of responses agreeing with the
+first reference, tested against $q=0.5$ with a crossed participants$\times$triplets
+variance estimate~\cite{owen2007pigeonhole}; strata are tested in a fixed
+order (gatekeeping), each at a nominal level of 0.04 calibrated by simulation
+to keep the empirical type-I error at or below 0.05 in all 84 simulated
+conditions.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 5 (Owen 2007, test a cascata, soglia tarata 0.04, 84 condizioni)
+With the target of 60 retained participants, the primary stratum has 80\%
+power for $q\ge0.60$ under the conservative heterogeneity setting; smaller
+effects are reported with their interval only.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 5-6 (obiettivo 60 partecipanti; 80% per differenziali >= 0.20 su F_vs_S)
+The primary stratum cannot distinguish FR from size alone, which agrees with
+FR in all its triplets; FR is supported only if both the first and the second
+stratum exceed 0.5.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 0 (avvertenze sulla lettura)
+Declared limitations: one synthetic domain; the size contrast in the second
+stratum (2--5\%) may be below visual threshold on small screens.
+% fonte: aau/human_study_v2/PROTOCOL.md, sez. 3 (visibilita' del contrasto) e sez. 7
+Participants recruited and excluded: \todo{N tenuti / N esclusi}; results:
+\todo{q con IC per i tre strati}.

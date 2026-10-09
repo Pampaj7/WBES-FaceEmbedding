@@ -1,0 +1,133 @@
+% =====================================================================
+% DRAFT (10 Oct 2026) -- Section: computational cost
+% Every number carries a "% fonte:" comment. Missing numbers are \todo{}.
+% Main sources: aau/runs/indomain_recog/summary.md ("Tempi", job 1060419,
+% one L40S node, CPU parts on ONE thread) and aau/runs/evidence/e10/E10.md
+% (DiffusionNet operators on GPU, V100, jobs 1061877/1061896/1061897).
+% =====================================================================
+
+\section{Computational Cost}
+\label{sec:cost}
+
+Under FR, pairwise non-rigid registration remains more accurate than our
+current encoder on HIFI3D (Table~\ref{tab:gt_reeval}). The case for a learned
+metric therefore rests partly on cost, and we measure it rather than
+estimate it wherever possible. The two families of
+Sect.~\ref{sec:protocol_baselines} scale differently. A pairwise pipeline
+pays a registration for every comparison, $O(P\,C_{\mathrm{reg}})$ for $P$
+pairs. An enrolment method pays once per mesh and then compares fixed-size
+descriptors, $O(N\,C_{\mathrm{enr}}+P\,C_{\mathrm{cmp}})$ for $N$ meshes,
+with $C_{\mathrm{cmp}}\ll C_{\mathrm{reg}}$. For identification of one query
+against a gallery of $N$ enrolled meshes (1:$N$ search), the first costs $N$
+registrations and the second one enrolment plus $N$ descriptor comparisons.
+
+\paragraph{Setting.}
+Unless stated otherwise, all timings were measured in a single job on one
+node with an NVIDIA L40S GPU and an AMD EPYC 9454 CPU, with every CPU stage
+restricted to one thread, as the pipelines run in practice, on 60 meshes
+(5 BFM and 5 ICT subjects in six topologies, 3{,}275 to 60{,}435 vertices,
+median 12{,}955) and 60 cross-topology pairs. We report medians and
+interquartile ranges; meshes were read from RAM.
+% fonte: aau/runs/indomain_recog/summary.md, sez. "Tempi" (protocollo) e intestazione delle tabelle (host a768-l40s-06, EPYC 9454, L40S, job 1060419, OMP_NUM_THREADS=1, 60 mesh 3275-60435 vertici, mediana 12955)
+The timed encoder is the BFM+ICT checkpoint with the same backbone as the
+models of this paper (256-dimensional embedding)
+\todo{rimisurare iscrizione e ricerca con il modello finale (testa fattorizzata), stesso nodo, end-to-end}.
+% fonte: aau/runs/indomain_recog/summary.md, sez. "Tempi" ("congiunto ... L2 su 256-d")
+
+\paragraph{Enrolment.}
+Enrolling a mesh with our encoder requires the DiffusionNet
+operators~\cite{diffusionet} (Laplacian, mass, $k=128$ eigenpairs, gradients)
+and one forward pass. On one CPU thread the operators dominate: 2.03\,s
+(IQR 1.23--4.33\,s), against 55\,ms (IQR 39--94\,ms) for loading and the
+forward pass on the GPU.
+% fonte: aau/runs/indomain_recog/summary.md, "iscrizione (per mesh)" (operatori CPU 1 thread 2.03 s [1.23-4.33]; embedding GPU 54.96 ms [39.45-94.24])
+We therefore moved the operator computation to the GPU: the eigenpairs are
+obtained by shift-invert with a sparse Cholesky factorization and a block
+Krylov iteration, which is exact to the CPU solution (embeddings within
+$1.4\times10^{-6}$, the same order as the run-to-run noise of the CPU solver
+itself, $1.2\times10^{-6}$).
+% fonte: aau/runs/evidence/e10/E10.md, "Cosa fa la GPU" (via bk) e "Correttezza" (dz max 1.31e-6 / 1.40e-6 per k 128 / 64; cpu_v0 1.14e-6 / 1.22e-6)
+On a V100 this takes 97\,ms per mesh for a 9.4k-vertex ICT mesh at $k=128$
+(63\,ms at 3.3k vertices, 167\,ms at 24.1k, 309\,ms at 60.4k), against about
+0.64\,s for one CPU process.
+% fonte: aau/runs/evidence/e10/E10.md, "Per classe" (latenza B=1, k 128: 63 / 97 / 167 / 309 ms) e "Latenza" (~0.64 s CPU con grad_vec)
+Operators and forward pass together therefore cost on the order of 0.15\,s per
+mesh on a GPU; this figure combines two measurements on different GPUs (V100
+for the operators, L40S for the forward pass) and different mesh samples, and
+is not an end-to-end measurement
+\todo{misura end-to-end operatori GPU + forward sullo stesso nodo L40S; E10 non ha misurato la L40S (fp64 a 1/64)}.
+% fonte: aau/runs/evidence/e10/E10.md, "GPU non misurate: L40S" e Verdetto 1 ("Non misurato su L40S: la via e' fp64")
+The strongest enrolment baseline, non-rigid registration to a domain template
+(similarity ICP, NICP and a final Procrustes step), costs 1.15\,s per mesh
+(IQR 1.13--1.31\,s) on one CPU thread.
+% fonte: aau/runs/indomain_recog/summary.md, "iscrizione (per mesh)" (NICP su template 1.15 s [1.13-1.31])
+On HIFI3D, with a 9{,}518-vertex template, the same enrolment took a median
+of 2.79\,s per mesh in a separate run.
+% fonte: aau/runs/competitors_hifi3d/summary.md, Controlli ("NICP su template ... 9518 vertici, 4096 tenuti ... mediana 2.79 s per mesh")
+\todo{verificare hardware e numero di thread di quel run prima di citarlo}
+ArcFace on three rendered views costs 0.57\,s per mesh on one CPU thread, of
+which 0.23\,s is framing and rendering.
+% fonte: aau/runs/indomain_recog/summary.md, "iscrizione (per mesh)" (ArcFace migliore 570.08 ms; inquadratura + 3 render 228.71 ms)
+We did not port the template registration to the GPU, so the comparison of
+enrolment times is between a GPU implementation of our pipeline and
+single-thread CPU implementations of the baselines; on one CPU thread our
+enrolment (2.08\,s) is slower than NICP on template.
+% fonte: aau/runs/indomain_recog/summary.md, "iscrizione (per mesh)" (congiunto totale operatori CPU + embedding GPU 2.08 s); paper/PLAN_MASSIVE.md, sez. 16.6 ("E10 passa con riserve sui confronti di velocita'")
+
+\paragraph{Search.}
+Once enrolled, a comparison in our embedding space is a Euclidean distance
+between two 256-dimensional vectors (2.4\,$\mu$s), and a 1:10{,}000 search
+including sorting takes 1.96\,ms on one CPU thread and 68\,$\mu$s on the GPU.
+NICP on template compares registered point sets ($4{,}096\times3$) and needs
+811\,ms for the same search; ArcFace (512-dimensional cosine) needs
+0.88\,ms on one CPU thread. Pairwise pipelines have no enrolment: a 1:$N$
+search costs $N$ registrations, which at the measured per-pair cost amounts to
+452\,s for similarity ICP with Chamfer and 3.6\,h for ICP with NICP at
+$N=10{,}000$ (Table~\ref{tab:cost}).
+% fonte: aau/runs/indomain_recog/summary.md, "ricerca su galleria iscritta (per query)" e "a coppie (per coppia)"
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Cost of enrolment and of 1:$N$ search per query (median). CPU
+timings on one thread. Pairwise pipelines: per-pair time measured, 1:$N$
+estimated as $N\times$ the per-pair median.}
+\label{tab:cost}
+% fonte: aau/runs/indomain_recog/summary.md, sez. "Tempi" (job 1060419, L40S + EPYC 9454) -- tranne la riga contrassegnata con $^\ddagger$
+% fonte riga $^\ddagger$: aau/runs/evidence/e10/E10.md, "Per classe" (V100, 9.4k vertici, k 128, B=1: 97 ms)
+\begin{tabular}{lcccc}
+\toprule
+Method & Enrolment / mesh & 1:100 & 1:1{,}000 & 1:10{,}000 \\
+\midrule
+\multicolumn{5}{l}{\emph{Enrolment methods}} \\
+Ours, operators (CPU) + forward (GPU)   & 2.08\,s       & 19.8\,$\mu$s & 188\,$\mu$s & 1.96\,ms \\
+Ours, operators (GPU)$^\ddagger$ + forward (GPU) & $\approx$0.15\,s \todo{end-to-end} & 40.2\,$\mu$s$^\ast$ & 50.0\,$\mu$s$^\ast$ & 68.0\,$\mu$s$^\ast$ \\
+NICP on template (CPU)                  & 1.15\,s       & 7.33\,ms     & 81.2\,ms    & 811\,ms \\
+ArcFace, 3 rendered views (CPU)         & 0.57\,s       & 8.1\,$\mu$s  & 76.3\,$\mu$s & 0.88\,ms \\
+\midrule
+\multicolumn{5}{l}{\emph{Pairwise methods} (per-pair cost in parentheses)} \\
+Similarity ICP + Chamfer (45.2\,ms)     & --            & 4.5\,s       & 45\,s       & 452\,s \\
+Similarity ICP + NICP P2Tri (1.29\,s)   & --            & 129\,s       & 1{,}286\,s  & 3.6\,h \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3em}
+\footnotesize{$^\ddagger$ Operators measured on a V100 for a 9.4k-vertex mesh; forward pass (55\,ms) on the L40S sample. Not an end-to-end measurement. $^\ast$ Search on the GPU.}
+\end{table}
+
+\paragraph{Reading.}
+For one-off comparisons of a few meshes, cost does not decide anything: a
+pairwise rigid ICP with Chamfer costs 34--45\,ms per pair.
+% fonte: aau/runs/indomain_recog/summary.md, "a coppie (per coppia)" (ICP rigido + Chamfer 33.60 ms; ICP di similarita' + Chamfer 45.24 ms)
+The difference appears in evaluation and retrieval at scale. At
+$N=10{,}000$, counting the enrolment of the query, one search costs about
+2\,s with NICP on template (1.15\,s + 0.81\,s), 0.57\,s with ArcFace, and
+about 0.15\,s with our encoder on the GPU, against 452\,s for pairwise
+similarity ICP with Chamfer and 3.6\,h for pairwise NICP.
+% fonte: somme delle righe di Tab. tab:cost (aau/runs/indomain_recog/summary.md; operatori GPU da aau/runs/evidence/e10/E10.md); 0.15 s non e' end-to-end, vedi \todo sopra
+Among enrolment methods, ours and ArcFace search fastest, but
+cost must be read together with accuracy: on HIFI3D, NICP on template
+reaches a rank-1 of 0.875 against 0.782 for our earlier encoder, and pairwise
+rigid ICP with Chamfer reaches 0.996.
+% fonte: aau/runs/competitors_hifi3d/summary.md, "Riconoscimento d'identita'", PRIMARIO (NICP su template 0.875; Rigid ICP + Chamfer 0.996); aau/runs/data_scale_ood/arcface_vs_scale_hifi3d.md, (b) (e108 0.782)
+The accuracy of the final model at this cost is \todo{rank-1 e Spearman FR del modello finale su HIFI3D, FaMoS test, NoW}.

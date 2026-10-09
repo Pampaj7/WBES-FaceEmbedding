@@ -1,0 +1,265 @@
+% =====================================================================
+% DRAFT (10 Oct 2026) -- Section: what should a 3D face distance measure?
+% Every number carries a "% fonte:" comment pointing to the repository file
+% it comes from. Numbers not yet available are \todo{}.
+% Bib keys not yet in references.bib / refs_cvpr_add.bib are listed in
+% paper/drafts/README.md (DOIs from literature/GT_FORM_SHAPE_2026-10-09.md).
+% Target length: ~1.5 pages. Details that do not fit go to the supplement
+% (marked "SUPP" in comments).
+% =====================================================================
+
+\section{What Should a 3D Face Distance Measure?}
+\label{sec:gt}
+
+A meta-evaluation is only as good as its reference. The reference used in the
+original version of this work normalizes every mesh by its own scale
+(Sect.~\ref{sec:gt_maxabs}). Here we make the underlying question explicit,
+answer it with the vocabulary of geometric morphometrics, and test the answer
+on repeated real captures.
+
+\paragraph{The thesis, made precise.}
+``Alignment hurts'' conflates three operations.
+(i) \emph{Pairwise transformations} (pairwise ICP, non-rigid fitting,
+closest-point correspondence) are chosen anew for each pair; they break the
+global consistency of the distance matrix and compress inter-subject
+distances (Sect.~\ref{sec:distance_compression}). This part of the thesis
+stands.
+(ii) \emph{Per-identity scale normalization} removes facial size, which is an
+identity trait: it is heritable~\cite{cole2016heritability}, it is useful
+for 3D face recognition~\cite{russ2006normalization}, and on real captures it
+separates people on its own (Sect.~\ref{sec:gt_arbiter}).
+(iii) \emph{Per-identity rigid alignment} is necessary whenever head pose
+cannot be observed from the geometry, as in every real scan. It redistributes
+residuals locally (the Pinocchio effect~\cite{walker2000pinocchio,vonCramon2007pinocchio}),
+which affects where differences are localized rather than the global
+distance~\cite{klingenberg2020pinocchio}.
+Only (i) and (ii) remove identity; (iii) belongs in a correct reference.
+
+\subsection{Minimal Invariance: Form Versus Shape}
+\label{sec:gt_principle}
+
+Morphometrics calls \emph{shape} the geometry left after removing location,
+rotation and scale~\cite{kendall1984shape,kendall1989survey}, and \emph{form}
+(size-and-shape) the geometry left after removing location and rotation
+only~\cite{dryden2016statistical,klingenberg2016size}. We adopt the following
+principle.
+
+\begin{quote}
+\emph{Minimal invariance.} A reference distance is invariant only to the
+transformations that the target data cannot observe. The transformation is
+estimated once per identity, towards a fixed reference with a fixed rule,
+never per pair, and with a resistant estimator~\cite{siegel1982resistant,rohlf1990extensions}.
+\end{quote}
+
+\noindent
+For metric data (scans in millimetres, morphable models with known units)
+only the rigid pose is unobservable, and the reference is a form distance.
+For scale-free data, such as monocular reconstructions on NoW~\cite{now},
+scale is unobservable too, and the reference is a shape distance. Current
+benchmarks mix the two: NoW optionally fits scale~\cite{now}, REALY rescales
+the ground truth per scan~\cite{REALY}, and MICA~\cite{mica} shows that
+fitting scale lowers the NoW error of the mean FLAME template from 1.92 to
+1.53\,mm and proposes a rigid-only protocol.
+% fonte: literature/GT_FORM_SHAPE_2026-10-09.md ("MICA ... FLAME medio 1.92 -> 1.53 mm"; NoW e REALY nei Riferimenti)
+We know of no 3D face reconstruction benchmark that separates form from shape.
+% fonte: literature/GT_FORM_SHAPE_2026-10-09.md ("Nessun lavoro di valutazione ... separa form e shape")
+
+\subsection{Reference Distances FR and SR}
+\label{sec:gt_definition}
+
+All domains are compared on 1{,}478 corresponding points of the FLAME face
+region that every domain covers, reached through per-domain barycentric maps
+(held-out landmark residual 0.61--1.28\,mm), with fixed area weights $W_v$
+($\sum_v W_v=1$) computed on the global mean face $\mu$.
+% fonte: aau/runs/evidence/e8/summary.md, Conclusioni 1-2 (1478 vertici; landmark tenuti fuori 0.61-1.28 mm); aau/runs/evidence/e12/protocol.md, Emendamento 1, E1 (pesi d'area fissi dalla media globale mu)
+Each domain is converted to millimetres in the FLAME frame by one per-domain
+rigid transformation; undeclared units (HIFI3D, FaceVerse) are calibrated to
+an inter-pupillary distance of 63\,mm for the model mean, and the declared
+ones are confirmed by the same measurement (60.8--67.9\,mm).
+% fonte: aau/runs/evidence/e12/protocol.md, Emendamento 1, E1.1; aau/runs/evidence/e12/summary.md, Conclusioni 1
+Let $f_i\in\mathbb{R}^{1478\times3}$ be the neutral configuration of identity
+$i$. We fit one rigid motion per identity towards $\mu$ by iteratively
+reweighted least squares with Tukey's biweight (cutoff $3\times$ the weighted
+median residual, initialized at the least-squares fit),
+\begin{equation}
+a_i = R_i f_i + t_i,\qquad
+(R_i,t_i)=\arg\min_{R,t}\sum_v W_v\,\rho_c\big(\|Rf_{i,v}+t-\mu_v\|\big),
+\label{eq:robust_rigid}
+\end{equation}
+% fonte: aau/runs/evidence/e12/protocol.md, Emendamento 1, E1.1 ("Resistant fit: IRLS con perdita di Tukey ...")
+and define the centroid $c_i=\sum_v W_v a_{i,v}$, the centroid size
+$S_i=(\sum_v W_v\|a_{i,v}-c_i\|^2)^{1/2}$ in mm, and the unit-size pre-shape
+$z_i=(a_i-c_i)/S_i$. The form reference \textbf{FR} and the shape reference
+\textbf{SR} are
+\begin{equation}
+d_{\mathrm{FR}}(i,j)=\Big(\sum_v W_v\|a_{i,v}-a_{j,v}\|^2\Big)^{\frac12},\quad
+d_{\mathrm{SR}}(i,j)=\Big(\sum_v W_v\|z_{i,v}-z_{j,v}\|^2\Big)^{\frac12}.
+\label{eq:fr_sr}
+\end{equation}
+% fonte: v3_work/canonical_gt/train_fr_sr.py, docstring (definizioni di FR e SR)
+Both are Euclidean distances between fixed per-identity vectors: no
+transformation depends on the pair. Since $\sum_v W_v z_{i,v}=0$ and
+$\sum_v W_v\|z_{i,v}\|^2=1$, they are linked exactly by
+\begin{equation}
+d_{\mathrm{FR}}^2=\|c_i-c_j\|^2+(S_i-S_j)^2+S_iS_j\,d_{\mathrm{SR}}^2,
+\label{eq:size_shape}
+\end{equation}
+the size-and-shape decomposition $d_F^2=(S_i-S_j)^2+S_iS_j\,d_P^2$ of
+Dryden and Mardia~\cite{dryden2016statistical} plus a centroid term, which is
+non-zero because the resistant fit does not align centroids (median 1.1\% of
+$d_{\mathrm{FR}}^2$ on HIFI3D). Eq.~\eqref{eq:size_shape} holds numerically
+to a relative error below $7\times10^{-8}$.
+% fonte: aau/runs/evidence/e12/train_gt.json, eval/hifi3d/identity (centroid_term_share_of_dFR2 median 0.0111; with_centroid_term_rel_err max 6.2e-08)
+Dryden and Mardia use the optimal rotation per pair; we keep the
+per-identity rotation to avoid pairwise transformations, at little cost (on
+HIFI3D, median ratio 1.006 to the pairwise-optimal distance, Spearman 0.98).
+% fonte: aau/runs/evidence/e12/train_gt.json, eval/hifi3d/identity (dP_common_rotation_over_pairwise_optimal median 1.0059; spearman_dP_common_vs_pairwise 0.9815)
+The size term is a median 23\% of $d_{\mathrm{FR}}^2$ on HIFI3D and 28\% on
+the FaMoS test subjects, but 1.6\% on FaceVerse and 6.9\% on FaceScape,
+whose centroid-size variation (1.8\%, 1.6\%) is far below the 4.0--5.3\% of
+FLAME, ICT, GNM, Multiface and FaMoS: these two models compress facial size.
+% fonte: aau/runs/evidence/e12/train_gt.json, eval/*/identity/size_term_share_of_dFR2 (median hifi3d 0.234, famos_test 0.282, faceverse 0.016, facescape 0.069); aau/runs/evidence/e12/summary.md, sez. 2 (CV: faceverse 1.8%, facescape 1.6%; flame 4.3, ict 4.8, gnm 5.3, multiface 5.2, famos 4.0)
+FR is the primary reference for metric data, SR for scale-free data. The
+rigid fit is needed on morphable models too: on HIFI3D the face centroid moves
+by a median 5.5\,mm (95th percentile 15.9\,mm) between identities in the
+generator frame, and without the fit every evaluated method scores a Spearman
+correlation of at most 0.119, because the reference mostly measures where the
+generator places the face.
+% fonte: aau/runs/evidence/e12/summary.md, Conclusioni 3 e 5 (spostamento 5.5 mm, p95 15.9; "Con F pura tutti i metodi stanno fra 0.005 e 0.119")
+
+\subsection{Arbiter: Identifiability on Repeated Real Captures}
+\label{sec:gt_arbiter}
+
+A reference that preserves identity should separate people better on
+repeated captures. We use the FLAME registrations of all 95 FaMoS people
+(nothing is trained here), first frame of every sequence: 2{,}639 captures,
+35{,}348 genuine pairs (same person, different sequences) and 3.4M impostor
+pairs.
+% fonte: aau/runs/evidence/e12/summary.md, sez. 4, famos95_first (35348 genuine, 3445493 impostore)
+Candidates, order of simplicity and selection rule were fixed before any
+number: highest verification AUC; candidates whose paired AUC difference with
+the best has a 95\% interval containing zero are tied; ties are broken by the
+ratio of median genuine to median impostor distance, then by simplicity.
+% fonte: aau/runs/evidence/e12/protocol.md, Emendamento 1, E2 ("Regola di selezione (fissata ora)"); hash in aau/runs/evidence/e12/protocol_amend1.sha256
+Candidates are FR, its size-normalized version S, and the alignment-free
+Euclidean distance-matrix distances~\cite{lele1991edma} with and without
+scale (EDM, EDM-s); the others in Table~\ref{tab:gt_arbiter} are reported
+outside the rule.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Identifiability on FaMoS (95 people, 2{,}639 captures), 95\%
+person-level bootstrap intervals. Intra/inter: median genuine over median
+impostor distance (lower is better).}
+\label{tab:gt_arbiter}
+% fonte: aau/runs/evidence/e12/summary.md, sez. 4, famos95_first
+\begin{tabular}{lccc}
+\toprule
+Reference & AUC & rank-1 & intra/inter \\
+\midrule
+FR (form, rigid fit, mm) & 0.993 [0.989, 0.996] & 0.998 & 0.189 [0.176, 0.202] \\
+S (size removed)         & 0.990 [0.985, 0.994] & 0.998 & 0.220 [0.206, 0.235] \\
+EDM                      & 0.991 [0.988, 0.994] & 0.994 & 0.175 [0.162, 0.190] \\
+EDM-s (size removed)     & 0.985 [0.979, 0.990] & 0.995 & 0.241 [0.224, 0.257] \\
+\midrule
+Full Procrustes          & 0.993 [0.989, 0.996] & 0.999 & 0.220 [0.206, 0.235] \\
+Legacy maxabs$^\dagger$  & 0.995 [0.992, 0.997] & 0.998 & 0.197 [0.184, 0.210] \\
+Form, capture frame      & 0.974 [0.964, 0.982] & 0.964 & 0.185 [0.163, 0.209] \\
+Size only                & 0.939 [0.927, 0.948] & 0.153 & 0.079 [0.068, 0.093] \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3em}
+\footnotesize{$^\dagger$ On the larger FLAME \texttt{face} mask (1{,}787 vertices).}
+% fonte: aau/runs/evidence/e12/protocol.md, sez. 1 (maxabs su FaMoS: maschera face di FLAME, 1787 vertici)
+% SUPP: IC del rank-1 e riga "solo altezza" (AUC 0.889 [0.866, 0.909]) nella stessa tabella di e12/summary.md
+\end{table}
+
+The rule selects FR, and so does the strict rule (AUC, then simplicity).
+FR exceeds S by $+0.0027$ [$+0.0013$, $+0.0043$] AUC, EDM by $+0.0015$
+[$+0.0002$, $+0.0027$] and EDM-s by $+0.0079$ [$+0.0051$, $+0.0110$]; the
+centroid size alone reaches an AUC of 0.939. Removing size never helps and,
+for FR, measurably hurts.
+% fonte: aau/runs/evidence/e12/summary.md, sez. 4 (differenze appaiate e Regola famos95_first: "selected": "F", "strict_rule_auc_then_simplicity": "F")
+\todo{IC appaiato EDM - EDM-s, per estendere l'affermazione a EDM}
+Four reservations: the differences are small and close to the AUC ceiling;
+the full Procrustes reference, which also removes scale, ties FR on AUC
+($+0.0002$ [$-0.0012$, $+0.0016$]) and loses only on the intra/inter ratio;
+outside the rule, a least-squares rigid fit beats the resistant one by
+$0.0019$ AUC and maxabs beats FR by $0.0020$, on a larger region; and on
+real captures FR includes the per-identity rigid fit, so the arbiter validates
+``metric form after a rigid fit'', not the generator frame (the form distance
+in the capture frame drops to 0.974).
+% fonte: aau/runs/evidence/e12/summary.md, Conclusioni 4 (Riserve) e sez. 4 (F - unificata +0.0002 [-0.0012, +0.0016]; F - F+rigida LS -0.0019 [-0.0031, -0.0009]; F - maxabs -0.0020 [-0.0038, -0.0005]; F pura 0.974)
+Multiface, our other real set, has one neutral take per subject and
+saturates (AUC 1.0).
+% fonte: aau/runs/evidence/e12/summary.md, Conclusioni 4
+The perceptual arbiter, a forced-choice study on renders at absolute scale
+(Sect.~\ref{sec:protocol_human}), gives \todo{esito dello studio umano v2, strato F\_vs\_S: q con IC}.
+
+\subsection{Why Not the Legacy Maxabs Reference}
+\label{sec:gt_maxabs}
+
+The legacy reference centres each mesh on its vertex mean, divides it by its
+own maximum absolute coordinate, and averages per-vertex Euclidean distances.
+% fonte: aau/zs3dmm/build_zs_gt.py (normalize_maxabs + vertex_mean_l2_matrix); v2_work/genflame/build_flame_gt_matrix.py:28-30
+\todo{allineare con Eq.~\eqref{eq:ground_truth_distance} del draft principale, che scrive un RMS e non una media di norme}
+It has three problems. \emph{Its scale divisor depends on the support}: the
+maximum coordinate belongs to one boundary vertex, the vertical half-extent
+of the patch for 492 of 500 HIFI3D identities, so it moves with the crop line
+on forehead or chin.
+% fonte: aau/runs/evidence/e12/protocol.md, sez. 0 ("l'estensione verticale in 492 casi su 500 di HIFI3D"); aau/multiface/ws3a_render.py:101-103
+\emph{It removes size}, the trait the arbiter finds informative; on HIFI3D
+its Spearman correlation with FR is 0.391 [0.29, 0.49].
+% fonte: aau/runs/evidence/e12/summary.md, sez. 3, hifi3d (riga "F + rigida robusta", colonna maxabs)
+\emph{It favours models that share its divisor}: our earlier encoders
+normalize their input the same way.
+% fonte: paper/PLAN_MASSIVE.md, sez. 16.1 ("Il modello e108 normalizza l'ingresso con lo stesso divisore della maxabs")
+Re-evaluating 22 methods on HIFI3D with identical distances and bootstrap
+replicates, changing only the reference, reverses the ranking
+(Table~\ref{tab:gt_reeval}). Under maxabs the encoders lead and beat Chamfer
+by $+0.258$ [$+0.208$, $+0.301$]; under FR pairwise NICP leads, beating our
+earlier encoder by $+0.174$ [$+0.092$, $+0.253$], and the encoder's margin over
+Chamfer is no longer significant ($+0.039$ [$-0.021$, $+0.098$]). A size-blind
+encoder cannot compete under a form reference; this motivates the
+size-and-shape model of Sect.~\ref{sec:method} \todo{rimando alla sezione del modello fattorizzato}.
+% fonte: aau/runs/evidence/e12/summary.md, Conclusioni 5 e sez. 5, HIFI3D nocrop_cross (delta appaiati); 22 righe = 15 in tabella + 7 solo in aau/runs/evidence/e12/methods_spearman.csv
+We keep maxabs only as a legacy column.
+
+\begin{table}[!ht]
+\centering
+\small
+\caption{Spearman correlation with three references on HIFI3D (100
+identities, 20 ordered cross-topology pairs without crop). Same distances
+and bootstrap replicates in every column. Selected rows of 22.}
+\label{tab:gt_reeval}
+% fonte: aau/runs/evidence/e12/summary.md, sez. 5, "HIFI3D, nocrop_cross" (maxabs e unificata dalla prima tabella; FR = colonna "F + rigida robusta" delle varianti di F)
+% SUPP: tabella completa con IC, colonne S, EDM, EDM-s e varianti di F
+\begin{tabular}{lccc}
+\toprule
+Method & maxabs (legacy) & Full Procrustes & FR \\
+\midrule
+Pairwise ICP + NICP (P2Tri)  & 0.389 & 0.577 & 0.367 [0.289, 0.449] \\
+Pairwise rigid ICP + Chamfer & 0.355 & 0.522 & 0.325 [0.246, 0.403] \\
+NICP on template (enrolment) & 0.351 & 0.450 & 0.260 [0.163, 0.355] \\
+Earlier encoder (e108)       & 0.630 & 0.301 & 0.194 [0.110, 0.282] \\
+ArcFace, shaded renders      & 0.245 & 0.250 & 0.166 [0.078, 0.261] \\
+Chamfer                      & 0.372 & 0.230 & 0.155 [0.112, 0.198] \\
+OpenShape (PointBERT)        & 0.138 & 0.184 & 0.129 [0.084, 0.179] \\
+Uni3D-g                      & 0.132 & 0.144 & 0.102 [0.049, 0.153] \\
+\midrule
+Proposed (FR-trained)        & \todo{} & \todo{} & \todo{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+Two caveats bound these FR numbers. The registration baselines also normalize
+each mesh by maxabs before aligning, so their FR scores are lower bounds for
+a size-preserving pipeline \todo{baseline in mm con ICP rigido senza scala, Sect.~\ref{sec:protocol_baselines}}.
+% fonte: aau/runs/indomain_recog/summary.md, Revisione 1 ("faceBench normalizza maxabs per mesh ... ICP RIGIDO (senza scala)"); aau/runs/competitors_hifi3d/summary.md, Aggiunta 14:28 (template: maxabs + Procrustes con scala)
+And on HIFI3D an oracle size-only scalar already correlates with FR at 0.736
+(Sect.~\ref{sec:trivial_baselines}): every method must be read against this
+floor.
+% fonte: aau/runs/evidence/e12/summary.md, sez. 3, hifi3d (riga "F + rigida robusta", colonna "solo taglia": 0.736 [0.66, 0.80])
