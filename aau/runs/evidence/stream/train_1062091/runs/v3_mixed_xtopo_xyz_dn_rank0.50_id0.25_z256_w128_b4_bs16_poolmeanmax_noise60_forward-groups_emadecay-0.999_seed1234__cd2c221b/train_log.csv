@@ -1,0 +1,11 @@
+epoch,loss,stress,rank,id,smooth,teacher,lr,spearman_clean,pearson_clean,auc_r,gate_mean_clean,gate_mean_noisy_max,spearman_noisy_max,ratio_noisy_max,intra_clean,n_eval
+1,0.103098,0.057670,0.090846,0.000021,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+2,0.094711,0.052771,0.083862,0.000034,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+3,0.083367,0.048240,0.070229,0.000050,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+4,0.069686,0.041135,0.057069,0.000066,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+5,0.063388,0.038202,0.050332,0.000082,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+6,0.058369,0.035335,0.046018,0.000098,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+7,0.055723,0.033871,0.043646,0.000114,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+8,0.052118,0.031644,0.040885,0.000123,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+9,0.051370,0.031756,0.039163,0.000132,0.000000,0.000000,1.00e-04,nan,nan,nan,nan,nan,nan,nan,nan,0
+10,0.050210,0.031213,0.037925,0.000141,0.000000,0.000000,1.00e-04,0.518336,0.585473,0.993735,nan,nan,0.510673,0.985216,2.030828e-05,8

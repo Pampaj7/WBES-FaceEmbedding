@@ -1,0 +1,16 @@
+{
+ "seconds": 60.0854332447052,
+ "plans": 222,
+ "plans_per_s": 3.694739107495125,
+ "meshes_per_s": 236.463302879688,
+ "mean_verts": 5371.550394144144,
+ "batch": 16,
+ "views": 4,
+ "prefetch": 4,
+ "serve_s_per_plan": 0.24721714604524309,
+ "plan_s_per_plan": 0.014093216480309697,
+ "reuse_factor": 13.723076923076922,
+ "over_reuse_groups": 2490,
+ "pool_groups": 276,
+ "pool_shards": 138
+}

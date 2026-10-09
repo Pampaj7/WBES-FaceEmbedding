@@ -354,3 +354,16 @@ Correzioni d'interpretazione, che hanno la precedenza sulla §15:
    - OpenShape e Uni3D vanno valutati anche nel frame esatto del loro training.
 5. **C3F-UGT e `ugtmix`:** la GT unificata va TARATA (mediane per dominio allineate alla maxabs), altrimenti il confronto mescola contenuto e scala della GT.
 6. **Promossi:** ArcFace contro modello (VIA LIBERA; e108 era fissato prima, anche se e036 fa meglio) e FaMoS (VIA LIBERA). E10 passa con riserve sui confronti di velocità.
+
+## 17. Pipeline P1 a streaming (9 ottobre): pronta, `v3_work/stream/`
+- **Verifiche eseguite:**
+  - operatori fp32 equivalenti alla pipeline attuale: embedding entro 3e-7;
+  - GT al volo identica a `UNIFIED_GT`: 604k coppie, entro 1.3e-6 mm;
+  - 2000 passi stabili;
+  - DDP con shard disgiunti.
+- **Produttori** (64 CPU EPYC): k 64 → 90 viste/s, k 128 → 38 viste/s.
+- **Decisioni del PI:**
+  - **autovettori in fp32** (fp16 scarta 2.5e-4 sull'embedding: piccolo, ma inutile rischiarlo; il costo è +55% di RAM per vista);
+  - **8 core riservati al trainer:** senza, la contesa CPU porta il passo da 1.10 s a 1.74 s.
+- **Ancora fuori:** deformazioni RBF, coppie di perturbazione, trasferimento d'espressioni. Si aggiungono se le evidenze le giustificano.
+- **BFM 2019** ha ora la mappa unificata: 1478/1478 punti, residuo sui landmark tenuti fuori 0.89 mm.

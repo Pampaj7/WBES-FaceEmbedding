@@ -1,0 +1,188 @@
+{
+ "dir": "aau/runs/evidence/stream/train_1062115",
+ "steps": 1000,
+ "s_per_step_by_epoch": [
+  1.238,
+  1.192,
+  1.211,
+  1.176,
+  1.169
+ ],
+ "loss_by_epoch": [
+  0.1032,
+  0.0901,
+  0.0769,
+  0.0671,
+  0.0577
+ ],
+ "loss_finite": true,
+ "meshes_per_step": 64,
+ "meshes_per_s_consumed": [
+  51.69628432956382,
+  53.691275167785236,
+  52.84888521882741,
+  54.421768707483,
+  54.74764756201882
+ ],
+ "stream_by_epoch": [
+  {
+   "epoch": 1,
+   "seq_used": [
+    0,
+    594
+   ],
+   "uses": 12800,
+   "unique_views": 4180,
+   "reuse_epoch": 3.062200956937799,
+   "reuse_cumulative": 3.062200956937799,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.37949442863464355,
+   "serve_ms_per_step": 1.9502431608270854,
+   "plan_ms_per_step": 20.562638845294714,
+   "mean_age_s": 106.11412223026156,
+   "pool_groups": 1204
+  },
+  {
+   "epoch": 2,
+   "seq_used": [
+    2,
+    972
+   ],
+   "uses": 12800,
+   "unique_views": 3152,
+   "reuse_epoch": 4.060913705583756,
+   "reuse_cumulative": 3.491543917075832,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.7453453540802002,
+   "serve_ms_per_step": 1.3732519035693258,
+   "plan_ms_per_step": 22.017124372068793,
+   "mean_age_s": 113.12113836187869,
+   "pool_groups": 1950
+  },
+  {
+   "epoch": 3,
+   "seq_used": [
+    263,
+    1386
+   ],
+   "uses": 12800,
+   "unique_views": 3164,
+   "reuse_epoch": 4.04551201011378,
+   "reuse_cumulative": 3.658536585365854,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.9939944744110107,
+   "serve_ms_per_step": 1.3695180555805564,
+   "plan_ms_per_step": 31.382730823243037,
+   "mean_age_s": 112.36877894920607,
+   "pool_groups": 2386
+  },
+  {
+   "epoch": 4,
+   "seq_used": [
+    733,
+    1785
+   ],
+   "uses": 12800,
+   "unique_views": 3240,
+   "reuse_epoch": 3.950617283950617,
+   "reuse_cumulative": 3.7274315666860804,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 1.0074377059936523,
+   "serve_ms_per_step": 1.3766395614948124,
+   "plan_ms_per_step": 35.15166831202805,
+   "mean_age_s": 112.15954066596925,
+   "pool_groups": 2414
+  },
+  {
+   "epoch": 5,
+   "seq_used": [
+    1052,
+    2183
+   ],
+   "uses": 12800,
+   "unique_views": 3244,
+   "reuse_epoch": 3.945745992601726,
+   "reuse_cumulative": 3.7691401648998824,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 1.0221493244171143,
+   "serve_ms_per_step": 1.3630609447136521,
+   "plan_ms_per_step": 37.04892382840626,
+   "mean_age_s": 112.68253070795537,
+   "pool_groups": 2474
+  }
+ ],
+ "by_domain_uses": {
+  "gnm": 12496,
+  "flame2020": 12352,
+  "bfm2019": 12924,
+  "ict": 13204,
+  "famos": 13024
+ },
+ "by_label_uses": {
+  "crop": 4716,
+  "down8k": 4697,
+  "original+x": 7116,
+  "remesh": 5119,
+  "original": 4951,
+  "crop+x": 7338,
+  "down8k+x": 7345,
+  "up60k+x": 1988,
+  "noisy+x": 7409,
+  "noisy": 4636,
+  "remesh+x": 7328,
+  "up60k": 1357
+ },
+ "producers": {
+  "n_proc": 48,
+  "k_eig": 128,
+  "evecs_dtype": "fp16",
+  "views_per_s_steady": 13.336907706381902,
+  "views_per_s_wall": 12.9405456250177,
+  "views": 17997,
+  "bytes_per_view": 2623714.702228149,
+  "mean_verts_per_view": 5707.119186531088,
+  "failures": 0,
+  "views_by_domain": {
+   "flame2020": 3452,
+   "gnm": 3528,
+   "bfm2019": 3624,
+   "ict": 3656,
+   "famos": 3700
+  },
+  "views_by_label": {
+   "crop": 3353,
+   "original": 3431,
+   "remesh": 3478,
+   "noisy": 3411,
+   "down8k": 3390,
+   "up60k": 934
+  }
+ },
+ "consumer_bench": {
+  "seconds": 60.0854332447052,
+  "plans": 222,
+  "plans_per_s": 3.694739107495125,
+  "meshes_per_s": 236.463302879688,
+  "mean_verts": 5371.550394144144,
+  "batch": 16,
+  "views": 4,
+  "prefetch": 4,
+  "serve_s_per_plan": 0.24721714604524309,
+  "plan_s_per_plan": 0.014093216480309697,
+  "reuse_factor": 13.723076923076922,
+  "over_reuse_groups": 2490,
+  "pool_groups": 276,
+  "pool_shards": 138
+ },
+ "gpu_util_mean_while_training": 64.2009884678748,
+ "gpu_samples": 607,
+ "mem_peak_gib": {
+  "cgroup_job": 54.726280212402344,
+  "ring_tmp": 24.0183195900172
+ }
+}

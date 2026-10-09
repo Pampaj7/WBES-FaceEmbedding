@@ -1,0 +1,146 @@
+{
+ "dir": "aau/runs/evidence/stream/train_1062108",
+ "steps": 600,
+ "s_per_step_by_epoch": [
+  1.249,
+  1.222,
+  1.196
+ ],
+ "loss_by_epoch": [
+  0.1026,
+  0.0908,
+  0.0734
+ ],
+ "loss_finite": true,
+ "meshes_per_step": 64,
+ "meshes_per_s_consumed": [
+  51.24099279423538,
+  52.37315875613748,
+  53.51170568561873
+ ],
+ "stream_by_epoch": [
+  {
+   "epoch": 1,
+   "seq_used": [
+    0,
+    574
+   ],
+   "uses": 12800,
+   "unique_views": 4140,
+   "reuse_epoch": 3.0917874396135265,
+   "reuse_cumulative": 3.0917874396135265,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.3793191909790039,
+   "serve_ms_per_step": 2.1637949405703694,
+   "plan_ms_per_step": 21.833252349169925,
+   "mean_age_s": 103.49976794786751,
+   "pool_groups": 1178
+  },
+  {
+   "epoch": 2,
+   "seq_used": [
+    1,
+    976
+   ],
+   "uses": 12800,
+   "unique_views": 3136,
+   "reuse_epoch": 4.081632653061225,
+   "reuse_cumulative": 3.518416712479384,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.7379806041717529,
+   "serve_ms_per_step": 1.3993307761847973,
+   "plan_ms_per_step": 24.151379734976217,
+   "mean_age_s": 111.77206449825317,
+   "pool_groups": 1978
+  },
+  {
+   "epoch": 3,
+   "seq_used": [
+    19,
+    1387
+   ],
+   "uses": 12800,
+   "unique_views": 3264,
+   "reuse_epoch": 3.9215686274509802,
+   "reuse_cumulative": 3.6432637571157493,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.9822344779968262,
+   "serve_ms_per_step": 1.3866778009105474,
+   "plan_ms_per_step": 34.373035565949976,
+   "mean_age_s": 111.34135527282953,
+   "pool_groups": 2388
+  }
+ ],
+ "by_domain_uses": {
+  "ict": 8228,
+  "famos": 7568,
+  "gnm": 7284,
+  "flame2020": 7224,
+  "bfm2019": 8096
+ },
+ "by_label_uses": {
+  "remesh+x": 4421,
+  "original+x": 4185,
+  "down8k+x": 4393,
+  "crop+x": 4457,
+  "down8k": 2817,
+  "remesh": 3125,
+  "noisy": 2776,
+  "noisy+x": 4330,
+  "original": 2915,
+  "crop": 2925,
+  "up60k+x": 1249,
+  "up60k": 807
+ },
+ "producers": {
+  "n_proc": 48,
+  "k_eig": 128,
+  "evecs_dtype": "fp16",
+  "views_per_s_steady": 13.124004659835316,
+  "views_per_s_wall": 12.521362661295623,
+  "views": 11593,
+  "bytes_per_view": 2641780.187354438,
+  "mean_verts_per_view": 5759.711118778573,
+  "failures": 0,
+  "views_by_domain": {
+   "flame2020": 2160,
+   "gnm": 2224,
+   "bfm2019": 2392,
+   "ict": 2464,
+   "famos": 2316
+  },
+  "views_by_label": {
+   "crop": 2225,
+   "original": 2158,
+   "remesh": 2264,
+   "noisy": 2147,
+   "down8k": 2195,
+   "up60k": 604
+  }
+ },
+ "consumer_bench": {
+  "seconds": 60.110947608947754,
+  "plans": 237,
+  "plans_per_s": 3.9427094302656047,
+  "meshes_per_s": 252.3334035369987,
+  "mean_verts": 5371.324367088608,
+  "batch": 16,
+  "views": 4,
+  "prefetch": 4,
+  "serve_s_per_plan": 0.2321085633645188,
+  "plan_s_per_plan": 0.012748504958394523,
+  "reuse_factor": 15.35483870967742,
+  "over_reuse_groups": 2770,
+  "pool_groups": 264,
+  "pool_shards": 132
+ },
+ "gpu_util_mean_while_training": 65.54111405835543,
+ "gpu_samples": 377,
+ "mem_peak_gib": {
+  "cgroup_job": 54.176429748535156,
+  "ring_tmp": 23.998899643309414
+ }
+}

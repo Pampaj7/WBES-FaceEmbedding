@@ -1,0 +1,125 @@
+{
+ "dir": "aau/runs/evidence/stream/train_1062093",
+ "steps": 400,
+ "s_per_step_by_epoch": [
+  1.192,
+  1.104
+ ],
+ "loss_by_epoch": [
+  0.1065,
+  0.0912
+ ],
+ "loss_finite": true,
+ "meshes_per_step": 64,
+ "meshes_per_s_consumed": [
+  53.691275167785236,
+  57.97101449275362
+ ],
+ "stream_by_epoch": [
+  {
+   "epoch": 1,
+   "seq_used": [
+    0,
+    541
+   ],
+   "uses": 12800,
+   "unique_views": 4084,
+   "reuse_epoch": 3.1341821743388834,
+   "reuse_cumulative": 3.1341821743388834,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.4519379138946533,
+   "serve_ms_per_step": 1.5290870110038668,
+   "plan_ms_per_step": 21.44977638265118,
+   "mean_age_s": 297.93636409007013,
+   "pool_groups": 1084
+  },
+  {
+   "epoch": 2,
+   "seq_used": [
+    0,
+    541
+   ],
+   "uses": 12800,
+   "unique_views": 232,
+   "reuse_epoch": 55.172413793103445,
+   "reuse_cumulative": 5.9314179796107505,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 0,
+   "wait_ms_per_step": 0.44745445251464844,
+   "serve_ms_per_step": 0.7590256270486861,
+   "plan_ms_per_step": 18.782884486718103,
+   "mean_age_s": 410.87607063822446,
+   "pool_groups": 1084
+  }
+ ],
+ "by_domain_uses": {
+  "famos": 5852,
+  "bfm2019": 4776,
+  "ict": 5636,
+  "flame2020": 4428,
+  "gnm": 4908
+ },
+ "by_label_uses": {
+  "original+x": 2605,
+  "remesh": 2001,
+  "noisy+x": 2737,
+  "down8k+x": 2873,
+  "original": 1955,
+  "remesh+x": 3157,
+  "crop+x": 3071,
+  "crop": 2122,
+  "down8k": 1769,
+  "up60k+x": 889,
+  "noisy": 1916,
+  "up60k": 505
+ },
+ "producers": {
+  "n_proc": 56,
+  "k_eig": 128,
+  "evecs_dtype": "fp16",
+  "views_per_s_steady": 14.806480165241174,
+  "views_per_s_wall": 13.067716070865876,
+  "views": 4369,
+  "bytes_per_view": 2516386.5049210344,
+  "mean_verts_per_view": 5679.719157701991,
+  "failures": 0,
+  "views_by_domain": {
+   "flame2020": 736,
+   "gnm": 816,
+   "bfm2019": 848,
+   "ict": 888,
+   "famos": 1016
+  },
+  "views_by_label": {
+   "crop": 862,
+   "original": 786,
+   "remesh": 867,
+   "noisy": 818,
+   "down8k": 796,
+   "up60k": 240
+  }
+ },
+ "consumer_bench": {
+  "seconds": 60.344727516174316,
+  "plans": 138,
+  "plans_per_s": 2.2868609351664,
+  "meshes_per_s": 146.3590998506496,
+  "mean_verts": 5484.471580615942,
+  "batch": 16,
+  "views": 4,
+  "prefetch": 4,
+  "serve_s_per_plan": 0.3898515540826391,
+  "plan_s_per_plan": 0.03600105912039947,
+  "reuse_factor": 2.574074074074074,
+  "over_reuse_groups": 0,
+  "pool_groups": 1066,
+  "pool_shards": 533
+ },
+ "gpu_util_mean_while_training": 70.47881355932203,
+ "gpu_samples": 236,
+ "mem_peak_gib": {
+  "cgroup_job": 37.26264572143555,
+  "ring_tmp": 10.378452099859715
+ }
+}

@@ -1,0 +1,21 @@
+{
+  "n_subjects_selected": 8,
+  "plan_summary": {
+    "max_meshes_per_subject": 6,
+    "mean_meshes_per_subject": 6.0,
+    "min_meshes_per_subject": 6,
+    "n_subjects_with_meshes": 8,
+    "total_meshes": 48
+  },
+  "preloaded_samples": 48,
+  "selected_subjects": [
+    "id0056",
+    "id0080",
+    "id0186",
+    "id0239",
+    "id0404",
+    "id0412",
+    "id0470",
+    "id0476"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+ "n_proc": 48,
+ "k_eig": 128,
+ "evecs_dtype": "fp16",
+ "alpha": 0.0,
+ "probs": {
+  "bfm2019": 0.2,
+  "famos": 0.2,
+  "flame2020": 0.2,
+  "gnm": 0.2,
+  "ict": 0.2
+ },
+ "views_per_group": 4,
+ "elapsed_s": 1390.7450675964355,
+ "views": 17997,
+ "views_per_s_wall": 12.9405456250177,
+ "views_steady": 17613,
+ "views_per_s_steady": 13.336907706381902,
+ "groups": 4478,
+ "shards_written": 2239,
+ "bytes_written": 47218993496,
+ "mean_verts_per_view": 5707.119186531088,
+ "bytes_per_view": 2623714.702228149,
+ "failures": 0,
+ "last_failure": "",
+ "cpu_s_per_view": {
+  "ident": 0.0028422267732561885,
+  "mesh": 0.016495374523508636,
+  "gen": 0.25573636770727143,
+  "ops": 3.236301608354482,
+  "pack": 0.04873983564475293,
+  "write": 0.006243533872978396
+ },
+ "views_by_domain": {
+  "flame2020": 3452,
+  "gnm": 3528,
+  "bfm2019": 3624,
+  "ict": 3656,
+  "famos": 3700
+ },
+ "views_by_label": {
+  "crop": 3353,
+  "original": 3431,
+  "remesh": 3478,
+  "noisy": 3411,
+  "down8k": 3390,
+  "up60k": 934
+ },
+ "ring": {
+  "shards": 1246,
+  "gib": 23.989926993846893,
+  "seq_min": 1009,
+  "seq_max": 2254
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "area_total": 22819.08082823629,
+ "gt_mm_per_unit": 14.163881301879883,
+ "domains": {
+  "ict": {
+   "n": 600,
+   "vs_shapes_mm": {
+    "max": 0.0,
+    "median": 0.0
+   },
+   "ids_first_last": [
+    "id10007",
+    "id49499"
+   ],
+   "vs_s_train_mm": {
+    "max": 3.473632455460215e-06,
+    "median": 3.0250739839097483e-06
+   }
+  },
+  "gnm": {
+   "n": 500,
+   "vs_shapes_mm": {
+    "max": 0.0,
+    "median": 0.0
+   },
+   "ids_first_last": [
+    "id100000",
+    "id100499"
+   ],
+   "vs_s_train_mm": {
+    "max": 7.048188805248523e-06,
+    "median": 6.028140747461043e-06
+   }
+  },
+  "flame2020": {
+   "n": 1000,
+   "vs_shapes_mm": {
+    "max": 0.0,
+    "median": 0.0
+   },
+   "ids_first_last": [
+    "flame0000",
+    "flame0999"
+   ]
+  }
+ },
+ "gt_pairs": {
+  "n_identities": 1100,
+  "n_pairs": 604450,
+  "n_cross_domain_pairs": 300000,
+  "max_abs_units": 8.932295569863413e-08,
+  "max_abs_mm": 1.2651597420485291e-06,
+  "max_abs_cross_domain_mm": 1.1091654075960102e-06,
+  "max_rel_offdiag": 4.89991052438936e-07,
+  "ref_median_units": 0.28599680960178375
+ }
+}
