@@ -1,0 +1,132 @@
+{
+ "_meta": {
+  "n_per_template": 400,
+  "seed": 20261009,
+  "rule": "p99 (per eccesso) delle viste pure grezze, espressione nativa con p 0.6",
+  "date": "2026-10-09"
+ },
+ "bfm2019": {
+  "flipped": 56,
+  "degenerate": 2,
+  "self_intersections_new": 60,
+  "quantiles": {
+   "flipped": {
+    "p50": 9.0,
+    "p90": 24.0,
+    "p99": 55.00999999999999,
+    "p100": 85.0,
+    "mean": 11.9525,
+    "n": 400
+   },
+   "degenerate": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 2.0,
+    "p100": 17.0,
+    "mean": 0.0925,
+    "n": 400
+   },
+   "self_intersections_new": {
+    "p50": 5.0,
+    "p90": 13.0,
+    "p99": 59.1099999999999,
+    "p100": 89.0,
+    "mean": 7.295,
+    "n": 400
+   }
+  }
+ },
+ "ict": {
+  "flipped": 399,
+  "degenerate": 3,
+  "self_intersections_new": 345,
+  "quantiles": {
+   "flipped": {
+    "p50": 29.0,
+    "p90": 92.20000000000005,
+    "p99": 398.05999999999995,
+    "p100": 485.0,
+    "mean": 50.2075,
+    "n": 400
+   },
+   "degenerate": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 2.009999999999991,
+    "p100": 4.0,
+    "mean": 0.105,
+    "n": 400
+   },
+   "self_intersections_new": {
+    "p50": 44.5,
+    "p90": 230.10000000000002,
+    "p99": 344.3199999999997,
+    "p100": 463.0,
+    "mean": 80.3325,
+    "n": 400
+   }
+  }
+ },
+ "gnm": {
+  "flipped": 170,
+  "degenerate": 2,
+  "self_intersections_new": 64,
+  "quantiles": {
+   "flipped": {
+    "p50": 3.0,
+    "p90": 49.200000000000045,
+    "p99": 169.12999999999988,
+    "p100": 340.0,
+    "mean": 16.1175,
+    "n": 400
+   },
+   "degenerate": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 1.009999999999991,
+    "p100": 3.0,
+    "mean": 0.0475,
+    "n": 400
+   },
+   "self_intersections_new": {
+    "p50": 0.0,
+    "p90": 1.0,
+    "p99": 63.069999999999936,
+    "p100": 118.0,
+    "mean": 2.6275,
+    "n": 400
+   }
+  }
+ },
+ "flame2020": {
+  "flipped": 26,
+  "degenerate": 1,
+  "self_intersections_new": 30,
+  "quantiles": {
+   "flipped": {
+    "p50": 6.0,
+    "p90": 16.0,
+    "p99": 25.00999999999999,
+    "p100": 29.0,
+    "mean": 7.885,
+    "n": 400
+   },
+   "degenerate": {
+    "p50": 0.0,
+    "p90": 0.0,
+    "p99": 1.0,
+    "p100": 1.0,
+    "mean": 0.015,
+    "n": 400
+   },
+   "self_intersections_new": {
+    "p50": 0.0,
+    "p90": 12.0,
+    "p99": 30.0,
+    "p100": 41.0,
+    "mean": 3.6425,
+    "n": 400
+   }
+  }
+ }
+}

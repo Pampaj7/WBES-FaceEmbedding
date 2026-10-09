@@ -1,0 +1,164 @@
+{
+ "trasporto lineare": {
+  "ok": true,
+  "info": 1.829647544582258e-13
+ },
+ "interpolante sui punti (FLAME)": {
+  "ok": true,
+  "info": {
+   "max_abs": 0.0,
+   "frac_inside": 0.996617050067659
+  }
+ },
+ "raccordo continuo su bfm2019": {
+  "ok": true,
+  "info": {
+   "seam_max": 0.9064661108004215,
+   "region_max": 1.037188166715248,
+   "hard_cut_seam_max": 18.632266533406078
+  }
+ },
+ "raccordo continuo su ict": {
+  "ok": true,
+  "info": {
+   "seam_max": 0.4262701978766133,
+   "region_max": 0.8626796011029345,
+   "hard_cut_seam_max": 31.719720701505132
+  }
+ },
+ "raccordo continuo su gnm": {
+  "ok": true,
+  "info": {
+   "seam_max": 1.90749331598136,
+   "region_max": 2.5556158790305745,
+   "hard_cut_seam_max": 16.12748116163256
+  }
+ },
+ "raccordo continuo su flame2020": {
+  "ok": true,
+  "info": {
+   "seam_max": 0.6228308233040826,
+   "region_max": 1.3455570767303902,
+   "hard_cut_seam_max": 25.931682251499335
+  }
+ },
+ "stesso generatore -> stesso campione": {
+  "ok": true
+ },
+ "sequenza deterministica": {
+  "ok": true
+ },
+ "semi diversi -> campioni diversi": {
+  "ok": true
+ },
+ "ricostruzione dalla provenienza (JSON), bit per bit": {
+  "ok": true,
+  "info": {
+   "n": 30,
+   "diversi": []
+  }
+ },
+ "provenienza completa": {
+  "ok": true,
+  "info": [
+   "expr_transfer",
+   "hybrid",
+   "pure",
+   "rbf"
+  ]
+ },
+ "licenza: ICT+GNM ridistribuibile": {
+  "ok": true
+ },
+ "licenza: ICT+FLAME non ridistribuibile": {
+  "ok": true
+ },
+ "licenza: FaMoS come espressione non ridistribuibile": {
+  "ok": true
+ },
+ "trasferimento d'espressione su bfm2019: neutra e FR invariate": {
+  "ok": true,
+  "info": {
+   "fonte": "flame2020",
+   "spostamento_max_vista": 5.206433408802937
+  }
+ },
+ "ibrido su bfm2019: GT esatta contro mesh": {
+  "ok": true,
+  "info": {
+   "max_mm": 0.31516798771223475,
+   "median_mm": 0.0289628966148922
+  }
+ },
+ "trasferimento d'espressione su ict: neutra e FR invariate": {
+  "ok": true,
+  "info": {
+   "fonte": "flame2020",
+   "spostamento_max_vista": 3.8370648951788695
+  }
+ },
+ "ibrido su ict: GT esatta contro mesh": {
+  "ok": true,
+  "info": {
+   "max_mm": 0.37273885188668937,
+   "median_mm": 0.019177997669427085
+  }
+ },
+ "trasferimento d'espressione su gnm: neutra e FR invariate": {
+  "ok": true,
+  "info": {
+   "fonte": "famos",
+   "spostamento_max_vista": 1.8012716979661718
+  }
+ },
+ "ibrido su gnm: GT esatta contro mesh": {
+  "ok": true,
+  "info": {
+   "max_mm": 0.24057673301286547,
+   "median_mm": 0.022493021910356892
+  }
+ },
+ "trasferimento d'espressione su flame2020: neutra e FR invariate": {
+  "ok": true,
+  "info": {
+   "fonte": "bfm2019",
+   "spostamento_max_vista": 4.827025849203405
+  }
+ },
+ "ibrido su flame2020: GT esatta contro mesh": {
+  "ok": true,
+  "info": {
+   "max_mm": 0.019807197038227538,
+   "median_mm": 0.0
+  }
+ },
+ "fonte di test rifiutata": {
+  "ok": true,
+  "info": "fonti non di training o sconosciute: {'hifi3d'} (ammesse ('bfm2019', 'ict', 'gnm"
+ },
+ "nessun modello dev/test caricato": {
+  "ok": true,
+  "info": [
+   "bfm2019",
+   "famos",
+   "flame2020",
+   "gnm",
+   "ict"
+  ]
+ },
+ "tutti i tipi, viste valide": {
+  "ok": true,
+  "info": {
+   "tipi": {
+    "rbf": 19,
+    "hybrid": 37,
+    "pure": 50,
+    "expr_transfer": 14
+   },
+   "frac_valide": 1.0,
+   "tentativi_medi": 0.016666666666666666,
+   "size_mask_tutte": true,
+   "s_per_vista": 0.04580756028493246
+  }
+ }
+}
