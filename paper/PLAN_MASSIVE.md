@@ -423,3 +423,34 @@ Baseline banali "solo dimensione" e "solo altezza", per vedere quanto di ogni GT
 Un modello unico serve entrambi i casi d'uso (coder in corso).
 
 **Baseline eque:** ogni metodo riceve la rimozione dei disturbi coerente con la GT. Per GT-F: ICP rigido, senza scala, in mm. Per GT-S: ICP di similarità.
+
+## 20. Esito di E12 e decisione sulla GT (9 ottobre)
+
+**Arbitro di identificabilità** (FaMoS, 95 persone, 2.639 catture neutre): la GT **F (form, mm) con allineamento rigido robusto per identità** separa meglio le persone, con AUC 0.9928 [0.9891, 0.9957]. Batte S, EDM ed EDM-s con IC che escludono lo 0: **la taglia è un tratto identitario e normalizzarla toglie identità.**
+
+**F pura** (nessuna trasformazione per identità) NON è equa. Su HIFI3D è dominata dalla posizione del volto nel frame del modello: spostamento mediano 5.5 mm, p95 15.9 mm. Non si osserva dalla geometria, e tutti i metodi restano sotto 0.12.
+
+**Decisione: GT di riferimento = F + rigida robusta ("FR").** È coerente con il principio dell'invarianza minima: si toglie solo la posa, che non si osserva; la taglia resta.
+
+**Con FR su HIFI3D nocrop:**
+
+| Metodo | Spearman |
+|---|---|
+| NICP P2Tri | **0.367** |
+| e108 | 0.194 |
+| Chamfer | 0.155 |
+
+- NICP − e108 = +0.174 [+0.092, +0.253].
+- Sul dev FaceScape e108 batte Chamfer con ogni GT (con F: +0.119).
+- Su FaceVerse nessuna differenza è significativa.
+
+**Lettura:**
+- il vantaggio del modello attuale esiste solo con la maxabs, la GT su cui è addestrato e che ha lo stesso divisore di scala del suo ingresso;
+- il modello è cieco alla taglia per costruzione, quindi con FR non può competere.
+
+**L'esperimento decisivo ora:** braccio `factorized` (ingresso in mm, ramo taglia più ramo forma, GT-SR) e braccio `ctrl-FR`. La domanda: il modello addestrato sulla GT giusta si avvicina a NICP?
+
+**Conseguenza per la tesi del paper:** "l'allineamento toglie identità" va precisata.
+- La normalizzazione di SCALA per identità toglie identità: l'arbitro lo mostra.
+- L'allineamento RIGIDO per identità è necessario e fa parte della GT.
+- Il vantaggio dei metodi con registrazione (NICP) con FR va riconosciuto. La metrica appresa deve vincere sul costo (circa 0.1 s di iscrizione e ricerca istantanea, contro 1.15 s per mesh e un ICP per coppia) e su robustezza e assenza di corrispondenze, oppure avvicinarsi in accuratezza.
