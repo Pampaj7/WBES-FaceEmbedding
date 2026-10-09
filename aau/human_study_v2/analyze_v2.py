@@ -35,6 +35,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+from scipy.stats import t as student_t
 
 THIS_DIR = Path(__file__).resolve().parent
 CHOICES = ("b", "c")
@@ -56,7 +57,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--self-test", action="store_true")
     p.add_argument("--sim-participants", type=int, default=40)
-    p.add_argument("--sim-follow", default="S", help="GT seguita dai partecipanti simulati")
+    p.add_argument("--sim-follow", default="all", help="GT seguita dai partecipanti simulati ('all' = SCENARIOS)")
     p.add_argument("--sim-accuracy", type=float, default=0.75)
     return p.parse_args()
 
@@ -193,6 +194,30 @@ def boot_counts(n: int, reps: int, rng) -> np.ndarray:
     return np.vstack([np.ones(n)] + [np.bincount(rng.integers(0, n, n), minlength=n) for _ in range(reps)])
 
 
+def crossed_se(H: np.ndarray, S: np.ndarray, reps: int, rng) -> dict:
+    """Errore standard della quota sum H / sum S per un disegno incrociato partecipanti x triplette (H, S: (P, T)
+    conteggi). V = V_P + V_T - V_0 (Owen 2007; Owen e Eckles 2012): V_P e V_T dai bootstrap sui soli
+    partecipanti e sulle sole triplette, V_0 = q (1 - q) / n la varianza binomiale delle risposte indipendenti,
+    che ciascuno dei due contiene una volta e la somma conterebbe due (il bootstrap "pigeonhole" che ricampiona
+    insieme righe e colonne la conta due volte ed e' conservativo: alfa empirico 0.006-0.033 in power_v2.md).
+    Mai sotto il piu' grande dei due bootstrap separati."""
+    P, T = H.shape
+    q = H.sum() / S.sum()
+    vp = float(np.var(weighted_rate(H, S, boot_counts(P, reps, rng)[1:], None), ddof=1))
+    vt = float(np.var(weighted_rate(H.T, S.T, boot_counts(T, reps, rng)[1:], None), ddof=1))
+    v0 = float(q * (1.0 - q) / S.sum())
+    v = max(vp + vt - v0, vp, vt)
+    df = satterthwaite(v, vp, vt, int((S.sum(1) > 0).sum()), int((S.sum(0) > 0).sum()))
+    return {"se": math.sqrt(v), "df": df, "v_participants": vp, "v_triplets": vt, "v_iid": v0}
+
+
+def satterthwaite(v: float, vp: float, vt: float, n_p: int, n_t: int) -> float:
+    """Gradi di liberta' di Satterthwaite della varianza V_P + V_T (- V_0): il p si legge su una t, non sulla
+    normale, che con pochi partecipanti e' liberale (power_v2.md)."""
+    den = vp ** 2 / max(n_p - 1, 1) + vt ** 2 / max(n_t - 1, 1)
+    return float(max(v ** 2 / den, 2.0)) if den > 0 else float(max(n_p - 1, 2))
+
+
 def sign_flip_p(d: np.ndarray, n: np.ndarray, reps: int, rng) -> float:
     """p a due code di sum_p d_p / sum_p n_p = 0 col ribaltamento dei segni per partecipante."""
     obs = abs(d.sum())
@@ -258,24 +283,32 @@ def analyse(docs: list[dict], triplets: dict, meta: dict, gts: list[str], args) 
                                   "p_signflip": sign_flip_p(d, n_p, args.n_perm, rng),
                                   "n_disagreeing_triplets": int((v.expected_c(a) != v.expected_c(b)).sum())})
     p_primary = {}
-    for label in meta["types"]:
+    for st in meta["strata"]:
+        label, x, y = st["label"], st["x"], st["y"]
         m = v.type == label
-        x, y = label.split("_vs_")
         Sm = S[:, m]
         Hx, Hy = H[x][:, m] if x in H else v.hit(x)[:, m], H[y][:, m] if y in H else v.hit(y)[:, m]
         if not np.allclose(Hx + Hy, Sm):
             raise AssertionError(f"{label}: {x} e {y} non sono opposte su tutte le triplette dello strato")
+        # PRIMARIO: varianza per disegno incrociato partecipanti x triplette (crossed_se): le triplette sono un
+        # campione anche loro, e ricampionare solo i partecipanti sottostima la varianza (alfa reale fino a 0.20
+        # con eterogeneita' fra triplette, power_v2.md).
         r = weighted_rate(Hx, Sm, CP, None)
-        rx = weighted_rate(Hx, Sm, CP, CTx[:, m])
-        d = (Hx - Hy).sum(1)
-        p = sign_flip_p(d, Sm.sum(1), args.n_perm, rng)
+        cx = crossed_se(Hx, Sm, args.n_bootstrap, rng)
+        se, df = cx["se"], cx["df"]
+        z = (float(r[0]) - 0.5) / se if se > 0 else math.inf
+        p = float(2.0 * student_t.sf(abs(z), df))
         p_primary[label] = p
+        d = (Hx - Hy).sum(1)
         lo, hi = ci(r[1:])
-        xlo, xhi = ci(rx[1:])
-        rec = {"type": label, "x": x, "y": y, "share_with_x": float(r[0]), "ci_low": lo, "ci_high": hi,
-               "ci_low_crossed": xlo, "ci_high_crossed": xhi, "diff_x_minus_y": float(2 * r[0] - 1),
-               "p_signflip": p, "n_responses": int(Sm.sum()), "n_participants": int((Sm.sum(1) > 0).sum()),
-               "n_triplets_seen": int((Sm.sum(0) > 0).sum())}
+        tq = float(student_t.ppf(0.975, df))
+        xlo, xhi = float(r[0]) - tq * se, float(r[0]) + tq * se
+        rec = {"type": label, "x": x, "y": y, "share_with_x": float(r[0]), "ci_low_crossed": xlo,
+               "ci_high_crossed": xhi, "se_crossed": se, "df_crossed": df, "z_crossed": z, "p_crossed": p,
+               "var_components": {k: cx[k] for k in ("v_participants", "v_triplets", "v_iid")}, "ci_low": lo,
+               "ci_high": hi, "diff_x_minus_y": float(2 * r[0] - 1),
+               "p_signflip": sign_flip_p(d, Sm.sum(1), args.n_perm, rng), "n_responses": int(Sm.sum()),
+               "n_participants": int((Sm.sum(1) > 0).sum()), "n_triplets_seen": int((Sm.sum(0) > 0).sum())}
         rec["others_share"] = {g: float((H[g][:, m].sum()) / max(Sm.sum(), 1)) for g in gts}
         res["strata"].append(rec)
     res["holm"] = holm(p_primary, args.alpha)
@@ -309,18 +342,23 @@ def write_report(out_dir: Path, args, meta, screening, res, n_dup) -> Path:
          f"{kept} partecipanti tenuti su {len(screening)} (fuori: piu' di {args.max_control_errors} errori sui "
          f"controlli; {n_dup} sessioni duplicate scartate). {res['n_responses']} risposte di test, "
          f"{res['n_triplets_seen']} triplette viste su {res['n_test_triplets']}.", "",
-         "## Test primari: dentro ogni tipo, quota delle risposte che sta con X", "",
-         "IC 95% bootstrap sui partecipanti (tra parentesi quadre il bootstrap incrociato partecipanti x "
-         "triplette); p a due code col ribaltamento dei segni per partecipante; Holm sui tipi.", "",
-         "| tipo | quota con X | IC 95% | IC incrociato | accordo X - Y | p | p Holm | rifiuta H0 | risposte |",
-         "|---|---:|---|---|---:|---:|---:|---|---:|"]
+         "## Test primari: dentro ogni strato, quota delle risposte che sta con X", "",
+         "PRIMARIO: errore standard per disegno incrociato partecipanti x triplette (V_P + V_T - V_0, "
+         "`crossed_se`), IC 95% e p a due code su una t con gradi di liberta' di Satterthwaite, Holm sugli "
+         "strati. Secondari: IC bootstrap sui soli partecipanti e p a segni ribaltati per partecipante (non "
+         "tengono conto della variabilita' fra triplette).", "",
+         "| strato | quota con X | IC 95% incrociato | p incrociato | p Holm | rifiuta H0 | accordo X - Y | "
+         "IC partecipanti | p segni | risposte |",
+         "|---|---:|---|---:|---:|---|---:|---|---:|---:|"]
     for r in res["strata"]:
         h = res["holm"][r["type"]]
-        L.append(f"| `{r['type']}` | {r['share_with_x']:.3f} | [{r['ci_low']:.3f}, {r['ci_high']:.3f}] | "
-                 f"[{r['ci_low_crossed']:.3f}, {r['ci_high_crossed']:.3f}] | {r['diff_x_minus_y']:+.3f} | "
-                 f"{r['p_signflip']:.4f} | {h['p_holm']:.4f} | {'si' if h['reject'] else 'no'} | {r['n_responses']} |")
+        L.append(f"| `{r['type']}` | {r['share_with_x']:.3f} | "
+                 f"[{r['ci_low_crossed']:.3f}, {r['ci_high_crossed']:.3f}] | "
+                 f"{r['p_crossed']:.4f} | {h['p_holm']:.4f} | {'si' if h['reject'] else 'no'} | "
+                 f"{r['diff_x_minus_y']:+.3f} | [{r['ci_low']:.3f}, {r['ci_high']:.3f}] | {r['p_signflip']:.4f} | "
+                 f"{r['n_responses']} |")
     L += ["", "## Accordo complessivo (tutte le triplette di test)", "",
-          "| GT | accordo | IC 95% partecipanti | IC incrociato |", "|---|---:|---|---|"]
+          "| GT | accordo | IC 95% partecipanti | IC incrociato (pigeonhole, conservativo) |", "|---|---:|---|---|"]
     for r in sorted(res["overall"], key=lambda r: -r["agreement"]):
         L.append(f"| {r['gt']} | {r['agreement']:.3f} | [{r['ci_low']:.3f}, {r['ci_high']:.3f}] | "
                  f"[{r['ci_low_crossed']:.3f}, {r['ci_high_crossed']:.3f}] |")
@@ -395,40 +433,61 @@ def simulate(triplets: dict, meta: dict, out_dir: Path, args) -> None:
             (out_dir / "PSTALE.json").write_text(json.dumps(stale), encoding="utf-8")
 
 
+# Comportamenti simulati e attese per strato: +1 = vince X con H0 rifiutata, -1 = vince Y, 0 = H0 NON rifiutata
+# (lo strato non deve confondere quel comportamento con il proprio contrasto).
+SCENARIOS = {
+    "S": {"F_vs_S": -1, "S_vs_maxabs": +1, "F_vs_size": +1},
+    "F": {"F_vs_S": +1, "S_vs_maxabs": 0, "F_vs_size": +1},
+    "size_only": {"F_vs_S": +1, "S_vs_maxabs": 0, "F_vs_size": -1},
+}
+
+
+def run_scenario(args, meta, triplets, gts, follow: str, tmp: Path) -> tuple[list[str], dict]:
+    d = tmp / f"responses_{follow}"
+    args.sim_follow = follow
+    simulate(triplets, meta, d, args)
+    docs, n_other, n_stale = only_v2(load_responses_dir(d), meta)
+    docs, n_dup = dedupe(docs)
+    kept, screening = screen(docs, triplets, args.max_control_errors)
+    res = analyse(kept, triplets, meta, gts, args)
+    md = write_report(tmp / f"analysis_{follow}", args, meta, screening, res, n_dup)
+    fail = []
+    if (n_other, n_stale, n_dup) != (1, 1, 1):
+        fail.append(f"scartati attesi 1 v1, 1 su triplette rigenerate, 1 duplicato: {n_other}, {n_stale}, {n_dup}")
+    if len(kept) != args.sim_participants - 1:
+        fail.append(f"attesi {args.sim_participants - 1} tenuti, trovati {len(kept)}")
+    for r in res["strata"]:
+        want = SCENARIOS.get(follow, {}).get(r["type"])
+        rej = res["holm"][r["type"]]["reject"]
+        got = 0 if not rej else (1 if r["share_with_x"] > 0.5 else -1)
+        if want is not None and got != want:
+            fail.append(f"{r['type']}: atteso {want:+d}, ottenuto {got:+d} (quota {r['share_with_x']:.3f}, "
+                        f"p {r['p_crossed']:.4f})")
+        if not (r["ci_low_crossed"] <= r["share_with_x"] <= r["ci_high_crossed"]):
+            fail.append(f"{r['type']}: stima fuori dal proprio IC")
+    return fail, {"md": md, "res": res}
+
+
 def run_self_test(args, meta, triplets, gts) -> int:
+    """Per ogni comportamento di SCENARIOS (``--sim-follow`` ne sceglie uno solo; ``all`` = tutti) i partecipanti
+    simulati devono produrre esattamente gli esiti attesi: in particolare chi segue F o la sola taglia NON deve
+    produrre un effetto in ``S_vs_maxabs``."""
+    follows = list(SCENARIOS) if args.sim_follow == "all" else [args.sim_follow]
+    fails = 0
     with tempfile.TemporaryDirectory(prefix="hs2_selftest_") as tmp:
-        d = Path(tmp) / "responses"
-        simulate(triplets, meta, d, args)
-        docs, n_other, n_stale = only_v2(load_responses_dir(d), meta)
-        docs, n_dup = dedupe(docs)
-        kept, screening = screen(docs, triplets, args.max_control_errors)
-        res = analyse(kept, triplets, meta, gts, args)
-        md = write_report(Path(tmp) / "analysis_v2", args, meta, screening, res, n_dup)
-        print(md.read_text(encoding="utf-8"))
-        fail = []
-        if n_other != 1:
-            fail.append(f"atteso 1 payload della v1 scartato, trovati {n_other}")
-        if n_stale != 1:
-            fail.append(f"atteso 1 payload su triplette rigenerate scartato, trovati {n_stale}")
-        if n_dup != 1:
-            fail.append(f"atteso 1 duplicato, trovati {n_dup}")
-        if len(kept) != args.sim_participants - 1:
-            fail.append(f"attesi {args.sim_participants - 1} tenuti, trovati {len(kept)}")
-        f = args.sim_follow
-        for r in res["strata"]:
-            if f in (r["x"], r["y"]):
-                want_x = r["x"] == f
-                if (r["share_with_x"] > 0.5) != want_x or not res["holm"][r["type"]]["reject"]:
-                    fail.append(f"{r['type']}: la GT seguita ({f}) doveva vincere con H0 rifiutata")
-            if not (r["ci_low"] <= r["share_with_x"] <= r["ci_high"]):
-                fail.append(f"{r['type']}: stima fuori dal proprio IC")
-        best = max((r for r in res["overall"] if r["gt"] in meta["principal_gts"]), key=lambda r: r["agreement"])
-        if best["gt"] != f:
-            fail.append(f"accordo complessivo massimo atteso per {f}, e' {best['gt']}")
-        for line in fail:
-            print(f"[self-test] FALLITO: {line}", file=sys.stderr)
-        print(f"[self-test] {'OK' if not fail else 'FALLITO'}: {args.sim_participants} simulati, {len(kept)} tenuti")
-        return 1 if fail else 0
+        for f in follows:
+            fail, out = run_scenario(args, meta, triplets, gts, f, Path(tmp))
+            rows = ", ".join(f"{r['type']} {r['share_with_x']:.3f} (p {r['p_crossed']:.4f})"
+                             for r in out["res"]["strata"])
+            print(f"[self-test] segue {f}: {rows}")
+            for line in fail:
+                print(f"[self-test] FALLITO ({f}): {line}", file=sys.stderr)
+            fails += bool(fail)
+            if f == follows[-1]:
+                print(out["md"].read_text(encoding="utf-8")[:3000])
+    print(f"[self-test] {'OK' if not fails else 'FALLITO'}: {len(follows)} comportamenti, {args.sim_participants} "
+          f"simulati ciascuno")
+    return 1 if fails else 0
 
 
 def main() -> int:

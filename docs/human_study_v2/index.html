@@ -185,18 +185,28 @@ window.WBES_FORM = {
      it happens again tell the person who invited you.</p>
 </section>
 
+<section id="hs-screen-already" hidden>
+  <h1>Thank you, you have already taken part</h1>
+  <p>This browser has already sent a complete set of answers
+     (participant code <code id="hs-already-code"></code>). Each person should take part only
+     once, so there is nothing else to do.</p>
+</section>
+
 <section id="hs-screen-consent" hidden>
   <h1>Face similarity study</h1>
   <p>Thank you for taking part. You will compare <b>computer-generated faces</b>. The
      images are renderings of synthetic 3D face models: <b>no real person is shown</b>, and
      no photograph of anyone is used.</p>
+  <p class="muted">The 3D faces are generated with the GNM Head model (Ploumpis et al.,
+     Google, 2026), released under the Apache License 2.0.</p>
   <h2>What you will do</h2>
   <p>After <span id="hs-consent-np">3</span> practice screens you will see
      <span id="hs-consent-n">64</span> screens. Each shows one reference face in the middle
      and two other faces on its left and right. You pick the one that looks more similar to
      the reference. It takes about <b>10 minutes</b>.</p>
   <h2>What is recorded</h2>
-  <p>Only your choices, how long each one took and which browser you used. <b>No personal
+  <p>Only your choices, how long each one took, which browser you used and the size and
+     pixel density of your screen (window width and height, device pixel ratio). <b>No personal
      data</b>: no name, no e-mail, no IP address, no cookie. Your answers are stored under a
      random participant code and cannot be traced back to you, so they are
      <b>anonymous</b>. Until you finish, your answers are also kept in this browser, so
@@ -224,9 +234,8 @@ window.WBES_FORM = {
   <ul>
     <li>Tap or click on a candidate, or press <b>1</b> for the left one and <b>2</b> for the
       right one.</li>
-    <li><b>Ignore light and shadows: look at the shape.</b> All faces are rendered with the
-      same grey material, the same lighting and the same camera, at the same scale, with no
-      hair, skin tone or texture.</li>
+    <li><b>Ignore light and shadows.</b> All faces are rendered in the same way: grey
+      material, same lighting, same camera, no hair, skin tone or texture.</li>
     <li>Go with your first impression. There is no right answer and no time limit, but
       about 5 to 10 seconds per screen is the right pace.</li>
     <li>You cannot go back to a previous screen.</li>
@@ -240,7 +249,7 @@ window.WBES_FORM = {
 <section id="hs-screen-ready" hidden>
   <h1>Practice done</h1>
   <p>The study starts now: <span id="hs-ready-n">64</span> screens, same task.</p>
-  <p class="muted">Ignore light and shadows: look at the shape.</p>
+  <p class="muted">Ignore light and shadows.</p>
   <button id="hs-ready-next" class="primary">Start the study</button>
 </section>
 
@@ -259,8 +268,8 @@ window.WBES_FORM = {
     <div class="reference"><span class="tag">Reference</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-a" alt="reference face"></span></div>
     <button class="option" id="hs-opt-right"><span class="tag">2 &mdash; right</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-right" alt="candidate 2"></span></button>
   </div>
-  <p class="muted">Which candidate is more similar to the reference in the middle? Tap it,
-     or press 1 / 2. Ignore light and shadows: look at the shape.</p>
+  <p class="muted">Which face is more similar to the reference face? Tap it, or press 1 / 2.
+     Ignore light and shadows.</p>
   <p class="muted" id="hs-sync"></p>
 </section>
 
@@ -314,6 +323,9 @@ const N_CONTROL = 4;
 const ITI_MS = 300;           // schermo vuoto fra una risposta e la prova dopo
 const SEND_TIMEOUT_MS = 20000;
 const STORE_KEY = "wbes_human_study_v2";
+// Dopo un invio riuscito: "gia' partecipato", per non aprire una seconda sessione dallo
+// stesso browser (non impedisce un altro browser, ma toglie il caso del reload a fine studio).
+const DONE_KEY = "wbes_human_study_v2_done";
 const STUDY_VERSION = "v2";
 
 const el = (id) => document.getElementById(id);
@@ -617,9 +629,12 @@ async function submit(body) {
     el("hs-save-busy").hidden = true;
     el("hs-save-fail").hidden = true;
     el("hs-save-ok").hidden = false;
-    // Inviato: la copia locale non serve piu', e un nuovo accesso dallo stesso browser
-    // deve partire con una sessione nuova.
+    // Inviato: la copia locale non serve piu', e lo stesso browser non deve aprire una
+    // seconda sessione.
     storeClear();
+    try {
+      localStorage.setItem(DONE_KEY, JSON.stringify({ code: state.code, finished: body.finished }));
+    } catch (e) { /* senza storage il controllo non c'e', pazienza */ }
   } catch (err) {
     exportFlow(body, "The connection to the study form failed.");
     el("hs-done-retry").hidden = false;
@@ -689,9 +704,17 @@ function boot(data) {
   const np = Math.min(N_PRACTICE, data.triplets.filter((t) => t.kind === "practice").length);
   for (const id of ["hs-consent-np", "hs-instr-np"]) el(id).textContent = String(np);
   for (const id of ["hs-consent-n", "hs-ready-n"]) el(id).textContent = String(N_TEST + N_CONTROL);
+  // Una sessione salvata e non ancora inviata ha la precedenza: va finita o rinviata.
   const found = storeLoad(data);
   if (found) { resume(found); return; }
   storeClear();
+  let done = null;
+  try { done = JSON.parse(localStorage.getItem(DONE_KEY) || "null"); } catch (e) { done = null; }
+  if (done && done.code) {
+    el("hs-already-code").textContent = done.code;
+    show("hs-screen-already");
+    return;
+  }
   show("hs-screen-consent");
 }
 

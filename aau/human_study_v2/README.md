@@ -1,121 +1,109 @@
-# Studio umano v2: form contro shape, con render a scala assoluta
+# Studio umano v2: taglia, forma e normalizzazione nel giudizio umano di somiglianza
 
-Arbitro percettivo di `paper/PLAN_MASSIVE.md` §19. La domanda principale e' se, nel giudizio umano di
-somiglianza, conti la taglia assoluta (GT-F) o no (GT-S). La seconda e' se maxabs sia peggiore della shape. Il
-protocollo, scritto prima dei dati, sta in `PROTOCOL.md` (revisione 2, hash in `PROTOCOL.sha256`). Lo studio v1
+Arbitro percettivo di `paper/PLAN_MASSIVE.md` §19 fra le GT di E12. Il protocollo, scritto prima dei dati, sta in
+`PROTOCOL.md` (revisione 3, hash in `PROTOCOL.sha256`), con le letture dichiarate per ogni strato. Lo studio v1
 (`aau/human_study/`, `docs/human_study/`) non e' toccato.
 
-## Cosa cambia dalla v1
+## Disegno in breve
 
-| | v1 | v2 |
-|---|---|---|
-| volti | BFM REMESH (taglia gia' normalizzata, CV 1.9%) | GNM Head, 100 identita' campionate, CV della taglia 5.3% |
-| geometria | maxabs per mesh (volti "alti uguali") | mm nel frame di GT-F + rigida robusta, mai una scala per mesh |
-| camera | fissa, ma su mesh gia' normalizzate | ortografica, 1.745 px/mm, una finestra per tutti i volti e le viste |
-| viste | frontale | frontale, 3/4, profilo nella stessa immagine |
-| visibilita' | painter's algorithm | ray casting (open3d/Embree) |
-| triplette | metriche in disaccordo | F contro S (principale), S contro maxabs, margini grandi |
-| sessione | 36 + 4 controlli | 3 di prova + 60 test (36 + 24) + 4 controlli, circa 10 minuti |
-| analisi | accordo con la maggioranza per tripletta | quota per strato, segni ribaltati per partecipante, Holm |
-
-**Disposizione della prova.** Ogni volto e' una striscia verticale (frontale, 3/4, profilo). La pagina mostra tre
-colonne: candidato 1 | riferimento | candidato 2. La scelta segue tre criteri:
-- le righe allineano la stessa vista dei tre volti, cosi' si confronta frontale con frontale e profilo con profilo;
-- tutto sta in uno schermo senza animazioni, mentre una rotazione automatica mostrerebbe una vista alla volta e
-  il confronto dipenderebbe dalla memoria;
-- il riferimento al centro sta alla stessa distanza dai due candidati, e il lato dei candidati resta sorteggiato.
-
-**Dominio.** GNM Head e' sotto Apache-2.0 (codice e pesi, `~/data/gnm_head/PROVENANCE.md`): i render sono
-pubblicabili, citando ploumpis2026gnmhead. ICT (MIT) aveva un CV di 4.8%. BFM REMESH (1.9%) e FaceScape (1.6%)
-sono troppo stretti, e FaceScape non e' distribuibile. Nei render la testa ha la stessa rigida robusta della GT F,
-e si vede la maschera del volto (`hockey_mask`, che contiene tutta la regione delle GT) con gli occhi.
-
-## GT dello studio
-
-Tutte con le funzioni di `v3_work/canonical_gt/cgt.py`; dettagli in `gt_v2.py`.
-
-| GT | definizione |
+| | |
 |---|---|
-| F | regione in mm, rigida robusta per identita' verso mu (la GT form di riferimento di E12) |
-| S | la stessa centrata e scalata alla centroid size di mu (Procrustes pieno); NON la S di E12 a punto fisso |
-| maxabs | legacy zero-shot: patch `hockey_mask`, maxabs per mesh, media per vertice della L2 |
-| secondarie | EDM, EDM_s, unified, F_rig_ls, F_pure, "solo taglia", "solo altezza" |
+| volti | GNM Head (Apache-2.0), 100 identita' campionate, CV della taglia 5.3% |
+| geometria | mm nel frame di GT-F di E12 + rigida robusta per identita' (come la GT F); mai una scala per mesh |
+| camera | ortografica, 1.745 px/mm, una finestra per tutti i volti e le viste; ray casting |
+| immagine | striscia verticale frontale / 3/4 / profilo; prova = candidato \| riferimento \| candidato |
+| strati | `F_vs_S` (principale: la taglia conta?), `F_vs_size` (forma oltre la taglia?), `S_vs_maxabs` a taglia neutra |
+| sessione | 3 di prova + 60 test (24/18/18) + 4 controlli, circa 10 minuti |
+| analisi | quota con X per strato, SE incrociato partecipanti x triplette, t di Satterthwaite, Holm |
+| obiettivo | 60 partecipanti tenuti |
 
-Spearman F-S sulle 4.950 coppie: 0.59, contro 0.96 su BFM REMESH. F segue la taglia: F con "solo taglia" 0.80.
+**Disposizione della prova.** Le righe allineano la stessa vista dei tre volti. Tutto sta in uno schermo,
+senza animazioni che obblighino a ricordare. Il riferimento al centro sta alla stessa distanza dai due candidati,
+e il lato dei candidati e' sorteggiato.
+
+**Istruzioni.** Sono neutre: "Which face is more similar to the reference face? Ignore light and shadows". La
+parola "shape" non compare. La resa comune (grigio, stessa luce, stessa camera) e' detta una volta sola.
+
+## GT e strati
+
+Le GT sono calcolate con le funzioni di `v3_work/canonical_gt/cgt.py` (`gt_v2.py`):
+- **F:** rigida robusta per identita', in mm;
+- **S:** la stessa centrata e scalata per centroid size;
+- **maxabs:** legacy zero-shot;
+- **"solo taglia":** |Δ log CS|;
+- **secondarie:** EDM, EDM_s, unified, F_rig_ls, F_pure, "solo altezza".
+
+| strato | chi sta con X (quota delle triplette) | lettura di q > 0.5 |
+|---|---|---|
+| `F_vs_S` | F, EDM, "solo taglia" (100%) contro S, unified, maxabs | la taglia conta |
+| `F_vs_size` | F, S, maxabs, unified, EDM (99-100%) contro "solo taglia" | oltre la taglia conta la forma |
+| `S_vs_maxabs` | S, unified; F e "solo taglia" al 50% (bilanciati), "solo altezza" al 36% | maxabs e' peggiore della shape |
+
+`S_vs_maxabs` e' a taglia neutra (contrasto di taglia ≤ 1%) e bilanciato. Il self-test lo verifica: partecipanti
+simulati che seguono F o la sola taglia NON producono un effetto in questo strato (p 0.81 e 0.92).
 
 ## Esecuzione
 
-Tutto su CPU, nel venv della GT unificata (`v3_work/unified_gt/run.sh`: open3d per il ray casting):
+Tutto su CPU, nel venv della GT unificata (`v3_work/unified_gt/run.sh`: open3d per il ray casting). Il nodo `cpu`
+ha avuto errori di prolog: in quel caso conviene `-p prioritized --gres=NONE`.
 
 ```bash
-sbatch aau/human_study_v2/run.sbatch                            # gt, render, select, selftest (~5 min)
-HS2_STEPS="gt select" sbatch aau/human_study_v2/run.sbatch      # se E12 cambia cgt.py / gt.py, PRIMA della raccolta
-HS2_STEPS=power sbatch aau/human_study_v2/run.sbatch            # potenza (~5 min)
+sbatch aau/human_study_v2/run.sbatch                          # gt, render, select, selftest (~5 min)
+HS2_STEPS=power sbatch aau/human_study_v2/run.sbatch          # alfa empirico e potenza (~20 min con 16 CPU)
 ```
 
 | file | ruolo |
 |---|---|
-| `hs2.py` | dominio GNM, campionamento delle identita', frame di GT-F, rigida robusta, triangoli da renderizzare |
-| `gt_v2.py` | GT in `datasets/HUMAN_STUDY_V2/gt/` (+ `size.csv`, `rigid.csv`, `gt_corr.csv`) |
-| `render_v2.py` | render in `datasets/HUMAN_STUDY_V2/renders/`, `camera.json`, `render_check.json`, `checks/size_extremes.png` |
-| `select_triplets_v2.py` | `triplets.json`, `triplets_stats.md`, `docs/human_study_v2/{triplets.js,img/}` |
-| `analyze_v2.py` | analisi (`--form-csv` o `--responses-dir`), `--self-test` |
-| `power_v2.py` | `power_v2.md`, `power_v2.json` |
-
-Matrici e PNG stanno fuori da git (`datasets/`); nella pagina vanno solo i JPEG.
+| `hs2.py` | dominio GNM, campionamento, frame di GT-F, rigida robusta, triangoli da renderizzare |
+| `gt_v2.py` | GT in `datasets/HUMAN_STUDY_V2/gt/` |
+| `render_v2.py` | render, `camera.json`, `render_check.json`, `checks/size_extremes.png` |
+| `select_triplets_v2.py` | strati (`STRATA`: vincoli di taglia e bilanciamento), `triplets.json`, `triplets_stats.md`, `docs/human_study_v2/` |
+| `analyze_v2.py` | analisi (`--form-csv` o `--responses-dir`); `--self-test` con i comportamenti di `SCENARIOS` |
+| `power_v2.py` | alfa empirico dei tre test e potenza del primario: `power_v2.md`, `power_v2.json` |
 
 ## Raccolta e analisi
 
-La pagina invia al Google Form condiviso con la v1. Il payload porta `study_version: "v2"`, id `v2_*` e
-`triplets_hash` (`30f02a3b4150927c`). Dal foglio esportato in CSV:
+La pagina invia al Google Form condiviso con la v1. Il payload porta:
+- `study_version: "v2"`;
+- id `v2_*`;
+- `triplets_hash` (`9cea595d967d69ab`);
+- dimensioni della finestra e DPR, dichiarati nel consenso.
+
+Dopo un invio riuscito lo stesso browser mostra "already taken part".
 
 ```bash
 aau/human_study_v2/analyze_v2.py --form-csv risposte.csv
 ```
 
-Vengono ignorati, e contati:
-- i payload della v1;
-- quelli fatti su triplette con un'altra impronta;
-- i duplicati.
-
-L'esclusione e' quella della v1: piu' di 1 errore sui 4 controlli.
-
-L'analisi produce:
-- **primarie:** per `F_vs_S` e `S_vs_maxabs`, la quota delle risposte con la prima GT, con IC bootstrap per
-  partecipante, p a segni ribaltati e Holm su 2;
-- **secondarie:** l'accordo complessivo per GT e le differenze appaiate.
+**Inferenza primaria.** Il test a segni ribaltati per partecipante ignora che anche le triplette sono un
+campione: in simulazione il suo alfa arriva a 0.19. Il primario usa quindi V = V_P + V_T - V_0, cioe' i bootstrap
+sui soli partecipanti e sulle sole triplette meno la varianza binomiale (Owen 2007). Il p si legge su una t di
+Satterthwaite. L'alfa empirico va da 0.043 a 0.075 (mediana circa 0.056) su 48 condizioni.
 
 ## Calcolo di potenza
 
-`power_v2.py` (tabelle complete in `power_v2.md`). Il modello simula:
-- 36 prove per partecipante su 120 triplette (F_vs_S) e 24 su 80 (S_vs_maxabs);
-- un effetto casuale logit per partecipante con sd 0.5 (nella v1: 0.21-0.38 oltre la binomiale);
-- un effetto per tripletta con sd 0 o 0.8;
-- il test a segni ribaltati.
+Tabelle complete in `power_v2.md`. Il caso prudente ha sd 1.0 fra partecipanti e 0.8 fra triplette, con alfa
+0.05/3 (Holm, caso peggiore). N tenuti per l'80%:
 
-La soglia alfa = 0.025 corrisponde al caso peggiore di Holm su 2 strati. N tenuti:
+| differenziale (2q - 1) | F_vs_S | F_vs_size | S_vs_maxabs |
+|---:|---:|---:|---:|
+| 0.15 | 200 | 200 | 250 |
+| 0.20 | **60** | 80 | 80 |
+| 0.30 | 25 | 30 | 30 |
 
-| q nello strato | accordo X - Y | F_vs_S 80% | F_vs_S 90% | S_vs_maxabs 80% | S_vs_maxabs 90% |
-|---:|---:|---:|---:|---:|---:|
-| 0.55 | 0.10 | 100 | 120-150 | 100-120 | 150->200 |
-| 0.575 | 0.15 | 40 | 50 | 50 | 60-70 |
-| 0.60 | 0.20 | 25 | 30 | 25-30 | 35 |
-| 0.65 | 0.30 | 12 | 15 | 12-15 | 15-18 |
+Con sd 0.5 fra partecipanti (nella v1 era 0.21-0.38), a 0.20, ne bastano 40-50.
 
-**Differenziale realistico.** Nella v1 l'accordo per risposta era 0.619 (LPIPS) contro 0.488 (maxabs), un
-differenziale di 0.13. Quei margini erano circa 3 volte piu' piccoli di quelli di adesso (mediana 0.42-0.48), e
-nello strato principale le teste differiscono fino al 30% in taglia. Si pianifica quindi su q = 0.60
-(differenziale 0.20), con q = 0.575 come caso prudente.
+**Pianificazione: differenziale 0.20, 60 partecipanti tenuti.** La v1 dava 0.13 con margini circa 3 volte piu'
+piccoli, e qui il contrasto di taglia di `F_vs_S` e' ben visibile.
 
-**Servono 40 partecipanti tenuti** (minimo utile 25):
-- per F_vs_S, l'80% di potenza anche a q = 0.575;
-- il 90% a q = 0.60 su entrambi gli strati.
-
-Nella v1 il controllo di attenzione non ha escluso nessuno su 7.
+**Limite:** con 60 partecipanti:
+- gli strati secondari arrivano al 76-77% nel caso prudente;
+- un differenziale di 0.15 richiederebbe 200-250 persone.
 
 ## Limiti
 
 Dettagli in `PROTOCOL.md` §7:
 - identita' sintetiche di un solo modello;
-- la taglia si giudica solo per confronto fra i tre volti, a parita' di camera;
-- i render hanno la rigida robusta per identita', come la GT F.
+- "solo altezza" in `S_vs_maxabs` favorisce maxabs (non neutralizzabile insieme agli altri vincoli);
+- la taglia si giudica solo per confronto fra i tre volti;
+- il flag "gia' partecipato" vale per un solo browser.

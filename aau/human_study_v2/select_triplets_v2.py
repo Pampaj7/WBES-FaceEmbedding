@@ -6,11 +6,21 @@
 Pool completo sulle 100 identita' (100 x C(99,2) = 485.100 triplette, A riferimento, {B, C} non ordinata), come la
 v1 (``aau/human_study/select_triplets.py``). Una tripletta e' dello strato ``X_vs_Y`` se le GT X e Y ordinano
 d(A,B) e d(A,C) al contrario, CIASCUNA con margine relativo ``|d(A,B) - d(A,C)| / media >= --margin``.
-Strati (``--strata``, ``X:Y:triplette:prove per sessione``): **F contro S** (principale, 120 triplette, 36 prove)
-e **S contro maxabs** (80, 24). Gli strati si riempiono dal pool piu' piccolo al piu' grande senza riusare una
-tripletta; dentro uno strato si estrae a caso fra le ``--pool-factor x n`` col margine minimo (dei due) piu'
-grande: lo studio cerca disaccordi netti, che alzano il differenziale atteso. Tetto di ``--max-uses`` comparse
-per soggetto nei test. Le quote per sessione vanno nel meta: le usa la pagina.
+Strati (``STRATA``: triplette, prove per sessione, vincoli):
+  - **F_vs_S** (principale, 100 / 24): F e S opposte. Contrappone "con taglia" a "senza taglia" ("solo taglia" sta
+    con F in tutto lo strato): la lettura e' "la taglia conta per la somiglianza percepita";
+  - **F_vs_size** (80 / 18): F e "solo taglia" opposte, con una differenza di taglia percepibile
+    (|d_size(A,B) - d_size(A,C)| >= 0.02, cioe' 2% di centroid size) che F scavalca per la forma: dice se oltre
+    alla taglia conta la forma, nel verso di F;
+  - **S_vs_maxabs** (80 / 18) a TAGLIA NEUTRA: S e maxabs opposte con |d_size(A,B) - d_size(A,C)| <= 0.01, e
+    bilanciato: F e "solo taglia" stanno con S esattamente nella meta' delle triplette, cosi' chi giudica solo
+    con la taglia, o come F, non produce un effetto in questo strato. Le 4 celle (F con S si'/no x taglia con S
+    si'/no) non si possono riempire in parti uguali (a taglia neutra "F contro S, taglia con S" e' rarissima):
+    le quote rendono 50/50 le due marginali prendendo dalle celle miste il massimo disponibile (``cell_quotas``).
+Gli strati si riempiono dal pool piu' piccolo al piu' grande senza riusare una tripletta; dentro uno strato (e
+dentro ogni cella) si estrae a caso fra le ``--pool-factor x n`` col margine minimo (dei due) piu' grande: lo
+studio cerca disaccordi netti, che alzano il differenziale atteso. Tetto di ``--max-uses`` comparse per soggetto
+nei test. Le quote per sessione vanno nel meta: le usa la pagina.
 
 Controlli (attention check) e prove della sessione di prova: triplette in cui TUTTE le ``--control-gts`` sono
 d'accordo con margine >= ``--control-margin`` su ognuna; i due insiemi sono disgiunti.
@@ -42,7 +52,12 @@ import hs2
 PRINCIPAL = ("F", "S", "maxabs")
 # Lo stesso Google Form riceve v1 e v2: gli id della v2 hanno un prefisso che non si confonde con la v1
 ID_PREFIX = "v2_"
-STRATA = "F:S:120:36,S:maxabs:80:24"
+STRATA = (
+    {"label": "F_vs_S", "x": "F", "y": "S", "n": 100, "quota": 24},
+    {"label": "F_vs_size", "x": "F", "y": "size_only", "n": 80, "quota": 18, "min_abs": {"size_only": 0.02}},
+    {"label": "S_vs_maxabs", "x": "S", "y": "maxabs", "n": 80, "quota": 18, "neutral": {"size_only": 0.01},
+     "balance": ("F", "size_only")},
+)
 CONTROL_GTS = "F,S,EDM,unified,maxabs"
 
 
@@ -52,7 +67,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--renders", type=Path, default=hs2.RENDER_DIR)
     p.add_argument("--out-dir", type=Path, default=hs2.THIS_DIR)
     p.add_argument("--docs-dir", type=Path, default=hs2.DOCS_DIR)
-    p.add_argument("--strata", default=STRATA, help="X:Y:triplette:prove per sessione, separati da virgole")
     p.add_argument("--control-gts", default=CONTROL_GTS)
     p.add_argument("--n-control", type=int, default=30)
     p.add_argument("--n-practice", type=int, default=6)
@@ -107,45 +121,76 @@ def metric_view(S: np.ndarray, a, b, c) -> tuple[np.ndarray, np.ndarray, np.ndar
 
 # ------------------------------------------------------------------------ selezione
 
-def pair_pools(pairs, view, margin_thr) -> dict:
-    """Indici del pool in cui X e Y sono decisive e opposte, e il margine minimo dei due."""
+def stratum_pools(strata, view, margin_thr) -> dict:
+    """Per strato: (indici del pool in cui X e Y sono decisive e opposte e i vincoli valgono, margine minimo dei
+    due, cella di bilanciamento). ``neutral`` {G: tau}: |d_G(A,B) - d_G(A,C)| <= tau; ``min_abs`` {G: tau}: >= tau;
+    ``balance`` (G, ...): cella = per ogni G, se sta con X (2^k celle, quote uguali)."""
     out = {}
-    for x, y in pairs:
+    for st in strata:
+        x, y = st["x"], st["y"]
         dxb, dxc, mx = view[x]
         dyb, dyc, my = view[y]
         ok = (mx >= margin_thr) & (my >= margin_thr) & ((dxb < dxc) != (dyb < dyc))
+        for g, tau in st.get("neutral", {}).items():
+            ok &= np.abs(view[g][0] - view[g][1]) <= tau
+        for g, tau in st.get("min_abs", {}).items():
+            ok &= np.abs(view[g][0] - view[g][1]) >= tau
         idx = np.flatnonzero(ok)
-        out[f"{x}_vs_{y}"] = (idx, np.minimum(mx, my)[idx])
+        cell = np.zeros(idx.size, dtype=np.int64)
+        for k, g in enumerate(st.get("balance", ())):
+            with_x = (view[g][0][idx] < view[g][1][idx]) == (dxb[idx] < dxc[idx])
+            cell += with_x.astype(np.int64) << k
+        out[st["label"]] = (idx, np.minimum(mx, my)[idx], cell, 2 ** len(st.get("balance", ())))
     return out
 
 
-def take_pairs(pools: dict, n_of: dict, factor: int, max_uses: int, abc, rng) -> dict:
-    """Dal tipo piu' raro al piu' comune: le n*factor col margine piu' grande fra quelle non ancora usate, in
-    ordine casuale, poi il resto del pool per margine decrescente; si accetta una tripletta solo se nessuno dei
-    suoi tre soggetti e' gia' comparso ``max_uses`` volte nei test (i disaccordi si concentrano sui volti
-    estremi: senza tetto lo stesso volto tornerebbe in una prova su cinque)."""
+def cell_quotas(n: int, n_cells: int, avail: np.ndarray) -> np.ndarray:
+    """Quote per cella. 1 cella: n. 4 celle (bit 0 = G1 con X, bit 1 = G2 con X): marginali 50/50 per G1 e G2,
+    cioe' q0 + q2 = q2 + q3 = n / 2, con le celle miste (1, 2) uguali e il piu' grandi possibile (<= n / 4)."""
+    if n_cells == 1:
+        return np.array([n])
+    if n_cells != 4 or n % 2:
+        raise SystemExit("bilanciamento previsto solo per 2 GT e n pari")
+    mix = int(min(n // 4, avail[1], avail[2]))
+    return np.array([n // 2 - mix, mix, mix, n // 2 - mix])
+
+
+def take_strata(pools: dict, n_of: dict, factor: int, max_uses: int, abc, rng) -> dict:
+    """Dallo strato piu' raro al piu' comune, cella per cella: le n_cella x factor col margine piu'
+    grande fra quelle non ancora usate, in ordine casuale, poi il resto per margine decrescente; si accetta una
+    tripletta solo se nessuno dei suoi tre soggetti e' gia' comparso ``max_uses`` volte nei test (i disaccordi si
+    concentrano sui volti estremi: senza tetto lo stesso volto tornerebbe in una prova su cinque). Quote di
+    cella da ``cell_quotas``."""
     a, b, c = abc
     used: set[int] = set()
     uses = Counter()
     taken = {}
     for label in sorted(pools, key=lambda t: (len(pools[t][0]), t)):
-        idx, m = pools[label]
+        idx_all, m_all, cell_all, n_cells = pools[label]
         n = n_of[label]
-        free = np.array([i not in used for i in idx], dtype=bool)
-        idx, m = idx[free], m[free]
-        order = idx[np.argsort(-m, kind="stable")]
-        cand = np.concatenate([rng.permutation(order[: n * factor]), order[n * factor:]])
+        free_all = np.array([i not in used for i in idx_all], dtype=bool)
+        quotas = cell_quotas(n, n_cells, np.bincount(cell_all[free_all], minlength=n_cells))
         pick = []
-        for i in cand:
-            s3 = (int(a[i]), int(b[i]), int(c[i]))
-            if all(uses[s] < max_uses for s in s3):
-                pick.append(int(i))
-                uses.update(s3)
-                if len(pick) == n:
-                    break
-        if len(pick) < n:
-            raise SystemExit(f"[hs2-select] {label}: solo {len(pick)} triplette libere con margine sufficiente e "
-                             f"soggetti sotto il tetto, ne servono {n}. Abbassa --margin o alza --max-uses.")
+        for cell in range(n_cells):
+            free = free_all & (cell_all == cell)
+            idx, m = idx_all[free], m_all[free]
+            order = idx[np.argsort(-m, kind="stable")]
+            k = int(quotas[cell])
+            if k == 0:
+                continue
+            cand = np.concatenate([rng.permutation(order[: k * factor]), order[k * factor:]])
+            got = 0
+            for i in cand:
+                s3 = (int(a[i]), int(b[i]), int(c[i]))
+                if all(uses[s] < max_uses for s in s3):
+                    pick.append(int(i))
+                    uses.update(s3)
+                    got += 1
+                    if got == k:
+                        break
+            if got < k:
+                raise SystemExit(f"[hs2-select] {label}, cella {cell}: solo {got} triplette libere con i vincoli e "
+                                 f"soggetti sotto il tetto, ne servono {k}.")
         taken[label] = np.sort(np.array(pick))
         used.update(pick)
     return taken
@@ -207,6 +252,11 @@ def write_stats(path: Path, args, meta, entries, pools, view_names) -> None:
         f"| GT su disco | {', '.join(meta['gts'])} |",
         f"| strati (prove per sessione) | {', '.join(f'{t} ({q})' for t, q in meta['session_quota'].items())} |",
         f"| pool completo | {meta['pool_size']} triplette (A, {{B, C}}) |",
+        "| vincoli | " + "; ".join(f"{st['label']}: " + (", ".join(
+            [f"|d_{g}(A,B) - d_{g}(A,C)| <= {t}" for g, t in st.get("neutral", {}).items()]
+            + [f"|d_{g}(A,B) - d_{g}(A,C)| >= {t}" for g, t in st.get("min_abs", {}).items()]
+            + ([f"bilanciato 50/50 su {', '.join(st['balance'])}"] if st.get("balance") else [])) or "nessuno")
+            for st in meta["strata"]) + " |",
         f"| margine relativo | >= {args.margin:.2f} su entrambe le GT in disaccordo; estrazione fra le "
         f"{args.pool_factor} x n col margine minimo piu' grande, <= {args.max_uses} comparse per "
         f"soggetto nei test |",
@@ -217,7 +267,7 @@ def write_stats(path: Path, args, meta, entries, pools, view_names) -> None:
         "| tipo | disponibili (margine ok) | scelte | margine minimo: mediana / min nelle scelte |",
         "|---|---:|---:|---|",
     ]
-    for label, (idx, m) in sorted(pools.items(), key=lambda kv: len(kv[1][0])):
+    for label, (idx, *_rest) in sorted(pools.items(), key=lambda kv: len(kv[1][0])):
         chosen = [e for e in tests if e["disagreement_type"] == label]
         mm = np.array([min(e["metrics"][x]["margin"] for x in e["pair"]) for e in chosen])
         lines.append(f"| `{label}` | {len(idx)} | {len(chosen)} | {np.median(mm):.3f} / {mm.min():.3f} |")
@@ -252,12 +302,15 @@ def main() -> None:
     args = parse_args()
     rng = np.random.default_rng(args.seed)
     subjects, D, man = load_gts(args.gt_dir)
-    strata = [p.split(":") for p in args.strata.split(",") if p.strip()]
-    pairs = [(x, y) for x, y, _, _ in strata]
-    n_of = {f"{x}_vs_{y}": int(n) for x, y, n, _ in strata}
-    quota = {f"{x}_vs_{y}": int(q) for x, y, _, q in strata}
+    strata = STRATA
+    pairs = [(st["x"], st["y"]) for st in strata]
+    n_of = {st["label"]: st["n"] for st in strata}
+    quota = {st["label"]: st["quota"] for st in strata}
     control_gts = [g for g in args.control_gts.split(",") if g.strip()]
-    for g in {x for p in pairs for x in p} | set(control_gts):
+    need_gts = {x for p in pairs for x in p} | set(control_gts)
+    need_gts |= {g for st in strata for k in ("neutral", "min_abs") for g in st.get(k, {})}
+    need_gts |= {g for st in strata for g in st.get("balance", ())}
+    for g in need_gts:
         if g not in D:
             raise SystemExit(f"GT {g} assente da {args.gt_dir}")
     a, b, c = triplet_pool(len(subjects))
@@ -265,15 +318,12 @@ def main() -> None:
     print(f"[hs2-select] {len(subjects)} soggetti, pool {a.size}, GT {list(D)}, stato "
           f"{'definitivo' if man['frame'].get('e12_complete') else 'provvisorio'}", flush=True)
 
-    pools = pair_pools(pairs, view, args.margin)
-    for label, (idx, m) in pools.items():
+    pools = stratum_pools(strata, view, args.margin)
+    for label, (idx, m, cell, n_cells) in pools.items():
         print(f"[hs2-select] {label:<18} {idx.size:>7} disponibili, margine minimo mediano "
-              f"{np.median(m) if idx.size else float('nan'):.3f}", flush=True)
-    for label, (idx, m) in pools.items():
-        top = np.sort(m)[::-1][: n_of[label] * args.pool_factor]
-        print(f"[hs2-select] {label}: margine minimo fra le {top.size} migliori: {top.min():.3f}-{top.max():.3f}",
+              f"{np.median(m) if idx.size else float('nan'):.3f}, per cella {np.bincount(cell, minlength=n_cells)}",
               flush=True)
-    taken = take_pairs(pools, n_of, args.pool_factor, args.max_uses, (a, b, c), rng)
+    taken = take_strata(pools, n_of, args.pool_factor, args.max_uses, (a, b, c), rng)
     used = {int(i) for v in taken.values() for i in v}
 
     upool, umin = unanimous(view, control_gts, args.control_margin)
@@ -289,11 +339,11 @@ def main() -> None:
 
     # B e C si scambiano a caso: nel JSON non resta traccia di quale GT sta su b (la pagina sorteggia il lato).
     entries, n = [], 0
-    for label in [f"{x}_vs_{y}" for x, y in pairs]:
-        for idx in taken[label]:
+    for st in strata:
+        for idx in taken[st["label"]]:
             n += 1
-            entries.append(record(int(idx), "test", f"{ID_PREFIX}t{n:04d}", label, label.split("_vs_"), subjects,
-                                  a, b, c, view, args.margin, bool(rng.random() < 0.5)))
+            entries.append(record(int(idx), "test", f"{ID_PREFIX}t{n:04d}", st["label"], (st["x"], st["y"]),
+                                  subjects, a, b, c, view, args.margin, bool(rng.random() < 0.5)))
     for k, idx in enumerate(chosen_control, start=1):
         entries.append(record(int(idx), "control", f"{ID_PREFIX}c{k:04d}", "unanime", None, subjects, a, b, c, view,
                               args.margin, bool(rng.random() < 0.5)))
@@ -315,7 +365,8 @@ def main() -> None:
             "study": "v2", "study_version": "v2", "id_prefix": ID_PREFIX, "domain": hs2.DOMAIN,
             "identities": f"{hs2.N_SUBJECTS} campionate, seed {hs2.SEED}", "session_quota": quota,
             "n_subjects": len(subjects), "gts": list(D), "principal_gts": list(PRINCIPAL),
-            "types": [f"{x}_vs_{y}" for x, y in pairs], "control_gts": control_gts, "margin": args.margin,
+            "types": [st["label"] for st in strata], "strata": [dict(st) for st in strata],
+            "control_gts": control_gts, "margin": args.margin,
             "pool_factor": args.pool_factor, "max_uses": args.max_uses, "control_margin": args.control_margin,
             "n_test": sum(e["kind"] == "test" for e in entries),
             "n_control": sum(e["kind"] == "control" for e in entries),
