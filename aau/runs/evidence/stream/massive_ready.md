@@ -189,10 +189,10 @@ Configurazione: factorized, massive, mm_aug, k128, anello locale 20 GiB + CephFS
 
 Ipotesi:
 - 14 CPU per GPU: 4 al rank e 60 produttori per nodo;
-- passo da 1.05 s (un nodo, misurato) a 1.9 s (1 + 1 nodi, misurato);
+- passo 1.05-1.09 s, uguale su uno o due nodi (sez. 13). Il caso peggiore a 1.9 s di prima era un artefatto;
 - 768 mesh per passo.
 
-**Passi e consumo:** 91k-165k passi; 404-732 mesh/s.
+**Passi e consumo:** ~160k passi; ~710 mesh/s. Con 8 CPU per rank e groups (solo ctrlfr): fino a ~1270 mesh/s.
 
 **Viste fresche/s**, da bench e prova:
 
@@ -217,10 +217,46 @@ Ipotesi:
 
 Il produttore extra di nv-ai-04 non e' misurato: il bench 1065297 e' in coda. **Gli extra sono una stima.**
 
+## 13. Profilo del passo e passo fra nodi (`profile/`, WBES_STREAM_PROFILE=1)
+
+Mediane per passo (64 mesh per rank), 150 passi:
+
+| configurazione | dati | forward | backward | totale | mesh/s per GPU | GPU |
+|---|---|---|---|---|---|---|
+| factorized, sequenziale, 4 CPU, 1 nodo | 0.004 | 0.63 | 0.42 | 1.08 | 59 | 36% |
+| factorized, sequenziale, 8 CPU | 0.003 | 0.52 | 0.38 | 0.93 | 69 | 38% |
+| factorized, **2 nodi x 1 GPU**, 4 CPU | 0.005 | 0.56-0.63 | 0.43-0.47 | **1.09** | 59 | 35% |
+| idem, checkpoint ogni minuto | | | | 1.08 | 59 | 40% |
+| ctrlfr, sequenziale, 4 CPU | 0.004 | 0.65 | 0.38 | 1.07 | 60 | 38% |
+| ctrlfr, `--forward groups`, 4 CPU | 0.004 | 0.36 | 0.30 | 0.68 | 95 | 48% |
+| ctrlfr, `--forward groups`, 8 CPU | 0.003 | 0.27 | 0.31 | 0.60 | 106 | 62% |
+
+**Fra nodi:**
+- NCCL usa RoCE (`NET/IBext_v8`, `mlx5_bond_0`), non il TCP;
+- il passo e' identico a quello su un nodo, e la all_reduce costa <= 0.05 s (differenza dei backward);
+- l'1.75-1.9 s di `multinode_test` non si riproduce. Veniva dalla configurazione del test: epoche da 20 passi
+  (il riscaldamento si spalma su pochi passi), checkpoint ogni 6 s, crash e ripresa;
+- nessuna variabile d'ambiente necessaria.
+
+**GPU al 35%:**
+- non sono i dati: piano 4 ms, attesa dei campioni 1 ms;
+- e' il costo CPU e di lancio dei kernel di 64 forward e backward per mesh.
+
+**Correzioni, in ordine di costo:**
+1. **8 CPU al rank invece di 4:** -14% sul passo. Costa poco ai produttori: a k128 la curva e' piatta oltre 32
+   processi, 39.4 contro 40.5 viste/s.
+2. **`--forward groups`:** -37% sul passo, -44% con 8 CPU. C'e' gia' per la testa standard (ctrlfr). NON per
+   factorized/factorized2: il trainer lo vieta, perche' `embed_groups` chiama solo `pool_proj`. Aggiungere la testa
+   della taglia a `_pool_masked` vale per factorized (~10 righe in `model_v3`); per factorized2 serve una
+   normalizzazione per mesh nel batch. Da notare: groups e sequenziale non coincidono in fp32 (evidenza dell'8
+   ottobre).
+
+pin_memory e piu' consumer non servono: l'attesa dei dati e' gia' ~0.
+
 ## Aperto
 
-- **Passo fra nodi** 1.75-1.9 s contro 1.05: non spiegato. L'ipotesi e' il proxy NCCL sulle 4 CPU del rank;
-  da provare con `STREAM_TRAIN_CPUS_PER_RANK=6`.
+- **Passo fra nodi:** risolto, nessun rallentamento (sez. 13).
+- **forward a gruppi per factorized:** modifica del trainer da decidere.
 - **Riuso:** con k128 servono `--stream-reuse 6` o k64. Decide l'ablazione k.
 - **Pesi di dominio:** FaMoS al 20% con sole 80 persone.
 - **Pulizia:** l'anello `datasets/STREAM/shared_ring` va cancellato a mano a fine run. Quello delle prove e'
