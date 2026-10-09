@@ -367,3 +367,59 @@ Correzioni d'interpretazione, che hanno la precedenza sulla §15:
   - **8 core riservati al trainer:** senza, la contesa CPU porta il passo da 1.10 s a 1.74 s.
 - **Ancora fuori:** deformazioni RBF, coppie di perturbazione, trasferimento d'espressioni. Si aggiungono se le evidenze le giustificano.
 - **BFM 2019** ha ora la mappa unificata: 1478/1478 punti, residuo sui landmark tenuti fuori 0.89 mm.
+
+## 18. Esiti delle ablazioni v3 (9 ottobre)
+
+Sottoinsieme C3F, 21.096 passi, un seme; delta contro ctrl.
+
+| Braccio | Dev FaceScape | FaceVerse rank-1 | Esito |
+|---|---|---|---|
+| arearobust | **+0.122 [+0.086, +0.160]** | **+0.222** | ADOTTATO |
+| bal | +0.050 [+0.032, +0.070] | | ADOTTATO |
+| area | n.s. | | no |
+| loginv | +0.116 | −0.057 | no per regola: HIFI3D maxabs −0.371. Però HIFI3D unificata +0.097 e NoW +0.146 |
+| ugtmix (non tarata) | −0.131 | | no; HIFI3D unificata +0.145 |
+
+**Nota:** loginv e ugtmix si spostano in direzioni opposte a seconda della GT. La scelta della GT, §19, decide anche la loss.
+
+## 19. GT e allineamento "equi": principio e piano (9 ottobre, PI con l'utente)
+
+**Il problema.** Entrambe le GT usate finora normalizzano la scala PER IDENTITÀ:
+- maxabs divide per il proprio max|coord| (`make_zs_expr_topologies.py:109`);
+- l'unificata usa Procrustes con centroid size.
+
+Così cancellano la dimensione e ridistribuiscono altezza e larghezza. È in tensione con la tesi del paper, che sostiene che allineamento e normalizzazione specifici cancellano tratti identitari.
+
+**Cosa toglie davvero identità**, dalle misure del critic su HIFI3D:
+1. le trasformazioni PER COPPIA (ICP a coppie): rompono la coerenza globale e comprimono le distanze, come dice la tesi;
+2. il fitting non rigido e le corrispondenze per punto più vicino: assorbono le differenze locali;
+3. la normalizzazione di SCALA per identità: cancella la dimensione (ρ 0.638 contro maxabs);
+4. l'allineamento RIGIDO per identità: ridistribuisce poco ("effetto Pinocchio"; ρ 0.975), non rimuove la geometria relativa ed è necessario quando la posa non è osservabile.
+
+**Principio dell'invarianza minima.** La GT è invariante SOLO a ciò che non si può osservare nei dati di destinazione:
+- moto rigido per i dati metrici;
+- similarità per i dati senza scala, come le ricostruzioni monoculari di NoW.
+
+La trasformazione si sceglie per identità con una regola fissa, mai per coppia, e con stimatori robusti.
+
+**Famiglia di GT** (E12, in corso):
+- GT-F "form" (mm, frame canonico, allineamento rigido robusto solo per i dati reali);
+- GT-EDM, senza allineamento (matrici delle distanze interne, Lele & Richtsmeier);
+- GT-S "shape" (centroid size);
+- maxabs, legacy.
+
+Baseline banali "solo dimensione" e "solo altezza", per vedere quanto di ogni GT spiega un solo scalare.
+
+**Arbitri:**
+- **(a) oggettivo:** l'identificabilità su catture reali ripetute (FaMoS neutre di sequenze diverse). La GT che conserva più identità separa meglio le persone. Regola dichiarata prima dei numeri;
+- **(b) percettivo:** lo studio umano. ATTENZIONE: i render attuali (`aau/baselines/render_cache.py`) normalizzano ogni mesh con maxabs prima della camera fissa, quindi le persone vedono volti "alti uguali". Lo studio così è sbilanciato verso maxabs e non può arbitrare scala né dimensione. Serve una versione nuova con render a scala assoluta e triplette scelte dove le GT si contraddicono;
+- **(c) robustezza:** le conclusioni del paper devono reggere con GT-F e con GT-S.
+
+**Modello:**
+- ingresso in mm con normalizzazione GLOBALE (costante) e centro per area robusta;
+- embedding FATTORIZZATO z = (log dimensione, forma), con augmentation di scala per l'equivarianza;
+- distanza form derivata con la formula size-and-shape.
+
+Un modello unico serve entrambi i casi d'uso (coder in corso).
+
+**Baseline eque:** ogni metodo riceve la rimozione dei disturbi coerente con la GT. Per GT-F: ICP rigido, senza scala, in mm. Per GT-S: ICP di similarità.

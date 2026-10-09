@@ -35,27 +35,53 @@ trap 'rm -f "$ZS" "$NOWS"' EXIT
 export WBES_EVAL_SCENARIOS=clean
 echo "[v3-eval] braccio=$ARM bracci=$ARMS host=$(hostname) job=${SLURM_JOB_ID:-none} riavvii=${SLURM_RESTART_COUNT:-0}"
 FAILED=()
-if [[ "$STEPS" == *" hifi "* ]]; then
-  echo "[v3-eval] $(date +%T) HIFI3D"
-  WBES_ZS_DOMAIN=hifi WBES_HIFI_RUNS="$OUT/hifi_runs" WBES_ZS_ARMS="$ARMS" WBES_ZS_PART=topology WBES_ZS_EMBED=1 \
-    bash "$ZS" || FAILED+=(hifi)
-fi
-if [[ "$STEPS" == *" devfs "* ]]; then
-  echo "[v3-eval] $(date +%T) dev FaceScape, vista neutra"
+# Ogni passo fino a 3 tentativi a 10 minuti di distanza: su nv-ai-04 la risoluzione dell'utente di dominio cade a
+# tratti ("unknown userid" all'avvio di singularity: 9 ottobre 05:33-05:51 e 11:06-11:09) e i passi sono ripartibili
+# (le stage con .done si saltano).
+retry() {  # $1 nome, resto: comando
+  local name="$1" t; shift
+  for t in 1 2 3; do
+    "$@" && return 0
+    (( t < 3 )) && { echo "[v3-eval] $(date +%T) $name: tentativo $t fallito, riprovo fra 10 minuti"; sleep 600; }
+  done
+  return 1
+}
+step_hifi() {
+  WBES_ZS_DOMAIN=hifi WBES_HIFI_RUNS="$OUT/hifi_runs" WBES_ZS_ARMS="$ARMS" WBES_ZS_PART=topology WBES_ZS_EMBED=1 bash "$ZS"
+}
+step_devfs() {
   ( source aau/zs3dmm/dev_facescape_env.sh
     export WBES_FV_RUNS="$OUT/devfs" WBES_ZS_ARMS="$ARMS" WBES_ZS_PART=topology WBES_ZS_EMBED=1
     unset WBES_ZS_EXPR WBES_ZS_FLIP_FACES
-    bash "$ZS" ) || FAILED+=(devfs)
-  echo "[v3-eval] $(date +%T) dev FaceScape, vista con espressioni"
+    bash "$ZS" )
+}
+step_devfs_expr() {
   ( source aau/zs3dmm/dev_facescape_env.sh
     export WBES_FV_RUNS="$OUT/devfs" WBES_ZS_EXPR=1 WBES_ZS_ARMS="$ARMS" WBES_ZS_PART=embed
     unset WBES_ZS_FLIP_FACES
-    bash "$ZS" ) || FAILED+=(devfs_expr)
+    bash "$ZS" )
+}
+step_fv() {
+  WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 WBES_FV_RUNS="$OUT/fv" WBES_ZS_FLIP_FACES=1 WBES_ZS_ARMS="$ARMS" \
+    WBES_ZS_PART=embed bash "$ZS"
+}
+step_now() {  # $1 W, $2 O, $3 checkpoint
+  WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
+    && WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py
+}
+if [[ "$STEPS" == *" hifi "* ]]; then
+  echo "[v3-eval] $(date +%T) HIFI3D"
+  retry hifi step_hifi || FAILED+=(hifi)
+fi
+if [[ "$STEPS" == *" devfs "* ]]; then
+  echo "[v3-eval] $(date +%T) dev FaceScape, vista neutra"
+  retry devfs step_devfs || FAILED+=(devfs)
+  echo "[v3-eval] $(date +%T) dev FaceScape, vista con espressioni"
+  retry devfs_expr step_devfs_expr || FAILED+=(devfs_expr)
 fi
 if [[ "$STEPS" == *" fv "* ]]; then
   echo "[v3-eval] $(date +%T) FaceVerse con espressioni"
-  WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 WBES_FV_RUNS="$OUT/fv" WBES_ZS_FLIP_FACES=1 WBES_ZS_ARMS="$ARMS" \
-    WBES_ZS_PART=embed bash "$ZS" || FAILED+=(fv)
+  retry fv step_fv || FAILED+=(fv)
 fi
 if [[ "$STEPS" == *" now "* ]]; then
   SRC_W="$HOME/data/now_eval_work"
@@ -78,8 +104,7 @@ if [[ "$STEPS" == *" now "* ]]; then
     done
     echo "ckpt=${CK[$e]}" > "$O/checkpoint.txt"
     echo "[v3-eval] $(date +%T) NoW $t"
-    { WBES_NOW_WORK="$W" WBES_NOW_OUT="$O" WBES_CKPT="${CK[$e]}" bash "$NOWS" \
-      && WBES_NOW_WORK="$W" WBES_NOW_OUT="$O" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py; } || FAILED+=("now_$t")
+    retry "now_$t" step_now "$W" "$O" "${CK[$e]}" || FAILED+=("now_$t")
   done
 fi
 echo "[v3-eval] $(date +%T) fine: falliti=${FAILED[*]:-nessuno}"

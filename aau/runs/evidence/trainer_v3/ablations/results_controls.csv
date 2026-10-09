@@ -1,0 +1,27 @@
+controllo,valore,atteso
+"hifi 10548: celle presenti (stesse righe, stessi soggetti)","['ctrl', 'area', 'arearobust', 'bal', 'ugtmix', 'loginv']; 100 soggetti, 148500 righe",-
+"hifi 21096: celle presenti (stesse righe, stessi soggetti)","['ctrl', 'area', 'arearobust', 'bal', 'ugtmix', 'loginv']; 100 soggetti, 148500 righe",-
+"dev FaceScape ctrl 10548: embedding contro latent_distance del breakdown, max |diff|",5.70e-07,< 1e-4
+"dev FaceScape ctrl 21096: embedding contro latent_distance del breakdown, max |diff|",5.91e-07,< 1e-4
+"dev FaceScape area 10548: embedding contro latent_distance del breakdown, max |diff|",5.66e-07,< 1e-4
+"dev FaceScape area 21096: embedding contro latent_distance del breakdown, max |diff|",5.86e-07,< 1e-4
+"dev FaceScape arearobust 10548: embedding contro latent_distance del breakdown, max |diff|",7.77e-04,< 1e-4
+"dev FaceScape arearobust 21096: embedding contro latent_distance del breakdown, max |diff|",1.06e-03,< 1e-4
+"dev FaceScape bal 10548: embedding contro latent_distance del breakdown, max |diff|",5.56e-07,< 1e-4
+"dev FaceScape bal 21096: embedding contro latent_distance del breakdown, max |diff|",5.72e-07,< 1e-4
+"dev FaceScape ugtmix 10548: embedding contro latent_distance del breakdown, max |diff|",5.47e-07,< 1e-4
+"dev FaceScape ugtmix 21096: embedding contro latent_distance del breakdown, max |diff|",5.61e-07,< 1e-4
+"dev FaceScape loginv 10548: embedding contro latent_distance del breakdown, max |diff|",6.00e-07,< 1e-4
+"dev FaceScape loginv 21096: embedding contro latent_distance del breakdown, max |diff|",6.05e-07,< 1e-4
+NoW ctrl (v2) 10548: tau ricalcolato contro concordance.csv della cella,0.282197 / 0.282197,uguali
+NoW ctrl (v2) 21096: tau ricalcolato contro concordance.csv della cella,0.263258 / 0.263258,uguali
+NoW area 10548: tau ricalcolato contro concordance.csv della cella,0.314394 / 0.314394,uguali
+NoW area 21096: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
+NoW arearobust 10548: tau ricalcolato contro concordance.csv della cella,0.312500 / 0.312500,uguali
+NoW arearobust 21096: tau ricalcolato contro concordance.csv della cella,0.265152 / 0.265152,uguali
+NoW bal 10548: tau ricalcolato contro concordance.csv della cella,0.274621 / 0.274621,uguali
+NoW bal 21096: tau ricalcolato contro concordance.csv della cella,0.244318 / 0.244318,uguali
+NoW ugtmix 10548: tau ricalcolato contro concordance.csv della cella,0.255682 / 0.255682,uguali
+NoW ugtmix 21096: tau ricalcolato contro concordance.csv della cella,0.221591 / 0.221591,uguali
+NoW loginv 10548: tau ricalcolato contro concordance.csv della cella,0.363636 / 0.363636,uguali
+NoW loginv 21096: tau ricalcolato contro concordance.csv della cella,0.409091 / 0.409091,uguali
