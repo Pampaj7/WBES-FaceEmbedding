@@ -1,0 +1,404 @@
+domain,what,published,recomputed,abs_diff,source
+hifi3d,scale_e072 subject_pair_mean (punto),0.7924081496581239,0.7924081496581239,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e036 subject_pair_mean (punto),0.7669700137828912,0.7669700137828912,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e108 subject_pair_mean (punto),0.795356197606009,0.795356197606009,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,chamfer_eval subject_pair_mean (punto),0.7431205729817077,0.7431205729817077,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,arcface_shaded_3v subject_pair_mean (punto),0.2964943858584251,0.2964943858584251,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,arcface_normals_3v subject_pair_mean (punto),0.2696914526425674,0.2696914526425674,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,chamfer_eval nocrop_cross (punto),0.3721124771740325,0.3721124771740325,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e036 nocrop_cross (punto),0.6772517077999018,0.6772517077999018,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e072 nocrop_cross (punto),0.6632911149522916,0.6632911149522916,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,arcface_normals_3v nocrop_cross (punto),0.2415033010457551,0.24150330104575513,2.7755575615628914e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e108 nocrop_cross (punto),0.6298708752343959,0.6298708752343959,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,arcface_shaded_3v nocrop_cross (punto),0.2447176711330001,0.2447176711330001,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval subject_pair_mean (point),0.0522356246243012,0.0522356246243012,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_low),-0.0038702624799676,-0.003870262479967687,8.673617379884035e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_high),0.1061379486092348,0.10613794860923487,6.938893903907228e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval nocrop_cross (point),0.2577583980603634,0.2577583980603634,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_low),0.2075985914463175,0.20759859144631754,2.7755575615628914e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_high),0.3010273129792126,0.30102731297921265,5.551115123125783e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,fb_chamfer nocrop_cross GT maxabs (punto),0.3253014793286933,0.3253012802845015,1.9904419179539445e-07,E8 eval_methods.controls (pubblicati)
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT maxabs (punto),0.3553148218141641,0.35531453629148646,2.855226776121711e-07,E8 eval_methods.controls (pubblicati)
+hifi3d,fb_nicp_p2tri nocrop_cross GT maxabs (punto),0.3892741856459524,0.38927385292951816,3.327164342370459e-07,E8 eval_methods.controls (pubblicati)
+hifi3d,joint nocrop_cross GT maxabs (punto),0.4277150465021949,0.4277150465021949,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e108 nocrop_cross GT maxabs (punto),0.6298708752343959,0.6298708752343959,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,joint subject_pair_mean GT maxabs (punto),0.7200543423171277,0.7200543423171277,0.0,E8 eval_methods.controls (pubblicati)
+hifi3d,scale_e108 subject_pair_mean GT maxabs (punto),0.795356197606009,0.795356197606009,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval mesh_pair_nocrop (point),-0.0521807708149628,-0.052180821415827305,5.060086450542345e-08,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval mesh_pair_nocrop (ci_low),-0.1112225426192242,-0.11122263109490321,8.847567901926201e-08,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval mesh_pair_nocrop (ci_high),0.0060861476004789,0.006086014518980897,1.3308149800304175e-07,E8 eval_methods.controls (pubblicati)
+faceverse,chamfer_eval mesh_pair_nocrop (punto),0.3168148664768579,0.3168148664768579,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,fb_chamfer mesh_pair_nocrop (punto),0.3189147201537393,0.31891472015373934,5.551115123125783e-17,E8 eval_methods.controls (pubblicati)
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop (punto),0.2593145648936326,0.25931456489363264,5.551115123125783e-17,E8 eval_methods.controls (pubblicati)
+faceverse,fb_nicp_p2tri mesh_pair_nocrop (punto),0.1942635989382942,0.1942635989382942,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval subject_pair_mean_nocrop (point),-0.0028537646662477,-0.0028535050618880287,2.596043596715322e-07,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval subject_pair_mean_nocrop (ci_low),-0.1056064134229934,-0.10560642248433758,9.061344174998709e-09,E8 eval_methods.controls (pubblicati)
+faceverse,e108 - Chamfer eval subject_pair_mean_nocrop (ci_high),0.1029301773343578,0.10293486382077859,4.686486420782399e-06,E8 eval_methods.controls (pubblicati)
+faceverse,chamfer_eval subject_pair_mean_nocrop (punto),0.4261902959678476,0.4261902959678476,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,fb_chamfer subject_pair_mean_nocrop (punto),0.4615770286869178,0.4615770286869178,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop (punto),0.2999581010479073,0.2999581010479073,0.0,E8 eval_methods.controls (pubblicati)
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop (punto),0.2401883533220548,0.24018835332205482,2.7755575615628914e-17,E8 eval_methods.controls (pubblicati)
+hifi3d,arcface_shaded_3v nocrop_cross GT maxabs (point),0.2447176711330001,0.2447176711330001,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v nocrop_cross GT maxabs (ci_low),0.1749478957069826,0.17494789570698266,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v nocrop_cross GT maxabs (ci_high),0.321644858268149,0.32164485826814904,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT maxabs (point),0.2415033010457551,0.24150330104575513,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT maxabs (ci_low),0.1627602645206438,0.16276026452064382,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT maxabs (ci_high),0.3264788141463545,0.32647881414635455,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT maxabs (point),0.6772517077999018,0.6772517077999018,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT maxabs (ci_low),0.603672718696269,0.603672718696269,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT maxabs (ci_high),0.7384507000925986,0.7384507000925986,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT maxabs (point),0.6632911149522916,0.6632911149522916,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT maxabs (ci_low),0.5908469461983871,0.5908469461983871,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT maxabs (ci_high),0.724923447279918,0.724923447279918,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT maxabs (point),0.6298708752343959,0.6298708752343959,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT maxabs (ci_low),0.5620314798531036,0.5620314798531036,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT maxabs (ci_high),0.6869352208255284,0.6869352208255284,0.0,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT maxabs (point),0.4277150465021949,0.4277150465021949,0.0,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT maxabs (ci_low),0.3726061401776457,0.3726061401776457,0.0,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT maxabs (ci_high),0.4771132735806316,0.4771132735806316,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT maxabs (point),0.3721124771740325,0.3721124771740325,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT maxabs (ci_low),0.3226848672688745,0.3226848672688745,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT maxabs (ci_high),0.4205491671204972,0.4205491671204972,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT maxabs (point),0.3253012802845015,0.3253012802845015,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT maxabs (ci_low),0.2818382079045181,0.28183820790451813,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT maxabs (ci_high),0.3694136331733211,0.3694136331733211,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT maxabs (point),0.3553145362914864,0.35531453629148646,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT maxabs (ci_low),0.2665619907983511,0.26656199079835113,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT maxabs (ci_high),0.4378399249520631,0.43783992495206314,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT maxabs (point),0.3892738529295181,0.38927385292951816,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT maxabs (ci_low),0.302570905223577,0.30257090522357705,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT maxabs (ci_high),0.4788029212845184,0.47880292128451846,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v nocrop_cross GT unified (point),0.2498380915518631,0.24983809155186312,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v nocrop_cross GT unified (ci_low),0.1824251542388094,0.18242515423880942,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v nocrop_cross GT unified (ci_high),0.3159823015837587,0.3159823015837587,0.0,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT unified (point),0.2361090955573978,0.23610909555739784,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT unified (ci_low),0.1658982015876764,0.16589820158767646,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v nocrop_cross GT unified (ci_high),0.3038444863003881,0.3038444863003881,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT unified (point),0.3395595930953533,0.33955959309535333,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT unified (ci_low),0.2624891808548185,0.2624891808548185,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 nocrop_cross GT unified (ci_high),0.4104410163016968,0.4104410163016968,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT unified (point),0.324242485570712,0.324242485570712,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT unified (ci_low),0.2511541216096695,0.25115412160966955,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e072 nocrop_cross GT unified (ci_high),0.388999114409036,0.388999114409036,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT unified (point),0.3009638573344873,0.30096385733448733,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT unified (ci_low),0.2329417048609193,0.2329417048609193,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT unified (ci_high),0.3602029400097724,0.3602029400097724,0.0,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT unified (point),0.2658400977991598,0.26584009779915985,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT unified (ci_low),0.2205170683728477,0.22051706837284776,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,joint nocrop_cross GT unified (ci_high),0.3147035509699173,0.3147035509699173,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT unified (point),0.2296516215533522,0.22965162155335225,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT unified (ci_low),0.184746302998888,0.18474630299888803,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT unified (ci_high),0.2737228059333741,0.27372280593337417,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT unified (point),0.1980741301851001,0.19807413018510014,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT unified (ci_low),0.1568974522689534,0.15689745226895344,2.7755575615628914e-17,E8 methods_spearman.csv
+hifi3d,fb_chamfer nocrop_cross GT unified (ci_high),0.2369962900870294,0.2369962900870294,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT unified (point),0.5219517438944503,0.5219517438944503,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT unified (ci_low),0.4551773303446355,0.45517733034463553,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer nocrop_cross GT unified (ci_high),0.5862789834182532,0.5862789834182532,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT unified (point),0.5770224506751169,0.5770224506751169,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT unified (ci_low),0.5127260264994542,0.5127260264994542,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri nocrop_cross GT unified (ci_high),0.6405168345336857,0.6405168345336857,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT maxabs (point),0.2964943858584251,0.2964943858584251,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT maxabs (ci_low),0.2039182066594843,0.2039182066594843,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT maxabs (ci_high),0.3844793883933349,0.3844793883933349,0.0,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT maxabs (point),0.2696914526425674,0.2696914526425674,0.0,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT maxabs (ci_low),0.1660228996932148,0.16602289969321485,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT maxabs (ci_high),0.365584081441505,0.365584081441505,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT maxabs (point),0.7669700137828912,0.7669700137828912,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT maxabs (ci_low),0.7024919581186476,0.7024919581186476,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT maxabs (ci_high),0.8214639063579192,0.8214639063579192,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT maxabs (point),0.7924081496581239,0.7924081496581239,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT maxabs (ci_low),0.7306302055525038,0.7306302055525038,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT maxabs (ci_high),0.8419877688835063,0.8419877688835063,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT maxabs (point),0.795356197606009,0.795356197606009,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT maxabs (ci_low),0.7443712040361256,0.7443712040361256,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT maxabs (ci_high),0.8417743497777949,0.8417743497777949,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT maxabs (point),0.7200543423171277,0.7200543423171277,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT maxabs (ci_low),0.6550332577978929,0.6550332577978929,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT maxabs (ci_high),0.7790077885341695,0.7790077885341695,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT maxabs (point),0.7431205729817077,0.7431205729817077,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT maxabs (ci_low),0.6860313847680786,0.6860313847680786,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT maxabs (ci_high),0.7962693335247855,0.7962693335247855,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT maxabs (point),0.7505037365971271,0.7505037365971271,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT maxabs (ci_low),0.6943433699002545,0.6943433699002545,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT maxabs (ci_high),0.8028766703471509,0.8028766703471509,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT maxabs (point),0.3698160309363292,0.36981603093632925,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT maxabs (ci_low),0.2699018781384248,0.26990187813842487,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT maxabs (ci_high),0.457764335169606,0.457764335169606,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT maxabs (point),0.4195872232194385,0.4195872232194385,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT maxabs (ci_low),0.3246342137124457,0.3246342137124457,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT maxabs (ci_high),0.507861262949513,0.507861262949513,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT unified (point),0.302209291757992,0.302209291757992,0.0,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT unified (ci_low),0.2139294658229853,0.21392946582298536,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_shaded_3v subject_pair_mean GT unified (ci_high),0.3803891930177704,0.3803891930177704,0.0,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT unified (point),0.2658290778397498,0.26582907783974985,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT unified (ci_low),0.1787443962569984,0.17874439625699845,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,arcface_normals_3v subject_pair_mean GT unified (ci_high),0.3430509983779806,0.3430509983779806,0.0,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT unified (point),0.4077848008150733,0.40778480081507334,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT unified (ci_low),0.3120304152466255,0.31203041524662556,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e036 subject_pair_mean GT unified (ci_high),0.5037103127474556,0.5037103127474556,0.0,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT unified (point),0.4176509808100414,0.41765098081004143,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT unified (ci_low),0.3259992928736254,0.32599929287362545,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e072 subject_pair_mean GT unified (ci_high),0.5015330404564842,0.5015330404564842,0.0,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT unified (point),0.4098767325957829,0.40987673259578294,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT unified (ci_low),0.3212475064000472,0.32124750640004723,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT unified (ci_high),0.4913473231610814,0.4913473231610814,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT unified (point),0.4668267462198138,0.4668267462198138,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT unified (ci_low),0.3843693806364362,0.3843693806364362,0.0,E8 methods_spearman.csv
+hifi3d,joint subject_pair_mean GT unified (ci_high),0.5483611576751408,0.5483611576751408,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT unified (point),0.4546968131690811,0.4546968131690811,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT unified (ci_low),0.3671554308429596,0.3671554308429596,0.0,E8 methods_spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT unified (ci_high),0.5420075380256126,0.5420075380256126,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT unified (point),0.4579661345043732,0.45796613450437323,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT unified (ci_low),0.3676604753873479,0.3676604753873479,0.0,E8 methods_spearman.csv
+hifi3d,fb_chamfer subject_pair_mean GT unified (ci_high),0.5506379283073961,0.5506379283073961,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT unified (point),0.5575261332991529,0.5575261332991529,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT unified (ci_low),0.4781910227617291,0.4781910227617291,0.0,E8 methods_spearman.csv
+hifi3d,fb_rigid_icp_chamfer subject_pair_mean GT unified (ci_high),0.6374203768177455,0.6374203768177455,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT unified (point),0.6316698394104555,0.6316698394104555,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT unified (ci_low),0.5624565521342776,0.5624565521342776,0.0,E8 methods_spearman.csv
+hifi3d,fb_nicp_p2tri subject_pair_mean GT unified (ci_high),0.6963068262450314,0.6963068262450314,0.0,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT maxabs (point),0.0823864364708551,0.0823864364708551,0.0,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT maxabs (ci_low),0.0344443986069041,0.0344443986069041,0.0,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT maxabs (ci_high),0.1311209827995662,0.13112098279956627,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT maxabs (point),0.100283361042114,0.10028336104211405,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT maxabs (ci_low),0.0550348002390571,0.055034800239057116,1.3877787807814457e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT maxabs (ci_high),0.1465217949752365,0.1465217949752365,0.0,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT maxabs (point),0.2392694654180411,0.23926946541804114,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT maxabs (ci_low),0.1833274603458078,0.18332746034580788,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT maxabs (ci_high),0.2905310833237992,0.29053108332379923,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT maxabs (point),0.2646340450610306,0.2646340450610306,0.0,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT maxabs (ci_low),0.2008200193516845,0.20082001935168456,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT maxabs (ci_high),0.3204661263794195,0.3204661263794195,0.0,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT maxabs (point),0.2821724881333227,0.2821724881333227,0.0,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT maxabs (ci_low),0.2228161323004251,0.22281613230042513,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT maxabs (ci_high),0.3409803899587388,0.34098038995873886,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT maxabs (point),0.2429086241259589,0.2429086241259589,0.0,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT maxabs (ci_low),0.1805907479290196,0.18059074792901966,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT maxabs (ci_high),0.3016072250506941,0.30160722505069415,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT maxabs (point),0.3168148664768579,0.3168148664768579,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT maxabs (ci_low),0.2550933051015484,0.25509330510154843,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT maxabs (ci_high),0.3682100735122214,0.36821007351222146,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT maxabs (point),0.3189147201537393,0.31891472015373934,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT maxabs (ci_low),0.2552936107847935,0.25529361078479357,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT maxabs (ci_high),0.3696626617324262,0.36966266173242623,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT maxabs (point),0.2593145648936326,0.25931456489363264,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT maxabs (ci_low),0.1780099755794775,0.17800997557947756,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT maxabs (ci_high),0.3376222354752096,0.3376222354752096,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT maxabs (point),0.1942635989382942,0.1942635989382942,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT maxabs (ci_low),0.1162038224078525,0.11620382240785253,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT maxabs (ci_high),0.2613703227034968,0.26137032270349686,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT unified (point),0.1320283320750989,0.13202833207509893,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT unified (ci_low),0.0850837987692932,0.08508379876929327,6.938893903907228e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v mesh_pair_nocrop GT unified (ci_high),0.1779439716997416,0.17794397169974163,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT unified (point),0.1372234853779892,0.13722348537798926,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT unified (ci_low),0.0926458200168721,0.09264582001687212,1.3877787807814457e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v mesh_pair_nocrop GT unified (ci_high),0.1841936284878841,0.18419362848788418,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT unified (point),0.1528455539528206,0.1528455539528206,0.0,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT unified (ci_low),0.1054653505901286,0.10546535059012865,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e036 mesh_pair_nocrop GT unified (ci_high),0.1969867104106743,0.19698671041067434,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT unified (point),0.1886863370108899,0.1886863370108899,0.0,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT unified (ci_low),0.1346942646057455,0.13469426460574555,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 mesh_pair_nocrop GT unified (ci_high),0.2391746134535786,0.23917461345357868,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT unified (point),0.1936865466064596,0.19368654660645962,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT unified (ci_low),0.1368286234456422,0.13682862344564226,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@bfm mesh_pair_nocrop GT unified (ci_high),0.2523988238239187,0.2523988238239187,0.0,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT unified (point),0.156032710391056,0.15603271039105607,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT unified (ci_low),0.1028886790747573,0.10288867907475736,6.938893903907228e-17,E8 methods_spearman.csv
+faceverse,joint@ict mesh_pair_nocrop GT unified (ci_high),0.2140517876317987,0.21405178763179877,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT unified (point),0.2038282971271008,0.2038282971271008,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT unified (ci_low),0.1427516581985219,0.1427516581985219,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval mesh_pair_nocrop GT unified (ci_high),0.2567375797959166,0.25673757979591666,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT unified (point),0.204628461877187,0.20462846187718703,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT unified (ci_low),0.1415519617831951,0.1415519617831951,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer mesh_pair_nocrop GT unified (ci_high),0.2585148733581446,0.25851487335814466,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT unified (point),0.2179720352193251,0.21797203521932512,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT unified (ci_low),0.1419999480417066,0.14199994804170665,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer mesh_pair_nocrop GT unified (ci_high),0.2886933952463312,0.28869339524633125,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT unified (point),0.2146575980958097,0.2146575980958097,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT unified (ci_low),0.145490039224785,0.14549003922478507,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri mesh_pair_nocrop GT unified (ci_high),0.2822346941322768,0.2822346941322768,0.0,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT maxabs (point),0.1498363906656579,0.14983639066565793,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT maxabs (ci_low),0.0659912919835961,0.06599129198359616,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT maxabs (ci_high),0.2371093435717438,0.23710934357174385,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT maxabs (point),0.1645006664577241,0.16450066645772413,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT maxabs (ci_low),0.0925713269543699,0.09257132695436997,6.938893903907228e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT maxabs (ci_high),0.2348460445523579,0.23484604455235794,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT maxabs (point),0.4256641815673418,0.4256641815673418,0.0,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT maxabs (ci_low),0.3231783974961393,0.3231783974961393,0.0,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT maxabs (ci_high),0.5197917206122862,0.5197917206122862,0.0,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT maxabs (point),0.4233367909059595,0.42333679090595955,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT maxabs (ci_low),0.3288514176671027,0.3288514176671027,0.0,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT maxabs (ci_high),0.5157634814799641,0.5157634814799641,0.0,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT maxabs (point),0.4238232342022306,0.42382323420223067,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT maxabs (ci_low),0.3259040031308534,0.3259040031308534,0.0,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT maxabs (ci_high),0.5159737376176806,0.5159737376176806,0.0,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT maxabs (point),0.3979505353455352,0.3979505353455352,0.0,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT maxabs (ci_low),0.2957709813957053,0.2957709813957053,0.0,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT maxabs (ci_high),0.4938597219832649,0.49385972198326494,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT maxabs (point),0.4261902959678476,0.4261902959678476,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT maxabs (ci_low),0.3252102324893984,0.3252102324893984,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT maxabs (ci_high),0.517411969096388,0.517411969096388,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT maxabs (point),0.4615770286869178,0.4615770286869178,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT maxabs (ci_low),0.3671181896583933,0.3671181896583933,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT maxabs (ci_high),0.5478963933670262,0.5478963933670262,0.0,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT maxabs (point),0.2999581010479073,0.2999581010479073,0.0,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT maxabs (ci_low),0.201906782498274,0.201906782498274,0.0,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT maxabs (ci_high),0.3908913607756998,0.39089136077569986,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT maxabs (point),0.2401883533220548,0.24018835332205482,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT maxabs (ci_low),0.1520943219990222,0.1520943219990222,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT maxabs (ci_high),0.3306607912516348,0.33066079125163483,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT unified (point),0.2289307842238928,0.22893078422389285,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT unified (ci_low),0.1463614854280571,0.14636148542805716,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_shaded_3v subject_pair_mean_nocrop GT unified (ci_high),0.305469231286231,0.30546923128623105,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT unified (point),0.2218543999668496,0.2218543999668496,0.0,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT unified (ci_low),0.1535552063581079,0.15355520635810796,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,arcface_normals_3v subject_pair_mean_nocrop GT unified (ci_high),0.2888760485858913,0.28887604858589133,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT unified (point),0.2862556245360684,0.28625562453606845,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT unified (ci_low),0.1969987787133443,0.19699877871334437,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e036 subject_pair_mean_nocrop GT unified (ci_high),0.3731404478733591,0.37314044787335915,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT unified (point),0.3142195116135259,0.3142195116135259,0.0,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT unified (ci_low),0.2197977709606627,0.21979777096066275,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,scale_e108 subject_pair_mean_nocrop GT unified (ci_high),0.4074964762699838,0.40749647626998386,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT unified (point),0.3037448692540101,0.3037448692540101,0.0,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT unified (ci_low),0.2044997929942429,0.20449979299424292,2.7755575615628914e-17,E8 methods_spearman.csv
+faceverse,joint@bfm subject_pair_mean_nocrop GT unified (ci_high),0.4016259562712463,0.40162595627124636,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT unified (point),0.2502233070557044,0.2502233070557044,0.0,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT unified (ci_low),0.1500850764869004,0.15008507648690048,8.326672684688674e-17,E8 methods_spearman.csv
+faceverse,joint@ict subject_pair_mean_nocrop GT unified (ci_high),0.3455640816036691,0.34556408160366914,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT unified (point),0.256782536326222,0.25678253632622206,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT unified (ci_low),0.1551265077416422,0.1551265077416422,0.0,E8 methods_spearman.csv
+faceverse,chamfer_eval subject_pair_mean_nocrop GT unified (ci_high),0.3557308622650707,0.3557308622650707,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT unified (point),0.2819898952372411,0.2819898952372411,0.0,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT unified (ci_low),0.1784733342423922,0.17847333424239226,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_chamfer subject_pair_mean_nocrop GT unified (ci_high),0.3780521293148268,0.37805212931482685,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT unified (point),0.2513969958242985,0.2513969958242985,0.0,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT unified (ci_low),0.158592741842466,0.158592741842466,0.0,E8 methods_spearman.csv
+faceverse,fb_rigid_icp_chamfer subject_pair_mean_nocrop GT unified (ci_high),0.3370238844378895,0.3370238844378895,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT unified (point),0.2661874675054015,0.26618746750540156,5.551115123125783e-17,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT unified (ci_low),0.1796494893002664,0.1796494893002664,0.0,E8 methods_spearman.csv
+faceverse,fb_nicp_p2tri subject_pair_mean_nocrop GT unified (ci_high),0.3548943973714529,0.35489439737145295,5.551115123125783e-17,E8 methods_spearman.csv
+hifi3d,scale_e108 nocrop_cross GT maxabs (punto),0.6298708752343959,0.6298708752343959,0.0,competitors_hifi3d/spearman.csv
+hifi3d,scale_e108 all_cross GT maxabs (punto),0.5413867644128711,0.5413867644128711,0.0,competitors_hifi3d/spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT maxabs (punto),0.795356197606009,0.795356197606009,0.0,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT maxabs (punto),0.3721124771740325,0.3721124771740325,0.0,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval all_cross GT maxabs (punto),0.3359458796620946,0.3359458796620946,0.0,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT maxabs (punto),0.7431205729817077,0.7431205729817077,0.0,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 nocrop_cross GT maxabs (punto),0.1076728049530975,0.10767280495309751,1.3877787807814457e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 all_cross GT maxabs (punto),0.0743956044576573,0.07439560445765733,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 subject_pair_mean GT maxabs (punto),0.2980413169042344,0.29804131690423447,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 nocrop_cross GT maxabs (punto),0.0314146697848719,0.031414669784871965,6.245004513516506e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 all_cross GT maxabs (punto),0.0229856428766984,0.02298564287669843,3.122502256758253e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 subject_pair_mean GT maxabs (punto),0.2485431035802761,0.24854310358027612,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,hks nocrop_cross GT maxabs (punto),0.0772970123602956,0.0772970123602956,0.0,competitors_hifi3d/spearman.csv
+hifi3d,hks all_cross GT maxabs (punto),0.0429213988217921,0.04292139882179213,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,hks subject_pair_mean GT maxabs (punto),0.2392387310581649,0.23923873105816493,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,wks nocrop_cross GT maxabs (punto),0.0252267661091759,0.025226766109175916,1.734723475976807e-17,competitors_hifi3d/spearman.csv
+hifi3d,wks all_cross GT maxabs (punto),0.02843468345877,0.02843468345877006,5.898059818321144e-17,competitors_hifi3d/spearman.csv
+hifi3d,wks subject_pair_mean GT maxabs (punto),0.2006253623212996,0.2006253623212996,0.0,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 nocrop_cross GT maxabs (punto),0.0577735348517637,0.057773534851763744,4.163336342344337e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 all_cross GT maxabs (punto),0.0418569356175089,0.041856935617508945,4.163336342344337e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 subject_pair_mean GT maxabs (punto),0.1742530728240148,0.1742530728240148,0.0,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 nocrop_cross GT maxabs (punto),0.0526635789461914,0.05266357894619145,4.85722573273506e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 all_cross GT maxabs (punto),0.0389867738891906,0.038986773889190696,9.71445146547012e-17,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 subject_pair_mean GT maxabs (punto),0.1780369221752504,0.17803692217525044,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template nocrop_cross GT maxabs (punto),0.3508436332092284,0.35084363320922846,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template all_cross GT maxabs (punto),0.1953886712259754,0.19538867122597542,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template subject_pair_mean GT maxabs (punto),0.3354030607761601,0.33540306077616017,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,uni3d nocrop_cross GT maxabs (punto),0.1320208678617058,0.1320208678617058,0.0,competitors_hifi3d/spearman.csv
+hifi3d,uni3d all_cross GT maxabs (punto),0.1401490602885347,0.14014906028853474,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,uni3d subject_pair_mean GT maxabs (punto),0.3592456627207158,0.35924566272071584,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 nocrop_cross GT maxabs (punto),0.1650615003167583,0.16506150031675831,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 all_cross GT maxabs (punto),0.1671285981707584,0.16712859817075842,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 subject_pair_mean GT maxabs (punto),0.4314784866123518,0.43147848661235183,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,openshape nocrop_cross GT maxabs (punto),0.1375370413000105,0.1375370413000105,0.0,competitors_hifi3d/spearman.csv
+hifi3d,openshape all_cross GT maxabs (punto),0.11989884069775,0.11989884069775009,8.326672684688674e-17,competitors_hifi3d/spearman.csv
+hifi3d,openshape subject_pair_mean GT maxabs (punto),0.3038629276823595,0.3038629276823595,0.0,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 nocrop_cross GT maxabs (punto),0.2905552606111481,0.2905552606111481,0.0,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 all_cross GT maxabs (punto),0.2392116338134998,0.2392116338134998,0.0,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 subject_pair_mean GT maxabs (punto),0.4347372717459372,0.4347372717459372,0.0,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap nocrop_cross GT maxabs (punto),0.2915578309448196,0.29155783094481963,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap all_cross GT maxabs (punto),0.2457901417953524,0.24579014179535244,2.7755575615628914e-17,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap subject_pair_mean GT maxabs (punto),0.4349990586741218,0.43499905867412186,5.551115123125783e-17,competitors_hifi3d/spearman.csv
+hifi3d,scale_e108 nocrop_cross GT unified (punto),0.3009638949083764,0.30096385733448733,3.757388905567538e-08,competitors_hifi3d/spearman.csv
+hifi3d,scale_e108 all_cross GT unified (punto),0.2599835958744776,0.2599835287719722,6.710250538555229e-08,competitors_hifi3d/spearman.csv
+hifi3d,scale_e108 subject_pair_mean GT unified (punto),0.4098767750607095,0.40987673259578294,4.246492657511425e-08,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval nocrop_cross GT unified (punto),0.2296516630913982,0.22965162155335225,4.1538045947309143e-08,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval all_cross GT unified (punto),0.222172501766362,0.22217245544618078,4.6320181218417744e-08,competitors_hifi3d/spearman.csv
+hifi3d,chamfer_eval subject_pair_mean GT unified (punto),0.4546968593958909,0.4546968131690811,4.6226809768956656e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 nocrop_cross GT unified (punto),0.127503763528362,0.12750370400357497,5.9524787043852e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 all_cross GT unified (punto),0.0884277410793915,0.08842769906580741,4.201358408395528e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50 subject_pair_mean GT unified (punto),0.3401685090626714,0.3401683273451438,1.8171752758089355e-07,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 nocrop_cross GT unified (punto),0.02650966908097,0.02650965148034094,1.7600629061836903e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 all_cross GT unified (punto),0.01935077981471,0.019350768943591216,1.0871118782951328e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100 subject_pair_mean GT unified (punto),0.1640351028370262,0.16403504544453593,5.739249026026627e-08,competitors_hifi3d/spearman.csv
+hifi3d,hks nocrop_cross GT unified (punto),0.075262957294715,0.07526294420735445,1.3087360542507476e-08,competitors_hifi3d/spearman.csv
+hifi3d,hks all_cross GT unified (punto),0.0424015772974028,0.04240156456718718,1.273021561776222e-08,competitors_hifi3d/spearman.csv
+hifi3d,hks subject_pair_mean GT unified (punto),0.2379803279725569,0.23798026503584818,6.293670870571866e-08,competitors_hifi3d/spearman.csv
+hifi3d,wks nocrop_cross GT unified (punto),0.0289491425794065,0.028949129138281855,1.3441124643853719e-08,competitors_hifi3d/spearman.csv
+hifi3d,wks all_cross GT unified (punto),0.0359551017208247,0.03595508452852336,1.719230133950811e-08,competitors_hifi3d/spearman.csv
+hifi3d,wks subject_pair_mean GT unified (punto),0.2115879539204298,0.21158783018727012,1.2373315969038678e-07,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 nocrop_cross GT unified (punto),0.1067484079821441,0.10674837981844976,2.8163694348881663e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 all_cross GT unified (punto),0.0742328139425538,0.07423280363943072,1.0303123076926823e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k50_l1 subject_pair_mean GT unified (punto),0.3002051693164009,0.3002051009844614,6.8331939495625e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 nocrop_cross GT unified (punto),0.0966988466686921,0.09669881673189726,2.9936794848639536e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 all_cross GT unified (punto),0.0683070984997223,0.06830708660414615,1.1895576149112408e-08,competitors_hifi3d/spearman.csv
+hifi3d,shapedna_k100_l1 subject_pair_mean GT unified (punto),0.297865049022779,0.2978649767334121,7.22893668814173e-08,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template nocrop_cross GT unified (punto),0.4496278617552223,0.4496278157128137,4.604240860794917e-08,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template all_cross GT unified (punto),0.2552592698638822,0.25525926953382677,3.300554274332512e-10,competitors_hifi3d/spearman.csv
+hifi3d,nicp_template subject_pair_mean GT unified (punto),0.4292945453851545,0.429294575193899,2.980874452829241e-08,competitors_hifi3d/spearman.csv
+hifi3d,uni3d nocrop_cross GT unified (punto),0.1443829126877581,0.1443829009209001,1.176685801573818e-08,competitors_hifi3d/spearman.csv
+hifi3d,uni3d all_cross GT unified (punto),0.1618912716471172,0.1618912512480329,2.0399084282862745e-08,competitors_hifi3d/spearman.csv
+hifi3d,uni3d subject_pair_mean GT unified (punto),0.414089129113609,0.4140890877367984,4.1376810588911184e-08,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 nocrop_cross GT unified (punto),0.2274063063732901,0.22740630615451682,2.1877327727182205e-10,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 all_cross GT unified (punto),0.231636920657803,0.23163691806729028,2.5905127210013035e-09,competitors_hifi3d/spearman.csv
+hifi3d,uni3d_rx90 subject_pair_mean GT unified (punto),0.5994686836858888,0.599468681331177,2.354711758911776e-09,competitors_hifi3d/spearman.csv
+hifi3d,openshape nocrop_cross GT unified (punto),0.1844527233162438,0.18445260091193738,1.2240430641297095e-07,competitors_hifi3d/spearman.csv
+hifi3d,openshape all_cross GT unified (punto),0.1665405204090287,0.16654038764143517,1.327675935303141e-07,competitors_hifi3d/spearman.csv
+hifi3d,openshape subject_pair_mean GT unified (punto),0.43252110137246,0.43252086112819454,2.402442654814152e-07,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 nocrop_cross GT unified (punto),0.2942872311325686,0.2942872270056286,4.126940011950353e-09,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 all_cross GT unified (punto),0.244957079982085,0.2449570281755125,5.180657250414278e-08,competitors_hifi3d/spearman.csv
+hifi3d,openshape_rx90 subject_pair_mean GT unified (punto),0.4492856630515726,0.44928558546150116,7.759007142338348e-08,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap nocrop_cross GT unified (punto),0.287466476314728,0.2874664527340803,2.358064771224022e-08,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap all_cross GT unified (punto),0.2507882284447324,0.25078815931713444,6.912759797916834e-08,competitors_hifi3d/spearman.csv
+hifi3d,openshape_yzswap subject_pair_mean GT unified (punto),0.4481653530312407,0.44816526841658555,8.461465517139999e-08,competitors_hifi3d/spearman.csv
+hifi3d,e108 - Chamfer eval all_cross (point),0.2054408847507765,0.20544088475077654,5.551115123125783e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval all_cross (ci_low),0.151815644320539,0.15181564432053904,2.7755575615628914e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval all_cross (ci_high),0.2515339748726481,0.2515339748726481,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval all_cross (p_le0),0.0,0.0,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval nocrop_cross (point),0.2577583980603634,0.2577583980603634,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_low),0.2075985914463175,0.20759859144631754,2.7755575615628914e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval nocrop_cross (ci_high),0.3010273129792126,0.30102731297921265,5.551115123125783e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval nocrop_cross (p_le0),0.0,0.0,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval subject_pair_mean (point),0.0522356246243012,0.0522356246243012,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_low),-0.0038702624799676,-0.003870262479967687,8.673617379884035e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval subject_pair_mean (ci_high),0.1061379486092348,0.10613794860923487,6.938893903907228e-17,data_scale_ood/hifi/paired.csv
+hifi3d,e108 - Chamfer eval subject_pair_mean (p_le0),0.039,0.039,0.0,data_scale_ood/hifi/paired.csv
+hifi3d,joint all_cross (punto),0.2458716063869395,0.2458716063869395,0.0,data_scale_ood/hifi/table_cells.csv
+hifi3d,scale_e036 all_cross (punto),0.5093420480698524,0.5093420480698524,0.0,data_scale_ood/hifi/table_cells.csv
+hifi3d,scale_e072 all_cross (punto),0.5574210054688847,0.5574210054688847,0.0,data_scale_ood/hifi/table_cells.csv
+hifi3d,scale_e108 all_cross (punto),0.5413867644128711,0.5413867644128711,0.0,data_scale_ood/hifi/table_cells.csv
+facescape,chamfer_full all_cross (punto),0.2310146959952183,0.23101469599521834,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,chamfer_stable all_cross (punto),0.2453254651316441,0.24532546513164416,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,chamfer_eval all_cross (punto),0.2012274553979474,0.20122745539794745,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,scale_e108 all_cross (punto),0.3596051926151746,0.35960519261517465,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval all_cross (point),0.1583777372172272,0.1583777372172272,0.0,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval all_cross (ci_low),0.116780050609186,0.11678005060918609,8.326672684688674e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval all_cross (ci_high),0.203334557391093,0.20333455739109307,8.326672684688674e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval all_cross (p_le0),0.0,0.0,0.0,evidence/dev_facescape/graded.csv
+facescape,chamfer_full nocrop_cross (punto),0.3613977678260399,0.3613977678260399,0.0,evidence/dev_facescape/graded.csv
+facescape,chamfer_stable nocrop_cross (punto),0.2774188660014324,0.27741886600143245,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,chamfer_eval nocrop_cross (punto),0.2893896094134885,0.28938960941348857,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,scale_e108 nocrop_cross (punto),0.3934955292994566,0.39349552929945664,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval nocrop_cross (point),0.104105919885968,0.10410591988596807,6.938893903907228e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval nocrop_cross (ci_low),0.062040009481722,0.06204000948172208,7.632783294297951e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval nocrop_cross (ci_high),0.147052305234716,0.14705230523471602,2.7755575615628914e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval nocrop_cross (p_le0),0.0,0.0,0.0,evidence/dev_facescape/graded.csv
+facescape,chamfer_full subject_pair_mean (punto),0.5842518883750233,0.5842518883750233,0.0,evidence/dev_facescape/graded.csv
+facescape,chamfer_stable subject_pair_mean (punto),0.4527783173031076,0.45277831730310764,5.551115123125783e-17,evidence/dev_facescape/graded.csv
+facescape,chamfer_eval subject_pair_mean (punto),0.7666522817805175,0.7666522817805175,0.0,evidence/dev_facescape/graded.csv
+facescape,scale_e108 subject_pair_mean (punto),0.7345860621718028,0.7345860621718028,0.0,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval subject_pair_mean (point),-0.0320662196087147,-0.0320662196087147,0.0,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval subject_pair_mean (ci_low),-0.0819338706713208,-0.08193387067132082,2.7755575615628914e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval subject_pair_mean (ci_high),0.0221198062352763,0.022119806235276332,3.122502256758253e-17,evidence/dev_facescape/graded.csv
+facescape,e108 - Chamfer eval subject_pair_mean (p_le0),0.864,0.864,0.0,evidence/dev_facescape/graded.csv
