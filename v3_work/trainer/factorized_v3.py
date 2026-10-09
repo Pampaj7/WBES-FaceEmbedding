@@ -36,7 +36,8 @@ from common import domain_of
 from losses_v3 import StepBatch, compute_loss
 from model_v3 import EncoderV3
 
-HEADS = ("embed", "factorized")
+HEADS = ("embed", "factorized", "factorized2")
+FACTORIZED = ("factorized", "factorized2")
 
 
 class FactorizedEncoderV3(EncoderV3):
@@ -71,7 +72,50 @@ class FactorizedEncoderV3(EncoderV3):
         return torch.cat([self.size_head(feat), u], dim=1)
 
 
+class FactorizedNormEncoderV3(FactorizedEncoderV3):
+    """``--head factorized2``: fattorizzazione per COSTRUZIONE. Dall'ingresso globale X: c, R = baricentro e centroid
+    size pesati con i pesi del pooling (aree robuste, ``smooth`` con --area robust), Xn = (X - c) / R;
+        u = pool_proj(feature(Xn))                       invariante esatta a traslazione e scala di X;
+        s = log(R x L0) + delta(feature(Xn))             s(aX) = s(X) + log a esatta;
+    delta (la testa della dimensione, ultimo strato a zero) corregge il supporto (crop, testa intera) rispetto alla
+    regione del volto. Pesi, c e R senza gradiente, in float64."""
+
+    def __init__(self, *a, unit_mm: float = 100.0, **kw):
+        super().__init__(*a, **kw)
+        self.unit_mm = float(unit_mm)
+        with torch.no_grad():
+            self.size_head[-1].bias.zero_()
+
+    def forward(self, V, mass, L, evals, evecs, faces, gradX, gradY, return_per_vertex: bool = False,
+                add_noise: bool = True):
+        import area_v3
+        with torch.no_grad():
+            w = area_v3.pool_weights(self.area_weights, V.detach().double(), faces, mass.double(), evecs.double())
+            wn = w / w.sum()
+            c = (wn.unsqueeze(1) * V.double()).sum(0, keepdim=True)
+            R = torch.sqrt((wn * ((V.double() - c) ** 2).sum(1)).sum())
+        Vn = ((V.double() - c) / R).to(V.dtype)
+        Z = self.encoder(Vn, mass, L, evals, evecs, faces=faces, gradX=gradX, gradY=gradY)
+        Z = self.vertex_bottleneck(Z)
+        if add_noise:
+            Z = Z + 0.01 * torch.randn_like(Z)
+        out = self.pool(Z, mass, w.to(Z.dtype))
+        if self.out_mode != "u":
+            out = torch.cat([out[:, :1] + float(torch.log(R * self.unit_mm)), out[:, 1:]], dim=1)
+        if return_per_vertex:
+            return Z, out
+        return out
+
+
 def build(args, device: torch.device) -> nn.Module:
+    if str(getattr(args, "head", "factorized")) == "factorized2":
+        m2 = FactorizedNormEncoderV3(latent_dim=args.latent_dim, width=args.width, n_blocks=args.n_blocks,
+                                     dropout=args.dropout, pooling=str(args.pooling),
+                                     attn_heads=int(getattr(args, "attn_heads", 1)),
+                                     area_weights=str(getattr(args, "area_weights", "mass")),
+                                     size_hidden=int(getattr(args, "size_hidden", 64)),
+                                     unit_mm=float(getattr(args, "global_unit_mm", 100.0)))
+        return m2.to(device)
     m = FactorizedEncoderV3(latent_dim=args.latent_dim, width=args.width, n_blocks=args.n_blocks, dropout=args.dropout,
                             pooling=str(args.pooling), attn_heads=int(getattr(args, "attn_heads", 1)),
                             area_weights=str(getattr(args, "area_weights", "mass")),

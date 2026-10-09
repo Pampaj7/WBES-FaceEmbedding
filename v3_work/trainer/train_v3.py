@@ -193,7 +193,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--global-unit-mm", type=float, default=100.0, help="global: L0, la costante (mm) uguale per tutte")
     p.add_argument("--global-ops", default="areanorm", choices=["areanorm", "mm"],
                    help="global: operatori come serviti (area 1) o massa/autovettori nelle unita' di xyz (equivalenti)")
-    p.add_argument("--head", default="embed", choices=["embed", "factorized"])
+    p.add_argument("--head", default="embed", choices=["embed", "factorized", "factorized2"])
     p.add_argument("--size-table", default="", help="factorized: log centroid size per identita' "
                                                     "(tools/build_factorized_targets.py, size.npz)")
     p.add_argument("--lambda-size", type=float, default=1.0)
@@ -255,7 +255,7 @@ def check_args(a: argparse.Namespace) -> None:
         raise SystemExit("--input-norm global va con --scale-table (e --scale-table solo con global)")
     if a.scale_aug and a.input_norm != "global":
         raise SystemExit("--scale-aug ha senso solo con --input-norm global")
-    if a.head == "factorized":
+    if a.head in ("factorized", "factorized2"):
         if not a.size_table:
             raise SystemExit("--head factorized richiede --size-table")
         if a.forward != "sequential":
@@ -499,7 +499,7 @@ class Data:
         for s in self.train:
             self.counts[domain_of(s)] = self.counts.get(domain_of(s), 0) + 1
         self.log_cs, self.size_init = None, 0.0
-        if args.head == "factorized":      # log centroid size per identita' (bersaglio di s)
+        if args.head in ("factorized", "factorized2"):      # log centroid size per identita' (bersaglio di s)
             import factorized_v3    # qui ``fz`` e' il json del held-out congelato (sopra)
             self.log_cs = factorized_v3.load_log_cs(args.size_table)
             need = set(self.train) | set(self.online) | {s for ids in self.extra.values() for s in ids}
@@ -669,7 +669,7 @@ def train_epoch(args, plans, embedder, net, model, optimizer, ema, data: Data, l
         Z = net(plan.entries, plan.sigma, bool(args.train_latent_noise))
         batch = StepBatch(Z=Z, mesh_subjects=[e[0] for e in plan.entries], mesh_topos=[e[2] for e in plan.entries],
                           batch_subjects=list(plan.subjects), gt=data.gt, name_to_idx=data.name_to_idx)
-        if args.head == "factorized":
+        if args.head in ("factorized", "factorized2"):
             loss, terms = fz.factorized_loss(args, batch, data.log_cs, log_a)
         else:
             loss, terms = compute_loss(args.loss, batch, args)
@@ -821,7 +821,7 @@ def run(args: argparse.Namespace) -> None:
     online_plan = build_eval_plan(subj_map=data.subj_map, eval_subjects=data.online,
                                   max_meshes_per_subject_eval=int(args.max_meshes_per_subject_eval),
                                   seed=int(args.seed) + 91_000) if rank == 0 else {}
-    if args.head == "factorized":
+    if args.head in ("factorized", "factorized2"):
         args.size_init = data.size_init        # bias iniziale di s: media di log S sul training
     model = build_model_v3(args, device)
     if rank > 0:

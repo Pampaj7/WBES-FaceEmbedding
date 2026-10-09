@@ -128,7 +128,7 @@ def install(ckpt_args: dict) -> dict:
         mh.forward_model = forward_model
         _rebind("forward_model", forward_model)
     return {"pooling": pooling, "input_norm": norm, "area_weights": aw, "head": head,
-            "out": out_mode if head == "factorized" else "z"}
+            "out": out_mode if head in ("factorized", "factorized2") else "z"}
 
 
 GLOBAL_KEYS = ("global_area_mm2", "global_R")
@@ -152,7 +152,7 @@ def install_global_samples(tables: str) -> None:
 
     def getitem(self, idx):
         out = orig_get(self, idx)
-        area, dom = table.lookup(self.files[int(idx)])
+        area, dom = table.lookup(self.files[int(idx)], Path(self.data_dir).name)
         out["global_area_mm2"] = torch.tensor(area, dtype=torch.float64)
         out["global_R"] = torch.as_tensor(R[dom])
         return out

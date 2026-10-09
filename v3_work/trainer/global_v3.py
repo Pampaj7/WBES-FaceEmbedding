@@ -39,11 +39,15 @@ from common import REPO_ROOT
 
 FRAMES = REPO_ROOT / "aau/runs/evidence/e12/frames.json"   # u_d, R_d, t_d di GT-F (E12)
 GLOBAL_OPS = ("areanorm", "mm")
+# patch di valutazione gia' nel frame del template T7 di NoW (aau/recon/now_prepare_meshes.py: mm, +y alto, +z naso,
+# il frame canonico): nessuna rotazione; la scala e' nelle tabelle (FaMoS metrica, NoW quella del template)
+EXTRA_FRAMES = {"famos": {"u": 1.0, "R": np.eye(3).tolist(), "unit_source": "patch T7 metriche (scala annullata)"},
+                "now": {"u": 1.0, "R": np.eye(3).tolist(), "unit_source": "patch T7 alla taglia del template"}}
 
 
 def rotations() -> Dict[str, np.ndarray]:
     """dominio -> R_d (3x3, float64)."""
-    doms = json.loads(FRAMES.read_text())["domains"]
+    doms = {**json.loads(FRAMES.read_text())["domains"], **EXTRA_FRAMES}
     return {d: np.asarray(v["R"], dtype=np.float64) for d, v in doms.items()}
 
 
@@ -67,7 +71,10 @@ class ScaleTable:
     def __contains__(self, name: str) -> bool:
         return name in self.area
 
-    def lookup(self, name: str) -> tuple[float, str]:
+    def lookup(self, name: str, group: str = "") -> tuple[float, str]:
+        """Prima ``<group>/<name>`` (nomi ripetuti fra cartelle, es. i metodi di NoW), poi ``name``."""
+        if group and f"{group}/{name}" in self.area:
+            name = f"{group}/{name}"
         if name not in self.area:
             raise KeyError(f"{name}: assente dalle tabelle di scala {self.paths} (tools/build_scale_table.py)")
         return self.area[name], self.domain[name]

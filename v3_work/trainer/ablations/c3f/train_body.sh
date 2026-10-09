@@ -24,14 +24,14 @@ case "$ARM" in
   # factorized_protocol.md (GT di E12): factorized = u su GT-SR grezza x kappa, s su log S_i di E12; ctrlfr = testa
   # standard su GT-FR tarata; entrambi con ingresso globale. Dati: prepare_fr.sbatch, build_factorized_data.sbatch.
   robal)      EXTRA=(--area robust --area-robust smooth --sampler balanced --domain-alpha 0.0) ;;
-  factorized|ctrlfr)
+  factorized|factorized2|ctrlfr)
               [[ -f "$C/scale_table.npz" && -f "$C/fr_params.json" ]] || { echo "ERRORE: dati di $ARM assenti" >&2; exit 3; }
               # dropout 0 (emendamento 2 di factorized_protocol.md): con 0.1 s ha un bias train/eval di -0.21 in log
               EXTRA=(--area robust --area-robust smooth --sampler balanced --domain-alpha 0.0
                      --input-norm global --scale-table "$C/scale_table.npz" --dropout 0.0)
-              if [[ "$ARM" == factorized ]]; then
+              if [[ "$ARM" == factorized* ]]; then   # factorized2: u su Xn normalizzata, s = log R + delta (emendamento 3)
                 KAPPA=$(python3 -c "import json; print(repr(json.load(open('$C/fr_params.json'))['kappa']))")
-                EXTRA+=(--head factorized --size-table "$WBES_ROOT/datasets/CANONICAL_GT/train/centroid_size_bfm_ict_gnm.npz"
+                EXTRA+=(--head "$ARM" --size-table "$WBES_ROOT/datasets/CANONICAL_GT/train/centroid_size_bfm_ict_gnm.npz"
                         --scale-aug 0.8,1.25 --gt-scale "$KAPPA" --size-mask-domains bfm)
                 GT="$C/gt_sr.npz"
               else

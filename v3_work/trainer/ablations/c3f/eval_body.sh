@@ -15,12 +15,15 @@ ARM="${WBES_V3_ARM:?WBES_V3_ARM}"
 DEF_STEPS="hifi devfs fv now"
 if [[ "$ARM" == factorized* || "$ARM" == ctrlfr* ]]; then
   # ingresso globale: la scala delle mesh di eval viene dalle tabelle (eval_v3.py); gli script ricevono u (forma).
-  # NoW non ha una tabella di scala (unita' e frame delle scansioni non canonicalizzati): escluso. ``form``:
-  # embedding [s, u] e valutazione contro le GT di E12 (datasets/CANONICAL_GT), factorized.md.
+  # ``form``: embedding [s, u] e GT di E12 (datasets/CANONICAL_GT); ``famos``: FaMoS TEST con la scala metrica
+  # (tools/eval_famos_v3.py); ``now``: la pipeline di e108, patch NoW alla taglia del template (le ricostruzioni
+  # monoculari non sono metriche: per i fattorizzati conta u), factorized.md.
   ST="$AAU_RUNS/evidence/trainer_v3/factorized/scale_tables"
-  export WBES_V3_SCALE_TABLES="$ST/hifi3d_eval.npz:$ST/devfs_eval.npz:$ST/devfs_expr.npz:$ST/fv_expr.npz"
+  WBES_V3_SCALE_TABLES="$ST/hifi3d_eval.npz:$ST/devfs_eval.npz:$ST/devfs_expr.npz:$ST/fv_expr.npz:$ST/now_scan.npz"
+  for m in 3ddfa_v2 synergynet prnet mica mica_loop2; do WBES_V3_SCALE_TABLES+=":$ST/now_$m.npz"; done
+  export WBES_V3_SCALE_TABLES
   export WBES_V3_FACTORIZED_OUT=u
-  DEF_STEPS="hifi devfs fv form"
+  DEF_STEPS="hifi devfs fv form famos now"
 fi
 STEPS=" ${WBES_V3_EVAL_STEPS:-$DEF_STEPS} "
 OUT="$AAU_RUNS/evidence/trainer_v3/ablations/c3f_eval"
@@ -102,6 +105,21 @@ step_form() {  # bracci a ingresso globale: [s, u] (o z) di ogni mesh, poi tools
     done
   done
 }
+step_famos() {  # FaMoS TEST: operatori ad area unitaria delle patch su /tmp, poi eval_famos_v3.py per ogni checkpoint
+  local e T="/tmp/v3famos_${SLURM_JOB_ID:-manual}_${SLURM_RESTART_COUNT:-0}" V="$WBES_ROOT/datasets/FAMOS/test_view" i pids=()
+  mkdir -p "$T/ops"
+  for (( i = 0; i < 12; i++ )); do
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 "$AAU_DIR/run.sh" v2_work/potential/areanorm_operators.py --input-dir "$V/npz" \
+      --output-dir "$T/ops" --k-eig 128 --shard "$i/12" > /dev/null 2>&1 & pids+=($!)
+  done
+  for i in "${pids[@]}"; do wait "$i" || return 1; done
+  for e in $EPS; do
+    WBES_V3_FACTORIZED_OUT=full WBES_V3_SCALE_TABLES="$ST/famos_test.npz" "$AAU_DIR/run.sh" v3_work/trainer/eval_v3.py -- \
+      v3_work/trainer/tools/eval_famos_v3.py --ops-dir "$T/ops" --checkpoint "${CK[$e]}" --tag "${TAG[$e]}full" \
+      --out-dir "$OUT/famos/${TAG[$e]}" --workers 12 || { rm -rf "$T"; return 1; }
+  done
+  rm -rf "$T"
+}
 step_now() {  # $1 W, $2 O, $3 checkpoint
   WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
     && WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py
@@ -123,6 +141,10 @@ fi
 if [[ "$STEPS" == *" form "* ]]; then
   echo "[v3-eval] $(date +%T) form: embedding [s, u] e GT di E12"
   retry form step_form || FAILED+=(form)
+fi
+if [[ "$STEPS" == *" famos "* ]]; then
+  echo "[v3-eval] $(date +%T) FaMoS TEST"
+  retry famos step_famos || FAILED+=(famos)
 fi
 if [[ "$STEPS" == *" now "* ]]; then
   SRC_W="$HOME/data/now_eval_work"

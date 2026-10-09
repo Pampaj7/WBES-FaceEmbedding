@@ -134,7 +134,7 @@ def main() -> None:
         ckpt = Path(str(z["checkpoint"])) if "checkpoint" in z.files else None
     import torch
     head = torch.load(ckpt, map_location="cpu", weights_only=False)["args"].get("head", "embed") if ckpt else "factorized"
-    factorized = head == "factorized"
+    factorized = head in ("factorized", "factorized2")
     if factorized and Z.shape[1] != 257:
         raise SystemExit("embedding senza s: rilanciare zs_embed con WBES_V3_FACTORIZED_OUT=full")
     dpu = (a.dp_per_unit if a.dp_per_unit > 0 else dp_from_ckpt(ckpt)) if factorized else float("nan")

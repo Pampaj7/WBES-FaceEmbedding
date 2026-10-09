@@ -246,6 +246,32 @@ def t_form_identity() -> dict:
             "pair_distances_vs_centered_max_abs": e3, "median_d_cc": float(np.median(d_cc))}
 
 
+def t_factorized2_exact() -> dict:
+    """--head factorized2, senza training (pesi casuali, testa della dimensione non nulla): s(aX + t) - s(X) = log a e
+    u(aX + t) = u(X), a in {0.8, 1, 1.25}, su mesh vere nell'ingresso globale; float32, criterio 1e-5."""
+    from robustness.data_utils import sample_to_device
+    from robustness.model_helpers import forward_model
+    torch.manual_seed(0)
+    m = build_model_v3(_args(head="factorized2", dropout=0.0), torch.device("cpu"))
+    torch.nn.init.normal_(m.size_head[-1].weight, std=0.5)
+    m.eval()
+    ds = _view_dataset()
+    gf = global_v3.GlobalFrame(global_v3.ScaleTable([TD / "scale_table.npz"]), 100.0, "smooth")
+    worst_s, worst_u, rows = 0.0, 0.0, {}
+    for i, name in enumerate(ds.files):
+        s = sample_to_device(gf(name, dict(ds[i])), torch.device("cpu"))
+        with torch.no_grad():
+            z0 = forward_model(m, s, s["verts"], False, False)[0][0]
+            for a in (0.8, 1.0, 1.25):
+                z = forward_model(m, s, s["verts"] * a + torch.tensor([0.3, -0.2, 0.1]), False, False)[0][0]
+                es = abs(float(z[0] - z0[0]) - float(np.log(a)))
+                eu = float((z[1:] - z0[1:]).abs().max())
+                worst_s, worst_u = max(worst_s, es), max(worst_u, eu)
+                rows[f"{name}|{a}"] = {"e_s": es, "e_u_max": eu, "s": float(z[0])}
+    return {"pass": worst_s < 1e-5 and worst_u < 1e-5, "max_e_s": worst_s, "max_e_u": worst_u,
+            "u_scale": float(z0[1:].abs().max()), "rows": rows}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
@@ -255,7 +281,7 @@ def main() -> None:
     res = {}
     for name, fn in (("run_dir_defaults", t_run_dir), ("global_frame", lambda: t_global_frame(table)),
                      ("global_ops_mm", lambda: t_ops_mm(table)), ("eval_hook", lambda: t_eval_hook(table_path)),
-                     ("head_loss", t_head_loss), ("scale_draws", t_scale_draws), ("form_identity", t_form_identity)):
+                     ("head_loss", t_head_loss), ("scale_draws", t_scale_draws), ("form_identity", t_form_identity), ("factorized2_exact", t_factorized2_exact)):
         try:
             res[name] = fn()
         except Exception as exc:  # noqa: BLE001

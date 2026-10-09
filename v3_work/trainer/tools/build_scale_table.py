@@ -126,11 +126,15 @@ def main() -> None:
     ap.add_argument("--split", type=Path)
     ap.add_argument("--view-dir", type=Path)
     ap.add_argument("--domain", default="", help="--view-dir: chiave di canonical_transforms.json (hifi3d, faceverse, ...)")
+    ap.add_argument("--scale-csv", default="", help="--view-dir: CSV:colonna_nome:colonna_scala; area / scala^2 (annulla la "
+                                                    "similarita' delle patch T7 di NoW/FaMoS, scale_to_mm)")
+    ap.add_argument("--group", default="", help="--view-dir: prefisso dei nomi (<group>/<file>), es. la cartella degli operatori")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--workers", type=int, default=16)
     a = ap.parse_args()
     t0 = time.time()
-    tf = json.loads(FRAMES.read_text())["domains"]
+    import global_v3
+    tf = {**json.loads(FRAMES.read_text())["domains"], **global_v3.EXTRA_FRAMES}
     tar_index = None
     if a.view_dir:
         if a.domain not in tf:
@@ -169,6 +173,18 @@ def main() -> None:
     if nm != sorted(n for n, _, _ in todo):
         raise SystemExit("mesh mancanti nelle righe")
     area_raw = np.asarray([r[1] for r in rows])
+    if a.scale_csv:
+        import csv
+        path, ncol, scol = a.scale_csv.split(":")
+        sc = {r[ncol] + ("" if r[ncol].endswith(".npz") else ".npz"): float(r[scol]) for r in csv.DictReader(open(path))}
+        miss = [n for n in nm if n not in sc]
+        if miss:
+            raise SystemExit(f"--scale-csv: {len(miss)} mesh senza scala (prima {miss[0]})")
+        area_raw = area_raw / np.asarray([sc[n] for n in nm]) ** 2
+        source["scale_csv"] = a.scale_csv
+    if a.group:
+        nm = [f"{a.group}/{n}" for n in nm]
+        dom = {f"{a.group}/{n}": d for n, d in dom.items()}
     u = np.asarray([float(tf[dom[n]]["u"]) for n in nm])
     area_mm2 = u ** 2 * area_raw
     check = np.asarray([r[3] for r in rows])
@@ -178,7 +194,8 @@ def main() -> None:
     from collections import defaultdict
     by = defaultdict(list)
     for n, v in zip(nm, np.sqrt(area_mm2)):
-        by[(dom[n], n[:-4].split("_GTready_", 1)[1])].append(v)
+        lab = n[:-4].split("_GTready_", 1)[1].split("__")[0] if "_GTready_" in n else n.split("/")[0]
+        by[(dom[n], lab)].append(v)
     info = {**source, "n_meshes": len(nm), "frames": str(FRAMES),
             "domains": {d: {"u": tf[d]["u"], "R": tf[d]["R"], "unit_source": tf[d]["unit_source"]}
                         for d in sorted(set(dom.values()))},

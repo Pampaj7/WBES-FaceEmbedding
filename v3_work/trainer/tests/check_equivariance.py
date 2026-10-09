@@ -53,7 +53,7 @@ def main() -> None:
     from build_scale_table import _work
     pack = torch.load(a.ckpt, map_location="cpu", weights_only=False)
     args = SimpleNamespace(**pack["args"])
-    if getattr(args, "head", "embed") != "factorized" or args.input_norm != "global":
+    if getattr(args, "head", "embed") not in ("factorized", "factorized2") or args.input_norm != "global":
         raise SystemExit("checkpoint non fattorizzato o senza ingresso globale")
     area_v3.CFG.update(k=int(args.area_smooth_k))
     device = torch.device(a.device if torch.cuda.is_available() else "cpu")

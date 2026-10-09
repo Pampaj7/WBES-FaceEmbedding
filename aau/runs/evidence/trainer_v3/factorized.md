@@ -129,7 +129,18 @@ Il braccio della prima versione (GT shape mia, confronto `robal`) resta in `trai
   mai visti, `short_1062802/equivariance*.json`): NON ancora appresa. Pesi grezzi: ds/dlog a = 0.70-0.73 (atteso 1),
   ||u(aX) - u(X)|| = 10-29% della distanza mediana fra soggetti; EMA: 0.25-0.28 (al passo 2.000 l'EMA 0.999 pesa
   ancora 13.5% l'inizializzazione). Bias di s: -0.21 in modo eval, ~0 in modo train sulle stesse mesh di training
-  -> dropout 0 nei run del protocollo (emendamento 2); verifica con dropout 0 in corso (job 1062946).
+  -> dropout 0 nei run del protocollo (emendamento 2). **Verifica con dropout 0** (job 1062946, stesso run breve):
+  pesi grezzi ds/dlog a = 0.94-0.96, |e_s| mediano <= 0.015, bias di s sui BFM non visti -0.03 (era -0.21); u ancora
+  variabile del 7-17% della distanza fra soggetti (EMA al passo 2.000: 0.38-0.42, ritardo della media mobile).
+- **Proposta (non lanciata) per l'invarianza di u:** fattorizzazione per costruzione: u calcolato sull'ingresso
+  normalizzato per mesh (il frame di arearobust, quindi invariante alla scala esatta), s = log R(X) + delta(X / R(X))
+  con R la radice dell'area robusta dell'ingresso globale: s(aX) = s(X) + log a e u(aX) = u(X) esatti, nessun costo
+  in piu'. Alternativa: termine esplicito su coppie (X, aX) nello stesso passo (doppio forward per le mesh scelte).
+- **FaMoS TEST e NoW** (passi `famos` e `now` di `eval_body.sh` per i bracci a ingresso globale): FaMoS con
+  `tools/eval_famos_v3.py` (funzioni di `aau/famos/famos_eval.py`), patch T7 con la scala METRICA (tabella con area /
+  scale_to_mm^2 del manifest), riconoscimento e graduata con FR, SR, unificata; validato su e108: unificata
+  scan->scan 0.371 contro 0.370 di famos_eval (FR 0.253 [-0.030, 0.550]). NoW: la pipeline di e108, patch alla taglia
+  del template (le ricostruzioni monoculari non sono metriche; chiavi `<metodo>/<file>` nelle tabelle).
 
 ## 6. Limiti dichiarati
 
