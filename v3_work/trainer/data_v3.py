@@ -8,6 +8,7 @@ Aggiunte, tutte spente di default:
   * ``input_norm="sqrt_area"``: vertici nel frame centroide pesato per massa + sqrt(area totale), applicato
     al campione PULITO (come ``train_fast --frame area``); le perturbazioni del training arrivano dopo,
     con le stesse sigma, quindi in unita' del nuovo frame;
+  * ``input_norm="global"``: mm nel frame canonico divisi per una costante (global_v3.GlobalFrame), stesso punto;
   * ``compact=True``: nella cache facce e indici COO in int32 e niente L (la diffusione spettrale non lo
     legge). Senza perdita: al servizio gli indici tornano int64 e L e' uno sparso vuoto (n, n);
   * ``shard=(rank, world)``: ogni processo DDP tiene in RAM solo i soggetti del proprio shard.
@@ -436,11 +437,14 @@ class ServeTransform:
     calcolano una volta per campione e si memorizzano (dipendono solo dalla mesh pulita servita)."""
 
     def __init__(self, input_norm: str = "maxabs", aug: dict | None = None, aug_seed: int = 0,
-                 area_weights: str = "mass") -> None:
-        if input_norm not in ("maxabs", "sqrt_area"):
+                 area_weights: str = "mass", global_frame=None) -> None:
+        if input_norm not in ("maxabs", "sqrt_area", "global"):
             raise ValueError(f"input_norm {input_norm!r}")
+        if (input_norm == "global") != (global_frame is not None):
+            raise ValueError("input_norm global va con un global_v3.GlobalFrame (e solo con quello)")
         self.input_norm = input_norm
         self.area_weights = area_weights
+        self.global_frame = global_frame
         self.aug = aug
         self.aug_rng = np.random.default_rng(int(aug_seed))
         self.train_set: set[str] = set()
@@ -465,6 +469,8 @@ class ServeTransform:
                 fr = ((w.unsqueeze(1) * V).sum(0, keepdim=True) / w.sum(), torch.sqrt(w.sum()))
                 self._frames[name] = fr
             sample["verts"] = (sample["verts"] - fr[0]) / fr[1]
+        elif self.input_norm == "global":       # mm nel frame canonico / L0 (global_v3.py)
+            sample = self.global_frame(name, sample)
         if self.aug and split_name(name)[0] in self.train_set:
             sample["verts"] = augment_verts(sample["verts"], self.aug, self.aug_rng)
         return sample
@@ -522,6 +528,10 @@ class BlockedDataset:
     def stage(self, names: list[str], dest: Path, wait: bool = True):
         """Vista piatta in ``dest``: symlink per le viste, pre-pass per tar e geometria."""
         dest.mkdir(parents=True, exist_ok=True)
+        # temporanei di un pre-pass ucciso a meta' scrittura (riavvio elastico di torchrun): il loader li leggerebbe
+        # come mesh (finiscono in .npz); il pre-pass scrive tmp + rename, quindi sono solo detriti
+        for stale in dest.glob(".*.tmp.npz"):
+            stale.unlink(missing_ok=True)
         need_tars, need_geom, subjects = set(), set(), set()
         canon = self.cfg.get("canon") or {}
         for n in names:

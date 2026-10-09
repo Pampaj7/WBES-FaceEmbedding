@@ -1,0 +1,47 @@
+{
+ "cs_mu_mm": 56.06632861154091,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "gt_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/CANONICAL_GT",
+ "sets": {
+  "hifi3d": {
+   "n": 500,
+   "S_mm_mean": 56.23839500779091,
+   "S_cv": 0.04862301661004218,
+   "median_dP": 0.0864554177567998,
+   "median_dF_mm": 5.8589104255062345,
+   "dF_vs_F_centered_max_abs_mm": 1.6928680679484387e-12,
+   "spearman_dF_vs_F": 0.66706744461799,
+   "spearman_size_only_vs_F": 0.703751200010422,
+   "spearman_dP_vs_S": 0.18782833064857793,
+   "median_S_over_csmu_dP": 1.9341153388056913,
+   "spearman_dP_vs_unified": 0.9028372141357804
+  },
+  "faceverse": {
+   "n": 500,
+   "S_mm_mean": 54.92749607005816,
+   "S_cv": 0.01828474555832201,
+   "median_dP": 0.1313214772457262,
+   "median_dF_mm": 7.34041373392094,
+   "dF_vs_F_centered_max_abs_mm": 9.467981954003335e-13,
+   "spearman_dF_vs_F": 0.9875208435929066,
+   "spearman_size_only_vs_F": 0.24577148400609156,
+   "spearman_dP_vs_S": 0.9865251407372017,
+   "median_S_over_csmu_dP": 1.0140845305645296,
+   "spearman_dP_vs_unified": 0.942912465958045
+  },
+  "facescape": {
+   "n": 500,
+   "S_mm_mean": 55.84872346404537,
+   "S_cv": 0.015660534154746414,
+   "median_dP": 0.0533096052819161,
+   "median_dF_mm": 3.1928894938465184,
+   "dF_vs_F_centered_max_abs_mm": 2.970734769291994e-12,
+   "spearman_dF_vs_F": 0.9170583563112195,
+   "spearman_size_only_vs_F": 0.39069668279196806,
+   "spearman_dP_vs_S": 0.8995378664758772,
+   "median_S_over_csmu_dP": 1.109061999764642,
+   "spearman_dP_vs_unified": 0.9331964065765305
+  }
+ },
+ "seconds": 81.26082396507263
+}

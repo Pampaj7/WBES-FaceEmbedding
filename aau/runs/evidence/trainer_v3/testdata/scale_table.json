@@ -1,0 +1,109 @@
+{
+ "spec": "aau/runs/evidence/trainer_v3/testdata/spec.json",
+ "split": "aau/runs/evidence/trainer_v3/testdata/split.json",
+ "n_subjects": 137,
+ "n_meshes": 1132,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "bfm": {
+   "u": 0.001,
+   "R": [
+    [
+     0.999597679911446,
+     -0.01372497569309798,
+     0.024821429408433605
+    ],
+    [
+     -0.011943457508156596,
+     -0.9974367658540837,
+     -0.07054964170920387
+    ],
+    [
+     0.025726098390639048,
+     0.07022480448367233,
+     -0.997199400670109
+    ]
+   ],
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "gnm": {
+   "u": 1000.0,
+   "R": [
+    [
+     0.9999415546864854,
+     0.001294189835216641,
+     -0.010733698516566666
+    ],
+    [
+     -0.0007209366254417443,
+     0.9985814980220529,
+     0.053239760127312845
+    ],
+    [
+     0.010787375100376376,
+     -0.05322891019645376,
+     0.9985240686421842
+    ]
+   ],
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "ict": {
+   "u": 10.0,
+   "R": [
+    [
+     0.9997684260102017,
+     0.0022403775345558297,
+     -0.02140268818598318
+    ],
+    [
+     -0.0010689131689510022,
+     0.9985082893186303,
+     0.0545898670690667
+    ],
+    [
+     0.02149306347920206,
+     -0.05455434786049429,
+     0.9982794555392767
+    ]
+   ],
+   "unit_source": "dichiarata (domains.py)"
+  }
+ },
+ "definition": "area_mm2 = u_d^2 * area totale della geometria grezza (unita' native); fattore al servizio sqrt(area_mm2 / area(V_loader)), poi rotazione R_d (global_v3.py)",
+ "check_maxabs_vs_view": {
+  "n_checked": 366,
+  "max_abs": 1.1157029866648571e-07
+ },
+ "sqrt_area_mm_median": {
+  "bfm|crop": 152.0596435160393,
+  "bfm|down8k": 164.8278112011513,
+  "bfm|noisy": 249.2747580923879,
+  "bfm|original": 164.79815318005177,
+  "bfm|remesh": 161.74330547765433,
+  "bfm|up60k": 164.37568551907322,
+  "gnm|crop": 172.61123405271292,
+  "gnm|down8k": 193.90888903951992,
+  "gnm|noisy": 230.15014811281702,
+  "gnm|original": 193.87989510626113,
+  "gnm|remesh": 187.9527578540642,
+  "gnm|rexpr1": 193.94901732050866,
+  "gnm|rexpr2": 196.6405694725878,
+  "gnm|up60k": 193.8801567917194,
+  "ict|crop": 261.1624463682533,
+  "ict|down8k": 290.03608815691916,
+  "ict|noisy": 344.06216954664086,
+  "ict|original": 289.9987363710566,
+  "ict|remesh": 280.05625307454466,
+  "ict|rexpr1": 292.158832515793,
+  "ict|rexpr2": 292.1829462609426,
+  "ict|rexpr3": 292.04394752524865,
+  "ict|rexpr4": 293.1210248044728,
+  "ict|rexpr5": 292.634303277809,
+  "ict|rexpr6": 291.935702450939,
+  "ict|rexpr7": 292.72832032544454,
+  "ict|rexpr8": 293.93433319099694,
+  "ict|up60k": 289.99874108634197
+ },
+ "seconds": 32.825143814086914,
+ "host": "a256-t4-02.srv.aau.dk"
+}

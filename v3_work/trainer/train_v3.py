@@ -14,7 +14,10 @@ Flag v3 (default = v2):
   --sampler v2|balanced            sampler_v3.py; --domain-alpha a: p_d ~ n_d^a (0 = uniforme fra domini)
   --batch-domains single|mixed     batch a dominio singolo (v2) o misti (serve una GT definita fra domini)
   --pooling meanmax|area_meanmax|area_attn   (--attn-heads)
-  --input-norm maxabs|sqrt_area    frame dei vertici prima del rumore (data_v3.reframe_sqrt_area)
+  --input-norm maxabs|sqrt_area|global  frame dei vertici prima del rumore (data_v3.reframe_sqrt_area; global:
+                                   mm nel frame canonico / --global-unit-mm, global_v3.py, con --scale-table)
+  --head embed|factorized          z = (s, u): log centroid size + forma (factorized_v3.py, --size-table,
+                                   --lambda-size, --scale-aug lo,hi)
   --width / --n_blocks             taglia (flag v1)
   --ema-decay D                    EMA dei pesi (0 = spenta); i checkpoint *_ema.pth hanno i pesi EMA
   --compact-cache                  cache senza perdita: int32 per facce e indici, niente L (-~28% RAM)
@@ -50,6 +53,7 @@ sys.path.insert(0, str(THIS_DIR))
 import common  # noqa: E402,F401
 from common import dist_info, domain_of, log0, split_name  # noqa: E402
 import data_v3 as dv  # noqa: E402
+import factorized_v3 as fz  # noqa: E402
 import sampler_v3 as sv  # noqa: E402
 from losses_v3 import LOSSES, StepBatch, compute_loss  # noqa: E402
 from model_v3 import POOLINGS, StepEmbedder, build_model_v3  # noqa: E402
@@ -153,6 +157,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--domain-blocked", action=B, default=True)
     p.add_argument("--eval_domain", default="")
     p.add_argument("--gt-keep-scale", action="store_true")
+    p.add_argument("--gt-scale", type=float, default=1.0,
+                   help="GT moltiplicata per k al caricamento (es. kappa della GT shape: i margini v2 sono in unita' GT)")
     p.add_argument("--plateau-patience", type=int, default=None)
     p.add_argument("--lr-steps", default="")
     p.add_argument("--pin-cache", action="store_true")
@@ -181,7 +187,19 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--batch-domains", default="single", choices=["single", "mixed"])
     p.add_argument("--pooling", default="meanmax", choices=list(POOLINGS))
     p.add_argument("--attn-heads", type=int, default=1)
-    p.add_argument("--input-norm", default="maxabs", choices=["maxabs", "sqrt_area"])
+    p.add_argument("--input-norm", default="maxabs", choices=["maxabs", "sqrt_area", "global"])
+    p.add_argument("--scale-table", default="", help="global: tabelle di scala per mesh (tools/build_scale_table.py), "
+                                                     "separate da virgola")
+    p.add_argument("--global-unit-mm", type=float, default=100.0, help="global: L0, la costante (mm) uguale per tutte")
+    p.add_argument("--global-ops", default="areanorm", choices=["areanorm", "mm"],
+                   help="global: operatori come serviti (area 1) o massa/autovettori nelle unita' di xyz (equivalenti)")
+    p.add_argument("--head", default="embed", choices=["embed", "factorized"])
+    p.add_argument("--size-table", default="", help="factorized: log centroid size per identita' "
+                                                    "(tools/build_factorized_targets.py, size.npz)")
+    p.add_argument("--lambda-size", type=float, default=1.0)
+    p.add_argument("--size-hidden", type=int, default=64)
+    p.add_argument("--size-mask-domains", default="", help="domini esclusi dalla MSE di s, separati da virgola (es. bfm)")
+    p.add_argument("--scale-aug", default="", help="lo,hi: fattore di scala log-uniforme per mesh (solo global)")
     p.add_argument("--area", default="off", choices=["off", "on", "robust"],
                    help="per area SIA il centro dell'input SIA il pooling, con la scala sqrt(area) (E3): on = pesi "
                         "per area; robust = pesi robusti al rumore (--area-robust); off = v2 per vertice")
@@ -213,7 +231,8 @@ def check_args(a: argparse.Namespace) -> None:
     if not a.dist_npz:
         a.dist_npz = str(GT_FILES[a.gt])
     if a.area != "off":
-        a.input_norm = "sqrt_area"
+        if a.input_norm != "global":     # global: centro per area, ma scala globale (non per mesh)
+            a.input_norm = "sqrt_area"
         if a.pooling == "meanmax":
             a.pooling = "area_meanmax"
         a.area_weights = "mass" if a.area == "on" else a.area_robust
@@ -232,20 +251,41 @@ def check_args(a: argparse.Namespace) -> None:
         raise SystemExit("--batch-domains mixed richiede --no-domain-blocked")
     if a.loss == "v2" and a.train_level != "mixed":
         raise SystemExit("loss v2 = train_level mixed")
+    if (a.input_norm == "global") != bool(a.scale_table):
+        raise SystemExit("--input-norm global va con --scale-table (e --scale-table solo con global)")
+    if a.scale_aug and a.input_norm != "global":
+        raise SystemExit("--scale-aug ha senso solo con --input-norm global")
+    if a.head == "factorized":
+        if not a.size_table:
+            raise SystemExit("--head factorized richiede --size-table")
+        if a.forward != "sequential":
+            raise SystemExit("--head factorized: solo --forward sequential (packed e groups chiamano pool_proj)")
+        if a.pooling == "meanmax":
+            raise SystemExit("--head factorized richiede un pooling per area (--area on|robust)")
+        import factorized_v3
+        factorized_v3.parse_scale_aug(a.scale_aug)
+    elif a.size_table:
+        raise SystemExit("--size-table solo con --head factorized")
 
 
 # --- run dir ----------------------------------------------------------------------------------------
 
 V3_DEFAULTS = {"forward": "sequential", "loss": "v2", "sampler": "v2", "batch_domains": "single",
                "pooling": "meanmax", "input_norm": "maxabs", "area_weights": "mass", "ema_decay": 0.0,
-               "compact_cache": False, "gt": "maxabs"}
+               "compact_cache": False, "gt": "maxabs", "head": "embed"}
+# flag della modalita' fattorizzata: fuori dall'hash quando sono al default, cosi' il run dir di un run senza di
+# loro resta quello di prima (una ripresa con --resume auto ritrova il suo last.pth)
+FACTORIZED_DEFAULTS = {"scale_table": "", "global_unit_mm": 100.0, "global_ops": "areanorm", "head": "embed",
+                       "size_table": "", "lambda_size": 1.0, "size_hidden": 64, "scale_aug": "", "gt_scale": 1.0,
+                       "size_mask_domains": ""}
 
 
 def make_run_dir(args: argparse.Namespace) -> Path:
     """Nome alla v1 (livello, coppie, modello, rank, id, z, w, b, bs, pool, rumore, seme) + i flag v3 diversi
     dal default + hash di tutti gli argomenti che cambiano il training."""
     skip = {"runs_root", "device", "resume", "max_hours", "log_every", "test_crash_at_step", "cache_workers",
-            "cache_max_gb", "prepass_proc", "train_threads", "stage_root", "pin_cache", "data_dir"}
+            "cache_max_gb", "prepass_proc", "train_threads", "stage_root", "pin_cache", "data_dir", "size_init"}
+    skip |= {k for k, d in FACTORIZED_DEFAULTS.items() if getattr(args, k, d) == d}
     fp = {k: v for k, v in sorted(vars(args).items()) if k not in skip}
     h = hashlib.sha1(json.dumps(fp, sort_keys=True, default=str).encode()).hexdigest()[:8]
     v3 = [f"{k.replace('_', '')}-{getattr(args, k)}" for k, d in V3_DEFAULTS.items() if getattr(args, k) != d]
@@ -396,8 +436,15 @@ class Data:
         aug = spec.get("aug") or None
         if aug and not (float(aug.get("rot_deg", 0)) > 0 or float(aug.get("reflect_p", 0)) > 0):
             aug = None
+        gframe = None
+        if args.input_norm == "global":
+            import global_v3
+            gframe = global_v3.GlobalFrame(global_v3.ScaleTable(args.scale_table.split(",")), args.global_unit_mm,
+                                           args.area_weights, args.global_ops)
+            log0(f"[v3] ingresso globale: {len(gframe.table.area)} mesh nelle tabelle di scala, L0 "
+                 f"{args.global_unit_mm:g} mm, centro con pesi {args.area_weights}, operatori {args.global_ops}")
         self.transform = dv.ServeTransform(args.input_norm, aug, int(spec.get("aug_seed", 0)),
-                                           area_weights=args.area_weights)
+                                           area_weights=args.area_weights, global_frame=gframe)
         if args.store:
             self.dataset = dv.StoreDataset(dv.MmapStore(args.store), self.transform)
             log0(f"[v3] store {args.store}: {len(self.dataset)} mesh in mmap (nessuno staging)")
@@ -419,6 +466,9 @@ class Data:
         self.subj_map = build_subject_map(files, subject_re=SUBJECT_RE_ANY)
         self.topo_map = topology_map(files, self.subj_map, spec.get("label_groups"))
         self.gt, self.name_to_idx = dv.load_gt(args.dist_npz, keep_scale=args.gt_keep_scale, vector=args.gt_vector)
+        if args.gt_scale != 1.0:
+            self.gt *= np.float32(args.gt_scale) if self.gt.dtype == np.float32 else args.gt_scale
+            log0(f"[v3] GT moltiplicata per {args.gt_scale:g} (--gt-scale)")
         subjects = sorted(s for s in self.subj_map if s in self.name_to_idx)
         self.split = json.loads(Path(args.split_json).read_text()) if args.split_json else None
         if self.split is None:
@@ -448,6 +498,17 @@ class Data:
         self.counts = {}
         for s in self.train:
             self.counts[domain_of(s)] = self.counts.get(domain_of(s), 0) + 1
+        self.log_cs, self.size_init = None, 0.0
+        if args.head == "factorized":      # log centroid size per identita' (bersaglio di s)
+            import factorized_v3    # qui ``fz`` e' il json del held-out congelato (sopra)
+            self.log_cs = factorized_v3.load_log_cs(args.size_table)
+            need = set(self.train) | set(self.online) | {s for ids in self.extra.values() for s in ids}
+            miss = sorted(need - set(self.log_cs))
+            if miss:
+                raise SystemExit(f"--size-table {args.size_table}: {len(miss)} soggetti senza centroid size ({miss[:3]})")
+            self.size_init = float(np.mean([self.log_cs[s] for s in self.train]))
+            log0(f"[v3] testa fattorizzata: log centroid size di {len(need)} soggetti, media del training "
+                 f"{self.size_init:.4f} (S = {math.exp(self.size_init):.1f} mm)")
         self.blocks = None
         self.pending = None
         self.n_fixed_parts = 0
@@ -601,10 +662,17 @@ def train_epoch(args, plans, embedder, net, model, optimizer, ema, data: Data, l
                 raise RuntimeError("batch non valido in DDP: i rank perderebbero il passo in comune")
             continue
         optimizer.zero_grad(set_to_none=True)
+        log_a = None
+        if args.scale_aug:     # log a per mesh, funzione di (seme, rank, passo): la ripresa li riproduce
+            log_a = fz.draw_log_scales(args.scale_aug, len(plan.entries), args.seed, data.rank, STATE["steps"] + 1)
+            embedder.__dict__["log_scales"] = log_a
         Z = net(plan.entries, plan.sigma, bool(args.train_latent_noise))
         batch = StepBatch(Z=Z, mesh_subjects=[e[0] for e in plan.entries], mesh_topos=[e[2] for e in plan.entries],
                           batch_subjects=list(plan.subjects), gt=data.gt, name_to_idx=data.name_to_idx)
-        loss, terms = compute_loss(args.loss, batch, args)
+        if args.head == "factorized":
+            loss, terms = fz.factorized_loss(args, batch, data.log_cs, log_a)
+        else:
+            loss, terms = compute_loss(args.loss, batch, args)
         loss.backward()
         if args.grad_clip > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
@@ -753,6 +821,8 @@ def run(args: argparse.Namespace) -> None:
     online_plan = build_eval_plan(subj_map=data.subj_map, eval_subjects=data.online,
                                   max_meshes_per_subject_eval=int(args.max_meshes_per_subject_eval),
                                   seed=int(args.seed) + 91_000) if rank == 0 else {}
+    if args.head == "factorized":
+        args.size_init = data.size_init        # bias iniziale di s: media di log S sul training
     model = build_model_v3(args, device)
     if rank > 0:
         torch.manual_seed(args.seed + 100_003 * rank)
@@ -943,6 +1013,7 @@ def run(args: argparse.Namespace) -> None:
         if rank == 0:
             eval_model = ema.model if ema is not None else model
             if do_eval:
+                fz.set_output(eval_model, "u")     # --head factorized: l'eval online legge solo u (forma)
                 pack = evaluate_subject_robustness_grid(model=eval_model, eval_ctx=eval_ctx, sigma_grid=sigma_grid,
                                                         noise_modes=noise_modes, params=perturbation,
                                                         seed=args.seed + 50_000 + epoch, eval_mode=args.eval_mode)
@@ -965,6 +1036,7 @@ def run(args: argparse.Namespace) -> None:
                         save_ckpt(run_dir / "checkpoints" / f"{name}.pth", epoch, model, optimizer, ema, args,
                                   {f"best_{metric}": v, "sigma_grid": sigma_grid})
                         (run_dir / f"{name}.txt").write_text(f"best_epoch={epoch}\nbest_{metric}={v}\n")
+                fz.set_output(eval_model, "full")
             print(f"Epoch {epoch:03d} | loss={stats_loss:.4f} stress={stats['stress']:.4f} rank={stats['rank']:.4f} "
                   f"id={stats['id']:.4f} smooth=0.0000 teacher=0.0000 lr={lr_now:.2e} "
                   f"sp_clean={last_eval['spearman_clean']:.4f} aucR={last_eval['auc_r']:.4f} "

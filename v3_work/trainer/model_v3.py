@@ -99,10 +99,16 @@ class EncoderV3(DiffusionEncoderOnly):
 
 
 def build_model_v3(args, device: torch.device) -> nn.Module:
-    """``meanmax``: la build v1 (DiffusionEncoderOnly). Altrimenti EncoderV3 con la stessa larghezza."""
+    """``meanmax``: la build v1 (DiffusionEncoderOnly). Altrimenti EncoderV3 con la stessa larghezza.
+    ``--head factorized``: factorized_v3.FactorizedEncoderV3 (EncoderV3 + testa della dimensione)."""
     if str(args.model) != "xyz_dn":
         raise SystemExit("il trainer v3 supporta solo --model xyz_dn")
     pooling = str(getattr(args, "pooling", "meanmax"))
+    if str(getattr(args, "head", "embed")) == "factorized":
+        if pooling == "meanmax":
+            raise SystemExit("--head factorized richiede un pooling per area (--area on|robust o --pooling area_*)")
+        import factorized_v3
+        return factorized_v3.build(args, device)
     if pooling == "meanmax":
         if str(args.pool_mode) != "meanmax":
             raise SystemExit("--pooling meanmax richiede --pool_mode meanmax (il controllo v2)")
@@ -155,6 +161,7 @@ class StepEmbedder(nn.Module):
         # oggetti Python, non stato del modulo
         self.__dict__["dataset"] = None
         self.__dict__["perturbation"] = None
+        self.__dict__["log_scales"] = None    # --scale-aug: log a per mesh del passo (None = spenta, come v2)
 
     def bind(self, dataset, perturbation) -> None:
         self.__dict__["dataset"] = dataset
@@ -162,20 +169,22 @@ class StepEmbedder(nn.Module):
 
     def forward(self, entries: List[tuple], sigma: float, add_noise: bool) -> torch.Tensor:
         device = next(self.model.parameters()).device
+        log_a = self.__dict__.get("log_scales")
         if self.forward_mode == "sequential":
             zs = []
-            for _sid, idx, _topo, mode in entries:
+            for k, (_sid, idx, _topo, mode) in enumerate(entries):
                 sample_d = to_device(self.dataset[int(idx)], device, self.fast_data,
                                      getattr(self.model, "area_weights", "mass") == "smooth")
-                V_in = _perturb(sample_d["verts"], sigma, mode, self.perturbation)
+                V0 = sample_d["verts"] if log_a is None else sample_d["verts"] * math.exp(float(log_a[k]))
+                V_in = _perturb(V0, sigma, mode, self.perturbation)
                 z, _ = forward_model(model=self.model, sample_dict=sample_d, V_in=V_in,
                                      return_gate_info=False, add_noise=add_noise)
                 zs.append(z.squeeze(0))
             return torch.stack(zs, dim=0)
         items = []
-        for _sid, idx, _topo, mode in entries:
+        for k, (_sid, idx, _topo, mode) in enumerate(entries):
             s = self.dataset[int(idx)]
-            V = s["verts"].to(device)
+            V = s["verts"].to(device) if log_a is None else s["verts"].to(device) * math.exp(float(log_a[k]))
             it = {"verts": _perturb(V, sigma, mode, self.perturbation), "mass": s["mass"].to(device),
                   "evals": s["evals"].to(device), "evecs": s["evecs"].to(device),
                   "gradX": s["gradX"], "gradY": s["gradY"]}

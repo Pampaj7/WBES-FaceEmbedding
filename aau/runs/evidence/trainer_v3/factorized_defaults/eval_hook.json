@@ -1,0 +1,77 @@
+{
+ "rows": [
+  {
+   "pooling": "meanmax",
+   "input_norm": "maxabs",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "DiffusionEncoderOnly",
+   "pass": true
+  },
+  {
+   "pooling": "meanmax",
+   "input_norm": "sqrt_area",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "DiffusionEncoderOnly",
+   "pass": true
+  },
+  {
+   "pooling": "area_meanmax",
+   "input_norm": "maxabs",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_meanmax",
+   "input_norm": "sqrt_area",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_attn",
+   "input_norm": "maxabs",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_attn",
+   "input_norm": "sqrt_area",
+   "area_weights": "mass",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_meanmax",
+   "input_norm": "sqrt_area",
+   "area_weights": "smooth",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_meanmax",
+   "input_norm": "sqrt_area",
+   "area_weights": "winsor",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  },
+  {
+   "pooling": "area_attn",
+   "input_norm": "sqrt_area",
+   "area_weights": "smooth",
+   "max_abs_diff": 0.0,
+   "class": "EncoderV3",
+   "pass": true
+  }
+ ],
+ "all_pass": true
+}

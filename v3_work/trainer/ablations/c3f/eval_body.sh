@@ -12,18 +12,31 @@ set -uo pipefail
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
 ARM="${WBES_V3_ARM:?WBES_V3_ARM}"
-STEPS=" ${WBES_V3_EVAL_STEPS:-hifi devfs fv now} "
+DEF_STEPS="hifi devfs fv now"
+if [[ "$ARM" == factorized* || "$ARM" == ctrlfr* ]]; then
+  # ingresso globale: la scala delle mesh di eval viene dalle tabelle (eval_v3.py); gli script ricevono u (forma).
+  # NoW non ha una tabella di scala (unita' e frame delle scansioni non canonicalizzati): escluso. ``form``:
+  # embedding [s, u] e valutazione contro le GT di E12 (datasets/CANONICAL_GT), factorized.md.
+  ST="$AAU_RUNS/evidence/trainer_v3/factorized/scale_tables"
+  export WBES_V3_SCALE_TABLES="$ST/hifi3d_eval.npz:$ST/devfs_eval.npz:$ST/devfs_expr.npz:$ST/fv_expr.npz"
+  export WBES_V3_FACTORIZED_OUT=u
+  DEF_STEPS="hifi devfs fv form"
+fi
+STEPS=" ${WBES_V3_EVAL_STEPS:-$DEF_STEPS} "
 OUT="$AAU_RUNS/evidence/trainer_v3/ablations/c3f_eval"
-RR="$AAU_RUNS/evidence/trainer_v3/ablations/c3f_runs/$ARM"
+SEED="${WBES_V3_SEED:-1234}"
+SFX=""; [[ "$SEED" != 1234 ]] && SFX="_s$SEED"
+RR="${WBES_V3_EVAL_RR:-$AAU_RUNS/evidence/trainer_v3/ablations/c3f_runs/$ARM$SFX}"   # C3M: la sua run dir
+EPS="${WBES_V3_EVAL_EPOCHS:-036 072}"                                               # epoche dei checkpoint EMA
 CK_DIR="$(ls -d "$RR"/v3_*/checkpoints | head -1)"
 declare -A CK TAG
-for e in 036 072; do
+for e in $EPS; do
   CK[$e]="$CK_DIR/epoch${e}_ema.pth"
   [[ -f "${CK[$e]}" ]] || { echo "ERRORE: ${CK[$e]} assente" >&2; exit 1; }
-  TAG[$e]="v3${ARM}e$e"
+  TAG[$e]="v3${ARM}${SFX#_}e$e"
   export "WBES_ZS_CKPT_SCALE_${TAG[$e]^^}=${CK[$e]}"
 done
-ARMS="scale_${TAG[036]} scale_${TAG[072]}"
+ARMS=""; for e in $EPS; do ARMS+="${ARMS:+ }scale_${TAG[$e]}"; done
 ZS="/tmp/zs_v3c3f_${SLURM_JOB_ID:-manual}_${SLURM_RESTART_COUNT:-0}.sh"
 sed 's|^LAUNCH=()$|LAUNCH=(v3_work/trainer/eval_v3.py --)|' "$AAU_DIR/zs3dmm/zs_zeroshot.sbatch" > "$ZS"
 grep -qx 'LAUNCH=(v3_work/trainer/eval_v3.py --)' "$ZS" || { echo "ERRORE: LAUNCH non sostituito" >&2; exit 1; }
@@ -65,6 +78,30 @@ step_fv() {
   WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 WBES_FV_RUNS="$OUT/fv" WBES_ZS_FLIP_FACES=1 WBES_ZS_ARMS="$ARMS" \
     WBES_ZS_PART=embed bash "$ZS"
 }
+step_form() {  # bracci a ingresso globale: [s, u] (o z) di ogni mesh, poi tools/eval_factorized.py con le GT di E12
+  local e dom set g emb V="${ARM}${SFX#_}" FARMS
+  FARMS=""; for e in $EPS; do FARMS+="${FARMS:+ }scale_v3${V}fulle$e"; done
+  for e in $EPS; do export "WBES_ZS_CKPT_SCALE_V3${V^^}FULLE$e=${CK[$e]}"; done
+  WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=hifi WBES_HIFI_RUNS="$OUT/form_hifi" WBES_ZS_ARMS="$FARMS" \
+    WBES_ZS_PART=embed bash "$ZS" || return 1
+  ( source aau/zs3dmm/dev_facescape_env.sh
+    export WBES_FV_RUNS="$OUT/form_devfs" WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed WBES_V3_FACTORIZED_OUT=full
+    unset WBES_ZS_EXPR WBES_ZS_FLIP_FACES
+    bash "$ZS" ) || return 1
+  WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 WBES_FV_RUNS="$OUT/form_fv" WBES_ZS_FLIP_FACES=1 \
+    WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed bash "$ZS" || return 1
+  local G=datasets/CANONICAL_GT/eval
+  for pair in hifi:hifi3d:HIFI3D/eval_view devfs:facescape:DEV_FACESCAPE/eval_view fv:faceverse:FACEVERSE_ZS/expr_view; do
+    IFS=: read -r dom set view <<< "$pair"
+    gts=(--gt "fr=$G/${set}_fr.npz" --gt "sr=$G/${set}_sr.npz" --gt "maxabs=datasets/$view/gt_matrix.npz")
+    for e in $EPS; do
+      emb=$(find "$OUT"/form_${dom}* -path "*scale_v3${V}fulle${e}*" -name embeddings.npz | head -1)
+      [[ -n "$emb" ]] || { echo "[v3-eval] ERRORE: embedding [s, u] di $dom e$e assenti"; return 1; }
+      AAU_NV= "$AAU_DIR/run.sh" v3_work/trainer/tools/eval_factorized.py --embeddings "$emb" "${gts[@]}" \
+        --size-table "$G/${set}_centroid_size.npz" --out-dir "$OUT/form/$dom/v3${V}e$e" || return 1
+    done
+  done
+}
 step_now() {  # $1 W, $2 O, $3 checkpoint
   WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
     && WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py
@@ -83,10 +120,14 @@ if [[ "$STEPS" == *" fv "* ]]; then
   echo "[v3-eval] $(date +%T) FaceVerse con espressioni"
   retry fv step_fv || FAILED+=(fv)
 fi
+if [[ "$STEPS" == *" form "* ]]; then
+  echo "[v3-eval] $(date +%T) form: embedding [s, u] e GT di E12"
+  retry form step_form || FAILED+=(form)
+fi
 if [[ "$STEPS" == *" now "* ]]; then
   SRC_W="$HOME/data/now_eval_work"
   SRC_O="$AAU_RUNS/now_eval"
-  for e in 036 072; do
+  for e in $EPS; do
     t="${TAG[$e]}"
     W="$HOME/data/v3c3f_now/$t"
     O="$OUT/now/$t"
