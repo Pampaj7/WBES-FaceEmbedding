@@ -1193,3 +1193,12 @@ C3F − max(C2F, C2F-GNM), a 21.096 passi:
   - il riconoscimento con espressioni premia invece la cella con più GNM, cioè con più espressioni. Le espressioni vanno curate esplicitamente nel run massivo.
 - **Limiti:** un seme (i secondi semi sono in corso); GT maxabs.
 - **Errore dell'agente:** C2F s2 e C3F s2 erano falliti per il `block_seed`; corretti e risottomessi.
+
+### 10 ottobre, notte: due problemi di equità sulla GT FR
+1. **La baseline "solo taglia" (oracolo) fa Spearman 0.736 con FR su HIFI3D,** sopra ogni metodo (NICP 0.367). FR è dominata da un solo scalare, la taglia. Conseguenze:
+   - le conclusioni vanno sempre riportate con FR **e** SR;
+   - la baseline banale con taglia STIMATA dalla mesh (non l'oracolo) va in tabella;
+   - il modello fattorizzato potrebbe "vincere" FR solo con la stima della taglia: il contributo vero va letto su SR.
+2. **Le baseline geometriche sono state calcolate su mesh normalizzate per maxabs, quindi sono cieche alla taglia.** Con FR sono svantaggiate ingiustamente. Lanciato un coder (`aau/baselines_mm/`) per ricalcolarle in mm, con ICP rigido per FR e similarità per SR, più le banali stimate, su HIFI3D, FaceScape, FaceVerse e FaMoS TEST.
+
+Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo).
