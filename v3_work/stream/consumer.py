@@ -18,11 +18,38 @@ preparano in thread mentre la GPU lavora sul corrente (``prefetch``).
 GT: ``StreamGT`` ha l'interfaccia della matrice GT del trainer (``gt[np.ix_(righe, colonne)]`` e
 ``name_to_idx``), con g_ij = ||s_i - s_j|| / sqrt(A) / ``gt_mm``: la GT unificata di datasets/UNIFIED_GT
 (train_gt.py), nella sua scala (mm per unita' = il suo massimo, 14.16 mm) se ``gt_mm`` non e' dato.
+Con ``gt_kind`` fr o sr (shard di ``producer.py --canonical-gt``) il vettore e' quello della GT di E12
+(targets.py: FR in mm, SR adimensionale), stessa formula; ``StreamGT.log_s`` tiene log S_i (testa fattorizzata).
+
+Ingresso globale (``input_norm`` global): X = ((V - c) f) / L0 come global_v3 (centro coi pesi ``area_weights``,
+f = sqrt(area_mm2 / area(V)) con ``area_mm2`` dai metadati della vista), senza R_d: le viste sono gia' nel frame
+canonico. Poi la rotazione; la scala dell'augmentation deve essere 0 (cambierebbe la taglia senza il bersaglio).
+
+Su piu' nodi ogni nodo ha il suo anello: gli shard si dividono fra i rank DEL NODO (``shard_rank``,
+``shard_world`` = rank e numero di rank locali), non fra tutti.
+
+Anelli in piu' (``extra_rings``: [(directory, rank, world)]): per esempio un anello CONDIVISO su CephFS, scritto da
+produttori solo CPU su altri nodi e letto da tutti i rank di tutti i nodi (diviso col rank globale). I loro shard
+entrano nello stesso pool con un numero di sequenza negativo, -(i * EXTRA_OFFSET + seq), e la directory si rilegge
+al massimo ogni ``extra_refresh_s`` secondi (scandir su CephFS). Le statistiche seq_* restano dell'anello locale.
+Con ``extra_mirror`` (una directory locale, su /tmp) un thread copia in RAM gli shard del rank (i piu' nuovi per
+primi) e il consumatore legge le copie: letto direttamente da CephFS, il primo accesso a ogni gruppo (readahead del
+client) costava ~2 s per passo nel thread principale (misurato il 9 ottobre, trial_2gpu).
+
+Fonti (``domains``): solo i gruppi con TUTTE le fonti fra quelle (template, seconda identita' degli ibridi, fonte
+dell'espressione trasferita) entrano nel pool (es. il nucleo aperto da un anello con tutto).
+Registro delle viste usate (``log_views``): alla PRIMA estrazione di ogni vista una riga con dominio, origine,
+licenza, seme del gruppo, indice nella ricetta, discretizzazione, espressione, fotogramma, seme del rumore,
+vertici, area, S_i; ``flush_log`` scrive un npz compresso a colonne compatte (~64 byte per vista prima della
+compressione).
 """
 from __future__ import annotations
 
 import json
+import os
+import shutil
 import sys
+import threading
 import time
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
@@ -38,6 +65,8 @@ for _p in (THIS_DIR, REPO_ROOT / "v3_work" / "trainer"):
 
 from ring import Ring, ShardReader  # noqa: E402
 
+EXTRA_OFFSET = 10 ** 12
+
 
 class StreamGT:
     """GT unificata dai vettori s_i delle identita' del batch, con l'interfaccia della matrice del trainer."""
@@ -47,12 +76,13 @@ class StreamGT:
         self.keep = int(keep)
         self.name_to_idx: dict = {}
         self.domain: dict = {}
+        self.log_s: dict = {}                    # chiave -> log S_i (mm), se il produttore l'ha calcolato
         self._key_of: dict = {}                  # riga -> chiave
         self._s: OrderedDict = OrderedDict()     # riga -> s_i float64, in ordine d'uso (si potano le piu' vecchie)
         self._next = 0
         self.shape = (np.inf, np.inf)
 
-    def register(self, key: str, s: np.ndarray, domain: str) -> int:
+    def register(self, key: str, s: np.ndarray, domain: str, log_s: float | None = None) -> int:
         row = self.name_to_idx.get(key)
         if row is None:
             row = self._next
@@ -61,12 +91,15 @@ class StreamGT:
             self._key_of[row] = key
             self.domain[key] = domain
             self._s[row] = np.asarray(s, dtype=np.float64).copy()
+            if log_s is not None:
+                self.log_s[key] = float(log_s)
         self._s.move_to_end(row)
         while len(self._s) > self.keep:
             old, _ = self._s.popitem(last=False)
             k = self._key_of.pop(old)
             del self.name_to_idx[k]
             self.domain.pop(k, None)
+            self.log_s.pop(k, None)
         return row
 
     def __getitem__(self, key):
@@ -92,9 +125,33 @@ class StreamConsumer:
     def __init__(self, root: str | Path, rank: int = 0, world: int = 1, reuse: float = 4.0, seed: int = 0,
                  input_norm: str = "maxabs", area_weights: str = "mass", rot_deg=(30.0, 15.0, 10.0),
                  scale: float = 0.1, min_groups: int = 0, wait_s: float = 900.0, prefetch: int = 4,
-                 gt: StreamGT | None = None) -> None:
+                 gt: StreamGT | None = None, gt_kind: str = "unified", global_unit_mm: float = 100.0,
+                 global_ops: str = "areanorm", shard_rank: int | None = None, shard_world: int | None = None,
+                 extra_rings=(), extra_refresh_s: float = 10.0, domains=None, log_views: bool = False,
+                 extra_mirror: str | Path = "") -> None:
         self.ring = Ring(root)
+        self.extra = [(Ring(r), int(er), int(ew)) for r, er, ew in extra_rings]
+        self.extra_refresh_s = float(extra_refresh_s)
+        self._extra_present: dict = {}
+        self._extra_t = -1e18
+        self.domains = set(domains) if domains else None
+        self.log_views = bool(log_views)
+        self._log_rows: list = []
         self.rank, self.world = int(rank), int(world)
+        self.mirror = None
+        if extra_mirror and self.extra:
+            self.mirror = [Ring(Path(extra_mirror) / f"rank{self.rank:03d}_x{i}") for i in range(1, len(self.extra) + 1)]
+            self.mstat = {"copied": 0, "bytes": 0, "seconds": 0.0, "missed": 0, "removed": 0}
+            threading.Thread(target=self._mirror_loop, daemon=True).start()
+        self.shard_rank = self.rank if shard_rank is None else int(shard_rank)
+        self.shard_world = self.world if shard_world is None else int(shard_world)
+        if gt_kind not in ("unified", "fr", "sr"):
+            raise ValueError(f"gt_kind {gt_kind!r} (unified|fr|sr)")
+        self.gt_kind = gt_kind
+        self.global_unit_mm, self.global_ops = float(global_unit_mm), global_ops
+        if input_norm == "global" and scale > 0:
+            raise ValueError("ingresso globale: la scala dell'augmentation deve essere 0 (cambia la taglia, non il "
+                             "bersaglio; la scala con bersaglio e' --scale-aug del trainer)")
         self.reuse = float(reuse)
         self.rng = np.random.default_rng(np.random.SeedSequence([int(seed), 7_001, self.rank]))
         self.input_norm, self.area_weights = input_norm, area_weights
@@ -112,11 +169,18 @@ class StreamConsumer:
         self.c = {"plans": 0, "uses": 0, "unique_views_used": 0, "views_seen": 0, "groups_seen": 0,
                   "groups_evicted_unused": 0, "views_evicted_unused": 0, "over_reuse_groups": 0, "wait_s": 0.0,
                   "serve_s": 0.0, "plan_s": 0.0, "age_sum_s": 0.0, "age_max_s": 0.0, "by_domain": {}, "by_label": {},
-                  "seq_used_min": None, "seq_used_max": None, "seq_mod_seen": set()}
+                  "seq_used_min": None, "seq_used_max": None, "seq_mod_seen": set(), "uses_by_ring": {}}
 
     # --- anello -----------------------------------------------------------------------------------------
     def refresh(self) -> None:
-        present = {seq: p for seq, p in self.ring.seqs().items() if seq % self.world == self.rank}
+        present = {seq: p for seq, p in self.ring.seqs().items() if seq % self.shard_world == self.shard_rank}
+        if self.extra:
+            if time.time() - self._extra_t >= self.extra_refresh_s:
+                src = [(m, er, ew) for m, (_, er, ew) in zip(self.mirror, self.extra)] if self.mirror else self.extra
+                self._extra_present = {-(i * EXTRA_OFFSET + seq): p for i, (rg, er, ew) in enumerate(src, 1)
+                                       for seq, p in rg.seqs().items() if seq % ew == er}
+                self._extra_t = time.time()
+            present.update(self._extra_present)
         for seq, p in present.items():
             if seq in self.readers:
                 continue
@@ -126,6 +190,10 @@ class StreamConsumer:
                 continue
             self.readers[seq] = rd
             for g, hg in enumerate(rd.groups):
+                # tutte le fonti del gruppo (un ibrido o un trasferimento ne hanno piu' d'una), non solo il template
+                if self.domains is not None and not set((hg.get("prov") or {}).get("sources") or [hg["domain"]]) \
+                        <= self.domains:
+                    continue
                 self.pool[(seq, g)] = {"key": hg["key"], "domain": hg["domain"], "uses": 0,
                                        "view_uses": np.zeros(len(hg["views"]), dtype=np.int64),
                                        "t_created": rd.head["t_created"]}
@@ -140,6 +208,43 @@ class StreamConsumer:
             if not self.pending.get(seq):
                 del self.readers[seq]
                 self.pending.pop(seq, None)
+
+    def _mirror_loop(self) -> None:
+        """Copia locale degli shard del rank negli anelli in piu' (i piu' nuovi per primi, al massimo 16 per giro,
+        poi si rilegge l'anello); toglie le copie degli shard usciti dall'anello condiviso (chi li ha in mappa
+        continua a leggerli)."""
+        while True:
+            busy = False
+            for (rg, er, ew), dst in zip(self.extra, self.mirror):
+                try:
+                    want = {seq: p for seq, p in rg.seqs().items() if seq % ew == er}
+                except OSError:
+                    continue
+                have = dst.seqs()
+                todo = sorted(set(want) - set(have), reverse=True)
+                busy |= len(todo) > 16
+                for seq in todo[:16]:
+                    t0 = time.time()
+                    tmp = dst.tmp / f"{seq:010d}.{os.getpid()}"
+                    out = dst.shards / f"{seq:010d}.shard"
+                    try:
+                        shutil.copyfile(want[seq], tmp)
+                        os.replace(tmp, out)
+                    except OSError:                    # uscito dall'anello condiviso prima della copia
+                        self.mstat["missed"] += 1
+                        tmp.unlink(missing_ok=True)
+                        continue
+                    self.mstat["copied"] += 1
+                    self.mstat["bytes"] += out.stat().st_size
+                    self.mstat["seconds"] += time.time() - t0
+                for seq in set(have) - set(want):
+                    try:
+                        have[seq].unlink(missing_ok=True)
+                    except OSError:
+                        continue
+                    self.mstat["removed"] += 1
+            if not busy:
+                time.sleep(self.extra_refresh_s)
 
     def _wait_for(self, n: int) -> None:
         t0 = time.time()
@@ -190,16 +295,68 @@ class StreamConsumer:
             for v in vs:
                 if st["view_uses"][v] == 0:
                     self.c["unique_views_used"] += 1
+                    if self.log_views:
+                        self._log(seq, g, v, now)
                 st["view_uses"][v] += 1
             self.c["uses"] += len(vs)
             age = now - st["t_created"]
             self.c["age_sum_s"] += age * len(vs)
             self.c["age_max_s"] = max(self.c["age_max_s"], age)
             self.c["by_domain"][st["domain"]] = self.c["by_domain"].get(st["domain"], 0) + len(vs)
+            ri = str(-seq // EXTRA_OFFSET) if seq < 0 else "0"
+            self.c["uses_by_ring"][ri] = self.c["uses_by_ring"].get(ri, 0) + len(vs)
+            if seq < 0:
+                continue
             self.c["seq_used_min"] = seq if self.c["seq_used_min"] is None else min(self.c["seq_used_min"], seq)
             self.c["seq_used_max"] = seq if self.c["seq_used_max"] is None else max(self.c["seq_used_max"], seq)
-            self.c["seq_mod_seen"].add(seq % self.world)
+            self.c["seq_mod_seen"].add(seq % self.shard_world)
         return out
+
+    # --- registro delle viste usate ------------------------------------------------------------------------
+    # colonne del registro: categoriche (codici + ``<nome>_vocab``) e numeriche coi loro tipi; ~64 byte per vista
+    LOG_CAT = ("domain", "origin", "license", "label", "expr", "person")
+    LOG_NUM = {"license_rank": np.int8, "seed0": np.int64, "seed1": np.int32, "seed2": np.int32, "vi": np.int8,
+               "frame": np.int32, "noise_seed": np.int64, "n": np.int32, "area_mm2": np.float32, "S": np.float32,
+               "ring": np.int8, "seq": np.int64, "t_first_use": np.float64}
+
+    def _log(self, seq: int, g: int, v: int, now: float) -> None:
+        rd = self.readers[seq]
+        hg = rd.groups[g]
+        m = hg["views"][v]
+        pr = hg.get("prov") or {}
+        sd = (list(pr.get("seed") or []) + [-1, -1, -1])[:3]
+        self._log_rows.append({
+            "key": "" if pr.get("seed") else hg["key"], "domain": hg["domain"], "origin": hg.get("origin", ""),
+            "license": pr.get("license", ""), "person": pr.get("person") or "", "label": m["label"], "expr": m["expr"],
+            "license_rank": pr.get("license_rank", -1), "seed0": sd[0], "seed1": sd[1], "seed2": sd[2],
+            "vi": m.get("vi", v), "frame": m.get("frame", -1), "noise_seed": m.get("noise_seed", -1), "n": m["n"],
+            "area_mm2": m.get("area_mm2", np.nan), "S": hg.get("S", np.nan),
+            "ring": (-seq // EXTRA_OFFSET) if seq < 0 else 0, "seq": (-seq) % EXTRA_OFFSET if seq < 0 else seq,
+            "t_first_use": now})
+
+    def flush_log(self, path: Path) -> int:
+        """Scrive le righe accumulate (npz compresso, colonne compatte) e le svuota; ritorna il numero di righe.
+        L'identita' e' il seme (seed0, seed1, seed2) del gruppo, FaMoS anche la persona: i coefficienti si
+        rigenerano dal seme (regen.py) e restano negli shard (``zid``), non nel registro. ``key`` solo per i gruppi
+        senza provenienza."""
+        rows = self._log_rows
+        self._log_rows = []
+        if not rows:
+            return 0
+        out = {}
+        for k in self.LOG_CAT + ("key",):
+            vocab, codes = np.unique(np.asarray([r[k] for r in rows], dtype=str), return_inverse=True)
+            if k == "key" and len(vocab) == 1 and vocab[0] == "":
+                continue
+            out[k] = codes.astype(np.uint8 if len(vocab) < 256 else np.uint32)
+            out[f"{k}_vocab"] = vocab
+        for k, dt in self.LOG_NUM.items():
+            out[k] = np.asarray([r[k] for r in rows], dtype=dt)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(path.stem + ".tmp.npz")
+        np.savez_compressed(tmp, **out)
+        tmp.replace(path)
+        return len(rows)
 
     def plan(self, B: int, max_views: int, drawcfg, rng: np.random.Generator):
         """Un BatchPlan del trainer (sampler_v3): soggetti = chiavi delle identita', entries con handle allo
@@ -218,7 +375,8 @@ class StreamConsumer:
             hg = rd.groups[g]
             key = hg["key"]
             if self.gt is not None:
-                self.gt.register(key, rd.s(g), hg["domain"])
+                vec = rd.s(g) if self.gt_kind == "unified" else rd.target(g, self.gt_kind)
+                self.gt.register(key, vec, hg["domain"], float(np.log(hg["S"])) if "S" in hg else None)
             plan.subjects.append(key)
             for v in vs:
                 meta = hg["views"][v]
@@ -274,7 +432,17 @@ class StreamConsumer:
                        "gradX": dv._CompactSparse.from_parts(t["gxi"], t["gxv"], (n, n)),
                        "gradY": dv._CompactSparse.from_parts(t["gyi"], t["gyv"], (n, n))})
         V = s["verts"]
-        if self.input_norm == "sqrt_area":
+        if self.input_norm == "global":     # mm veri / L0 (global_v3), gia' nel frame canonico
+            import global_v3
+            if "area_mm2" not in meta:
+                raise KeyError(f"{rd.path}: vista senza area_mm2 (producer.py --canonical-gt)")
+            c, f = global_v3.frame_params(V, s["faces"], s["mass"], s["evecs"], float(meta["area_mm2"]),
+                                          self.area_weights)
+            V = global_v3.apply(V, c, f, np.eye(3), self.global_unit_mm)
+            if self.global_ops == "mm":
+                s["mass"], s["evecs"] = global_v3.ops_to_mm(s["mass"], s["evecs"], float(meta["area_mm2"]),
+                                                            self.global_unit_mm)
+        elif self.input_norm == "sqrt_area":
             if self.area_weights == "mass":
                 V = dv.reframe_sqrt_area(V, s["mass"], s["faces"])
             else:
@@ -302,12 +470,15 @@ class StreamConsumer:
     # --- statistiche ------------------------------------------------------------------------------------
     def stats(self) -> dict:
         c = dict(self.c)
-        c["seq_mod_seen"] = sorted(c["seq_mod_seen"])     # sempre [rank]: gli shard degli altri rank non si toccano
+        c["seq_mod_seen"] = sorted(c["seq_mod_seen"])     # sempre [shard_rank]: gli shard degli altri non si toccano
         c["reuse_factor"] = c["uses"] / max(c["unique_views_used"], 1)
         c["mean_age_s"] = c["age_sum_s"] / max(c["uses"], 1)
         c["pool_groups"] = len(self.pool)
         c["pool_shards"] = len(self.readers)
         c["rank"], c["world"], c["reuse_cap"] = self.rank, self.world, self.reuse
+        c["shard_rank"], c["shard_world"] = self.shard_rank, self.shard_world
+        if self.mirror:
+            c["mirror"] = dict(self.mstat)
         return c
 
 
@@ -349,5 +520,12 @@ class StreamPlans:
                                                                     "groups_evicted_unused", "over_reuse_groups",
                                                                     "wait_s", "serve_s", "plan_s")},
                        "by_domain": after["by_domain"], "by_label": after["by_label"]}
+                if after["uses_by_ring"]:
+                    row["uses_by_ring"] = after["uses_by_ring"]
+                if "mirror" in after:
+                    row["mirror"] = after["mirror"]
+                if c.log_views:
+                    p = self.log_path.parent / "views_used" / f"rank{c.rank:03d}_e{self.epoch:05d}_{int(t0)}.npz"
+                    row["views_logged"] = c.flush_log(p)
                 with open(self.log_path, "a") as fh:
                     fh.write(json.dumps(row) + "\n")

@@ -1,0 +1,299 @@
+{
+ "tolerance": 1e-05,
+ "frames": {
+  "bfm": {
+   "u": 0.001,
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "ict": {
+   "u": 10.0,
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "gnm": {
+   "u": 1000.0,
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "flame2020": {
+   "u": 1000.0,
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "flame2023": {
+   "u": 1000.0,
+   "unit_source": "dichiarata (domains.py)"
+  },
+  "bfm2019": {
+   "u": 1.0,
+   "unit_source": "dichiarata (v3_work/mm, frame.mm_per_unit)"
+  }
+ },
+ "files": {
+  "ict": {
+   "n": 600,
+   "ids_first_last": [
+    "id10004",
+    "id49499"
+   ],
+   "fr_mm": {
+    "max": 1.6718948845048118e-06,
+    "median": 3.484772505548452e-07
+   },
+   "sr": {
+    "max": 1.2654424792278977e-08,
+    "median": 2.5413164683098374e-09
+   },
+   "S_mm": {
+    "max": 9.237055564881302e-14,
+    "median": 1.4210854715202004e-14
+   },
+   "s_per_identity": 0.008384431997934977,
+   "converged": 0.995,
+   "pass": true
+  },
+  "gnm": {
+   "n": 250,
+   "ids_first_last": [
+    "id100000",
+    "id100249"
+   ],
+   "fr_mm": {
+    "max": 1.293529433693109e-06,
+    "median": 3.565372740959044e-07
+   },
+   "sr": {
+    "max": 1.0418254495238667e-08,
+    "median": 2.8365667754014813e-09
+   },
+   "S_mm": {
+    "max": 6.394884621840902e-14,
+    "median": 1.7763568394002505e-14
+   },
+   "s_per_identity": 0.008145712852478027,
+   "converged": 0.996,
+   "pass": true
+  },
+  "bfm": {
+   "n": 200,
+   "ids_first_last": [
+    "id0000",
+    "id0199"
+   ],
+   "fr_mm": {
+    "max": 1.6366601360553476e-06,
+    "median": 3.747876332273632e-07
+   },
+   "sr": {
+    "max": 1.8285708199066562e-08,
+    "median": 3.4631946546672596e-09
+   },
+   "S_mm": {
+    "max": 6.394884621840902e-14,
+    "median": 1.4210854715202004e-14
+   },
+   "s_per_identity": 0.008568150997161865,
+   "converged": 1.0,
+   "pass": true
+  }
+ },
+ "pairs": {
+  "fr": {
+   "n_identities": 1050,
+   "n_pairs": 550725,
+   "unit": 24.301578521728516,
+   "max_abs": 2.0717834061656504e-06,
+   "ref_median": 5.614897813682603,
+   "max_rel": 2.0132219044096586e-07,
+   "note": "float32 della matrice di E12: risoluzione ~6e-8 x massimo"
+  },
+  "sr": {
+   "n_identities": 1050,
+   "n_pairs": 550725,
+   "unit": 0.2549341917037964,
+   "max_abs": 2.772050908261825e-08,
+   "ref_median": 0.07384253782333516,
+   "max_rel": 2.147055359380431e-07,
+   "note": "float32 della matrice di E12: risoluzione ~6e-8 x massimo"
+  }
+ },
+ "domains": {
+  "bfm2019": {
+   "n": 500,
+   "S_mean_mm": 56.7186977501577,
+   "S_cv": 0.049358284613398515,
+   "S_p5_p95_mm": [
+    52.011771573038835,
+    61.01568130711748
+   ],
+   "converged": 0.994,
+   "iterations_p95": 35.049999999999955,
+   "s_per_identity_batch": 0.04472793340682983,
+   "mm_factor": 1.0071822523056297,
+   "view_frame_vs_F": {
+    "cs_ratio_max_dev": 2.220446049250313e-16,
+    "rigid_residual_mm_max": 1.258768969294034e-13
+   }
+  },
+  "ict": {
+   "n": 500,
+   "S_mean_mm": 58.253627524113405,
+   "S_cv": 0.053339580540965256,
+   "S_p5_p95_mm": [
+    53.355712209499735,
+    63.81446096622655
+   ],
+   "converged": 0.994,
+   "iterations_p95": 45.0,
+   "s_per_identity_batch": 0.04452468347549438,
+   "mm_factor": 1.0366906729677323,
+   "view_frame_vs_F": {
+    "cs_ratio_max_dev": 1.1102230246251565e-15,
+    "rigid_residual_mm_max": 1.2322097213715606e-13
+   }
+  },
+  "gnm": {
+   "n": 500,
+   "S_mean_mm": 57.139462002930735,
+   "S_cv": 0.06252597459899409,
+   "S_p5_p95_mm": [
+    51.089284679845065,
+    63.12851987435092
+   ],
+   "converged": 0.998,
+   "iterations_p95": 39.0,
+   "s_per_identity_batch": 0.04451104593276978,
+   "mm_factor": 1.0146315574868023,
+   "view_frame_vs_F": {
+    "cs_ratio_max_dev": 4.440892098500626e-16,
+    "rigid_residual_mm_max": 6.879228280468987e-14
+   }
+  },
+  "flame2020": {
+   "n": 500,
+   "S_mean_mm": 56.4154433643167,
+   "S_cv": 0.04699115000194637,
+   "S_p5_p95_mm": [
+    52.15371113607549,
+    60.716437339306836
+   ],
+   "converged": 0.986,
+   "iterations_p95": 50.0,
+   "s_per_identity_batch": 0.04465192699432373,
+   "mm_factor": 1.0,
+   "view_frame_vs_F": {
+    "cs_ratio_max_dev": 2.220446049250313e-16,
+    "rigid_residual_mm_max": 7.022079592591635e-14
+   }
+  },
+  "famos": {
+   "n": 80,
+   "S_mean_mm": 57.46518907522309,
+   "S_cv": 0.03756558142304692,
+   "S_p5_p95_mm": [
+    54.13382792383493,
+    61.068791765681716
+   ],
+   "converged": 1.0,
+   "iterations_p95": 31.099999999999994,
+   "s_per_identity_batch": 0.02586050033569336,
+   "mm_factor": 1.0
+  }
+ },
+ "expressions": {
+  "bfm2019": {
+   "tag": "expr",
+   "max_disp_mm_over_5": [
+    9.645,
+    8.531,
+    8.066,
+    7.941,
+    8.3
+   ],
+   "pass": true
+  },
+  "ict": {
+   "tag": "expr",
+   "max_disp_mm_over_5": [
+    16.343,
+    10.51,
+    12.778,
+    13.34,
+    9.885
+   ],
+   "pass": true
+  },
+  "gnm": {
+   "tag": "expr",
+   "max_disp_mm_over_5": [
+    7.841,
+    7.049,
+    5.274,
+    6.002,
+    6.334
+   ],
+   "pass": true
+  },
+  "flame2020": {
+   "tag": "expr",
+   "max_disp_mm_over_5": [
+    4.131,
+    4.383,
+    2.479,
+    6.896,
+    4.625
+   ],
+   "pass": true
+  },
+  "famos": {
+   "tag": "expr",
+   "max_disp_mm_over_5": [
+    17.109,
+    11.223,
+    12.446,
+    30.973,
+    13.11
+   ],
+   "pass": true
+  }
+ },
+ "roles": {
+  "results": {
+   "facescape": "RoleError: facescape: role='dev', vietato nei campionatori di training ",
+   "facescape_stream": "ValueError: dominio 'facescape' non in ('bfm2019', 'ict', 'gnm', 'flame2",
+   "facescape50": "RoleError: facescape50: role='dev', vietato nei campionatori di trainin",
+   "facescape50_stream": "ValueError: dominio 'facescape50' non in ('bfm2019', 'ict', 'gnm', 'flam",
+   "hifi3d": "RoleError: hifi3d: role='test', vietato nei campionatori di training (P",
+   "hifi3d_stream": "ValueError: dominio 'hifi3d' non in ('bfm2019', 'ict', 'gnm', 'flame2020",
+   "faceverse": "RoleError: faceverse: role='test', vietato nei campionatori di training",
+   "faceverse_stream": "ValueError: dominio 'faceverse' non in ('bfm2019', 'ict', 'gnm', 'flame2"
+  },
+  "pass": true,
+  "stream_domains": [
+   "bfm2019",
+   "ict",
+   "gnm",
+   "flame2020",
+   "famos"
+  ]
+ },
+ "ring": {
+  "failures": 0,
+  "expr_views": 5,
+  "views": 10,
+  "fr": {
+   "gt_vs_targets_max_abs": 0.0,
+   "log_s_max_abs": 0.0,
+   "area_rel_err_max": 9.736822792483224e-09,
+   "X_vs_direct_max_abs_L0": 5.945705283671998e-08,
+   "n_views": 10,
+   "pass": true
+  },
+  "sr": {
+   "gt_vs_targets_max_abs": 0.0,
+   "log_s_max_abs": 0.0,
+   "area_rel_err_max": 9.736822792483224e-09,
+   "X_vs_direct_max_abs_L0": 5.945705283671998e-08,
+   "n_views": 10,
+   "pass": true
+  }
+ },
+ "pass": true
+}

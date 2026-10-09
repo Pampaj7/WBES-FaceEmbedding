@@ -21,6 +21,9 @@ lo legge: e' la cache compatta del trainer). tests/test_ops_equiv.py li confront
 Compatto (``compact``): vertici, massa, autovalori e valori dei gradienti fp32; facce e indici COO int32;
 autovettori fp16 (default) o fp32, scritti come (k, n) contiguo quando il loader li da' in ordine colonna
 (stride (1, n), ``evecs_f``), cosi' il consumatore li serve con ``.t()`` nello stesso layout del loader.
+
+Ingresso globale (``area_factor``): i metadati portano ``area_mm2``, l'area della discretizzazione in mm^2 veri,
+che il consumatore usa come la tabella di scala di global_v3 (gli operatori e i vertici non cambiano).
 """
 from __future__ import annotations
 
@@ -149,8 +152,9 @@ def compact(s: dict, evecs_dtype: str = "fp16") -> tuple[dict, bool]:
 
 
 def make_view(V: np.ndarray, F: np.ndarray, label: str, k_eig: int, evecs_dtype: str,
-              noise_seed: int) -> tuple[dict, dict]:
-    """(array dello shard, metadati + tempi in s per fase) di una vista della mesh di lavoro (V, F)."""
+              noise_seed: int, area_factor: float | None = None) -> tuple[dict, dict]:
+    """(array dello shard, metadati + tempi in s per fase) di una vista della mesh di lavoro (V, F).
+    ``area_factor``: mm veri per unita' di V; se dato, i metadati hanno ``area_mm2`` della discretizzazione."""
     t0 = time.perf_counter()
     Vd, Fd = discretize(V, F, label, noise_seed)
     t1 = time.perf_counter()
@@ -161,4 +165,7 @@ def make_view(V: np.ndarray, F: np.ndarray, label: str, k_eig: int, evecs_dtype:
     meta = {"label": label, "n": int(len(arr["verts"])), "m": int(len(arr["faces"])), "k": int(len(arr["evals"])),
             "nx": int(len(arr["gxv"])), "ny": int(len(arr["gyv"])), "evecs_f": ef,
             "evecs_dtype": evecs_dtype}
+    if area_factor is not None:     # area in mm^2 della discretizzazione (ingresso globale: global_v3.frame_params)
+        from areanorm_operators import total_area
+        meta["area_mm2"] = float(total_area(Vd, Fd)) * float(area_factor) ** 2
     return arr, {**meta, "t_gen": t1 - t0, "t_ops": t2 - t1, "t_pack": t3 - t2}

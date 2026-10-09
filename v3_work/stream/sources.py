@@ -45,7 +45,37 @@ FAMOS_SPLIT = REPO_ROOT / "aau" / "famos" / "split.json"
 TRAIN_GT_JSON = REPO_ROOT / "datasets" / "UNIFIED_GT" / "train" / "gt_unified_bfm_ict_gnm.json"
 
 DOMAINS = ("bfm2019", "ict", "gnm", "flame2020", "famos")
-MAP_KEY = {"ict": "ict", "gnm": "gnm", "flame2020": "flame", "famos": "flame"}   # bfm2019: MAPS_DIR
+# flame2023 = FLAME 2023 Open (CC BY 4.0), stessa topologia di FLAME 2020: stessa mappa unificata
+MAP_KEY = {"ict": "ict", "gnm": "gnm", "flame2020": "flame", "flame2023": "flame", "famos": "flame"}   # bfm2019: MAPS_DIR
+ALL_DOMAINS = DOMAINS + ("flame2023",)
+# --sources: preset (literature/LICENZE_RILASCIO_2026-10-09.md). massive = il run massivo (FLAME 2023 Open al posto di
+# FLAME 2020, non ridistribuibile); open_core = il nucleo aperto, per i pesi rilasciabili
+SOURCE_PRESETS = {"massive": ("bfm2019", "ict", "gnm", "flame2023", "famos"), "open_core": ("gnm", "ict", "flame2023"),
+                  "legacy": DOMAINS}
+# licenza di ogni fonte e rango (0 = mesh ridistribuibili; 1 = solo ricetta e semi): una vista eredita la piu'
+# restrittiva fra le fonti coinvolte (inherited_license). NON e' un parere legale.
+LICENSES = {"gnm": ("Apache-2.0 (google/GNM, NOTICE)", 0), "ict": ("MIT (ICT-FaceKit Light, commit da5f95a)", 0),
+            "flame2023": ("CC-BY-4.0 (FLAME 2023 Open, restrizioni d'uso)", 0),
+            "flame2020": ("FLAME 2020 (MPI): solo ricetta", 1), "bfm2019": ("BFM 2019 (Basilea): solo ricetta", 1),
+            "famos": ("FaMoS (MPI): solo ricetta, persone reali", 2)}
+
+
+def parse_sources(txt: str) -> list[str]:
+    """Preset (``massive``, ``open_core``, ``legacy``) o domini separati da virgola."""
+    out = []
+    for item in (x for x in txt.split(",") if x):
+        for d in SOURCE_PRESETS.get(item, (item,)):
+            if d not in ALL_DOMAINS:
+                raise ValueError(f"fonte {d!r} non in {ALL_DOMAINS} ne' fra i preset {tuple(SOURCE_PRESETS)}")
+            if d not in out:
+                out.append(d)
+    return out
+
+
+def inherited_license(domains) -> tuple[str, int]:
+    """La licenza piu' restrittiva fra le fonti coinvolte (le fonti senza voce valgono come le piu' restrittive)."""
+    tags = [LICENSES.get(d, (f"{d}: non verificata", 9)) for d in domains]
+    return max(tags, key=lambda t: t[1])
 V_WORK = 10_000          # vertici della topologia di lavoro quando la patch nativa supera V_MAX
 V_MAX = 12_000
 
@@ -274,7 +304,9 @@ class FamosSource:
             i = int(rng.integers(len(V)))
             X, tag = np.asarray(V[i], dtype=np.float64)[self.rv], "expr"
         else:
+            i = -1
             X, tag = np.asarray(Vn, dtype=np.float64)[self.rv], "neutral"
+        self.last_frame = i            # provenienza: indice del fotogramma registrato (-1 = neutra di riferimento)
         return apply_sim(X, *umeyama(X, self.target, scale=False)), self.faces, tag
 
     def describe(self) -> dict:
@@ -282,11 +314,11 @@ class FamosSource:
                 "n_faces_work": int(len(self.faces)), "persons": len(self.persons)}
 
 
-def build_sources(domains, unified: Unified | None = None) -> dict:
+def build_sources(domains, unified: Unified | None = None, v_max: int = V_MAX, v_work: int = V_WORK) -> dict:
     unified = unified or Unified()
     out = {}
     for d in domains:
-        if d not in DOMAINS:
-            raise ValueError(f"dominio {d!r} non in {DOMAINS}")
-        out[d] = FamosSource(unified) if d == "famos" else MMSource(d, unified)
+        if d not in ALL_DOMAINS:
+            raise ValueError(f"dominio {d!r} non in {ALL_DOMAINS}")
+        out[d] = FamosSource(unified) if d == "famos" else MMSource(d, unified, v_max=v_max, v_work=v_work)
     return out

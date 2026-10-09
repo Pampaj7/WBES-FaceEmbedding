@@ -13,7 +13,10 @@ mappato); la RAM torna libera quando l'ultimo lettore lo lascia.
 Formato: ``MAGIC`` (8 byte), lunghezza dell'header (8 byte, little endian), header JSON, poi gli array allineati
 a 64 byte. Header: ``seq``, ``producer``, ``t_created``, ``groups``: per gruppo (un'identita') ``key``,
 ``domain``, ``s`` (offset di s_i, float32 (3n,)), ``views``: per vista i metadati di views.make_view e gli
-offset degli array (``off``).
+offset degli array (``off``). Con ``producer.py --canonical-gt`` il gruppo ha anche ``fr`` e ``sr`` (offset,
+float32 (3n,)) e ``S`` (centroid size in mm), e ogni vista ``area_mm2``. Con ``--provenance``: ``recipe`` nello
+header, ``prov`` (seme, fonti, licenza ereditata, persona) e ``zid`` (coefficienti, float64) per gruppo, ``vi``,
+``noise_seed``, ``frame`` per vista; ``origin`` (pura, ibrido, trasferimento) sempre.
 """
 from __future__ import annotations
 
@@ -30,6 +33,7 @@ ALIGN = 64
 DTYPES = {"verts": np.float32, "faces": np.int32, "mass": np.float32, "evals": np.float32, "gxi": np.int32,
           "gxv": np.float32, "gyi": np.int32, "gyv": np.float32}
 EVECS = {"fp16": np.float16, "fp32": np.float32}
+TARGETS = ("fr", "sr")       # vettori per gruppo (float32, lunghi come s), opzionali
 
 
 def shapes(v: dict) -> dict:
@@ -43,11 +47,15 @@ def dtype_of(field: str, v: dict):
 
 
 class Ring:
-    def __init__(self, root: str | Path, budget_bytes: int = 0) -> None:
+    def __init__(self, root: str | Path, budget_bytes: int = 0, evict_every: int = 1) -> None:
         self.root = Path(root)
         self.shards = self.root / "shards"
         self.tmp = self.root / "tmp"
         self.budget = int(budget_bytes)
+        # su CephFS (anello condiviso) il listing con stat di migliaia di shard costa: il budget si applica ogni N
+        # scritture di questo processo (lo sforamento resta di qualche shard per produttore)
+        self.evict_every = max(1, int(evict_every))
+        self._writes = 0
         for d in (self.shards, self.tmp, self.root / "stats"):
             d.mkdir(parents=True, exist_ok=True)
 
@@ -64,11 +72,14 @@ class Ring:
             fh.flush()
         return seq
 
-    def write(self, groups: list[dict], producer: int) -> tuple[int, int]:
-        """Scrive uno shard (``groups``: key, domain, s, views [(array, meta)]) e applica il budget. (seq, byte)."""
+    def write(self, groups: list[dict], producer: int, recipe: dict | None = None) -> tuple[int, int]:
+        """Scrive uno shard (``groups``: key, domain, s, views [(array, meta)]) e applica il budget. (seq, byte).
+        ``recipe``: i parametri per rigenerare i gruppi dal seme (producer.py --provenance)."""
         seq = self.next_seq()
         pos = 0
         head = {"seq": seq, "producer": int(producer), "t_created": time.time(), "groups": []}
+        if recipe is not None:
+            head["recipe"] = recipe
         pending: list[tuple[int, bytes]] = []
 
         def put(a: np.ndarray) -> int:
@@ -83,8 +94,25 @@ class Ring:
         for g in groups:
             hg = {"key": g["key"], "domain": g["domain"], "s": put(np.asarray(g["s"], dtype=np.float32)),
                   "s_len": int(len(g["s"])), "views": []}
+            for f in TARGETS:          # bersagli della GT di E12 (targets.py), solo se il produttore li calcola
+                if f in g:
+                    hg[f] = put(np.asarray(g[f], dtype=np.float32))
+            if "S" in g:
+                hg["S"] = float(g["S"])
+            if "origin" in g:          # pura, ibrido, trasferimento (producer.py --mm-aug)
+                hg["origin"] = str(g["origin"])
+            if "prov" in g:            # seme, fonti, licenza ereditata, persona (producer.py --provenance)
+                hg["prov"] = g["prov"]
+            if "zid" in g:             # coefficienti d'identita' del 3DMM (float64)
+                hg["zid"] = put(np.asarray(g["zid"], dtype=np.float64))
+                hg["zid_len"] = int(len(g["zid"]))
             for arr, meta in g["views"]:
                 v = {k: meta[k] for k in ("label", "expr", "n", "m", "k", "nx", "ny", "evecs_f", "evecs_dtype")}
+                if "area_mm2" in meta:
+                    v["area_mm2"] = float(meta["area_mm2"])
+                for k in ("vi", "noise_seed", "frame"):
+                    if k in meta:
+                        v[k] = int(meta[k])
                 v["off"] = {}
                 for f in ("verts", "faces", "mass", "evals", "evecs", "gxi", "gxv", "gyi", "gyv"):
                     a = np.asarray(arr[f])
@@ -108,7 +136,9 @@ class Ring:
                 cur = off + len(b)
             nbytes = data_start + cur
         os.replace(tmp, self.shards / f"{seq:010d}.shard")
-        self.evict()
+        self._writes += 1
+        if self._writes % self.evict_every == 0:
+            self.evict()
         return seq, nbytes
 
     def listing(self) -> list[tuple[int, int, Path]]:
@@ -170,6 +200,17 @@ class ShardReader:
     def s(self, g: int) -> np.ndarray:
         hg = self.groups[g]
         return self._arr(hg["s"], np.float32, (hg["s_len"],))
+
+    def target(self, g: int, field: str) -> np.ndarray:
+        """``fr`` o ``sr`` del gruppo (targets.py); KeyError se il produttore non li ha calcolati."""
+        hg = self.groups[g]
+        if field not in hg:
+            raise KeyError(f"{self.path}: lo shard non ha il bersaglio {field!r} (producer.py --canonical-gt)")
+        return self._arr(hg[field], np.float32, (hg["s_len"],))
+
+    def zid(self, g: int) -> np.ndarray | None:
+        hg = self.groups[g]
+        return self._arr(hg["zid"], np.float64, (hg["zid_len"],)) if "zid" in hg else None
 
     def view(self, g: int, v: int) -> dict:
         meta = self.groups[g]["views"][v]

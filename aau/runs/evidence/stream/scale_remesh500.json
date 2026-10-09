@@ -1,0 +1,44 @@
+{
+ "view_dir": "datasets/REMESH/npz_data_topo_500",
+ "domain": "bfm",
+ "n_meshes": 3000,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "bfm": {
+   "u": 0.001,
+   "R": [
+    [
+     0.999597679911446,
+     -0.01372497569309798,
+     0.024821429408433605
+    ],
+    [
+     -0.011943457508156596,
+     -0.9974367658540837,
+     -0.07054964170920387
+    ],
+    [
+     0.025726098390639048,
+     0.07022480448367233,
+     -0.997199400670109
+    ]
+   ],
+   "unit_source": "dichiarata (domains.py)"
+  }
+ },
+ "definition": "area_mm2 = u_d^2 * area totale della geometria grezza (unita' native); fattore al servizio sqrt(area_mm2 / area(V_loader)), poi rotazione R_d (global_v3.py)",
+ "check_maxabs_vs_view": {
+  "n_checked": 0,
+  "max_abs": null
+ },
+ "sqrt_area_mm_median": {
+  "bfm|crop": 151.89939117085356,
+  "bfm|down8k": 164.60828022996452,
+  "bfm|noisy": 248.6015619120929,
+  "bfm|original": 164.6181706606619,
+  "bfm|remesh": 161.48278568775703,
+  "bfm|up60k": 164.14101514291707
+ },
+ "seconds": 18.993880033493042,
+ "host": "i256-a10-06.srv.aau.dk"
+}

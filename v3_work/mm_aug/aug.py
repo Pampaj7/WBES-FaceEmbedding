@@ -60,6 +60,11 @@ from . import transfer as TR  # noqa: E402
 AUG_VERSION = "mm_aug-1"
 TEMPLATES = ("bfm2019", "ict", "gnm", "flame2020")          # i 3DMM di training dello stream
 EXPR_SOURCES = TEMPLATES + ("famos",)
+# FLAME 2023 Open (CC BY 4.0, il FLAME del run massivo e del nucleo aperto): stessa topologia, regione e unita' di
+# FLAME 2020, quindi ammesso come template e fonte; soglie di validita' quelle di FLAME 2020 (THRESHOLD_ALIAS)
+ALL_TEMPLATES = TEMPLATES + ("flame2023",)
+ALL_SOURCES = ALL_TEMPLATES + ("famos",)
+THRESHOLD_ALIAS = {"flame2023": "flame2020"}
 KINDS = ("pure", "hybrid", "expr_transfer", "rbf")
 THRESHOLDS_JSON = THIS_DIR / "thresholds.json"
 PHYSICAL_UNITS = {"mm", "cm", "m", "um"}                     # unita' dichiarate (la taglia della GT e' affidabile)
@@ -70,6 +75,8 @@ SI_ZONE_RINGS = 2                                            # dilatazione della
 LICENSES = {
     "ict": {"license": "MIT", "redistributable": True, "evidence": "external/ICT-FaceKit/LICENSE"},
     "gnm": {"license": "Apache-2.0", "redistributable": True, "evidence": "~/data/gnm_head/PROVENANCE.md"},
+    "flame2023": {"license": "CC-BY-4.0 (FLAME 2023 Open, restrizioni d'uso)", "redistributable": True,
+                  "evidence": "literature/LICENZE_RILASCIO_2026-10-09.md"},
     "flame2020": {"license": "FLAME (MPI-IS), solo ricerca non commerciale", "redistributable": False,
                   "evidence": "non verificato nel repo"},
     "bfm2019": {"license": "BFM 2019 (Univ. Basel), solo ricerca non commerciale", "redistributable": False,
@@ -222,12 +229,12 @@ class AugLibrary:
     def __init__(self, cfg: AugConfig):
         import sources as S
         need = set(cfg.templates) | set(cfg.hybrid_sources) | set(cfg.expr_sources)
-        bad = need - set(EXPR_SOURCES)
+        bad = need - set(ALL_SOURCES)
         if bad:
-            raise ValueError(f"fonti non di training o sconosciute: {bad} (ammesse {EXPR_SOURCES})")
+            raise ValueError(f"fonti non di training o sconosciute: {bad} (ammesse {ALL_SOURCES})")
         self.uni = _UNI()
         self.F_u = self.uni.sp.z["F"]
-        mm = sorted(need - {"famos"}, key=TEMPLATES.index)
+        mm = sorted(need - {"famos"}, key=ALL_TEMPLATES.index)
         srcs = S.build_sources(mm + (["famos"] if "famos" in need else []), self.uni)
         self.srcs = srcs
         self.tpl = {d: Template(srcs[d], self.F_u, cfg.band_mm) for d in mm}
@@ -427,7 +434,7 @@ def valid(spec: dict, lib: AugLibrary) -> bool:
     c = spec["checks"]
     if c is None:
         return True
-    th = lib.thresholds.get(spec["template"], {})
+    th = lib.thresholds.get(THRESHOLD_ALIAS.get(spec["template"], spec["template"]), {})
     if not c["finite"]:
         return False
     if c["flipped"] > th.get("flipped", 0) or c["degenerate"] > th.get("degenerate", 0):
