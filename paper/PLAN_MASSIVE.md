@@ -454,3 +454,13 @@ Un modello unico serve entrambi i casi d'uso (coder in corso).
 - La normalizzazione di SCALA per identità toglie identità: l'arbitro lo mostra.
 - L'allineamento RIGIDO per identità è necessario e fa parte della GT.
 - Il vantaggio dei metodi con registrazione (NICP) con FR va riconosciuto. La metrica appresa deve vincere sul costo (circa 0.1 s di iscrizione e ricerca istantanea, contro 1.15 s per mesh e un ICP per coppia) e su robustezza e assenza di corrispondenze, oppure avvicinarsi in accuratezza.
+
+## 21. Gate di lancio del run massivo (decisione dell'utente, 9 ottobre sera)
+
+**Il run massivo NON parte senza una revisione insieme all'utente.** Prima del lancio il PI presenta:
+- gli esiti dei bracci decisivi (ctrl-FR, factorized, factorized2) e del run a scala piena con la GT FR, contro NICP, ICP+Chamfer e Chamfer;
+- lo stato delle "verità": arbitro E12, studio umano v2, letteratura;
+- la configurazione proposta (testa, GT, domini, quota di espressioni, passi, GPU: 12 L40S più le A100 secondarie);
+- il critic sulla configurazione.
+
+Nel frattempo si aspettano i risultati, senza lanciare il run.
