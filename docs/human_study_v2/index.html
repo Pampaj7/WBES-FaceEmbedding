@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Face similarity study</title>
+
+<script>
+// --- CONFIGURAZIONE: il Google Form che riceve le risposte --------------------------
+// Dal link "precompilato" del form: .../forms/d/e/<formId>/viewform?entry.<entryId>=...
+// Il campo deve essere una domanda "Paragrafo".  Con i segnaposto ("FORM_ID", "ENTRY_ID")
+// la pagina non invia niente e offre il JSON da copiare o scaricare.
+// Lo stesso form riceve anche la v1: il payload della v2 porta study_version "v2" e id di
+// tripletta col prefisso "v2_", e aau/human_study_v2/analyze_v2.py filtra su quel campo.
+window.WBES_FORM = {
+  formId: "1FAIpQLSf3zWeGBksNejvA6N3ewXOdYObaVEPneuTk8_1QOfLPyw9qag",
+  entryId: "572505867",
+};
+</script>
+
+<!--
+  Studio umano v2 (aau/human_study_v2/, protocollo in PROTOCOL.md): triplette "quale tra B
+  e C somiglia di piu' ad A", con render a scala ASSOLUTA.  Dalla v1 (docs/human_study/)
+  cambiano gli stimoli, la disposizione e la sessione di prova; invio, ripiego e ripresa
+  sono gli stessi:
+    - img/<soggetto>.jpg e' una striscia verticale di 3 viste dello stesso volto (frontale,
+      3/4, profilo), stessa camera in mm per tutti i volti e tutte le viste: un volto piu'
+      grande occupa piu' pixel;
+    - la prova mostra tre colonne, candidato | riferimento | candidato: le righe allineano
+      la stessa vista dei tre volti (frontale con frontale, profilo con profilo) e il
+      riferimento sta alla stessa distanza dai due candidati;
+    - prima della sessione 3 prove di prova (kind "practice"), salvate nel JSON ma escluse
+      dall'analisi; poi una schermata "la sessione vera comincia ora";
+    - a fine sessione il JSON va al Google Form con un POST no-cors (risposta opaca: se
+      fetch non lancia, l'invio e' riuscito), altrimenti JSON da copiare o scaricare;
+    - l'avanzamento sta in localStorage a ogni risposta: un reload riprende la sessione
+      dallo stesso seme, quindi con le stesse triplette nello stesso ordine.
+-->
+<style>
+  /* Tema chiaro di default, scuro se lo chiede il sistema o data-theme="dark".
+     I due selettori scuri sono separati (non una lista) perche' :root:not([data-theme])
+     dentro la media query lascia comunque a data-theme="light" l'ultima parola. */
+  :root {
+    /* larghezza di una colonna: la striscia e' alta 1160/384 volte la larghezza, e le tre
+       viste devono stare nello schermo sopra la riga dei comandi */
+    --col: min(27vw, calc((100vh - 170px) * 384 / 1160), 300px);
+    --bg: #f6f6f7;
+    --fg: #1b1b1f;
+    --muted: #5d6066;
+    --accent: #2563c4;
+    --panel: #ffffff;
+    --border: #cfd2d8;
+    --btn-bg: #ffffff;
+    --pick: #1b1b1f;
+    --ok: #1a7f4b;
+    --bad: #b3261e;
+    /* i render hanno il fondo nero: la cornice resta scura anche nel tema chiaro */
+    --frame: #24262b;
+    --ref: #8a6d1f;
+    --mono-bg: #101114;
+    --mono-fg: #d7d9dd;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121212;
+      --fg: #e9e9e9;
+      --muted: #9a9a9a;
+      --accent: #4a90d9;
+      --panel: #1a1a1c;
+      --border: #3a3a3d;
+      --btn-bg: #262626;
+      --pick: #ffffff;
+      --ok: #5ec98c;
+      --bad: #f2887f;
+      --frame: #1b1d21;
+      --ref: #d1b058;
+      --mono-bg: #0b0b0b;
+      --mono-fg: #cfcfcf;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121212;
+    --fg: #e9e9e9;
+    --muted: #9a9a9a;
+    --accent: #4a90d9;
+    --panel: #1a1a1c;
+    --border: #3a3a3d;
+    --btn-bg: #262626;
+    --pick: #ffffff;
+    --ok: #5ec98c;
+    --bad: #f2887f;
+    --frame: #1b1d21;
+    --ref: #d1b058;
+    --mono-bg: #0b0b0b;
+    --mono-fg: #cfcfcf;
+  }
+
+  html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.5;
+  }
+  #hs-study { box-sizing: border-box; width: 100%; max-width: 1000px;
+              margin: 0 auto; padding: 20px 16px 32px; }
+  #hs-study *, #hs-study *::before, #hs-study *::after { box-sizing: border-box; }
+  #hs-study h1 { font-size: 1.5rem; margin: 0 0 16px; color: var(--fg); }
+  #hs-study h2 { font-size: 1.1rem; margin: 24px 0 8px; color: var(--fg); }
+  #hs-study p, #hs-study li { color: var(--fg); }
+  #hs-study .muted { color: var(--muted); font-size: 0.9rem; }
+  #hs-study .ok { color: var(--ok); }
+  #hs-study .bad { color: var(--bad); }
+  /* touch-action: niente zoom da doppio tocco quando si risponde in fretta */
+  #hs-study button {
+    font: inherit; padding: 10px 20px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--btn-bg); color: var(--fg);
+    cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+  #hs-study button:disabled { opacity: 0.4; cursor: default; }
+  #hs-study button.primary { background: var(--accent); border-color: var(--accent);
+                             color: #fff; }
+  #hs-study label.consent { display: block; margin: 16px 0; color: var(--fg); }
+  #hs-study label.consent input { width: 20px; height: 20px; vertical-align: -4px; }
+
+  /* --- schermata di prova: candidato | riferimento | candidato, stesse strisce --- */
+  #hs-screen-trial { text-align: center; }
+  #hs-study .board { display: flex; gap: 14px; justify-content: center;
+                     align-items: flex-start; }
+  #hs-study .stimulus { width: var(--col); height: auto; aspect-ratio: 384 / 1160;
+                        display: block; background: #000; border-radius: 4px; }
+  #hs-study .frame { display: inline-block; padding: 5px; border-radius: 8px;
+                     background: var(--frame); line-height: 0; }
+  #hs-study .reference { padding: 4px; border: 3px solid var(--ref); border-radius: 12px; }
+  #hs-study .reference .tag { color: var(--ref); font-weight: 600; }
+  #hs-study .option { border: 3px solid transparent; border-radius: 12px; padding: 4px;
+                      background: none; cursor: pointer; }
+  #hs-study .option:focus-visible { border-color: var(--accent); outline: none; }
+  #hs-study .option.picked { border-color: var(--pick); }
+  /* L'hover solo dove c'e' davvero un puntatore: su iOS resta "appiccicato" dopo il tocco
+     e la prova successiva partirebbe con un lato gia' evidenziato. */
+  @media (hover: hover) {
+    #hs-study button:hover:enabled { border-color: var(--accent); }
+    #hs-study .option:hover { border-color: var(--accent); }
+  }
+  #hs-study .tag { display: block; margin: 4px 0 2px; font-size: 0.95rem; color: var(--muted);
+                   line-height: 1.3; }
+  #hs-study .bar { height: 4px; background: var(--border); border-radius: 2px;
+                   margin: 0 0 10px; }
+  #hs-study .bar > div { height: 100%; width: 0; background: var(--accent);
+                         border-radius: 2px; transition: width 0.15s linear; }
+  #hs-study .counter { font-size: 0.9rem; color: var(--muted); margin-bottom: 6px; }
+  #hs-study .practice-banner { display: inline-block; margin-bottom: 6px; padding: 2px 10px;
+                               border-radius: 4px; background: var(--ref); color: #fff;
+                               font-size: 0.9rem; font-weight: 600; }
+  #hs-study textarea { width: 100%; height: 200px; background: var(--mono-bg);
+                       color: var(--mono-fg); border: 1px solid var(--border);
+                       border-radius: 6px; padding: 10px;
+                       font-family: ui-monospace, Menlo, Consolas, monospace;
+                       font-size: 16px; }   /* sotto i 16px iOS zooma al focus */
+  #hs-study code.big { font-size: 1.6rem; color: var(--fg); letter-spacing: 2px; }
+  #hs-study [hidden] { display: none !important; }
+
+  /* Telefono in verticale: tre colonne strette, margini minimi. */
+  @media (max-width: 600px) {
+    :root { --col: min(29vw, calc((100vh - 150px) * 384 / 1160), 300px); }
+    #hs-study { padding: 12px max(6px, env(safe-area-inset-left)) 24px
+                         max(6px, env(safe-area-inset-right)); }
+    #hs-study h1 { font-size: 1.3rem; }
+    #hs-study .board { gap: 3px; }
+    #hs-study .option, #hs-study .reference { padding: 1px; border-width: 2px; }
+    #hs-study .frame { padding: 2px; }
+    #hs-study .tag { font-size: 0.8rem; }
+    #hs-study p { margin: 6px 0; }
+  }
+</style>
+</head>
+<body>
+
+<main id="hs-study">
+
+<section id="hs-screen-error" hidden>
+  <h1>Study data not found</h1>
+  <p>The list of faces for this study could not be loaded. Please reload the page, and if
+     it happens again tell the person who invited you.</p>
+</section>
+
+<section id="hs-screen-consent" hidden>
+  <h1>Face similarity study</h1>
+  <p>Thank you for taking part. You will compare <b>computer-generated faces</b>. The
+     images are renderings of synthetic 3D face models: <b>no real person is shown</b>, and
+     no photograph of anyone is used.</p>
+  <h2>What you will do</h2>
+  <p>After <span id="hs-consent-np">3</span> practice screens you will see
+     <span id="hs-consent-n">40</span> screens. Each shows one reference face in the middle
+     and two other faces on its left and right. You pick the one that looks more similar to
+     the reference. It takes about <b>10 to 15 minutes</b>.</p>
+  <h2>What is recorded</h2>
+  <p>Only your choices, how long each one took and which browser you used. <b>No personal
+     data</b>: no name, no e-mail, no IP address, no cookie. Your answers are stored under a
+     random participant code and cannot be traced back to you, so they are
+     <b>anonymous</b>. Until you finish, your answers are also kept in this browser, so
+     that reloading the page does not lose them.</p>
+  <h2>Voluntary participation</h2>
+  <p>You can stop at any time by closing the tab, with no consequence. The anonymous
+     answers will be used for academic research on 3D face similarity metrics and may be
+     published in aggregate form.</p>
+  <label class="consent">
+    <input type="checkbox" id="hs-consent-box"> I am 18 or older, I have read the above and
+    I agree to take part.
+  </label>
+  <button id="hs-consent-next" class="primary" disabled>Continue</button>
+</section>
+
+<section id="hs-screen-instructions" hidden>
+  <h1>Instructions</h1>
+  <p>On every screen there are three faces side by side. The <b>reference face</b> is in
+     the middle, with a coloured border. The two <b>candidate faces</b> are on its left and
+     right.</p>
+  <p>Each face is shown from <b>three angles</b>, one under the other: from the front, at
+     three-quarter and from the side. The rows line up, so you can compare the same angle
+     across the three faces.</p>
+  <p><b>Pick the candidate that looks more similar to the reference face.</b></p>
+  <ul>
+    <li>Tap or click on a candidate, or press <b>1</b> for the left one and <b>2</b> for the
+      right one.</li>
+    <li><b>Ignore light and shadows: look at the shape.</b> All faces are rendered with the
+      same grey material, the same lighting and the same camera, at the same scale, with no
+      hair, skin tone or texture.</li>
+    <li>Go with your first impression. There is no right answer and no time limit, but
+      about 10 to 15 seconds per screen is the right pace.</li>
+    <li>You cannot go back to a previous screen.</li>
+  </ul>
+  <p class="muted">The first <span id="hs-instr-np">3</span> screens are practice. Some
+     later screens are easy on purpose: they are there to check that the page is being
+     looked at.</p>
+  <button id="hs-instructions-next" class="primary">Start the practice</button>
+</section>
+
+<section id="hs-screen-ready" hidden>
+  <h1>Practice done</h1>
+  <p>The study starts now: <span id="hs-ready-n">40</span> screens, same task.</p>
+  <p class="muted">Ignore light and shadows: look at the shape.</p>
+  <button id="hs-ready-next" class="primary">Start the study</button>
+</section>
+
+<section id="hs-screen-loading" hidden>
+  <h1>Loading images&hellip;</h1>
+  <div class="bar"><div id="hs-load-bar"></div></div>
+  <p class="muted" id="hs-load-text">0 / 0</p>
+</section>
+
+<section id="hs-screen-trial" hidden>
+  <div class="practice-banner" id="hs-practice-banner" hidden>Practice</div>
+  <div class="bar"><div id="hs-trial-bar"></div></div>
+  <div class="counter" id="hs-trial-counter">1 / 40</div>
+  <div class="board">
+    <button class="option" id="hs-opt-left"><span class="tag">1 &mdash; left</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-left" alt="candidate 1"></span></button>
+    <div class="reference"><span class="tag">Reference</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-a" alt="reference face"></span></div>
+    <button class="option" id="hs-opt-right"><span class="tag">2 &mdash; right</span><span class="frame"><img class="stimulus" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="hs-img-right" alt="candidate 2"></span></button>
+  </div>
+  <p class="muted">Which candidate is more similar to the reference in the middle? Tap it,
+     or press 1 / 2. Ignore light and shadows: look at the shape.</p>
+  <p class="muted" id="hs-sync"></p>
+</section>
+
+<section id="hs-screen-done" hidden>
+  <h1>Done &mdash; thank you</h1>
+  <p>Your participant code is</p>
+  <p><code class="big" id="hs-done-code">P0000000</code></p>
+
+  <p id="hs-save-busy">Sending your answers&hellip;</p>
+
+  <div id="hs-save-ok" hidden>
+    <p class="ok"><b>Thank you, your answers have been sent.</b> Nothing else is needed: you
+       can close this page.</p>
+    <p class="muted">Keep the code above only if you want to ask for your answers to be
+       deleted later.</p>
+  </div>
+
+  <div id="hs-save-fail" hidden>
+    <p class="bad"><b>Your answers could not be sent.</b> <span id="hs-save-why"></span></p>
+    <p>Nothing is lost: send your answers back to the person who invited you, together with
+       the code above.</p>
+    <p>
+      <button id="hs-done-download" class="primary">Download the file</button>
+      <button id="hs-done-copy">Copy the text</button>
+      <button id="hs-done-retry" hidden>Try sending again</button>
+    </p>
+    <p class="muted" id="hs-copy-status"></p>
+    <p class="muted">Or copy the text below and paste it into an e-mail:</p>
+    <textarea id="hs-done-json" readonly></textarea>
+  </div>
+</section>
+
+</main>
+
+<script src="triplets.js"></script>
+<script>
+"use strict";
+(function () {
+
+// Le triplette (senza il blocco `metrics`, che serve solo all'analisi offline) vengono da
+// triplets.js; le immagini sono img/<soggetto>.jpg, condivise fra le triplette.
+const DATA = window.WBES_TRIPLETS || null;
+const FORM = window.WBES_FORM || {};
+
+// Quante prove vede un partecipante: 3 di prova, poi 36 test (9 per tipo di disaccordo) +
+// 4 controlli mescolati = 40.
+const N_PRACTICE = 3;
+const N_TEST = 36;
+const N_CONTROL = 4;
+const ITI_MS = 300;           // schermo vuoto fra una risposta e la prova dopo
+const SEND_TIMEOUT_MS = 20000;
+const STORE_KEY = "wbes_human_study_v2";
+const STUDY_VERSION = "v2";
+
+const el = (id) => document.getElementById(id);
+const show = (id) => {
+  for (const s of document.querySelectorAll("#hs-study > section")) s.hidden = (s.id !== id);
+  window.scrollTo(0, 0);
+};
+
+/* --- PRNG seminato: il codice partecipante E' il seme, quindi l'assegnazione delle
+       triplette a quel partecipante si puo' ricostruire dopo. --- */
+function mulberry32(seed) {
+  let t = seed >>> 0;
+  return function () {
+    t = (t + 0x6D2B79F5) >>> 0;
+    let x = Math.imul(t ^ (t >>> 15), 1 | t);
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function randomSeed() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    return window.crypto.getRandomValues(new Uint32Array(1))[0];
+  }
+  return Math.floor(Math.random() * 4294967296);
+}
+
+const codeFromSeed = (seed) => "P" + seed.toString(36).toUpperCase().padStart(7, "0");
+
+function shuffled(items, rand) {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/* --- costruzione della sessione ------------------------------------------------- */
+
+// I test si pescano a giro fra i tipi di disaccordo, cosi' ogni partecipante li copre
+// tutti (9 per tipo con 4 tipi) invece di prendersene molti dello stesso tipo per caso.
+function drawTests(triplets, n, rand) {
+  const byType = new Map();
+  for (const t of triplets) {
+    if (t.kind !== "test") continue;
+    if (!byType.has(t.disagreement_type)) byType.set(t.disagreement_type, []);
+    byType.get(t.disagreement_type).push(t);
+  }
+  const queues = shuffled([...byType.keys()], rand).map((k) => shuffled(byType.get(k), rand));
+  const picked = [];
+  let round = 0;
+  while (picked.length < n) {
+    let progressed = false;
+    for (const q of queues) {
+      if (round < q.length && picked.length < n) { picked.push(q[round]); progressed = true; }
+    }
+    if (!progressed) break;   // pool esaurito: meno di n triplette disponibili
+    round++;
+  }
+  return shuffled(picked, rand);
+}
+
+// Un controllo per blocco: gli attention check restano spalmati sulla sessione invece di
+// finire tutti e quattro nei primi minuti.
+function interleave(tests, controls, rand) {
+  const nBlocks = controls.length;
+  const per = Math.floor(tests.length / nBlocks);
+  const trials = [];
+  for (let b = 0; b < nBlocks; b++) {
+    const block = (b === nBlocks - 1) ? tests.slice(b * per) : tests.slice(b * per, (b + 1) * per);
+    const at = Math.floor(rand() * (block.length + 1));
+    trials.push(...block.slice(0, at), controls[b], ...block.slice(at));
+  }
+  return trials;
+}
+
+// Sessione = prove di prova, poi le prove vere.  Quale candidato finisce a sinistra si
+// tira a sorte per prova: un eventuale bias di posizione non si somma sempre allo stesso
+// lato.
+function buildSession(data, seed) {
+  const rand = mulberry32(seed);
+  const practice = shuffled(data.triplets.filter((t) => t.kind === "practice"), rand)
+      .slice(0, N_PRACTICE);
+  const tests = drawTests(data.triplets, N_TEST, rand);
+  const controls = shuffled(data.triplets.filter((t) => t.kind === "control"), rand)
+      .slice(0, N_CONTROL);
+  const order = practice.concat(interleave(tests, controls, rand));
+  return order.map((t) => ({ triplet: t, left: rand() < 0.5 ? "b" : "c" }))
+              .map((x) => ({ ...x, right: x.left === "b" ? "c" : "b" }));
+}
+
+const nPracticeOf = (session) => session.filter((x) => x.triplet.kind === "practice").length;
+
+/* --- stato ---------------------------------------------------------------------- */
+
+const state = {
+  data: null, seed: 0, code: "", session: [], index: 0, nPractice: 0,
+  trials: [], startedAt: null, finishedAt: null, shownAt: 0, locked: true,
+};
+
+/* --- avanzamento in localStorage ------------------------------------------------- */
+// Tutto in try/catch: in navigazione privata o con lo storage pieno o disattivato la
+// sessione deve andare avanti lo stesso, solo senza ripresa dopo un reload.
+
+function storeSave(finished) {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      seed: state.seed, code: state.code, started: state.startedAt,
+      finished: finished || null, trials: state.trials,
+    }));
+  } catch (e) { /* niente ripresa, pazienza */ }
+}
+
+function storeClear() {
+  try { localStorage.removeItem(STORE_KEY); } catch (e) { /* idem */ }
+}
+
+// Una sessione salvata vale solo se le sue risposte combaciano, prova per prova, con la
+// sessione che il suo seme ricostruisce: se triplets.js e' cambiato nel frattempo, si
+// riparte da zero invece di attribuire risposte alle triplette sbagliate.
+function storeLoad(data) {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); } catch (e) { return null; }
+  if (!saved || typeof saved.seed !== "number" || !Array.isArray(saved.trials)) return null;
+  const session = buildSession(data, saved.seed);
+  if (saved.code !== codeFromSeed(saved.seed) || saved.trials.length > session.length) return null;
+  const consistent = saved.trials.every((t, i) =>
+    t && t.triplet_id === session[i].triplet.id && t.shown_left === session[i].left);
+  if (!consistent) return null;
+  return { saved: saved, session: session };
+}
+
+function preload(session, done) {
+  const urls = new Set();
+  for (const trial of session) for (const k of ["a", "b", "c"]) urls.add(imageOf(trial.triplet, k));
+  const list = [...urls];
+  let loaded = 0;
+  el("hs-load-text").textContent = `0 / ${list.length}`;
+  const tick = () => {
+    loaded++;
+    el("hs-load-bar").style.width = `${(100 * loaded) / list.length}%`;
+    el("hs-load-text").textContent = `${loaded} / ${list.length}`;
+    if (loaded === list.length) done();
+  };
+  if (list.length === 0) { done(); return; }
+  for (const url of list) {
+    const img = new Image();
+    img.onload = tick;
+    img.onerror = tick;   // un'immagine mancante non deve bloccare la sessione
+    img.src = url;
+  }
+}
+
+// I render sono indicizzati per soggetto (`id0027`): le strisce sono condivise fra le
+// triplette.
+const imageOf = (triplet, slot) => `img/${triplet[slot]}.jpg`;
+
+function renderTrial() {
+  const trial = state.session[state.index];
+  const practice = state.index < state.nPractice;
+  const k = practice ? state.index : state.index - state.nPractice;
+  const n = practice ? state.nPractice : state.session.length - state.nPractice;
+  el("hs-practice-banner").hidden = !practice;
+  el("hs-trial-counter").textContent = practice ? `Practice ${k + 1} / ${n}` : `${k + 1} / ${n}`;
+  el("hs-trial-bar").style.width = `${(100 * k) / n}%`;
+  el("hs-img-a").src = imageOf(trial.triplet, "a");
+  el("hs-img-left").src = imageOf(trial.triplet, trial.left);
+  el("hs-img-right").src = imageOf(trial.triplet, trial.right);
+  for (const id of ["hs-opt-left", "hs-opt-right"]) {
+    el(id).classList.remove("picked");
+    el(id).blur();   // il focus del tocco precedente non deve evidenziare un lato
+  }
+  state.shownAt = performance.now();
+  state.locked = false;
+}
+
+// Dopo l'ultima prova di prova una schermata separa la prova dalla sessione vera.
+function next() {
+  if (state.index >= state.session.length) finish();
+  else if (state.index === state.nPractice && state.nPractice > 0) showReady();
+  else renderTrial();
+}
+
+function showReady() {
+  state.locked = true;
+  show("hs-screen-ready");
+}
+
+function answer(side) {
+  if (state.locked) return;
+  state.locked = true;
+  const rt = performance.now() - state.shownAt;
+  const trial = state.session[state.index];
+  const chosen = side === "left" ? trial.left : trial.right;
+  el(side === "left" ? "hs-opt-left" : "hs-opt-right").classList.add("picked");
+  state.trials.push({
+    triplet_id: trial.triplet.id,
+    kind: trial.triplet.kind,
+    control: trial.triplet.kind === "control",
+    shown_left: trial.left,
+    choice: chosen,
+    rt_ms: Math.round(rt),
+  });
+  state.index++;
+  storeSave(null);
+  setTimeout(next, ITI_MS);
+}
+
+/* --- invio al Google Form ------------------------------------------------------- */
+
+function payload(finished) {
+  return {
+    study_version: STUDY_VERSION,
+    triplets_generated_at: (DATA && DATA.meta) ? DATA.meta.generated_at : null,
+    triplets_hash: (DATA && DATA.meta) ? DATA.meta.triplets_hash : null,
+    participant: state.code,
+    started: state.startedAt,
+    finished: finished,
+    trials: state.trials.slice(),
+    user_agent: navigator.userAgent,
+    screen: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1 },
+  };
+}
+
+// I segnaposto di WBES_FORM non sono un id valido: un formId vero e' lungo e senza
+// segni strani, un entryId e' solo cifre (si accetta anche "entry.123").
+function formUrl() {
+  const id = String(FORM.formId || "");
+  const entry = String(FORM.entryId || "").replace(/^entry\./, "");
+  if (!/^[A-Za-z0-9_-]{20,}$/.test(id) || !/^\d+$/.test(entry)) return null;
+  return { url: `https://docs.google.com/forms/d/e/${id}/formResponse`, field: `entry.${entry}` };
+}
+
+// POST no-cors: la risposta e' opaca, quindi "riuscito" vuol dire solo che fetch non ha
+// lanciato (rete giu', blocco, timeout).  Il corpo urlencoded e' un tipo "semplice", che
+// passa senza preflight.
+async function sendToForm(target, body) {
+  const form = new URLSearchParams();
+  form.set(target.field, JSON.stringify(body));
+  const ctrl = (typeof AbortController === "function") ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), SEND_TIMEOUT_MS) : null;
+  try {
+    await fetch(target.url, {
+      method: "POST", mode: "no-cors", body: form,
+      signal: ctrl ? ctrl.signal : undefined,
+    });
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+// Fallback: il JSON da scaricare o da copiare a mano.  Il nome del file porta il codice,
+// cosi' due partecipanti che mandano il file non si sovrascrivono.
+function exportFlow(body, why) {
+  const text = JSON.stringify(body, null, 1);
+  const filename = `wbes_human_study_v2_${state.code}.json`;
+  el("hs-save-why").textContent = why;
+  el("hs-done-json").value = text;
+  el("hs-copy-status").textContent = "";
+  el("hs-done-download").onclick = () => {
+    try {
+      const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (e) {
+      el("hs-copy-status").textContent = "The download did not start. Use the text below instead.";
+      el("hs-copy-status").className = "muted bad";
+    }
+  };
+  el("hs-done-copy").onclick = async () => {
+    const status = el("hs-copy-status");
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "Copied.";
+      status.className = "muted ok";
+    } catch (e) {
+      // Senza clipboard API (o senza permesso): selezione a mano; su iOS select() da
+      // sola non basta, serve setSelectionRange.
+      const ta = el("hs-done-json");
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (e2) { /* resta la selezione */ }
+      status.textContent = ok ? "Copied." : "The text is selected: copy it from the menu.";
+      status.className = ok ? "muted ok" : "muted";
+    }
+  };
+  el("hs-save-busy").hidden = true;
+  el("hs-save-ok").hidden = true;
+  el("hs-save-fail").hidden = false;
+}
+
+async function submit(body) {
+  el("hs-save-busy").hidden = false;
+  el("hs-save-ok").hidden = true;
+  el("hs-save-fail").hidden = true;
+  const target = formUrl();
+  if (!target) {
+    exportFlow(body, "This page is not connected to the study form.");
+    el("hs-done-retry").hidden = true;
+    return;
+  }
+  try {
+    await sendToForm(target, body);
+    el("hs-save-busy").hidden = true;
+    el("hs-save-fail").hidden = true;
+    el("hs-save-ok").hidden = false;
+    // Inviato: la copia locale non serve piu', e un nuovo accesso dallo stesso browser
+    // deve partire con una sessione nuova.
+    storeClear();
+  } catch (err) {
+    exportFlow(body, "The connection to the study form failed.");
+    el("hs-done-retry").hidden = false;
+    el("hs-done-retry").onclick = () => submit(body);
+  }
+}
+
+function finish() {
+  window.onbeforeunload = null;
+  // Il `finished` si fissa una volta: un reload dopo un invio fallito rimanda lo stesso
+  // JSON invece di spostare l'orario di fine.
+  const body = payload(state.finishedAt || new Date().toISOString());
+  state.finishedAt = body.finished;
+  storeSave(body.finished);
+  el("hs-done-code").textContent = state.code;
+  show("hs-screen-done");
+  submit(body);
+}
+
+/* --- avvio ---------------------------------------------------------------------- */
+
+function run(note) {
+  show("hs-screen-loading");
+  preload(state.session, () => {
+    window.onbeforeunload = () => "The session is not finished: your answers would be lost.";
+    el("hs-sync").textContent = note || "";
+    if (state.index === state.nPractice && state.nPractice > 0) { showReady(); return; }
+    show("hs-screen-trial");
+    renderTrial();
+  });
+}
+
+function start() {
+  state.seed = randomSeed();
+  state.code = codeFromSeed(state.seed);
+  state.session = buildSession(state.data, state.seed);
+  state.nPractice = nPracticeOf(state.session);
+  state.startedAt = new Date().toISOString();
+  state.trials = [];
+  state.index = 0;
+  storeSave(null);
+  run("");
+}
+
+// Ripresa dopo un reload: stesso seme, quindi stesse triplette nello stesso ordine e con
+// gli stessi lati; si riparte dalla prima prova senza risposta.  Una sessione gia' finita
+// ma non inviata torna direttamente alla schermata finale, che ritenta l'invio.
+function resume(found) {
+  state.seed = found.saved.seed;
+  state.code = found.saved.code;
+  state.session = found.session;
+  state.nPractice = nPracticeOf(found.session);
+  state.startedAt = found.saved.started;
+  state.trials = found.saved.trials.slice();
+  state.index = state.trials.length;
+  state.finishedAt = found.saved.finished || null;
+  if (state.index >= state.session.length) { finish(); return; }
+  run(`Resumed where you left off (${state.index} answers kept).`);
+}
+
+function boot(data) {
+  if (!data || !Array.isArray(data.triplets) || data.triplets.length === 0) {
+    show("hs-screen-error");
+    return;
+  }
+  state.data = data;
+  const np = Math.min(N_PRACTICE, data.triplets.filter((t) => t.kind === "practice").length);
+  for (const id of ["hs-consent-np", "hs-instr-np"]) el(id).textContent = String(np);
+  for (const id of ["hs-consent-n", "hs-ready-n"]) el(id).textContent = String(N_TEST + N_CONTROL);
+  const found = storeLoad(data);
+  if (found) { resume(found); return; }
+  storeClear();
+  show("hs-screen-consent");
+}
+
+el("hs-consent-box").onchange = (e) => { el("hs-consent-next").disabled = !e.target.checked; };
+el("hs-consent-next").onclick = () => show("hs-screen-instructions");
+el("hs-instructions-next").onclick = start;
+el("hs-ready-next").onclick = () => { show("hs-screen-trial"); renderTrial(); };
+el("hs-opt-left").onclick = () => answer("left");
+el("hs-opt-right").onclick = () => answer("right");
+document.addEventListener("keydown", (e) => {
+  if (el("hs-screen-trial").hidden) return;
+  if (e.key === "1") answer("left");
+  else if (e.key === "2") answer("right");
+});
+
+boot(DATA);
+
+})();
+</script>
+</body>
+</html>
