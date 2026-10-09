@@ -3,8 +3,8 @@
 
     v3_work/unified_gt/run.sh aau/human_study_v2/power_v2.py      (run.sbatch, passo ``power``)
 
-Modello generativo, uno strato alla volta (``--strata`` nome:prove:triplette, come la pagina: F_vs_S 24 prove su
-100 triplette, F_vs_size 18 su 80, S_vs_maxabs 18 su 80). Ogni partecipante vede le sue prove, estratte senza
+Modello generativo, uno strato alla volta (``--strata`` nome:prove:triplette, come la pagina: F_vs_S 12 prove su
+200 triplette, F_vs_size 3 su 80, S_vs_maxabs 3 su 80). Ogni partecipante vede le sue prove, estratte senza
 ripetizione dalle triplette dello strato. La risposta sta con X con probabilita' expit(b + u_p + v_t), con:
   - u_p ~ N(0, sd_p) per partecipante;
   - v_t ~ N(0, sd_t) per tripletta, fisso per studio come nella realta' (le triplette sono quelle).
@@ -19,9 +19,11 @@ Test, lo stesso di ``analyze_v2.py``:
   - **secondario:** segni ribaltati per partecipante (approssimazione normale della distribuzione di permutazione,
     varianza condizionale sum d_p^2), che ricampiona solo i partecipanti.
 
-``--alpha-check``: rifiuti sotto H0 (q = 0.5) per i due test, per mostrare che con sd_t > 0 il secondo supera
-l'alfa nominale e il primo no. Soglie della potenza: 0.05 e 0.05 / 3 = 0.0167 (Holm sui 3 strati: chi ha p <=
-0.0167 e' rifiutato qualunque siano gli altri, quindi e' la soglia prudente per UNO strato).
+**Taratura dell'alfa, prima dei dati.** Sotto H0 (q = 0.5, ``--alpha-sims`` studi per condizione) si misurano i
+rifiuti del primario alle soglie nominali di ``ALPHA_GRID``; la soglia TARATA e' la piu' grande per cui l'alfa
+empirico resta <= 0.05 in TUTTE le condizioni (strati, sd, N). La potenza si calcola a quella soglia. I test sono a
+cascata (gatekeeping: ogni strato si testa solo se il precedente ha rifiutato), ciascuno alla soglia tarata.
+Per confronto, alla soglia 0.05: bootstrap "pigeonhole" e segni ribaltati.
 
 Taratura (``--v1``): dai partecipanti della v1 (``aau/human_study/responses_*``) l'accordo per risposta di ogni
 metrica e la varianza fra partecipanti oltre quella binomiale. Scrive ``power_v2.md`` e ``power_v2.json``.
@@ -45,21 +47,22 @@ from analyze_v2 import satterthwaite
 
 THIS_DIR = Path(__file__).resolve().parent
 V1_DIR = THIS_DIR.parent / "human_study"
-ALPHA_HOLM = 0.05 / 3
+ALPHA_GRID = (0.025, 0.03, 0.035, 0.04, 0.045, 0.05)
+ALPHA_TARGET = 0.05
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--q", default="0.55,0.575,0.60,0.65", help="quote marginali con X nello strato")
-    p.add_argument("--n", default="10,15,20,25,30,40,50,60,80,100,120,150,200")
-    p.add_argument("--strata", default="F_vs_S:24:100,F_vs_size:18:80,S_vs_maxabs:18:80",
+    p.add_argument("--q", default="0.575,0.60,0.65,0.70", help="quote marginali con X nello strato")
+    p.add_argument("--n", default="10,15,20,25,30,40,50,60,70,80,100,120,150,200,250,300")
+    p.add_argument("--strata", default="F_vs_S:12:200,F_vs_size:3:80,S_vs_maxabs:3:80",
                    help="nome:prove:triplette")
     p.add_argument("--sd-p", default="0.5,1.0", help="dev. std. logit fra partecipanti")
     p.add_argument("--sd-t", default="0.0,0.8", help="dev. std. logit fra triplette")
     p.add_argument("--sims", type=int, default=1000)
     p.add_argument("--boot", type=int, default=200, help="repliche del bootstrap incrociato per studio simulato")
-    p.add_argument("--alpha-sims", type=int, default=2000)
-    p.add_argument("--alpha-n", default="20,40,80")
+    p.add_argument("--alpha-sims", type=int, default=4000)
+    p.add_argument("--alpha-n", default="15,20,30,40,60,80,120")
     p.add_argument("--seed", type=int, default=1234)
     p.add_argument("--no-v1", action="store_true")
     p.add_argument("--out", type=Path, default=THIS_DIR / "power_v2.md")
@@ -91,14 +94,17 @@ def one_study(n: int, trials: int, n_items: int, b: float, sd_p: float, sd_t: fl
     rows = np.repeat(np.arange(n), trials)
     np.add.at(H, (rows, items.ravel()), x.ravel())
     np.add.at(S, (rows, items.ravel()), 1.0)
+    seen = S.sum(0) > 0                              # come crossed_se: solo le triplette viste
+    H, S = H[:, seen], S[:, seen]
+    n_seen = int(seen.sum())
     CP = rng.multinomial(n, np.full(n, 1.0 / n), size=boot).astype(float)
-    CT = rng.multinomial(n_items, np.full(n_items, 1.0 / n_items), size=boot).astype(float)
+    CT = rng.multinomial(n_seen, np.full(n_seen, 1.0 / n_seen), size=boot).astype(float)
     q0 = H.sum() / S.sum()
     # primario, come analyze_v2.crossed_se: V_P + V_T - V_0
     vp = np.var((CP @ H.sum(1)) / (CP @ S.sum(1)), ddof=1)
     vt = np.var((CT @ H.sum(0)) / (CT @ S.sum(0)), ddof=1)
     v = max(vp + vt - q0 * (1.0 - q0) / S.sum(), vp, vt)
-    df = satterthwaite(v, vp, vt, n, int((S.sum(0) > 0).sum()))
+    df = satterthwaite(v, vp, vt, n, n_seen)
     p_x = 2.0 * student_t.sf(abs(q0 - 0.5) / math.sqrt(v), df) if v > 0 else 0.0
     # confronto: bootstrap pigeonhole (righe e colonne insieme) e segni ribaltati
     qb = np.einsum("rp,pt,rt->r", CP, H, CT) / np.einsum("rp,pt,rt->r", CP, S, CT)
@@ -116,9 +122,8 @@ def cell(task) -> dict:
     b = calibrate_b(q, sd_p, sd_t)
     P = np.array([one_study(n, trials, n_items, b, sd_p, sd_t, boot, rng) for _ in range(sims)])
     return {"stratum": name, "trials": trials, "items": n_items, "n": n, "q": q, "diff": 2 * q - 1, "sd_p": sd_p,
-            "sd_t": sd_t, "sims": sims, "crossed_05": float((P[:, 0] <= 0.05).mean()),
-            "crossed_holm": float((P[:, 0] <= ALPHA_HOLM).mean()), "signflip_05": float((P[:, 1] <= 0.05).mean()),
-            "pigeonhole_05": float((P[:, 2] <= 0.05).mean())}
+            "sd_t": sd_t, "sims": sims, "crossed": {f"{t:g}": float((P[:, 0] <= t).mean()) for t in ALPHA_GRID},
+            "signflip_05": float((P[:, 1] <= 0.05).mean()), "pigeonhole_05": float((P[:, 2] <= 0.05).mean())}
 
 
 def v1_anchor() -> dict | None:
@@ -149,10 +154,18 @@ def v1_anchor() -> dict | None:
     return out
 
 
-def needed(rows, name, q, sd_p, sd_t, key, target):
+def needed(rows, name, q, sd_p, sd_t, alpha, target):
     ok = [r["n"] for r in rows if r["stratum"] == name and r["q"] == q and r["sd_p"] == sd_p and r["sd_t"] == sd_t
-          and r[key] >= target]
+          and r["crossed"][f"{alpha:g}"] >= target]
     return min(ok) if ok else None
+
+
+def calibrate_alpha(arows: list[dict]) -> float:
+    """Soglia nominale piu' grande di ALPHA_GRID con alfa empirico <= ALPHA_TARGET in tutte le condizioni."""
+    ok = [t for t in ALPHA_GRID if max(r["crossed"][f"{t:g}"] for r in arows) <= ALPHA_TARGET]
+    if not ok:
+        raise SystemExit(f"nessuna soglia di {ALPHA_GRID} tiene l'alfa empirico <= {ALPHA_TARGET}")
+    return max(ok)
 
 
 def main() -> None:
@@ -180,29 +193,32 @@ def main() -> None:
         print("[power] alfa empirico: fatto", flush=True)
         rows = pool.map(cell, tasks, chunksize=1)
     anchor = None if args.no_v1 else v1_anchor()
-    L = ["# Studio umano v2: alfa empirico e potenza (simulazione)", "",
+    a_cal = calibrate_alpha(arows)
+    L = ["# Studio umano v2: taratura dell'alfa e potenza (simulazione)", "",
          f"Generato da `aau/human_study_v2/power_v2.py`, seed {args.seed}; {args.sims} studi per cella di potenza, "
-         f"{args.alpha_sims} per cella di alfa, {args.boot} repliche di bootstrap incrociato per studio. Strati "
+         f"{args.alpha_sims} per cella di alfa, {args.boot} repliche di bootstrap per studio. Strati "
          "(prove per partecipante / triplette): " + ", ".join(f"{s} {t}/{i}" for s, t, i in strata) + ".", "",
-         "## Alfa empirico sotto H0 (q = 0.5), alfa nominale 0.05", "",
-         "| strato | sd partecipanti | sd triplette | N | incrociato V_P + V_T - V_0 (primario) | "
-         "bootstrap pigeonhole | segni ribaltati |",
-         "|---|---:|---:|---:|---:|---:|---:|"]
+         f"**Soglia nominale tarata: {a_cal:g}** (la piu' grande di {list(ALPHA_GRID)} con alfa empirico <= "
+         f"{ALPHA_TARGET} in tutte le {len(arows)} condizioni sotto H0).", "",
+         "## Alfa empirico sotto H0 (q = 0.5)", "",
+         "| strato | sd partecipanti | sd triplette | N | primario a "
+         + " | primario a ".join(f"{t:g}" for t in ALPHA_GRID) + " | pigeonhole a 0.05 | segni a 0.05 |",
+         "|---|---:|---:|---:|" + "---:|" * (len(ALPHA_GRID) + 2)]
     for r in arows:
-        L.append(f"| {r['stratum']} | {r['sd_p']} | {r['sd_t']} | {r['n']} | {r['crossed_05']:.3f} | "
-                 f"{r['pigeonhole_05']:.3f} | {r['signflip_05']:.3f} |")
-    L += ["", "## Potenza del test primario: N tenuti per l'80% e il 90%", "",
-          f"q = quota marginale con X nello strato, differenziale = 2q - 1. Soglie: alfa 0.05 e {ALPHA_HOLM:.4f} "
-          "(Holm sui 3 strati, caso peggiore).", ""]
+        L.append(f"| {r['stratum']} | {r['sd_p']} | {r['sd_t']} | {r['n']} | "
+                 + " | ".join(f"{r['crossed'][f'{t:g}']:.3f}" for t in ALPHA_GRID)
+                 + f" | {r['pigeonhole_05']:.3f} | {r['signflip_05']:.3f} |")
+    L.append("| massimo | | | | " + " | ".join(f"{max(r['crossed'][f'{t:g}'] for r in arows):.3f}"
+                                               for t in ALPHA_GRID) + " | | |")
+    L += ["", f"## Potenza del test primario alla soglia tarata {a_cal:g}: N tenuti per l'80% e il 90%", "",
+          "q = quota marginale con X nello strato, differenziale = 2q - 1.", ""]
     for nm, t, _ in strata:
         L += [f"### {nm} ({t} prove per partecipante)", "",
-              "| sd partecipanti | sd triplette | q | differenziale | 80%, alfa 0.05 | 80%, alfa 0.0167 | "
-              "90%, alfa 0.0167 |", "|---:|---:|---:|---:|---:|---:|---:|"]
+              "| sd partecipanti | sd triplette | q | differenziale | 80% | 90% |", "|---:|---:|---:|---:|---:|---:|"]
         for sd_p in sdps:
             for sd_t in sdts:
                 for q in qs:
-                    c = [needed(rows, nm, q, sd_p, sd_t, k, tg) for k, tg in
-                         (("crossed_05", 0.8), ("crossed_holm", 0.8), ("crossed_holm", 0.9))]
+                    c = [needed(rows, nm, q, sd_p, sd_t, a_cal, tg) for tg in (0.8, 0.9)]
                     L.append(f"| {sd_p} | {sd_t} | {q:.3f} | {2 * q - 1:+.2f} | " +
                              " | ".join(f"{x}" if x else f"> {max(ns)}" for x in c) + " |")
         L.append("")
@@ -216,7 +232,8 @@ def main() -> None:
         L.append("")
     args.out.write_text("\n".join(L) + "\n", encoding="utf-8")
     args.out.with_suffix(".json").write_text(json.dumps({"args": {k: str(v) for k, v in vars(args).items()},
-                                                         "alpha": arows, "rows": rows, "v1": anchor}, indent=1),
+                                                         "alpha_calibrated": a_cal, "alpha": arows, "rows": rows,
+                                                         "v1": anchor}, indent=1),
                                              encoding="utf-8")
     print(args.out.read_text(encoding="utf-8"))
 

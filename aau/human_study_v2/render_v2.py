@@ -40,7 +40,7 @@ import hs2
 
 YAWS = (0.0, 45.0, 90.0)
 VIEW_NAMES = ("front", "three_quarter", "profile")
-TILE = 384                      # px per vista nella striscia
+TILE = 512                      # px per vista nella striscia (nitida anche a 2x DPR con colonne da ~250 px)
 SSAA = 3
 SEP = 4                         # separatore fra le viste (px), grigio scuro
 SEP_GRAY = 48

@@ -7,12 +7,12 @@ Pool completo sulle 100 identita' (100 x C(99,2) = 485.100 triplette, A riferime
 v1 (``aau/human_study/select_triplets.py``). Una tripletta e' dello strato ``X_vs_Y`` se le GT X e Y ordinano
 d(A,B) e d(A,C) al contrario, CIASCUNA con margine relativo ``|d(A,B) - d(A,C)| / media >= --margin``.
 Strati (``STRATA``: triplette, prove per sessione, vincoli):
-  - **F_vs_S** (principale, 100 / 24): F e S opposte. Contrappone "con taglia" a "senza taglia" ("solo taglia" sta
+  - **F_vs_S** (principale, 200 / 12): F e S opposte. Contrappone "con taglia" a "senza taglia" ("solo taglia" sta
     con F in tutto lo strato): la lettura e' "la taglia conta per la somiglianza percepita";
-  - **F_vs_size** (80 / 18): F e "solo taglia" opposte, con una differenza di taglia percepibile
-    (|d_size(A,B) - d_size(A,C)| >= 0.02, cioe' 2% di centroid size) che F scavalca per la forma: dice se oltre
-    alla taglia conta la forma, nel verso di F;
-  - **S_vs_maxabs** (80 / 18) a TAGLIA NEUTRA: S e maxabs opposte con |d_size(A,B) - d_size(A,C)| <= 0.01, e
+  - **F_vs_size** (80 / 3): F e "solo taglia" opposte, con una differenza di taglia piccola (|d_size(A,B) -
+    d_size(A,C)| >= 0.02, cioe' 2% di centroid size, forse sotto la soglia visiva) che F scavalca per la forma:
+    lettura "a taglia quasi uguale conta la forma"; F si attribuisce solo dallo schema congiunto con F_vs_S;
+  - **S_vs_maxabs** (80 / 3) a TAGLIA NEUTRA: S e maxabs opposte con |d_size(A,B) - d_size(A,C)| <= 0.01, e
     bilanciato: F e "solo taglia" stanno con S esattamente nella meta' delle triplette, cosi' chi giudica solo
     con la taglia, o come F, non produce un effetto in questo strato. Le 4 celle (F con S si'/no x taglia con S
     si'/no) non si possono riempire in parti uguali (a taglia neutra "F contro S, taglia con S" e' rarissima):
@@ -52,10 +52,12 @@ import hs2
 PRINCIPAL = ("F", "S", "maxabs")
 # Lo stesso Google Form riceve v1 e v2: gli id della v2 hanno un prefisso che non si confonde con la v1
 ID_PREFIX = "v2_"
+# Ordine = ordine della cascata dei test (gatekeeping, PROTOCOL.md sez. 5). Quote per sessione da 18 test: la
+# potenza di F_vs_S cambia poco fra 12 e 18 prove a testa (power_v2.md, esplorazione), molto col pool (200).
 STRATA = (
-    {"label": "F_vs_S", "x": "F", "y": "S", "n": 100, "quota": 24},
-    {"label": "F_vs_size", "x": "F", "y": "size_only", "n": 80, "quota": 18, "min_abs": {"size_only": 0.02}},
-    {"label": "S_vs_maxabs", "x": "S", "y": "maxabs", "n": 80, "quota": 18, "neutral": {"size_only": 0.01},
+    {"label": "F_vs_S", "x": "F", "y": "S", "n": 200, "quota": 12},
+    {"label": "F_vs_size", "x": "F", "y": "size_only", "n": 80, "quota": 3, "min_abs": {"size_only": 0.02}},
+    {"label": "S_vs_maxabs", "x": "S", "y": "maxabs", "n": 80, "quota": 3, "neutral": {"size_only": 0.01},
      "balance": ("F", "size_only")},
 )
 CONTROL_GTS = "F,S,EDM,unified,maxabs"
@@ -74,7 +76,7 @@ def parse_args() -> argparse.Namespace:
                    help="margine relativo minimo per OGNUNA delle due GT in disaccordo")
     p.add_argument("--pool-factor", type=int, default=3,
                    help="si estrae fra le n x pool-factor col margine minimo piu' grande")
-    p.add_argument("--max-uses", type=int, default=15, help="comparse massime di un soggetto nei test")
+    p.add_argument("--max-uses", type=int, default=25, help="comparse massime di un soggetto nei test")
     p.add_argument("--control-margin", type=float, default=0.40)
     p.add_argument("--control-pool-factor", type=int, default=10)
     p.add_argument("--seed", type=int, default=1234)
@@ -220,20 +222,27 @@ def record(idx: int, kind: str, tid: str, label: str, pair, subjects, a, b, c, v
 
 # ----------------------------------------------------------------------------- uscite
 
-def copy_images(entries, renders: Path, docs_dir: Path) -> tuple[int, int]:
+def copy_images(entries, renders: Path, docs_dir: Path) -> tuple[int, int, list[int]]:
+    """Copia le strisce usate e controlla che abbiano TUTTE le stesse dimensioni: la pagina le mostra alla stessa
+    larghezza CSS, quindi stesse dimensioni = stesso ingrandimento per ogni volto. Ritorna anche [w, h]."""
+    from PIL import Image
     img_dir = docs_dir / "img"
     img_dir.mkdir(parents=True, exist_ok=True)
     for old in img_dir.glob("*.jpg"):
         old.unlink()
     used = sorted({e[k] for e in entries for k in ("a", "b", "c")})
-    total = 0
+    total, sizes = 0, set()
     for s in used:
         src = renders / f"{s}.jpg"
         if not src.exists():
             raise FileNotFoundError(f"render mancante: {src} (rigeneralo con render_v2.py)")
+        with Image.open(src) as im:
+            sizes.add(im.size)
         shutil.copyfile(src, img_dir / f"{s}.jpg")
         total += (img_dir / f"{s}.jpg").stat().st_size
-    return len(used), total
+    if len(sizes) != 1:
+        raise SystemExit(f"[hs2-select] strisce di dimensioni diverse: {sorted(sizes)}")
+    return len(used), total, list(sizes.pop())
 
 
 def write_stats(path: Path, args, meta, entries, pools, view_names) -> None:
@@ -359,7 +368,8 @@ def main() -> None:
     camera = hs2.read_json(args.renders / "camera.json") if (args.renders / "camera.json").exists() else {}
     if not args.no_copy_images and camera.get("frame", {}).get("frame") != man["frame"]["frame"]:
         raise SystemExit("[hs2-select] render assenti o con un frame diverso dalle GT: rifai render_v2.py")
-    n_img, n_bytes = (0, 0) if args.no_copy_images else copy_images(entries, args.renders, args.docs_dir)
+    n_img, n_bytes, image_px = (0, 0, None) if args.no_copy_images else copy_images(entries, args.renders,
+                                                                                     args.docs_dir)
     status = "definitivo (E12 concluso)" if man["frame"].get("e12_complete") else "PROVVISORIO (E12 non concluso)"
     meta = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "seed": args.seed,
             "study": "v2", "study_version": "v2", "id_prefix": ID_PREFIX, "domain": hs2.DOMAIN,
@@ -374,13 +384,14 @@ def main() -> None:
             "pool_per_type": {k: int(v[0].size) for k, v in pools.items()}, "gt_status": status,
             "gt_frame": man["frame"], "gt_units": {g: v["units"] for g, v in man["gts"].items()},
             "camera": {k: camera.get(k) for k in ("px_per_mm", "half_mm", "tile_px", "yaws_deg", "views")},
-            "n_images": n_img, "image_bytes": n_bytes}
+            "n_images": n_img, "image_bytes": n_bytes, "image_px": image_px}
     shown = [{k: e[k] for k in ("id", "kind", "disagreement_type", "a", "b", "c")} for e in entries]
     # Impronta di cio' che la pagina mostra: la pagina la rimanda nel payload e analyze_v2.py tiene solo le
     # sessioni fatte su QUESTE triplette (una rigenerazione con contenuto diverso cambia l'impronta).
     meta["triplets_hash"] = hashlib.sha256(json.dumps(shown, sort_keys=True).encode()).hexdigest()[:16]
     public_meta = {k: meta[k] for k in ("generated_at", "seed", "study", "study_version", "n_test", "n_control",
-                                        "n_practice", "types", "session_quota", "gt_status", "triplets_hash")}
+                                        "n_practice", "types", "session_quota", "gt_status", "triplets_hash",
+                                        "image_px")}
     public = {"meta": public_meta, "triplets": shown}
     args.out_dir.mkdir(parents=True, exist_ok=True)
     (args.out_dir / "triplets.json").write_text(json.dumps({"meta": meta, "triplets": entries}, indent=1),

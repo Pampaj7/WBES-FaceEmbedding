@@ -5,9 +5,9 @@
 #SBATCH --error=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/logs/%x-%j.err
 #SBATCH --partition=cpu
 #SBATCH --gres=NONE
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=48G
-#SBATCH --time=00:30:00
+#SBATCH --time=01:30:00
 #
 # Studio umano v2: tutta la catena su CPU, nel venv della GT unificata (open3d per il ray casting).
 #

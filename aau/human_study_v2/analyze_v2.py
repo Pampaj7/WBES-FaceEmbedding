@@ -4,7 +4,7 @@
 Regole fissate in ``PROTOCOL.md`` prima dei dati. In breve:
   - **filtro**: il Google Form e' condiviso con la v1, contano solo i payload con ``study_version == "v2"`` e con
     l'impronta ``triplets_hash`` delle triplette analizzate;
-  - **esclusione** come la v1: fuori chi sbaglia piu' di ``--max-control-errors`` (1) controlli sui 4; le prove
+  - **esclusione**: fuori chi sbaglia piu' di ``--max-control-errors`` (0) controlli sui 2 (la v1: 1 su 4); le prove
     della sessione di prova non contano; un codice partecipante ripetuto vale una volta (la sessione piu' lunga);
   - **accordo** di una GT = quota delle RISPOSTE di test (tutte le triplette di test, gli stessi denominatori
     per tutte le GT) in cui la scelta umana coincide con la risposta attesa dalla GT; IC 95% bootstrap sui
@@ -13,7 +13,7 @@ Regole fissate in ``PROTOCOL.md`` prima dei dati. In breve:
   - **test primari**: per ogni strato ``X_vs_Y`` (F_vs_S principale, S_vs_maxabs) la quota delle risposte che sta
     con X dentro lo strato (X e Y vi danno risposte opposte, quindi accordo(X) - accordo(Y) = 2 quota - 1), H0
     quota = 0.5, p a due code dal test di permutazione a segni ribaltati per partecipante (``--n-perm``),
-    correzione di Holm sugli strati, alfa 0.05;
+    test a cascata (F_vs_S, poi F_vs_size, poi S_vs_maxabs) alla soglia tarata ``ALPHA_CALIBRATED``;
   - **secondari**: accordo complessivo di ogni GT e differenze appaiate fra tutte le coppie di GT (IC bootstrap,
     P(diff <= 0), p a segni ribaltati); sensibilita' col bootstrap incrociato partecipanti x triplette;
     maggioranza per tripletta e kappa di Fleiss come la v1.
@@ -39,6 +39,9 @@ from scipy.stats import t as student_t
 
 THIS_DIR = Path(__file__).resolve().parent
 CHOICES = ("b", "c")
+# Soglia nominale di ogni test della cascata, TARATA prima dei dati (power_v2.py: la piu' grande con alfa empirico
+# <= 0.05 in tutte le condizioni simulate sotto H0). Fissata nel protocollo.
+ALPHA_CALIBRATED = 0.04
 STUDY_VERSION = "v2"
 
 
@@ -49,8 +52,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--form-csv", type=Path, default=None, help="export CSV del foglio delle risposte del Google Form")
     p.add_argument("--out-dir", type=Path, default=None, help="default: <dir dei dati>/analysis_v2")
     p.add_argument("--gts", default="", help="GT da valutare (default: tutte quelle delle triplette)")
-    p.add_argument("--max-control-errors", type=int, default=1)
-    p.add_argument("--alpha", type=float, default=0.05)
+    p.add_argument("--max-control-errors", type=int, default=0,
+                   help="errori ammessi sui controlli: 0 su 2 (la v1: 1 su 4)")
+    p.add_argument("--alpha", type=float, default=ALPHA_CALIBRATED,
+                   help="soglia nominale tarata prima dei dati (power_v2.md), per ogni test della cascata")
     p.add_argument("--n-bootstrap", type=int, default=2000)
     p.add_argument("--n-perm", type=int, default=10000)
     p.add_argument("--min-votes", type=int, default=3, help="solo per la maggioranza (secondaria, come la v1)")
@@ -201,13 +206,15 @@ def crossed_se(H: np.ndarray, S: np.ndarray, reps: int, rng) -> dict:
     che ciascuno dei due contiene una volta e la somma conterebbe due (il bootstrap "pigeonhole" che ricampiona
     insieme righe e colonne la conta due volte ed e' conservativo: alfa empirico 0.006-0.033 in power_v2.md).
     Mai sotto il piu' grande dei due bootstrap separati."""
+    rows, cols = S.sum(1) > 0, S.sum(0) > 0          # si ricampiona solo cio' che e' stato visto
+    H, S = H[rows][:, cols], S[rows][:, cols]
     P, T = H.shape
     q = H.sum() / S.sum()
     vp = float(np.var(weighted_rate(H, S, boot_counts(P, reps, rng)[1:], None), ddof=1))
     vt = float(np.var(weighted_rate(H.T, S.T, boot_counts(T, reps, rng)[1:], None), ddof=1))
     v0 = float(q * (1.0 - q) / S.sum())
     v = max(vp + vt - v0, vp, vt)
-    df = satterthwaite(v, vp, vt, int((S.sum(1) > 0).sum()), int((S.sum(0) > 0).sum()))
+    df = satterthwaite(v, vp, vt, P, T)
     return {"se": math.sqrt(v), "df": df, "v_participants": vp, "v_triplets": vt, "v_iid": v0}
 
 
@@ -225,15 +232,14 @@ def sign_flip_p(d: np.ndarray, n: np.ndarray, reps: int, rng) -> float:
     return float((1 + (np.abs(flips @ d) >= obs - 1e-12).sum()) / (1 + reps))
 
 
-def holm(p: dict, alpha: float) -> dict:
-    order = sorted(p, key=p.get)
-    out, m, stop = {}, len(p), False
-    for k, key in enumerate(order):
-        thr = alpha / (m - k)
-        rej = (not stop) and p[key] <= thr
-        stop = stop or not rej
-        out[key] = {"p": p[key], "holm_threshold": thr, "reject": rej,
-                    "p_holm": min(1.0, max((m - j) * p[order[j]] for j in range(k + 1)))}
+def gatekeep(order: list[str], p: dict, alpha: float) -> dict:
+    """Test a cascata (fixed sequence): ogni strato, nell'ordine di ``order``, si testa alla soglia ``alpha`` solo
+    se tutti i precedenti hanno rifiutato H0; controlla l'errore complessivo a ``alpha`` senza dividerlo."""
+    out, open_gate = {}, True
+    for key in order:
+        rej = open_gate and p[key] <= alpha
+        out[key] = {"p": p[key], "alpha": alpha, "tested": open_gate, "reject": rej}
+        open_gate = rej
     return out
 
 
@@ -296,13 +302,14 @@ def analyse(docs: list[dict], triplets: dict, meta: dict, gts: list[str], args) 
         r = weighted_rate(Hx, Sm, CP, None)
         cx = crossed_se(Hx, Sm, args.n_bootstrap, rng)
         se, df = cx["se"], cx["df"]
-        z = (float(r[0]) - 0.5) / se if se > 0 else math.inf
-        p = float(2.0 * student_t.sf(abs(z), df))
+        # errore standard degenere (un solo partecipante, nessuna variabilita'): nessun test, p = 1
+        z = (float(r[0]) - 0.5) / se if np.isfinite(se) and se > 0 else 0.0
+        p = float(2.0 * student_t.sf(abs(z), df)) if np.isfinite(se) and se > 0 else 1.0
         p_primary[label] = p
         d = (Hx - Hy).sum(1)
         lo, hi = ci(r[1:])
         tq = float(student_t.ppf(0.975, df))
-        xlo, xhi = float(r[0]) - tq * se, float(r[0]) + tq * se
+        xlo, xhi = max(float(r[0]) - tq * se, 0.0), min(float(r[0]) + tq * se, 1.0)
         rec = {"type": label, "x": x, "y": y, "share_with_x": float(r[0]), "ci_low_crossed": xlo,
                "ci_high_crossed": xhi, "se_crossed": se, "df_crossed": df, "z_crossed": z, "p_crossed": p,
                "var_components": {k: cx[k] for k in ("v_participants", "v_triplets", "v_iid")}, "ci_low": lo,
@@ -311,7 +318,7 @@ def analyse(docs: list[dict], triplets: dict, meta: dict, gts: list[str], args) 
                "n_participants": int((Sm.sum(1) > 0).sum()), "n_triplets_seen": int((Sm.sum(0) > 0).sum())}
         rec["others_share"] = {g: float((H[g][:, m].sum()) / max(Sm.sum(), 1)) for g in gts}
         res["strata"].append(rec)
-    res["holm"] = holm(p_primary, args.alpha)
+    res["gate"] = gatekeep([st["label"] for st in meta["strata"]], p_primary, args.alpha)
     cb, cc = (S * (1 - v.chose_c)).sum(0), (S * v.chose_c).sum(0)
     usable = (cb + cc >= args.min_votes) & (cb != cc)
     maj_c = cc > cb
@@ -344,17 +351,18 @@ def write_report(out_dir: Path, args, meta, screening, res, n_dup) -> Path:
          f"{res['n_triplets_seen']} triplette viste su {res['n_test_triplets']}.", "",
          "## Test primari: dentro ogni strato, quota delle risposte che sta con X", "",
          "PRIMARIO: errore standard per disegno incrociato partecipanti x triplette (V_P + V_T - V_0, "
-         "`crossed_se`), IC 95% e p a due code su una t con gradi di liberta' di Satterthwaite, Holm sugli "
-         "strati. Secondari: IC bootstrap sui soli partecipanti e p a segni ribaltati per partecipante (non "
-         "tengono conto della variabilita' fra triplette).", "",
-         "| strato | quota con X | IC 95% incrociato | p incrociato | p Holm | rifiuta H0 | accordo X - Y | "
+         "`crossed_se`), IC 95% e p a due code su una t con gradi di liberta' di Satterthwaite; test a cascata "
+         f"nell'ordine della tabella, ciascuno alla soglia tarata {args.alpha:g}. Secondari: IC bootstrap sui "
+         "soli partecipanti e p a segni ribaltati per partecipante (non tengono conto della variabilita' fra "
+         "triplette).", "",
+         "| strato | quota con X | IC 95% incrociato | p incrociato | testato | rifiuta H0 | accordo X - Y | "
          "IC partecipanti | p segni | risposte |",
-         "|---|---:|---|---:|---:|---|---:|---|---:|---:|"]
+         "|---|---:|---|---:|---|---|---:|---|---:|---:|"]
     for r in res["strata"]:
-        h = res["holm"][r["type"]]
+        h = res["gate"][r["type"]]
         L.append(f"| `{r['type']}` | {r['share_with_x']:.3f} | "
                  f"[{r['ci_low_crossed']:.3f}, {r['ci_high_crossed']:.3f}] | "
-                 f"{r['p_crossed']:.4f} | {h['p_holm']:.4f} | {'si' if h['reject'] else 'no'} | "
+                 f"{r['p_crossed']:.4f} | {'si' if h['tested'] else 'no'} | {'si' if h['reject'] else 'no'} | "
                  f"{r['diff_x_minus_y']:+.3f} | [{r['ci_low']:.3f}, {r['ci_high']:.3f}] | {r['p_signflip']:.4f} | "
                  f"{r['n_responses']} |")
     L += ["", "## Accordo complessivo (tutte le triplette di test)", "",
@@ -389,7 +397,7 @@ def simulate(triplets: dict, meta: dict, out_dir: Path, args) -> None:
     """Partecipanti che seguono ``--sim-follow`` con probabilita' ``--sim-accuracy``; l'ultimo risponde a caso e
     sbaglia 2 controlli (deve essere escluso); il primo compare due volte (duplicato); un payload della v1 e uno
     su triplette con un'altra impronta devono essere ignorati. Stessa composizione della
-    sessione della pagina: le quote per strato del meta, 4 controlli, 3 prove di prova."""
+    sessione della pagina: le quote per strato del meta, 2 controlli, 2 prove di esercizio."""
     rng = np.random.default_rng(args.seed)
     out_dir.mkdir(parents=True, exist_ok=True)
     by_type = {}
@@ -400,12 +408,12 @@ def simulate(triplets: dict, meta: dict, out_dir: Path, args) -> None:
     for p in range(args.sim_participants):
         sloppy = p == args.sim_participants - 1
         trials = []
-        for tid in rng.choice(practice, 3, replace=False):
+        for tid in rng.choice(practice, 2, replace=False):
             trials.append({"triplet_id": str(tid), "kind": "practice", "shown_left": "b",
                            "choice": triplets[tid]["metrics"]["F"]["expected"], "rt_ms": 5000})
         ids = [str(x) for ty, q in meta["session_quota"].items()
                for x in rng.choice(by_type[("test", ty)], q, replace=False)]
-        ids += [str(x) for x in rng.choice(controls, 4, replace=False)]
+        ids += [str(x) for x in rng.choice(controls, 2, replace=False)]
         n_ctrl = 0
         for tid in rng.permutation(ids):
             t = triplets[tid]
@@ -458,7 +466,7 @@ def run_scenario(args, meta, triplets, gts, follow: str, tmp: Path) -> tuple[lis
         fail.append(f"attesi {args.sim_participants - 1} tenuti, trovati {len(kept)}")
     for r in res["strata"]:
         want = SCENARIOS.get(follow, {}).get(r["type"])
-        rej = res["holm"][r["type"]]["reject"]
+        rej = res["gate"][r["type"]]["reject"]
         got = 0 if not rej else (1 if r["share_with_x"] > 0.5 else -1)
         if want is not None and got != want:
             fail.append(f"{r['type']}: atteso {want:+d}, ottenuto {got:+d} (quota {r['share_with_x']:.3f}, "
