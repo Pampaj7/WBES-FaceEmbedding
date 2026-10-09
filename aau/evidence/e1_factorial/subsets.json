@@ -78,6 +78,48 @@
     "ict5000|6 etichette|crop,down8k,noisy,original,remesh,up60k": 0,
     "ictnew|14 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,rexpr3,rexpr4,rexpr5,rexpr6,rexpr7,rexpr8,up60k": 0
    }
+  },
+  "c2fgnm": {
+   "counts": {
+    "train_bfm": 392,
+    "train_ict5000": 0,
+    "train_ictnew": 0,
+    "train_gnm": 5401
+   },
+   "strata": {
+    "gnm|7 etichette|crop,down8k,noisy,original,remesh,rexpr1,up60k": 2680,
+    "gnm|8 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,up60k": 2721,
+    "ict5000|6 etichette|crop,down8k,noisy,original,remesh,up60k": 0,
+    "ictnew|14 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,rexpr3,rexpr4,rexpr5,rexpr6,rexpr7,rexpr8,up60k": 0
+   }
+  },
+  "c2f40": {
+   "counts": {
+    "train_bfm": 392,
+    "train_ict5000": 100,
+    "train_ictnew": 1250,
+    "train_gnm": 0
+   },
+   "strata": {
+    "gnm|7 etichette|crop,down8k,noisy,original,remesh,rexpr1,up60k": 0,
+    "gnm|8 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,up60k": 0,
+    "ict5000|6 etichette|crop,down8k,noisy,original,remesh,up60k": 100,
+    "ictnew|14 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,rexpr3,rexpr4,rexpr5,rexpr6,rexpr7,rexpr8,up60k": 1250
+   }
+  },
+  "c3f40": {
+   "counts": {
+    "train_bfm": 392,
+    "train_ict5000": 84,
+    "train_ictnew": 1055,
+    "train_gnm": 211
+   },
+   "strata": {
+    "gnm|7 etichette|crop,down8k,noisy,original,remesh,rexpr1,up60k": 105,
+    "gnm|8 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,up60k": 106,
+    "ict5000|6 etichette|crop,down8k,noisy,original,remesh,up60k": 84,
+    "ictnew|14 etichette|crop,down8k,noisy,original,remesh,rexpr1,rexpr2,rexpr3,rexpr4,rexpr5,rexpr6,rexpr7,rexpr8,up60k": 1055
+   }
   }
  },
  "ratios": {
@@ -105,11 +147,30 @@
    "ict5000/ictnew": null,
    "ict/gnm": 0.0,
    "non_bfm": 10000
+  },
+  "c2fgnm": {
+   "ict5000/ictnew": null,
+   "ict/gnm": 0.0,
+   "non_bfm": 5401
+  },
+  "c2f40": {
+   "ict5000/ictnew": 0.08,
+   "ict/gnm": null,
+   "non_bfm": 1350
+  },
+  "c3f40": {
+   "ict5000/ictnew": 0.07962085308056872,
+   "ict/gnm": 5.398104265402844,
+   "non_bfm": 1350
   }
  },
  "checks": {
   "c3f_ict_subset_of_c2f_ict": true,
   "no_heldout_no_frozen_in_train": true,
-  "c2f_vs_c3f_same_non_bfm_total": true
+  "c2f_vs_c3f_same_non_bfm_total": true,
+  "f40_nested_in_f": true,
+  "c3f_gnm_subset_of_c2fgnm": true,
+  "c2fgnm_same_non_bfm_total": true,
+  "c2f40_vs_c3f40_same_non_bfm_total": true
  }
 }

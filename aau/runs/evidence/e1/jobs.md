@@ -37,3 +37,15 @@
 - c3fugt (1061850) tenuto fermo fino alla verifica della GT tarata (1062071, check_calib.json ok), poi rilasciato: usa gt_unified_bfm_ict_gnm_calib.npz
 - c3fugtraw: training 1062087 (V100, 320G, 24 h, in fondo alla coda), eval 1062088 (A100, afterok)
 - riepilogo 1062089 (sostituisce 1061866; afterany su tutte le eval, compresa 1062088)
+
+## 2026-10-09_12:59:58: correzioni
+- eval C2F 1061844 FAILED per guasto di nv-ai-04 ('unknown userid 264582' alle 11:06, FLAME e NoW); HIFI3D, dev FaceScape e FaceVerse erano completi e restano
+- c2fs2/c3fs2 (1061852/1061854) fermati dal controllo della spec (block_seed 2345 contro 1234 del riferimento): controllo corretto
+- eval con ritentativi (3, a 10 minuti); cancellati e risottomessi nell'ordine di priorita' c3f40, g1, c3fugtraw e il riepilogo
+- c2f: eval 1062674 (stesso checkpoint, rifa' solo FLAME e NoW)
+- c2fs2: training 1062675 (V100, 320G, 24 h), eval 1062676
+- c3fs2: training 1062677 (V100, 320G, 24 h), eval 1062678
+- c3f40: training 1062679 (V100, 320G, 24 h), eval 1062680
+- g1: training 1062681 (V100, 240G, 24 h), eval 1062682
+- c3fugtraw: training 1062683 (V100, 320G, 24 h), eval 1062684
+- riepilogo 1062685 (afterany:1061841:1062674:1061846:1061848:1061851:1061857:1061859:1061861:1062676:1062678:1062680:1062682:1062684)

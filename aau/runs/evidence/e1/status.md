@@ -96,3 +96,6 @@ Nota tecnica datata con sha256: `nota_tecnica_gradvec.md`.
 
 ## Emendamento 2 (9 ottobre, 00:55): GT unificata tarata per C3F-UGT
 Fattori per dominio (mediana maxabs / mediana unificata): BFM 1.229, ICT 0.913, GNM 1.024; verifica col loader del trainer ok (`datasets/UNIFIED_GT/train/check_calib.json`). C3F-UGT (1061850) usa la tarata; C3F-UGT non tarata (1062087) in fondo alla coda. Riepilogo ora 1062089.
+
+## 9 ottobre, 13:40: riepilogo parziale (C2F, C3F, C2F-GNM e C3M L40S di riferimento)
+`summary.md` riscritto sulle celle disponibili. Regola a 21.096 passi: Delta = C3F - max(C2F, C2F-GNM) = +0.116 [+0.075, +0.158] su HIFI3D nocrop; dev FaceScape +0.090; ma FaceVerse rank-1 Delta -0.071 [-0.098, -0.046], quindi la condizione (c) di non inferiorita NON vale: esito NON CONCLUDENTE, e resta tale qualunque sia il risultato di C3M rifatta e dei secondi semi (la (c) dipende solo dalle tre celle). Correzioni di oggi in `jobs.md` (eval C2F 1062674 con ritentativi, s2 risottomesse 1062675/1062677, riepilogo 1062685).

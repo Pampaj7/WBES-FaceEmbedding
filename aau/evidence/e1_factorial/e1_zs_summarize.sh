@@ -18,9 +18,10 @@ for d in joint bfm_only ict_only baselines scale_e036_topology scale_e072_topolo
 done
 SCALE_RUN="$AAU_RUNS/data_scale_runs/scale_bfm_ict_gnm_s1234_nocanon_noaug_20261007_1411"
 for e in 036 072; do
-    export "WBES_ZS_CKPT_SCALE_E$e=$(ls "$SCALE_RUN"/mixed_*/checkpoints/epoch$e.pth)"
-    for c in c2m c2f c3f g1; do
-        ptr="$AAU_RUNS/evidence/e1/train_${c}_s1234.runs_root"
+    ck="$(ls "$SCALE_RUN"/mixed_*/checkpoints/epoch$e.pth)"
+    export "WBES_ZS_CKPT_SCALE_E$e=$ck" "WBES_ZS_CKPT_SCALE_E1C3MLE$e=$ck"
+    for c in c3mv c2m c2f c3f c2fgnm c3fugt c3fugtraw c2fs2 c3fs2 c2f40 c3f40 g1; do
+        ptr="$AAU_RUNS/evidence/e1/train_${c}.runs_root"
         [[ -f "$ptr" ]] || continue
         ck=$(ls "$(cat "$ptr")"/mixed_*/checkpoints/epoch$e.pth 2> /dev/null | head -1)
         [[ -n "$ck" ]] && export "WBES_ZS_CKPT_SCALE_E1${c^^}E$e=$ck"

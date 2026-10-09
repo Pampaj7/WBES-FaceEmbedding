@@ -7,7 +7,7 @@
 #SBATCH --gres=NONE
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=96G
-#SBATCH --time=01:00:00
+#SBATCH --time=02:30:00
 #
 # E1, riepilogo: aau/runs/evidence/e1/summary.md (e1_summarize.py) e la tabella standard di aau/zs3dmm
 # sui bracci HIFI3D delle celle (e1_zs_summarize.py -> aau/runs/evidence/e1/hifi/). Niente GPU.

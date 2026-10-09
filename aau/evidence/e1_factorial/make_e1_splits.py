@@ -16,6 +16,13 @@ Celle (training; held-out, ``online_eval`` e ``online_eval_extra`` identici a sp
        (54.008/10.000): 338 ICT-5000 + 4.219 nuove + 844 GNM. Annidata: le sue ICT sono un
        sottoinsieme di quelle di c2f, quindi c3f - c2f = "844 ICT sostituite da 844 GNM"
   g1   GNM 10.000, nient'altro
+  c2fgnm  BFM 392 + GNM 5.401, nessuna ICT: lo stesso totale non-BFM di c2f e c3f (decisione del PI dopo il
+       critic, 8 ottobre: C3F - C2F da solo misura "aggiungere GNM"; la regola diventa C3F > max(C2F, C2F-GNM)).
+       Annidata: le 844 GNM di c3f sono un sottoinsieme delle sue (stesso ordine per strato)
+  c2f40, c3f40  come c2f e c3f con ICT a ~1/40 (1.350 non-BFM: le identita' che c2m vede in ~10 epoche),
+       per un contrasto di quantita' ~10x a 21.096 passi (decisione del PI, 8 ottobre). Annidate negli stessi
+       ordini: c2f40 prende i primi n di ogni strato (quindi c2f40 < c2f), c3f40 i primi n' (c3f40 < c3f e
+       ICT di c3f40 < ICT di c2f40). 1.350 = un blocco di c2m: con K=1 un'epoca (267 x 5 = 1.335 ICT) ci sta.
 
 Sottocampionamento stratificato per (sorgente, insieme di etichette della mesh): ogni strato
 mantiene la sua quota (resto maggiore sul totale), quindi restano il rapporto ICT-5000/nuove e la
@@ -43,6 +50,7 @@ INDEX = REPO / "datasets/SCALE_ALL/shards/index.npz"
 ICT_VIEW = REPO / "datasets/ICT/train_ready/npz_withops"
 SEED = 1234
 FRACTION_F = 0.1          # "ICT sottocampionato a circa 1/10"
+FRACTION_F40 = 1 / 40     # celle a 1/40
 
 
 def source_of(sid: str) -> str:
@@ -119,6 +127,17 @@ def main() -> None:
     for k in ict_keys:
         if take_c3f[k] > take_c2f[k]:
             raise SystemExit(f"{k[0]}: c3f prende {take_c3f[k]} > {take_c2f[k]} di c2f, l'annidamento non regge")
+    take_c2fgnm = largest_remainder({k: len(strata[k]) for k in gnm_keys}, n_c2f)
+    for k in gnm_keys:
+        if take_c3f[k] > take_c2fgnm[k]:
+            raise SystemExit(f"{k[0]}: c3f prende {take_c3f[k]} GNM > {take_c2fgnm[k]} di c2fgnm")
+    n_c2f40 = int(round(FRACTION_F40 * n_ict))
+    take_c2f40 = largest_remainder({k: len(strata[k]) for k in ict_keys}, n_c2f40)
+    take_c3f40 = largest_remainder({k: len(strata[k]) for k in ict_keys + gnm_keys}, n_c2f40)
+    for k in ict_keys + gnm_keys:
+        lim = [take_c3f[k]] + ([take_c2f40[k]] if k in take_c2f40 else [])
+        if take_c3f40[k] > min(lim) or (k in take_c2f40 and take_c2f40[k] > take_c2f[k]):
+            raise SystemExit(f"{k[0]}: le celle a 1/40 non sono annidate in quelle a 1/10")
 
     bfm = sorted(by_src["bfm"], key=lambda x: int(x[2:]))
     ict_all = [s for k in ict_keys for s in strata[k]]
@@ -128,12 +147,19 @@ def main() -> None:
         "c2f": bfm + [s for k in ict_keys for s in perm[k][: take_c2f[k]]],
         "c3f": bfm + [s for k in ict_keys + gnm_keys for s in perm[k][: take_c3f[k]]],
         "g1": gnm_all,
+        "c2fgnm": bfm + [s for k in gnm_keys for s in perm[k][: take_c2fgnm[k]]],
+        "c2f40": bfm + [s for k in ict_keys for s in perm[k][: take_c2f40[k]]],
+        "c3f40": bfm + [s for k in ict_keys + gnm_keys for s in perm[k][: take_c3f40[k]]],
     }
 
     # controlli
     c2f_ict = {s for s in cells["c2f"] if source_of(s) in ("ict5000", "ictnew")}
     c3f_ict = {s for s in cells["c3f"] if source_of(s) in ("ict5000", "ictnew")}
     assert c3f_ict <= c2f_ict, "c3f non annidata in c2f"
+    ict_of = lambda c: {s for s in cells[c] if source_of(s) in ("ict5000", "ictnew")}  # noqa: E731
+    gnm_of = lambda c: {s for s in cells[c] if source_of(s) == "gnm"}  # noqa: E731
+    assert ict_of("c2f40") <= ict_of("c2f") and ict_of("c3f40") <= ict_of("c2f40") and ict_of("c3f40") <= ict_of("c3f")
+    assert gnm_of("c3f40") <= gnm_of("c3f") and gnm_of("c3f") <= gnm_of("c2fgnm")
     for name, tr in cells.items():
         assert len(set(tr)) == len(tr), name
         assert set(tr) <= set(train), f"{name}: soggetti fuori dal training di c3m"
@@ -167,7 +193,10 @@ def main() -> None:
                  "non_bfm": v["train_ict5000"] + v["train_ictnew"] + v["train_gnm"]} for n, v in nb.items()}
     report["ratios"] = ratio
     report["checks"] = {"c3f_ict_subset_of_c2f_ict": True, "no_heldout_no_frozen_in_train": True,
-                        "c2f_vs_c3f_same_non_bfm_total": ratio["c2f"]["non_bfm"] == ratio["c3f"]["non_bfm"]}
+                        "c2f_vs_c3f_same_non_bfm_total": ratio["c2f"]["non_bfm"] == ratio["c3f"]["non_bfm"],
+                        "f40_nested_in_f": True, "c3f_gnm_subset_of_c2fgnm": True,
+                        "c2fgnm_same_non_bfm_total": ratio["c2fgnm"]["non_bfm"] == ratio["c2f"]["non_bfm"],
+                        "c2f40_vs_c3f40_same_non_bfm_total": ratio["c2f40"]["non_bfm"] == ratio["c3f40"]["non_bfm"]}
     (HERE / "subsets.json").write_text(json.dumps(report, indent=1) + "\n")
     for n, v in nb.items():
         print(f"[e1-split] {n}: {v} rapporti {ratio[n]}", flush=True)

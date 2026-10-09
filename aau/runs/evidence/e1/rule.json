@@ -1,0 +1,116 @@
+{
+ "variety": [
+  {
+   "steps": 21096,
+   "hifi": {
+    "diff": 0.11647317824680814,
+    "ci_low": 0.07524524493213287,
+    "ci_high": 0.15790163725802692,
+    "p_le0": 0.0,
+    "c3f": 0.715889516338919,
+    "c2f": 0.4342522183975121,
+    "c2fgnm": 0.5994163380921108
+   },
+   "devfs": {
+    "diff": 0.09001547761971107,
+    "ci_low": 0.055817629780660835,
+    "ci_high": 0.10611983709796932,
+    "p_le0": 0.0,
+    "c3f": 0.39097465061321596,
+    "c2f": 0.2981252077396355,
+    "c2fgnm": 0.3009591729935049
+   },
+   "fv": {
+    "diff": -0.07099999999999995,
+    "ci_low": -0.09750000000000003,
+    "ci_high": -0.04600000000000004,
+    "p_le0": 1.0,
+    "c3f": 0.5885,
+    "c2f": 0.6165,
+    "c2fgnm": 0.6595
+   },
+   "s2": null,
+   "noise": NaN,
+   "noise_parts": {
+    "C3M V100 - L40S": null,
+    "C2F s1 - s2": null,
+    "C3F s1 - s2": null
+   },
+   "cond": {
+    "(a) Delta >= +0.05 e IC > 0": true,
+    "(b) dev FaceScape stessa direzione": true,
+    "(c) FaceVerse rank-1 non inferiore (IC > -0.05)": false,
+    "(d) Delta oltre il pavimento del rumore": null,
+    "(e) secondo seme C3F s2 - C2F s2 > 0": null
+   },
+   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca"
+  },
+  {
+   "steps": 10548,
+   "hifi": {
+    "diff": 0.23985290805406073,
+    "ci_low": 0.18495639499949187,
+    "ci_high": 0.27978836274606883,
+    "p_le0": 0.0,
+    "c3f": 0.7161043722662387,
+    "c2f": 0.4636869548846462,
+    "c2fgnm": 0.47625146421217796
+   },
+   "devfs": {
+    "diff": 0.11460554500630721,
+    "ci_low": 0.08968002382453272,
+    "ci_high": 0.13781977362316158,
+    "p_le0": 0.0,
+    "c3f": 0.39663479081057695,
+    "c2f": 0.28202924580426975,
+    "c2fgnm": 0.25496531111447873
+   },
+   "fv": {
+    "diff": -0.056499999999999995,
+    "ci_low": -0.08050000000000002,
+    "ci_high": -0.031000000000000024,
+    "p_le0": 1.0,
+    "c3f": 0.555,
+    "c2f": 0.5035,
+    "c2fgnm": 0.6115
+   },
+   "s2": null,
+   "noise": NaN,
+   "noise_parts": {
+    "C3M V100 - L40S": null,
+    "C2F s1 - s2": null,
+    "C3F s1 - s2": null
+   },
+   "cond": {
+    "(a) Delta >= +0.05 e IC > 0": true,
+    "(b) dev FaceScape stessa direzione": true,
+    "(c) FaceVerse rank-1 non inferiore (IC > -0.05)": false,
+    "(d) Delta oltre il pavimento del rumore": null,
+    "(e) secondo seme C3F s2 - C2F s2 > 0": null
+   },
+   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca"
+  }
+ ],
+ "ugt": [
+  {
+   "steps": 21096,
+   "baseline": "rigid_icp_chamfer",
+   "x": null
+  },
+  {
+   "steps": 21096,
+   "baseline": "nicp_p2tri",
+   "x": null
+  },
+  {
+   "steps": 10548,
+   "baseline": "rigid_icp_chamfer",
+   "x": null
+  },
+  {
+   "steps": 10548,
+   "baseline": "nicp_p2tri",
+   "x": null
+  }
+ ]
+}

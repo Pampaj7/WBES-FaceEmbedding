@@ -1177,3 +1177,19 @@ Distanza graduata (Spearman con la GT maxabs, senza crop):
   - riconoscimento scansione con espressione → scansione neutra: 0.514, contro Chamfer 0.495 e Chamfer su regione stabile 0.596;
   - Spearman con la GT unificata: 0.37, contro Chamfer 0.50 (n.s.).
 - **Riserva:** le scansioni NoW vengono dallo stesso sistema MPI; la sovrapposizione di persone con FaMoS non è verificabile.
+
+### 9 ottobre: E1, verdetto parziale sulla varietà: NON CONCLUDENTE (`aau/runs/evidence/e1/summary.md`)
+C3F − max(C2F, C2F-GNM), a 21.096 passi:
+
+| Misura | C3F / C2F / C2F-GNM | Δ |
+|---|---|---|
+| HIFI3D nocrop (maxabs) | 0.716 / 0.434 / 0.599 | **+0.116 [+0.075, +0.158]** |
+| dev FaceScape | 0.391 / 0.298 / 0.301 | **+0.090 [+0.056, +0.106]** |
+| FaceVerse rank-1 con espressioni | 0.589 / 0.617 / 0.659 | **−0.071 [−0.098, −0.046]** |
+
+- **Esito:** fallisce la non inferiorità su FaceVerse, quindi per regola NON concludente.
+- **Lettura:**
+  - la varietà aiuta chiaramente la distanza graduata su due domini fuori distribuzione, anche su FaceScape, dove GNM da solo non aiuta (C2F-GNM ≈ C2F): non è solo la vicinanza GNM-HIFI3D;
+  - il riconoscimento con espressioni premia invece la cella con più GNM, cioè con più espressioni. Le espressioni vanno curate esplicitamente nel run massivo.
+- **Limiti:** un seme (i secondi semi sono in corso); GT maxabs.
+- **Errore dell'agente:** C2F s2 e C3F s2 erano falliti per il `block_seed`; corretti e risottomessi.

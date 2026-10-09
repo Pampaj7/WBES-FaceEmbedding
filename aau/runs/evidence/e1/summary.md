@@ -156,7 +156,263 @@ secondi semi qui sopra, limiti dichiarati.
 
 ---
 
+# E1, nota tecnica: build_grad vettorizzato nel pre-pass (8 ottobre 2026, prima di ogni numero delle celle nuove)
+
+Si aggiunge a `protocol.md` e a `protocol_amendment.md`, che restano invariati. Decisione del PI, presa dopo il
+controllo di uguaglianza; nessun training di cella era ancora partito.
+
+- **Cosa:** in TUTTE le celle (training su V100) il pre-pass degli operatori usa il `build_grad` vettorizzato di
+  E9 al posto di `diffusion_net.geometry.build_grad`.
+  - La copia e' congelata in `aau/evidence/e1_factorial/gradvec_site/e1_grad_vec.py`; sha256 della sorgente E9
+    alla copia: ecdb6756..
+  - E' agganciata da `gradvec_site/sitecustomize.py` con `WBES_E1_GRADVEC=1`; diffusion-net, v2_work e
+    aau/data_scale restano invariati.
+  - Le valutazioni (A100) usano tutte il `build_grad` originale, compresa C3M L40S.
+- **Differenze misurate** (`gradvec_check.json`; 57 mesh, tutte le topologie e le espressioni, 3 ICT nuove e 2
+  GNM, nodo V100):
+  - uguali tutti gli array tranne `gradX_values` e `gradY_values`;
+  - 10 file e 19 array diversi, il 6.3e-5 degli elementi;
+  - |differenza| massima 1.2e-10, relativa al massimo 3.7e-13. Sono voci vicine a zero; la causa e' l'ordine
+    di somma.
+  - Molto sotto il rumore numerico del training.
+- **Guadagno:** pre-pass da 4.61 a 2.81 CPU-s per mesh, cioe' 1.64x.
+- **Confondenti:** nessuno fra le celle, perche' tutte usano la stessa versione. C3M L40S (1060130, `build_grad`
+  originale) e' solo un riferimento: nel confronto col rumore (C3M V100 - C3M L40S) entra anche questa
+  differenza, oltre all'hardware.
+- **Lo smoke V100** (1061840) gira con il `build_grad` originale. Confronta solo la loss dell'epoca 1 con L40S:
+  gli operatori coincidono a meno di 1.2e-10, quindi il confronto non ne risente.
+
+---
+
+# E1, emendamento 2: C3F-UGT con la GT unificata TARATA (9 ottobre 2026, prima di ogni numero delle celle nuove)
+
+Si aggiunge a `protocol.md`, `protocol_amendment.md` e `nota_tecnica_gradvec.md`, che restano invariati.
+
+**Motivo (critic).** I margini della loss sono in unita' della GT (`--rank_margin 0.05` ecc.), e la GT unificata
+ha un'altra scala. Senza taratura, C3F-UGT contro C3F mescolerebbe il contenuto della GT con la sua scala.
+
+**Stato al momento della scrittura:**
+- C3F-UGT (1061850) non era ancora partito; e' stato tenuto fermo (`scontrol hold`) fino alla verifica.
+- Nessuna cella nuova ha ancora un numero di valutazione.
+- C2F, C3F e C2F-GNM sono in training dalle 19:15 dell'8 ottobre. Usano la GT maxabs e non cambiano.
+
+**Taratura** (`aau/evidence/e1_factorial/e1_calib_ugt.py`, job 1062071):
+- Per ogni dominio d, f_d = mediana della GT maxabs del run / mediana della GT unificata, sul blocco
+  intra-dominio. Mediane esatte sulle coppie i < j, tutti i soggetti del dominio.
+- Le coppie fra domini (che il trainer a batch monodominio non legge) sono scalate con sqrt(f_d1 f_d2).
+- Fattori:
+
+  | dominio | mediana maxabs | mediana unificata | f_d |
+  | --- | --- | --- | --- |
+  | BFM | 0.3452 | 0.2808 | 1.2294 |
+  | ICT | 0.2311 | 0.2531 | 0.9134 |
+  | GNM | 0.3001 | 0.2931 | 1.0241 |
+
+- File: `datasets/UNIFIED_GT/train/gt_unified_bfm_ict_gnm_calib.npz` (+ `.json`, massimo 0.967).
+- Controllo col loader del trainer (`check_calib.json`, ok):
+  - names e indici di train, held-out ed eval online identici alla GT del run;
+  - nessun valore non finito, diagonale 0, simmetria;
+  - rapporto tarata / unificata = f entro 1e-7;
+  - mediane per dominio di nuovo uguali alla maxabs.
+
+**Celle:**
+- **C3F-UGT** usa la GT TARATA. E' la cella della domanda dichiarata in `protocol_amendment.md`, sezione 4,
+  che resta invariata (C3F-UGT - ICP+Chamfer, GT unificata di HIFI3D). La taratura cambia per dominio solo la
+  scala, non l'ordine delle distanze: lo Spearman di valutazione non ne dipende.
+- **C3F-UGT non tarata** (`c3fugtraw`, GT unificata originale): aggiunta in coda, a bassa priorita'.
+  C3F-UGT - C3F-UGT non tarata e' l'effetto della scala; descrittivo, nessuna regola.
+
+---
+
 # Risultati
 
-Non ancora disponibili: training (V100) e valutazioni (A100) in coda o in corso, vedi `jobs.md` e `status.md`.
-Questo file viene riscritto da `aau/evidence/e1_factorial/e1_summarize.py` (job di riepilogo) con i due testi qui sopra invariati in testa.
+Generato da `aau/evidence/e1_factorial/e1_summarize.py`. Testi qui sopra invariati rispetto agli sha256 registrati prima dei numeri: protocol.md SI, protocol_amendment.md SI, nota_tecnica_gradvec.md SI, protocol_amendment_2.md SI.
+
+## Regola sulla varieta' (emendamento, sezione 2): C3F - max(C2F, C2F-GNM), HIFI3D `nocrop_cross`, GT maxabs
+
+| passi | C3F / C2F / C2F-GNM | Delta [IC 95%] (P<=0) | dev FaceScape Delta | FaceVerse rank-1 Delta | secondo seme C3F s2 - C2F s2 | pavimento del rumore | esito |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 21096 | 0.716 / 0.434 / 0.599 | +0.116 [+0.075, +0.158] (0.000) | +0.090 [+0.056, +0.106] (0.000) | -0.071 [-0.098, -0.046] (1.000) | - | - | **NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca** |
+| 10548 | 0.716 / 0.464 / 0.476 | +0.240 [+0.185, +0.280] (0.000) | +0.115 [+0.090, +0.138] (0.000) | -0.056 [-0.081, -0.031] (1.000) | - | - | **NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca** |
+
+## Domanda su C3F-UGT (emendamento, sezione 4): GT unificata di HIFI3D, `nocrop_cross`, righe con baseline finita
+
+| passi | baseline | C3F-UGT / baseline | differenza [IC 95%] (P<=0) | esito |
+| --- | --- | --- | --- | --- |
+| 21096 | rigid_icp_chamfer | - | - | non valutabile |
+| 21096 | nicp_p2tri | - | - | non valutabile |
+| 10548 | rigid_icp_chamfer | - | - | non valutabile |
+| 10548 | nicp_p2tri | - | - | non valutabile |
+
+## Matrice celle x domini di test, 10548 passi
+
+Punto [IC 95%, 1000 repliche per soggetto, le stesse per tutte le celle]. GT maxabs dove non indicato.
+
+| cella | HIFI3D nocrop | HIFI3D nocrop, GT unif. | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | dev FaceScape nocrop | dev FaceScape, GT unif. | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME nocrop, GT unif. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| C3M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F | 0.464 [0.393, 0.529] | 0.240 [0.192, 0.290] | 0.279 [0.225, 0.331] | 0.710 [0.635, 0.778] | 0.429 [0.396, 0.466] | 0.854 [0.836, 0.870] | 0.282 [0.244, 0.318] | 0.221 [0.178, 0.261] | 0.503 [0.466, 0.545] | 0.830 [0.805, 0.855] | - | - | - |
+| C3F | 0.716 [0.645, 0.776] | 0.366 [0.283, 0.444] | 0.587 [0.504, 0.657] | 0.762 [0.688, 0.822] | 0.931 [0.912, 0.951] | 0.987 [0.982, 0.991] | 0.397 [0.344, 0.449] | 0.357 [0.295, 0.421] | 0.555 [0.512, 0.598] | 0.846 [0.820, 0.872] | 0.299 [0.189, 0.416] | 0.553 [0.498, 0.602] | - |
+| C2F-GNM | 0.476 [0.410, 0.540] | 0.275 [0.225, 0.326] | 0.467 [0.398, 0.527] | 0.812 [0.755, 0.858] | 0.426 [0.395, 0.461] | 0.833 [0.814, 0.851] | 0.255 [0.208, 0.300] | 0.260 [0.212, 0.305] | 0.612 [0.566, 0.659] | 0.874 [0.846, 0.900] | 0.110 [-0.025, 0.246] | 0.677 [0.628, 0.719] | - |
+| C3F-UGT | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT non tarata | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F s2 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F s2 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F40 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F40 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M L40S (rif.) | 0.677 [0.608, 0.741] | 0.340 [0.261, 0.417] | 0.509 [0.432, 0.579] | 0.767 [0.698, 0.823] | 0.812 [0.785, 0.840] | 0.968 [0.960, 0.976] | 0.420 [0.361, 0.475] | 0.380 [0.316, 0.441] | 0.518 [0.475, 0.565] | 0.822 [0.794, 0.850] | 0.299 [0.216, 0.398] | 0.543 [0.490, 0.592] | - |
+
+## Matrice celle x domini di test, 21096 passi
+
+Punto [IC 95%, 1000 repliche per soggetto, le stesse per tutte le celle]. GT maxabs dove non indicato.
+
+| cella | HIFI3D nocrop | HIFI3D nocrop, GT unif. | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | dev FaceScape nocrop | dev FaceScape, GT unif. | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME nocrop, GT unif. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| C3M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F | 0.434 [0.367, 0.499] | 0.210 [0.166, 0.255] | 0.262 [0.209, 0.310] | 0.705 [0.628, 0.771] | 0.446 [0.416, 0.481] | 0.841 [0.826, 0.857] | 0.298 [0.258, 0.337] | 0.243 [0.198, 0.285] | 0.617 [0.577, 0.657] | 0.863 [0.837, 0.888] | - | - | - |
+| C3F | 0.716 [0.650, 0.773] | 0.357 [0.284, 0.429] | 0.598 [0.523, 0.662] | 0.804 [0.745, 0.853] | 0.888 [0.867, 0.911] | 0.976 [0.969, 0.982] | 0.391 [0.336, 0.442] | 0.339 [0.277, 0.398] | 0.589 [0.548, 0.627] | 0.859 [0.832, 0.884] | 0.275 [0.153, 0.400] | 0.565 [0.515, 0.611] | - |
+| C2F-GNM | 0.599 [0.529, 0.662] | 0.317 [0.258, 0.378] | 0.573 [0.502, 0.632] | 0.837 [0.786, 0.878] | 0.625 [0.597, 0.654] | 0.897 [0.880, 0.912] | 0.301 [0.246, 0.352] | 0.302 [0.246, 0.355] | 0.659 [0.611, 0.704] | 0.894 [0.869, 0.916] | 0.095 [-0.062, 0.236] | 0.716 [0.674, 0.753] | - |
+| C3F-UGT | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT non tarata | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F s2 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F s2 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F40 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F40 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M L40S (rif.) | 0.663 [0.594, 0.728] | 0.324 [0.254, 0.392] | 0.557 [0.479, 0.625] | 0.792 [0.731, 0.843] | 0.784 [0.758, 0.809] | 0.954 [0.943, 0.964] | 0.399 [0.343, 0.449] | 0.378 [0.317, 0.437] | 0.625 [0.581, 0.666] | 0.872 [0.846, 0.896] | 0.347 [0.227, 0.474] | 0.577 [0.530, 0.621] | - |
+
+## Differenze appaiate (descrittive)
+
+Cella: differenza [IC 95%] (P(boot <= 0)).
+
+
+### 21096 passi
+
+| contrasto | lettura | HIFI3D nocrop | HIFI3D nocrop, GT unif. | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | dev FaceScape nocrop | dev FaceScape, GT unif. | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME nocrop, GT unif. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| C3F - C2F | varieta' (protocollo originale) | +0.282 [+0.243, +0.320] (0.00) | +0.147 [+0.101, +0.194] (0.00) | +0.337 [+0.297, +0.371] (0.00) | +0.100 [+0.057, +0.147] (0.00) | +0.442 [+0.408, +0.477] (0.00) | +0.134 [+0.122, +0.147] (0.00) | +0.093 [+0.069, +0.115] (0.00) | +0.097 [+0.071, +0.121] (0.00) | -0.028 [-0.049, -0.009] (1.00) | -0.005 [-0.015, +0.005] (0.80) | - | - | - |
+| C3F - C2F-GNM | varieta' contro solo GNM | +0.116 [+0.075, +0.158] (0.00) | +0.040 [+0.002, +0.079] (0.02) | +0.025 [-0.010, +0.058] (0.09) | -0.033 [-0.073, +0.010] (0.93) | +0.263 [+0.238, +0.290] (0.00) | +0.079 [+0.069, +0.091] (0.00) | +0.090 [+0.056, +0.126] (0.00) | +0.037 [+0.004, +0.069] (0.02) | -0.071 [-0.098, -0.046] (1.00) | -0.035 [-0.046, -0.024] (1.00) | +0.180 [+0.021, +0.345] (0.02) | -0.151 [-0.177, -0.127] (1.00) | - |
+| C3M - C2M | varieta', molte identita' | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F s2 - C2F s2 | varieta', secondo seme | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M - C2F | quantita' ~2.5x, 2 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3F | quantita' ~2.5x, 3 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M - C2F40 | quantita' ~10x, 2 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3F40 | quantita' ~10x, 3 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 - C3M | solo GNM contro C3M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 - C3F | solo GNM contro C3F | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT - C3F | GT unificata (tarata) contro maxabs in training | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT - C3F-UGT non tarata | scala della GT unificata: tarata contro non tarata | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3M L40S (rif.) | rumore: stesso seme, V100 contro L40S | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F - C2F s2 | rumore: seme 1234 contro 2345 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F - C3F s2 | rumore: seme 1234 contro 2345 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+
+### 10548 passi
+
+| contrasto | lettura | HIFI3D nocrop | HIFI3D nocrop, GT unif. | HIFI3D all_cross | HIFI3D subj-pair-mean | HIFI3D rank-1 | HIFI3D AUC | dev FaceScape nocrop | dev FaceScape, GT unif. | FaceVerse espr. rank-1 | FaceVerse espr. AUC | NoW tau | FLAME nocrop | FLAME nocrop, GT unif. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| C3F - C2F | varieta' (protocollo originale) | +0.252 [+0.209, +0.295] (0.00) | +0.126 [+0.073, +0.174] (0.00) | +0.307 [+0.265, +0.344] (0.00) | +0.052 [+0.012, +0.094] (0.01) | +0.502 [+0.461, +0.541] (0.00) | +0.133 [+0.118, +0.149] (0.00) | +0.115 [+0.091, +0.138] (0.00) | +0.137 [+0.109, +0.169] (0.00) | +0.052 [+0.025, +0.076] (0.00) | +0.016 [+0.005, +0.027] (0.00) | - | - | - |
+| C3F - C2F-GNM | varieta' contro solo GNM | +0.240 [+0.186, +0.291] (0.00) | +0.090 [+0.037, +0.143] (0.00) | +0.120 [+0.074, +0.164] (0.00) | -0.050 [-0.104, +0.005] (0.95) | +0.505 [+0.473, +0.539] (0.00) | +0.153 [+0.137, +0.170] (0.00) | +0.142 [+0.097, +0.183] (0.00) | +0.098 [+0.049, +0.140] (0.00) | -0.056 [-0.081, -0.031] (1.00) | -0.028 [-0.041, -0.015] (1.00) | +0.189 [+0.042, +0.345] (0.01) | -0.124 [-0.158, -0.088] (1.00) | - |
+| C3M - C2M | varieta', molte identita' | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F s2 - C2F s2 | varieta', secondo seme | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M - C2F | quantita' ~2.5x, 2 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3F | quantita' ~2.5x, 3 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2M - C2F40 | quantita' ~10x, 2 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3F40 | quantita' ~10x, 3 domini | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 - C3M | solo GNM contro C3M | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| G1 - C3F | solo GNM contro C3F | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT - C3F | GT unificata (tarata) contro maxabs in training | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F-UGT - C3F-UGT non tarata | scala della GT unificata: tarata contro non tarata | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3M - C3M L40S (rif.) | rumore: stesso seme, V100 contro L40S | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C2F - C2F s2 | rumore: seme 1234 contro 2345 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+| C3F - C3F s2 | rumore: seme 1234 contro 2345 | - | - | - | - | - | - | - | - | - | - | - | - | - |
+
+## Identita' viste per cella (design.json, calcolato prima dei numeri)
+
+| cella | passi | viste per dominio | viste totali | esposizioni mediana |
+| --- | --- | --- | --- | --- |
+| C3M | 10548 | {'bfm': 392, 'gnm': 1090, 'ict': 5874} | 7356 | 8 |
+| C3M | 21096 | {'bfm': 392, 'gnm': 2172, 'ict': 11695} | 14259 | 8 |
+| C2M | 10548 | {'bfm': 392, 'ict': 6755} | 7147 | 8 |
+| C2M | 21096 | {'bfm': 392, 'ict': 13493} | 13885 | 8 |
+| C2F | 10548 | {'bfm': 392, 'ict': 2701} | 3093 | 18 |
+| C2F | 21096 | {'bfm': 392, 'ict': 5401} | 5793 | 18 |
+| C3F | 10548 | {'bfm': 392, 'gnm': 422, 'ict': 2279} | 3093 | 18 |
+| C3F | 21096 | {'bfm': 392, 'gnm': 844, 'ict': 4557} | 5793 | 18 |
+| C2F-GNM | 10548 | {'bfm': 392, 'gnm': 2701} | 3093 | 18 |
+| C2F-GNM | 21096 | {'bfm': 392, 'gnm': 5401} | 5793 | 18 |
+| C3F-UGT | 10548 | {'bfm': 392, 'gnm': 422, 'ict': 2279} | 3093 | 18 |
+| C3F-UGT | 21096 | {'bfm': 392, 'gnm': 844, 'ict': 4557} | 5793 | 18 |
+| C2F s2 | 10548 | {'bfm': 392, 'ict': 2701} | 3093 | 18 |
+| C2F s2 | 21096 | {'bfm': 392, 'ict': 5401} | 5793 | 18 |
+| C3F s2 | 10548 | {'bfm': 392, 'gnm': 422, 'ict': 2279} | 3093 | 18 |
+| C3F s2 | 21096 | {'bfm': 392, 'gnm': 844, 'ict': 4557} | 5793 | 18 |
+| C2F40 | 10548 | {'bfm': 392, 'ict': 1350} | 1742 | 36 |
+| C2F40 | 21096 | {'bfm': 392, 'ict': 1350} | 1742 | 71 |
+| C3F40 | 10548 | {'bfm': 392, 'gnm': 211, 'ict': 1139} | 1742 | 36 |
+| C3F40 | 21096 | {'bfm': 392, 'gnm': 211, 'ict': 1139} | 1742 | 71 |
+| G1 | 10548 | {'gnm': 5001} | 5001 | 11 |
+| G1 | 21096 | {'gnm': 10000} | 10000 | 11 |
+| C3M L40S (rif.) | 10548 | {'bfm': 392, 'gnm': 1090, 'ict': 5874} | 7356 | 8 |
+| C3M L40S (rif.) | 21096 | {'bfm': 392, 'gnm': 2172, 'ict': 11695} | 14259 | 8 |
+
+## Run
+
+| cella | run dir (job, GPU) | passi eseguiti | blocchi (train.log) | picco rss+shmem (GiB) | picco cgroup con page cache (GiB) | --mem |
+| --- | --- | --- | --- | --- | --- | --- |
+| C3M | `aau/runs/evidence/e1/train_c3mv_s1234_1061856` (1061856, Tesla V100-SXM3-32GB) | - | 46 da 1785 soggetti | 265.7 | 320.0 | 327680M |
+| C2M | `aau/runs/evidence/e1/train_c2m_s1234_1061858` (1061858, Tesla V100-SXM3-32GB) | - | 40 da 1743 soggetti | 272.5 | 320.0 | 327680M |
+| C2F | `aau/runs/evidence/e1/train_c2f_s1234_1061843` (1061843, Tesla V100-SXM3-32GB) | 21096 | 4 da 1743 soggetti | 272.6 | 320.0 | 327680M |
+| C3F | `aau/runs/evidence/e1/train_c3f_s1234_1061845` (1061845, Tesla V100-SXM3-32GB) | 21096 | 4 da 1743 soggetti | 262.1 | 320.0 | 327680M |
+| C2F-GNM | `aau/runs/evidence/e1/train_c2fgnm_s1234_1061847` (1061847, Tesla V100-SXM3-32GB) | 21096 | 4 da 1743 soggetti | 196.8 | 240.0 | 245760M |
+| C3F-UGT | - | - | - | - | - | - |
+| C3F-UGT non tarata | - | - | - | - | - | - |
+| C2F s2 | `aau/runs/evidence/e1/train_c2fs2_s2345_1061852` (-, -) | - | - | nan | nan | - |
+| C3F s2 | `aau/runs/evidence/e1/train_c3fs2_s2345_1061854` (-, -) | - | - | nan | nan | - |
+| C2F40 | `aau/runs/evidence/e1/train_c2f40_s1234_1061860` (1061860, Tesla V100-SXM3-32GB) | - | 1 da 1742 soggetti | 261.1 | 320.0 | 327680M |
+| C3F40 | - | - | - | - | - | - |
+| G1 | - | - | - | - | - | - |
+
+## Controlli
+
+| controllo | valore | atteso |
+| --- | --- | --- |
+| hifi 10548: celle presenti (stesse righe, stessi soggetti) | ['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| hifi 21096: celle presenti (stesse righe, stessi soggetti) | ['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| devfs 10548: celle presenti (stesse righe, stessi soggetti) | ['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| devfs 21096: celle presenti (stesse righe, stessi soggetti) | ['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| flame 10548: celle presenti (stesse righe, stessi soggetti) | ['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| flame 21096: celle presenti (stesse righe, stessi soggetti) | ['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe | - |
+| hifi C2F 10548: embedding contro latent_distance, max |diff| | 6.71e-07 | < 1e-4 |
+| hifi C2F 21096: embedding contro latent_distance, max |diff| | 7.02e-07 | < 1e-4 |
+| hifi C3F 10548: embedding contro latent_distance, max |diff| | 6.08e-07 | < 1e-4 |
+| hifi C3F 21096: embedding contro latent_distance, max |diff| | 5.99e-07 | < 1e-4 |
+| hifi C2F-GNM 10548: embedding contro latent_distance, max |diff| | 5.89e-07 | < 1e-4 |
+| hifi C2F-GNM 21096: embedding contro latent_distance, max |diff| | 5.97e-07 | < 1e-4 |
+| hifi C3M L40S (rif.) 10548: embedding contro latent_distance, max |diff| | 6.06e-07 | < 1e-4 |
+| hifi C3M L40S (rif.) 21096: embedding contro latent_distance, max |diff| | 6.08e-07 | < 1e-4 |
+| NoW C3F 10548: tau ricalcolato contro concordance.csv della cella | 0.299242 / 0.299242 | uguali |
+| NoW C3F 21096: tau ricalcolato contro concordance.csv della cella | 0.274621 / 0.274621 | uguali |
+| NoW C2F-GNM 10548: tau ricalcolato contro concordance.csv della cella | 0.109848 / 0.109848 | uguali |
+| NoW C2F-GNM 21096: tau ricalcolato contro concordance.csv della cella | 0.094697 / 0.094697 | uguali |
+| NoW C3M L40S (rif.) 10548: tau ricalcolato contro concordance.csv della cella | 0.299242 / 0.299242 | uguali |
+| NoW C3M L40S (rif.) 21096: tau ricalcolato contro concordance.csv della cella | 0.346591 / 0.346591 | uguali |
+| HIFI3D C3M L40S 10548 nocrop_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 5.20e-05 | ~0 (hardware di valutazione) |
+| HIFI3D C3M L40S 10548 all_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 4.93e-05 | ~0 (hardware di valutazione) |
+| HIFI3D C3M L40S 10548 subject_pair_mean: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 3.71e-05 | ~0 (hardware di valutazione) |
+| HIFI3D C3M L40S 21096 nocrop_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 7.01e-06 | ~0 (hardware di valutazione) |
+| HIFI3D C3M L40S 21096 all_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 3.65e-05 | ~0 (hardware di valutazione) |
+| HIFI3D C3M L40S 21096 subject_pair_mean: rivalutato su A100 contro curve.md (L40S), |diff| del punto | 1.03e-05 | ~0 (hardware di valutazione) |
+| HIFI3D GT unificata fb_rigid_icp_chamfer (10548 passi) contro e8/methods_spearman.csv, |diff| del punto | 7.11e-08 | ~0 |
+| HIFI3D GT unificata fb_nicp_p2tri (10548 passi) contro e8/methods_spearman.csv, |diff| del punto | 4.07e-08 | ~0 |
+| HIFI3D GT unificata scale_e036 (10548 passi) contro e8/methods_spearman.csv, |diff| del punto | 3.42e-05 | ~0 |
+| HIFI3D GT unificata fb_rigid_icp_chamfer (21096 passi) contro e8/methods_spearman.csv, |diff| del punto | 7.11e-08 | ~0 |
+| HIFI3D GT unificata fb_nicp_p2tri (21096 passi) contro e8/methods_spearman.csv, |diff| del punto | 4.07e-08 | ~0 |
+| HIFI3D GT unificata scale_e072 (21096 passi) contro e8/methods_spearman.csv, |diff| del punto | 1.19e-05 | ~0 |
+| hifi riconoscimento C3M L40S 10548: A100 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| | 1.00e-03 | ~0 |
+| hifi riconoscimento C3M L40S 21096: A100 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| | 1.28e-04 | ~0 |
+| fv riconoscimento C3M L40S 10548: A100 contro data_scale_ood/fvexpr_partial/recognition.csv, max |diff| | 8.38e-06 | ~0 |
+| NoW C3M L40S 10548: A100 contro now_eval_scale_e036 | 0.00e+00 | ~0 |
+| NoW C3M L40S 21096: A100 contro now_eval_scale_e072 | 1.89e-03 | ~0 |

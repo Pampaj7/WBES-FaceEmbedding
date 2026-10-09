@@ -13,11 +13,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "zs3dmm"))
 import zs_summarize as zsum  # noqa: E402
 
-CELL = {"c2m": "C2M, BFM+ICT", "c2f": "C2F, BFM+ICT/10", "c3f": "C3F, BFM+ICT+GNM a pari identita' di C2F",
-        "g1": "G1, solo GNM"}
+CELL = {"c3mv": "C3M rifatta su V100", "c2m": "C2M, BFM+ICT", "c2f": "C2F, BFM+ICT/10",
+        "c3f": "C3F, BFM+ICT+GNM a pari identita' di C2F", "c2fgnm": "C2F-GNM, BFM+GNM",
+        "c3fugt": "C3F-UGT, GT unificata tarata in training", "c3fugtraw": "C3F-UGT, GT unificata non tarata", "c2fs2": "C2F seme 2345", "c3fs2": "C3F seme 2345",
+        "c2f40": "C2F40, BFM+ICT/40", "c3f40": "C3F40", "g1": "G1, solo GNM", "c3ml": "C3M L40S (1060130), rivalutata su A100"}
 STEPS = {"036": 10548, "072": 21096}
 for e, n in STEPS.items():
-    zsum.ARM_LABEL[f"scale_e{e}"] = f"E1 C3M (run su scala 1060130), {n} passi"
+    zsum.ARM_LABEL[f"scale_e{e}"] = f"C3M L40S (1060130), valutazione di curve.md, {n} passi"
     for c, lab in CELL.items():
         zsum.ARM_LABEL[f"scale_e1{c}e{e}"] = f"E1 {lab}, {n} passi"
 

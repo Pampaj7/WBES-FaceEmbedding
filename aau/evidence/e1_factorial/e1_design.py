@@ -47,12 +47,22 @@ CKPT_EPOCHS = (36, 72)
 # cella -> (split, blocchi K, passi nominali T, epoca a cui il job si ferma). c2m: T nominale 91.709
 # (E = 313) perche' (e-1)*40//313 cambia blocco alle STESSE epoche di (e-1)*46//360 di c3m fino
 # all'epoca 72 e oltre; il job si ferma dopo il checkpoint dell'epoca 72 (21.096 passi).
+# (split, K, T, epoca di arresto, seme). c3mv = il run su scala rifatto su V100 (stessa configurazione di c3m);
+# c3fugt ha lo stesso disegno di c3f (cambia solo la GT); c2fs2/c3fs2: seme 2345 (--seed e block_seed).
+SCALE_SPLIT = REPO / "aau/data_scale/split_scale_all.json"
 CELLS = {
-    "c3m": (REPO / "aau/data_scale/split_scale_all.json", 46, 105480, 72),
-    "c2m": (HERE / "split_c2m.json", 40, 91709, 72),
-    "c2f": (HERE / "split_c2f.json", 4, 21096, 72),
-    "c3f": (HERE / "split_c3f.json", 4, 21096, 72),
-    "g1": (HERE / "split_g1.json", 6, 21096, 72),
+    "c3m": (SCALE_SPLIT, 46, 105480, 72, 1234),
+    "c3mv": (SCALE_SPLIT, 46, 105480, 72, 1234),
+    "c2m": (HERE / "split_c2m.json", 40, 91709, 72, 1234),
+    "c2f": (HERE / "split_c2f.json", 4, 21096, 72, 1234),
+    "c3f": (HERE / "split_c3f.json", 4, 21096, 72, 1234),
+    "c2fgnm": (HERE / "split_c2fgnm.json", 4, 21096, 72, 1234),
+    "c3fugt": (HERE / "split_c3f.json", 4, 21096, 72, 1234),
+    "c2fs2": (HERE / "split_c2f.json", 4, 21096, 72, 2345),
+    "c3fs2": (HERE / "split_c3f.json", 4, 21096, 72, 2345),
+    "c2f40": (HERE / "split_c2f40.json", 1, 21096, 72, 1234),
+    "c3f40": (HERE / "split_c3f40.json", 1, 21096, 72, 1234),
+    "g1": (HERE / "split_g1.json", 6, 21096, 72, 1234),
 }
 
 
@@ -92,11 +102,11 @@ def main() -> None:
 
     meas = measured_scale_run()
     report = {"S": S, "batch": B, "seed": SEED, "bfm_share": BFM_SHARE, "measured_scale_run": meas, "cells": {}}
-    for cell, (split_path, K, T, stop) in CELLS.items():
+    for cell, (split_path, K, T, stop, seed) in CELLS.items():
         split = json.loads(Path(split_path).read_text())
         train = sorted(split["train"])
         spec = {"pin_domains": ["bfm"], "domain_step_share": {"bfm": BFM_SHARE}, "stratify_blocks": True,
-                "n_blocks": K, "block_seed": SEED}
+                "n_blocks": K, "block_seed": seed}
         blocks = ts.partition_blocks(train, spec)
         E = math.ceil(T / S)
         seen, expo, steps_dom, block_of, ok = {}, Counter(), Counter(), {}, True
@@ -105,7 +115,7 @@ def main() -> None:
             k = (e - 1) * K // E
             block_of[e] = k
             try:
-                sub = ts.epoch_subset(blocks[k], min(S, T - (e - 1) * S), B, SEED + 31 + e, True,
+                sub = ts.epoch_subset(blocks[k], min(S, T - (e - 1) * S), B, seed + 31 + e, True,
                                       spec["domain_step_share"])
             except SystemExit as exc:
                 ok = False
@@ -129,7 +139,7 @@ def main() -> None:
         # picco previsto: cache del blocco k (o k+1 mentre si carica) + /tmp del blocco k+1
         shm_per_mesh = None
         report["cells"][cell] = {
-            "split": str(Path(split_path).relative_to(REPO)), "n_blocks": K, "T_nominal": T, "E_nominal": E,
+            "split": str(Path(split_path).relative_to(REPO)), "seed": seed, "n_blocks": K, "T_nominal": T, "E_nominal": E,
             "stop_epoch": stop, "train_counts": dict(sorted(Counter(dom(s) for s in train).items())),
             "block_sizes": [len(b) for b in blocks][:min(K, 12)], "block_domains_first": dict(Counter(dom(s) for s in blocks[0])),
             "feasible": ok, "steps_per_epoch_by_domain": dict(sorted(steps_dom.items())),
@@ -153,6 +163,8 @@ def main() -> None:
             else:
                 peaks.append(r["blocks_mem"][str(k)]["cache_gib"])
         r["predicted_peak_gib"] = meas["base_rss_gib"] + max(peaks)
+        # V100: staging del pre-pass su disco (/raid), fuori da --mem: picco = RSS di base + cache del blocco
+        r["predicted_peak_v100_gib"] = meas["base_rss_gib"] + max(v["cache_gib"] for v in r["blocks_mem"].values())
         r["cache_max_gib"] = max(v["cache_gib"] for v in r["blocks_mem"].values())
     (OUT / "design.json").write_text(json.dumps(report, indent=1) + "\n")
 
@@ -160,10 +172,10 @@ def main() -> None:
          f"Generato da `aau/evidence/e1_factorial/e1_design.py` con le funzioni del trainer (`partition_blocks`, "
          f"`epoch_subset`) e la formula della cache del trainer. S = {S} passi per epoca, batch {B}, seme {SEED}, "
          f"quota BFM {BFM_SHARE}. Checkpoint alle epoche {CKPT_EPOCHS} = passi {CKPT_EPOCHS[0] * S} e {CKPT_EPOCHS[1] * S}.\n",
-         "| cella | training (per dominio) | blocchi K | E nominale | passi/epoca per dominio | cambi di blocco (epoca) | realizzabile |",
-         "| --- | --- | --- | --- | --- | --- | --- |"]
+         "| cella | training (per dominio) | seme | blocchi K | E nominale | passi/epoca per dominio | cambi di blocco (epoca) | realizzabile |",
+         "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for cell, r in report["cells"].items():
-        L.append(f"| {cell} | {r['train_counts']} | {r['n_blocks']} | {r['E_nominal']} | {r['steps_per_epoch_by_domain']} | "
+        L.append(f"| {cell} | {r['train_counts']} | {r['seed']} | {r['n_blocks']} | {r['E_nominal']} | {r['steps_per_epoch_by_domain']} | "
                  f"{r['block_change_epochs']} | {r['feasible']} |")
     L += ["\n## Identita' VISTE entro il checkpoint\n",
           "Un'identita' e' vista se compare in almeno un'epoca fino a quel checkpoint; esposizioni = epoche in cui compare "
@@ -180,11 +192,12 @@ def main() -> None:
           f"del blocco successivo a {mib_per_mesh:.2f} MiB per mesh dai tar (picco di shmem del run su scala "
           f"{meas['max_shmem_gib']:.1f} GiB / {n_min} mesh del blocco piu' piccolo fra 1 e 20). Riferimento misurato: "
           f"picco rss+shmem del run su scala {meas['max_rss_plus_shmem_gib']:.1f} GiB.\n",
-          "| cella | cache max per blocco (GiB) | mesh dai tar per blocco (max) | picco previsto rss+shmem (GiB) |",
-          "| --- | --- | --- | --- |"]
+          "| cella | cache max per blocco (GiB) | mesh dai tar per blocco (max) | picco previsto rss+shmem, /tmp in RAM (GiB) | "
+          "picco previsto V100, staging su /raid (GiB) |",
+          "| --- | --- | --- | --- | --- |"]
     for cell, r in report["cells"].items():
         L.append(f"| {cell} | {r['cache_max_gib']:.1f} | {max(v['tar_meshes'] for v in r['blocks_mem'].values())} | "
-                 f"{r['predicted_peak_gib']:.1f} |")
+                 f"{r['predicted_peak_gib']:.1f} | {r['predicted_peak_v100_gib']:.1f} |")
     if report.get("errors"):
         L += ["\n## ERRORI\n", *[f"- {e}" for e in report["errors"]]]
     (OUT / "design.md").write_text("\n".join(L) + "\n")

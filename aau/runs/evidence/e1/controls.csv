@@ -1,14 +1,38 @@
 controllo,valore,atteso
-hifi: stessi soggetti valutati in tutte le celle presenti,True,True
-"hifi C3M 10548: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff|",6.12e-07,< 1e-4
-"hifi C3M 21096: distanze dagli embedding contro latent_distance delle pair_metrics, max |diff|",6.20e-07,< 1e-4
-NoW C3M 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
-NoW C3M 21096: tau ricalcolato contro concordance.csv della cella,0.348485 / 0.348485,uguali
-"HIFI3D C3M 10548 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
-"HIFI3D C3M 10548 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
-"HIFI3D C3M 10548 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
-"HIFI3D C3M 21096 nocrop_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
-"HIFI3D C3M 21096 all_cross contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",5.55e-17,0
-"HIFI3D C3M 21096 subject_pair_mean contro data_scale_ood/hifi/table_cells.csv, max |diff| su punto e IC",0.00e+00,0
-"hifi riconoscimento C3M 10548 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC",0.00e+00,0
-"hifi riconoscimento C3M 21096 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff| rank-1/mAP/AUC",1.11e-16,0
+"hifi 10548: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"hifi 21096: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"devfs 10548: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"devfs 21096: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"flame 10548: celle presenti (stesse righe, stessi soggetti)","['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"flame 21096: celle presenti (stesse righe, stessi soggetti)","['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"hifi C2F 10548: embedding contro latent_distance, max |diff|",6.71e-07,< 1e-4
+"hifi C2F 21096: embedding contro latent_distance, max |diff|",7.02e-07,< 1e-4
+"hifi C3F 10548: embedding contro latent_distance, max |diff|",6.08e-07,< 1e-4
+"hifi C3F 21096: embedding contro latent_distance, max |diff|",5.99e-07,< 1e-4
+"hifi C2F-GNM 10548: embedding contro latent_distance, max |diff|",5.89e-07,< 1e-4
+"hifi C2F-GNM 21096: embedding contro latent_distance, max |diff|",5.97e-07,< 1e-4
+"hifi C3M L40S (rif.) 10548: embedding contro latent_distance, max |diff|",6.06e-07,< 1e-4
+"hifi C3M L40S (rif.) 21096: embedding contro latent_distance, max |diff|",6.08e-07,< 1e-4
+NoW C3F 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
+NoW C3F 21096: tau ricalcolato contro concordance.csv della cella,0.274621 / 0.274621,uguali
+NoW C2F-GNM 10548: tau ricalcolato contro concordance.csv della cella,0.109848 / 0.109848,uguali
+NoW C2F-GNM 21096: tau ricalcolato contro concordance.csv della cella,0.094697 / 0.094697,uguali
+NoW C3M L40S (rif.) 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
+NoW C3M L40S (rif.) 21096: tau ricalcolato contro concordance.csv della cella,0.346591 / 0.346591,uguali
+"HIFI3D C3M L40S 10548 nocrop_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto",5.20e-05,~0 (hardware di valutazione)
+"HIFI3D C3M L40S 10548 all_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto",4.93e-05,~0 (hardware di valutazione)
+"HIFI3D C3M L40S 10548 subject_pair_mean: rivalutato su A100 contro curve.md (L40S), |diff| del punto",3.71e-05,~0 (hardware di valutazione)
+"HIFI3D C3M L40S 21096 nocrop_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto",7.01e-06,~0 (hardware di valutazione)
+"HIFI3D C3M L40S 21096 all_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto",3.65e-05,~0 (hardware di valutazione)
+"HIFI3D C3M L40S 21096 subject_pair_mean: rivalutato su A100 contro curve.md (L40S), |diff| del punto",1.03e-05,~0 (hardware di valutazione)
+"HIFI3D GT unificata fb_rigid_icp_chamfer (10548 passi) contro e8/methods_spearman.csv, |diff| del punto",7.11e-08,~0
+"HIFI3D GT unificata fb_nicp_p2tri (10548 passi) contro e8/methods_spearman.csv, |diff| del punto",4.07e-08,~0
+"HIFI3D GT unificata scale_e036 (10548 passi) contro e8/methods_spearman.csv, |diff| del punto",3.42e-05,~0
+"HIFI3D GT unificata fb_rigid_icp_chamfer (21096 passi) contro e8/methods_spearman.csv, |diff| del punto",7.11e-08,~0
+"HIFI3D GT unificata fb_nicp_p2tri (21096 passi) contro e8/methods_spearman.csv, |diff| del punto",4.07e-08,~0
+"HIFI3D GT unificata scale_e072 (21096 passi) contro e8/methods_spearman.csv, |diff| del punto",1.19e-05,~0
+"hifi riconoscimento C3M L40S 10548: A100 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff|",1.00e-03,~0
+"hifi riconoscimento C3M L40S 21096: A100 contro data_scale_ood/arcface_vs_scale_hifi3d/recognition.csv, max |diff|",1.28e-04,~0
+"fv riconoscimento C3M L40S 10548: A100 contro data_scale_ood/fvexpr_partial/recognition.csv, max |diff|",8.38e-06,~0
+NoW C3M L40S 10548: A100 contro now_eval_scale_e036,0.00e+00,~0
+NoW C3M L40S 21096: A100 contro now_eval_scale_e072,1.89e-03,~0

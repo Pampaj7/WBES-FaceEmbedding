@@ -1,0 +1,1 @@
+{'n_meshes': 57, 'n_computed': 57, 'n_failed': 0, 'failures': [], 'stage_seconds': 1.1333136558532715, 'wall_seconds': 160.09784507751465, 'cpu_seconds': 160.0973300933838, 'n_proc': 1, 'convention': 'areanorm'}
