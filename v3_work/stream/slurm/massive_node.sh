@@ -7,6 +7,17 @@
 #   4. torchrun (rendezvous c10d su $STREAM_MASTER:$STREAM_PORT, GPU del nodo come rank locali) di train_stream.py con la
 #      testa di STREAM_ARM, GT di E12 al volo, ingresso globale, registro delle viste usate; eval online sul BFM
 #      REMESH (solo per far girare il trainer intero e scegliere i checkpoint come sempre).
+# Ricetta dei bracci decisivi C3F/C3M (factorized/c3m/launch.txt), cambiato solo cio' che serve per scalare (dati dallo
+# stream, rank, passi); le differenze residue sono variabili esplicite, scritte in node.log:
+#   lr 1e-4 costante (--lr-constant; il C3M ha --lr-steps 81747:5e-5, oltre la fine); batch a dominio singolo
+#   (--stream-batch-domains single = --sampler balanced --domain-alpha 0); STREAM_IDS_PER_RANK x STREAM_MESHES_PER_ID
+#   = 5 x <= 6 per rank come il C3M (a 12 rank il batch globale e' 60 identita', il doppio dei 6 rank del C3M), con
+#   STREAM_VIEWS (= STREAM_MESHES_PER_ID) viste per identita' dai produttori.
+#   Differenze dichiarate: BFM 2019 al posto di BFM REMESH; STREAM_SIZE_MASK vuoto (il C3M toglie bfm dalla MSE di s
+#   perche' le taglie di BFM REMESH sono normalizzate una per una; quelle di BFM 2019 sono vere, CV 0.049,
+#   massive_ready.md sez. 3; STREAM_SIZE_MASK=bfm2019 per riprodurre la maschera); forward groups (C3M sequential);
+#   quota di espressioni STREAM_EXPR_FRAC 0.5 e moltiplicatori STREAM_MM_AUG (C3M: ~25% d'espressioni ICT, nessun
+#   moltiplicatore); viste con rotazione casuale a ogni uso (--stream-rot); k_eig STREAM_K 128.
 set -euo pipefail
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
@@ -16,7 +27,12 @@ print(next(i for i, x in enumerate(n) if x.split('.')[0] == h), len(n))" "${STRE
 RST="${SLURM_RESTART_COUNT:-0}"
 G=$(nvidia-smi -L | wc -l)
 ARM="${STREAM_ARM:-factorized}"
-SOURCES="${STREAM_SOURCES:-massive}"
+SOURCES="${STREAM_SOURCES:?STREAM_SOURCES obbligatorio: validated | max | open_core | lista di domini (massive.sbatch)}"
+IDS="${STREAM_IDS_PER_RANK:-5}"            # identita' per rank e per passo (C3M: --batch_subjects 5)
+MPI="${STREAM_MESHES_PER_ID:-6}"           # viste massime per identita' (C3M: --max_meshes_per_subject_train 6)
+VIEWS="${STREAM_VIEWS:-$MPI}"              # viste per identita' scritte dai produttori (producer.py --views)
+BDOM="${STREAM_BATCH_DOMAINS:-single}"     # single (C3M) | mixed
+SMASK="${STREAM_SIZE_MASK-}"               # domini fuori dalla MSE di s (vuoto = nessuno; vedi sopra)
 K="${STREAM_K:-128}"
 T="${STREAM_STEPS:-2000}"
 S="${STREAM_SPE:-200}"
@@ -37,6 +53,8 @@ trap 'kill $(jobs -p) 2>/dev/null || true; rm -rf "$JOBTMP"' EXIT
 log() { echo "[node$NODE] $(date +%F_%T) $*" | tee -a "$E/node.log"; }
 log "host=$(hostname) GPU=$G ($(nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq -c | xargs)) CPU=$(nproc)" \
     "riavvio=$RST arm=$ARM fonti=$SOURCES k=$K T=$T S=$S R=$R expr=$EF mm_aug=${MMAUG:-no} anello=${RGB}GiB"
+log "ricetta: batch ${IDS} identita' x <= ${MPI} viste per rank (produttori: ${VIEWS} viste per identita'), batch" \
+    "$BDOM, lr costante, maschera di taglia: ${SMASK:-nessuna}, forward ${STREAM_FORWARD:-groups}"
 
 # --- CPU: rank e produttori ------------------------------------------------------------------------------
 read -r TRAIN_CPUS PROD_CPUS < <(python3 - $(( G * CPR )) <<'PY'
@@ -73,6 +91,7 @@ log "CPU dei rank: $TRAIN_CPUS; produttori: $NPROD processi"
 PSEED=$(( 20261009 + 1000 * NODE + 100000 * RST ))
 AAU_NV= "$AAU_DIR/run.sh" v3_work/stream/producer.py --ring "$RING" --ring-gb "$RGB" --n-proc "$NPROD" --k-eig "$K" \
     --evecs-dtype fp32 --sources "$SOURCES" --provenance --canonical-gt --expr-frac "$EF" --seed "$PSEED" \
+    --views "$VIEWS" \
     ${MMAUG:+--mm-aug "$MMAUG"} \
     --cpus "$PROD_CPUS" --stats-every 60 --summary "$E/producers.json" > "$E/producers.log" 2>&1 &
 nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used --format=csv,noheader -l 5 >> "$E/gpu.csv" 2>/dev/null &
@@ -101,7 +120,7 @@ case "$ARM" in
   factorized|factorized2)
     KAPPA=$(python3 -c "import json; print(repr(json.load(open('$C3F/fr_params.json'))['kappa']))")
     ARMF+=(--head "$ARM" --size-table "$CGT/centroid_size_bfm_ict_gnm.npz" --scale-aug 0.8,1.25
-           --size-mask-domains bfm --gt-scale "$KAPPA" --stream-gt sr --dist_npz "$C3F/gt_sr.npz") ;;
+           ${SMASK:+--size-mask-domains "$SMASK"} --gt-scale "$KAPPA" --stream-gt sr --dist_npz "$C3F/gt_sr.npz") ;;
   ctrlfr)
     ARMF+=(--stream-gt fr --dist_npz "$C3F/gt_frcal.npz") ;;
   unified)
@@ -112,12 +131,15 @@ esac
 EXTRA=()
 [[ -n "${STREAM_EXTRA:-}" ]] && EXTRA+=(--stream-extra "$STREAM_EXTRA" --stream-extra-mirror "$JOBTMP/mirror" --stream-extra-mirror-threads "${STREAM_MIRROR_THREADS:-2}")
 EP=$(( (T + S - 1) / S ))
+# checkpoint (pesi + EMA, epochNNN.pth 11.7 MB + epochNNN_ema.pth 2.9 MB nel C3M) ogni ~10% del run e alla fine
 CMD=(v3_work/stream/train_stream.py --stream "$RING" --stream-reuse "$R" --stream-sources "$SOURCES" --stream-log-views
   --stream-wait-s 1800 --total-steps "$T" --steps-per-epoch "$S" --epochs "$EP"
   --data_dir datasets/REMESH/npz_data_topo_500_withops_areanorm --no-cache
-  "${RECIPE_V1[@]}" --batch_subjects 16 --max_meshes_per_subject_train 4 --max_subjects_eval_train 8
+  "${RECIPE_V1[@]}" --batch_subjects "$IDS" --max_meshes_per_subject_train "$MPI" --lr-constant
+  --stream-batch-domains "$BDOM" --stream-log-batches "${STREAM_LOG_BATCHES:-200}"
   --forward "${STREAM_FORWARD:-groups}" --fast-data --ema-decay 0.999 --train-threads "$CPR"
-  --eval_every "${STREAM_EVAL_EVERY:-$(( EP > 10 ? EP / 10 : 1 ))}" --save_every "${STREAM_SAVE_EVERY:-$EP}"
+  --eval_every "${STREAM_EVAL_EVERY:-$(( EP > 10 ? EP / 10 : 1 ))}"
+  --save_every "${STREAM_SAVE_EVERY:-$(( EP > 10 ? EP / 10 : 1 ))}"
   --seed "$SEED" --runs_root "$STREAM_OUT/runs" --log-every 50 --ckpt-minutes "${STREAM_CKPT_MIN:-20}"
   "${ARMF[@]}" "${EXTRA[@]}")
 printf '%q ' "${CMD[@]}" > "$E/launch.txt"; echo >> "$E/launch.txt"

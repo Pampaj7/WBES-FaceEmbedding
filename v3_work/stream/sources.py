@@ -48,10 +48,12 @@ DOMAINS = ("bfm2019", "ict", "gnm", "flame2020", "famos")
 # flame2023 = FLAME 2023 Open (CC BY 4.0), stessa topologia di FLAME 2020: stessa mappa unificata
 MAP_KEY = {"ict": "ict", "gnm": "gnm", "flame2020": "flame", "flame2023": "flame", "famos": "flame"}   # bfm2019: MAPS_DIR
 ALL_DOMAINS = DOMAINS + ("flame2023",)
-# --sources: preset (literature/LICENZE_RILASCIO_2026-10-09.md). massive = il run massivo (FLAME 2023 Open al posto di
-# FLAME 2020, non ridistribuibile); open_core = il nucleo aperto, per i pesi rilasciabili
-SOURCE_PRESETS = {"massive": ("bfm2019", "ict", "gnm", "flame2023", "famos"), "open_core": ("gnm", "ict", "flame2023"),
-                  "legacy": DOMAINS}
+# --sources: preset (literature/LICENZE_RILASCIO_2026-10-09.md). massive = max = tutte le fonti del run massivo (FLAME
+# 2023 Open al posto di FLAME 2020, non ridistribuibile); validated = i domini dei bracci decisivi C3F/C3M (BFM, ICT,
+# GNM; BFM 2019 al posto di BFM REMESH, che lo stream non ha); open_core = il nucleo aperto, per i pesi rilasciabili
+SOURCE_PRESETS = {"massive": ("bfm2019", "ict", "gnm", "flame2023", "famos"),
+                  "max": ("bfm2019", "ict", "gnm", "flame2023", "famos"), "validated": ("bfm2019", "ict", "gnm"),
+                  "open_core": ("gnm", "ict", "flame2023"), "legacy": DOMAINS}
 # licenza di ogni fonte e rango (0 = mesh ridistribuibili; 1 = solo ricetta e semi): una vista eredita la piu'
 # restrittiva fra le fonti coinvolte (inherited_license). NON e' un parere legale.
 LICENSES = {"gnm": ("Apache-2.0 (google/GNM, NOTICE)", 0), "ict": ("MIT (ICT-FaceKit Light, commit da5f95a)", 0),
@@ -61,7 +63,7 @@ LICENSES = {"gnm": ("Apache-2.0 (google/GNM, NOTICE)", 0), "ict": ("MIT (ICT-Fac
 
 
 def parse_sources(txt: str) -> list[str]:
-    """Preset (``massive``, ``open_core``, ``legacy``) o domini separati da virgola."""
+    """Preset (``validated``, ``max`` = ``massive``, ``open_core``, ``legacy``) o domini separati da virgola."""
     out = []
     for item in (x for x in txt.split(",") if x):
         for d in SOURCE_PRESETS.get(item, (item,)):

@@ -15,9 +15,10 @@
 #
 # Run a streaming (P1) con la GT di E12, su uno o piu' nodi: per OGNI nodo produttori + anello in RAM + i rank DDP
 # del nodo (torchrun con rendezvous c10d fra i nodi), corpo in massive_node.sh (uno srun per nodo).
-#   prova, 1 GPU:     sbatch v3_work/stream/slurm/massive.sbatch                    (STREAM_STEPS=2000 ...)
+#   prova, 1 GPU:     STREAM_SOURCES=validated sbatch v3_work/stream/slurm/massive.sbatch   (STREAM_STEPS=2000 ...)
+#   prove brevi della configurazione (2 e 6 + 6 L40S): trial_validated.sbatch
 #   run principale, 12 L40S = 6 + 6 (STESSO numero di GPU per nodo):
-#     sbatch --nodes=2 --gpus-per-node=l40s:6 --time=2-00:00:00 v3_work/stream/slurm/massive.sbatch
+#     STREAM_SOURCES=<preset> sbatch --nodes=2 --gpus-per-node=l40s:6 --time=2-00:00:00 v3_work/stream/slurm/massive.sbatch
 #   NIENTE 8 + 4: con un numero di GPU diverso fra i nodi la prima all_reduce di NCCL non finisce mai (misurato il 9
 #   ottobre con 2 + 1 GPU: RoCE, socket, Ring, Tree, PXN/P2P/SHM spenti, NCCL 2.22 e quello di pytorch_25.09; 1 + 1,
 #   1 + 1 + 1 e 2 + 2 funzionano). Un job eterogeneo (componenti separati da ':') parte solo con STREAM_ALLOW_HETERO=1
@@ -26,16 +27,29 @@
 #            --mem-per-gpu=110G --time=2-00:00:00 v3_work/stream/slurm/massive.sbatch
 # Ripresa: --requeue + --resume auto del trainer (la run dir non dipende dal job ne' dai riavvii); l'anello si
 # riempie da capo, i produttori ripartono con semi nuovi (SEME + 1000 x nodo + 100000 x riavvio, scritti in ogni gruppo).
-# Variabili (default = la prova breve):
+# Variabili (default = la prova breve; ricetta e differenze dai bracci C3F/C3M in testa a massive_node.sh):
+#   STREAM_SOURCES  OBBLIGATORIA, nessun default (senza, il job esce con errore). Preset (sources.SOURCE_PRESETS):
+#                     validated = bfm2019, ict, gnm: i domini dei bracci decisivi C3F/C3M (BFM REMESH, ICT, GNM), con
+#                                 BFM 2019 al posto di BFM REMESH (3DDFA), che lo stream non ha;
+#                     max       = bfm2019, ict, gnm, flame2023, famos (= massive, il preset di prima: + FLAME 2023 Open
+#                                 e FaMoS TRAIN, 80 persone);
+#                     open_core = gnm, ict, flame2023 (nucleo aperto); oppure una lista di domini
 #   STREAM_ARM      factorized | factorized2 | ctrlfr (testa standard su GT-FR) | unified (la GT unificata di prima)
-#   STREAM_SOURCES  massive (bfm2019, ict, gnm, flame2023, famos) | open_core (gnm, ict, flame2023) | lista
+#   STREAM_IDS_PER_RANK (5), STREAM_MESHES_PER_ID (6), STREAM_VIEWS (viste per identita' dei produttori, = MESHES)
+#   STREAM_BATCH_DOMAINS (single; mixed = domini mescolati nel batch), STREAM_SIZE_MASK (vuoto; es. bfm2019)
 #   STREAM_STEPS, STREAM_SPE (passi per epoca), STREAM_K (64|128), STREAM_REUSE, STREAM_EXPR_FRAC (0.5),
+#   STREAM_SAVE_EVERY, STREAM_EVAL_EVERY (epoche; default ~10% del run), STREAM_LOG_BATCHES (200: dominio dei primi
+#   batch per rank, runs/*/batch_domains_rank<r>.csv)
 #   STREAM_FORWARD (groups; sequential = il percorso v2), WBES_STREAM_PROFILE=1 (tempi per fase)
 #   STREAM_MM_AUG   probabilita' dei moltiplicatori (default hybrid=0.3,expr_transfer=0.15,rbf=0.15; vuoto = puri)
 #   STREAM_RING_GB_PER_GPU (10), STREAM_TRAIN_CPUS_PER_RANK (8), STREAM_EXTRA (anelli condivisi, es. CephFS),
 #   STREAM_MIRROR_THREADS (2)
 #   STREAM_OUT (aau/runs/evidence/stream/massive_<job>), STREAM_SEED (1234), STREAM_TEST_CRASH (passo, solo test)
 set -euo pipefail
+if [[ -z "${STREAM_SOURCES:-}" ]]; then
+  echo "[massive] ERRORE: STREAM_SOURCES obbligatorio (validated | max | open_core | lista di domini), nessun default" >&2
+  exit 2
+fi
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
 export STREAM_OUT="${STREAM_OUT:-$AAU_RUNS/evidence/stream/massive_${SLURM_JOB_ID:-manual}}"
@@ -60,7 +74,7 @@ if [[ -n "${SLURM_HET_SIZE:-}" && "${STREAM_ALLOW_HETERO:-0}" != 1 ]]; then
 fi
 export STREAM_PORT=$(( 29400 + ${SLURM_JOB_ID:-0} % 500 ))
 echo "[massive] $(date +%F_%T) job=${SLURM_JOB_ID:-} riavvio=${SLURM_RESTART_COUNT:-0} nodi=$STREAM_NODES" \
-     "rendezvous=$STREAM_MASTER:$STREAM_PORT arm=${STREAM_ARM:-factorized} fonti=${STREAM_SOURCES:-massive}" \
+     "rendezvous=$STREAM_MASTER:$STREAM_PORT arm=${STREAM_ARM:-factorized} fonti=$STREAM_SOURCES" \
   | tee -a "$STREAM_OUT/massive.log"
 # un task per nodo, con tutte le CPU e le GPU del nodo nel job
 srun "${SRUN[@]}" --kill-on-bad-exit=1 bash v3_work/stream/slurm/massive_node.sh
