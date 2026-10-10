@@ -13,6 +13,8 @@ con la GT della sua coppia di soggetti: e' il ``nocrop_cross`` dei csv di E12, 9
   * ``form``  d_F = sqrt((S_i - S_j)^2 + S_i S_j dP^2), S = exp(s) in mm (factorized_v3.form_distance);
   * ``shape`` dP = ||u_i - u_j|| * dp_per_unit (corda fra pre-forme a centroid size unitaria; rho = 2 asin(dP/2));
   * ``size``  |s_i - s_j| (differenza di log centroid size).
+``--head dual`` (embedding [z_F, u]): ``zf`` = ||z_F,i - z_F,j|| e ``u`` = ||u_i - u_j|| (factorized_v3.model_distances),
+niente s; ``dp_per_unit`` nel json e' quello di u (GT di ``--dist-npz-shape`` / ``--gt-scale-shape``): d_P = u x dp.
 ``dp_per_unit`` = 1/kappa della GT shape del training (``gt_shape.json`` accanto a ``--dist_npz`` del checkpoint),
 oppure ``--dp-per-unit``. Per ogni (distanza, GT): Spearman sulle coppie di soggetti, IC 95% bootstrap per soggetto
 (stesse repliche per tutte, ``--boot`` 1000, ``--seed`` 1234; replica = soggetti ricampionati, peso di una coppia =
@@ -108,6 +110,8 @@ def boot(model: dict, gts: dict, n_boot: int, seed: int) -> list[dict]:
 def dp_from_ckpt(ckpt: Path) -> float:
     import torch
     args = torch.load(ckpt, map_location="cpu", weights_only=False)["args"]
+    if args.get("head") == "dual":      # u e' allenata sulla GT shape di --dist-npz-shape x --gt-scale-shape
+        args = {"dist_npz": args["dist_npz_shape"], "gt_scale": args.get("gt_scale_shape", 1.0)}
     side = Path(args["dist_npz"]).with_suffix(".json")
     info = json.loads(side.read_text())
     key = "dp_per_unit" if "dp_per_unit" in info else "dP_per_unit"     # nostro / E12 (GT-SR)
@@ -137,7 +141,10 @@ def main() -> None:
     factorized = head in ("factorized", "factorized2")
     if factorized and Z.shape[1] != 257:
         raise SystemExit("embedding senza s: rilanciare zs_embed con WBES_V3_FACTORIZED_OUT=full")
-    dpu = (a.dp_per_unit if a.dp_per_unit > 0 else dp_from_ckpt(ckpt)) if factorized else float("nan")
+    dual = head == "dual"
+    if dual and Z.shape[1] % 2:
+        raise SystemExit("embedding dual senza [z_F, u]: rilanciare zs_embed con WBES_V3_FACTORIZED_OUT=full")
+    dpu = (a.dp_per_unit if a.dp_per_unit > 0 else dp_from_ckpt(ckpt)) if factorized or dual else float("nan")
     subjects = sorted(set(subj))
     pos = {s: k for k, s in enumerate(subjects)}
     i, j = np.triu_indices(len(Z), 1)
@@ -147,12 +154,14 @@ def main() -> None:
     if a.pairs == "nocrop_cross":
         keep &= (ti != "crop") & (tj != "crop")
     i, j, si, sj = i[keep], j[keep], si[keep], sj[keep]
-    d = fz.pair_distances(Z, i, j, dpu) if factorized else {"z": np.linalg.norm(Z[i] - Z[j], axis=1)}
+    if factorized:
+        d = fz.pair_distances(Z, i, j, dpu)
+    else:
+        d = fz.model_distances(Z, i, j, head)     # dual -> zf, u; altrimenti z
     n = len(subjects)
-    rows_model = {k_out: d[k_in] for k_out, k_in in (
-        (("form", "form_mm"), ("shape", "dP"), ("size", "size_abs")) if factorized else (("z", "z"),))}
+    pairs_out = (("form", "form_mm"), ("shape", "dP"), ("size", "size_abs")) if factorized else tuple((k, k) for k in d)
+    rows_model = {k_out: d[k_in] for k_out, k_in in pairs_out}
     model = {}
-    pairs_out = (("form", "form_mm"), ("shape", "dP"), ("size", "size_abs")) if factorized else (("z", "z"),)
     for k_out, k_in in pairs_out:
         acc, cnt = np.zeros((n, n)), np.zeros((n, n))
         np.add.at(acc, (si, sj), d[k_in])
