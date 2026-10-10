@@ -1249,3 +1249,37 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   - coder sulla graduata FaceVerse neutra (dominio o espressioni?);
   - coder sui run appaiati dual.
   - §22 rimandata finché questi blocchi non sono chiusi.
+
+## 2026-10-10 sera — emendamento 5, FaceVerse neutra, ablazione k, concorrenti appresi, esito dual, bozza §22
+
+- **Emendamento 5** (`trainer_v3/factorized_results.md`): le composizioni ora sono calibrate sugli stessi held-out
+  sintetici di c.
+  - k_ICP = 1.708 (297.000 coppie), k_NICP = 2.173 (5.955 coppie su 6.000).
+  - Su HIFI3D FR "taglia stimata + ICP cs cal." fa 0.714 [0.635, 0.778]; "oracolo + ICP cs cal." 0.841 [0.785, 0.882].
+  - Criterio "forma oltre la taglia": **no** per tutti i bracci.
+  - Esplorativa: il parziale della sola d_P di factorized s1234 vale 0.554 [0.487, 0.622]; +0.132 contro ICP mm,
+    +0.029 (n.s.) contro NICP cs.
+  - Errore di dominio della calibrazione: c ideale 0.503 su HIFI3D contro 0.405 degli held-out; k_ICP sbaglia nello
+    stesso rapporto.
+- **FaceVerse neutra** (`faceverse_neutral/results.md`): regola **INTERMEDIO** sia con FR sia con SR.
+  - Passando alla neutra tutti i metodi salgono (modelli +0.035-0.059 con FR).
+  - Il migliore resta ICP + Chamfer in mm, 0.409 [0.328, 0.485].
+  - Il limite su FaceVerse è insieme dominio ed espressioni.
+- **Ablazione k** (`ablations/k_ablation/results.md`): **resta k128**. k64 perde più di 0.03 in tre celle (HIFI3D
+  maxabs −0.046, FaceVerse FR −0.043 e SR −0.033). k256 è abbandonato per costo, per decisione dell'utente
+  (emendamento 1).
+- **Concorrenti appresi** (`literature/COMPETITORS_LEARNED_2026-10-10.md`).
+  - Priorità: GNM Head e FLAME 2023 Open con fit NICP + proiezione d'identità, poi MICA su render, NPHM,
+    3DFacePointCloudNet e Point-MAE. In più la distanza varifold, che non è appresa.
+  - Protocollo dei parametrici e del varifold scritto prima dei numeri (commit 451b30c); il calcolo è in corso
+    (wbes-bp-paired).
+- **Esito dual** (job 1066515, commit e579bc3): la regola dell'emendamento 4, sez. 5, **non è soddisfatta**.
+  - Righe "no": SR di HIFI3D; FR e SR del dev FaceScape. In FaceScape SR s2345 il delta vale −0.033 [−0.061, −0.005].
+  - **Si sceglie factorized con d_F calibrata.**
+  - Solo come informazione: dual z_F è il migliore su HIFI3D FR (0.764 / 0.771) ed è l'unico braccio col delta
+    contro "stimata + ICP cs cal." sopra 0 in entrambi i semi.
+- **Bozza della §22 di `PLAN_MASSIVE.md`:** configurazione proposta per la revisione con l'utente.
+  - Testa factorized calibrata, GT FR primaria, k128, c ricalibrata per checkpoint.
+  - Stream P1 su 12 L40S 6 + 6.
+  - Domande (a)-(e) su FaceScape, FaMoS TRAIN, nucleo aperto, secondari, FLAME 2023 Open.
+  - Nessun job lanciato. Prossimo passo: critic sulla configurazione, poi revisione con l'utente (§21).

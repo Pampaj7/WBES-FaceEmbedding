@@ -464,3 +464,196 @@ Un modello unico serve entrambi i casi d'uso (coder in corso).
 - il critic sulla configurazione.
 
 Nel frattempo si aspettano i risultati, senza lanciare il run.
+
+## 22. Configurazione proposta per il run massivo (bozza per la revisione con l'utente, 10 ottobre)
+
+Bozza del coder per il PI, da rivedere con l'utente e col critic (gate della §21). Nessun job lanciato. Ogni numero
+ha la sua fonte; "R" = `aau/runs/evidence/trainer_v3/factorized_results.md`. IC 95% bootstrap per soggetto.
+
+### 22.1 Esito delle evidenze
+
+**HIFI3D, GT FR (primaria), `nocrop_cross`, ultimo checkpoint EMA** (R, prima tabella e delta appaiati).
+Delta = braccio − riferimento, stesse righe e repliche; seme 1234 ; seme 2345.
+
+| braccio (distanza) | Spearman s1234 ; s2345 | − ICP + Chamfer mm | − taglia oracolo | − stimata + ICP cs cal. |
+|---|---|---|---|---|
+| factorized (d_F cal.) | 0.749 [0.683, 0.811] ; 0.731 [0.660, 0.793] | +0.106 [+0.062, +0.154] ; +0.088 [+0.040, +0.138] | +0.012 [−0.034, +0.062] ; −0.006 [−0.058, +0.048] | +0.034 [−0.001, +0.071] ; +0.017 [−0.019, +0.057] |
+| ctrl-FR (z) | 0.757 [0.686, 0.818] ; 0.746 [0.674, 0.812] | +0.114 ; +0.103 (IC > 0) | +0.021 ; +0.009 (n.s.) | +0.043 [−0.000, +0.089] ; +0.032 [−0.014, +0.079] |
+| dual (z_F) | 0.764 [0.696, 0.826] ; 0.771 [0.705, 0.828] | +0.121 ; +0.128 (IC > 0) | +0.028 ; +0.034 (n.s.) | **+0.050 [+0.009, +0.090] ; +0.057 [+0.010, +0.105]** |
+| C3M e123 ; e205 (d_F cal., un seme) | 0.748 [0.677, 0.811] ; 0.739 [0.668, 0.803] | +0.105 ; +0.096 (IC > 0) | +0.012 ; +0.003 (n.s.) | +0.034 [−0.007, +0.075] ; +0.025 [−0.012, +0.066] |
+
+Riferimenti sulle stesse righe (R, "Baseline" e analisi della taglia): ICP + Chamfer in mm 0.643 [0.572, 0.703];
+NICP su template in mm 0.614 [0.505, 0.697]; taglia stimata 0.600 [0.498, 0.690]; taglia oracolo 0.736
+[0.658, 0.802]; taglia stimata + ICP cs cal. 0.714 [0.635, 0.778]; oracolo taglia + ICP cs cal. 0.841 [0.785, 0.882].
+Tutti i bracci stanno sotto il tetto oracolo + ICP cs cal. (factorized s1234 −0.093 [−0.128, −0.060]).
+
+**Altri domini** (factorized, d_F cal. per FR e d_P per SR; s1234 ; s2345):
+
+| dominio, GT | factorized | riferimento migliore | delta | fonte |
+|---|---|---|---|---|
+| HIFI3D, SR | 0.622 [0.546, 0.691] ; 0.613 [0.531, 0.689] | NICP per coppia cs 0.595 [0.546, 0.648]; ICP cs 0.581 [0.530, 0.631]; ICP mm 0.366 [0.281, 0.454] | − NICP cs +0.027 [−0.029, +0.083] ; +0.018 [−0.046, +0.082] (n.s.) | R; `baselines_mm/summary.md` |
+| dev FaceScape, FR | 0.659 [0.590, 0.721] ; 0.667 [0.593, 0.730] | NICP tpl mm 0.544 [0.469, 0.609]; ICP mm 0.467 [0.401, 0.528] | − NICP tpl +0.119 [+0.030, +0.210] ; +0.127 [+0.039, +0.213] | R |
+| dev FaceScape, SR | 0.747 [0.678, 0.799] ; 0.754 [0.686, 0.811] | ICP mm 0.491 [0.427, 0.547]; NICP cs 0.398 [0.329, 0.464] | − NICP cs +0.349 [+0.291, +0.401] ; +0.355 [+0.290, +0.412] | R |
+| FaceVerse espr., FR | 0.303 [0.235, 0.369] ; 0.318 [0.253, 0.377] | ICP mm 0.337 [0.262, 0.410] | −0.035 [−0.105, +0.036] ; −0.019 [−0.091, +0.049] (pari) | R |
+| FaceVerse neutra, FR (d_F grezza) | 0.337 [0.257, 0.409] ; 0.373 [0.297, 0.444] | ICP mm 0.409 [0.328, 0.485] | regola: INTERMEDIO (contano dominio ed espressioni) | `faceverse_neutral/results.md` |
+| FaMoS TEST, FR (15 soggetti, descrittivo) | 0.678 [0.237, 0.897] ; 0.654 [0.214, 0.896] | stimata + ICP cs cal. 0.843 [0.623, 0.941]; ICP mm 0.739 [0.362, 0.914]; dual z_F 0.849 ; 0.860 | IC troppo larghi per concludere | R |
+
+**Criterio "forma oltre la taglia"** (emendamenti 4 e 5, HIFI3D, entrambi i semi): **non soddisfatto** per ctrl-FR,
+factorized, factorized2 e dual; C3M (descrittivo) neanche. Esplorativa post hoc (R, sez. (i)): il parziale della sola
+d_P di factorized s1234 vale 0.554 [0.487, 0.622]: +0.132 [+0.070, +0.196] contro ICP mm, +0.029 [−0.024, +0.086]
+(n.s.) contro NICP per coppia cs. Anche con c = 0.5, il valore più vicino alla c ideale di HIFI3D, il criterio
+resta non soddisfatto (R, sez. (ii)).
+
+**Cosa possiamo dire.**
+- Con la GT FR e l'ingresso in mm, un modello feed-forward batte ICP + Chamfer e NICP su template in mm su HIFI3D
+  (IC sopra 0 in entrambi i semi), e li batte nettamente sul dev FaceScape, con FR e con SR.
+- Sulla forma (SR) è alla pari con le registrazioni per coppia (NICP cs, ICP cs) su HIFI3D, senza registrazione.
+
+**Cosa non possiamo dire.**
+- Che su HIFI3D il modello colga forma oltre la taglia: contro la taglia oracolo e contro "taglia stimata + ICP cs
+  cal." i delta non sono risolti, e il criterio preregistrato fallisce.
+- Niente su FaMoS (IC larghi circa 0.6) e niente di superiore su FaceVerse.
+
+### 22.2 Testa: factorized con d_F calibrata
+
+Lo decide la regola preregistrata (emendamento 4, sez. 5; R, "Regola dual"). dual non soddisfa la non inferiorità
+in nessuno dei due semi. Le righe con estremo inferiore ≤ −0.03:
+- HIFI3D SR, u − d_P di factorized: −0.014 [−0.047, +0.019] ; −0.007 [−0.053, +0.035];
+- dev FaceScape FR, z_F − d_F cal.: +0.013 [−0.035, +0.059] ; +0.003 [−0.038, +0.041];
+- dev FaceScape SR, u − d_P: −0.022 [−0.049, +0.007] ; **−0.033 [−0.061, −0.005]** (s2345, IC tutto sotto 0).
+
+**Esito: si sceglie factorized con d_F calibrata.** Per informazione, senza effetto sulla regola: dual z_F è il
+migliore su HIFI3D FR (0.764 ; 0.771) ed è l'unico braccio col delta contro "taglia stimata + ICP cs cal." sopra 0
+in entrambi i semi (tabella 22.1). Anche dual non soddisfa "forma oltre la taglia".
+
+### 22.3 GT, loss e ricetta
+
+- **Valutazione:** GT FR primaria (§20); GT SR per il ramo forma (d_P); maxabs solo legacy, riportata e mai decisiva.
+- **Training** (flag verificati nella riga di lancio del C3M, `factorized/c3m/launch.txt`, e nel protocollo):
+  u su GT-SR di E12 × kappa (1.0443 nel C3M); s su log centroid size; `--lambda-size 1` (default); loss v2
+  (default). Ricetta dei bracci decisivi: arearobust (`--area robust --area-robust smooth`) + bal (`--sampler
+  balanced --domain-alpha 0`), `--input-norm global` (L0 = 100 mm), `--scale-aug 0.8,1.25`, EMA 0.999.
+- Nello stream lo stesso si ottiene con `STREAM_ARM=factorized` (`massive_node.sh`: `--stream-gt sr`, kappa da
+  `c3f/fr_params.json`, uniforme fra domini dei produttori).
+
+### 22.4 k_eig = 128
+
+Regola dell'emendamento 1 (`ablations/k_ablation/results.md`, un seme, e072): k64 perde più di 0.03 in tre celle,
+HIFI3D maxabs −0.046 [−0.077, −0.018], FaceVerse FR −0.043 [−0.097, +0.014] e SR −0.033 [−0.088, +0.021].
+Su HIFI3D con FR e SR perde −0.024 [−0.059, +0.011] e −0.018 [−0.053, +0.016] (n.s.). Il costo: 1.047 contro
+0.818 s/passo (A100); nello stream 40.5 contro 89.9 viste/s per nodo (`stream/massive_ready.md` §10). k256 è
+abbandonato per costo, per decisione dell'utente (emendamento 1).
+
+### 22.5 Calibrazione c per checkpoint
+
+- c deriva coi passi: C3M 0.257 a e123, 0.225 a e205 (R, tabella di calibrazione). Un c fisso non va bene.
+- Regola proposta: per ogni checkpoint valutato, `tools/fact_calib.py` sugli held-out sintetici (mediana, c_LS come
+  sensibilità). c si scrive in un file con hash, nel commit, PRIMA di qualunque eval di test di quel checkpoint.
+- **Aperto:** oggi gli held-out sono quelli dello split C3M (bfm 108 REMESH, ict 992, gnm 100). Nel preset
+  `massive` dello stream ci sono BFM 2019, FLAME 2023 e FaMoS, senza held-out di calibrazione. Va definito prima del
+  lancio: semi riservati per i 3DMM; per FaMoS servono persone TRAIN escluse.
+
+### 22.6 Selezione del checkpoint e domini
+
+- Checkpoint primario: l'ultimo EMA (§9), dichiarato ora. Gli intermedi sono descrittivi. Se serve una scelta, si fa
+  solo su held-out sintetici o sul dev FaceScape, con la regola scritta prima del run. Mai sui test.
+- Il C3M mostra che la scelta conta: da e123 a e205 HIFI3D FR cal. passa da 0.748 a 0.739, dev FaceScape FR cal. da
+  0.666 a 0.712 (R).
+- **Zero-shot (mai in training né in selezione):** HIFI3D, FaceVerse (dichiarati "visti durante lo sviluppo",
+  §14.5), FaMoS TEST (15 persone), NoW; dev FaceScape solo per decisioni prese prima del lancio.
+- **Training:** BFM (2019 nello stream; 3DDFA nel C3M), ICT, GNM; FLAME 2023 Open e FaMoS TRAIN dipendono dalle
+  domande (b) ed (e) qui sotto.
+
+### 22.7 Dati e mix
+
+**Pipeline.** Il C3M ha letto viste pre-generate (tar e store, 64.400 identità di training: BFM 392, ICT 54.008,
+GNM 10.000; `aau/data_scale/split_scale_all.json`). Il run massivo è preparato sullo stream P1
+(`stream/massive_ready.md`): identità fresche, GT di E12 al volo, provenienza per vista. Lo stream non è mai stato
+provato oltre 2000 passi su 2 L40S (§11 di quel file).
+
+**Mix proposto** (default di `massive.sbatch`, nessuno ablato):
+- domini uniformi (alpha 0);
+- quota di espressioni 0.5 per gruppo (`--expr-frac`; nel C3M circa il 25% per le ICT nuove,
+  `data_scale/PLAN.md`). Motivo: E1 premia la cella con più espressioni nel riconoscimento; FaceVerse neutra dà
+  INTERMEDIO;
+- moltiplicatori mm_aug: puri 0.4, ibridi 0.3, trasferimenti d'espressione 0.15, bump RBF 0.15. Gli ibridi escono
+  dal sottospazio di A per il 6.5-13% in RMS; nessuno si avvicina ai test più dei puri
+  (`aau/runs/evidence/mm_aug/README.md`).
+
+**Quantità.** Nello stream la quantità è limitata dalle viste fresche al secondo, non dal disco. Stima del file (non
+misurata sul run intero): a k128 circa 280 viste/s con la flotta di produttori, riuso circa 4.7
+(`massive_ready.md` §14). Disco misurato con getfattr il 10 ottobre sera: 783.5 GB liberi su 2199.0 GB, cioè 483 GB
+sopra la soglia dei 300. L'anello condiviso su CephFS ha un tetto imposto di 150 GiB. Sulla via tar del C3M, invece,
+gli shard ICT (50.000 identità) occupano 132.8 GB, quelli GNM 16.1 GB, e la GT densa cresce come N² (17.2 GB a
+65.600 identità, `datasets/SCALE_ALL`). Prima di usare nv-ai-04 va controllata la memoria libera: era occupata per
+965 GB su 980 dai job A100 (`massive_ready.md` §14).
+
+**Rilasciabilità.**
+- Nucleo aperto (`open_core`): GNM Apache-2.0, ICT Light MIT, FLAME 2023 Open CC BY 4.0 "con restrizioni d'uso"
+  (Readme del pacchetto; da verificare). Mesh ridistribuibili al 100% (`massive_ready.md` §7).
+- BFM 2019, FLAME 2020 e FaMoS: solo ricetta e semi. `regen.py` rigenera le mesh entro 1.3e-7, non gli operatori.
+  Col preset `massive` è ridistribuibile il 47% delle viste (prova a 2 GPU, §11).
+
+**Domande per l'utente.**
+- **(a) FaceScape in training?** Raccomandazione del PI: **no**. Resta dev e zero-shot (§14.5; critic del 10 ottobre).
+- **(b) FaMoS TRAIN in training?** È nel preset `massive` di default.
+  - Pro: le uniche identità ed espressioni reali.
+  - Contro: licenza MPI non ridistribuibile; FaMoS TEST smette di essere zero-shot per dominio (stesso sistema di
+    cattura e stessa registrazione FLAME); 80 persone al 20% dei gruppi; NoW viene dallo stesso sistema MPI.
+  - Proposta della bozza: fuori dal run principale, dentro un secondario.
+- **(c) Modello "nucleo aperto" sulle A100 secondarie** (`STREAM_SOURCES=open_core`, `--requeue`, ripresa provata)?
+  Proposta: sì, perché serve al rilascio del dataset.
+- **(d) Run secondari:** secondo seme (il C3M ne ha uno solo) prima del LODO? Proposta: sì, in quest'ordine.
+- **(e) FLAME 2023 Open in training?** Aggiunge un quarto 3DMM ed è nel nucleo aperto. Però il concorrente FLAME 2023
+  di `baselines_param` diventa "stesso prior", e FaMoS è in topologia FLAME.
+
+### 22.8 Calcolo
+
+- **Run principale:** 12 L40S, QoS normal, **6 + 6 su due nodi**. Con un numero di GPU diverso fra i nodi NCCL si
+  blocca (misurato con 2 + 1, `massive_ready.md` §6), quindi niente 8 + 4. Così non restano L40S per le valutazioni
+  durante il run.
+- **A100 di nv-ai-04 (unprivileged):** solo secondari ripartibili e valutazioni brevi.
+- **Conto dal C3M** (job 1062944, `factorized/c3m/train.log`; 6 L40S, 5 identità × ≤ 6 mesh per rank):
+  - 60.000 passi in 205 epoche; somma dei tempi d'epoca 62.163 s (17.27 h), quindi 1.036 s/passo in media;
+  - mediana per epoca 0.709 s/passo; le epoche con caricamento di blocco arrivano a 3.19;
+  - wall dalle 15:15:51 alle 09:54:28, cioè 18 h 39 min: circa 1.4 h di avvio e staging;
+  - ore ≈ 1.4 + T × 1.036 / 3600, quindi T = 60k → 18.7 h, 120k → 35.9 h, 160k → 47.4 h.
+- **Ipotesi del conto, non misurate a 6 + 6:** stessa ricetta di batch del C3M e stesso s/passo a 12 rank. Sullo
+  stream il passo fra nodi è risultato uguale a quello su un nodo (1.09 contro 1.08 s, 1 + 1 GPU, §13). A 12 rank
+  ogni passo vede il doppio delle identità del C3M.
+- La ricetta stream (16 × 4 per rank, groups) ha tempi suoi: circa 293k passi in 48 h è una stima del file
+  (`massive_ready.md` §14), non derivata dal C3M.
+- **T va fissato con l'utente.** Il C3M non dice che più passi aiutino HIFI3D (22.6).
+
+### 22.9 Concorrenti per il paper
+
+| concorrente | stato | fonte |
+|---|---|---|
+| ICP + Chamfer (mm, cs), NICP per coppia (mm, cs), NICP su template, taglia stimata e oracolo, composizioni calibrate, Chamfer eval, e108 | fatti, FR e SR, tutti i domini | `baselines_mm/`, R |
+| Uni3D-g, OpenShape, ShapeDNA, HKS/WKS | fatti, solo maxabs su HIFI3D: da rivalutare con FR e SR (§16.4) | `competitors_hifi3d/` |
+| ArcFace su render | fatto, solo riconoscimento | `arcface_render_zs/` |
+| GNM Head e FLAME 2023 Open (fit NICP + proiezione), varifold | in corso (job wbes-bp-paired); GNM è un prior visto | `baselines_param/PROTOCOL.md` |
+| MICA su render | da fare; fattibilità MEDIA, asset già su disco | `literature/COMPETITORS_LEARNED_2026-10-10.md` |
+| NPHM / MonoNPHM | da fare su un sottoinsieme; licenza dei pesi ignota | idem |
+| 3DFacePointCloudNet | da fare; pesi MIT nel repo, rischio di compilazione | idem |
+| Point-MAE | da fare se c'è tempo (circa un giorno) | idem |
+
+### 22.10 Rischi aperti
+
+- **Errore di dominio della calibrazione** (R, sez. (iii)): c ideale su HIFI3D 0.503 contro 0.405 degli held-out
+  (×1.24), su FaceScape 0.343 (×0.85). k_ICP sbaglia nello stesso modo (×1.25 e ×0.87): lo scarto viene dai domini,
+  non dal modello. d_F resta sensibile a c.
+- **"Forma oltre la taglia" non soddisfatto:** il vantaggio FR su HIFI3D va presentato come taglia + forma, non come
+  sola forma.
+- **FaMoS:** 15 soggetti, IC larghi circa 0.6; solo descrittivo.
+- **Studio umano v2:** senza conteggio delle risposte. Manca l'arbitro percettivo; resta quello d'identificabilità (E12).
+- **Cambio di pipeline:** i bracci decisivi vengono dalla via tar/store con forward sequenziale. Lo stream cambia
+  insieme dati, batch e forward a gruppi (gradienti relativi fino a 3.1e-4, `massive_ready.md` §14).
+- **Un solo seme** nel run principale; **calendario:** numeri finali entro il 24 ottobre (§0).
+
+### 22.11 Cosa serve dall'utente per partire
+
+1. Risposte a (a)-(e) della 22.7.
+2. Il numero di passi T, e quindi le ore, con 12 L40S 6 + 6 occupate per tutta la durata.
+3. Il via alla definizione degli held-out di calibrazione per i domini nuovi (22.5), prima del lancio.
+4. Il via al critic su questa configurazione (gate della §21).
