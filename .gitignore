@@ -80,6 +80,10 @@ core.*
 # Studio umano: render e pagina ospitata (2 MB, immagini incorporate) si rigenerano.
 /aau/human_study/img/
 /aau/human_study/hosted/index.html
+# Studio umano: risposte dei partecipanti esportate, mai nel repo pubblico (i file gia' tracciati restano: decide
+# l'utente).
+/aau/human_study/responses_export/
+/aau/human_study_v2/responses/
 
 # aau/runs: 40 GB di checkpoint, viste, matrici, cache e log. Entrano solo i risultati
 # leggibili: i .md e i .csv/.json piccoli (config, riepiloghi per run, tabelle).
@@ -117,6 +121,8 @@ core.*
 # report itself (paper/REPORT.md) carries everything we take from them.
 /paper/*.pdf
 /paper/*.txt
+# PDF compilati del paper (containers/texbuild/scripts/compile_paper.sbatch): si rigenerano.
+/paper/build/
 
 # v2 experiment artifacts: operators, caches, checkpoints, generated meshes and logs.
 # Source files under v2_work are tracked; the 270 GB of data they produce is not.
