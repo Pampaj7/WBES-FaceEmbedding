@@ -1,0 +1,517 @@
+what,published,recomputed,source,abs_diff
+hifi3d nocrop_cross scale_e108 GT maxabs->maxabs (point),0.6298708752343959,0.6298708752343959,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross scale_e108 GT maxabs->maxabs (ci_low),0.5620314798531036,0.5620314798531036,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross scale_e108 GT maxabs->maxabs (ci_high),0.6869352208255284,0.6869352208255284,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross chamfer_eval GT maxabs->maxabs (point),0.3721124771740325,0.3721124771740325,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross chamfer_eval GT maxabs->maxabs (ci_low),0.3226848672688745,0.3226848672688745,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross chamfer_eval GT maxabs->maxabs (ci_high),0.4205491671204972,0.4205491671204972,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_chamfer GT maxabs->maxabs (point),0.3253012802845015,0.3253012802845015,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_chamfer GT maxabs->maxabs (ci_low),0.2818382079045181,0.28183820790451813,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_chamfer GT maxabs->maxabs (ci_high),0.3694136331733211,0.3694136331733211,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT maxabs->maxabs (point),0.3553145362914864,0.35531453629148646,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT maxabs->maxabs (ci_low),0.2665619907983511,0.26656199079835113,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT maxabs->maxabs (ci_high),0.4378399249520631,0.43783992495206314,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_nicp_p2tri GT maxabs->maxabs (point),0.3892738529295181,0.38927385292951816,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_nicp_p2tri GT maxabs->maxabs (ci_low),0.302570905223577,0.30257090522357705,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_nicp_p2tri GT maxabs->maxabs (ci_high),0.4788029212845184,0.47880292128451846,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT maxabs->maxabs (point),0.3508436332092284,0.35084363320922846,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT maxabs->maxabs (ci_low),0.2639753856945135,0.26397538569451356,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT maxabs->maxabs (ci_high),0.4292838735644718,0.4292838735644718,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (point),0.1944858812092172,0.1944858812092172,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.1100062743549454,0.11000627435494544,e12/methods_spearman.csv,4.163336342344337e-17
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.2824458816921731,0.28244588169217316,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->fr (point),0.1944858812092172,0.1944858812092172,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->fr (ci_low),0.1100062743549454,0.11000627435494544,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.163336342344337e-17
+hifi3d nocrop_cross scale_e108 GT F_rig_rob->fr (ci_high),0.2824458816921731,0.28244588169217316,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (point),0.1554479940318985,0.15544799403189855,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1122204372307863,0.11222043723078634,e12/methods_spearman.csv,4.163336342344337e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.1975132965775525,0.19751329657755254,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->fr (point),0.1554479940318985,0.15544799403189855,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->fr (ci_low),0.1122204372307863,0.11222043723078634,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.163336342344337e-17
+hifi3d nocrop_cross chamfer_eval GT F_rig_rob->fr (ci_high),0.1975132965775525,0.19751329657755254,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.7755575615628914e-17
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->F_rig_rob (point),0.1382476744633842,0.13824767446338423,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1018097107918458,0.1018097107918458,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.1750656810680697,0.17506568106806975,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->fr (point),0.1382476744633842,0.13824767446338423,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.7755575615628914e-17
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->fr (ci_low),0.1018097107918458,0.1018097107918458,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross fb_chamfer GT F_rig_rob->fr (ci_high),0.1750656810680697,0.17506568106806975,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (point),0.3253176942072842,0.3253176942072842,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.2458570464905105,0.24585704649051057,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.4032921728967339,0.4032921728967339,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (point),0.3253176942072842,0.3253176942072842,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_low),0.2458570464905105,0.24585704649051057,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.326672684688674e-17
+hifi3d nocrop_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_high),0.4032921728967339,0.4032921728967339,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (point),0.3672248011321236,0.3672248011321236,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_low),0.2891130145618573,0.2891130145618573,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_high),0.4492094433778434,0.4492094433778434,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->fr (point),0.3672248011321236,0.3672248011321236,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->fr (ci_low),0.2891130145618573,0.2891130145618573,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross fb_nicp_p2tri GT F_rig_rob->fr (ci_high),0.4492094433778434,0.4492094433778434,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d nocrop_cross nicp_template GT F_rig_rob->F_rig_rob (point),0.2598073954867179,0.25980739548671794,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT F_rig_rob->F_rig_rob (ci_low),0.1627430715099169,0.16274307150991696,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT F_rig_rob->F_rig_rob (ci_high),0.3546374522882594,0.3546374522882594,e12/methods_spearman.csv,0.0
+hifi3d nocrop_cross nicp_template GT F_rig_rob->fr (point),0.2598073954867179,0.25980739548671794,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT F_rig_rob->fr (ci_low),0.1627430715099169,0.16274307150991696,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d nocrop_cross nicp_template GT F_rig_rob->fr (ci_high),0.3546374522882594,0.3546374522882594,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross scale_e108 GT maxabs->maxabs (point),0.5413867644128711,0.5413867644128711,e12/methods_spearman.csv,0.0
+hifi3d all_cross scale_e108 GT maxabs->maxabs (ci_low),0.4689800461437403,0.4689800461437403,e12/methods_spearman.csv,0.0
+hifi3d all_cross scale_e108 GT maxabs->maxabs (ci_high),0.6025714254508963,0.6025714254508963,e12/methods_spearman.csv,0.0
+hifi3d all_cross chamfer_eval GT maxabs->maxabs (point),0.3359458796620946,0.3359458796620946,e12/methods_spearman.csv,0.0
+hifi3d all_cross chamfer_eval GT maxabs->maxabs (ci_low),0.2900572340948191,0.29005723409481915,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross chamfer_eval GT maxabs->maxabs (ci_high),0.3797844166630693,0.3797844166630693,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_chamfer GT maxabs->maxabs (point),0.2905847331516299,0.29058473315162997,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross fb_chamfer GT maxabs->maxabs (ci_low),0.250874998822115,0.25087499882211506,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross fb_chamfer GT maxabs->maxabs (ci_high),0.3291990826196518,0.32919908261965186,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT maxabs->maxabs (point),0.2634476652473669,0.26344766524736696,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT maxabs->maxabs (ci_low),0.1949341532541557,0.19493415325415578,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT maxabs->maxabs (ci_high),0.3311430295531201,0.3311430295531201,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_nicp_p2tri GT maxabs->maxabs (point),0.3459555407394038,0.3459555407394038,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_nicp_p2tri GT maxabs->maxabs (ci_low),0.2658186955506617,0.2658186955506617,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_nicp_p2tri GT maxabs->maxabs (ci_high),0.4226598937964994,0.42265989379649943,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross nicp_template GT maxabs->maxabs (point),0.1953886712259754,0.19538867122597542,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d all_cross nicp_template GT maxabs->maxabs (ci_low),0.1410708542932095,0.14107085429320956,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross nicp_template GT maxabs->maxabs (ci_high),0.243928698947518,0.24392869894751804,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d all_cross scale_e108 GT F_rig_rob->F_rig_rob (point),0.1650323592228617,0.16503235922286177,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d all_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.0996984152960506,0.09969841529605061,e12/methods_spearman.csv,1.3877787807814457e-17
+hifi3d all_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.2411712830607399,0.2411712830607399,e12/methods_spearman.csv,0.0
+hifi3d all_cross scale_e108 GT F_rig_rob->fr (point),0.1650323592228617,0.16503235922286177,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.326672684688674e-17
+hifi3d all_cross scale_e108 GT F_rig_rob->fr (ci_low),0.0996984152960506,0.09969841529605061,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.3877787807814457e-17
+hifi3d all_cross scale_e108 GT F_rig_rob->fr (ci_high),0.2411712830607399,0.2411712830607399,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross chamfer_eval GT F_rig_rob->F_rig_rob (point),0.1489674605156196,0.14896746051561965,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1093844053753193,0.10938440537531934,e12/methods_spearman.csv,4.163336342344337e-17
+hifi3d all_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.1939639992287384,0.19396399922873842,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d all_cross chamfer_eval GT F_rig_rob->fr (point),0.1489674605156196,0.14896746051561965,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d all_cross chamfer_eval GT F_rig_rob->fr (ci_low),0.1093844053753193,0.10938440537531934,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.163336342344337e-17
+hifi3d all_cross chamfer_eval GT F_rig_rob->fr (ci_high),0.1939639992287384,0.19396399922873842,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.7755575615628914e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->F_rig_rob (point),0.130580778024752,0.13058077802475201,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.0971258537004313,0.09712585370043134,e12/methods_spearman.csv,4.163336342344337e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.1689316307961673,0.16893163079616733,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->fr (point),0.130580778024752,0.13058077802475201,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.7755575615628914e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->fr (ci_low),0.0971258537004313,0.09712585370043134,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.163336342344337e-17
+hifi3d all_cross fb_chamfer GT F_rig_rob->fr (ci_high),0.1689316307961673,0.16893163079616733,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.7755575615628914e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (point),0.2501102583202143,0.2501102583202143,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1896272008695564,0.18962720086955648,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.3137193679928243,0.3137193679928243,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (point),0.2501102583202143,0.2501102583202143,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_low),0.1896272008695564,0.18962720086955648,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.326672684688674e-17
+hifi3d all_cross fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_high),0.3137193679928243,0.3137193679928243,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (point),0.3316143195773511,0.3316143195773511,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_low),0.260138433510688,0.260138433510688,e12/methods_spearman.csv,0.0
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_high),0.4054473872348512,0.40544738723485124,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->fr (point),0.3316143195773511,0.3316143195773511,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->fr (ci_low),0.260138433510688,0.260138433510688,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross fb_nicp_p2tri GT F_rig_rob->fr (ci_high),0.4054473872348512,0.40544738723485124,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d all_cross nicp_template GT F_rig_rob->F_rig_rob (point),0.1462637578564548,0.1462637578564548,e12/methods_spearman.csv,0.0
+hifi3d all_cross nicp_template GT F_rig_rob->F_rig_rob (ci_low),0.0869307210162833,0.08693072101628334,e12/methods_spearman.csv,4.163336342344337e-17
+hifi3d all_cross nicp_template GT F_rig_rob->F_rig_rob (ci_high),0.2110614597769235,0.21106145977692356,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d all_cross nicp_template GT F_rig_rob->fr (point),0.1462637578564548,0.1462637578564548,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d all_cross nicp_template GT F_rig_rob->fr (ci_low),0.0869307210162833,0.08693072101628334,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.163336342344337e-17
+hifi3d all_cross nicp_template GT F_rig_rob->fr (ci_high),0.2110614597769235,0.21106145977692356,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean scale_e108 GT maxabs->maxabs (point),0.795356197606009,0.795356197606009,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean scale_e108 GT maxabs->maxabs (ci_low),0.7443712040361256,0.7443712040361256,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean scale_e108 GT maxabs->maxabs (ci_high),0.8417743497777949,0.8417743497777949,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean chamfer_eval GT maxabs->maxabs (point),0.7431205729817077,0.7431205729817077,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean chamfer_eval GT maxabs->maxabs (ci_low),0.6860313847680786,0.6860313847680786,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean chamfer_eval GT maxabs->maxabs (ci_high),0.7962693335247855,0.7962693335247855,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_chamfer GT maxabs->maxabs (point),0.7505037365971271,0.7505037365971271,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_chamfer GT maxabs->maxabs (ci_low),0.6943433699002545,0.6943433699002545,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_chamfer GT maxabs->maxabs (ci_high),0.8028766703471509,0.8028766703471509,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT maxabs->maxabs (point),0.3698160309363292,0.36981603093632925,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT maxabs->maxabs (ci_low),0.2699018781384248,0.26990187813842487,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT maxabs->maxabs (ci_high),0.457764335169606,0.457764335169606,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_nicp_p2tri GT maxabs->maxabs (point),0.4195872232194385,0.4195872232194385,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_nicp_p2tri GT maxabs->maxabs (ci_low),0.3246342137124457,0.3246342137124457,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_nicp_p2tri GT maxabs->maxabs (ci_high),0.507861262949513,0.507861262949513,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean nicp_template GT maxabs->maxabs (point),0.3354030607761601,0.33540306077616017,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean nicp_template GT maxabs->maxabs (ci_low),0.2389582089364004,0.23895820893640043,e12/methods_spearman.csv,2.7755575615628914e-17
+hifi3d subject_pair_mean nicp_template GT maxabs->maxabs (ci_high),0.4329030381134404,0.4329030381134404,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (point),0.249008618987258,0.249008618987258,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.1513915371265483,0.15139153712654835,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.3511620691878419,0.35116206918784193,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->fr (point),0.249008618987258,0.249008618987258,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->fr (ci_low),0.1513915371265483,0.15139153712654835,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean scale_e108 GT F_rig_rob->fr (ci_high),0.3511620691878419,0.35116206918784193,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (point),0.301215208174466,0.30121520817446606,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.2197346336762786,0.2197346336762786,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.3871980781056111,0.3871980781056111,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->fr (point),0.301215208174466,0.30121520817446606,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->fr (ci_low),0.2197346336762786,0.2197346336762786,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean chamfer_eval GT F_rig_rob->fr (ci_high),0.3871980781056111,0.3871980781056111,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->F_rig_rob (point),0.3120844434040887,0.31208444340408875,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.2286115159282976,0.22861151592829768,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.3975534062490232,0.39755340624902324,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->fr (point),0.3120844434040887,0.31208444340408875,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->fr (ci_low),0.2286115159282976,0.22861151592829768,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.326672684688674e-17
+hifi3d subject_pair_mean fb_chamfer GT F_rig_rob->fr (ci_high),0.3975534062490232,0.39755340624902324,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (point),0.354376097101299,0.354376097101299,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.2684855192679548,0.2684855192679548,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.4386326046650001,0.43863260466500015,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->fr (point),0.354376097101299,0.354376097101299,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_low),0.2684855192679548,0.2684855192679548,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_high),0.4386326046650001,0.43863260466500015,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->F_rig_rob (point),0.4032748881753825,0.4032748881753825,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_low),0.3202473301366302,0.32024733013663026,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_high),0.486335330299484,0.48633533029948406,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->fr (point),0.4032748881753825,0.4032748881753825,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->fr (ci_low),0.3202473301366302,0.32024733013663026,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean fb_nicp_p2tri GT F_rig_rob->fr (ci_high),0.486335330299484,0.48633533029948406,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->F_rig_rob (point),0.2395704811640443,0.2395704811640443,e12/methods_spearman.csv,0.0
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->F_rig_rob (ci_low),0.1389263364075026,0.13892633640750268,e12/methods_spearman.csv,8.326672684688674e-17
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->F_rig_rob (ci_high),0.3414561171200351,0.34145611712003515,e12/methods_spearman.csv,5.551115123125783e-17
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->fr (point),0.2395704811640443,0.2395704811640443,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->fr (ci_low),0.1389263364075026,0.13892633640750268,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.326672684688674e-17
+hifi3d subject_pair_mean nicp_template GT F_rig_rob->fr (ci_high),0.3414561171200351,0.34145611712003515,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+faceverse mesh_pair_nocrop scale_e108 GT maxabs->maxabs (point),0.2646340450610306,0.2646340450610306,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop scale_e108 GT maxabs->maxabs (ci_low),0.2008200193516845,0.20082001935168456,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop scale_e108 GT maxabs->maxabs (ci_high),0.3204661263794195,0.3204661263794195,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop chamfer_eval GT maxabs->maxabs (point),0.3168148664768579,0.3168148664768579,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop chamfer_eval GT maxabs->maxabs (ci_low),0.2550933051015484,0.25509330510154843,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop chamfer_eval GT maxabs->maxabs (ci_high),0.3682100735122214,0.36821007351222146,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_chamfer GT maxabs->maxabs (point),0.3189147201537393,0.31891472015373934,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_chamfer GT maxabs->maxabs (ci_low),0.2552936107847935,0.25529361078479357,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_chamfer GT maxabs->maxabs (ci_high),0.3696626617324262,0.36966266173242623,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (point),0.2593145648936326,0.25931456489363264,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (ci_low),0.1780099755794775,0.17800997557947756,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (ci_high),0.3376222354752096,0.3376222354752096,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT maxabs->maxabs (point),0.1942635989382942,0.1942635989382942,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT maxabs->maxabs (ci_low),0.1162038224078525,0.11620382240785253,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT maxabs->maxabs (ci_high),0.2613703227034968,0.26137032270349686,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->F_rig_rob (point),0.1844365677793069,0.1844365677793069,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.1297440510113076,0.12974405101130762,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.2333662688462209,0.23336626884622097,e12/methods_spearman.csv,8.326672684688674e-17
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->fr (point),0.1844365677793069,0.1844364557528601,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.1202644678576235e-07
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->fr (ci_low),0.1297440510113076,0.129743928570045,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.2244126260108068e-07
+faceverse mesh_pair_nocrop scale_e108 GT F_rig_rob->fr (ci_high),0.2333662688462209,0.23336534747227197,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",9.213739489144501e-07
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (point),0.1953995704889314,0.19539957048893145,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1380847125989251,0.13808471259892519,e12/methods_spearman.csv,8.326672684688674e-17
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.247149252633732,0.247149252633732,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->fr (point),0.1953995704889314,0.19539951278995163,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.769897976071192e-08
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->fr (ci_low),0.1380847125989251,0.13808419135644082,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.212424842859775e-07
+faceverse mesh_pair_nocrop chamfer_eval GT F_rig_rob->fr (ci_high),0.247149252633732,0.24714925405985333,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.4261213321375976e-09
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (point),0.1970688086872576,0.1970688086872576,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1359652470158204,0.13596524701582044,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.2548332961898561,0.2548332961898561,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->fr (point),0.1970688086872576,0.1970687878892344,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.0798023192547532e-08
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->fr (ci_low),0.1359652470158204,0.13596524018989842,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",6.82592199430232e-09
+faceverse mesh_pair_nocrop fb_chamfer GT F_rig_rob->fr (ci_high),0.2548332961898561,0.2548332944008651,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.788991010887031e-09
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (point),0.2012759415554451,0.20127594155544515,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1246316360298216,0.12463163602982162,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.2710709454405278,0.27107094544052784,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (point),0.2012759415554451,0.20127581724215485,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.2431329024509274e-07
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_low),0.1246316360298216,0.12463147990846041,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.561213611861456e-07
+faceverse mesh_pair_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_high),0.2710709454405278,0.2710708601643127,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",8.527621508935823e-08
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (point),0.1852352093032213,0.18523520930322132,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_low),0.1182011976745968,0.11820119767459682,e12/methods_spearman.csv,1.3877787807814457e-17
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_high),0.2531445515714786,0.2531445515714786,e12/methods_spearman.csv,0.0
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->fr (point),0.1852352093032213,0.18523517134693207,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",3.795628922276251e-08
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->fr (ci_low),0.1182011976745968,0.11820123971116107,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.2036564271152876e-08
+faceverse mesh_pair_nocrop fb_nicp_p2tri GT F_rig_rob->fr (ci_high),0.2531445515714786,0.2531445515714786,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+faceverse subject_pair_mean_nocrop scale_e108 GT maxabs->maxabs (point),0.4233367909059595,0.42333679090595955,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop scale_e108 GT maxabs->maxabs (ci_low),0.3288514176671027,0.3288514176671027,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop scale_e108 GT maxabs->maxabs (ci_high),0.5157634814799641,0.5157634814799641,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop chamfer_eval GT maxabs->maxabs (point),0.4261902959678476,0.4261902959678476,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop chamfer_eval GT maxabs->maxabs (ci_low),0.3252102324893984,0.3252102324893984,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop chamfer_eval GT maxabs->maxabs (ci_high),0.517411969096388,0.517411969096388,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_chamfer GT maxabs->maxabs (point),0.4615770286869178,0.4615770286869178,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_chamfer GT maxabs->maxabs (ci_low),0.3671181896583933,0.3671181896583933,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_chamfer GT maxabs->maxabs (ci_high),0.5478963933670262,0.5478963933670262,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (point),0.2999581010479073,0.2999581010479073,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (ci_low),0.201906782498274,0.201906782498274,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT maxabs->maxabs (ci_high),0.3908913607756998,0.39089136077569986,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT maxabs->maxabs (point),0.2401883533220548,0.24018835332205482,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT maxabs->maxabs (ci_low),0.1520943219990222,0.1520943219990222,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT maxabs->maxabs (ci_high),0.3306607912516348,0.33066079125163483,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->F_rig_rob (point),0.3120610142539733,0.31206101425397337,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.2205848995525095,0.22058489955250957,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.4042554242000472,0.40425542420004723,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->fr (point),0.3120610142539733,0.31206080486590915,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.093880641651502e-07
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->fr (ci_low),0.2205848995525095,0.22058362706267848,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.272489831033452e-06
+faceverse subject_pair_mean_nocrop scale_e108 GT F_rig_rob->fr (ci_high),0.4042554242000472,0.4042554136758782,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.0524168980730053e-08
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (point),0.2498029485651763,0.24980294856517635,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1440942037216618,0.1440942037216618,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.3483282354533095,0.34832823545330954,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->fr (point),0.2498029485651763,0.2498028396956279,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.0886954840416685e-07
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->fr (ci_low),0.1440942037216618,0.1440942037216618,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+faceverse subject_pair_mean_nocrop chamfer_eval GT F_rig_rob->fr (ci_high),0.3483282354533095,0.34832823545330954,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (point),0.2737951811166342,0.27379518111663426,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1700762894605491,0.17007628946054912,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.3758544018976354,0.37585440189763547,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->fr (point),0.2737951811166342,0.27379513650887977,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.460775443471121e-08
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->fr (ci_low),0.1700762894605491,0.17007627337081188,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.608973720923501e-08
+faceverse subject_pair_mean_nocrop fb_chamfer GT F_rig_rob->fr (ci_high),0.3758544018976354,0.37585440189763547,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (point),0.2311727131229027,0.23117271312290272,e12/methods_spearman.csv,2.7755575615628914e-17
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_low),0.1357136155186098,0.13571361551860986,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->F_rig_rob (ci_high),0.3223204613397223,0.3223204613397223,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (point),0.2311727131229027,0.2311725419705976,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.7115230507847023e-07
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_low),0.1357136155186098,0.13571361551860986,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_rigid_icp_chamfer GT F_rig_rob->fr (ci_high),0.3223204613397223,0.3223199935525366,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.677871857095006e-07
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (point),0.2291481973971616,0.22914819739716166,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_low),0.1420949066283272,0.14209490662832724,e12/methods_spearman.csv,5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->F_rig_rob (ci_high),0.3186649928755633,0.3186649928755633,e12/methods_spearman.csv,0.0
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->fr (point),0.2291481973971616,0.22914815229250562,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.5104655982397546e-08
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->fr (ci_low),0.1420949066283272,0.14209490662832724,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+faceverse subject_pair_mean_nocrop fb_nicp_p2tri GT F_rig_rob->fr (ci_high),0.3186649928755633,0.3186649642103784,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",2.8665184947929134e-08
+facescape nocrop_cross scale_e108 GT maxabs->maxabs (point),0.3934955292994566,0.39349552929945664,e12/methods_spearman.csv,5.551115123125783e-17
+facescape nocrop_cross scale_e108 GT maxabs->maxabs (ci_low),0.3415887047885881,0.3415887047885881,e12/methods_spearman.csv,0.0
+facescape nocrop_cross scale_e108 GT maxabs->maxabs (ci_high),0.4453075238384298,0.4453075238384298,e12/methods_spearman.csv,0.0
+facescape nocrop_cross chamfer_eval GT maxabs->maxabs (point),0.2893896094134885,0.28938960941348857,e12/methods_spearman.csv,5.551115123125783e-17
+facescape nocrop_cross chamfer_eval GT maxabs->maxabs (ci_low),0.2637346874393577,0.2637346874393577,e12/methods_spearman.csv,0.0
+facescape nocrop_cross chamfer_eval GT maxabs->maxabs (ci_high),0.3157162986868727,0.31571629868687273,e12/methods_spearman.csv,5.551115123125783e-17
+facescape nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (point),0.3334220381311955,0.3334220381311955,e12/methods_spearman.csv,0.0
+facescape nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.2601174400678133,0.2601174400678133,e12/methods_spearman.csv,0.0
+facescape nocrop_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.4038206126636492,0.40382061266364927,e12/methods_spearman.csv,5.551115123125783e-17
+facescape nocrop_cross scale_e108 GT F_rig_rob->fr (point),0.3334220381311955,0.3334219738645755,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",6.42666199701658e-08
+facescape nocrop_cross scale_e108 GT F_rig_rob->fr (ci_low),0.2601174400678133,0.2601174279685243,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.2099289015132797e-08
+facescape nocrop_cross scale_e108 GT F_rig_rob->fr (ci_high),0.4038206126636492,0.4038204923368016,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.203268475968855e-07
+facescape nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (point),0.203430298833508,0.20343029883350802,e12/methods_spearman.csv,2.7755575615628914e-17
+facescape nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1609732304840323,0.1609732304840323,e12/methods_spearman.csv,0.0
+facescape nocrop_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.2435440579986514,0.24354405799865142,e12/methods_spearman.csv,2.7755575615628914e-17
+facescape nocrop_cross chamfer_eval GT F_rig_rob->fr (point),0.203430298833508,0.20343025173229662,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.7101211375633056e-08
+facescape nocrop_cross chamfer_eval GT F_rig_rob->fr (ci_low),0.1609732304840323,0.16097323219283022,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.7087979087282434e-09
+facescape nocrop_cross chamfer_eval GT F_rig_rob->fr (ci_high),0.2435440579986514,0.24354389136308893,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.666355624596605e-07
+facescape all_cross scale_e108 GT maxabs->maxabs (point),0.3596051926151746,0.35960519261517465,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross scale_e108 GT maxabs->maxabs (ci_low),0.3007897940307528,0.30078979403075284,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross scale_e108 GT maxabs->maxabs (ci_high),0.413948509255387,0.413948509255387,e12/methods_spearman.csv,0.0
+facescape all_cross chamfer_eval GT maxabs->maxabs (point),0.2012274553979474,0.20122745539794745,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross chamfer_eval GT maxabs->maxabs (ci_low),0.1731624628294709,0.17316246282947098,e12/methods_spearman.csv,8.326672684688674e-17
+facescape all_cross chamfer_eval GT maxabs->maxabs (ci_high),0.2272845333064561,0.22728453330645615,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross scale_e108 GT F_rig_rob->F_rig_rob (point),0.3123972499534181,0.3123972499534181,e12/methods_spearman.csv,0.0
+facescape all_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.2424187418643952,0.24241874186439524,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.3833748649260923,0.38337486492609235,e12/methods_spearman.csv,5.551115123125783e-17
+facescape all_cross scale_e108 GT F_rig_rob->fr (point),0.3123972499534181,0.31239718821311663,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",6.174030148242693e-08
+facescape all_cross scale_e108 GT F_rig_rob->fr (ci_low),0.2424187418643952,0.24241874186439524,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+facescape all_cross scale_e108 GT F_rig_rob->fr (ci_high),0.3833748649260923,0.38337486492609235,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+facescape all_cross chamfer_eval GT F_rig_rob->F_rig_rob (point),0.1519438728493846,0.15194387284938463,e12/methods_spearman.csv,2.7755575615628914e-17
+facescape all_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.1183147745193427,0.1183147745193427,e12/methods_spearman.csv,0.0
+facescape all_cross chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.187781653088117,0.18778165308811703,e12/methods_spearman.csv,2.7755575615628914e-17
+facescape all_cross chamfer_eval GT F_rig_rob->fr (point),0.1519438728493846,0.15194383892091373,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",3.392847086614026e-08
+facescape all_cross chamfer_eval GT F_rig_rob->fr (ci_low),0.1183147745193427,0.1183147745193427,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+facescape all_cross chamfer_eval GT F_rig_rob->fr (ci_high),0.187781653088117,0.1877816458696034,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",7.218513620177447e-09
+facescape subject_pair_mean scale_e108 GT maxabs->maxabs (point),0.7345860621718028,0.7345860621718028,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean scale_e108 GT maxabs->maxabs (ci_low),0.6784589638844924,0.6784589638844924,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean scale_e108 GT maxabs->maxabs (ci_high),0.7885124743621011,0.7885124743621011,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT maxabs->maxabs (point),0.7666522817805175,0.7666522817805175,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT maxabs->maxabs (ci_low),0.7069371001148858,0.7069371001148858,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT maxabs->maxabs (ci_high),0.8139379039897725,0.8139379039897725,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (point),0.6039691045143573,0.6039691045143573,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (ci_low),0.4986241804285948,0.49862418042859485,e12/methods_spearman.csv,5.551115123125783e-17
+facescape subject_pair_mean scale_e108 GT F_rig_rob->F_rig_rob (ci_high),0.696775721133543,0.696775721133543,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean scale_e108 GT F_rig_rob->fr (point),0.6039691045143573,0.6039689859663488,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.1854800840982449e-07
+facescape subject_pair_mean scale_e108 GT F_rig_rob->fr (ci_low),0.4986241804285948,0.49862418042859485,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",5.551115123125783e-17
+facescape subject_pair_mean scale_e108 GT F_rig_rob->fr (ci_high),0.696775721133543,0.6967757197565655,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",1.37697753199717e-09
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (point),0.5295647275511521,0.5295647275511521,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (ci_low),0.4182959930219458,0.4182959930219458,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->F_rig_rob (ci_high),0.6292598963294741,0.6292598963294741,e12/methods_spearman.csv,0.0
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->fr (point),0.5295647275511521,0.5295646310875,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",9.646365217719222e-08
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->fr (ci_low),0.4182959930219458,0.4182959930219458,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",0.0
+facescape subject_pair_mean chamfer_eval GT F_rig_rob->fr (ci_high),0.6292598963294741,0.6292594706615898,"e12/methods_spearman.csv, F_rig_rob contro FR (float32)",4.256678842740058e-07
+hifi3d nocrop chamfer (rank1),0.4775,0.4775,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop chamfer (auc),0.7824799494949495,0.7824799494949495,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop rigid_icp_chamfer (rank1),0.9955,0.9955,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop rigid_icp_chamfer (auc),0.9992723131313132,0.9992723131313132,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop nicp_p2tri (rank1),0.99,0.99,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop nicp_p2tri (auc),0.9999833636363636,0.9999833636363636,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop nicp_template (rank1),0.8755,0.8755,competitors_hifi3d/recognition.csv,0.0
+hifi3d nocrop nicp_template (auc),0.997961787878788,0.9979617878787879,competitors_hifi3d/recognition.csv,1.1102230246251565e-16
+hifi3d crop nicp_template (rank1),0.031,0.031,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop nicp_template (auc),0.6399710707070707,0.6399710707070707,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop chamfer (rank1),0.472,0.472,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop chamfer (auc),0.6991499393939394,0.6991499393939394,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop rigid_icp_chamfer (rank1),0.284,0.284,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop rigid_icp_chamfer (auc),0.8876271111111111,0.8876271111111111,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop nicp_p2tri (rank1),0.777,0.777,competitors_hifi3d/recognition.csv,0.0
+hifi3d crop nicp_p2tri (auc),0.9970704646464646,0.9970704646464646,competitors_hifi3d/recognition.csv,0.0
+faceverse nocrop chamfer (rank1),0.74,0.74,ws_faceverse_expr/recognition.csv,0.0
+faceverse nocrop chamfer (auc),0.8824626565656566,0.8824626565656566,ws_faceverse_expr/recognition.csv,0.0
+faceverse nocrop rigid_icp_chamfer (rank1),0.918,0.918,ws_faceverse_expr/recognition.csv,0.0
+faceverse nocrop rigid_icp_chamfer (auc),0.9863277171717172,0.9863277171717172,ws_faceverse_expr/recognition.csv,0.0
+faceverse nocrop nicp_p2tri (rank1),0.9585,0.9585,ws_faceverse_expr/recognition.csv,0.0
+faceverse nocrop nicp_p2tri (auc),0.994901606060606,0.9949016060606061,ws_faceverse_expr/recognition.csv,1.1102230246251565e-16
+faceverse crop chamfer (rank1),0.396,0.396,ws_faceverse_expr/recognition.csv,0.0
+faceverse crop chamfer (auc),0.8088602828282828,0.8088602828282828,ws_faceverse_expr/recognition.csv,0.0
+faceverse crop rigid_icp_chamfer (rank1),0.513,0.513,ws_faceverse_expr/recognition.csv,0.0
+faceverse crop rigid_icp_chamfer (auc),0.7768707474747475,0.7768707474747475,ws_faceverse_expr/recognition.csv,0.0
+faceverse crop nicp_p2tri (rank1),0.909,0.909,ws_faceverse_expr/recognition.csv,0.0
+faceverse crop nicp_p2tri (auc),0.983334787878788,0.9833347878787879,ws_faceverse_expr/recognition.csv,1.1102230246251565e-16
+"faceverse crop->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->down8k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->original rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->up60k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->noisy rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->remesh rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->crop rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->original rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->up60k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->down8k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->remesh rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->crop rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->noisy rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->up60k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->down8k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->original rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->noisy rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->remesh rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->crop rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->original rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse down8k->up60k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->down8k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse noisy->remesh rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->crop rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->noisy rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse original->up60k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->down8k rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse remesh->original rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->crop rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->noisy rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse up60k->remesh rigid_icp_chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,faceverse check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"faceverse crop->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,9.654221866384205e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,9.654221866384205e-13
+"faceverse crop->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.7013473962990133e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.7013473962990133e-13
+"faceverse crop->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,6.036282584886976e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,6.036282584886976e-12
+"faceverse crop->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.4494197508874151e-11,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.4494197508874151e-11
+"faceverse crop->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.864348952995698e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.864348952995698e-12
+"faceverse down8k->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,6.762750082156543e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,6.762750082156543e-12
+"faceverse down8k->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.8365643167660437e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.8365643167660437e-12
+"faceverse down8k->original nicp_p2tri: 1/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.8395562850770375e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.8395562850770375e-12
+"faceverse down8k->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.168086460889839e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.168086460889839e-12
+"faceverse down8k->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.4978977219980436e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.4978977219980436e-12
+"faceverse noisy->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.8183024530493697e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.8183024530493697e-12
+"faceverse noisy->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.020687866506222e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.020687866506222e-12
+"faceverse noisy->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.30790256297675e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.30790256297675e-12
+"faceverse noisy->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.1045595821611585e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.1045595821611585e-12
+"faceverse noisy->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.7181369094696493e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.7181369094696493e-13
+"faceverse original->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,4.481680998535964e-11,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,4.481680998535964e-11
+"faceverse original->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.12569414795405e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.12569414795405e-13
+"faceverse original->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3491707751001059e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3491707751001059e-12
+"faceverse original->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.4545309401370332e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.4545309401370332e-13
+"faceverse original->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.271938275872799e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.271938275872799e-12
+"faceverse remesh->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3969728152041228e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3969728152041228e-13
+"faceverse remesh->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.6588987128418609e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.6588987128418609e-12
+"faceverse remesh->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.964675809875473e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.964675809875473e-12
+"faceverse remesh->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.14604592377421e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.14604592377421e-12
+"faceverse remesh->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,9.916859000647094e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,9.916859000647094e-12
+"faceverse up60k->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3013895516778007e-13,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3013895516778007e-13
+"faceverse up60k->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.1444929165781446e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.1444929165781446e-12
+"faceverse up60k->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.8026886367271686e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.8026886367271686e-12
+"faceverse up60k->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.5760908123627644e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.5760908123627644e-12
+"faceverse up60k->remesh nicp_p2tri: 1/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.336858567237755e-12,faceverse check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.336858567237755e-12
+"hifi3d crop->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d crop->down8k rigid_icp_chamfer: 139/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.673617379884035e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,8.673617379884035e-16
+"hifi3d crop->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d crop->original rigid_icp_chamfer: 146/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.591949208711867e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,6.591949208711867e-16
+"hifi3d crop->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d crop->up60k rigid_icp_chamfer: 166/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.326672684688674e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,8.326672684688674e-16
+"hifi3d down8k->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d down8k->noisy rigid_icp_chamfer: 208/4950 uguali, NaN nuovi 0 vecchi 0",0.0,9.922618282587337e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,9.922618282587337e-16
+"hifi3d down8k->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d down8k->remesh rigid_icp_chamfer: 183/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.187894806610529e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,8.187894806610529e-16
+"hifi3d noisy->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d noisy->crop rigid_icp_chamfer: 286/4950 uguali, NaN nuovi 0 vecchi 0",0.0,4.579669976578771e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,4.579669976578771e-16
+"hifi3d noisy->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d noisy->original rigid_icp_chamfer: 281/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.828670879282072e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,5.828670879282072e-16
+"hifi3d noisy->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d noisy->up60k rigid_icp_chamfer: 321/4950 uguali, NaN nuovi 0 vecchi 0",0.0,3.5388358909926865e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,3.5388358909926865e-16
+"hifi3d original->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d original->down8k rigid_icp_chamfer: 244/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.447031714567174e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,5.447031714567174e-16
+"hifi3d original->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d original->remesh rigid_icp_chamfer: 234/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.967448757360216e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,5.967448757360216e-16
+"hifi3d remesh->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d remesh->crop rigid_icp_chamfer: 285/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.759281940243e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,5.759281940243e-16
+"hifi3d remesh->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d remesh->noisy rigid_icp_chamfer: 194/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.534839501805891e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,8.534839501805891e-16
+"hifi3d remesh->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d remesh->up60k rigid_icp_chamfer: 235/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.661338147750939e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,6.661338147750939e-16
+"hifi3d up60k->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d up60k->down8k rigid_icp_chamfer: 179/4950 uguali, NaN nuovi 0 vecchi 0",0.0,7.216449660063518e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,7.216449660063518e-16
+"hifi3d up60k->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d up60k->original rigid_icp_chamfer: 204/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.730727086790012e-16,hifi3d check_fast_0of2.json: modo maxabs ricalcolato contro le matrici,6.730727086790012e-16
+"hifi3d crop->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d crop->noisy rigid_icp_chamfer: 157/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.591949208711867e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,6.591949208711867e-16
+"hifi3d crop->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d crop->remesh rigid_icp_chamfer: 151/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.522560269672795e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,6.522560269672795e-16
+"hifi3d down8k->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d down8k->crop rigid_icp_chamfer: 208/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.453171330633722e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,6.453171330633722e-16
+"hifi3d down8k->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d down8k->original rigid_icp_chamfer: 219/4950 uguali, NaN nuovi 0 vecchi 0",0.0,9.506284648352903e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,9.506284648352903e-16
+"hifi3d down8k->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d down8k->up60k rigid_icp_chamfer: 197/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.049116928532385e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,8.049116928532385e-16
+"hifi3d noisy->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d noisy->down8k rigid_icp_chamfer: 274/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.412337245047638e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,5.412337245047638e-16
+"hifi3d noisy->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d noisy->remesh rigid_icp_chamfer: 283/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.273559366969494e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,5.273559366969494e-16
+"hifi3d original->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d original->crop rigid_icp_chamfer: 263/4950 uguali, NaN nuovi 0 vecchi 0",0.0,4.510281037539698e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,4.510281037539698e-16
+"hifi3d original->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d original->noisy rigid_icp_chamfer: 245/4950 uguali, NaN nuovi 0 vecchi 0",0.0,4.0939474033052647e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,4.0939474033052647e-16
+"hifi3d original->up60k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d original->up60k rigid_icp_chamfer: 280/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.273559366969494e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,5.273559366969494e-16
+"hifi3d remesh->down8k chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d remesh->down8k rigid_icp_chamfer: 176/4950 uguali, NaN nuovi 0 vecchi 0",0.0,8.465450562766819e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,8.465450562766819e-16
+"hifi3d remesh->original chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d remesh->original rigid_icp_chamfer: 212/4950 uguali, NaN nuovi 0 vecchi 0",0.0,5.620504062164855e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,5.620504062164855e-16
+"hifi3d up60k->crop chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d up60k->crop rigid_icp_chamfer: 195/4950 uguali, NaN nuovi 0 vecchi 0",0.0,4.85722573273506e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,4.85722573273506e-16
+"hifi3d up60k->noisy chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d up60k->noisy rigid_icp_chamfer: 210/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.349087922075114e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,6.349087922075114e-16
+"hifi3d up60k->remesh chamfer: 4950/4950 uguali, NaN nuovi 0 vecchi 0",0.0,0.0,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,0.0
+"hifi3d up60k->remesh rigid_icp_chamfer: 198/4950 uguali, NaN nuovi 0 vecchi 0",0.0,6.522560269672795e-16,hifi3d check_fast_1of2.json: modo maxabs ricalcolato contro le matrici,6.522560269672795e-16
+"hifi3d crop->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.7339588926089675e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.7339588926089675e-13
+"hifi3d crop->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,7.803722945620706e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,7.803722945620706e-13
+"hifi3d crop->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.1924961846053748e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.1924961846053748e-12
+"hifi3d crop->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.0380113435459748e-11,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.0380113435459748e-11
+"hifi3d crop->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,7.276339784173524e-08,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,7.276339784173524e-08
+"hifi3d down8k->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.0016328044759604e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.0016328044759604e-12
+"hifi3d down8k->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.876252625487851e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.876252625487851e-12
+"hifi3d down8k->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.5640613804102088e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.5640613804102088e-13
+"hifi3d down8k->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,4.635597461444263e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,4.635597461444263e-13
+"hifi3d down8k->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.5071862777271683e-06,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.5071862777271683e-06
+"hifi3d noisy->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.844009749924936e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.844009749924936e-12
+"hifi3d noisy->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.018039819111749e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.018039819111749e-13
+"hifi3d noisy->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.0928584426306287e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.0928584426306287e-12
+"hifi3d noisy->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.791206072354612e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.791206072354612e-13
+"hifi3d noisy->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.743608446577339e-07,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.743608446577339e-07
+"hifi3d original->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,7.620730435586864e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,7.620730435586864e-12
+"hifi3d original->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.507124286481698e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.507124286481698e-12
+"hifi3d original->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.8085173076064507e-14,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.8085173076064507e-14
+"hifi3d original->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,2.973496449065749e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,2.973496449065749e-12
+"hifi3d original->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,6.822292795624629e-08,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,6.822292795624629e-08
+"hifi3d remesh->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3924972286361026e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3924972286361026e-13
+"hifi3d remesh->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,7.602314611165895e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,7.602314611165895e-12
+"hifi3d remesh->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.1176511105492892e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.1176511105492892e-12
+"hifi3d remesh->original nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3704315460216776e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3704315460216776e-12
+"hifi3d remesh->up60k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,5.473415252317537e-07,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,5.473415252317537e-07
+"hifi3d up60k->crop nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.642162960115769e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.642162960115769e-12
+"hifi3d up60k->down8k nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,3.3967342827345703e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,3.3967342827345703e-12
+"hifi3d up60k->noisy nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.8999385398288382e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.8999385398288382e-13
+"hifi3d up60k->original nicp_p2tri: 1/100 uguali, NaN nuovi 0 vecchi 0",0.0,1.3222166417303782e-12,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,1.3222166417303782e-12
+"hifi3d up60k->remesh nicp_p2tri: 0/100 uguali, NaN nuovi 0 vecchi 0",0.0,7.989268968611185e-13,hifi3d check_nicp_0of1.json: modo maxabs ricalcolato contro le matrici,7.989268968611185e-13
+hifi3d template maxabs T,0.0,0.0,competitors_hifi3d/template_hifi3d.npz,0.0
+hifi3d template maxabs R,0.0,0.0,competitors_hifi3d/template_hifi3d.npz,0.0
