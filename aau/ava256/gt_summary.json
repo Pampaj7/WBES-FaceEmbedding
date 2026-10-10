@@ -1,0 +1,345 @@
+{
+  "definition": "Unita', taglia, qualita' e GT FR / SR di Ava-256.\n\n    v3_work/unified_gt/run.sh aau/ava256/ava_gt.py          (dopo ava_neutral.py neutral)\n\nCONFERMATIVO: non valutare prima del protocollo confermativo (README). Solo dati e GT: nessun modello, nessuna\nbaseline (nemmeno \"solo taglia\"), nessuna metrica di prestazione. Le sole statistiche riguardano la GT stessa.\n\n1. Unita' (README, scelta 4; come E12, ``v3_work/canonical_gt/gt.py`` sez. 2b): IPD in unita' native dai 12 punti\n   del contorno degli occhi (``cgt.eye_proxies``: iBUG 36-47 sulla media FLAME, punto piu' vicino della regione\n   unificata). La forma media del dominio e' rappresentata dalla mediana delle IPD delle neutre: il template ha la\n   taglia della prima cattura (``domains.multiface`` fa lo stesso), la sua IPD si riporta a parte. ``u`` = potenza di\n   10 piu' vicina a 63 / IPD entro +-15% (``cgt.nearest_unit``), altrimenti 63 / IPD. Controlli: larghezza\n   intercantale (iBUG 39-42) e biorbitale (36-45) con gli stessi sostituti, confrontate con la media FLAME (stessa\n   costruzione, mm) e con i valori antropometrici; centroid size della regione contro gli altri domini (E12\n   ``size_cv.csv``); scala della similarita' canonica di ``correspond``.\n2. GT (scelta 5): ``train_fr_sr.factor`` sui punti della regione unificata delle neutre (frame di dominio: ``u``,\n   R = I, t = 0; segue la rigida robusta per identita' verso mu), scritte da ``train_fr_sr.save_eval`` nella cartella\n   delle GT di Ava-256 (NON ``datasets/CANONICAL_GT/eval``); ``identity_check`` su 400 coppie (seme 1234).\n3. Taglia: centroid size (S di FR), IPD e altezza della regione allineata; CV con IC 95% bootstrap per soggetto\n   (1000 repliche, seme 1234); una riga nel formato di ``aau/runs/evidence/e12/size_cv.csv``.\n4. Qualita' (scelta 6): soggetti validi; anomalie (centroid size, IPD, distanza da mu dopo Procrustes, rumore della\n   neutra oltre mediana +- 5 x 1.4826 MAD) elencate e NON escluse.\n5. Affidabilita' della GT (solo GT contro GT): FR / SR della neutra ripetuta (EXP_eye_neutral) e con la mappa di\n   Multiface, Spearman sulle coppie i < j; distanza FR fra neutra e neutro ripetuto della stessa persona contro la\n   mediana delle distanze FR fra persone, e quante persone hanno il proprio neutro ripetuto come vicino piu' prossimo.",
+  "units": {
+    "u": 1.0,
+    "unit": "millimetri",
+    "ipd_native_median": 66.02460813353771,
+    "mm_per_unit_from_ipd63": 0.9541896844367436,
+    "ratio_to_power_of_ten": 0.9541896844367436,
+    "tolerance": 0.15,
+    "widths_mm_with_u": {
+      "ipd": {
+        "n": 256,
+        "mean": 66.37656448503539,
+        "sd": 3.938700805149443,
+        "min": 55.41455915355825,
+        "p5": 61.008130934908905,
+        "median": 66.02460813353771,
+        "p95": 73.10479361529016,
+        "max": 81.38398610788626
+      },
+      "intercanthal": {
+        "n": 256,
+        "mean": 37.72425999266365,
+        "sd": 3.217200178836932,
+        "min": 29.05389325095941,
+        "p5": 33.17088106165307,
+        "median": 37.385505889389776,
+        "p95": 42.937828127140584,
+        "max": 50.69969352986863
+      },
+      "biocular": {
+        "n": 256,
+        "mean": 94.63853800028241,
+        "sd": 5.0266729117617075,
+        "min": 82.47962743458301,
+        "p5": 87.22808910934802,
+        "median": 94.1005152670139,
+        "p95": 103.48464993652253,
+        "max": 113.10951292758894
+      }
+    },
+    "widths_flame_mean_same_proxies_mm": {
+      "ipd": 64.21669390218389,
+      "intercanthal": 36.609970655681146,
+      "biocular": 91.14364132066599
+    },
+    "template_over_median_width": {
+      "ipd": 1.0977543165465709,
+      "intercanthal": 1.1016271174270165,
+      "biocular": 1.0981779670483525
+    },
+    "anthropometric_reference_mm": {
+      "ipd": 63.0,
+      "intercanthal": [
+        31.0,
+        33.0
+      ],
+      "biocular": [
+        87.0,
+        91.0
+      ]
+    },
+    "eye_proxy_distance_on_flame_mm": [
+      0.1940236650002275,
+      1.7448754664967812,
+      0.3066568623171251,
+      0.3434845299606902,
+      1.0354925145594072,
+      0.2077991066303999,
+      0.3451560866272044,
+      0.33739611304338285,
+      1.7930723896619252,
+      0.20925620414616491,
+      0.2032110280474106,
+      1.0345178415023426
+    ],
+    "canonical_similarity_s_template_to_flame": 0.8835843763778772,
+    "note": "proxy = punto piu' vicino della regione unificata al landmark iBUG sulla media FLAME (E12 2b); i valori FLAME con gli stessi proxy danno il riferimento della stessa costruzione; il template ha la taglia della prima cattura (solo il rapporto con la mediana: nessuna misura di un singolo soggetto in git)"
+  },
+  "size": {
+    "row": {
+      "set": "ava256",
+      "n": 256,
+      "centroid_size_mean_mm": 57.93482638485114,
+      "centroid_size_sd_mm": 2.7715633874795675,
+      "centroid_size_cv": 0.04783933189112445,
+      "ipd_mean_mm": 66.37656447170727,
+      "ipd_sd_mm": 3.9387008539374357,
+      "ipd_cv": 0.059338727234313104,
+      "height_mean_mm": 165.48120561547233,
+      "height_sd_mm": 10.757967796008051,
+      "height_cv": 0.06501020920167982,
+      "corr_cs_ipd": 0.7065089957943855
+    },
+    "cv_ci95": {
+      "centroid_size": [
+        0.04355965698239868,
+        0.05196761303035533
+      ],
+      "ipd": [
+        0.05302445102472994,
+        0.06547208532655183
+      ],
+      "height": [
+        0.05858221173544112,
+        0.07145268685231182
+      ]
+    },
+    "e12_centroid_size_mean_mm": {
+      "hifi3d": 56.23839500779091,
+      "faceverse": 54.92749607005816,
+      "facescape": 55.84872346404537,
+      "famos": 57.7147224543678,
+      "famos_test": 59.04556714313957,
+      "flame": 56.09635105194732,
+      "bfm": 54.155270070010296,
+      "ict": 58.12624627962872,
+      "gnm": 56.94060196997629,
+      "multiface": 56.429515603328426
+    },
+    "e12_centroid_size_cv": {
+      "hifi3d": 0.0486230166100421,
+      "faceverse": 0.018284745558322,
+      "facescape": 0.0156605341547464,
+      "famos": 0.0399821587286718,
+      "famos_test": 0.0454537210248437,
+      "flame": 0.0429214052367373,
+      "bfm": 0.0186319015601436,
+      "ict": 0.0483456638341393,
+      "gnm": 0.0526933721778574,
+      "multiface": 0.052390676644672
+    }
+  },
+  "quality": {
+    "n_captures": 256,
+    "n_valid": 256,
+    "invalid": [],
+    "robust_rigid": {
+      "converged_fraction": 1.0,
+      "iterations": {
+        "n": 256,
+        "mean": 20.09375,
+        "sd": 8.62548663020488,
+        "min": 11.0,
+        "p5": 13.0,
+        "median": 18.0,
+        "p95": 32.25,
+        "max": 76.0
+      },
+      "angle_deg": {
+        "n": 256,
+        "mean": 4.211135832665901,
+        "sd": 1.570999646769643,
+        "min": 1.0982891663327654,
+        "p5": 1.7322322258952019,
+        "median": 4.190057032583024,
+        "p95": 6.873003625502049,
+        "max": 9.027094785867702
+      }
+    },
+    "rule": "anomalo = oltre mediana +- 5 x 1.4826 MAD (elencati, NON esclusi)",
+    "flagged": {
+      "centroid_size": [],
+      "ipd": [],
+      "rms_to_mu_after_procrustes": [
+        "ava0163"
+      ],
+      "neutral_halves_mm": [
+        "ava0007",
+        "ava0010",
+        "ava0037",
+        "ava0059",
+        "ava0079",
+        "ava0082",
+        "ava0121",
+        "ava0214",
+        "ava0215",
+        "ava0231",
+        "ava0233",
+        "ava0252"
+      ]
+    },
+    "n_flagged": 13,
+    "criteria_stats": {
+      "centroid_size": {
+        "n": 256,
+        "mean": 57.93482638485114,
+        "sd": 2.7715633874795675,
+        "min": 49.95632861131099,
+        "p5": 54.073842004354084,
+        "median": 57.78415398899831,
+        "p95": 62.238684075975335,
+        "max": 66.27623842290049
+      },
+      "ipd": {
+        "n": 256,
+        "mean": 66.37656447170727,
+        "sd": 3.9387008539374357,
+        "min": 55.414558313487014,
+        "p5": 61.008131046866424,
+        "median": 66.02460878694596,
+        "p95": 73.10479352430832,
+        "max": 81.38398668592433
+      },
+      "rms_to_mu_after_procrustes": {
+        "n": 256,
+        "mean": 4.094647445894106,
+        "sd": 0.9163055361751937,
+        "min": 2.3888095775193268,
+        "p5": 2.8932449505965887,
+        "median": 3.9211260321381385,
+        "p95": 5.677580968976248,
+        "max": 8.024451745801601
+      },
+      "neutral_halves_mm": {
+        "n": 256,
+        "mean": 0.014377718002833717,
+        "sd": 0.014301463271477516,
+        "min": 0.002981154713779688,
+        "p5": 0.006041930639185011,
+        "median": 0.011538280639797449,
+        "p95": 0.03237142600119114,
+        "max": 0.1725352257490158
+      }
+    },
+    "non_finite_points": 0
+  },
+  "gt": {
+    "n": 256,
+    "ids": "datasets/AVA256/gt/ids.json (id950000 + riga di 256_ids.csv)",
+    "fr_mm": {
+      "n": 32640,
+      "mean": 6.9751043041636,
+      "sd": 1.896750752925809,
+      "min": 2.911718829249141,
+      "p5": 4.452746989755797,
+      "median": 6.679435238693779,
+      "p95": 10.562225562660196,
+      "max": 18.2448193359808
+    },
+    "sr_dP": {
+      "n": 32640,
+      "mean": 0.10037825341861098,
+      "sd": 0.022149528317198464,
+      "min": 0.04696986884152426,
+      "p5": 0.06944010974167995,
+      "median": 0.09753843025605563,
+      "p95": 0.14134050768073028,
+      "max": 0.21459809425817308
+    },
+    "identity_check": {
+      "n_pairs": 398,
+      "with_centroid_term_rel_err": {
+        "median": 7.913600663655984e-09,
+        "p95": 2.7120566159499747e-08,
+        "max": 1.0735168110009852e-07
+      },
+      "formula_without_centroid_term_rel_err": {
+        "median": 0.008261600174609973,
+        "p95": 0.04001452046397683,
+        "max": 0.10369436582544866
+      },
+      "centroid_term_share_of_dFR2": {
+        "median": 0.016454968800133772,
+        "p95": 0.07842789533222264,
+        "max": 0.19663621552641733
+      },
+      "size_term_share_of_dFR2": {
+        "median": 0.16851930819302785,
+        "p95": 0.5913133288549189,
+        "max": 0.8419815556159509
+      },
+      "shape_term_share_of_dFR2": {
+        "median": 0.7921908912379282,
+        "p95": 0.983098119546194,
+        "max": 0.996821518828412
+      },
+      "dP_common_rotation_over_pairwise_optimal": {
+        "median": 1.0062723160586882,
+        "p95": 1.0567695556745955,
+        "max": 1.158762237275324
+      },
+      "spearman_dP_common_vs_pairwise": 0.9937491666586563
+    },
+    "content_sha256": {
+      "fr": "58a3ba2c6a4217906a852bf3cf10450aa854f3557d59558f7d24ff2d013bba6e",
+      "sr": "5f5cb152fda3f13c9c00be3b6bf8dc3646a3cae488fd7498e4347b6a699c85cd"
+    },
+    "files": "datasets/AVA256/gt/ava256_{fr,sr}.npz (D_orig / massimo, json con l'unita'), ava256_centroid_size.npz, frame.json"
+  },
+  "gt_reliability": {
+    "repeat_eye_neutral": {
+      "n": 256,
+      "spearman_fr": 0.9720007395589458,
+      "spearman_sr": 0.9656837800601905,
+      "within_person_fr_mm": {
+        "n": 256,
+        "mean": 0.9377974687639665,
+        "sd": 0.6552544266031265,
+        "min": 0.23260368517099236,
+        "p5": 0.3342763716339773,
+        "median": 0.7602469902092495,
+        "p95": 2.084854784139374,
+        "max": 4.675154467240197
+      },
+      "between_person_fr_mm": {
+        "n": 32640,
+        "mean": 6.9751043041636,
+        "sd": 1.896750752925809,
+        "min": 2.911718829249141,
+        "p5": 4.452746989755797,
+        "median": 6.679435238693779,
+        "p95": 10.562225562660196,
+        "max": 18.2448193359808
+      },
+      "within_over_between_median": 0.11381905251587143,
+      "nearest_neutral_is_own_fraction": 1.0
+    },
+    "multiface_index_map": {
+      "spearman_fr": 0.9962196037432474,
+      "spearman_sr": 0.9957718501116128,
+      "abs_diff_fr_mm": {
+        "n": 32640,
+        "mean": 0.12424271958022669,
+        "sd": 0.10328522883855379,
+        "min": 4.930652815815506e-06,
+        "p5": 0.008839591864236019,
+        "median": 0.09885119454257785,
+        "p95": 0.32880689637897337,
+        "max": 0.8482284594985714
+      }
+    },
+    "neutral_split_halves_unified_mm": {
+      "n": 256,
+      "mean": 0.014377718002833717,
+      "sd": 0.014301463271477516,
+      "min": 0.002981154713779688,
+      "p5": 0.006041930639185011,
+      "median": 0.011538280639797449,
+      "p95": 0.03237142600119114,
+      "max": 0.1725352257490158
+    },
+    "note": "statistiche della sola GT: nessun modello ne' baseline; within = FR fra neutra (EXP_neutral_peak) e neutro ripetuto (EXP_eye_neutral) della stessa persona, entrambi con la rigida robusta verso mu"
+  }
+}

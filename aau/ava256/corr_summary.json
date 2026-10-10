@@ -1,0 +1,59 @@
+{
+  "procedure": "v3_work/unified_gt/correspond.py (correspond, importata) sul template di ava_neutral.py",
+  "landmarks": {
+    "n_used": 339,
+    "n_outliers_similarity": 6,
+    "residual_after_similarity_mm": 1.5249376689546759,
+    "residual_after_nicp_mm": 0.49255159192933895,
+    "held_out_before_mm": 1.482297304892829,
+    "held_out_after_nicp_mm": 0.6456887440994976
+  },
+  "chamfer_symmetric_mean_mm": 0.20756549056269857,
+  "distortion": {
+    "log_area_ratio_abs_median": 0.04641478305078602,
+    "log_area_ratio_p95": 0.19717058974620122,
+    "flipped_triangles": 0
+  },
+  "coverage_flame_region": {
+    "n_region": 1671,
+    "n_covered": 1671,
+    "n_on_target_boundary": 0,
+    "n_far": 0
+  },
+  "coverage_unified": {
+    "n": 1478,
+    "n_covered": 1478,
+    "dist_mm_max": 1.305416952875299
+  },
+  "canonical_similarity_to_flame_mean": {
+    "s": 0.8835843763778772,
+    "rms_mm": 2.197951642189118,
+    "flip_faces": false
+  },
+  "multiface_index_map": {
+    "multiface_obj": "Multiface/full/m--20171024--0000--002757580--GHS/tracked_mesh/E001_Neutral_Eyes_Open/000213.obj",
+    "multiface_used_vertices": 5471,
+    "multiface_used_in_ava": true,
+    "faces_equal_to_prep_npz": true,
+    "distance_to_new_map_mm_on_template": {
+      "median": 1.447589728738072,
+      "p95": 3.261993455428589,
+      "max": 4.8961909045079866
+    }
+  },
+  "reference_multiface_corr": "datasets/UNIFIED_GT/corr/multiface.json: landmark 337, NICP 0.56 mm, tenuti fuori 0.69 mm, Chamfer 0.264 mm, coperti 1669/1671",
+  "patch": {
+    "n_vertices": 3127,
+    "n_faces": 6021,
+    "area_mm2_flame_frame": 37986.830426436856,
+    "area_flame_region_deformed_mm2": 39782.3324388388,
+    "bbox_mm_flame_frame": [
+      159.23659540703227,
+      178.5016937788315,
+      106.77875692155439
+    ],
+    "n_boundary_vertices": 247,
+    "template_vertices_dropped_interior": 92
+  },
+  "seconds": 52.74636387825012
+}

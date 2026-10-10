@@ -1,0 +1,95 @@
+{
+  "n_captures": 256,
+  "n_valid": 256,
+  "invalid": [],
+  "repeat_missing": [],
+  "neutral": {
+    "frames": {
+      "n": 256,
+      "min": 7.0,
+      "median": 15.0,
+      "p95": 30.0,
+      "max": 54.0
+    },
+    "kept": {
+      "n": 256,
+      "min": 5.0,
+      "median": 14.0,
+      "p95": 27.0,
+      "max": 50.0
+    },
+    "kept_fraction": {
+      "n": 256,
+      "min": 0.5882352941176471,
+      "median": 0.9428104575163399,
+      "p95": 1.0,
+      "max": 1.0
+    },
+    "threshold_mm": {
+      "n": 256,
+      "min": 0.022229100201347905,
+      "median": 0.09451675507836144,
+      "p95": 0.2547556826525075,
+      "max": 1.6094646989161596
+    },
+    "halves_mm": {
+      "n": 256,
+      "min": 0.0029811547811875293,
+      "median": 0.01153828038727599,
+      "p95": 0.03237142537956066,
+      "max": 0.17253523200025322
+    },
+    "frames_total": 4425,
+    "frames_not_finite": 0,
+    "captures_with_degenerate": 0,
+    "captures_with_flipped_patch": 216,
+    "frames_with_flipped_patch": 3581,
+    "max_flipped_patch": 154,
+    "max_flipped_surface": 766
+  },
+  "repeat": {
+    "frames": {
+      "n": 256,
+      "min": 6.0,
+      "median": 16.0,
+      "p95": 16.0,
+      "max": 16.0
+    },
+    "kept": {
+      "n": 256,
+      "min": 5.0,
+      "median": 13.0,
+      "p95": 16.0,
+      "max": 16.0
+    },
+    "kept_fraction": {
+      "n": 256,
+      "min": 0.5625,
+      "median": 0.8125,
+      "p95": 1.0,
+      "max": 1.0
+    },
+    "threshold_mm": {
+      "n": 256,
+      "min": 0.23144947980853184,
+      "median": 0.6449700071556987,
+      "p95": 1.4239150489735404,
+      "max": 2.2919637758954665
+    },
+    "halves_mm": {
+      "n": 256,
+      "min": 0.027057428086808475,
+      "median": 0.11799145680001222,
+      "p95": 0.2611672671143027,
+      "max": 0.4921087541805374
+    },
+    "frames_total": 4075,
+    "frames_not_finite": 0,
+    "captures_with_degenerate": 0,
+    "captures_with_flipped_patch": 252,
+    "frames_with_flipped_patch": 3007,
+    "max_flipped_patch": 194,
+    "max_flipped_surface": 758
+  },
+  "note": "distanze g = GT unificata (Procrustes di similarita' verso mu, mm alla scala di mu) fra frame della regione unificata; halves = distanza g fra le medie dei frame tenuti pari e dispari; 'flipped' = triangoli con la normale a piu' di 90 gradi da quella del template dopo una rigida: variazione fra persone in zone molto curve (palpebre, bordo basso della patch), NON pieghe della mesh; le pieghe (patch_quality) sono in views_summary.json"
+}

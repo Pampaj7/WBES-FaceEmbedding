@@ -96,3 +96,55 @@ di Multiface**: i 5471 vertici usati da Multiface sono usati anche qui con gli s
    FaceScape dev (`aau/zs3dmm/make_zs_topologies.py` -> `make_ict_topologies.process_subject`: original, remesh,
    crop, noisy, down8k, up60k), controllo del crop con `zs_check_crop.py`, vista `id<950000 + k>_GTready_<topologia>`
    (k = riga di `256_ids.csv`). Nessun operatore, nessun embedding.
+
+## Esito (11 ottobre 2026, dopo le scelte sopra)
+
+Catena completa in un job (`ava_build.sbatch`, job 1068023, 3 min 26 s; prima esecuzione a passi 1068003-1068020),
+impronte delle viste nel job 1068032. Numeri aggregati in `corr_summary.json`, `neutral_summary.json`,
+`gt_summary.json`, `size_cv.csv`, `views_summary.json`; nessuna geometria in git.
+
+| Passo | Script | Esito |
+|---|---|---|
+| download | `ava_download.py` | 256/256 catture, 8.756 file, **781 MB** su disco (870 MB letti in rete), CRC32 tutti corretti. `EXP_neutral_peak` 7-54 frame per persona (mediana 15); frame "dropped" in 21 catture (1-4 neutri in 11, fino a 10 di `EXP_eye_neutral` in ava0140, che ne ha 6) |
+| corrispondenza | `ava_corr.py` | 339 landmark, residuo 1,52 -> 0,49 mm (tenuti fuori 0,65 mm), Chamfer 0,208 mm, nessun triangolo girato; **regione unificata coperta 1478/1478** (regione FLAME 1671/1671). Mappa di Multiface per indice: 1,45 mm in mediana dalla nuova |
+| neutre | `ava_neutral.py` | **256 validi su 256**; neutro ripetuto per tutti. Nessun vertice non finito, nessun triangolo degenere |
+| unita' e GT | `ava_gt.py` | mm; FR fra persone mediana 6,68 mm; affidabilita' sotto |
+| viste | `ava_views.py`, `make_zs_topologies.py`, `zs_check_crop.py` | 1536 mesh (256 x 6), `id950000`-`id950255` |
+
+**Unita': millimetri, verificati con criteri anatomici.** IPD mediana delle 256 neutre 66,0 unita' -> 63 / 66,0 =
+0,954 mm per unita', entro il 15% dai mm (regola E12). La "forma media" e' la mediana delle neutre e non il template,
+che ha la taglia della prima cattura (IPD 1,098 volte la mediana). Con gli stessi sostituti dei landmark, Ava-256 sta
+sopra la media FLAME del 2,8% (IPD), del 2,1% (larghezza intercantale) e del 3,3% (biorbitale); la centroid size della
+regione e' 57,9 mm, contro 54,2-59,0 mm degli altri domini (FaMoS 57,7). La scala della similarita' canonica di
+`correspond` (0,884) torna a 0,970 tolta la taglia della prima cattura.
+
+**CV della taglia sui 256** (IC 95% bootstrap per soggetto, 1000 repliche, seme 1234): centroid size **4,78% [4,36;
+5,20]**, IPD 5,93% [5,30; 6,55], altezza della regione 6,50% [5,86; 7,15]; correlazione centroid size-IPD 0,71. Sta
+nella fascia plausibile di E12 (4-7%: FaMoS 4,0%, Multiface 5,2%, ICT 4,8%, GNM 5,3%).
+
+**Qualita'.** Pieghe nella patch delle viste (coppie di triangoli adiacenti a piu' di 120 gradi, il controllo delle viste
+FaMoS): mediana 5, max 29 su 6021 triangoli (FaMoS: 22 sulle scansioni, 41 sulle registrazioni). I triangoli con la
+normale a piu' di 90 gradi dal template (`neutral_summary.json`, "flipped") stanno sulle palpebre e sul bordo basso della
+patch: variazione fra persone, non pieghe. Regola MAD (scelta 6): 13 segnalati e tenuti; 12 solo per il rumore fra le
+meta' della neutra, che in valore assoluto e' minuscolo (max 0,17 mm); **ava0163** per la distanza da mu (8,0 mm contro
+3,9 di mediana), dovuta a una barba folta che il tracking segue (controllo visivo interno, render fuori da git). La
+superficie e' quella visibile: barba e capelli fanno parte della forma misurata.
+
+**Affidabilita' della GT** (solo GT contro GT): con il neutro ripetuto di `EXP_eye_neutral`, Spearman FR 0,972 e SR
+0,966 sulle 32.640 coppie; distanza FR intra-persona mediana 0,76 mm (p95 2,08) contro 6,68 mm fra persone; per 256
+persone su 256 il neutro ripetuto ha come neutra piu' vicina la propria. Le distanze intra-persona alte (fino a 4,7 mm)
+sono espressione nel segmento ripetuto (sopracciglia alzate, mandibola), quindi sono un limite superiore del rumore.
+Fra le meta' pari e dispari della stessa neutra: 0,012 mm (frame consecutivi, misura solo il tremolio del tracking).
+Con la mappa di Multiface invece della nuova: Spearman FR 0,996, |delta FR| mediana 0,10 mm.
+
+**Riproducibilita'.** Seconda esecuzione completa contro la prima: GT entro 1,3e-4 mm, mappa entro 0,0025 mm (3 punti
+su 1478 con indici diversi), original/remesh/crop/noisy entro 1e-5 mm, down8k entro 6e-5 mm; `up60k` cambia
+tassellazione (la decimazione quadrica amplifica differenze di 1 ulp). GT e viste sono congelate per contenuto:
+impronte in `gt_summary.json` (`content_sha256`) e `views_summary.json` (`content_digest`).
+
+**Viste.** Patch `original` di 3127 vertici e 6021 triangoli; remesh 2212 / 4213, crop circa 2882 / 5533 (tiene il
+90,7-93,3% dei vertici, diverso dalla original per tutti), noisy 3127 / 6021, down8k 1112 / 2074, up60k 7954 / 15557.
+`datasets/AVA256/eval_view` ha i symlink, `gt_fr.npz`, `gt_sr.npz`, `gt_matrix.npz` -> `gt_fr.npz` e il file
+`CONFERMATIVO_NON_VALUTARE.txt`. Disco: `datasets/AVA256` 985 MB.
+
+**Protocollo:** `PROTOCOL_CONFERMATIVO_bozza.md`, da completare dal PI prima di qualsiasi valutazione.
