@@ -189,3 +189,39 @@ catena); `aau/baselines_param/bp_paired_e3.py` (venv della GT unificata): `paire
 e `heldout` (esperimento 2, GT sintetiche), uscite `paired_e3.csv`, `spearman_e3.csv`, `heldout_e3.csv`,
 `controls_e3.json` e le sezioni dell'emendamento 3 in fondo a `results.md`. Ordine: commit di questo file -> job GPU ->
 delta -> testo.
+
+## 6. Aggiunta dell'11 ottobre 2026 (richiesta del critic del paper): Spearman dentro le coppie di topologie senza crop
+
+Aggiunta POST HOC, scritta e committata PRIMA di calcolarla (le sez. 1-5 sono quelle del commit acaf0ab, sha256
+`1c4331dc...`); nessun numero dell'emendamento 3 era ancora stato calcolato (job GPU 1067823 negli embedding, passo
+`paired` non eseguito). E' una quantita' **descrittiva, non decisionale**: non entra nelle letture delle sez. 1 e 2.
+Serve al paper per misurare con un numero la robustezza alla discretizzazione dei bracci.
+
+**Trasparenza: la quantita' NON e' cieca.** Il critic del paper ha gia' calcolato stime puntuali, senza bootstrap:
+HIFI3D, factorized s1234, d_F cal., FR: media 0.749 [min 0.730, max 0.760], stessa topologia 0.760; FaceScape,
+factorized s1234, d_F cal., FR: 0.667 [min 0.628, max 0.706], stessa topologia 0.706. Si riportano accanto ai valori
+ricalcolati qui.
+
+**Righe.** Viste `hifi3d`, `facescape`, `faceverse` (con espressioni). (i) **Coppie ordinate di topologie diverse senza
+crop**: le righe di all_cross dell'emendamento 2 (`bp_paired_e2.all_cross_rows`) senza crop su nessun lato, 99.000 =
+4.950 coppie di soggetti x 20 coppie ordinate (topologia_a, topologia_b) di topologie diverse fra original, remesh,
+noisy, down8k, up60k (4.950 righe per coppia ordinata). (ii) **Stessa topologia**: per ognuna delle stesse 4.950 coppie di
+soggetti (stesso verso soggetto_a, soggetto_b delle righe di all_cross) e ognuna delle 5 topologie senza crop, la riga
+(soggetto_a, t, soggetto_b, t): 24.750 righe, 4.950 per topologia. GT FR e SR: per coppia di soggetti, copiate dalle
+righe di (i) (la GT e' per identita'; controllo: costante dentro la coppia di soggetti, scarto massimo riportato).
+
+**Bracci** (ingresso intero, embedding degli store come l'emendamento 2, `fact_paired.model_columns`): factorized s1234 /
+s2345 con d_F calibrata (lettura con FR) e d_P (lettura con SR); ctrlfr s1234 / s2345 con ||z|| (FR e SR). Si riporta
+anche il valore con l'altra GT (non letto).
+
+**Quantita'.** Per coppia ordinata di topologie, lo Spearman con la GT dentro le sue 4.950 righe. (a) **media 20**: media
+degli Spearman sulle 20 coppie ordinate di topologie diverse senza crop; (b) **media 5 stessa topologia**: media sulle
+5 coppie (t, t); (c) differenza (a) - (b); (d) min e max delle stime puntuali fra le 20 coppie (e fra le 5), con la
+coppia; i valori per coppia nel csv. Repliche: per soggetto, 1000, `default_rng(seme)` col seme di all_cross della
+vista (lo stesso dell'esperimento 1: 757683 HIFI3D, 621096 FaceScape, FaceVerse `stable_seed(1234, "expr_sec",
+"scale_e108@bfm", "all_cross", "latent_distance", "raw_chamfer")`), pesi c_a c_b; in ogni replica gli Spearman per
+coppia e poi le medie; IC 95% percentile per (a), (b), (c). Nota: la "media 15 coppie" del gruppo (d) della sez. 1 e'
+un'altra quantita' (coppie NON ordinate di topologie diverse, crop COMPRESO: 10 senza crop + 5 col crop).
+
+**Uscite.** Passo `topo` di `bp_paired_e3.py` (venv della GT unificata): `topo_pairs_e3.csv`, voce `topo` di
+`controls_e3.json`, sezione in fondo a `results.md`.
