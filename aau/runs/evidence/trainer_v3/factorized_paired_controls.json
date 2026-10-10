@@ -5,6 +5,8 @@
  "famos factorized2_s2345|form: |rho - graded.csv| = 0.0e+00",
  "famos ctrlfr_s1234|z: |rho - graded.csv| = 0.0e+00",
  "famos ctrlfr_s2345|z: |rho - graded.csv| = 0.0e+00",
+ "famos dual_s1234|zf: |rho - graded.csv| = 0.0e+00",
+ "famos dual_s2345|zf: |rho - graded.csv| = 0.0e+00",
  "famos factorizedc3m_e123|form: |rho - graded.csv| = 0.0e+00",
  "famos factorizedc3m_e205|form: |rho - graded.csv| = 0.0e+00"
 ]
