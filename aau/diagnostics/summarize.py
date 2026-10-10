@@ -40,7 +40,7 @@ def d1_tables(out: list) -> None:
             for a in diag.ARMS:
                 r = get.get((s, g, f"{a}|{dist}"))
                 cells.append(cell(r["rho"], r["ci_low"], r["ci_high"]) if r else "-")
-            for m in diag.BP_MODELS:
+            for m in ("flame2023", "gnm"):                     # ordine delle colonne B-FLAME, B-GNM
                 r = next((x for k, x in get.items() if k[0] == s and k[1] == g and k[2].startswith(f"B-{m}|vb_{g}")),
                          None)
                 tag = "" if r is None else (" (esatto)" if "esatto" in r["method"] else "")
@@ -95,7 +95,22 @@ def main() -> None:
     for a in diag.ARMS:
         x = [rd["R1"][a], rd["R1_native"][a], rd["R2"][a], rd["difficulty"][a]]
         out.append(f"| {SHORT[a]} | " + " | ".join(cell(r["delta"], r["ci_low"], r["ci_high"], True) for r in x) + " |")
-    out += ["", "## D1", ""]
+    out += ["", "Note del coder, scritte DOPO i numeri (commento, non regole):", "",
+            "- R1 passa sulla soglia: Delta_gen 0.108 e 0.107, ma gli estremi inferiori (0.079, 0.077) stanno sotto 0.10; "
+            "col FLAME nativo 0.131 e 0.123 (effetto della risoluzione su SR +0.023 e +0.015).",
+            "- Il calo su FLAME non e' dell'insieme: B-GNM, incrociato su bfm, ict e FLAME, su FLAME va MEGLIO (-0.056) e "
+            "la differenza delle differenze e' +0.17 per entrambi i semi.",
+            "- R2 no: in distribuzione i bracci superano B di +0.17 (SR); anche B-GNM col prior esatto su gnm arriva a "
+            "0.752 contro 0.910. Su FLAME suddiviso i bracci sono pari a B-GNM incrociato (-0.005) e a B-FLAME esatto "
+            "(-0.024, IC che tocca lo 0); sul nativo sotto B-FLAME esatto (-0.047 e -0.039).",
+            "- C3M (10x identita'): +0.03-0.05 in distribuzione, +0.013 su FLAME suddiviso, -0.037 su FLAME nativo rispetto "
+            "a C3F s1234: piu' identita' degli stessi generatori non chiudono il gap di generatore.",
+            "- D2: la sonda e' addestrata su 50 soggetti FaceScape per fold (GT del dominio dev): dice che l'informazione "
+            "e' decodificabile linearmente dall'embedding, non che esista un metodo. L'IC del protocollo e' spostato in "
+            "basso come previsto dall'emendamento 1, ma esclude lo 0; la sonda coi bersagli permutati (0.61-0.63) sta "
+            "sotto d_P. HIFI3D (descrittivo): SR +0.09-0.11 con l'IC del protocollo che tocca lo 0; FR: la sonda non "
+            "batte d_F calibrata.", ""]
+    out += ["## D1", ""]
     d1_tables(out)
     d1_deltas(out)
     out += ["## D2", ""]

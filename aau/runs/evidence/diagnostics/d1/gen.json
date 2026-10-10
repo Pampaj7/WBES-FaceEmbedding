@@ -1,0 +1,154 @@
+{
+ "definition": "PROTOCOL_D.md sez. 3.2-3.3",
+ "seeds": {
+  "identity": 20261111,
+  "noise": 20261112,
+  "gnm_noise": 20261011
+ },
+ "sets": {
+  "regen_ict": {
+   "n_identities": 100,
+   "n_meshes": 500,
+   "frame": "ict",
+   "source": "ict",
+   "subdiv": 0,
+   "gt_converged": 0.99,
+   "S_mean_mm": 58.257834234747634,
+   "dP_gt_median": 0.06481414087682276,
+   "verts_by_label": {
+    "original": [
+     9409,
+     9409
+    ],
+    "remesh": [
+     6597,
+     6607
+    ],
+    "down8k": [
+     3272,
+     3285
+    ],
+    "noisy": [
+     9409,
+     9409
+    ],
+    "up60k": [
+     24120,
+     24128
+    ]
+   },
+   "c1_gt": {
+    "sr_max_rel": 1.8606427896083169e-07,
+    "fr_ratio_median": 21.534749583338574,
+    "fr_ratio_rel_spread": 1.8913352387035372e-07,
+    "pass": true
+   }
+  },
+  "regen_gnm": {
+   "n_identities": 100,
+   "n_meshes": 500,
+   "frame": "gnm",
+   "source": "gnm",
+   "subdiv": 0,
+   "gt_converged": 0.99,
+   "S_mean_mm": 56.9077410773066,
+   "dP_gt_median": 0.07568315546126725,
+   "verts_by_label": {
+    "original": [
+     9022,
+     9022
+    ],
+    "remesh": [
+     6340,
+     6350
+    ],
+    "down8k": [
+     3161,
+     3179
+    ],
+    "noisy": [
+     9022,
+     9022
+    ],
+    "up60k": [
+     23164,
+     23177
+    ]
+   },
+   "c1_gt": {
+    "sr_max_rel": 1.9306687535567794e-07,
+    "fr_ratio_median": 18.51811052578926,
+    "fr_ratio_rel_spread": 2.0563619930860656e-07,
+    "pass": true
+   }
+  },
+  "flame2023_s1": {
+   "n_identities": 200,
+   "n_meshes": 1000,
+   "frame": "flame",
+   "source": "flame2023",
+   "subdiv": 1,
+   "gt_converged": 1.0,
+   "S_mean_mm": 56.3427241666598,
+   "dP_gt_median": 0.07063272844772901,
+   "verts_by_label": {
+    "original": [
+     6986,
+     6986
+    ],
+    "remesh": [
+     4901,
+     4912
+    ],
+    "down8k": [
+     2442,
+     2452
+    ],
+    "noisy": [
+     6986,
+     6986
+    ],
+    "up60k": [
+     17857,
+     17879
+    ]
+   }
+  },
+  "flame2023": {
+   "n_identities": 200,
+   "n_meshes": 1000,
+   "frame": "flame",
+   "source": "flame2023",
+   "subdiv": 0,
+   "gt_converged": 1.0,
+   "S_mean_mm": 56.3427241666598,
+   "dP_gt_median": 0.07063272844772901,
+   "verts_by_label": {
+    "original": [
+     1787,
+     1787
+    ],
+    "remesh": [
+     1255,
+     1261
+    ],
+    "down8k": [
+     628,
+     634
+    ],
+    "noisy": [
+     1787,
+     1787
+    ],
+    "up60k": [
+     4522,
+     4529
+    ]
+   }
+  }
+ },
+ "n_meshes": 3000,
+ "seconds_gen": 281.2918395996094,
+ "raw_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/DIAG_D1/in",
+ "seconds": 308.3717246055603
+}
