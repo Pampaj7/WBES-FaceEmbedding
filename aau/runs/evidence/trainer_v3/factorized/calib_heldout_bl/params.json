@@ -1,0 +1,21 @@
+{
+ "definition": "blmm_scalars.py sulle original held-out del dominio: L = mediana di maxabs, cs_ref = mediana di cs (mm, frame di E12)",
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "bfm": {
+   "L": 89.2113235513891,
+   "cs_ref": 55.06401533661039,
+   "n_ref": 100
+  },
+  "ict": {
+   "L": 172.3985272468933,
+   "cs_ref": 91.78608556138633,
+   "n_ref": 100
+  },
+  "gnm": {
+   "L": 94.4847654416676,
+   "cs_ref": 66.499379036411,
+   "n_ref": 100
+  }
+ }
+}
