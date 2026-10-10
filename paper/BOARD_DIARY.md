@@ -1421,3 +1421,11 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
 - **Restano `\todo`:** media dentro le 10 coppie di topologie senza crop (emendamento 3), IC appaiati fra pipeline
   geometriche, permessi per i pesi addestrati su BFM, coefficienti BFM di REMESH non conservati (la sezione sulla
   disponibilità prometteva di rilasciarli).
+- **Formato CVPR** (commit ece83a1, fa1c68e). Kit autori ufficiale CVPR 2026 come segnaposto in `paper/cvpr_kit/`
+  (nessuna release 2027 l'11 ottobre; fonte e sha256 nel README), bozza in modalità review a due colonne, tabelle e
+  figure larghe in `table*`/`figure*`, niente checklist NeurIPS, figure in `paper/imgs/` (due grafici e due identità
+  sintetiche REMESH). `neurips_2026.sty` non versionato (nessuna licenza dichiarata): fonte in `paper/README.md`.
+  Compilazione (job 1067984, TeX Live 2026): 23 pagine, **corpo 15 pagine contro le 8 di CVPR** (riferimenti da
+  pagina 16, appendice da pagina 18), nessun riferimento indefinito, nessuna riga oltre 1pt. Il taglio aspetta la
+  tesi stabile (diagnostiche); stima: il blocco v1/REMESH dei risultati vale circa 8 colonne, la sezione degli
+  esperimenti circa 4.
