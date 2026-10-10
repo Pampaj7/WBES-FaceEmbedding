@@ -1283,3 +1283,103 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   - Stream P1 su 12 L40S 6 + 6.
   - Domande (a)-(e) su FaceScape, FaMoS TRAIN, nucleo aperto, secondari, FLAME 2023 Open.
   - Nessun job lanciato. Prossimo passo: critic sulla configurazione, poi revisione con l'utente (§21).
+
+## 2026-10-10/11 — concorrenti parametrici (emendamenti 1-3), il crop, §22 dopo due critic
+
+- **Riepilogo finale di factorized** (`trainer_v3/factorized_results.md`, sezione "Mancanti": nessuno).
+  - HIFI3D, GT FR, d_F calibrata: 0.749 [0.683, 0.811] (s1234) e 0.731 [0.660, 0.793] (s2345).
+    - Contro ICP + Chamfer in mm: +0.106 [+0.062, +0.154] e +0.088 [+0.040, +0.138].
+    - Contro la taglia oracolo: +0.012 [−0.034, +0.062] e −0.006 [−0.058, +0.048], non risolti.
+    - Contro "taglia stimata + ICP cs cal.": +0.034 [−0.001, +0.071] e +0.017 [−0.019, +0.057], non risolti.
+    - Sotto "oracolo + ICP cs cal.": −0.093 [−0.128, −0.060] (s1234).
+  - SR, d_P: 0.622 [0.546, 0.691], contro NICP per coppia cs 0.595 (+0.027 [−0.029, +0.083], n.s.).
+  - Criterio "forma oltre la taglia": **no** per tutti i bracci. Regola dual: **no**, quindi **testa factorized con
+    d_F calibrata**.
+- **§22 di `PLAN_MASSIVE.md` dopo due giri del critic.**
+  - Primo giro: lr 1e-4 costante esplicito, batch a dominio singolo, ricetta per rank del C3M, `STREAM_SOURCES`
+    obbligatorio, `fact_calib.py calib-ckpt`.
+  - Secondo giro (RISERVE): `validated` = **ricetta del C3M scalata** (`STREAM_RECIPE=c3m`); ogni deviazione sta nel
+    preset `max`, come variabile esplicita.
+  - Mini-smoke a 2 L40S della ricetta c3m (job 1067709): 0.435-0.447 s/passo nelle 5 epoche, GPU al 76%, 6.1 viste
+    fresche/s. La stima a 12 rank resta provvisoria.
+  - Prova a 6 + 6 L40S (job 1067683): **in coda, mai partita**. È bloccata dal tetto di 12 GPU per utente
+    (`QOSMaxGRESPerUser`) e dalle L40S piene. Quindi il s/passo a 12 rank non è ancora misurato.
+- **Concorrenti parametrici, analisi preregistrata** (GNM Head e FLAME 2023 Open: fit NICP + proiezione d'identità;
+  varifold in mm; protocollo commit 451b30c; `baselines_param/conclusions.md`): nessun IC sotto 0 in nessun dominio.
+- **Emendamento 1** (POST HOC; commit 3595f0a, 6e09491, 6c50d3c, ec351f7):
+  - variante A (senza espressione): nessuna cella cambia segno;
+  - variante B (modello nel ciclo, aderenza 0.29-0.56 mm contro 1.0-1.6 mm del fit originale): **21 celle su 240
+    passano sotto 0**:
+    - HIFI3D SR (8): tutte contro ctrlfr, che con SR perde già contro le baseline geometriche;
+    - FaceScape FR (4): GNM vB mesh SR 0.767 [0.675, 0.843] contro i bracci 0.653-0.669;
+    - FaceScape SR (8): GNM vB 0.854 [0.803, 0.894] e FLAME vB 0.820 [0.757, 0.870] contro d_P 0.747 / 0.753
+      (delta da −0.107 [−0.155, −0.065] a −0.067 [−0.120, −0.014]);
+    - FaceVerse neutra (1): cella fragile.
+  - **HIFI3D FR resta dei bracci, 24 / 24.** Il migliore di B è FLAME vB mesh FR, 0.686 [0.597, 0.758].
+  - **Perché FaceScape.** È una spiegazione misurata, ma parziale. Su FaceScape la taglia varia poco (CV di S 1.6%,
+    contro 4.7% su HIFI3D) e FR ordina quasi come SR (Spearman FR-SR 0.888, contro 0.628). Chi ordina bene la forma
+    ordina quindi bene anche FR. Da sola non basta: FaceVerse ha CV 1.8% e lì B non vince. FaceScape è il nostro
+    dominio di sviluppo, quindi la sconfitta lì pesa di più.
+- **Emendamento 2** (POST HOC; commit 05eceb0, 26a6d5d, f53ba2a).
+  - **Composizione forma B + taglia B** (k dagli held-out sintetici).
+    - HIFI3D FR: GNM 0.698 [0.612, 0.769], FLAME 0.712 [0.627, 0.781]. Contro i bracci 4 celle a favore, 4 non
+      risolte, nessuna contro: **HIFI3D FR resta ai bracci**.
+    - Per factorized il quadro è più debole: è sopra solo contro GNM s1234, +0.051 [+0.009, +0.094]; le altre tre
+      celle sono non risolte.
+    - FaceScape FR: GNM 0.800 [0.741, 0.847], FLAME 0.731 [0.657, 0.794]. **8 celle su 8 contro i bracci.**
+  - **Costi misurati.** Iscrizione di una mesh, mediana su CPU a un thread con il nodo pieno:
+    - B GNM 4.5-5.0 s; B FLAME 1.6-2.0 s;
+    - bracci 4.8 s, quasi tutti negli operatori DiffusionNet k128 (forward 6.5 ms su L40S);
+    - con un processo solo: operatori 2.97 s, B GNM 2.9 s, B FLAME 1.0 s.
+    - **Il costo non separa i metodi.** Il vecchio "~24 s per mesh" degli operatori non è confermato.
+  - **Crop (all_cross): B regge, i bracci cadono.**
+    - FaceScape factorized d_F cal. FR: da 0.661 / 0.669 a 0.370 / 0.351.
+    - HIFI3D ctrlfr FR: da 0.757 / 0.746 a 0.516 / 0.530 (righe col crop 0.236 / 0.279).
+    - HIFI3D factorized: da 0.749 / 0.731 a 0.709 / 0.661.
+    - FaceScape: 48 celle su 48 contro i bracci.
+    - B a sigma 8: stesso quadro.
+- **Critic sull'emendamento 2: RISERVE.** I numeri sono giusti, il racconto è incompleto.
+  - **Il crop è già nel training** di C3F, del C3M e del run massivo (`v3_work/stream/views.py`, peso 1.0), stesso
+    generatore `make_crop`. La perdita d'area è comparabile (valori del critic): training BFM −0.080, ICT −0.104,
+    GNM −0.117; test HIFI3D −0.108, FaceScape −0.131, FaceVerse −0.047.
+  - **Con il crop i bracci scendono al livello di ICP in mm.** ICP + Chamfer in mm su all_cross, FR:
+    HIFI3D 0.556 [0.488, 0.617], FaceScape 0.381 [0.326, 0.434] (`baselines_mm/spearman.csv`). Anche il C3M
+    crolla (valori del critic: HIFI3D 0.739 → 0.472, FaceScape 0.711 → 0.449).
+  - **La fragilità era nota:**
+    - E1: C3F maxabs HIFI3D 0.716 [0.645, 0.776] senza crop, 0.587 [0.504, 0.657] su all_cross;
+    - `paper/REPORT.md`, legge di Weyl: λ128 si sposta del 16% sul crop, contro il 17% previsto dal 14.6% di area
+      persa.
+  - B usa una regione che esclude l'anello di bordo, i bracci no. Il pooling di all_cross sovrastima il calo.
+  - **L'invarianza alla discretizzazione regge.** Media dentro le coppie di topologie, valori del critic da
+    ricalcolare nell'emendamento 3 (gruppo d):
+    - senza crop: FaceScape 0.667, HIFI3D ctrlfr 0.758;
+    - con crop: 0.376 e 0.239.
+  - **Nota dell'agente.** La "Chamfer pura" del critic (all_cross FR: FaceScape 0.570, HIFI3D 0.645) è la Chamfer
+    non centrata. `baselines_mm/summary.md` la marca come diagnostica: legge la posizione nel frame del generatore.
+    Non è una baseline e non va in tabella.
+- **Concorrenti appresi** (`literature/COMPETITORS_LEARNED_2026-10-10.md`). Nessuno ancora eseguito.
+  - MICA su render: fattibilità media, asset già su disco.
+  - NPHM: licenza dei pesi ignota.
+  - 3DFacePointCloudNet: pesi MIT nel repository.
+  - Point-MAE: se c'è tempo.
+  - Pix2NPHM: non eseguibile (solo README).
+- **Decisioni del PI.**
+  1. Il crop **esce dalla tesi principale**, ma resta nei limiti e in appendice, con numeri e causa. Il repository è
+     pubblico: niente omissioni.
+  2. Il run massivo principale **non cambia ricetta** per il crop.
+  3. Si prepara un **run secondario di ablazione** su A100 (`--requeue` + ripresa da checkpoint testata), con
+     augmentation di parzialità variabile.
+  4. **Emendamento 3** (commit acaf0ab, sha256 `1c4331dc...`): bracci sulla stessa regione di B (controllo di
+     equità) e diagnosi del crop sugli held-out sintetici. Job `wbes-bp-e3` 1067823 in corso su nv-ai-04.
+  5. Il run massivo resta **subordinato alla revisione con l'utente** (§21).
+- **Paper** (`main_cvpr_draft.tex`):
+  - tesi e abstract riscritti: metrica forma + taglia dove la taglia varia, invarianza alla discretizzazione, costo
+    comparabile;
+  - sezione dei concorrenti parametrici, con le celle dove B vince;
+  - limitazione sul crop;
+  - affermazioni smentite marcate `% SMENTITO:`, punti che dipendono dal run massivo marcati `% TODO run massivo`.
+- **In corso:** secondi semi E1 (1062681, 1062683), poi eval e riassunto (1062682, 1062684, 1062685).
+
+### Emendamento 3: risultati in arrivo
+
+(da riempire)
