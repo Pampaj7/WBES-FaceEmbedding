@@ -3,7 +3,9 @@
 ## `main_cvpr_draft.tex` (bozza CVPR 2027, formato review a due colonne)
 
 - Kit autori: `cvpr_kit/` (kit ufficiale di CVPR 2026 come segnaposto; fonte, sha256 e licenza in
-  `cvpr_kit/README.md`). Figure: `imgs/`. Bibliografia: `references.bib` + `refs_cvpr_add.bib`.
+  `cvpr_kit/README.md`). Non è versionato, tranne README e `ieeenat_fullname.bst`: nessuna licenza dichiarata, come
+  `neurips_2026.sty` (sotto). Va scaricato dalla fonte nel README e copiato in `cvpr_kit/`. Figure: `imgs/`.
+  Bibliografia: `references.bib` + `refs_cvpr_add.bib`.
 - Sul cluster: `sbatch /home/create.aau.dk/ga41wf/containers/texbuild/scripts/compile_paper.sbatch` (partizione
   `prioritized`, TeX Live 2026 in `containers/texlive_latest.sif`). Il PDF va in `paper/build/` (non versionato);
   log, testo per pagina e anteprime PNG in `containers/texbuild/out/run_<job>/`. Lo script fa anche una passata

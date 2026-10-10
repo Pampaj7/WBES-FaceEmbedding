@@ -18,6 +18,10 @@ risponde 404. Quando esce il kit 2027 va sostituito qui, insieme a `\confYear` n
 
 ## File (identici al tag)
 
+Nel repo sono versionati solo questo README e `ieeenat_fullname.bst` (sotto, "Licenza"). Gli altri file stanno in
+questa cartella solo in locale, ignorati da `.gitignore`: per ricrearli si scarica lo zip del tag (sopra) e si copiano
+qui, controllando gli sha256.
+
 | file | sha256 |
 |---|---|
 | `cvpr.sty` | `2602473285d1a7df2a445ac89b76e1afa0acab78e056f0369d19770245190153` |
@@ -37,14 +41,17 @@ Non copiati: `.github/workflows/latex-build.yml` (CI del repository del kit) e i
 
 ## Licenza
 
-Il repository del kit non dichiara una licenza (API GitHub: `license: null`, nessun file LICENSE); `cvpr.sty` non ha
-intestazione di licenza; `ieeenat_fullname.bst` è di Patrick W. Daly sotto LPPL (intestazione del file). Il kit è
-pubblicato da CVPR perché gli autori lo includano nei sorgenti dei propri articoli (arXiv compreso): lo teniamo qui
-alla stessa condizione, invariato.
+Il repository del kit non dichiara una licenza (API GitHub: `license: null`, nessun file LICENSE) e `cvpr.sty` non ha
+intestazione di licenza. Regola del repo, la stessa di `neurips_2026.sty`: niente file di terzi senza una licenza
+esplicita. Questi file sono stati tolti dal tracciamento l'11 ottobre 2026 (`git rm --cached`); restano nella storia
+dal commit ece83a1, che non si riscrive. `ieeenat_fullname.bst` è di Patrick W. Daly sotto LPPL (intestazione del
+file), che ne permette la ridistribuzione: resta versionato perché la bozza lo usa per la bibliografia.
 
 ## Uso
 
 `main_cvpr_draft.tex` carica `\usepackage[review]{cvpr_kit/cvpr}` e `\bibliographystyle{cvpr_kit/ieeenat_fullname}`
 (percorsi relativi a `paper/`; LaTeX avvisa che il pacchetto si dichiara `cvpr`, avviso innocuo). Compilazione:
 `/home/create.aau.dk/ga41wf/containers/texbuild/scripts/compile_paper.sbatch` (Slurm, partizione `prioritized`,
-TeX Live 2026 in container); il PDF va in `paper/build/`, che non si versiona.
+TeX Live 2026 in container); il PDF va in `paper/build/`, che non si versiona. Lo script copia `paper/` dall'albero di
+lavoro, file ignorati compresi, quindi trova il kit in questa cartella locale non versionata (verificato con il job
+1068022, dopo `git rm --cached`: latexmk esce con 0, 23 pagine).

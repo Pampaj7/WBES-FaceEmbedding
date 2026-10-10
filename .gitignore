@@ -123,6 +123,11 @@ core.*
 /paper/*.txt
 # PDF compilati del paper (containers/texbuild/scripts/compile_paper.sbatch): si rigenerano.
 /paper/build/
+# Kit autori CVPR: nessuna licenza dichiarata, quindi non si versiona (come neurips_2026.sty). Restano il README
+# (fonte e sha256) e ieeenat_fullname.bst (LPPL); gli altri file stanno solo in locale (paper/cvpr_kit/README.md).
+/paper/cvpr_kit/*
+!/paper/cvpr_kit/README.md
+!/paper/cvpr_kit/ieeenat_fullname.bst
 
 # v2 experiment artifacts: operators, caches, checkpoints, generated meshes and logs.
 # Source files under v2_work are tracked; the 270 GB of data they produce is not.
