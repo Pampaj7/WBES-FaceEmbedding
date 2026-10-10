@@ -138,4 +138,21 @@ sotto 0" (concorrente davanti al braccio).
 
 ## 8. Valori congelati dal pilota
 
-(Da aggiungere con un commit successivo, prima dei calcoli sulle viste valutate.)
+Aggiunta del 10 ottobre 2026, dopo il pilota e PRIMA di ogni calcolo sulle viste valutate (la sez. 1-7 e' quella del
+commit 3595f0a, sha256 `63569a41...`). Job 1067652 (GNM, 4 min 37 s) e 1067653 (FLAME, 13 min 47 s), 40 core CPU,
+`bp_fit_e1.py --pilot`; 200 mesh per modello, 0 fit falliti in tutte le 20 configurazioni (originale, A, 18 di B).
+Punteggi completi in `pilot_e1/<modello>.json`. Applicata la regola della sez. 2:
+
+| modello | S originale | S variante A | S minimo di B | entro l'1% | scelta (regola di parita') | S scelta |
+| --- | --- | --- | --- | --- | --- | --- |
+| GNM | 0.1518 | 0.1513 | 0.1559 (sigma 2, tau 5, 5 iter.) | sigma 2: tau 5 e 10, 5 iter. | **sigma 2 mm, tau 10 mm, 5 iterazioni** | 0.1566 |
+| FLAME 2023 Open | 0.2304 | 0.2260 | 0.2090 (sigma 2, tau 2, 10 iter.) | sigma 2: (2, 10), (5, 5), (5, 10), (10, 10) | **sigma 2 mm, tau 5 mm, 5 iterazioni** | 0.2106 |
+
+`bp.LOOP` = GNM {sigma 2.0, tau 10.0, iters 5}, FLAME 2023 {sigma 2.0, tau 5.0, iters 5}. Da dichiarare con i numeri:
+1. entrambe le scelte stanno sul bordo superiore della griglia di sigma (2 mm): un prior piu' forte potrebbe dare S
+   minore; la griglia non si allarga (sarebbe una seconda scelta dopo aver visto il pilota);
+2. sul pilota, per GNM il ciclo NON migliora S rispetto all'originale (0.1566 contro 0.1518): migliora FaceScape
+   (0.252 -> 0.160) e peggiora FaceVerse con espressioni (0.197 -> 0.302) e neutra (0.077 -> 0.087); per FLAME migliora
+   (0.230 -> 0.211), con lo stesso peggioramento su FaceVerse con espressioni (0.288 -> 0.375);
+3. l'errore di superficie sul pilota scende con B da 1.1-1.6 mm di mediana (p95 3.4-5.5 mm) a 0.3-0.6 mm (p95
+   1.0-2.0 mm) in tutte le viste.

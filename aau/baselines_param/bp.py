@@ -73,13 +73,23 @@ REGION_DIST_MM, REGION_VOTE = 10.0, 0.5
 VARIFOLD_SIGMAS_MM = (10.0, 20.0, 40.0)
 VARIFOLD_CELL_MM = 2.5                   # un quarto della sigma piu' piccola (geometric_matrix.calibrate_cell)
 FLAME_JAW = 2                            # indice del giunto nella kintree di FLAME (root, neck, jaw, occhi)
+# emendamento 1 (PROTOCOL_emendamento_1.md, POST HOC): varianti A (``va``) e B (``vb``), errore di superficie
+NEUTRAL_VIEWS = ("hifi3d", "facescape", "faceverse_neutral", "famos")   # A: niente espressione, mandibola a 0
+VARIANTS = ("va", "vb")
+LOOP_INNER = 5                           # giri interni (rigida / coefficienti) per iterazione esterna di B
+LOOP_MIN_KEPT = 0.25                     # frazione minima di corrispondenze tenute per verso (B)
+LOOP_GRID = {"sigma": (0.5, 1.0, 2.0), "tau": (2.0, 5.0, 10.0), "iters": (5, 10)}   # pilota (sez. 2)
+PILOT_VIEWS, PILOT_SUBJECTS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral"), 10
+# {sigma, tau, iters} di B congelati dal pilota (job 1067652, 1067653; sez. 8 dell'emendamento, prima delle viste valutate)
+LOOP = {"gnm": {"sigma": 2.0, "tau": 10.0, "iters": 5}, "flame2023": {"sigma": 2.0, "tau": 5.0, "iters": 5}}
 
 
 # ------------------------------------------------------------------------------------------ modelli
 
 def load_model(name: str) -> dict:
     """Il modello ``name`` in mm, frame nativo: ``mu`` (n, 3), ``B`` (n, 3, k), ``E`` (n, 3, e) (solo il pool),
-    ``F``, ``k_id``; FLAME anche ``jaw`` (pesi, correttivi, giunto lineare nei coefficienti)."""
+    ``F``, ``k_id``, ``expr_scale`` (sigma dichiarata dei coefficienti d'espressione, ``loaders.EXPR_SCALE``: la usa
+    solo l'emendamento 1); FLAME anche ``jaw`` (pesi, correttivi, giunto lineare nei coefficienti)."""
     from v3_work.mm import loaders
     loader, _, seen, jaw = MODELS[name]
     m = loaders.LOADERS[loader](loader)
@@ -87,7 +97,7 @@ def load_model(name: str) -> dict:
     pool = np.asarray(m.expr.pool, dtype=np.int64)
     out = {"name": name, "mu": m.mean * u, "B": m.id_basis * u, "E": m.expr.basis[:, :, pool] * u,
            "F": np.asarray(m.faces, dtype=np.int64), "k_id": int(m.id_basis.shape[2]), "seen": seen,
-           "file": str(loaders.model_path(loader)), "region": m.region}
+           "file": str(loaders.model_path(loader)), "region": m.region, "expr_scale": float(m.expr.scale)}
     if jaw:
         out["jaw"] = flame_jaw(loaders.model_path(loader), np.asarray(m.region_vertices), u, out)
     return out
@@ -220,9 +230,12 @@ def context(view: str, name: str, reg_vertices: np.ndarray, prm: dict | None = N
     ctx["w_r"] = blmm.vertex_areas(ctx["mu_r"], ctx["F_r"])
     Cs = ctx["C_s"].reshape(-1, C.shape[2])
     ctx["CtC"] = Cs.T @ Cs
+    # emendamento 1: base completa sulla regione, bordo della regione, sigma dichiarata dell'espressione
+    ctx.update(C_r=C[used], expr_scale=m["expr_scale"], bnd_r=boundary_vertices(ctx["F_r"], len(used)))
     if "jaw" in m:
         j = m["jaw"]
         ctx["jaw"] = {"w": j["w"][vs], "P": j["P"][vs], "j0": j["j0"], "Jc": j["Jc"]}
+        ctx["jaw_r"] = {"w": j["w"][used], "P": j["P"][used], "j0": j["j0"], "Jc": j["Jc"]}
     return ctx
 
 
@@ -345,6 +358,201 @@ def mesh_distances(beta: np.ndarray, ctx: dict) -> dict:
     coef = np.sqrt(np.clip(Gb, 0.0, None))
     np.fill_diagonal(coef, 0.0)
     return {"coef": 0.5 * (coef + coef.T), "fr": euclid(a), "sr": euclid(s)}
+
+
+# --------------------------------------------------------------------- emendamento 1 (post hoc)
+
+def boundary_vertices(F: np.ndarray, n: int) -> np.ndarray:
+    """Maschera dei vertici di bordo (spigoli con un solo triangolo)."""
+    E = np.sort(np.concatenate([F[:, [0, 1]], F[:, [1, 2]], F[:, [2, 0]]]), axis=1)
+    e, c = np.unique(E, axis=0, return_counts=True)
+    b = np.zeros(n, dtype=bool)
+    b[e[c == 1].ravel()] = True
+    return b
+
+
+def n_coef(ctx: dict, free_expr: bool) -> int:
+    """Coefficienti risolti: solo identita' (A sulle viste neutre) o [identita', espressione]."""
+    return ctx["C_r"].shape[2] if free_expr else ctx["k_id"]
+
+
+def region_system(ctx: dict, theta: float, k: int, idx: np.ndarray | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """(A (n, 3, k), b (n, 3)) con x = A c + b sui vertici ``idx`` della regione (tutti se None), primi k
+    coefficienti; FLAME: la LBS della mandibola di ``jaw_system`` a ``theta`` (theta = 0: A = C, b = mu)."""
+    sel = slice(None) if idx is None else idx
+    C, mu = ctx["C_r"][sel, :, :k], ctx["mu_r"][sel]
+    if "jaw_r" not in ctx or theta == 0.0:
+        return C, mu
+    j = ctx["jaw_r"]
+    Q = rot_x(theta) - np.eye(3)
+    WQ = j["w"][sel][:, None, None] * Q[None]
+    A = C + np.einsum("vab,vbk->vak", WQ, C) - np.einsum("vab,bk->vak", WQ, j["Jc"][:, :k])
+    base = mu + j["P"][sel] @ Q.ravel()
+    return A, base + np.einsum("vab,vb->va", WQ, base) - WQ @ j["j0"]
+
+
+def prior_diag(ctx: dict, k: int, sigma: float) -> np.ndarray:
+    """sigma^2 (||beta||^2 + ||psi / s||^2): s = sigma dichiarata dell'espressione (``loaders.EXPR_SCALE``)."""
+    return sigma ** 2 * np.r_[np.ones(ctx["k_id"]), np.full(k - ctx["k_id"], ctx["expr_scale"] ** -2.0)]
+
+
+def weighted_rigid(X: np.ndarray, Y: np.ndarray, w: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """(R, t) con R x + t ~ y ai minimi quadrati pesati (Umeyama senza scala; w = 1 da' ``rigid_fit``)."""
+    wn = w / w.sum()
+    mx, my = wn @ X, wn @ Y
+    U, _, Vt = np.linalg.svd((wn[:, None] * (Y - my)).T @ (X - mx))
+    D = np.diag([1.0, 1.0, np.sign(np.linalg.det(U @ Vt))])
+    R = U @ D @ Vt
+    return R, my - R @ mx
+
+
+def fit_corr(S, Y: np.ndarray, w: np.ndarray, ctx: dict, k: int, sigma: float, jaw_free: bool,
+             c0: np.ndarray | None = None, theta0: float = 0.0, iters: int = FIT_ITERS) -> dict:
+    """Regressione alternata (rigida pesata, coefficienti MAP, mandibola se ``jaw_free``) sulle corrispondenze
+    S x(c) ~ Y: S (m, n_r) sparsa (righe one-hot o baricentriche sui vertici della regione), Y (m, 3) mm, pesi w.
+    min sum_i w_i ||R S_i x(c, theta) + t - y_i||^2 + c' diag(``prior_diag``) c; arresto come ``fit_points``."""
+    import scipy.sparse as sp
+    from scipy.optimize import minimize_scalar
+    S = sp.csr_matrix(S)
+    nz = np.unique(S.indices)                        # solo i vertici toccati entrano nel sistema
+    S = S[:, nz]
+    G = (S.T @ sp.diags(w) @ S).tocsr()
+    lam = prior_diag(ctx, k, sigma)
+    c = np.zeros(k) if c0 is None else np.asarray(c0, dtype=np.float64)[:k].copy()
+    theta = float(theta0) if jaw_free else 0.0
+    cache = {}
+
+    def system(th):
+        if th not in cache:
+            A, b = region_system(ctx, th, k, nz)
+            GA = (G @ A.reshape(len(nz), -1)).reshape(A.shape)
+            cache.clear()
+            cache[th] = (A, b, A.reshape(-1, k).T @ GA.reshape(-1, k) + np.diag(lam), G @ b)
+        return cache[th]
+
+    def solve(th, y):
+        A, b, H, Gb = system(th)
+        cc = np.linalg.solve(H, A.reshape(-1, k).T @ (S.T @ (w[:, None] * y) - Gb).ravel())
+        r = S @ (A @ cc + b) - y
+        return cc, float(w @ (r * r).sum(1) + cc @ (lam * cc))
+
+    def points(cc, th):
+        A, b = system(th)[:2]
+        return S @ (A @ cc + b)
+
+    X, prev = points(c, theta), np.inf
+    it = 0
+    for it in range(1, iters + 1):
+        R, t = weighted_rigid(X, Y, w)
+        y = (Y - t) @ R                                                      # Y nel frame del modello
+        if jaw_free:
+            theta = float(minimize_scalar(lambda th: solve(th, y)[1], bounds=JAW_BOUNDS, method="bounded",
+                                          options={"xatol": 1e-4}).x)
+        c, _ = solve(theta, y)
+        X = points(c, theta)
+        rms = float(np.sqrt(w @ (((X @ R.T + t) - Y) ** 2).sum(1) / w.sum()))
+        if abs(prev - rms) < FIT_TOL_MM:
+            break
+        prev = rms
+    R, t = weighted_rigid(X, Y, w)
+    rms = float(np.sqrt(w @ (((X @ R.T + t) - Y) ** 2).sum(1) / w.sum()))
+    return {"c": c, "beta": c[:ctx["k_id"]], "psi": c[ctx["k_id"]:], "theta": theta, "R": R, "t": t, "rms": rms,
+            "iters": it}
+
+
+def fit_registered(Y: np.ndarray, ctx: dict, free_expr: bool, sigma: float = SIGMA_NOISE_MM) -> dict:
+    """Variante A sui punti registrati dal NICP (riga v = vertice ``sub[v]`` del template, peso 1): ``fit_points``
+    con psi = 0 e mandibola a 0 se ``free_expr`` e' falso, col prior d'espressione dichiarato altrimenti."""
+    import scipy.sparse as sp
+    m, n = len(ctx["sub"]), len(ctx["used"])
+    S = sp.csr_matrix((np.ones(m), (np.arange(m), ctx["sub"])), shape=(m, n))
+    return fit_corr(S, Y, np.ones(m), ctx, n_coef(ctx, free_expr), sigma, free_expr and "jaw_r" in ctx)
+
+
+class Surface:
+    """Punto piu' vicino su una mesh triangolata (open3d RaycastingScene, float32): (punti, triangoli, (u, v)) con
+    p = (1 - u - v) V[F0] + u V[F1] + v V[F2]."""
+
+    def __init__(self, V: np.ndarray, F: np.ndarray):
+        import open3d as o3d
+        self.F = np.asarray(F, dtype=np.int64)
+        self.scene = o3d.t.geometry.RaycastingScene()
+        self.scene.add_triangles(o3d.core.Tensor(np.asarray(V, dtype=np.float32)),
+                                 o3d.core.Tensor(self.F.astype(np.uint32)))
+
+    def closest(self, Q: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        import open3d as o3d
+        a = self.scene.compute_closest_points(o3d.core.Tensor(np.asarray(Q, dtype=np.float32)))
+        return (a["points"].numpy().astype(np.float64), a["primitive_ids"].numpy().astype(np.int64),
+                a["primitive_uvs"].numpy().astype(np.float64))
+
+
+def posed_model(c: np.ndarray, theta: float, R: np.ndarray, t: np.ndarray, ctx: dict) -> np.ndarray:
+    """(n_r, 3) mesh del modello posata come fittata, su tutti i vertici della regione (mm, frame di lavoro)."""
+    A, b = region_system(ctx, float(theta) if np.isfinite(theta) else 0.0, len(c))
+    return (A @ c + b) @ R.T + t
+
+
+def surface_error(Vin: np.ndarray, Fin: np.ndarray, Xs: np.ndarray, M: np.ndarray, ctx: dict,
+                  surf_in: "Surface | None" = None) -> np.ndarray:
+    """Sez. 3: [mediana, p95 dell'unione, mediana M -> ingresso, mediana ingresso -> M, frazione ingresso -> M
+    tenuta] in mm. M -> ingresso: tutti i vertici della regione; ingresso -> M: i punti ``Xs`` il cui punto piu'
+    vicino su M non cade su un triangolo col bordo della regione."""
+    surf_in = surf_in or Surface(Vin, Fin)
+    d1 = np.linalg.norm(surf_in.closest(M)[0] - M, axis=1)
+    p, tri, _ = Surface(M, ctx["F_r"]).closest(Xs)
+    keep = ~ctx["bnd_r"][ctx["F_r"][tri]].any(1)
+    d2 = np.linalg.norm(p - Xs, axis=1)[keep]
+    u = np.concatenate([d1, d2])
+    return np.array([np.median(u), np.percentile(u, 95), np.median(d1),
+                     np.median(d2) if len(d2) else np.nan, keep.mean()])
+
+
+def loop_correspondences(Vin_bnd: np.ndarray, surf_in: Surface, Xs: np.ndarray, M: np.ndarray, ctx: dict,
+                         tau: float):
+    """Corrispondenze della variante B: (S sparsa (m, n_r), Y (m, 3), w (m,), frazioni tenute (2,))."""
+    import scipy.sparse as sp
+    sub, n, N = ctx["sub"], len(ctx["used"]), len(ctx["sub"])
+    p, tri, _ = surf_in.closest(M[sub])                                       # modello -> ingresso
+    k1 = (np.linalg.norm(p - M[sub], axis=1) <= tau) & ~Vin_bnd[surf_in.F[tri]].any(1)
+    q, tri2, uv = Surface(M, ctx["F_r"]).closest(Xs)                          # ingresso -> modello
+    k2 = (np.linalg.norm(q - Xs, axis=1) <= tau) & ~ctx["bnd_r"][ctx["F_r"][tri2]].any(1)
+    n1, n2 = int(k1.sum()), int(k2.sum())
+    frac = np.array([n1 / N, n2 / len(Xs)])
+    if n1 == 0 or n2 == 0:
+        return None, None, None, frac
+    bary = np.c_[1.0 - uv[k2].sum(1), uv[k2]]
+    rows = np.r_[np.arange(n1), np.repeat(n1 + np.arange(n2), 3)]
+    cols = np.r_[sub[k1], ctx["F_r"][tri2[k2]].ravel()]
+    vals = np.r_[np.ones(n1), bary.ravel()]
+    S = sp.csr_matrix((vals, (rows, cols)), shape=(n1 + n2, n))
+    w = np.r_[np.full(n1, 0.5 * N / n1), np.full(n2, 0.5 * N / n2)]
+    return S, np.r_[p[k1], Xs[k2]], w, frac
+
+
+def fit_loop(Vin: np.ndarray, Fin: np.ndarray, Xs: np.ndarray, f0: dict, ctx: dict, free_expr: bool,
+             sigma: float, tau: float, iters: int, record: tuple = ()) -> dict:
+    """Variante B: ``iters`` iterazioni esterne (corrispondenze punto-superficie nei due versi sul modello
+    corrente, poi ``fit_corr`` con al piu' ``LOOP_INNER`` giri) a partire dal fit ``f0`` (variante A). ``record``:
+    iterazioni di cui tenere lo stato (pilota). Uscita: lo stato finale (+ ``kept``, ``states``)."""
+    k = n_coef(ctx, free_expr)
+    jaw = free_expr and "jaw_r" in ctx
+    surf_in = Surface(Vin, Fin)
+    bnd = boundary_vertices(np.asarray(Fin, dtype=np.int64), len(Vin))
+    f = {**f0, "c": np.r_[f0["beta"], f0["psi"]][:k]}
+    states = {}
+    frac = np.full(2, np.nan)
+    for it in range(1, iters + 1):
+        M = posed_model(f["c"], f["theta"], f["R"], f["t"], ctx)
+        S, Y, w, frac = loop_correspondences(bnd, surf_in, Xs, M, ctx, tau)
+        if S is None:
+            raise ValueError(f"nessuna corrispondenza tenuta (frazioni {frac})")
+        f = fit_corr(S, Y, w, ctx, k, sigma, jaw, f["c"], f["theta"], LOOP_INNER)
+        f["kept"] = frac
+        if it in record:
+            states[it] = {key: (v.copy() if isinstance(v, np.ndarray) else v) for key, v in f.items()}
+    f["states"] = states
+    return f
 
 
 # ------------------------------------------------------------------------------------------ varifold

@@ -15,6 +15,12 @@
 #   BP_STEP=fit BP_ARGS="--models gnm"                                   sbatch aau/baselines_param/bp.sbatch
 #   BP_STEP=varifold BP_ARGS="hifi3d --device cuda" sbatch --gres=gpu:l40s:1 aau/baselines_param/bp.sbatch
 #   BP_STEP=paired                                                       sbatch aau/baselines_param/bp.sbatch
+#   BP_STEP=pilot_e1 BP_ARGS="--models gnm"                              sbatch aau/baselines_param/bp.sbatch
+#   BP_STEP=fit_e1 BP_ARGS="--models gnm --views hifi3d"                 sbatch aau/baselines_param/bp.sbatch
+#   BP_STEP=paired BP_ARGS="--e1"                                        sbatch aau/baselines_param/bp.sbatch
+#
+# I passi *_e1 sono dell'emendamento 1 (POST HOC, PROTOCOL_emendamento_1.md): pilota sui soggetti non valutati,
+# poi varianti A e B ed errore di superficie (bp_fit_e1.py), poi i delta con le colonne nuove.
 #
 # fit e varifold nel venv con open3d (aau/outlineB/run_o3d.sh, un thread BLAS per processo); paired nel venv della
 # GT unificata (importa fact_paired e blmm_eval). Partizione prioritized senza GPU (il nodo cpu e' in fail), tranne il
@@ -24,7 +30,7 @@
 # (blocco 8192), ~17 min per vista a 500 mesh; 1.2 s su un core.
 set -euo pipefail
 
-STEP="${BP_STEP:?BP_STEP: fit | varifold | paired}"
+STEP="${BP_STEP:?BP_STEP: fit | varifold | paired | pilot_e1 | fit_e1}"
 W="${SLURM_CPUS_PER_TASK:-8}"
 export AAU_NV=""
 [[ "${SLURM_JOB_GPUS:-${CUDA_VISIBLE_DEVICES:-}}" != "" ]] && export AAU_NV="--nv"
@@ -33,6 +39,8 @@ t0=$(date +%s)
 case "$STEP" in
     fit)      aau/outlineB/run_o3d.sh aau/baselines_param/bp_fit.py --workers "$W" ${BP_ARGS:-} ;;
     varifold) aau/outlineB/run_o3d.sh aau/baselines_param/bp_varifold.py --block 8192 ${BP_ARGS} ;;
+    pilot_e1) aau/outlineB/run_o3d.sh aau/baselines_param/bp_fit_e1.py --pilot --workers "$W" ${BP_ARGS:-} ;;
+    fit_e1)   aau/outlineB/run_o3d.sh aau/baselines_param/bp_fit_e1.py --workers "$W" ${BP_ARGS:-} ;;
     paired)   UGT_THREADS=1 v3_work/unified_gt/run.sh aau/baselines_param/bp_paired.py --workers "$W" ${BP_ARGS:-} ;;
     *) echo "passo sconosciuto: $STEP" >&2; exit 2 ;;
 esac
