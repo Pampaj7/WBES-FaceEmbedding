@@ -1411,9 +1411,10 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
     0.753 / 0.708), FaceScape perso in forma e taglia, "robusto alla discretizzazione" senza numeri, licenze,
     HIFI3D entrato in selezione (regola dual, scelta di k, motivazione della calibrazione); gli unici mai usati in
     selezione sono FaMoS TEST e NoW.
-- **Correzioni applicate** (commit aac2068, `main_cvpr_draft.tex` e `refs_cvpr_add.bib`): tutte, con le fonti in
-  commento. Riga della d_F preregistrata nella tabella principale (FaceScape: 0.687 / 0.698, sopra la calibrata
-  0.661 / 0.669). Sull'allineamento il testo dice solo ciò che `baselines_mm` regge: con FR la rigida aiuta
+- **Correzioni applicate** (commit aac2068, `main_cvpr_draft.tex` e `refs_cvpr_add.bib`), con le fonti in commento.
+  Non tutte complete: il critic al giro 2 (sotto) ha trovato omissioni residue e due affermazioni false. Riga della
+  d_F preregistrata nella tabella principale (FaceScape: 0.687 / 0.698, sopra la calibrata 0.661 / 0.669).
+  Sull'allineamento il testo dice solo ciò che `baselines_mm` regge: con FR la rigida aiuta
   (HIFI3D 0.411 -> 0.643, FaceScape 0.211 -> 0.467, FaceVerse con espressioni 0.281 -> 0.337); togliere la scala
   (HIFI3D 0.643 -> 0.359) e la NICP per coppia (0.495, 0.374, 0.201) peggiorano la forma; NICP su template non sempre
   (FaceScape 0.544). Delta appaiati fra pipeline: non esistono, `\todo`. Titolo invariato, `% TODO titolo` per
@@ -1429,3 +1430,18 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   pagina 16, appendice da pagina 18), nessun riferimento indefinito, nessuna riga oltre 1pt. Il taglio aspetta la
   tesi stabile (diagnostiche); stima: il blocco v1/REMESH dei risultati vale circa 8 colonne, la sezione degli
   esperimenti circa 4.
+- **Critic, giro 2 sulla bozza (308eeba): RISERVE**, nessun bloccante. Restavano omissioni a favore degli autori e due
+  affermazioni false. Correzioni nei commit f25fc79 (testo), 687776d (bibliografia) e 925bc38 (kit), fonti in commento:
+  - calibrazione per intero: su HIFI3D la d_F preregistrata è sotto la sola taglia oracolo (-0.094 / -0.105) e la
+    composizione FLAME col modello nel ciclo (-0.069 / -0.080), pari alla sola taglia stimata (+0.042 / +0.031); su
+    FaceScape la calibrazione abbassa FR da 0.687 / 0.698 a 0.661 / 0.669. FaMoS: d_F calibrata sotto ICP + Chamfer
+    in mm (-0.062 / -0.085) e sotto la sola taglia stimata (0.715), non risolto;
+  - FaMoS escluso anche da ricette e semi; `\todo` sui semi BFM/REMESH anche nei contributi; solo FaMoS TEST mai in
+    selezione di modello, ma i soggetti FaMoS hanno scelto la GT; NoW tolto (non valutato); allineamento limitato alla
+    GT legacy su REMESH, "explains" diventa "is consistent with"; pipeline nominate; "on HIFI3D" invece di "where size
+    varies";
+  - minori: 4 celle factorized (non 8) contro le composizioni su FaceScape; §5.6 corretta (i checkpoint factorized
+    ricevono xyz in mm / 100, il maxabs vale per i v2); FLAME 36(6):194 dalla pagina del progetto; URL anonimo neutro;
+    kit CVPR non versionato tranne README e `.bst` (LPPL), come `neurips_2026.sty`. Frase sulla discretizzazione
+    invariata (aspetta l'emendamento 3). Compilazione (job 1068022): 23 pagine, corpo fino a p. 15, nessun
+    riferimento indefinito, nessuna riga oltre 1pt.
