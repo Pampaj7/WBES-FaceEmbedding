@@ -5,9 +5,9 @@
     aau/run.sh v3_work/stream/regen.py --domain gnm --seed 20261009,3,117 --recipe recipe.json --out dir
 
 Un gruppo scritto con ``producer.py --provenance`` ha il seme SeedSequence([seme, processo, gruppo]); con la ricetta
-dello shard (viste, quota d'espressioni, pesi delle discretizzazioni, topologia di lavoro, moltiplicatori)
-``producer.group_kind`` e poi ``producer.view_recipe`` (puri) o ``producer.aug_group_spec`` (mm_aug: ibridi,
-trasferimenti d'espressione, bump) ripetono le stesse estrazioni nello stesso ordine: identita', espressioni (FaMoS:
+dello shard (viste, quota d'espressioni anche per dominio, pesi e modo delle discretizzazioni, topologia di
+lavoro, moltiplicatori) ``producer.group_kind`` e poi ``producer.view_recipe`` (puri) o ``producer.aug_group_spec``
+(mm_aug: ibridi, trasferimenti d'espressione, bump) ripetono le stesse estrazioni nello stesso ordine: identita', espressioni (FaMoS:
 il fotogramma), discretizzazione e seme del rumore; ``views.discretize`` da' la mesh. I gruppi mm_aug hanno anche i
 parametri espliciti nello header (``prov.mm_aug``: ``v3_work/mm_aug.assemble`` li ricostruisce senza generatore). Gli operatori NON si rigenerano bit per bit (eigsh), la mesh si'.
 Le mesh sono nel frame canonico della libreria (mm a scala s_d); x ``mm_factor`` (targets.py) nei mm veri.
@@ -50,12 +50,14 @@ def regenerate(src, seed, recipe: dict, domain: str = "") -> tuple[object, list[
     import views as VW
     cfg = argparse.Namespace(**{**recipe, "label_p": np.asarray(recipe["label_p"], dtype=np.float64)})
     cfg.mm_aug_probs = recipe.get("mm_aug_probs") or {}
+    cfg.label_draw = recipe.get("label_draw", "replace")          # ricette di prima: con reinserimento
     rng = np.random.default_rng(np.random.SeedSequence([int(x) for x in seed]))
-    kind = PR.group_kind(rng, cfg, domain or src.name if src.kind == "mm" else "famos")
+    d = domain or (src.name if src.kind == "mm" else "famos")
+    kind = PR.group_kind(rng, cfg, d)
     out = []
     if kind != "pure":
         lib, acfg = aug_library(recipe)
-        G = PR.aug_group_spec(lib, acfg, domain or src.name, kind, rng, cfg)
+        G = PR.aug_group_spec(lib, acfg, d, kind, rng, cfg)
         for v in G["views"]:
             Vd, Fd = VW.discretize(v["V"], v["F"], v["label"], v["noise_seed"])
             out.append({"vi": v["i"], "V": Vd, "F": Fd, "label": v["label"], "expr": v["tag"],
@@ -63,7 +65,7 @@ def regenerate(src, seed, recipe: dict, domain: str = "") -> tuple[object, list[
                         "kind": G["kind"]})
         return np.asarray(G["identity"]["z_A"], dtype=np.float64), out
     ident = src.identity(rng)
-    for i, V, F, tag, label, noise_seed, frame in PR.view_recipe(src, ident, rng, cfg):
+    for i, V, F, tag, label, noise_seed, frame in PR.view_recipe(src, ident, rng, cfg, d):
         Vd, Fd = VW.discretize(V, F, label, noise_seed)
         out.append({"vi": i, "V": Vd, "F": Fd, "label": label, "expr": tag, "noise_seed": noise_seed, "frame": frame,
                     "kind": "pure"})

@@ -37,11 +37,16 @@
 #   STREAM_ARM      factorized | factorized2 | ctrlfr (testa standard su GT-FR) | unified (la GT unificata di prima)
 #   STREAM_IDS_PER_RANK (5), STREAM_MESHES_PER_ID (6), STREAM_VIEWS (viste per identita' dei produttori, = MESHES)
 #   STREAM_BATCH_DOMAINS (single; mixed = domini mescolati nel batch), STREAM_SIZE_MASK (vuoto; es. bfm2019)
-#   STREAM_STEPS, STREAM_SPE (passi per epoca), STREAM_K (64|128), STREAM_REUSE, STREAM_EXPR_FRAC (0.5),
-#   STREAM_SAVE_EVERY, STREAM_EVAL_EVERY (epoche; default ~10% del run), STREAM_LOG_BATCHES (200: dominio dei primi
-#   batch per rank, runs/*/batch_domains_rank<r>.csv)
+#   STREAM_RECIPE   default dei dati: c3m (con validated: quote d'espressioni del C3M per dominio, niente mm_aug,
+#                   niente rotazione a ogni uso, discretizzazioni senza reinserimento) | max (con gli altri preset:
+#                   le deviazioni); dettagli e numeri in testa a massive_node.sh. Ognuno sovrascrivibile da:
+#   STREAM_EXPR_FRAC (c3m bfm2019=0,ict=0.2315,gnm=0.1968; max 0.5), STREAM_ROT (c3m 0; max 30,15,10),
+#   STREAM_LABEL_DRAW (c3m perm; max replace), STREAM_MM_AUG (sotto)
+#   STREAM_STEPS, STREAM_SPE (passi per epoca), STREAM_K (64|128), STREAM_REUSE (tetto morbido, 4),
+#   STREAM_SAVE_EVERY, STREAM_EVAL_EVERY (epoche; default ~10% del run), STREAM_LOG_BATCHES (200: dominio e fonti dei
+#   primi batch per rank, runs/*/batch_domains_rank<r>.csv)
 #   STREAM_FORWARD (groups; sequential = il percorso v2), WBES_STREAM_PROFILE=1 (tempi per fase)
-#   STREAM_MM_AUG   probabilita' dei moltiplicatori (default hybrid=0.3,expr_transfer=0.15,rbf=0.15; vuoto = puri)
+#   STREAM_MM_AUG   probabilita' dei moltiplicatori (c3m vuoto = puri; max hybrid=0.3,expr_transfer=0.15,rbf=0.15)
 #   STREAM_RING_GB_PER_GPU (10), STREAM_TRAIN_CPUS_PER_RANK (8), STREAM_EXTRA (anelli condivisi, es. CephFS),
 #   STREAM_MIRROR_THREADS (2)
 #   STREAM_OUT (aau/runs/evidence/stream/massive_<job>), STREAM_SEED (1234), STREAM_TEST_CRASH (passo, solo test)

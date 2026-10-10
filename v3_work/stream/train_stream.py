@@ -42,8 +42,10 @@ Ricetta dei bracci decisivi (C3F/C3M), con ``--stream`` resa esplicita (10 ottob
     (la loss v2 pesa uguali le coppie fra domini), solo se chiesto;
   * lr: obbligatorio uno fra ``--lr-constant`` (C3M), ``--lr-steps``, ``--plateau-patience``;
   * ``--size-mask-domains``: solo domini fra le fonti (``bfm``, BFM REMESH, nello stream non maschera nulla);
-  * ``--stream-log-batches N``: dominio delle identita' dei primi N batch per rank,
-    ``<run_dir>/batch_domains_rank<r>.csv``.
+  * ``--stream-log-batches N``: dominio e fonti delle identita' dei primi N batch per rank,
+    ``<run_dir>/batch_domains_rank<r>.csv``;
+  * ``--stream-rot 0``: nessuna rotazione a ogni uso, come il C3M (che ruota solo nel modo ``rotation`` del rumore,
+    ``--rigid_rot_deg 12`` della ricetta v1, uguale qui).
 """
 from __future__ import annotations
 
@@ -69,8 +71,10 @@ def build_parser():
     p = tv.build_parser()
     g = p.add_argument_group("stream (v3_work/stream)")
     g.add_argument("--stream", default="", help="directory dell'anello dei produttori (producer.py --ring)")
-    g.add_argument("--stream-reuse", type=float, default=4.0, help="usi massimi di un'identita' prima del fallback")
-    g.add_argument("--stream-rot", default="30,15,10", help="yaw,pitch,roll massimi in gradi a ogni uso")
+    g.add_argument("--stream-reuse", type=float, default=4.0,
+                   help="tetto MORBIDO degli usi di un'identita': oltre, solo se gli eleggibili non bastano (i meno usati)")
+    g.add_argument("--stream-rot", default="30,15,10",
+                   help="yaw,pitch,roll massimi in gradi a ogni uso (un valore = tutti e tre; 0 = nessuna, come il C3M)")
     g.add_argument("--stream-scale", type=float, default=0.1, help="scala uniforme in 1 +- s a ogni uso")
     g.add_argument("--stream-min-groups", type=int, default=0, help="identita' nell'anello prima di partire")
     g.add_argument("--stream-wait-s", type=float, default=1800.0)
@@ -138,8 +142,10 @@ def consumer():
             batch_log=STREAM["run_dir"] / f"batch_domains_rank{rank}.csv", log_batches=args.stream_log_batches)
         STREAM["log"] = STREAM["run_dir"] / f"stream_stats_rank{rank}.jsonl"
         unit = {"unified": "mm (unificata)", "fr": "mm (GT-FR di E12)", "sr": "d_P (GT-SR di E12)"}[args.stream_gt]
-        tv.log0(f"[stream] anello {args.stream}: rank {rank}/{world} (shard {sr} di {sw}), riuso <= "
-                f"{args.stream_reuse:g}, rotazione {args.stream_rot} gradi, scala +-{args.stream_scale:g}, GT "
+        tv.log0(f"[stream] anello {args.stream}: rank {rank}/{world} (shard {sr} di {sw}), riuso: tetto MORBIDO "
+                f"{args.stream_reuse:g} usi per identita' (oltre il tetto i meno usati se gli eleggibili non bastano: "
+                f"over_reuse_groups; riuso misurato per epoca e cumulato in stream_stats_rank<r>.jsonl), rotazione "
+                f"{args.stream_rot} gradi, scala +-{args.stream_scale:g}, GT "
                 f"{args.stream_gt} al volo ({gt_mm:.6g} {unit} per unita'), input_norm={args.input_norm}"
                 + (f", anelli in piu' {args.stream_extra}" if args.stream_extra else "")
                 + (f", fonti {sources.parse_sources(args.stream_sources)}" if args.stream_sources else "")

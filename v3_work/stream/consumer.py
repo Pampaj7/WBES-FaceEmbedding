@@ -4,11 +4,13 @@ Un ``StreamConsumer`` per rank DDP. Legge gli shard in mmap (``ring.ShardReader`
 gli 8 rank di un nodo condividono UNA copia (la page cache), e nessuno copia lo shard intero, solo le viste
 che usa. I rank si dividono gli shard (``seq % world == rank``): ogni identita' finisce a un solo rank.
 
-Riuso: ogni gruppo (un'identita' con le sue viste) si estrae al massimo ``reuse`` volte; a ogni uso le sue
-viste ricevono una rotazione (yaw, pitch, roll uniformi entro ``rot_deg``) e una scala (1 +- ``scale``) nuove,
-senza ricalcolare gli operatori, che sono intrinseci. Se gli eleggibili non bastano per un batch si prendono i
-gruppi meno usati oltre il tetto (``over_reuse``, contato): la GPU non aspetta mai i produttori, salvo
-all'avvio (``min_groups``). Il fattore di riuso misurato e' usi / viste distinte usate.
+Riuso: ogni gruppo (un'identita' con le sue viste) si estrae fino a ``reuse`` volte, tetto MORBIDO: se gli
+eleggibili non bastano per un batch si prendono i gruppi meno usati oltre il tetto (``over_reuse_groups``,
+contato), cosi' la GPU non aspetta mai i produttori, salvo all'avvio (``min_groups``). A ogni uso le viste
+ricevono una rotazione (yaw, pitch, roll uniformi entro ``rot_deg``; un solo valore = tutti e tre, 0 = nessuna,
+come il C3M) e una scala (1 +- ``scale``) nuove, senza ricalcolare gli operatori, che sono intrinseci. Il fattore
+di riuso misurato e' usi / viste distinte usate: cumulato (``reuse_factor``) e per epoca (``reuse_epoch`` nella
+riga di StreamPlans, il riuso a regime).
 
 Ogni vista servita e' il campione del loader (centro e maxabs, autovalori normalizzati, gradienti scalati: li
 ha gia' calcolati il produttore, views.serve_like_loader), negli stessi tipi e layout (autovettori in ordine
@@ -43,9 +45,11 @@ Batch a dominio singolo (``StreamPlans(batch_domains=[...])``, il default di tra
 ``sampler_v3.plan_epoch_balanced`` con ``mixed=False`` e alpha 0, cioe' C3F/C3M (``--sampler balanced --domain-alpha 0
 --batch-domains single``): i passi dell'epoca del rank si ripartiscono in parti uguali fra i domini (resto maggiore),
 in ordine permutato, e ogni batch prende le sue identita' da un solo dominio (quello del gruppo, ``hg["domain"]``).
-Senza (``batch_domains=None``) i batch mescolano i domini, come prima. ``log_batches``: dominio di ogni identita'
-dei primi N piani del rank in ``batch_log`` (csv di controllo); i contatori ``batches_mixed`` e
-``batches_by_domain`` coprono tutto il run.
+Senza (``batch_domains=None``) i batch mescolano i domini, come prima. ``log_batches``: dominio e fonti di ogni
+identita' dei primi N piani del rank in ``batch_log`` (csv di controllo); i contatori coprono tutto il run:
+``batches_mixed`` e ``batches_by_domain`` per template, ``batches_mixed_sources`` e ``batches_by_sources`` per
+FONTI (``prov.sources`` dei gruppi: template, seconda identita' degli ibridi, fonte dell'espressione trasferita):
+un batch e' misto per fonti se contiene materiale di piu' di un 3DMM (o FaMoS).
 Registro delle viste usate (``log_views``): alla PRIMA estrazione di ogni vista una riga con dominio, origine,
 licenza, seme del gruppo, indice nella ricetta, discretizzazione, espressione, fotogramma, seme del rumore,
 vertici, area, S_i; ``flush_log`` scrive un npz compresso a colonne compatte (~64 byte per vista prima della
@@ -167,6 +171,10 @@ class StreamConsumer:
         self.rng = np.random.default_rng(np.random.SeedSequence([int(seed), 7_001, self.rank]))
         self.input_norm, self.area_weights = input_norm, area_weights
         self.rot_deg, self.scale = tuple(float(x) for x in rot_deg), float(scale)
+        if len(self.rot_deg) == 1:
+            self.rot_deg *= 3
+        if len(self.rot_deg) != 3:
+            raise ValueError(f"rot_deg {rot_deg}: yaw,pitch,roll o un solo valore")
         self.min_groups, self.wait_s = int(min_groups), float(wait_s)
         self.gt = gt
         import data_v3  # noqa: F401  (importato qui, non per la prima volta in un thread di materialize)
@@ -181,7 +189,7 @@ class StreamConsumer:
                   "groups_evicted_unused": 0, "views_evicted_unused": 0, "over_reuse_groups": 0, "wait_s": 0.0,
                   "serve_s": 0.0, "plan_s": 0.0, "age_sum_s": 0.0, "age_max_s": 0.0, "by_domain": {}, "by_label": {},
                   "seq_used_min": None, "seq_used_max": None, "seq_mod_seen": set(), "uses_by_ring": {},
-                  "batches_mixed": 0, "batches_by_domain": {}}
+                  "batches_mixed": 0, "batches_by_domain": {}, "batches_mixed_sources": 0, "batches_by_sources": {}}
 
     # --- anello -----------------------------------------------------------------------------------------
     def refresh(self) -> None:
@@ -396,13 +404,22 @@ class StreamConsumer:
             self.c["batches_mixed"] += 1
         bd = doms[0] if len(set(doms)) == 1 else "misto"
         self.c["batches_by_domain"][bd] = self.c["batches_by_domain"].get(bd, 0) + 1
+        # fonti di ogni gruppo (un ibrido o un trasferimento d'espressione ne hanno piu' d'una)
+        srcs = [sorted((self.readers[seq].groups[g].get("prov") or {}).get("sources") or [d])
+                for (seq, g, _), d in zip(picked, doms)]
+        allsrc = sorted({x for ss in srcs for x in ss})
+        if len(allsrc) > 1:
+            self.c["batches_mixed_sources"] += 1
+        bs = "+".join(allsrc)
+        self.c["batches_by_sources"][bs] = self.c["batches_by_sources"].get(bs, 0) + 1
         if self.batch_log is not None and self.c["plans"] < self.log_batches:
             new = not self.batch_log.exists()
             with open(self.batch_log, "a") as fh:
                 if new:
-                    fh.write("plan,epoch,rank,domain_drawn,n_ids,n_views,domains\n")
+                    fh.write("plan,epoch,rank,domain_drawn,n_ids,n_views,domains,sources,mixed_sources\n")
                 fh.write(f"{self.c['plans']},{epoch},{self.rank},{domain or '-'},{len(picked)},"
-                         f"{sum(len(vs) for _, _, vs in picked)},{'|'.join(doms)}\n")
+                         f"{sum(len(vs) for _, _, vs in picked)},{'|'.join(doms)},"
+                         f"{'|'.join('+'.join(ss) for ss in srcs)},{int(len(allsrc) > 1)}\n")
         do_noise = bool(rng.uniform() < float(drawcfg.p_noise))
         sigma = sample_log_uniform_sigma(drawcfg.sigma_min, drawcfg.sigma_max, rng) if do_noise else 0.0
         probs = np.asarray(drawcfg.noise_mode_probs, dtype=np.float64)
@@ -564,9 +581,12 @@ class StreamPlans:
                        **{f"d_{k}": after[k] - before[k] for k in ("uses", "unique_views_used", "views_seen",
                                                                     "groups_seen", "views_evicted_unused",
                                                                     "groups_evicted_unused", "over_reuse_groups",
-                                                                    "wait_s", "serve_s", "plan_s", "batches_mixed")},
+                                                                    "wait_s", "serve_s", "plan_s", "batches_mixed",
+                                                                    "batches_mixed_sources")},
                        "by_domain": after["by_domain"], "by_label": after["by_label"],
-                       "batches_by_domain": after["batches_by_domain"]}
+                       "batches_by_domain": after["batches_by_domain"],
+                       "batches_by_sources": after["batches_by_sources"]}
+                row["reuse_epoch"] = row["d_uses"] / max(row["d_unique_views_used"], 1)     # riuso a regime
                 if after["uses_by_ring"]:
                     row["uses_by_ring"] = after["uses_by_ring"]
                 if "mirror" in after:

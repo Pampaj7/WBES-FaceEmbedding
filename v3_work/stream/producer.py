@@ -9,8 +9,9 @@ Ogni processo (fork del padre, che carica modelli e basi una volta: le pagine re
   2. un'identita' fresca (3DMM: coefficienti a code larghe; FaMoS: una persona TRAIN) e il suo s_i dalla
      forma neutra (GT unificata);
   3. ``--views`` viste: espressione con probabilita' ``--p-expr`` per vista, o una quota esplicita per gruppo
-     (``--expr-frac``) (prior del modello; FaMoS: un fotogramma registrato), discretizzazione estratta coi pesi
-     ``--label-weights`` (up60k a bassa frequenza), operatori con ``--k-eig`` autovettori (views.make_view);
+     (``--expr-frac``, anche per dominio) (prior del modello; FaMoS: un fotogramma registrato), discretizzazione
+     estratta coi pesi ``--label-weights`` (up60k a bassa frequenza) o, con ``--label-draw perm``, senza reinserimento
+     nel gruppo come il C3M, operatori con ``--k-eig`` autovettori (views.make_view);
      con ``--canonical-gt`` anche i bersagli della GT di E12 dalla forma neutra (targets.py: FR, SR, S_i) e
      l'area in mm^2 veri di ogni vista (ingresso globale);
   4. ``--groups-per-shard`` identita' in uno shard, scritto nell'anello (ring.Ring, FIFO a ``--ring-gb``).
@@ -87,9 +88,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--views", type=int, default=4, help="viste per identita'")
     p.add_argument("--groups-per-shard", type=int, default=2)
     p.add_argument("--p-expr", type=float, default=0.6)
-    p.add_argument("--expr-frac", type=float, default=-1.0,
+    p.add_argument("--expr-frac", default="-1",
                    help="quota esplicita: in ogni gruppo esattamente round(f * viste) viste con espressione (arrotondamento "
-                        "stocastico), le altre neutre; < 0 = --p-expr per vista")
+                        "stocastico), le altre neutre; < 0 = --p-expr per vista. Per dominio: 'bfm2019=0,ict=0.2315,"
+                        "gnm=0.1968' (le quote del C3M; tutti i domini delle fonti)")
     p.add_argument("--canonical-gt", action="store_true",
                    help="bersagli della GT di E12 per gruppo (fr, sr, S: targets.py) e area_mm2 per vista (ingresso globale)")
     p.add_argument("--mm-aug", default="",
@@ -100,6 +102,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--v-max", type=int, default=S.V_MAX, help="patch native oltre V_MAX vertici -> topologia decimata")
     p.add_argument("--v-work", type=int, default=S.V_WORK, help="vertici della topologia di lavoro decimata")
     p.add_argument("--label-weights", default=",".join(f"{k}={v:g}" for k, v in VW.LABEL_WEIGHTS.items()))
+    p.add_argument("--label-draw", default="replace", choices=["replace", "perm"],
+                   help="replace: discretizzazione di ogni vista estratta coi pesi --label-weights, con reinserimento; "
+                        "perm: senza reinserimento nel gruppo, uniforme fra le etichette di peso > 0 (C3M, "
+                        "_sample_subject_mesh_entries: una vista per topologia)")
     p.add_argument("--seed", type=int, default=20261009)
     p.add_argument("--duration", type=float, default=0.0, help="secondi (0 = finche' non viene fermato)")
     p.add_argument("--stats-every", type=float, default=30.0)
@@ -175,7 +181,8 @@ def aug_group_spec(lib, acfg, A: str, kind: str, rg: np.random.Generator, cfg) -
         spec0 = AG.assemble({"identity": ident, "expression": None, "kind": k}, lib, check=check)
         if check == "none" or AG.valid(spec0, lib) or attempt == acfg.max_tries:
             break
-    quota = expr_quota(rg, cfg)
+    quota = expr_quota(rg, cfg, A)
+    labels = group_labels(rg, cfg)
     views, sources = [], [A] + ([ident["B"]] if ident.get("B") else [])
     for i in range(cfg.views):
         want = quota[i] if quota is not None else bool(rg.random() < cfg.p_expr)
@@ -190,7 +197,7 @@ def aug_group_spec(lib, acfg, A: str, kind: str, rg: np.random.Generator, cfg) -
                     break
         if expr is not None and expr["source"] not in sources:
             sources.append(expr["source"])
-        label = cfg.labels[int(rg.choice(len(cfg.labels), p=cfg.label_p))]
+        label = labels[i] if labels is not None else cfg.labels[int(rg.choice(len(cfg.labels), p=cfg.label_p))]
         views.append({"i": i, "V": spec["V"], "F": spec["F"], "tag": "expr" if expr else "neutral", "label": label,
                       "noise_seed": int(rg.integers(2 ** 31)), "expression": expr})
     return {"kind": k, "kind_drawn": kind, "attempt": attempt, "identity": ident, "P": spec0["neutral_points"],
@@ -232,7 +239,7 @@ def make_aug_group(lib, acfg, domain: str, kind: str, rg: np.random.Generator, c
     st["by_domain"][domain] = st["by_domain"].get(domain, 0) + len(out)
     st["by_origin"] = st.get("by_origin", {})
     st["by_origin"][G["kind"]] = st["by_origin"].get(G["kind"], 0) + len(out)
-    st["expr_views"] = st.get("expr_views", 0) + sum(m["expr"] == "expr" for _, m in out)
+    count_expr(st, domain, out)
     g = {"key": key, "domain": domain, "s": s, "views": out, "origin": G["kind"], **extra}
     if seed is not None:
         lic, rank = S.inherited_license(G["sources"])
@@ -245,33 +252,70 @@ def make_aug_group(lib, acfg, domain: str, kind: str, rg: np.random.Generator, c
 
 # --- un gruppo = un'identita' con le sue viste -----------------------------------------------------------
 
-def expr_quota(rng: np.random.Generator, cfg) -> list[bool] | None:
-    """Quota esplicita (--expr-frac): quali viste del gruppo hanno l'espressione; None = Bernoulli(--p-expr) per
-    vista, estratta nel ciclo delle viste come prima (stessa sequenza del generatore)."""
-    if cfg.expr_frac < 0:
+def count_expr(st: dict, domain: str, out: list) -> None:
+    """Viste con espressione, in tutto e per dominio (quota misurata contro --expr-frac)."""
+    n = sum(m["expr"] == "expr" for _, m in out)
+    st["expr_views"] = st.get("expr_views", 0) + n
+    st["expr_by_domain"] = st.get("expr_by_domain", {})
+    st["expr_by_domain"][domain] = st["expr_by_domain"].get(domain, 0) + n
+
+
+def parse_expr_frac(txt: str, domains) -> float | dict:
+    """--expr-frac: un numero (tutti i domini) o 'dominio=f,...' con TUTTI i domini delle fonti."""
+    if "=" not in str(txt):
+        return float(txt)
+    out = parse_weights(txt, list(domains))
+    if set(out) != set(domains):
+        raise SystemExit(f"--expr-frac {txt}: mancano {sorted(set(domains) - set(out))}")
+    return out
+
+
+def expr_frac_of(cfg, domain: str) -> float:
+    f = cfg.expr_frac
+    return float(f[domain]) if isinstance(f, dict) else float(f)
+
+
+def expr_quota(rng: np.random.Generator, cfg, domain: str = "") -> list[bool] | None:
+    """Quota esplicita (--expr-frac, del dominio se data per dominio): quali viste del gruppo hanno l'espressione;
+    None = Bernoulli(--p-expr) per vista, estratta nel ciclo delle viste come prima (stessa sequenza del generatore)."""
+    f = expr_frac_of(cfg, domain)
+    if f < 0:
         return None
-    x = cfg.expr_frac * cfg.views
+    x = f * cfg.views
     n = int(np.floor(x)) + int(rng.random() < x - np.floor(x))
     on = np.zeros(cfg.views, dtype=bool)
     on[rng.permutation(cfg.views)[:n]] = True
     return on.tolist()
 
 
-def view_recipe(src, ident, rng: np.random.Generator, cfg):
+def group_labels(rng: np.random.Generator, cfg) -> list[str] | None:
+    """--label-draw perm: le discretizzazioni del gruppo senza reinserimento, uniformi fra le etichette di peso > 0,
+    come _sample_subject_mesh_entries del C3M (robustness/train_runner.py: una mesh per topologia, topologie in
+    ordine casuale); oltre il numero di etichette si ricomincia con una permutazione nuova. None = --label-draw
+    replace: una estrazione coi pesi per vista, nel ciclo delle viste come prima (stessa sequenza)."""
+    if getattr(cfg, "label_draw", "replace") != "perm":
+        return None
+    labs = [lab for lab, p in zip(cfg.labels, cfg.label_p) if p > 0]
+    idx = np.concatenate([rng.permutation(len(labs)) for _ in range(-(-cfg.views // len(labs)))])[:cfg.views]
+    return [labs[int(i)] for i in idx]
+
+
+def view_recipe(src, ident, rng: np.random.Generator, cfg, domain: str = ""):
     """Le viste di un gruppo prima della discretizzazione, nell'ordine in cui consumano il generatore:
     (indice, V, F, etichetta d'espressione, discretizzazione, seme del rumore, fotogramma FaMoS o -1).
     La usano make_group e regen.py: stessa sequenza, stessa mesh."""
-    quota = expr_quota(rng, cfg)
+    quota = expr_quota(rng, cfg, domain)
+    labels = group_labels(rng, cfg)
     for i in range(cfg.views):
         V, F, tag = src.view_mesh(ident, rng, quota[i] if quota is not None else bool(rng.random() < cfg.p_expr))
-        label = cfg.labels[int(rng.choice(len(cfg.labels), p=cfg.label_p))]
+        label = labels[i] if labels is not None else cfg.labels[int(rng.choice(len(cfg.labels), p=cfg.label_p))]
         yield i, V, F, tag, label, int(rng.integers(2 ** 31)), int(getattr(src, "last_frame", -1))
 
 
 def recipe(cfg, acfg=None) -> dict:
     """I parametri che servono a rigenerare un gruppo dal suo seme (regen.py), scritti in ogni shard."""
     return {"views": cfg.views, "p_expr": cfg.p_expr, "expr_frac": cfg.expr_frac, "labels": list(cfg.labels),
-            "label_p": [float(x) for x in cfg.label_p], "v_max": cfg.v_max, "v_work": cfg.v_work,
+            "label_p": [float(x) for x in cfg.label_p], "label_draw": cfg.label_draw, "v_max": cfg.v_max, "v_work": cfg.v_work,
             "code": getattr(cfg, "code_version", ""), "mm_aug_probs": dict(getattr(cfg, "mm_aug_probs", {}) or {}),
             "mm_aug_config": acfg.to_dict() if acfg is not None else None}
 
@@ -293,7 +337,7 @@ def make_group(src, domain: str, rng: np.random.Generator, cfg, uni: S.Unified, 
     st["t_ident"] += time.perf_counter() - t0
     out = []
     t1 = time.perf_counter()
-    for i, V, F, tag, label, noise_seed, frame in view_recipe(src, ident, rng, cfg):
+    for i, V, F, tag, label, noise_seed, frame in view_recipe(src, ident, rng, cfg, domain):
         st["t_mesh"] += time.perf_counter() - t1
         try:
             arr, meta = VW.make_view(V, F, label, cfg.k_eig, cfg.evecs_dtype, noise_seed, area_factor=area_factor)
@@ -315,7 +359,7 @@ def make_group(src, domain: str, rng: np.random.Generator, cfg, uni: S.Unified, 
     st["by_domain"][domain] = st["by_domain"].get(domain, 0) + len(out)
     st["by_origin"] = st.get("by_origin", {})
     st["by_origin"]["pure"] = st["by_origin"].get("pure", 0) + len(out)
-    st["expr_views"] = st.get("expr_views", 0) + sum(m["expr"] == "expr" for _, m in out)
+    count_expr(st, domain, out)
     g = {"key": key, "domain": domain, "s": s, "views": out, "origin": "pure", **extra}
     if seed is not None:
         lic, rank = S.inherited_license([domain])
@@ -424,10 +468,13 @@ def summarize(ring: Ring, t0: float, cfg) -> dict:
             "bytes_per_view": sum(s["bytes"] for s in st) / max(views, 1),
             "failures": sum(s["failures"] for s in st),
             "expr_fraction": sum(s.get("expr_views", 0) for s in st) / max(views, 1),
+            "expr_fraction_by_domain": {d: sum(s.get("expr_by_domain", {}).get(d, 0) for s in st) / max(n, 1)
+                                        for d, n in by_dom.items()},
             "views_by_origin": {k: sum(s.get("by_origin", {}).get(k, 0) for s in st)
                                 for k in sorted({k for s in st for k in s.get("by_origin", {})})},
             "mm_aug": cfg.mm_aug_probs,
             "canonical_gt": bool(cfg.canonical_gt), "expr_frac": cfg.expr_frac, "p_expr": cfg.p_expr,
+            "label_draw": cfg.label_draw,
             "last_failure": next((s["last_failure"] for s in st if s.get("last_failure")), ""),
             "cpu_s_per_view": {k: v / max(views, 1) for k, v in phases.items()},
             "views_by_domain": by_dom, "views_by_label": by_lab,
@@ -444,6 +491,7 @@ def main() -> None:
     w = np.asarray([lw.get(k, 0.0) for k in cfg.labels])
     cfg.label_p = w / w.sum()
     domains = S.parse_sources(cfg.sources) if cfg.sources else [d for d in cfg.domains.split(",") if d]
+    cfg.expr_frac = parse_expr_frac(cfg.expr_frac, domains)
     if cfg.provenance:
         import subprocess
         try:
@@ -496,7 +544,8 @@ def main() -> None:
                 pr.terminate()
     signal.signal(signal.SIGTERM, lambda *_: (stop(), sys.exit(0)))
     print(f"[producer] {cfg.n_proc} processi, k_eig={cfg.k_eig} evecs={cfg.evecs_dtype}, anello {ring.root} "
-          f"({cfg.ring_gb:g} GiB), alpha={cfg.alpha} p={cfg.probs}, CPU {cfg.cpus or 'tutte'}", flush=True)
+          f"({cfg.ring_gb:g} GiB), alpha={cfg.alpha} p={cfg.probs}, CPU {cfg.cpus or 'tutte'}; viste per gruppo "
+          f"{cfg.views}, quota d'espressioni {cfg.expr_frac}, discretizzazioni {cfg.label_draw}", flush=True)
     last_v, last_t = 0, t0
     try:
         while any(pr.is_alive() for pr in procs):

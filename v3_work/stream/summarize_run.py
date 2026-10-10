@@ -6,8 +6,9 @@
 Scrive ``summary.json`` nella directory e stampa una riga per run:
   * passo: s/passo per epoca (train.log), mesh/s consumate = identita' x viste massime per passo / s per passo
     (tetto) e usi del rank 0 / secondi dell'epoca (misurate); lr per epoca (deve restare costante con --lr-constant);
-  * stream (stream_stats_rank0.jsonl): usi, viste distinte, riuso per epoca e cumulato, shard usati (seq),
-    viste uscite dall'anello senza uso, gruppi oltre il tetto di riuso, attese e servizio per passo;
+  * stream (stream_stats_rank0.jsonl): usi, viste distinte, riuso per epoca e cumulato (a regime: le ultime
+    ``REUSE_WINDOW`` epoche; il tetto e' morbido), shard usati (seq), viste uscite dall'anello senza uso, gruppi
+    oltre il tetto di riuso, attese e servizio per passo, batch misti per dominio e per fonti;
   * produttori (producers.json): viste fresche/s a regime;
   * GPU (gpu.csv): utilizzo medio mentre il trainer tiene la GPU (memoria usata > 1 GiB);
   * memoria (mem.csv): picco del cgroup del job e dell'anello su /tmp.
@@ -18,6 +19,8 @@ import json
 import re
 import sys
 from pathlib import Path
+
+REUSE_WINDOW = 3          # epoche finali per il riuso a regime
 
 
 def summarize(d: Path) -> dict:
@@ -51,15 +54,23 @@ def summarize(d: Path) -> dict:
             "serve_ms_per_step": 1e3 * r["d_serve_s"] / max(r["plans_yielded"], 1),
             "plan_ms_per_step": 1e3 * r["d_plan_s"] / max(r["plans_yielded"], 1), "mean_age_s": r["mean_age_s"],
             "pool_groups": r["pool_groups"], "meshes_per_s_rank0": r["d_uses"] / max(r["seconds"], 1e-9),
-            "batches_mixed": r.get("d_batches_mixed")} for r in rows]
+            "batches_mixed": r.get("d_batches_mixed"), "batches_mixed_sources": r.get("d_batches_mixed_sources")}
+            for r in rows]
+        w = rows[-REUSE_WINDOW:]
+        out["reuse"] = {"cap_soft": rows[-1].get("reuse_cap"), "cumulative": rows[-1]["reuse_factor"],
+                        "steady_last_epochs": sum(r["d_uses"] for r in w) / max(sum(r["d_unique_views_used"] for r in w), 1),
+                        "window_epochs": len(w), "over_reuse_groups": sum(r["d_over_reuse_groups"] for r in rows)}
         out["by_domain_uses"] = rows[-1]["by_domain"]
         out["batches_by_domain"] = rows[-1].get("batches_by_domain")
+        out["batches_by_sources"] = rows[-1].get("batches_by_sources")
         out["by_label_uses"] = rows[-1]["by_label"]
     if (d / "producers.json").exists():
         p = json.loads((d / "producers.json").read_text())
         out["producers"] = {k: p[k] for k in ("n_proc", "k_eig", "evecs_dtype", "views_per_s_steady", "views_per_s_wall",
                                               "views", "bytes_per_view", "mean_verts_per_view", "failures", "views_by_domain",
                                               "views_by_label")}
+        out["producers"].update({k: p.get(k) for k in ("expr_frac", "expr_fraction", "expr_fraction_by_domain",
+                                                       "label_draw", "mm_aug", "views_by_origin")})
     if (d / "consumer.json").exists():
         out["consumer_bench"] = json.loads((d / "consumer.json").read_text())
     if (d / "gpu.csv").exists():
@@ -90,8 +101,11 @@ def main() -> None:
         sp = s.get("s_per_step_by_epoch") or [float("nan")]
         print(f"{a}: {s['steps']} passi, s/passo {sp[0]:.3f} -> {sp[-1]:.3f}, GPU {s.get('gpu_util_mean_while_training', float('nan')):.0f}%, "
               f"fresche/s {s.get('producers', {}).get('views_per_s_steady', float('nan')):.1f}, "
-              f"riuso {s.get('stream_by_epoch', [{}])[-1].get('reuse_cumulative', float('nan')):.2f}, "
+              f"riuso a regime {s.get('reuse', {}).get('steady_last_epochs', float('nan')):.2f} (ultime "
+              f"{s.get('reuse', {}).get('window_epochs')} epoche), cumulato {s.get('reuse', {}).get('cumulative', float('nan')):.2f}, "
+              f"tetto morbido {s.get('reuse', {}).get('cap_soft')} (gruppi oltre {s.get('reuse', {}).get('over_reuse_groups')}), "
               f"lr {sorted(set(s.get('lr_by_epoch') or []))}, batch per dominio {s.get('batches_by_domain')}, "
+              f"per fonti {s.get('batches_by_sources')}, "
               f"memoria {s.get('mem_peak_gib')}")
 
 
