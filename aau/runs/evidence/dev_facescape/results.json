@@ -113,13 +113,17 @@
    0.45497737556561085,
    0.5039695141314703
   ],
-  "chamfer_eval_available": false,
+  "chamfer_eval_available": true,
   "arm_sources": {
-   "neutral/scale_e108": "aau/runs/ws_dev_facescape/data_aca84a16c6/scale_e108_embed/zs_zeroshot",
-   "expr/scale_e108": "aau/runs/ws_dev_facescape_expr/data_b03b1fca0e/scale_e108_embed/zs_zeroshot"
-  }
+   "neutral/scale_e108": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ws_dev_facescape/data_aca84a16c6/scale_e108_topology/zs_zeroshot",
+   "expr/scale_e108": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ws_dev_facescape_expr/data_b03b1fca0e/scale_e108_topology/zs_zeroshot"
+  },
+  "neutral: gt del breakdown contro matrice, max |diff|": 4.999561309948497e-07,
+  "neutral: latent_distance del breakdown contro embedding di scale_e108, max |diff|": 5.931311191087474e-07,
+  "expr: gt del breakdown contro matrice, max |diff|": 4.999561309948497e-07,
+  "expr: latent_distance del breakdown contro embedding di scale_e108, max |diff|": 5.908524738362786e-07
  },
- "runs_neutral": "aau/runs/ws_dev_facescape/data_aca84a16c6",
- "runs_expr": "aau/runs/ws_dev_facescape_expr/data_b03b1fca0e",
+ "runs_neutral": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ws_dev_facescape/data_aca84a16c6",
+ "runs_expr": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ws_dev_facescape_expr/data_b03b1fca0e",
  "n_bootstrap": 1000
 }
