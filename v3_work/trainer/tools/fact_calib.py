@@ -5,6 +5,8 @@
     aau/run.sh v3_work/trainer/tools/fact_calib.py stage --in-dir <tmp>/in --table <ops>/scale_table.npz
     aau/run.sh v3_work/trainer/tools/fact_calib.py ckpt <chiave>    (stampa il checkpoint)
     aau/run.sh v3_work/trainer/tools/fact_calib.py calib
+    WBES_CALIB_CKPT=<ckpt> WBES_CALIB_OUT=<dir> sbatch v3_work/trainer/slurm/calib_ckpt.sbatch   (checkpoint qualunque)
+    aau/run.sh v3_work/trainer/tools/fact_calib.py calib-ckpt --ckpt <pth> --arm factorized --emb <npz> --out <json>
     v3_work/trainer/ablations/c3f/calib_heldout_bl.sbatch             (emendamento 5: stage, ICP e NICP cs, calib-bl)
     aau/outlineB/run_o3d.sh v3_work/trainer/tools/fact_calib.py bl --in-dir <tmp>/in --table <tmp>/scale_table.npz
     aau/outlineB/run_o3d.sh v3_work/trainer/tools/fact_calib.py calib-bl
@@ -17,6 +19,11 @@ Coppie: stesso dominio, soggetti diversi, etichette diverse. d_P,modello = ||u_i
 (eval_factorized.dp_from_ckpt), d_P,GT = GT-SR di training (c3f/gt_sr.npz, ritaglio identico di gt_sr_bfm_ict_gnm)
 x dP_per_unit. c = mediana(d_P,GT) / mediana(d_P,modello); sensibilita' c_LS = sum(g m) / sum(m^2); c per dominio.
 Uscita: aau/runs/evidence/trainer_v3/factorized_calibration.csv (una riga per checkpoint con embedding held-out).
+``calib-ckpt``: la stessa c su un checkpoint QUALUNQUE (es. quelli dello stream, run massivo), dagli embedding degli
+stessi held-out (bfm, ict, gnm; slurm/calib_ckpt.sbatch); nessun dominio di test. Uscita: un json con c, c_LS, c per
+dominio e sha256 di checkpoint ed embedding, da mettere nel commit PRIMA di valutare il checkpoint sui test
+(PLAN_MASSIVE sez. 22.5). Checkpoint dello stream (``--stream-gt sr``): d_P per unita' di ||u|| deve coincidere con
+l'unita' della GT al volo (targets.gt_unit), altrimenti errore.
 
 Emendamento 5 (``bl``, ``calib-bl``): ICP + Chamfer e NICP per coppia in modo cs (``aau/baselines_mm/blmm.pair_metrics``)
 sulle STESSE mesh e coppie (X = indice minore nell'ordine dei nomi, seme = indice della coppia; NICP su 6000 coppie
@@ -138,20 +145,38 @@ def stage(in_dir: Path, table: Path) -> None:
     print(f"[calib] {len(rows)} mesh di {len(want)} soggetti in {in_dir}, tabella {table}", flush=True)
 
 
-def calib_one(key: str, emb: Path, G: np.ndarray, gpos: dict, dpu_gt: float) -> dict:
+def dp_of(ckpt: Path) -> float:
+    """d_P per unita' di ||u||: eval_factorized.dp_from_ckpt (GT di --dist_npz / --gt-scale). Con lo stream (GT-SR al
+    volo) u e' allenata nell'unita' di --stream-gt-mm o targets.gt_unit("sr"): devono coincidere."""
     import eval_factorized as ef
+    import torch
+    dpu = ef.dp_from_ckpt(ckpt)
+    a = torch.load(ckpt, map_location="cpu", weights_only=False)["args"]
+    if a.get("stream"):
+        if a.get("stream_gt") != "sr":
+            raise SystemExit(f"{ckpt}: stream con --stream-gt {a.get('stream_gt')}, la calibrazione di d_P vuole sr")
+        sys.path.insert(0, str(REPO / "v3_work/stream"))
+        import targets
+        unit = float(a.get("stream_gt_mm") or 0.0) or targets.gt_unit("sr")
+        if abs(unit / dpu - 1.0) > 1e-6:
+            raise SystemExit(f"{ckpt}: d_P per unita' {dpu:.8g} dal checkpoint, {unit:.8g} dalla GT dello stream")
+    return dpu
+
+
+def calib_one(key: str, emb: Path, G: np.ndarray, gpos: dict, dpu_gt: float, want: Path | None = None) -> dict:
     from common import domain_of
     with np.load(emb, allow_pickle=True) as z:
         Z = np.asarray(z["Z"], np.float64)
         subj = [str(s) for s in z["subjects"]]
         topo = np.asarray([str(t) for t in z["topologies"]])
         ckpt = Path(str(z["checkpoint"]))
-    if ckpt.resolve() != checkpoint(key).resolve():
-        raise SystemExit(f"{key}: embedding di {ckpt}, atteso {checkpoint(key)}")
+    want = checkpoint(key) if want is None else want
+    if ckpt.resolve() != want.resolve():
+        raise SystemExit(f"{key}: embedding di {ckpt}, atteso {want}")
     import torch
     head = torch.load(ckpt, map_location="cpu", weights_only=False)["args"].get("head", "embed")
     u = Z[:, Z.shape[1] // 2:] if head == "dual" else Z[:, 1:]
-    dpu = ef.dp_from_ckpt(ckpt)
+    dpu = dp_of(ckpt)
     dom = np.asarray([domain_of(s) for s in subj])
     g = np.asarray([gpos[s] for s in subj])
     i, j = np.triu_indices(len(Z), 1)
@@ -168,11 +193,45 @@ def calib_one(key: str, emb: Path, G: np.ndarray, gpos: dict, dpu_gt: float) -> 
     return out
 
 
-def calib() -> None:
+def gt_sr() -> tuple[np.ndarray, dict, float]:
     with np.load(GT_SR, allow_pickle=True) as z:
         G = np.asarray(z["D_orig"], np.float32)
         gpos = {str(n): k for k, n in enumerate(z["names"])}
-    dpu_gt = float(json.loads(GT_SR.with_suffix(".json").read_text())["dP_per_unit"])
+    return G, gpos, float(json.loads(GT_SR.with_suffix(".json").read_text())["dP_per_unit"])
+
+
+def sha256(path: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def calib_ckpt(ckpt: Path, arm: str, emb: Path, out: Path) -> None:
+    """c di un checkpoint qualunque dagli embedding held-out (calib_ckpt.sbatch); json con gli hash."""
+    import torch
+    head = torch.load(ckpt, map_location="cpu", weights_only=False)["args"].get("head", "embed")
+    if head != arm:
+        raise SystemExit(f"{ckpt}: testa {head}, attesa {arm} (--arm)")
+    G, gpos, dpu_gt = gt_sr()
+    r = calib_one(str(ckpt), emb, G, gpos, dpu_gt, want=ckpt)
+    with np.load(emb, allow_pickle=True) as z:
+        subj = sorted({str(s) for s in z["subjects"]})
+    from common import domain_of
+    r.update(arm=arm, sha256_checkpoint=sha256(ckpt), embeddings=str(emb), sha256_embeddings=sha256(emb),
+             gt=str(GT_SR), heldout_subjects={d: sum(domain_of(s) == d for s in subj) for d in DOMS},
+             definition="fact_calib.calib_one: coppie stesso dominio, soggetti ed etichette diversi; c = mediana(d_P "
+                        "GT-SR) / mediana(d_P modello), c_ls = minimi quadrati senza intercetta")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(r, indent=1) + "\n")
+    print(f"[calib] {ckpt}: c {r['c_median']:.4f} (LS {r['c_ls']:.4f}; bfm {r['c_median_bfm']:.3f} ict "
+          f"{r['c_median_ict']:.3f} gnm {r['c_median_gnm']:.3f}), {r['n_pairs']} coppie -> {out}", flush=True)
+
+
+def calib() -> None:
+    G, gpos, dpu_gt = gt_sr()
     rows = []
     for key in CKPTS:
         emb = OUT_EMB / key / "embeddings.npz"
@@ -352,9 +411,16 @@ def main() -> None:
     b.add_argument("--workers", type=int, default=32)
     b.add_argument("--steps", default="fast,nicp")
     sub.add_parser("calib-bl")
+    k = sub.add_parser("calib-ckpt")
+    k.add_argument("--ckpt", type=Path, required=True)
+    k.add_argument("--arm", default="factorized", choices=["factorized", "factorized2", "dual"])
+    k.add_argument("--emb", type=Path, required=True, help="embedding held-out del checkpoint (calib_ckpt.sbatch)")
+    k.add_argument("--out", type=Path, required=True, help="json di uscita")
     a = ap.parse_args()
     if a.cmd == "stage":
         stage(a.in_dir, a.table)
+    elif a.cmd == "calib-ckpt":
+        calib_ckpt(a.ckpt, a.arm, a.emb, a.out)
     elif a.cmd == "bl":
         baselines(a.in_dir, a.table, a.workers, a.steps.split(","))
     elif a.cmd == "calib-bl":
