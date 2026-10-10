@@ -1287,19 +1287,21 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
 ## 2026-10-10/11 — concorrenti parametrici (emendamenti 1-3), il crop, §22 dopo due critic
 
 - **Riepilogo finale di factorized** (`trainer_v3/factorized_results.md`, sezione "Mancanti": nessuno).
-  - HIFI3D, GT FR, d_F calibrata: 0.749 [0.683, 0.811] (s1234) e 0.731 [0.660, 0.793] (s2345).
+  - HIFI3D, GT FR, d_F calibrata: 0.749 [0.673, 0.806] (s1234) e 0.731 [0.657, 0.792] (s2345), IC sulle righe e
+    repliche appaiate di `fact_paired.py`, come nel paper.
     - Contro ICP + Chamfer in mm: +0.106 [+0.062, +0.154] e +0.088 [+0.040, +0.138].
     - Contro la taglia oracolo: +0.012 [−0.034, +0.062] e −0.006 [−0.058, +0.048], non risolti.
     - Contro "taglia stimata + ICP cs cal.": +0.034 [−0.001, +0.071] e +0.017 [−0.019, +0.057], non risolti.
     - Sotto "oracolo + ICP cs cal.": −0.093 [−0.128, −0.060] (s1234).
-  - SR, d_P: 0.622 [0.546, 0.691], contro NICP per coppia cs 0.595 (+0.027 [−0.029, +0.083], n.s.).
+  - SR, d_P: 0.622 [0.550, 0.685] (IC appaiati), contro NICP per coppia cs 0.595 (+0.027 [−0.029, +0.083], n.s.).
   - Criterio "forma oltre la taglia": **no** per tutti i bracci. Regola dual: **no**, quindi **testa factorized con
     d_F calibrata**.
 - **§22 di `PLAN_MASSIVE.md` dopo due giri del critic.**
   - Primo giro: lr 1e-4 costante esplicito, batch a dominio singolo, ricetta per rank del C3M, `STREAM_SOURCES`
     obbligatorio, `fact_calib.py calib-ckpt`.
   - Secondo giro (RISERVE): `validated` = **ricetta del C3M scalata** (`STREAM_RECIPE=c3m`); ogni deviazione sta nel
-    preset `max`, come variabile esplicita.
+    preset `max`, come variabile esplicita. **Non assodata: l'11 ottobre il PI ha sospeso la ricetta** in attesa delle
+    diagnostiche D1/D2 e dell'emendamento 3 (voce dell'11 ottobre, sotto).
   - Mini-smoke a 2 L40S della ricetta c3m (job 1067709): 0.435-0.447 s/passo nelle 5 epoche, GPU al 76%, 6.1 viste
     fresche/s. La stima a 12 rank resta provvisoria.
   - Prova a 6 + 6 L40S (job 1067683): **in coda, mai partita**. È bloccata dal tetto di 12 GPU per utente
@@ -1348,10 +1350,10 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   - **La fragilità era nota:**
     - E1: C3F maxabs HIFI3D 0.716 [0.645, 0.776] senza crop, 0.587 [0.504, 0.657] su all_cross;
     - `paper/REPORT.md`, legge di Weyl: λ128 si sposta del 16% sul crop, contro il 17% previsto dal 14.6% di area
-      persa.
+      persa. (Non vale per i bracci, che normalizzano gli autovalori: vedi la voce dell'11 ottobre, B1.)
   - B usa una regione che esclude l'anello di bordo, i bracci no. Il pooling di all_cross sovrastima il calo.
-  - **L'invarianza alla discretizzazione regge.** Media dentro le coppie di topologie, valori del critic da
-    ricalcolare nell'emendamento 3 (gruppo d):
+  - **Invarianza alla discretizzazione: attesa dalla stima del critic, da confermare con l'emendamento 3.** Media
+    dentro le coppie di topologie, valori del critic da ricalcolare nell'emendamento 3 (gruppo d):
     - senza crop: FaceScape 0.667, HIFI3D ctrlfr 0.758;
     - con crop: 0.376 e 0.239.
   - **Nota dell'agente.** La "Chamfer pura" del critic (all_cross FR: FaceScape 0.570, HIFI3D 0.645) è la Chamfer
@@ -1378,8 +1380,44 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   - sezione dei concorrenti parametrici, con le celle dove B vince;
   - limitazione sul crop;
   - affermazioni smentite marcate `% SMENTITO:`, punti che dipendono dal run massivo marcati `% TODO run massivo`.
-- **In corso:** secondi semi E1 (1062681, 1062683), poi eval e riassunto (1062682, 1062684, 1062685).
+- **In corso:** training E1 di G1 (1062681) e C3F-UGT grezza (`c3fugtraw`, 1062683), poi le loro eval (1062682,
+  1062684) e il riepilogo (1062685). Non sono i secondi semi: le eval dei secondi semi C2F s2 (1062676) e C3F s2
+  (1062678) sono COMPLETED (sacct, 11 ottobre).
 
 ### Emendamento 3: risultati in arrivo
 
 (da riempire)
+
+## 2026-10-11 — ricetta del run massivo sospesa; critic sulla bozza CVPR: BLOCCANTE, correzioni applicate
+
+- **Aggiornamento del PI: la ricetta del run massivo è SOSPESA** (la §22 di `PLAN_MASSIVE.md`, `validated` = C3M
+  scalato, non è più una decisione presa). Si aspettano:
+  - le diagnostiche D1/D2 (`aau/runs/evidence/diagnostics/PROTOCOL_D.md`, commit 251bdd6, scritto prima dei numeri):
+    D1 separa H1, varietà dei generatori (i bracci leggono bene solo la forma dei generatori visti), da H2, capacità
+    di lettura dell'encoder (anche in distribuzione un fit 3DMM col modello nel ciclo fa meglio); D2 è la sonda
+    lineare testa contro encoder (la H3 del protocollo D);
+  - l'emendamento 3 dei concorrenti parametrici per il supporto (la terza ipotesi del PI): bracci sulla regione di B
+    e crop sugli held-out sintetici.
+- **Critic sulla bozza (commit 8761beb): BLOCCANTE.** Circa 90 numeri verificati e quasi tutti giusti; il testo no.
+  - B1: la causa "Weyl, lambda_128 si sposta del 16%" sul crop non vale per questo modello: operatori su mesh ad area 1
+    e autovalori divisi per lam_max = evals[k_eig-1] nel loader, quindi lambda_128 = 1 per ogni mesh.
+  - B2: la calibrazione c è l'emendamento 4, scritto dopo i numeri non calibrati e motivato anche da un controllo
+    sulla GT di HIFI3D. La distanza preregistrata è la d_F non calibrata: 0.642 / 0.631 su HIFI3D FR, pari a
+    ICP + Chamfer in mm (-0.001 [-0.055, +0.055]) e al FLAME preregistrato (+0.003 [-0.073, +0.081]).
+  - B3: frasi smentite ancora nel testo vivo (in dominio presentato come generale; con FR la rigida migliora la
+    Chamfer in mm sulle famiglie tenute fuori).
+  - B4: omesse la sensibilità a sigma, la caduta su HIFI3D col crop contro i fit, "senza crop" nelle frasi di punta.
+  - Riserve: pipeline "che tengono la taglia" da elencare, FaMoS pari alle composizioni (0.678 / 0.654 contro
+    0.753 / 0.708), FaceScape perso in forma e taglia, "robusto alla discretizzazione" senza numeri, licenze,
+    HIFI3D entrato in selezione (regola dual, scelta di k, motivazione della calibrazione); gli unici mai usati in
+    selezione sono FaMoS TEST e NoW.
+- **Correzioni applicate** (commit aac2068, `main_cvpr_draft.tex` e `refs_cvpr_add.bib`): tutte, con le fonti in
+  commento. Riga della d_F preregistrata nella tabella principale (FaceScape: 0.687 / 0.698, sopra la calibrata
+  0.661 / 0.669). Sull'allineamento il testo dice solo ciò che `baselines_mm` regge: con FR la rigida aiuta
+  (HIFI3D 0.411 -> 0.643, FaceScape 0.211 -> 0.467, FaceVerse con espressioni 0.281 -> 0.337); togliere la scala
+  (HIFI3D 0.643 -> 0.359) e la NICP per coppia (0.495, 0.374, 0.201) peggiorano la forma; NICP su template non sempre
+  (FaceScape 0.544). Delta appaiati fra pipeline: non esistono, `\todo`. Titolo invariato, `% TODO titolo` per
+  l'utente. GNM Head e FLAME 2023 Open in bibliografia dai README dei pacchetti.
+- **Restano `\todo`:** media dentro le 10 coppie di topologie senza crop (emendamento 3), IC appaiati fra pipeline
+  geometriche, permessi per i pesi addestrati su BFM, coefficienti BFM di REMESH non conservati (la sezione sulla
+  disponibilità prometteva di rilasciarli).
