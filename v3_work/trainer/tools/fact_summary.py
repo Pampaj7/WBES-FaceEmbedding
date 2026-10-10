@@ -16,8 +16,10 @@ Dagli embedding dei bracci (passo ``form`` di ablations/c3f/eval_body.sh, ``c3f_
 Emendamento 4: d_F calibrata (``form_cal``, c di factorized_calibration.csv, tools/fact_calib.py; ``form_cal_ls`` con
 c dei minimi quadrati) per i fattorizzati all'ultimo checkpoint e per C3M (e123, e205, descrittivo); etichette di
 verdetto dai delta appaiati contro le baseline in mm (factorized_paired.csv, tools/fact_paired.py); analisi della
-taglia (a)-(c), regola "forma oltre la taglia" e regola dual dalle stesse righe. Scrive aau/runs/evidence/trainer_v3/
-factorized_results.md e factorized_results.csv.
+taglia (a)-(c), regola "forma oltre la taglia" e regola dual dalle stesse righe. Emendamento 5: composizioni con k
+degli held-out (factorized_calibration_bl.csv), SR contro NICP e ICP cs, sezione esplorativa NON preregistrata dopo
+quelle preregistrate (factorized_explore.csv, factorized_calibration_test.csv di fact_paired.py). Scrive
+aau/runs/evidence/trainer_v3/factorized_results.md e factorized_results.csv.
 """
 from __future__ import annotations
 
@@ -54,6 +56,7 @@ DOMS = {"hifi": ("form_hifi", "hifi3d", "HIFI3D/eval_view"), "devfs": ("form_dev
 C3M = (("123", 36039), ("205", 60000))
 NB, SEED = 1000, 1234
 MARGIN = 0.03                       # emendamento 4: non inferiorita' sull'estremo inferiore dell'IC del delta
+COMP_EST = "taglia stimata + ICP cs cal."      # emendamento 5: concorrente della condizione (c)
 VERDICT_BL = ("ICP + Chamfer in mm", "NICP su template in mm")
 BL_ROWS = (("scale_e108", "e108 (cieco alla taglia)"), ("mm_rigid_icp_chamfer", "ICP + Chamfer in mm"),
            ("mm_nicp_p2tri", "NICP per coppia in mm"), ("mm_nicp_template", "NICP su template in mm"),
@@ -216,6 +219,91 @@ def verdict(P: list, key: str, dist: str) -> str:
     return "; ".join(out) or "-"
 
 
+def explore_section(P: list, cal: dict, kbl: dict) -> list[str]:
+    """Emendamento 5, sez. 3: esplorativa NON preregistrata, dopo le sezioni preregistrate. (i) parziale (a) della
+    sola d_P (factorized_paired.csv); (ii) d_F(c) sulla griglia di c (factorized_explore.csv); (iii) c e k "ideali"
+    sul test (factorized_calibration_test.csv)."""
+    md = ["", "## Esplorativa, non preregistrata (motivata dalla dipendenza di (a) da c)", "",
+          "Analisi post hoc (emendamento 5, sez. 3), dopo i numeri dell'emendamento 4: non cambia alcun verdetto. "
+          "HIFI3D `nocrop_cross`, GT FR, righe e repliche di `fact_paired.py`.", ""]
+    f = lambda r: fmt(float(r["arm_point"]), float(r["arm_ci_low"]), float(r["arm_ci_high"])) if r else "-"  # noqa: E731
+    g = lambda r: dlab(r) if r else "-"  # noqa: E731
+
+    def get(rows, key, dist, kind, b):
+        hit = [r for r in rows if r["domain"] == "hifi3d" and r["gt"] == "fr" and r["kind"] == kind and r["arm"] == key
+               and r["distance"] == dist and r["baseline"] == b]
+        return hit[0] if hit else None
+
+    # (i)
+    md += ["### (i) Parziale (a) della sola d_P", "",
+           "| braccio | distanza | (a) parziale | - ICP mm | - NICP cs | - ICP cs |", "| --- | --- | --- | --- | --- | --- |"]
+    for key, d in [(f"{a}_s{s}", "shape") for a in ("factorized", "factorized2") for s in SEEDS] + \
+            [(f"factorizedc3m_e{e}", "shape") for e, _ in C3M] + [(f"dual_s{s}", "u") for s in SEEDS]:
+        v = get(P, key, d, "partial", "-")
+        if v:
+            md.append(f"| {key} | {d} | {f(v)} | " + " | ".join(
+                g(get(P, key, d, "partial", b)) for b in ("ICP + Chamfer in mm", "NICP per coppia (cs)", "ICP + Chamfer (cs)"))
+                + " |")
+    for lab in ("ICP + Chamfer in mm", "ICP + Chamfer (cs)", "NICP per coppia (cs)"):
+        v = get(P, "baseline", lab, "partial", "-")
+        if v:
+            md.append(f"| {lab} (baseline) | - | {f(v)} | - | - | - |")
+    # (ii)
+    xp = EV / "factorized_explore.csv"
+    X = list(csv.DictReader(open(xp))) if xp.exists() else []
+    md += ["", "### (ii) Sensibilita' a c di d_F(c) = sqrt((S_i - S_j)^2 + S_i S_j (c d_P)^2)", "",
+           f"Criterio a c: le condizioni della regola \"forma oltre la taglia\" calcolate con d_F(c) (descrittivo). "
+           "`*` = c del checkpoint (held-out, arrotondata alla griglia piu' vicina). `factorized_explore.csv`.", "",
+           "| braccio | c | (a) parziale | (a) - ICP mm | (a) - NICP cs | Spearman FR | - stimata + ICP cs cal. | "
+           "criterio a c |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+    xkeys = list(dict.fromkeys((r["arm"], r["distance"]) for r in X if r["domain"] == "hifi3d"))
+    crit_c = {}
+    for key, d in xkeys:
+        c = float(d.split("form_at_c")[1])
+        grid = sorted({float(dd.split("form_at_c")[1]) for kk, dd in xkeys if kk == key})
+        own = cal.get(key, {}).get("c_median")
+        star = "*" if own is not None and c == min(grid, key=lambda x: abs(x - own)) else ""
+        a, b1, b2 = (get(X, key, d, "partial", b) for b in ("-", "ICP + Chamfer in mm", "NICP per coppia (cs)"))
+        r0, r1 = get(X, key, d, "rho", "-"), get(X, key, d, "rho", COMP_EST)
+        ok = None if not (b1 and b2 and r1) else (float(b1["ci_low"]) > 0 and float(b2["ci_low"]) > 0
+                                                   and float(r1["ci_low"]) > -MARGIN)
+        crit_c[(key, c)] = ok
+        md.append(f"| {key} | {c:g}{star} | {f(a)} | {g(b1)} | {g(b2)} | {f(r0)} | {g(r1)} | "
+                  f"{'-' if ok is None else ('soddisfatto' if ok else 'non soddisfatto')} |")
+    if not X:
+        md.append("| in attesa | - | - | - | - | - | - | - |")
+    # (iii)
+    tp = EV / "factorized_calibration_test.csv"
+    T = list(csv.DictReader(open(tp))) if tp.exists() else []
+    md += ["", "### (iii) Errore di dominio della calibrazione (informazione, non parametro)", "",
+           "Scala \"ideale\" sul test = mediana(d_P GT) / mediana(d_P del metodo) sulle righe della maschera (d_P GT = "
+           "GT-SR x dP_per_unit), contro c (modelli) e k (baseline cs) degli held-out sintetici. Non si usa per alcuna "
+           "distanza.", "", "| metodo | held-out | HIFI3D | rapporto | dev FaceScape | rapporto |",
+           "| --- | --- | --- | --- | --- | --- |"]
+    for m in dict.fromkeys(r["method"] for r in T):
+        key = m.split(" ")[0]
+        ho = {"cs_rigid_icp_chamfer": kbl.get("icp_cs", {}).get("k_median"),
+              "cs_nicp_p2tri": kbl.get("nicp_cs", {}).get("k_median")}.get(m, cal.get(key, {}).get("c_median"))
+        ho = float(ho) if ho not in (None, "") else None
+        cells = []
+        for dom in ("hifi3d", "facescape"):
+            hit = [r for r in T if r["method"] == m and r["domain"] == dom]
+            v = float(hit[0]["scale_test"]) if hit else None
+            cells += [f"{v:.3f}" if v is not None else "-", f"{v / ho:.2f}" if v is not None and ho else "-"]
+        md.append(f"| {m} | {f'{ho:.3f}' if ho else '-'} | " + " | ".join(cells) + " |")
+    if not T:
+        md.append("| in attesa | - | - | - | - | - |")
+    for key in dict.fromkeys(k for k, _ in xkeys):
+        hit = [r for r in T if r["method"] == f"{key} shape" and r["domain"] == "hifi3d"]
+        if hit:
+            ct = float(hit[0]["scale_test"])
+            c = min((cc for kk, cc in crit_c if kk == key), key=lambda x: abs(x - ct))
+            ok = crit_c[(key, c)]
+            md.append(f"\n{key}: col c della griglia piu' vicino al c sul test di HIFI3D ({ct:.3f} -> c = {c:g}) il "
+                      f"criterio e' {'-' if ok is None else ('soddisfatto' if ok else 'non soddisfatto')} (tabella (ii)).")
+    return md
+
+
 def main() -> None:
     rows, missing, famos_ch = [], [], {}
     cal = fact_calib.load()
@@ -260,7 +348,7 @@ def main() -> None:
     bl = baselines()
     pp = EV / "factorized_paired.csv"
     P = list(csv.DictReader(open(pp))) if pp.exists() else []
-    md = ["# Risultati di factorized_protocol.md (emendamenti 1-4)", "",
+    md = ["# Risultati di factorized_protocol.md (emendamenti 1-5)", "",
           "Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche, "
           "seme 1234). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), "
           "calcolata dagli embedding. Distanze del modello: d_F grezza (`form`), d_F calibrata (`form_cal`, c primaria "
@@ -289,6 +377,21 @@ def main() -> None:
         md.append(f"| {k} | " + (" | ".join(f"{r[c]:.3f}" for c in ("c_median", "c_ls", "c_median_bfm", "c_median_ict",
                                                                         "c_median_gnm", "median_dP_gt", "median_dP_model"))
                                 + f" | {int(r['n_pairs'])} |" if r else "in attesa | - | - | - | - | - | - | - |"))
+    # ---- k delle composizioni (emendamento 5)
+    md += ["", "k delle composizioni (emendamento 5, sez. 1): stesse mesh e coppie held-out, ICP + Chamfer e NICP per "
+           "coppia in modo cs (`fact_calib.py bl`), k = mediana(d_P GT) / mediana(d_P baseline), d_P baseline = "
+           "distanza / CS_ref a centroid size 1; NICP su 6000 coppie fisse (`icp_cs_sub`: ICP sulle stesse). "
+           "Composizioni con k primaria; k_LS solo riportata.", "",
+           "| baseline | k | k_LS | k bfm | k ict | k gnm | mediana d_P GT | mediana d_P baseline | coppie | fallite |",
+           "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    kb = EV / "factorized_calibration_bl.csv"
+    kbl = {r["key"]: r for r in csv.DictReader(open(kb))} if kb.exists() else {}
+    for k in ("icp_cs", "nicp_cs", "icp_cs_sub"):
+        r = kbl.get(k)
+        md.append(f"| {k} | " + (" | ".join(f"{float(r[c]):.3f}" for c in ("k_median", "k_ls", "k_median_bfm", "k_median_ict",
+                                                                            "k_median_gnm", "median_dP_gt", "median_dP_bl"))
+                                 + f" | {r['n_pairs']} | {r['n_failed']} |" if r else
+                                 "in attesa | - | - | - | - | - | - | - | - |"))
     # ---- HIFI3D primaria
     md += ["", "## HIFI3D, GT FR (primaria), ultimo checkpoint", "",
            "Verdetto (emendamento 4, sez. 4): delta appaiato contro ICP + Chamfer in mm e NICP su template in mm (stesse "
@@ -312,10 +415,12 @@ def main() -> None:
         if c:
             md.append(f"| {lab} | {c.get('fr', '-')} | {c.get('sr', '-')} | {c.get('maxabs', '-')} |")
     # ---- tabella calibrata con i delta appaiati
-    cmp_bl = ("ICP + Chamfer in mm", "NICP su template in mm", "taglia oracolo", "oracolo taglia + ICP cs",
-              "taglia stimata + ICP cs")
+    # emendamento 5, sez. 2: per SR prima i concorrenti invarianti alla taglia (NICP e ICP cs)
+    cmp_fr = ("ICP + Chamfer in mm", "NICP su template in mm", "taglia oracolo", "oracolo taglia + ICP cs cal.",
+              COMP_EST, "taglia stimata + NICP cs cal.")
+    cmp_by_gt = {"fr": cmp_fr, "sr": ("NICP per coppia (cs)", "ICP + Chamfer (cs)") + cmp_fr}
 
-    def prow(dom, gt, kind, key, dist):
+    def prow(dom, gt, kind, key, dist, cmp_bl):
         rr = {r["baseline"]: r for r in P if r["domain"] == dom and r["gt"] == gt and r["kind"] == kind
               and r["arm"] == key and r["distance"] == dist}
         if "-" not in rr:
@@ -327,25 +432,29 @@ def main() -> None:
     keys_tab = [(f"{a}_s{s}", d) for a in ("factorized", "factorized2") for s in SEEDS for d in ("form_cal", "form")] + \
         [(f"factorizedc3m_e{e}", d) for e, _ in C3M for d in ("form_cal", "form")] + \
         [(f"ctrlfr_s{s}", "z") for s in SEEDS] + [(f"dual_s{s}", "zf") for s in SEEDS]
-    md += ["", "## HIFI3D FR e SR con d_F calibrata: delta appaiati (emendamento 4)", "",
-           "Righe e repliche di `fact_paired.py` (maschera comune). Composizioni: d_F = sqrt((S_i - S_j)^2 + S_i S_j "
-           "d_P^2) con d_P = ICP + Chamfer cs / CS_ref, S oracolo (FR) o stimata dalla mesh. delta [IC 95%].", ""]
+    md += ["", "## HIFI3D FR e SR con d_F calibrata: delta appaiati (emendamenti 4 e 5)", "",
+           "Righe e repliche di `fact_paired.py` (maschera comune). Composizioni (emendamento 5): d_F = sqrt((S_i - "
+           "S_j)^2 + S_i S_j d_P^2) con d_P = k_ICP x ICP + Chamfer cs / CS_ref (S oracolo di FR o stimata dalla mesh) "
+           "o k_NICP x NICP per coppia cs / CS_ref (S stimata), k degli held-out sintetici. Per SR le prime colonne "
+           "sono i concorrenti invarianti alla taglia. delta [IC 95%].", ""]
     for gt in ("fr", "sr"):
+        cmp_bl = cmp_by_gt[gt]
         md += [f"### GT {gt.upper()}", "", "| braccio | distanza | Spearman | " + " | ".join(cmp_bl) + " |",
                "| --- | --- | --- | " + " | ".join("---" for _ in cmp_bl) + " |"]
         for key, d in keys_tab:
             d = d if gt == "fr" else {"form_cal": "shape", "form": None, "z": "z", "zf": "u"}[d]
-            x = prow("hifi3d", gt, "rho", key, d) if d else None
+            x = prow("hifi3d", gt, "rho", key, d, cmp_bl) if d else None
             if x:
                 md.append(f"| {key} | {d} | {x[0]} | " + " | ".join(x[1]) + " |")
         md.append("")
     # ---- analisi della taglia
     md += ["## Analisi della taglia (emendamento 4, sez. 2), GT FR", "",
            "(a) Spearman parziale dato l'oracolo (ranghi regrediti su rango(|delta log S|) e rango^2, Pearson dei "
-           "residui); (b) Spearman nel quintile basso di |delta log S|; (c) Spearman grezzo contro le composizioni. "
+           "residui); (b) Spearman nel quintile basso di |delta log S|; (c) Spearman grezzo contro le composizioni "
+           "calibrate (emendamento 5). "
            f"Criterio \"forma oltre la taglia\" (solo HIFI3D, per seme): delta di (a) contro ICP mm e contro NICP cs con "
-           f"IC sopra 0, e delta grezzo contro taglia stimata + ICP cs con estremo inferiore > -{MARGIN}. "
-           "dev FaceScape e FaMoS TEST: secondarie.", ""]
+           f"IC sopra 0, e delta grezzo contro {COMP_EST} con estremo inferiore > -{MARGIN}; la composizione con NICP "
+           "e' descrittiva. dev FaceScape e FaMoS TEST: secondarie.", ""]
     sz_keys = [(f"ctrlfr_s{s}", "z") for s in SEEDS] + \
         [(f"{a}_s{s}", "form_cal") for a in ("factorized", "factorized2") for s in SEEDS] + \
         [(f"dual_s{s}", "zf") for s in SEEDS] + [(f"factorizedc3m_e{e}", "form_cal") for e, _ in C3M]
@@ -361,27 +470,29 @@ def main() -> None:
             continue
         md += [f"### {title}", "",
                "| braccio | distanza | (a) parziale | (a) - ICP mm | (a) - NICP cs | (b) quintile | (b) - ICP mm | "
-               "(c) Spearman | - oracolo + ICP cs | - stimata + ICP cs | criterio |",
-               "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+               "(c) Spearman | - oracolo + ICP cs cal. | - stimata + ICP cs cal. | - stimata + NICP cs cal. | criterio |",
+               "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
         for key, d in sz_keys:
             pts = {k: get(dom, k, key, d, "-") for k in ("partial", "q20", "rho")}
             if not all(pts.values()):
                 continue
             ref = {(k, b): get(dom, k, key, d, b) for k in ("partial", "q20", "rho") for b in
-                   ("ICP + Chamfer in mm", "NICP per coppia (cs)", "oracolo taglia + ICP cs", "taglia stimata + ICP cs")}
+                   ("ICP + Chamfer in mm", "NICP per coppia (cs)", "oracolo taglia + ICP cs cal.", COMP_EST,
+                    "taglia stimata + NICP cs cal.")}
             ok = None
             if dom == "hifi3d" and ref[("partial", "ICP + Chamfer in mm")] and ref[("partial", "NICP per coppia (cs)")] \
-                    and ref[("rho", "taglia stimata + ICP cs")]:
+                    and ref[("rho", COMP_EST)]:
                 ok = (float(ref[("partial", "ICP + Chamfer in mm")]["ci_low"]) > 0
                       and float(ref[("partial", "NICP per coppia (cs)")]["ci_low"]) > 0
-                      and float(ref[("rho", "taglia stimata + ICP cs")]["ci_low"]) > -MARGIN)
+                      and float(ref[("rho", COMP_EST)]["ci_low"]) > -MARGIN)
                 crit[key] = ok
             f = lambda r: fmt(float(r["arm_point"]), float(r["arm_ci_low"]), float(r["arm_ci_high"]))  # noqa: E731
             g = lambda r: dlab(r) if r else "-"  # noqa: E731
             md.append(f"| {key} | {d} | {f(pts['partial'])} | {g(ref[('partial', 'ICP + Chamfer in mm')])} | "
                       f"{g(ref[('partial', 'NICP per coppia (cs)')])} | {f(pts['q20'])} | "
                       f"{g(ref[('q20', 'ICP + Chamfer in mm')])} | {f(pts['rho'])} | "
-                      f"{g(ref[('rho', 'oracolo taglia + ICP cs')])} | {g(ref[('rho', 'taglia stimata + ICP cs')])} | "
+                      f"{g(ref[('rho', 'oracolo taglia + ICP cs cal.')])} | {g(ref[('rho', COMP_EST)])} | "
+                      f"{g(ref[('rho', 'taglia stimata + NICP cs cal.')])} | "
                       f"{'-' if ok is None else ('soddisfatto' if ok else 'non soddisfatto')} |")
         md += ["", "Baseline sulle stesse righe:", "", "| metodo | (a) parziale | (b) quintile | Spearman |",
                "| --- | --- | --- | --- |"]
@@ -423,9 +534,10 @@ def main() -> None:
             res.append(ok)
             md.append(f"| {s} | {dom} | {gt.upper()} | {kind} | {a} | {ref} | {dlab(hit[0]) if hit else 'mancante'} | "
                       f"{'-' if ok is None else ('si' if ok else 'no')} |")
+        # emendamento 5, sez. 4: un esito falso decide ("no") anche con righe mancanti
         dec = ("si adotta dual" if all(x is True for x in res) else
-               "non risolto (righe mancanti): si sceglie factorized calibrato" if None in res else
-               "si sceglie factorized calibrato")
+               "no, si sceglie factorized calibrato" + (" (anche con righe mancanti)" if None in res else "")
+               if False in res else "non risolto (righe mancanti): si sceglie factorized calibrato")
         md += ["", f"**Esito: {dec}.**"]
     # ---- domini secondari
     for dom, title in (("devfs", "dev FaceScape (neutra)"), ("fv", "FaceVerse con espressioni")):
@@ -511,6 +623,7 @@ def main() -> None:
         ctl = EV / "factorized_paired_controls.json"
         if ctl.exists():
             md += ["Controlli di fact_paired.py: " + "; ".join(json.loads(ctl.read_text())), ""]
+    md += explore_section(P, cal, kbl)
     md += ["", "## Mancanti", "", ", ".join(missing) if missing else "nessuno", "",
            "Valori completi (anche 10.548 passi, d_P, FaMoS per blocco): `factorized_results.csv`; delta e analisi della "
            "taglia: `factorized_paired.csv`."]

@@ -12,13 +12,20 @@ bracci dagli embedding del passo ``form`` (ultimo checkpoint EMA, 21.096 passi; 
 in cache di eval_famos_v3.py: d_F e d_P per i fattorizzati, d_F calibrata (``form_cal``: c di
 factorized_calibration.csv, tools/fact_calib.py; ``form_cal_ls``: c dei minimi quadrati), ||z|| per ctrlfr, z_F e u
 per dual. Baseline: ICP + Chamfer in mm e cs, NICP su template in mm, NICP per coppia cs, taglia stimata e oracolo
-(|delta log S|), e108, e le due composizioni d_F = sqrt((S_i - S_j)^2 + S_i S_j d_P^2) con d_P = ICP cs / CS_ref e S
-oracolo (centroid size di FR) o stimata (centroid size robusta della mesh). Per ogni replica, con FR e SR: Spearman
+(|delta log S|), e108, e le composizioni d_F = sqrt((S_i - S_j)^2 + S_i S_j d_P^2) con S oracolo (centroid size di FR)
+o stimata (centroid size robusta della mesh): emendamento 5, d_P = k_ICP x ICP cs / CS_ref (oracolo e stimata) e
+d_P = k_NICP x NICP per coppia cs / CS_ref (stimata), k degli held-out sintetici (factorized_calibration_bl.csv,
+fact_calib.py calib-bl); quelle non calibrate dell'emendamento 4 restano come ``*_raw``. Per ogni replica, con FR e SR: Spearman
 (``rho``); con FR anche (a) Spearman parziale dato l'oracolo (``partial``: ranghi del metodo e della GT regrediti su
 [1, r(o), r(o)^2], Pearson dei residui) e (b) Spearman nel quintile basso di o (``q20``, soglia fissa sulle righe).
 Delta (braccio - riferimento) contro le baseline e, per la regola dual, fra bracci dello stesso seme. Maschera COMUNE
 per dominio (righe con tutte le distanze finite). IC 95% percentile, P(delta <= 0); righe con baseline "-" = valore
 del metodo. Uscita: aau/runs/evidence/trainer_v3/factorized_paired.csv.
+
+Esplorativa, NON preregistrata (emendamento 5, sez. 3): su HIFI3D d_F(c) per c della griglia ``C_GRID`` (factorized
+s1234, s2345, C3M e205), valori e delta contro ICP mm, NICP cs, taglia stimata + ICP cs cal. ->
+factorized_explore.csv; c e k "ideali" sul test (mediana d_P GT / mediana d_P del metodo sulle righe della maschera,
+HIFI3D e dev FaceScape; informazione, non parametro) -> factorized_calibration_test.csv.
 """
 from __future__ import annotations
 
@@ -46,6 +53,7 @@ blmm = be.blmm
 EV = REPO / "aau/runs/evidence/trainer_v3"
 EVAL = EV / "ablations/c3f_eval"
 CALIB = EV / "factorized_calibration.csv"              # tools/fact_calib.py
+CALIB_BL = EV / "factorized_calibration_bl.csv"        # tools/fact_calib.py calib-bl (emendamento 5)
 ARMS, SEEDS = ("factorized", "factorized2", "ctrlfr", "dual"), (1234, 2345)
 # (prefisso della colonna, variante del tag, epoca): C3F all'ultimo checkpoint, C3M ai due checkpoint valutati
 MODELS = [(f"{a}_s{s}", a + ("" if s == 1234 else f"s{s}"), "072") for a in ARMS for s in SEEDS] + \
@@ -66,9 +74,16 @@ def calibration() -> dict:
     return {r["key"]: (float(r["c_median"]), float(r["c_ls"])) for r in csv.DictReader(open(CALIB))}
 
 
-def distances(Z, i, j, ckpt: Path, cal=None) -> dict:
-    """factorized_v3.model_distances: fattorizzati -> d_F, d_P (e d_F calibrata con ``cal`` = (c, c_LS)); dual -> z_F
-    e u; altrimenti z."""
+def calibration_bl() -> dict:
+    """{icp_cs, nicp_cs: k} da factorized_calibration_bl.csv (vuoto se assente)."""
+    if not CALIB_BL.exists():
+        return {}
+    return {r["key"]: float(r["k_median"]) for r in csv.DictReader(open(CALIB_BL))}
+
+
+def distances(Z, i, j, ckpt: Path, cal=None, grid=()) -> dict:
+    """factorized_v3.model_distances: fattorizzati -> d_F, d_P (e d_F calibrata con ``cal`` = (c, c_LS); d_F(c) per i
+    c di ``grid``, esplorativa); dual -> z_F e u; altrimenti z."""
     import torch
     args = torch.load(ckpt, map_location="cpu", weights_only=False)["args"]
     head = args.get("head", "embed")
@@ -81,6 +96,8 @@ def distances(Z, i, j, ckpt: Path, cal=None) -> dict:
         if cal is not None:
             for k, c in zip(("form_cal", "form_cal_ls"), cal):
                 out[k] = np.sqrt((S[i] - S[j]) ** 2 + S[i] * S[j] * (c * dP) ** 2)
+        for c in grid:
+            out[f"form_at_c{c:.3f}"] = np.sqrt((S[i] - S[j]) ** 2 + S[i] * S[j] * (c * dP) ** 2)
         return out
     if head == "dual":
         L = Z.shape[1] // 2
@@ -92,9 +109,15 @@ VIEWS = {"hifi3d": ("hifi", "nocrop_cross"), "faceverse": ("fv", "mesh_pair_nocr
          "famos": ("famos", "scan gallery -> scan")}
 BASELINES = {"mm_rigid_icp_chamfer": "ICP + Chamfer in mm", "mm_nicp_template": "NICP su template in mm",
              "est_cs": "taglia stimata", "oracle_size": "taglia oracolo", "cs_nicp_p2tri": "NICP per coppia (cs)",
-             "cs_rigid_icp_chamfer": "ICP + Chamfer (cs)", "comp_oracle": "oracolo taglia + ICP cs",
-             "comp_est": "taglia stimata + ICP cs", "scale_e108": "e108"}
+             "cs_rigid_icp_chamfer": "ICP + Chamfer (cs)", "comp_oracle": "oracolo taglia + ICP cs cal.",
+             "comp_est": "taglia stimata + ICP cs cal.", "comp_est_nicp": "taglia stimata + NICP cs cal.",
+             "comp_oracle_raw": "oracolo taglia + ICP cs (em. 4, non cal.)",
+             "comp_est_raw": "taglia stimata + ICP cs (em. 4, non cal.)", "scale_e108": "e108"}
 GTS = ("fr", "sr")
+# esplorativa (emendamento 5, sez. 3): griglia di c, modelli, riferimenti dei delta
+C_GRID = (0.2, 0.3, 0.405, 0.5, 0.75, 1.0)
+EXPLORE = ("factorized_s1234", "factorized_s2345", "factorizedc3m_e205")
+EXPLORE_BL = ("mm_rigid_icp_chamfer", "cs_nicp_p2tri", "comp_est")
 # regola dual (emendamento 4, sez. 5): (dominio, gt, misura, colonna dual, colonna di riferimento) per seme
 DUAL_RULE = (("hifi3d", "fr", "rho", "zf", "ctrlfr_s{s}|z"), ("hifi3d", "sr", "rho", "u", "factorized_s{s}|shape"),
              ("hifi3d", "fr", "partial", "zf", "factorized_s{s}|form_cal"),
@@ -106,6 +129,18 @@ _J: dict = {}
 def form_of(S: np.ndarray, Sg: np.ndarray, dP: np.ndarray) -> np.ndarray:
     """d_F per una matrice (righe S, colonne Sg) di d_P."""
     return np.sqrt((S[:, None] - Sg[None, :]) ** 2 + S[:, None] * Sg[None, :] * dP ** 2)
+
+
+def compositions(D: dict, S_or, Sg_or, S_est, Sg_est, cs_ref: float) -> None:
+    """Composizioni in D: non calibrate (emendamento 4, ``*_raw``) e calibrate con k di held-out (emendamento 5;
+    assenti se manca factorized_calibration_bl.csv). Righe S, colonne Sg."""
+    dP = D["cs_rigid_icp_chamfer"] / cs_ref
+    D["comp_oracle_raw"], D["comp_est_raw"] = form_of(S_or, Sg_or, dP), form_of(S_est, Sg_est, dP)
+    k = calibration_bl()
+    if "icp_cs" in k:
+        D["comp_oracle"], D["comp_est"] = form_of(S_or, Sg_or, k["icp_cs"] * dP), form_of(S_est, Sg_est, k["icp_cs"] * dP)
+    if "nicp_cs" in k and "cs_nicp_p2tri" in D:
+        D["comp_est_nicp"] = form_of(S_est, Sg_est, k["nicp_cs"] * D["cs_nicp_p2tri"] / cs_ref)
 
 
 def oracle_S(gt_set: str) -> dict:
@@ -134,8 +169,7 @@ def rows_for(view: str):
     sc = blmm.scalars_of(view)
     S_or = np.asarray([orc[s] for s, _ in idx.keys])
     S_est = np.asarray([sc[blmm.rel(blmm.mesh_path(view, s, t))]["cs"] for s, t in idx.keys])
-    dP = D["cs_rigid_icp_chamfer"] / blmm.params()["domains"][blmm.VIEWS[view]["domain"]]["cs_ref"]
-    D["comp_oracle"], D["comp_est"] = form_of(S_or, S_or, dP), form_of(S_est, S_est, dP)
+    compositions(D, S_or, S_or, S_est, S_est, blmm.params()["domains"][blmm.VIEWS[view]["domain"]]["cs_ref"])
     df = be.add_gts(be.add_columns(base_df, D, idx), be.GT_SET[view])
     df = df.rename(columns={k: f"{v[0]}_{v[1]}" for k, v in be.PUBLISHED.items() if k in df})
     df = df[df["topology_a"].ne("crop") & df["topology_b"].ne("crop")].reset_index(drop=True)
@@ -161,7 +195,8 @@ def model_columns(view: str, idx) -> dict:
         Z = Z[[pos[k] for k in idx.keys]]
         n = len(Z)
         i, j = (a.ravel() for a in np.meshgrid(np.arange(n), np.arange(n), indexing="ij"))
-        for k, d in distances(Z, i, j, ckpt, cal.get(pre)).items():
+        grid = C_GRID if view == "hifi3d" and pre in EXPLORE else ()
+        for k, d in distances(Z, i, j, ckpt, cal.get(pre), grid).items():
             out[f"{pre}|{k}"] = d.reshape(n, n)
     return out
 
@@ -209,8 +244,7 @@ def famos_frame(n_boot: int):
     S_or = np.asarray([orc[gt_names[s]] for s in subj])
     D["est_cs"] = np.abs(np.log(S_est)[:, None] - np.log(S_est)[None, gal_all])
     D["oracle_size"] = np.abs(np.log(S_or)[:, None] - np.log(S_or)[None, gal_all])
-    dP = D["cs_rigid_icp_chamfer"] / blmm.params()["domains"]["famos"]["cs_ref"]
-    D["comp_oracle"], D["comp_est"] = form_of(S_or, S_or[gal_all], dP), form_of(S_est, S_est[gal_all], dP)
+    compositions(D, S_or, S_or[gal_all], S_est, S_est[gal_all], blmm.params()["domains"]["famos"]["cs_ref"])
     cal = calibration()
     checks = []
     for pre, v, e in MODELS:
@@ -322,13 +356,25 @@ def summarize(V: dict, view: str, M: list, bl: list, n_rows: int, seed: int) -> 
     return recs
 
 
+def test_scale(view: str, cols: dict, mask: np.ndarray, M: list) -> list[dict]:
+    """Emendamento 5, sez. 3 (iii): c e k "ideali" sul test, mediana(d_P GT) / mediana(d_P del metodo) sulle righe
+    della maschera (d_P GT = GT-SR x dP_per_unit del suo json). Informazione, non parametro."""
+    dpu = float(json.loads((be.EVAL_GT / f"{be.GT_SET[view]}_sr.json").read_text())["dP_per_unit"])
+    t = np.median(cols["gt_sr"][mask] * dpu)
+    cs_ref = blmm.params()["domains"][blmm.VIEWS[view]["domain"]]["cs_ref"]
+    dp = {m.replace("|", " "): cols[m][mask] for m in M if m.endswith("|shape") or m.endswith("|u")}
+    dp.update({b: cols[b][mask] / cs_ref for b in ("cs_rigid_icp_chamfer", "cs_nicp_p2tri") if b in cols})
+    return [{"domain": view, "method": k, "median_dP_gt": float(t), "median_dP_method": float(np.median(v)),
+             "scale_test": float(t / np.median(v)), "n_rows": int(mask.sum())} for k, v in dp.items()]
+
+
 def main() -> None:
     global _J
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--workers", type=int, default=32)
     ap.add_argument("--n-boot", type=int, default=1000)
     a = ap.parse_args()
-    recs, controls = [], []
+    recs, controls, explore, ctest = [], [], [], []
     for view in VIEWS:
         if view == "famos":
             cols, G, sa, sb, counts, ctrl = famos_frame(a.n_boot)
@@ -340,8 +386,8 @@ def main() -> None:
             df, idx, seed = rows_for(view)
             Mc = model_columns(view, idx)
             df = be.add_columns(df, Mc, idx)
-            M = list(Mc)
-            cols = {m: df[m].to_numpy(np.float64) for m in M + [b for b in BASELINES if b in df]}
+            M = [m for m in Mc if "|form_at_c" not in m]
+            cols = {m: df[m].to_numpy(np.float64) for m in list(Mc) + [b for b in BASELINES if b in df]}
             cols.update({f"gt_{g}": df[f"gt_{g}"].to_numpy(np.float64) for g in GTS})
             subjects = np.array(sorted(set(df["subject_a"]) | set(df["subject_b"])))
             s2i = {s: i for i, s in enumerate(subjects)}
@@ -353,18 +399,29 @@ def main() -> None:
             print(f"[paired] {view}: nessuna colonna dei bracci", flush=True)
             continue
         bl = [b for b in BASELINES if b in cols]
+        X = [m for m in cols if "|form_at_c" in m]          # esplorativa: fuori da factorized_paired.csv
         mask = (sa != sb) & np.all([np.isfinite(v) for v in cols.values()], axis=0)
         o = cols["oracle_size"]
         _J = {"counts": counts, "sa": sa[mask], "sb": sb[mask], "cols": {k: v[mask] for k, v in cols.items()},
-              "methods": M + bl, "low": o[mask] <= np.quantile(o[mask], 0.2)}
+              "methods": M + X + bl, "low": o[mask] <= np.quantile(o[mask], 0.2)}
         with mp.get_context("fork").Pool(a.workers) as pool:
             reps = pool.map(_rep, range(len(counts)), chunksize=4)
         V = {key: np.array([r[key] for r in reps]) for key in reps[0]}
-        recs += summarize(V, view, M, bl, int(mask.sum()), seed)
+        recs += summarize({k: v for k, v in V.items() if k[2] not in X}, view, M, bl, int(mask.sum()), seed)
+        if X:
+            xb = [b for b in EXPLORE_BL if b in cols]
+            explore += [r for r in summarize({k: v for k, v in V.items() if k[2] in X or k[2] in xb}, view, X, xb,
+                                             int(mask.sum()), seed) if r["arm"] != "baseline"]
+        if view in ("hifi3d", "facescape"):
+            ctest += test_scale(view, cols, mask, M)
         print(f"[paired] {view}: {len(M)} colonne dei bracci, {len(bl)} baseline, {int(mask.sum())} righe", flush=True)
     out = EV / "factorized_paired.csv"
     pd.DataFrame(recs).to_csv(out, index=False)
     (EV / "factorized_paired_controls.json").write_text(json.dumps(controls, indent=1) + "\n")
+    pd.DataFrame(explore).to_csv(EV / "factorized_explore.csv", index=False)
+    pd.DataFrame(ctest).to_csv(EV / "factorized_calibration_test.csv", index=False)
+    for r in ctest:
+        print(f"[paired] scala sul test {r['domain']} {r['method']}: {r['scale_test']:.3f}", flush=True)
     print("\n".join(controls), flush=True)
     print(f"[paired] {len(recs)} righe -> {out}", flush=True)
 
