@@ -1,0 +1,310 @@
+{
+ "dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/smoke_validated_1067645/node0",
+ "steps": 1000,
+ "s_per_step_by_epoch": [
+  0.412,
+  0.381,
+  0.391,
+  0.382,
+  0.377,
+  0.374,
+  0.39,
+  0.389,
+  0.37,
+  0.374
+ ],
+ "loss_by_epoch": [
+  0.1261,
+  0.1109,
+  0.1027,
+  0.1003,
+  0.0881,
+  0.0884,
+  0.0845,
+  0.0801,
+  0.0838,
+  0.0758
+ ],
+ "lr_by_epoch": [
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001
+ ],
+ "loss_finite": true,
+ "meshes_per_step": 30,
+ "meshes_per_s_consumed": [
+  72.81553398058253,
+  78.74015748031496,
+  76.72634271099744,
+  78.53403141361257,
+  79.57559681697613,
+  80.21390374331551,
+  76.92307692307692,
+  77.12082262210797,
+  81.08108108108108,
+  80.21390374331551
+ ],
+ "stream_by_epoch": [
+  {
+   "epoch": 1,
+   "seq_used": [
+    0,
+    90
+   ],
+   "uses": 3000,
+   "unique_views": 552,
+   "reuse_epoch": 5.434782608695652,
+   "reuse_cumulative": 5.434782608695652,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 133,
+   "wait_ms_per_step": 0.04532575607299805,
+   "serve_ms_per_step": 0.3842640947550535,
+   "plan_ms_per_step": 1.9373854529112577,
+   "mean_age_s": 43.24544312763214,
+   "pool_groups": 92,
+   "meshes_per_s_rank0": 72.8875984449247,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 2,
+   "seq_used": [
+    0,
+    120
+   ],
+   "uses": 3000,
+   "unique_views": 180,
+   "reuse_epoch": 16.666666666666668,
+   "reuse_cumulative": 8.19672131147541,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 388,
+   "wait_ms_per_step": 0.06028413772583008,
+   "serve_ms_per_step": 0.5217022402212024,
+   "plan_ms_per_step": 1.8035974260419607,
+   "mean_age_s": 45.29854843306541,
+   "pool_groups": 122,
+   "meshes_per_s_rank0": 78.81394005680343,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 3,
+   "seq_used": [
+    0,
+    148
+   ],
+   "uses": 3000,
+   "unique_views": 168,
+   "reuse_epoch": 17.857142857142858,
+   "reuse_cumulative": 10.0,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 385,
+   "wait_ms_per_step": 0.07558345794677734,
+   "serve_ms_per_step": 0.4942666133865714,
+   "plan_ms_per_step": 2.299049347639084,
+   "mean_age_s": 46.259594640572864,
+   "pool_groups": 150,
+   "meshes_per_s_rank0": 76.74350424635215,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 4,
+   "seq_used": [
+    0,
+    178
+   ],
+   "uses": 3000,
+   "unique_views": 180,
+   "reuse_epoch": 16.666666666666668,
+   "reuse_cumulative": 11.11111111111111,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 382,
+   "wait_ms_per_step": 0.09099483489990234,
+   "serve_ms_per_step": 0.4163406975567341,
+   "plan_ms_per_step": 1.9183080131188035,
+   "mean_age_s": 46.4797553358078,
+   "pool_groups": 180,
+   "meshes_per_s_rank0": 78.68266624185358,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 5,
+   "seq_used": [
+    0,
+    206
+   ],
+   "uses": 3000,
+   "unique_views": 168,
+   "reuse_epoch": 17.857142857142858,
+   "reuse_cumulative": 12.01923076923077,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 384,
+   "wait_ms_per_step": 0.10463714599609375,
+   "serve_ms_per_step": 0.39446441922336817,
+   "plan_ms_per_step": 2.0366189535707235,
+   "mean_age_s": 45.65877532978058,
+   "pool_groups": 208,
+   "meshes_per_s_rank0": 79.52580522036746,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 6,
+   "seq_used": [
+    2,
+    252
+   ],
+   "uses": 3000,
+   "unique_views": 276,
+   "reuse_epoch": 10.869565217391305,
+   "reuse_cumulative": 11.811023622047244,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 319,
+   "wait_ms_per_step": 0.1298213005065918,
+   "serve_ms_per_step": 0.5619695829227567,
+   "plan_ms_per_step": 2.3327015433460474,
+   "mean_age_s": 42.39434228404363,
+   "pool_groups": 254,
+   "meshes_per_s_rank0": 80.20758170735222,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 7,
+   "seq_used": [
+    0,
+    282
+   ],
+   "uses": 3000,
+   "unique_views": 180,
+   "reuse_epoch": 16.666666666666668,
+   "reuse_cumulative": 12.32394366197183,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 386,
+   "wait_ms_per_step": 0.1442885398864746,
+   "serve_ms_per_step": 0.5829039076343179,
+   "plan_ms_per_step": 2.52174052875489,
+   "mean_age_s": 42.57746143892833,
+   "pool_groups": 284,
+   "meshes_per_s_rank0": 76.99593218399544,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 8,
+   "seq_used": [
+    0,
+    312
+   ],
+   "uses": 3000,
+   "unique_views": 180,
+   "reuse_epoch": 16.666666666666668,
+   "reuse_cumulative": 12.738853503184714,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 371,
+   "wait_ms_per_step": 0.1606440544128418,
+   "serve_ms_per_step": 0.5060516577214003,
+   "plan_ms_per_step": 3.9191301353275776,
+   "mean_age_s": 45.47078305280208,
+   "pool_groups": 298,
+   "meshes_per_s_rank0": 77.09944976416122,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 9,
+   "seq_used": [
+    24,
+    340
+   ],
+   "uses": 3000,
+   "unique_views": 168,
+   "reuse_epoch": 17.857142857142858,
+   "reuse_cumulative": 13.157894736842104,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 389,
+   "wait_ms_per_step": 0.15997648239135742,
+   "serve_ms_per_step": 0.4406394995748997,
+   "plan_ms_per_step": 4.582209009677172,
+   "mean_age_s": 46.612248387495676,
+   "pool_groups": 298,
+   "meshes_per_s_rank0": 81.1341581030994,
+   "batches_mixed": 0
+  },
+  {
+   "epoch": 10,
+   "seq_used": [
+    66,
+    368
+   ],
+   "uses": 3000,
+   "unique_views": 168,
+   "reuse_epoch": 17.857142857142858,
+   "reuse_cumulative": 13.513513513513514,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 391,
+   "wait_ms_per_step": 0.16509056091308594,
+   "serve_ms_per_step": 0.42876490857452154,
+   "plan_ms_per_step": 4.951497879810631,
+   "mean_age_s": 48.34434754061699,
+   "pool_groups": 296,
+   "meshes_per_s_rank0": 80.27171697338156,
+   "batches_mixed": 0
+  }
+ ],
+ "by_domain_uses": {
+  "bfm2019": 10200,
+  "gnm": 9900,
+  "ict": 9900
+ },
+ "batches_by_domain": {
+  "bfm2019": 340,
+  "gnm": 330,
+  "ict": 330
+ },
+ "by_label_uses": {
+  "noisy": 2846,
+  "down8k+x": 2879,
+  "remesh+x": 2924,
+  "down8k": 2892,
+  "crop": 2772,
+  "noisy+x": 3233,
+  "remesh": 2665,
+  "original+x": 2632,
+  "up60k+x": 638,
+  "crop+x": 2694,
+  "original": 3137,
+  "up60k": 688
+ },
+ "producers": {
+  "n_proc": 24,
+  "k_eig": 128,
+  "evecs_dtype": "fp32",
+  "views_per_s_steady": 8.809663759698658,
+  "views_per_s_wall": 8.673296975018804,
+  "views": 4612,
+  "bytes_per_view": 6007933.454466609,
+  "mean_verts_per_view": 8357.487857762359,
+  "failures": 0,
+  "views_by_domain": {
+   "gnm": 1560,
+   "bfm2019": 1614,
+   "ict": 1434
+  },
+  "views_by_label": {
+   "up60k": 214,
+   "noisy": 902,
+   "remesh": 842,
+   "original": 892,
+   "crop": 870,
+   "down8k": 892
+  }
+ },
+ "gpu_util_mean_while_training": 75.01704545454545,
+ "gpu_samples": 176,
+ "mem_peak_gib": {
+  "cgroup_job": 42.72671127319336,
+  "ring_tmp": 19.9610401885584
+ }
+}
