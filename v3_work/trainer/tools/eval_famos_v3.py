@@ -11,8 +11,9 @@ Gira DENTRO eval_v3 (agganci del modello e della scala):
 Stessi dati, blocchi, bootstrap e Chamfer di aau/famos/famos_eval.py (funzioni importate): le patch T7 di
 ``datasets/FAMOS/test_view`` con la scala METRICA (la tabella annulla la similarita' verso il template, area /
 scale_to_mm^2: build_scale_table.py --scale-csv). Distanze del modello: ``factorized`` -> d_F (form, mm), d_P
-(forma) e |delta s|; testa standard -> ||z_a - z_b||. GT: ``fr``/``sr`` (``datasets/CANONICAL_GT/eval/famos_test_*``)
-e ``unified`` (``test_view/gt_matrix.npz``). Con ``famos_test_centroid_size.npz``: s medio per persona contro log S.
+(forma) e |delta s|; ``dual`` -> ||delta z_F|| e ||delta u|| (latenti [z_F, u]); testa standard -> ||z_a - z_b||.
+GT: ``fr``/``sr`` (``datasets/CANONICAL_GT/eval/famos_test_*``) e ``unified`` (``test_view/gt_matrix.npz``).
+Con ``famos_test_centroid_size.npz``: s medio per persona contro log S.
 Uscite: recognition.csv, graded.csv, results.json in ``--out-dir``.
 """
 from __future__ import annotations
@@ -86,6 +87,10 @@ def main() -> None:
         dpu = float(side.get("dp_per_unit", side.get("dP_per_unit"))) / float(cargs.get("gt_scale", 1.0))
         d = fz.pair_distances(Z, ii, jj, dpu)
         D = {f"{a.tag}_form": d["form_mm"], f"{a.tag}_shape": d["dP"], f"{a.tag}_size": d["size_abs"]}
+    elif cargs.get("head", "embed") == "dual":
+        if Z.shape[1] != 2 * int(cargs["latent_dim"]):
+            raise SystemExit("servono i latenti [z_F, u]: WBES_V3_FACTORIZED_OUT=full")
+        D = {f"{a.tag}_{k}": v for k, v in fz.model_distances(Z, ii, jj, "dual").items()}
     else:
         D = {a.tag: np.linalg.norm(Z[ii] - Z[jj], axis=1)}
     D = {k: v.reshape(len(Z), len(gal_all)) for k, v in D.items()}

@@ -84,6 +84,7 @@ def head_of(ckpt: Path):
 
 FORM_DIST = {"factorized": "form", "factorized2": "form", "ctrlfr": "z", "dual": "zf"}
 SHAPE_DIST = {"factorized": "shape", "factorized2": "shape", "ctrlfr": "z", "dual": "u"}
+NOW_DIST = {"factorized": (("", "u"),), "factorized2": (("", "u"),), "dual": (("", "u"), ("_zf", "zf"))}
 
 
 def graded(dom: str, path: Path) -> list[dict]:
@@ -130,8 +131,8 @@ def famos(arm: str, seed: int, e: str) -> list[dict]:
     return list(csv.DictReader(open(p))) if p.exists() else []
 
 
-def now_tau(arm: str, seed: int, e: str):
-    p = EVAL / "now" / f"v3{vname(arm, seed)}e{e}" / "concordance.csv"
+def now_tau(arm: str, seed: int, e: str, sfx: str = ""):
+    p = EVAL / "now" / f"v3{vname(arm, seed)}e{e}{sfx}" / "concordance.csv"
     if not p.exists():
         return None
     for r in csv.DictReader(open(p)):
@@ -193,11 +194,12 @@ def main() -> None:
                     rows.append({"arm": arm, "seed": seed, "steps": STEPS[e], "dom": "famos", "kind": f"graded {r['block']}",
                                  "distance": r["method"], "gt": r["gt"], "point": float(r["spearman"]),
                                  "ci_low": float(r["ci_low"]), "ci_high": float(r["ci_high"])})
-                t = now_tau(arm, seed, e)
-                if t:
-                    rows.append({"arm": arm, "seed": seed, "steps": STEPS[e], "dom": "now", "kind": "tau",
-                                 "distance": "u" if arm.startswith("factorized") else "z", "gt": "-", "point": t[0],
-                                 "ci_low": t[1], "ci_high": t[2]})
+                # NoW: u per i fattorizzati, z per ctrlfr; dual su u (now/<tag>) e su z_F (now/<tag>_zf)
+                for sfx, dist in NOW_DIST.get(arm, (("", "z"),)):
+                    t = now_tau(arm, seed, e, sfx)
+                    if t:
+                        rows.append({"arm": arm, "seed": seed, "steps": STEPS[e], "dom": "now", "kind": "tau",
+                                     "distance": dist, "gt": "-", "point": t[0], "ci_low": t[1], "ci_high": t[2]})
     keys = ["arm", "seed", "steps", "dom", "kind", "distance", "gt", "point", "ci_low", "ci_high"]
     with open(EV / "factorized_results.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=keys, extrasaction="ignore")
@@ -207,7 +209,8 @@ def main() -> None:
     md = ["# Risultati di factorized_protocol.md (emendamenti 1-3)", "",
           "Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche, "
           "seme 1234). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), "
-          "calcolata dagli embedding. Distanza del modello: d_F (form) per factorized/factorized2, ||z|| per ctrlfr.", ""]
+          "calcolata dagli embedding. Distanza del modello: d_F (form) per factorized/factorized2, ||z|| per ctrlfr, "
+          "||z_F|| (FR) e ||u|| (SR) per dual.", ""]
     last = [r for r in rows if r["steps"] == 21096]
 
     def cell(arm, seed, dom, kind, dist, gt, src=last):
@@ -262,8 +265,9 @@ def main() -> None:
         for seed in SEEDS:
             dists = sorted({r["distance"] for r in last if r["arm"] == arm and r["seed"] == seed and r["dom"] == "famos"})
             tau = [r for r in last if r["arm"] == arm and r["seed"] == seed and r["dom"] == "now"]
-            t = fmt(tau[0]["point"], tau[0]["ci_low"], tau[0]["ci_high"]) if tau else "-"
             for d in dists or ["-"]:
+                tt = [r for r in tau if d.endswith("_" + r["distance"])] or tau   # dual: tau della stessa uscita
+                t = fmt(tt[0]["point"], tt[0]["ci_low"], tt[0]["ci_high"]) if tt else "-"
                 md.append(f"| {arm} | {seed} | {d} | {cell(arm, seed, 'famos', 'graded scan gallery -> scan', d, 'fr')} | "
                           f"{cell(arm, seed, 'famos', 'graded scan gallery -> scan', d, 'sr')} | {t} |")
     fb = [r for r in csv.DictReader(open(BL / "spearman.csv")) if r["domain"] == "famos" and r["group"] == "scan gallery -> scan"]

@@ -37,6 +37,14 @@ case "$ARM" in
               else
                 GT="$C/gt_frcal.npz"
               fi ;;
+  # testa doppia (factorized.md sez. 7): z_F su GT-FR tarata (come ctrlfr), u su GT-SR grezza x kappa (come
+  # factorized), pesi 1/1; ricetta dei bracci sopra, niente ramo taglia (come slurm/dual_short.sbatch, job 1066211)
+  dual)       [[ -f "$C/scale_table.npz" && -f "$C/fr_params.json" ]] || { echo "ERRORE: dati di $ARM assenti" >&2; exit 3; }
+              KAPPA=$(python3 -c "import json; print(repr(json.load(open('$C/fr_params.json'))['kappa']))")
+              EXTRA=(--area robust --area-robust smooth --sampler balanced --domain-alpha 0.0
+                     --input-norm global --scale-table "$C/scale_table.npz" --dropout 0.0
+                     --head dual --dist-npz-shape "$C/gt_sr.npz" --gt-scale-shape "$KAPPA" --lambda-form 1.0 --lambda-shape 1.0)
+              GT="$C/gt_frcal.npz" ;;
   *) echo "ERRORE: braccio $ARM" >&2; exit 2 ;;
 esac
 [[ -f "$STORE/index.npz" && -f "$STORE/manifest.json" ]] || { echo "ERRORE: store $STORE incompleto su $(hostname)" >&2; exit 3; }

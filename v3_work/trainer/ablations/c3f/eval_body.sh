@@ -13,11 +13,12 @@ source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
 ARM="${WBES_V3_ARM:?WBES_V3_ARM}"
 DEF_STEPS="hifi devfs fv now"
-if [[ "$ARM" == factorized* || "$ARM" == ctrlfr* ]]; then
+if [[ "$ARM" == factorized* || "$ARM" == ctrlfr* || "$ARM" == dual* ]]; then
   # ingresso globale: la scala delle mesh di eval viene dalle tabelle (eval_v3.py); gli script ricevono u (forma).
   # ``form``: embedding [s, u] e GT di E12 (datasets/CANONICAL_GT); ``famos``: FaMoS TEST con la scala metrica
   # (tools/eval_famos_v3.py); ``now``: la pipeline di e108, patch NoW alla taglia del template (le ricostruzioni
-  # monoculari non sono metriche: per i fattorizzati conta u), factorized.md.
+  # monoculari non sono metriche: per i fattorizzati conta u), factorized.md. ``dual``: ``form`` da [z_F, u] (le due
+  # distanze in fact_summary), FaMoS con z_F e u, NoW su u e su z_F (now/<tag> e now/<tag>_zf).
   ST="$AAU_RUNS/evidence/trainer_v3/factorized/scale_tables"
   # UNA tabella per passo (dev FaceScape neutra ed espressioni hanno gli stessi nomi di file: insieme si
   # contraddicono, ScaleTable si ferma). Metriche dagli embedding (graduata per coppia di mesh come E12, rank-1):
@@ -152,8 +153,9 @@ step_famos() {  # FaMoS TEST: operatori ad area unitaria delle patch su /tmp, po
   done
   rm -rf "$T"
 }
-step_now() {  # $1 W, $2 O, $3 checkpoint
-  WBES_V3_SCALE_TABLES="${NOW_TABLES:-}" WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
+step_now() {  # $1 W, $2 O, $3 checkpoint, $4 uscita del modello (dual: u|zf; vuoto: quella esportata)
+  WBES_V3_FACTORIZED_OUT="${4:-${WBES_V3_FACTORIZED_OUT:-u}}" WBES_V3_SCALE_TABLES="${NOW_TABLES:-}" \
+    WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
     && WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py
 }
 if [[ "$STEPS" == *" hifi "* ]]; then
@@ -181,8 +183,10 @@ fi
 if [[ "$STEPS" == *" now "* ]]; then
   SRC_W="$HOME/data/now_eval_work"
   SRC_O="$AAU_RUNS/now_eval"
+  NOW_OUTS=""; [[ "$ARM" == dual* ]] && NOW_OUTS="u zf"
   for e in $EPS; do
-    t="${TAG[$e]}"
+   for o in ${NOW_OUTS:-.}; do
+    t="${TAG[$e]}"; [[ "$o" == zf ]] && t+="_zf"
     W="$HOME/data/v3c3f_now/$t"
     O="$OUT/now/$t"
     mkdir -p "$W/embeddings" "$W/pairs" "$O"
@@ -198,8 +202,10 @@ if [[ "$STEPS" == *" now "* ]]; then
       ln -sf "$f" "$O/"
     done
     echo "ckpt=${CK[$e]}" > "$O/checkpoint.txt"
+    [[ "$o" != . ]] && echo "uscita=$o" >> "$O/checkpoint.txt"
     echo "[v3-eval] $(date +%T) NoW $t"
-    retry "now_$t" step_now "$W" "$O" "${CK[$e]}" || FAILED+=("now_$t")
+    retry "now_$t" step_now "$W" "$O" "${CK[$e]}" "${o#.}" || FAILED+=("now_$t")
+   done
   done
 fi
 echo "[v3-eval] $(date +%T) fine: falliti=${FAILED[*]:-nessuno}"
