@@ -47,7 +47,7 @@ def main() -> None:
         subjects = blmm.subjects(view)
         keys = [(s, t) for s in subjects for t in blmm.TOPOLOGIES]
         for mode in a.modes.split(","):
-            out = blmm.OUT_ROOT / view / mode / "template.npz"
+            out = blmm.view_root(view) / mode / "template.npz"
             if out.exists() and not a.overwrite:
                 print(f"[blmm-tpl] {out}: gia' presente, salto", flush=True)
                 continue

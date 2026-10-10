@@ -55,7 +55,7 @@ def main() -> None:
             paths, ref = view_paths(view)
             res = pool.map(_one, [(view, str(q)) for q in paths], chunksize=2)
             arr = {k: np.asarray([r[k] for r in res]) for k in res[0]}
-            blmm.atomic_savez(blmm.OUT_ROOT / view / "scalars.npz", paths=np.asarray([blmm.rel(q) for q in paths]), **arr)
+            blmm.atomic_savez(blmm.view_root(view) / "scalars.npz", paths=np.asarray([blmm.rel(q) for q in paths]), **arr)
             pos = {q: k for k, q in enumerate(paths)}
             info = {"n": len(paths)}
             if view != "famos":

@@ -86,11 +86,22 @@ VIEWS = {
                        "fb_root": None, "template_ref": None},
     "famos": {"dir": DATASETS / "FAMOS" / "test_view" / "npz", "domain": "famos", "gt": "famos_test",
               "template_dir": None, "fb_root": None, "template_ref": None},
+    # FaceVerse neutra (aau/runs/evidence/faceverse_neutral/PROTOCOL.md): stessi soggetti e topologie di
+    # ``faceverse``, mesh senza espressione; uscite fuori da OUT_ROOT (``out``)
+    "faceverse_neutral": {"dir": DATASETS / "FACEVERSE_ZS" / "eval_view" / "npz", "domain": "faceverse",
+                          "gt": "faceverse", "template_dir": DATASETS / "FACEVERSE_ZS" / "eval_view" / "npz",
+                          "fb_root": None, "template_ref": None,
+                          "out": AAU_DIR / "runs" / "evidence" / "faceverse_neutral" / "blmm"},
 }
 FAMOS_MANIFEST = DATASETS / "FAMOS" / "test_view" / "manifest.csv"
 
 
 # ------------------------------------------------------------------------------------- soggetti e mesh
+
+def view_root(view: str) -> Path:
+    """Cartella delle uscite di una vista: ``<OUT_ROOT>/<vista>``, o ``out`` se la vista la dichiara."""
+    return VIEWS[view].get("out", OUT_ROOT / view)
+
 
 def subjects(view: str) -> list[str]:
     """I 100 soggetti valutati (``zs_stage.select_subjects``, seme 1234), gli stessi di tutti i summary."""
@@ -178,7 +189,7 @@ def rel(path: Path) -> str:
 def scalars_of(view: str) -> dict:
     """{percorso relativo alla radice -> scalari} dalla cache ``<OUT_ROOT>/<vista>/scalars.npz``."""
     if view not in _SCAL:
-        with np.load(OUT_ROOT / view / "scalars.npz") as z:
+        with np.load(view_root(view) / "scalars.npz") as z:
             cols = [c for c in z.files if c != "paths"]
             _SCAL[view] = {str(p): {c: float(z[c][k]) for c in cols} for k, p in enumerate(z["paths"])}
     return _SCAL[view]

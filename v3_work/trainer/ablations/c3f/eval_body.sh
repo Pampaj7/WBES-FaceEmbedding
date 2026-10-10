@@ -7,6 +7,8 @@
 #   devfs   dev FaceScape vista neutra (breakdown + embedding) e vista con espressioni (embedding): punteggio dev
 #   fv      FaceVerse con espressioni, convenzione BFM (_flip), embedding
 #   now     NoW, latenti dalla catena di aau/recon/now_ops_latent.sbatch (copia con eval_v3 davanti a now_latent.py)
+#   fvn     (solo su richiesta, bracci a ingresso globale) FaceVerse NEUTRA come ``form``: uscite in
+#           aau/runs/evidence/faceverse_neutral (WBES_FVN_OUT), protocollo PROTOCOL.md li'
 # Uscite in aau/runs/evidence/trainer_v3/ablations/c3f_eval/. Ripartibile: i bracci con .done si saltano.
 set -uo pipefail
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
@@ -138,6 +140,22 @@ step_form() {  # bracci a ingresso globale: [s, u] (o z) di ogni mesh, poi tools
     done
   done
 }
+step_fvn() {  # FaceVerse NEUTRA (aau/runs/evidence/faceverse_neutral/PROTOCOL.md): come ``form`` sulla sola eval_view
+  local e emb V="${ARM}${SFX#_}" FARMS FO="${WBES_FVN_OUT:-$AAU_RUNS/evidence/faceverse_neutral}"
+  local G=datasets/CANONICAL_GT/eval
+  FARMS=""; for e in $EPS; do FARMS+="${FARMS:+ }scale_v3${V}fulle$e"; done
+  for e in $EPS; do export "WBES_ZS_CKPT_SCALE_V3${V^^}FULLE$e=${CK[$e]}"; done
+  ( unset WBES_ZS_EXPR
+    WBES_V3_SCALE_TABLES="$FO/scale_tables/fv_eval.npz" WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=fv \
+      WBES_FV_RUNS="$FO/embed" WBES_ZS_FLIP_FACES=1 WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed bash "$ZS" ) || return 1
+  for e in $EPS; do
+    emb=$(find "$FO/embed" -path "*scale_v3${V}fulle${e}_flip_embed*" -name embeddings.npz | head -1)
+    [[ -n "$emb" ]] || { echo "[v3-eval] ERRORE: embedding [s, u] di FaceVerse neutra e$e assenti"; return 1; }
+    AAU_NV= "$AAU_DIR/run.sh" v3_work/trainer/tools/eval_factorized.py --embeddings "$emb" \
+      --gt "fr=$G/faceverse_fr.npz" --gt "sr=$G/faceverse_sr.npz" --gt "maxabs=datasets/FACEVERSE_ZS/eval_view/gt_matrix.npz" \
+      --size-table "$G/faceverse_centroid_size.npz" --out-dir "$FO/form/v3${V}e$e" || return 1
+  done
+}
 step_famos() {  # FaMoS TEST: operatori ad area unitaria delle patch su /tmp, poi eval_famos_v3.py per ogni checkpoint
   local e T="/tmp/v3famos_${SLURM_JOB_ID:-manual}_${SLURM_RESTART_COUNT:-0}" V="$WBES_ROOT/datasets/FAMOS/test_view" i pids=()
   mkdir -p "$T/ops"
@@ -175,6 +193,10 @@ fi
 if [[ "$STEPS" == *" form "* ]]; then
   echo "[v3-eval] $(date +%T) form: embedding [s, u] e GT di E12"
   retry form step_form || FAILED+=(form)
+fi
+if [[ "$STEPS" == *" fvn "* ]]; then
+  echo "[v3-eval] $(date +%T) FaceVerse neutra: embedding [s, u] e GT di E12"
+  retry fvn step_fvn || FAILED+=(fvn)
 fi
 if [[ "$STEPS" == *" famos "* ]]; then
   echo "[v3-eval] $(date +%T) FaMoS TEST"

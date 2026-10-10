@@ -68,7 +68,7 @@ def topo_view(a, prm) -> None:
     pairs = [(x, y) for x in blmm.TOPOLOGIES for y in blmm.TOPOLOGIES if x != y]
     k, nsh = (0, 1) if a.claim else (int(x) for x in a.shard.split("/"))
     mine = pairs[k::nsh]
-    root = blmm.OUT_ROOT / a.view / a.mode
+    root = blmm.view_root(a.view) / a.mode
     mets = metrics_of(a.mode, a.step)
     todo = [p for p in mine if a.overwrite or a.check or not all(
         (root / sub / m / f"{p[0]}__to__{p[1]}.npz").exists() for m in mets for sub in ("matrices", "matrices_same"))]
