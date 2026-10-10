@@ -678,8 +678,12 @@ run secondari o ablazioni, una alla volta.**
 - **Il tetto `STREAM_REUSE` 4 è morbido.** Se gli eleggibili non bastano si prendono i gruppi meno usati. 4 è un
   numero di progetto, non un requisito. Il log del trainer lo scrive come tale; `summarize_run.py` riporta il
   riuso a regime (ultime 3 epoche), il cumulato e i gruppi oltre il tetto.
+- **Mini-smoke 1067709 con la ricetta c3m** (2 L40S, 500 passi): riuso a regime 20.8, cumulato 14.9. Le viste
+  fresche scendono da 8.8 a 6.1/s, perché up60k passa dal 4.8% al 16.7% delle viste (una per identità, come nel
+  C3M).
 - **Stima a 12 GPU (6 + 6), non misurata:** senza flotta circa 11-18; con la flotta di produttori su CPU
-  (`STREAM_EXTRA`) circa 3.5. Da misurare con il job 1067683.
+  (`STREAM_EXTRA`) circa 3.5. La stima è fatta con la ricetta di prima: con c3m le viste fresche per processo
+  calano di circa il 31%, quindi il riuso sale in proporzione. Da misurare con il job 1067683.
 
 **Quantità.** Nello stream la quantità è limitata dalle viste fresche al secondo, non dal disco. Disco misurato con
 getfattr il 10 ottobre sera: 783.5 GB liberi su 2199.0 GB, cioè 483 GB sopra la soglia dei 300. L'anello condiviso
@@ -727,17 +731,21 @@ Prima di usare nv-ai-04 va controllata la memoria libera: era occupata per 965 G
 - **Passo:** 12 rank × 5 identità × ≤ 6 viste = 60 identità e 360 viste per passo (C3M: 30 e 180).
 - **Ore: DA MISURARE CON IL JOB 1067683** (prova 6 + 6, 2400 passi, in attesa). s/passo a 12 rank: **[segnaposto]**;
   avvio fino al primo passo: **[segnaposto]**.
-- **Stima provvisoria dallo smoke 1067645** (2 L40S su un nodo): 0.37-0.41 s/passo nelle 10 epoche, GPU al 75%.
-  Non è una misura a 12 rank:
+- **Stima provvisoria dagli smoke a 2 L40S su un nodo:**
+  - smoke 1067645, ricetta di prima: 0.37-0.41 s/passo nelle 10 epoche, GPU al 75%;
+  - mini-smoke 1067709, ricetta c3m: 0.435-0.447 s/passo nelle 5 epoche, GPU al 76%. È più lento perché ogni
+    identità ha anche la vista up60k (10.342 vertici medi per vista contro 8.357).
+
+  Nessuna delle due è una misura a 12 rank:
   - il passo fra due nodi può essere più lento (con 1 + 1 GPU era uguale: 1.09 contro 1.08 s, §13);
   - i produttori di un nodo servono 6 GPU invece di 2.
 
-  | T (passi) | identità viste (T × 60) | rispetto al C3M | ore, stima provvisoria (senza avvio) |
+  | T (passi) | identità viste (T × 60) | rispetto al C3M | ore, stima provvisoria (0.435-0.447 s/passo, senza avvio) |
   |---|---|---|---|
-  | 30.000 | 1.8 M | = C3M | 3.1-3.4 |
-  | 60.000 | 3.6 M | 2× | 6.2-6.8 |
-  | 120.000 | 7.2 M | 4× | 12.3-13.7 |
-  | 240.000 | 14.4 M | 8× | 24.7-27.3 |
+  | 30.000 | 1.8 M | = C3M | 3.6-3.7 |
+  | 60.000 | 3.6 M | 2× | 7.3-7.5 |
+  | 120.000 | 7.2 M | 4× | 14.5-14.9 |
+  | 240.000 | 14.4 M | 8× | 29.0-29.8 |
 
   "Identità viste" conta gli usi, riuso compreso. C3M: 60.000 passi × 30 = 1.8 M usi di identità.
 - **Domanda (m) per l'utente: T.** Parità col C3M in identità viste = 30k passi; parità in passi = 60k (il doppio
