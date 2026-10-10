@@ -1222,3 +1222,30 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
   - delta appaiati contro la taglia stimata e contro ICP+Chamfer in mm;
   - FaceScape, FaceVerse, FaMoS e NoW (in corso);
   - critic.
+
+## 2026-10-10 mattina — risultati decisivi, run C3M e critic BLOCCANTE
+
+- **Riepilogo decisivo** (job 1066330, `aau/runs/evidence/trainer_v3/factorized_results.md`), 21.096 passi:
+  - su HIFI3D FR ctrlfr fa 0.757/0.746 (+0.114 contro ICP+Chamfer mm);
+  - factorized fa 0.643, pari a ICP;
+  - su SR factorized-shape fa 0.622, contro 0.595 di NICP cs (n.s.);
+  - su dev FaceScape factorized vince ovunque (FR 0.69, SR 0.75);
+  - su FaceVerse con espressioni tutti i metodi sono intorno a 0.3.
+- **C3M a scala piena** (1062944, 60k passi, 6 L40S, 18h39; eval 1062945):
+  - HIFI3D FR form 0.53/0.51, contro 0.643 di C3F;
+  - FaceScape e FaceVerse invariati;
+  - metriche in-training saturate (sp_clean 0.96).
+- **Critic: BLOCCANTE.**
+  1. d_F non è in unità assolute: il termine di forma di u è sovrappesato (mediana 8.6 mm in C3F e 15.7 mm in C3M, contro 4.4 mm della GT). Il calo di C3M su HIFI3D FR è in gran parte un artefatto di calibrazione.
+  2. Su HIFI3D il vantaggio di ctrlfr viene dalla taglia:
+     - è pari alla taglia oracolo;
+     - perde contro "oracolo + ICP cs" (−0.045);
+     - nel parziale dato la taglia factorized batte ICP mm di +0.142, ctrlfr no.
+  3. Le etichette "raggiunge NICP" usano la soglia obsoleta in maxabs.
+  4. FaMoS non ha delta appaiati.
+  5. FaceScape in training nel run finale toglierebbe lo zero-shot.
+- **Azioni:**
+  - coder sulla calibrazione di d_P sugli held-out sintetici, sull'analisi della taglia (a)-(c) e sull'emendamento 4 preregistrato con la regola dual;
+  - coder sulla graduata FaceVerse neutra (dominio o espressioni?);
+  - coder sui run appaiati dual.
+  - §22 rimandata finché questi blocchi non sono chiusi.
