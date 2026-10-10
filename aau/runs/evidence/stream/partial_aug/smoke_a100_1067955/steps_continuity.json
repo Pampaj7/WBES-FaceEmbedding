@@ -1,0 +1,26 @@
+{
+ "n_rows": 900,
+ "unique": 900,
+ "missing": [],
+ "duplicates": 0,
+ "monotone": true,
+ "first_step_after_resume_252": {
+  "mean_loss_50_before": 0.09614,
+  "mean_loss_50_after": 0.09602
+ },
+ "first_step_after_resume_555": {
+  "mean_loss_50_before": 0.08068,
+  "mean_loss_50_after": 0.08223
+ },
+ "mean_loss_by_100_steps": [
+  0.1182,
+  0.0963,
+  0.096,
+  0.0821,
+  0.0812,
+  0.082,
+  0.065,
+  0.0594,
+  0.0617
+ ]
+}

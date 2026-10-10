@@ -16,7 +16,8 @@ a 64 byte. Header: ``seq``, ``producer``, ``t_created``, ``groups``: per gruppo 
 offset degli array (``off``). Con ``producer.py --canonical-gt`` il gruppo ha anche ``fr`` e ``sr`` (offset,
 float32 (3n,)) e ``S`` (centroid size in mm), e ogni vista ``area_mm2``. Con ``--provenance``: ``recipe`` nello
 header, ``prov`` (seme, fonti, licenza ereditata, persona) e ``zid`` (coefficienti, float64) per gruppo, ``vi``,
-``noise_seed``, ``frame`` per vista; ``origin`` (pura, ibrido, trasferimento) sempre.
+``noise_seed``, ``frame`` per vista; ``origin`` (pura, ibrido, trasferimento) sempre. Con ``--partial-p`` ogni vista ha
+``partial`` (partial_aug.apply: seme, modo, parametri, perdita d'area).
 """
 from __future__ import annotations
 
@@ -118,6 +119,8 @@ class Ring:
                 for k in ("vi", "noise_seed", "frame"):
                     if k in meta:
                         v[k] = int(meta[k])
+                if "partial" in meta:      # parzialita' variabile (producer.py --partial-p)
+                    v["partial"] = meta["partial"]
                 v["off"] = {}
                 for f in ("verts", "faces", "mass", "evals", "evecs", "gxi", "gxv", "gyi", "gyv"):
                     a = np.asarray(arr[f])

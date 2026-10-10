@@ -24,6 +24,10 @@ autovettori fp16 (default) o fp32, scritti come (k, n) contiguo quando il loader
 
 Ingresso globale (``area_factor``): i metadati portano ``area_mm2``, l'area della discretizzazione in mm^2 veri,
 che il consumatore usa come la tabella di scala di global_v3 (gli operatori e i vertici non cambiano).
+
+Parzialita' variabile (``partial``, la configurazione di partial_aug.config; None = spenta, il percorso di prima):
+dopo la discretizzazione partial_aug.apply toglie una parte della mesh col seme del rumore della vista; i metadati
+hanno ``partial`` (parametri estratti, perdita d'area) e ``area_mm2`` e' quella della mesh parziale.
 """
 from __future__ import annotations
 
@@ -152,11 +156,16 @@ def compact(s: dict, evecs_dtype: str = "fp16") -> tuple[dict, bool]:
 
 
 def make_view(V: np.ndarray, F: np.ndarray, label: str, k_eig: int, evecs_dtype: str,
-              noise_seed: int, area_factor: float | None = None) -> tuple[dict, dict]:
+              noise_seed: int, area_factor: float | None = None, partial: dict | None = None) -> tuple[dict, dict]:
     """(array dello shard, metadati + tempi in s per fase) di una vista della mesh di lavoro (V, F).
-    ``area_factor``: mm veri per unita' di V; se dato, i metadati hanno ``area_mm2`` della discretizzazione."""
+    ``area_factor``: mm veri per unita' di V; se dato, i metadati hanno ``area_mm2`` della discretizzazione.
+    ``partial``: configurazione di partial_aug (None = nessuna parzialita', metadati di prima)."""
     t0 = time.perf_counter()
     Vd, Fd = discretize(V, F, label, noise_seed)
+    pinfo = None
+    if partial is not None:
+        import partial_aug
+        Vd, Fd, pinfo = partial_aug.apply(Vd, Fd, partial, noise_seed)
     t1 = time.perf_counter()
     data = operators(Vd, Fd, k_eig)
     t2 = time.perf_counter()
@@ -165,6 +174,8 @@ def make_view(V: np.ndarray, F: np.ndarray, label: str, k_eig: int, evecs_dtype:
     meta = {"label": label, "n": int(len(arr["verts"])), "m": int(len(arr["faces"])), "k": int(len(arr["evals"])),
             "nx": int(len(arr["gxv"])), "ny": int(len(arr["gyv"])), "evecs_f": ef,
             "evecs_dtype": evecs_dtype}
+    if pinfo is not None:
+        meta["partial"] = pinfo
     if area_factor is not None:     # area in mm^2 della discretizzazione (ingresso globale: global_v3.frame_params)
         from areanorm_operators import total_area
         meta["area_mm2"] = float(total_area(Vd, Fd)) * float(area_factor) ** 2

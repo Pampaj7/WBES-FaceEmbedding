@@ -28,6 +28,13 @@
 #   0.049, massive_ready.md sez. 3; STREAM_SIZE_MASK=bfm2019 per riprodurre la maschera); forward groups (C3M
 #   sequential); identita' fresche dai produttori invece di 64.400 fisse; espressioni su qualunque discretizzazione
 #   (nel C3M rexpr* sono sulla topologia original); k_eig STREAM_K 128.
+# Opt-in del run SECONDARIO (secondary_partial_a100.sbatch), spenti di default (riga di lancio e anello di prima):
+#   STREAM_PARTIAL p (STREAM_PARTIAL_AREA lo,hi): parzialita' variabile per vista, producer.py --partial-p (partial_aug.py);
+#   STREAM_PREEMPTIBLE=1: WBES_PREEMPT_SAVE=1 al trainer (su SIGTERM salva last.pth al passo in corso ed esce:
+#   train_stream.py). Prelazione e scontrol requeue mandano SIGTERM SOLO al capo del task, cioe' a questo bash, non ai
+#   figli (proctrack/cgroup, Slurm 21.08: misurato l'11 ottobre, aau/runs/evidence/stream/partial_aug/sigtest), e
+#   SIGKILL a tutti dopo KillWait (30 s): qui torchrun gira in background, la trap inoltra SIGTERM (run.sh -> singularity
+#   -> torchrun -> rank, inoltro misurato) e non fa partire altri tentativi; l'anello resta finche' il trainer ha salvato.
 set -euo pipefail
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
@@ -57,6 +64,8 @@ EF="${STREAM_EXPR_FRAC:-$D_EF}"
 MMAUG="${STREAM_MM_AUG-$D_MMAUG}"          # vuoto = solo identita' pure
 ROT="${STREAM_ROT:-$D_ROT}"                # yaw,pitch,roll massimi a ogni uso (0 = nessuna)
 LD="${STREAM_LABEL_DRAW:-$D_LD}"           # perm (senza reinserimento, C3M) | replace
+PART="${STREAM_PARTIAL:-}"                 # probabilita' per vista della parzialita' (vuoto = spenta)
+PAREA="${STREAM_PARTIAL_AREA:-}"           # lo,hi della frazione d'area tolta (vuoto = default di partial_aug)
 CPR="${STREAM_TRAIN_CPUS_PER_RANK:-8}"     # ottimo misurato il 10 ottobre: groups 8 / 12 / 16 CPU = 108 / 112 / 110 mesh/s
 RGB=$(( ${STREAM_RING_GB_PER_GPU:-10} * G ))
 SEED="${STREAM_SEED:-1234}"
@@ -65,6 +74,9 @@ mkdir -p "$E"
 ln -sfn ../runs "$E/runs"
 JOBTMP="/tmp/${SLURM_JOB_ID:-manual}_stream"
 RING="$JOBTMP/r$RST"
+# prelazionabile: --stream e' nell'hash della run dir (train_v3.make_run_dir), con r$RST un requeue cambierebbe run dir
+# e ripartirebbe da zero invece di riprendere da last.pth; r0 a ogni riavvio (JOBTMP si svuota comunque qui sotto)
+[[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]] && RING="$JOBTMP/r0"
 rm -rf "$JOBTMP"
 mkdir -p "$RING"
 trap 'kill $(jobs -p) 2>/dev/null || true; rm -rf "$JOBTMP"' EXIT
@@ -73,6 +85,7 @@ log "host=$(hostname) GPU=$G ($(nvidia-smi --query-gpu=name --format=csv,noheade
     "riavvio=$RST arm=$ARM fonti=$SOURCES k=$K T=$T S=$S R=$R anello=${RGB}GiB"
 log "dati: ricetta $RCP, quota d'espressioni $EF, mm_aug ${MMAUG:-no}, rotazione a ogni uso $ROT gradi," \
     "discretizzazioni $LD"
+[[ -n "$PART" ]] && log "parzialita' variabile: p=$PART per vista, area ${PAREA:-default} (producer.py --partial-p)"
 log "ricetta: batch ${IDS} identita' x <= ${MPI} viste per rank (produttori: ${VIEWS} viste per identita'), batch" \
     "$BDOM, lr costante, maschera di taglia: ${SMASK:-nessuna}, forward ${STREAM_FORWARD:-groups}"
 
@@ -112,7 +125,7 @@ PSEED=$(( 20261009 + 1000 * NODE + 100000 * RST ))
 AAU_NV= "$AAU_DIR/run.sh" v3_work/stream/producer.py --ring "$RING" --ring-gb "$RGB" --n-proc "$NPROD" --k-eig "$K" \
     --evecs-dtype fp32 --sources "$SOURCES" --provenance --canonical-gt --expr-frac "$EF" --seed "$PSEED" \
     --views "$VIEWS" --label-draw "$LD" \
-    ${MMAUG:+--mm-aug "$MMAUG"} \
+    ${MMAUG:+--mm-aug "$MMAUG"} ${PART:+--partial-p "$PART"} ${PAREA:+--partial-area "$PAREA"} \
     --cpus "$PROD_CPUS" --stats-every 60 --summary "$E/producers.json" > "$E/producers.log" 2>&1 &
 nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used --format=csv,noheader -l 5 >> "$E/gpu.csv" 2>/dev/null &
 (
@@ -170,19 +183,42 @@ export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 # da last.pth (--resume auto). Il riavvio elastico DENTRO lo stesso torchrun su piu' nodi si blocca nella prima
 # collettiva di NCCL (misurato il 9 ottobre, 1 + 1 GPU): per questo non si usa.
 ATT=0
+TERMED=""
+TPID=""
+if [[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]]; then
+  export WBES_PREEMPT_SAVE=1
+  trap 'TERMED=1; [[ -n "$TPID" ]] && kill -TERM "$TPID" 2>/dev/null' TERM
+  log "prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni ${STREAM_CKPT_MIN:-20} min"
+fi
 while :; do
   XC=()
   [[ -n "${STREAM_TEST_CRASH:-}" && "$ATT" == 0 && "$RST" == 0 ]] && XC=(--test-crash-at-step "$STREAM_TEST_CRASH")
   log "torchrun tentativo $ATT: $NN nodi, $G rank qui, rendezvous $STREAM_MASTER:$(( STREAM_PORT + ATT ))"
+  TR=(taskset -c "$TRAIN_CPUS" "$AAU_DIR/run.sh" -m torch.distributed.run
+    --nnodes "$NN" --nproc-per-node "$G" --rdzv-backend c10d --rdzv-endpoint "$STREAM_MASTER:$(( STREAM_PORT + ATT ))"
+    --rdzv-id "${SLURM_JOB_ID:-manual}_${RST}_$ATT" --max-restarts 0 "${CMD[@]}" "${XC[@]}")
   set +e
-  OMP_NUM_THREADS="$CPR" MKL_NUM_THREADS="$CPR" taskset -c "$TRAIN_CPUS" "$AAU_DIR/run.sh" -m torch.distributed.run \
-    --nnodes "$NN" --nproc-per-node "$G" --rdzv-backend c10d --rdzv-endpoint "$STREAM_MASTER:$(( STREAM_PORT + ATT ))" \
-    --rdzv-id "${SLURM_JOB_ID:-manual}_${RST}_$ATT" --max-restarts 0 "${CMD[@]}" "${XC[@]}" 2>&1 \
-    | stdbuf -oL tr '\r' '\n' | grep --line-buffered -v '%|\|FloatTensor\|SparseTensor' >> "$E/train.log"
-  rc=${PIPESTATUS[0]}
+  if [[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]]; then
+    # in background: wait si interrompe per la trap (un comando in primo piano la rimanderebbe alla sua fine)
+    OMP_NUM_THREADS="$CPR" MKL_NUM_THREADS="$CPR" "${TR[@]}" \
+      > >(stdbuf -oL tr '\r' '\n' | grep --line-buffered -v '%|\|FloatTensor\|SparseTensor' >> "$E/train.log") 2>&1 &
+    TPID=$!
+    [[ -n "$TERMED" ]] && kill -TERM "$TPID" 2>/dev/null    # SIGTERM arrivato prima di questo tentativo
+    while :; do
+      wait "$TPID"
+      rc=$?
+      kill -0 "$TPID" 2>/dev/null || break
+    done
+    TPID=""
+  else
+    OMP_NUM_THREADS="$CPR" MKL_NUM_THREADS="$CPR" "${TR[@]}" 2>&1 \
+      | stdbuf -oL tr '\r' '\n' | grep --line-buffered -v '%|\|FloatTensor\|SparseTensor' >> "$E/train.log"
+    rc=${PIPESTATUS[0]}
+  fi
   set -e
   log "trainer finito rc=$rc (tentativo $ATT)"
   [[ "$rc" == 0 ]] && break
+  [[ -n "$TERMED" ]] && { log "SIGTERM (prelazione o requeue): nessun nuovo tentativo"; break; }
   ATT=$(( ATT + 1 ))
   [[ "$ATT" -gt "${STREAM_ATTEMPTS:-3}" ]] && break
   sleep 30

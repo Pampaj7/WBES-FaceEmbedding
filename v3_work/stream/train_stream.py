@@ -46,6 +46,20 @@ Ricetta dei bracci decisivi (C3F/C3M), con ``--stream`` resa esplicita (10 ottob
     ``<run_dir>/batch_domains_rank<r>.csv``;
   * ``--stream-rot 0``: nessuna rotazione a ogni uso, come il C3M (che ruota solo nel modo ``rotation`` del rumore,
     ``--rigid_rot_deg 12`` della ricetta v1, uguale qui).
+
+Run prelazionabili (``WBES_PREEMPT_SAVE=1``, variabile d'ambiente e non flag: l'hash della run dir non cambia; la
+mette massive_node.sh con STREAM_PREEMPTIBLE=1, slurm/secondary_partial_a100.sbatch), A100 con --qos=unprivileged:
+  * prelazione e ``scontrol requeue`` mandano SIGTERM a tutti i processi e SIGKILL dopo KillWait (30 s; GraceTime 0
+    sulla partizione aicentre-a100). Su SIGTERM ogni rank segna il segnale e porta stdout/stderr su
+    ``<run_dir>/preempt_rank<r>.log`` (la pipe verso train.log muore col passo); dopo il passo in corso i rank
+    concordano (all_max, una riduzione per passo) e scrivono il checkpoint di ripresa di train_v3 (last.pth con
+    pesi, ottimizzatore, EMA, passo, epoca, batch nell'epoca e accumulatori; rng_rank<r>.pt coi generatori CPU e CUDA
+    di ogni rank), chiudono l'epoca dello stream (riga di statistiche, registro delle viste usate) ed escono (143);
+  * ripresa: ``--resume auto`` di train_v3 da last.pth; i piani gia' eseguiti dell'epoca NON si estraggono dall'anello
+    (StreamPlans.skip): ne' usi ne' righe nel registro per viste mai addestrate. Lo stream non si riavvolge: l'anello
+    riparte vuoto con produttori a semi nuovi (massive_node.sh: + 100000 x riavvio), quindi contatori di riuso e pool
+    ripartono da zero su identita' nuove; i dati dopo la ripresa sono freschi, non quelli che avrebbe visto il run
+    senza interruzione (pesi, ottimizzatore, passo, lr, generatori del trainer e scale di --scale-aug si').
 """
 from __future__ import annotations
 
@@ -164,6 +178,78 @@ def batch_domains(args) -> list | None:
         return None
     import sources
     return sorted(sources.parse_sources(args.stream_sources))
+
+
+# --- run prelazionabili (WBES_PREEMPT_SAVE=1) --------------------------------------------------------------
+
+PREEMPT: dict = {}
+PREEMPT_RC = 143
+
+
+class _Preempted(Exception):
+    pass
+
+
+def install_preempt(rank: int) -> None:
+    """SIGTERM: segna il segnale (il salvataggio lo fa il ciclo del passo) e sposta stdout/stderr su un file."""
+    import signal
+
+    def on_term(signum, frame) -> None:
+        if "sig" in PREEMPT:
+            return
+        PREEMPT.update(sig=int(signum), t=time.time(), step=int(tv.STATE["steps"]))
+        try:
+            fd = os.open(str(STREAM["run_dir"] / f"preempt_rank{rank}.log"), os.O_WRONLY | os.O_CREAT | os.O_APPEND)
+        except OSError:
+            fd = os.open(os.devnull, os.O_WRONLY)
+        for f in (sys.stdout, sys.stderr):
+            try:
+                f.flush()
+            except (OSError, ValueError):
+                pass
+        os.dup2(fd, 1)
+        os.dup2(fd, 2)
+        os.write(1, f"[preempt] {time.strftime('%F %T')} rank {rank}: segnale {signum} al passo {PREEMPT['step']}, "
+                    f"checkpoint dopo il passo in corso\n".encode())
+
+    signal.signal(signal.SIGTERM, on_term)
+
+
+def preempt_train_epoch(orig):
+    """train_v3.train_epoch con il salvataggio su segnale e la ripresa senza estrarre i piani saltati.
+
+    ``saver`` di train_v3.run scrive last.pth quando sono passati ``args.ckpt_minutes`` dall'ultimo (deciso insieme
+    dai rank): dopo un segnale su un rank qualunque (all_max) lo si chiama con la soglia a ~0, cosi' salvano tutti
+    allo stesso passo, poi si esce dall'epoca."""
+    def run_epoch(args, plans, *a, start_batch=0, partial=None, saver=None, **kw):
+        if start_batch:
+            getattr(plans, "plans", plans).skip = int(start_batch)     # ProfiledPlans -> StreamPlans
+        fn = saver
+        if saver is not None:
+            def fn(next_batch, partial_) -> None:
+                if tv.all_max(float("sig" in PREEMPT)) > 0:
+                    ck = args.ckpt_minutes
+                    args.ckpt_minutes = 1e-9
+                    try:
+                        saver(next_batch, partial_)
+                    finally:
+                        args.ckpt_minutes = ck
+                    raise _Preempted()
+                saver(next_batch, partial_)
+        stopped = False
+        try:
+            return orig(args, plans, *a, start_batch=start_batch, partial=partial, saver=fn, **kw)
+        except _Preempted:
+            stopped = True
+        # fuori dall'except il traceback e' libero: il generatore dei piani si chiude (statistiche dell'epoca e
+        # registro delle viste usate scritti)
+        import gc
+        gc.collect()
+        tv.log0(f"[preempt] checkpoint di ripresa al passo {tv.STATE['steps']} dopo il segnale "
+                f"{PREEMPT.get('sig')} (arrivato al passo {PREEMPT.get('step')}, {time.time() - PREEMPT['t']:.1f}s fa): "
+                f"esco con {PREEMPT_RC}")
+        raise SystemExit(PREEMPT_RC)
+    return run_epoch
 
 
 def stream_epoch_plans(args, data, epoch, S, steps, B, drawcfg, seed_r):
@@ -325,6 +411,8 @@ def install() -> None:
         return domain_of(sid)
 
     tv.epoch_plans = stream_epoch_plans
+    if os.environ.get("WBES_PREEMPT_SAVE", "0") == "1":
+        tv.train_epoch = preempt_train_epoch(tv.train_epoch)
     tv.StepEmbedder = StreamEmbedder
     tv.StepBatch = stream_step_batch
     tv.Data = StreamData
@@ -377,6 +465,10 @@ def main() -> None:
         # la run dir PRIMA che run() riscriva epochs e save_every negli args (l'hash li contiene)
         STREAM["run_dir"] = tv.make_run_dir(args)
         install()
+        if os.environ.get("WBES_PREEMPT_SAVE", "0") == "1":
+            from common import dist_info
+            install_preempt(dist_info()[0])
+            tv.log0("[preempt] WBES_PREEMPT_SAVE=1: su SIGTERM checkpoint di ripresa al passo in corso e uscita")
         if os.environ.get("WBES_STREAM_PROFILE", "0") == "1":
             from common import dist_info
             STREAM["run_dir"].mkdir(parents=True, exist_ok=True)
@@ -385,6 +477,10 @@ def main() -> None:
         tv.run(args)
     finally:
         tv.dv.kill_all()
+        if PREEMPT:     # niente chiusura di NCCL e dei thread: il processo deve finire entro KillWait
+            for f in (sys.stdout, sys.stderr):
+                f.flush()
+            os._exit(PREEMPT_RC)
 
 
 if __name__ == "__main__":

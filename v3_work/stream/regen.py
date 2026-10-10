@@ -10,6 +10,8 @@ lavoro, moltiplicatori) ``producer.group_kind`` e poi ``producer.view_recipe`` (
 (mm_aug: ibridi, trasferimenti d'espressione, bump) ripetono le stesse estrazioni nello stesso ordine: identita', espressioni (FaMoS:
 il fotogramma), discretizzazione e seme del rumore; ``views.discretize`` da' la mesh. I gruppi mm_aug hanno anche i
 parametri espliciti nello header (``prov.mm_aug``: ``v3_work/mm_aug.assemble`` li ricostruisce senza generatore). Gli operatori NON si rigenerano bit per bit (eigsh), la mesh si'.
+Con ``partial`` nella ricetta (producer.py --partial-p) la parte tolta si rigenera da ``partial_aug.apply`` col seme
+del rumore della vista; ``--shard`` confronta anche i parametri realizzati (``partial`` dei metadati).
 Le mesh sono nel frame canonico della libreria (mm a scala s_d); x ``mm_factor`` (targets.py) nei mm veri.
 
 Con ``--shard`` si VERIFICA contro le viste dello shard: facce identiche e vertici serviti (centro e maxabs)
@@ -43,11 +45,20 @@ def aug_library(recipe: dict):
     return _AUG[key]
 
 
-def regenerate(src, seed, recipe: dict, domain: str = "") -> tuple[object, list[dict]]:
-    """(identita', [{vi, V, F, label, expr, noise_seed, frame}]) del gruppo col seme ``seed``: lo stesso ordine di
-    estrazioni del produttore (tipo del gruppo con --mm-aug, poi view_recipe o aug_group_spec)."""
-    import producer as PR
+def discretize(V, F, label: str, noise_seed: int, recipe: dict) -> tuple[np.ndarray, np.ndarray, dict | None]:
+    """views.discretize e, con ``partial`` nella ricetta, la parzialita' della vista (info dei metadati)."""
     import views as VW
+    Vd, Fd = VW.discretize(V, F, label, noise_seed)
+    if recipe.get("partial") is None:
+        return Vd, Fd, None
+    import partial_aug
+    return partial_aug.apply(Vd, Fd, recipe["partial"], noise_seed)
+
+
+def regenerate(src, seed, recipe: dict, domain: str = "") -> tuple[object, list[dict]]:
+    """(identita', [{vi, V, F, label, expr, noise_seed, frame, partial}]) del gruppo col seme ``seed``: lo stesso
+    ordine di estrazioni del produttore (tipo del gruppo con --mm-aug, poi view_recipe o aug_group_spec)."""
+    import producer as PR
     cfg = argparse.Namespace(**{**recipe, "label_p": np.asarray(recipe["label_p"], dtype=np.float64)})
     cfg.mm_aug_probs = recipe.get("mm_aug_probs") or {}
     cfg.label_draw = recipe.get("label_draw", "replace")          # ricette di prima: con reinserimento
@@ -59,16 +70,16 @@ def regenerate(src, seed, recipe: dict, domain: str = "") -> tuple[object, list[
         lib, acfg = aug_library(recipe)
         G = PR.aug_group_spec(lib, acfg, d, kind, rng, cfg)
         for v in G["views"]:
-            Vd, Fd = VW.discretize(v["V"], v["F"], v["label"], v["noise_seed"])
+            Vd, Fd, pi = discretize(v["V"], v["F"], v["label"], v["noise_seed"], recipe)
             out.append({"vi": v["i"], "V": Vd, "F": Fd, "label": v["label"], "expr": v["tag"],
                         "noise_seed": v["noise_seed"], "frame": int((v["expression"] or {}).get("frame", -1)),
-                        "kind": G["kind"]})
+                        "kind": G["kind"], "partial": pi})
         return np.asarray(G["identity"]["z_A"], dtype=np.float64), out
     ident = src.identity(rng)
     for i, V, F, tag, label, noise_seed, frame in PR.view_recipe(src, ident, rng, cfg, d):
-        Vd, Fd = VW.discretize(V, F, label, noise_seed)
+        Vd, Fd, pi = discretize(V, F, label, noise_seed, recipe)
         out.append({"vi": i, "V": Vd, "F": Fd, "label": label, "expr": tag, "noise_seed": noise_seed, "frame": frame,
-                    "kind": "pure"})
+                    "kind": "pure", "partial": pi})
     return ident, out
 
 
@@ -109,9 +120,10 @@ def check_shard(path: Path, groups=None, srcs: dict | None = None) -> list[dict]
             dv = float(np.abs(served(r["V"]) - np.asarray(a["verts"], dtype=np.float64)).max()) if ok_f else float("inf")
             row["views"].append({"vi": meta["vi"], "label": meta["label"], "expr": meta["expr"],
                                  "label_ok": r["label"] == meta["label"], "expr_ok": r["expr"] == meta["expr"],
+                                 "partial_ok": r["partial"] == meta.get("partial"),
                                  "faces_equal": bool(ok_f), "verts_max_abs": dv})
-        row["pass"] = bool(all(v["faces_equal"] and v["label_ok"] and v["expr_ok"] and v["verts_max_abs"] < 1e-6
-                               for v in row["views"]) and row.get("zid_max_abs", 0.0) == 0.0
+        row["pass"] = bool(all(v["faces_equal"] and v["label_ok"] and v["expr_ok"] and v["partial_ok"]
+                               and v["verts_max_abs"] < 1e-6 for v in row["views"]) and row.get("zid_max_abs", 0.0) == 0.0
                            and row.get("person_ok", True) and all(v["kind"] == row["origin"] for v in views))
         res.append(row)
     return res

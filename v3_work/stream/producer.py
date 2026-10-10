@@ -24,6 +24,9 @@ Run massivo (slurm/massive.sbatch, slurm/extra_producers.sbatch):
   * ``--mm-aug hybrid=..,expr_transfer=..,rbf=..``: gruppi dei moltiplicatori di v3_work/mm_aug (aug_group_spec:
     UNA identita' ibrida / con bump / pura col trasferimento d'espressione e le sue viste), GT dalla neutra esatta;
   * ``--stats-dir`` per un anello condiviso da piu' job, ``--evict-every`` per un anello su CephFS.
+Run secondario (ablazione, slurm/secondary_partial_a100.sbatch): ``--partial-p p [--partial-area lo,hi]``, parzialita'
+variabile per vista (partial_aug.py: banda dal bordo, taglio planare, buchi; seme dal seme del rumore della vista,
+nessuna estrazione dal generatore del gruppo). Spenta (p = 0, default) l'anello e la ricetta sono quelli di prima.
 
 Statistiche: ``<ring>/stats/w<NNN>.json`` per processo (viste, gruppi, byte, secondi per fase, fallimenti) e,
 dal padre, una riga ogni ``--stats-every`` s con viste/s nell'intervallo, shard e GiB nell'anello;
@@ -106,6 +109,11 @@ def build_parser() -> argparse.ArgumentParser:
                    help="replace: discretizzazione di ogni vista estratta coi pesi --label-weights, con reinserimento; "
                         "perm: senza reinserimento nel gruppo, uniforme fra le etichette di peso > 0 (C3M, "
                         "_sample_subject_mesh_entries: una vista per topologia)")
+    p.add_argument("--partial-p", type=float, default=0.0,
+                   help="probabilita' per vista della parzialita' variabile (partial_aug.py; 0 = spenta, il default)")
+    p.add_argument("--partial-area", default="",
+                   help="lo,hi: frazione d'area tolta da banda o taglio planare, U(lo, hi) (default di partial_aug: "
+                        "0.03,0.40)")
     p.add_argument("--seed", type=int, default=20261009)
     p.add_argument("--duration", type=float, default=0.0, help="secondi (0 = finche' non viene fermato)")
     p.add_argument("--stats-every", type=float, default=30.0)
@@ -222,7 +230,7 @@ def make_aug_group(lib, acfg, domain: str, kind: str, rg: np.random.Generator, c
     for v in G["views"]:
         try:
             arr, meta = VW.make_view(v["V"], v["F"], v["label"], cfg.k_eig, cfg.evecs_dtype, v["noise_seed"],
-                                     area_factor=area_factor)
+                                     area_factor=area_factor, partial=getattr(cfg, "partial", None))
         except Exception as exc:  # noqa: BLE001
             st["failures"] += 1
             st["last_failure"] = f"{domain}/{G['kind']}/{v['label']}: {type(exc).__name__}: {exc}"
@@ -233,6 +241,7 @@ def make_aug_group(lib, acfg, domain: str, kind: str, rg: np.random.Generator, c
         for ph in ("gen", "ops", "pack"):
             st[f"t_{ph}"] += meta.pop(f"t_{ph}")
         st["views"] += 1
+        count_partial(st, meta)
         st["by_label"][v["label"]] = st["by_label"].get(v["label"], 0) + 1
         st["verts"] += meta["n"]
         out.append((arr, meta))
@@ -258,6 +267,19 @@ def count_expr(st: dict, domain: str, out: list) -> None:
     st["expr_views"] = st.get("expr_views", 0) + n
     st["expr_by_domain"] = st.get("expr_by_domain", {})
     st["expr_by_domain"][domain] = st["expr_by_domain"].get(domain, 0) + n
+
+
+def count_partial(st: dict, meta: dict) -> None:
+    """Viste parziali, ricadute sulla vista intera e somma delle perdite d'area (solo con --partial-p)."""
+    pi = meta.get("partial")
+    if pi is None:
+        return
+    st["partial_views"] = st.get("partial_views", 0) + int(pi["on"])
+    st["partial_fallback"] = st.get("partial_fallback", 0) + int(bool(pi.get("fallback")))
+    st["partial_loss_sum"] = st.get("partial_loss_sum", 0.0) + float(pi.get("loss", 0.0))
+    st["partial_by_mode"] = st.get("partial_by_mode", {})
+    if pi["on"]:
+        st["partial_by_mode"][pi["mode"]] = st["partial_by_mode"].get(pi["mode"], 0) + 1
 
 
 def parse_expr_frac(txt: str, domains) -> float | dict:
@@ -313,11 +335,15 @@ def view_recipe(src, ident, rng: np.random.Generator, cfg, domain: str = ""):
 
 
 def recipe(cfg, acfg=None) -> dict:
-    """I parametri che servono a rigenerare un gruppo dal suo seme (regen.py), scritti in ogni shard."""
-    return {"views": cfg.views, "p_expr": cfg.p_expr, "expr_frac": cfg.expr_frac, "labels": list(cfg.labels),
-            "label_p": [float(x) for x in cfg.label_p], "label_draw": cfg.label_draw, "v_max": cfg.v_max, "v_work": cfg.v_work,
-            "code": getattr(cfg, "code_version", ""), "mm_aug_probs": dict(getattr(cfg, "mm_aug_probs", {}) or {}),
-            "mm_aug_config": acfg.to_dict() if acfg is not None else None}
+    """I parametri che servono a rigenerare un gruppo dal suo seme (regen.py), scritti in ogni shard; ``partial``
+    solo con --partial-p (senza, la ricetta e' quella di prima chiave per chiave)."""
+    out = {"views": cfg.views, "p_expr": cfg.p_expr, "expr_frac": cfg.expr_frac, "labels": list(cfg.labels),
+           "label_p": [float(x) for x in cfg.label_p], "label_draw": cfg.label_draw, "v_max": cfg.v_max, "v_work": cfg.v_work,
+           "code": getattr(cfg, "code_version", ""), "mm_aug_probs": dict(getattr(cfg, "mm_aug_probs", {}) or {}),
+           "mm_aug_config": acfg.to_dict() if acfg is not None else None}
+    if getattr(cfg, "partial", None) is not None:
+        out["partial"] = dict(cfg.partial)
+    return out
 
 
 def make_group(src, domain: str, rng: np.random.Generator, cfg, uni: S.Unified, key: str, st: dict,
@@ -340,7 +366,8 @@ def make_group(src, domain: str, rng: np.random.Generator, cfg, uni: S.Unified, 
     for i, V, F, tag, label, noise_seed, frame in view_recipe(src, ident, rng, cfg, domain):
         st["t_mesh"] += time.perf_counter() - t1
         try:
-            arr, meta = VW.make_view(V, F, label, cfg.k_eig, cfg.evecs_dtype, noise_seed, area_factor=area_factor)
+            arr, meta = VW.make_view(V, F, label, cfg.k_eig, cfg.evecs_dtype, noise_seed, area_factor=area_factor,
+                                     partial=getattr(cfg, "partial", None))
         except Exception as exc:  # noqa: BLE001  (una vista rotta non ferma il produttore)
             st["failures"] += 1
             st["last_failure"] = f"{domain}/{label}: {type(exc).__name__}: {exc}"
@@ -352,6 +379,7 @@ def make_group(src, domain: str, rng: np.random.Generator, cfg, uni: S.Unified, 
         for ph in ("gen", "ops", "pack"):
             st[f"t_{ph}"] += meta.pop(f"t_{ph}")
         st["views"] += 1
+        count_partial(st, meta)
         st["by_label"][label] = st["by_label"].get(label, 0) + 1
         st["verts"] += meta["n"]
         out.append((arr, meta))
@@ -476,15 +504,30 @@ def summarize(ring: Ring, t0: float, cfg) -> dict:
             "canonical_gt": bool(cfg.canonical_gt), "expr_frac": cfg.expr_frac, "p_expr": cfg.p_expr,
             "label_draw": cfg.label_draw,
             "last_failure": next((s["last_failure"] for s in st if s.get("last_failure")), ""),
+            **(partial_summary(st, views) if getattr(cfg, "partial", None) is not None else {}),
             "cpu_s_per_view": {k: v / max(views, 1) for k, v in phases.items()},
             "views_by_domain": by_dom, "views_by_label": by_lab,
             "ring": {"shards": len(lst), "gib": sum(b for _, b, _ in lst) / 2 ** 30,
                      "seq_min": lst[0][0] if lst else None, "seq_max": lst[-1][0] if lst else None}}
 
 
+def partial_summary(st: list, views: int) -> dict:
+    """Quota di viste parziali e perdita d'area media (sulle parziali) nel riepilogo, solo con --partial-p."""
+    n = sum(s.get("partial_views", 0) for s in st)
+    modes: dict = {}
+    for s in st:
+        for k, v in s.get("partial_by_mode", {}).items():
+            modes[k] = modes.get(k, 0) + v
+    return {"partial_fraction": n / max(views, 1), "partial_views": n,
+            "partial_fallback": sum(s.get("partial_fallback", 0) for s in st),
+            "partial_mean_loss": sum(s.get("partial_loss_sum", 0.0) for s in st) / max(n, 1), "partial_by_mode": modes}
+
+
 def main() -> None:
+    import partial_aug
     import views as VW
     cfg = build_parser().parse_args()
+    cfg.partial = partial_aug.config(cfg.partial_p, cfg.partial_area)
     cfg.mm_aug_probs = check_mm_aug(cfg.mm_aug) if cfg.mm_aug else {}
     cfg.labels = list(VW.LABELS)
     lw = parse_weights(cfg.label_weights, VW.LABELS)
@@ -546,6 +589,8 @@ def main() -> None:
     print(f"[producer] {cfg.n_proc} processi, k_eig={cfg.k_eig} evecs={cfg.evecs_dtype}, anello {ring.root} "
           f"({cfg.ring_gb:g} GiB), alpha={cfg.alpha} p={cfg.probs}, CPU {cfg.cpus or 'tutte'}; viste per gruppo "
           f"{cfg.views}, quota d'espressioni {cfg.expr_frac}, discretizzazioni {cfg.label_draw}", flush=True)
+    if cfg.partial is not None:
+        print(f"[producer] parzialita' variabile (partial_aug.py): {json.dumps(cfg.partial)}", flush=True)
     last_v, last_t = 0, t0
     try:
         while any(pr.is_alive() for pr in procs):

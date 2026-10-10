@@ -540,13 +540,16 @@ class StreamConsumer:
 class StreamPlans:
     """Le ``steps`` BatchPlan di un'epoca, estratte una alla volta (la lista del trainer v3 e' deterministica,
     lo stream no). Il piano successivo nasce mentre il corrente e' in GPU, cosi' i suoi campioni si preparano in
-    anticipo. A fine iterazione (anche interrotta) una riga di statistiche in ``log_path``."""
+    anticipo. A fine iterazione (anche interrotta) una riga di statistiche in ``log_path``.
+    ``skip`` (ripresa a meta' epoca di un run prelazionabile, train_stream.preempt_train_epoch): i primi ``skip``
+    piani sono None, senza estrarre nulla dall'anello; i domini dei passi restanti sono quelli di ``order``."""
 
     def __init__(self, consumer: StreamConsumer, steps: int, B: int, max_views: int, drawcfg, rng, epoch: int,
                  log_path: Path | None = None, batch_domains=None) -> None:
         self.consumer, self.steps, self.B, self.max_views = consumer, int(steps), int(B), int(max_views)
         self.drawcfg, self.rng, self.epoch, self.log_path = drawcfg, rng, int(epoch), log_path
         self.order = None
+        self.skip = 0
         if batch_domains:      # sampler_v3.plan_epoch_balanced, mixed=False, alpha 0: passi uguali fra i domini
             from sampler_v3 import _largest_remainder
             doms = sorted(batch_domains)
@@ -565,9 +568,12 @@ class StreamPlans:
         make = lambda i: c.plan(self.B, self.max_views, self.drawcfg, self.rng,  # noqa: E731
                                 self.order[i] if self.order else None, self.epoch)
         n = 0
+        s0 = min(int(self.skip), self.steps)
         try:
-            nxt = make(0) if self.steps > 0 else None
-            for i in range(self.steps):
+            for _ in range(s0):
+                yield None
+            nxt = make(s0) if s0 < self.steps else None
+            for i in range(s0, self.steps):
                 cur = nxt
                 nxt = make(i + 1) if i + 1 < self.steps else None
                 n += 1
