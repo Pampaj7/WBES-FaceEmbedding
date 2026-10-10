@@ -1,0 +1,83 @@
+{
+ "view": "famos",
+ "model": "flame2023",
+ "n_vertices": 1697,
+ "n_model_vertices": 1787,
+ "references": [
+  {
+   "reference": "id940079_GTready_scan__eyebrow__000103",
+   "kept": 0.910464465584779,
+   "median_mm": 2.0765069607847244
+  },
+  {
+   "reference": "id940080_GTready_scan__lips_up__000021",
+   "kept": 0.9087856743144935,
+   "median_mm": 2.361391312726366
+  },
+  {
+   "reference": "id940081_GTready_scan__wrinkle_nose__000004",
+   "kept": 0.9334079462786794,
+   "median_mm": 2.322313325701791
+  },
+  {
+   "reference": "id940082_GTready_scan__smile_closed__000005",
+   "kept": 0.919418019026301,
+   "median_mm": 2.4389421576064847
+  },
+  {
+   "reference": "id940083_GTready_scan__jaw__000001",
+   "kept": 0.9054280917739228,
+   "median_mm": 2.4007512082469558
+  },
+  {
+   "reference": "id940084_GTready_scan__eyebrow__000004",
+   "kept": 0.9294907666480134,
+   "median_mm": 1.8634764890539726
+  },
+  {
+   "reference": "id940085_GTready_scan__blow_cheeks__000002",
+   "kept": 0.9278119753777281,
+   "median_mm": 2.794715892904346
+  },
+  {
+   "reference": "id940086_GTready_scan__lips_up__000001",
+   "kept": 0.9155008393956351,
+   "median_mm": 2.0103822730943532
+  },
+  {
+   "reference": "id940087_GTready_scan__high_smile__000001",
+   "kept": 0.825405707890319,
+   "median_mm": 1.979089263663179
+  },
+  {
+   "reference": "id940088_GTready_scan__sadness__000008",
+   "kept": 0.8830442081701175,
+   "median_mm": 2.13863161013023
+  },
+  {
+   "reference": "id940089_GTready_scan__mouth_middle__000015",
+   "kept": 0.8332400671516508,
+   "median_mm": 2.3681961394293927
+  },
+  {
+   "reference": "id940090_GTready_scan__anger__000004",
+   "kept": 0.9043088975937326,
+   "median_mm": 2.14696069960554
+  },
+  {
+   "reference": "id940091_GTready_scan__surprise__000168",
+   "kept": 0.8628987129266927,
+   "median_mm": 2.0576357429116126
+  },
+  {
+   "reference": "id940092_GTready_scan__rolling_lips__000003",
+   "kept": 0.8673754896474538,
+   "median_mm": 2.126878776927756
+  },
+  {
+   "reference": "id940093_GTready_scan__happiness__000004",
+   "kept": 0.902070509233352,
+   "median_mm": 2.5665788744707783
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+ "view": "hifi3d",
+ "model": "gnm",
+ "n_vertices": 7700,
+ "n_model_vertices": 9022,
+ "references": [
+  {
+   "reference": "media di 100 original del template",
+   "kept": 0.85391265794724,
+   "median_mm": 1.3623645417850052
+  }
+ ]
+}

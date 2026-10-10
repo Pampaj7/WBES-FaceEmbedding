@@ -1,0 +1,13 @@
+{
+ "view": "facescape",
+ "model": "gnm",
+ "n_vertices": 8061,
+ "n_model_vertices": 9022,
+ "references": [
+  {
+   "reference": "media di 100 original del template",
+   "kept": 0.8939259587674573,
+   "median_mm": 1.5965105029165674
+  }
+ ]
+}

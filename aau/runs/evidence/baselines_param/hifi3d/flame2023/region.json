@@ -1,0 +1,13 @@
+{
+ "view": "hifi3d",
+ "model": "flame2023",
+ "n_vertices": 1517,
+ "n_model_vertices": 1787,
+ "references": [
+  {
+   "reference": "media di 100 original del template",
+   "kept": 0.8494683827644096,
+   "median_mm": 1.843030751953195
+  }
+ ]
+}

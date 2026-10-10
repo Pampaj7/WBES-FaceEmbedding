@@ -1,0 +1,13 @@
+{
+ "view": "facescape",
+ "model": "flame2023",
+ "n_vertices": 1544,
+ "n_model_vertices": 1787,
+ "references": [
+  {
+   "reference": "media di 100 original del template",
+   "kept": 0.8645775041969782,
+   "median_mm": 2.178183557067436
+  }
+ ]
+}
