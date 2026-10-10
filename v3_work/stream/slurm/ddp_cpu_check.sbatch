@@ -28,6 +28,7 @@ OMP_NUM_THREADS=2 "$AAU_DIR/run.sh" -m torch.distributed.run --standalone --npro
   --dist_npz face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz \
   "${RECIPE_V1[@]}" --device cpu --batch_subjects 4 --max_meshes_per_subject_train 2 --max_subjects_eval_train 2 \
   --max_meshes_per_subject_eval 2 --eval_every 0 --save_every 1000 --train-threads 2 --seed 1234 \
-  --runs_root "$E/runs" --log-every 1 2>&1 | grep -v "FloatTensor\|SparseTensor" > "$E/train.log"
+  --runs_root "$E/runs" --log-every 1 --plateau-patience 8 --stream-batch-domains mixed \
+  2>&1 | grep -v "FloatTensor\|SparseTensor" > "$E/train.log"
 tail -15 "$E/train.log"
 for f in "$E"/runs/*/stream_stats_rank*.jsonl; do echo "$f"; cat "$f"; done

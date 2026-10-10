@@ -38,6 +38,14 @@ client) costava ~2 s per passo nel thread principale (misurato il 9 ottobre, tri
 
 Fonti (``domains``): solo i gruppi con TUTTE le fonti fra quelle (template, seconda identita' degli ibridi, fonte
 dell'espressione trasferita) entrano nel pool (es. il nucleo aperto da un anello con tutto).
+
+Batch a dominio singolo (``StreamPlans(batch_domains=[...])``, il default di train_stream.py): la semantica di
+``sampler_v3.plan_epoch_balanced`` con ``mixed=False`` e alpha 0, cioe' C3F/C3M (``--sampler balanced --domain-alpha 0
+--batch-domains single``): i passi dell'epoca del rank si ripartiscono in parti uguali fra i domini (resto maggiore),
+in ordine permutato, e ogni batch prende le sue identita' da un solo dominio (quello del gruppo, ``hg["domain"]``).
+Senza (``batch_domains=None``) i batch mescolano i domini, come prima. ``log_batches``: dominio di ogni identita'
+dei primi N piani del rank in ``batch_log`` (csv di controllo); i contatori ``batches_mixed`` e
+``batches_by_domain`` coprono tutto il run.
 Registro delle viste usate (``log_views``): alla PRIMA estrazione di ogni vista una riga con dominio, origine,
 licenza, seme del gruppo, indice nella ricetta, discretizzazione, espressione, fotogramma, seme del rumore,
 vertici, area, S_i; ``flush_log`` scrive un npz compresso a colonne compatte (~64 byte per vista prima della
@@ -128,7 +136,8 @@ class StreamConsumer:
                  gt: StreamGT | None = None, gt_kind: str = "unified", global_unit_mm: float = 100.0,
                  global_ops: str = "areanorm", shard_rank: int | None = None, shard_world: int | None = None,
                  extra_rings=(), extra_refresh_s: float = 10.0, domains=None, log_views: bool = False,
-                 extra_mirror: str | Path = "", mirror_threads: int = 1) -> None:
+                 extra_mirror: str | Path = "", mirror_threads: int = 1, batch_log: str | Path = "",
+                 log_batches: int = 0) -> None:
         self.ring = Ring(root)
         self.extra = [(Ring(r), int(er), int(ew)) for r, er, ew in extra_rings]
         self.extra_refresh_s = float(extra_refresh_s)
@@ -137,6 +146,7 @@ class StreamConsumer:
         self.domains = set(domains) if domains else None
         self.log_views = bool(log_views)
         self._log_rows: list = []
+        self.batch_log, self.log_batches = (Path(batch_log) if batch_log else None), int(log_batches)
         self.rank, self.world = int(rank), int(world)
         self.mirror = None
         if extra_mirror and self.extra:
@@ -170,7 +180,8 @@ class StreamConsumer:
         self.c = {"plans": 0, "uses": 0, "unique_views_used": 0, "views_seen": 0, "groups_seen": 0,
                   "groups_evicted_unused": 0, "views_evicted_unused": 0, "over_reuse_groups": 0, "wait_s": 0.0,
                   "serve_s": 0.0, "plan_s": 0.0, "age_sum_s": 0.0, "age_max_s": 0.0, "by_domain": {}, "by_label": {},
-                  "seq_used_min": None, "seq_used_max": None, "seq_mod_seen": set(), "uses_by_ring": {}}
+                  "seq_used_min": None, "seq_used_max": None, "seq_mod_seen": set(), "uses_by_ring": {},
+                  "batches_mixed": 0, "batches_by_domain": {}}
 
     # --- anello -----------------------------------------------------------------------------------------
     def refresh(self) -> None:
@@ -256,23 +267,26 @@ class StreamConsumer:
             if not busy:
                 time.sleep(self.extra_refresh_s)
 
-    def _wait_for(self, n: int) -> None:
+    def _wait_for(self, n: int, domain: str | None = None) -> None:
+        """Attende ``n`` identita' distinte nel pool del rank (del solo ``domain``, se dato)."""
         t0 = time.time()
-        while len({st["key"] for st in self.pool.values()}) < n:
+        while len({st["key"] for st in self.pool.values() if domain is None or st["domain"] == domain}) < n:
             if time.time() - t0 > self.wait_s:
-                raise TimeoutError(f"anello {self.ring.root}: meno di {n} identita' per il rank {self.rank} dopo "
-                                   f"{self.wait_s:.0f}s (produttori fermi?)")
+                raise TimeoutError(f"anello {self.ring.root}: meno di {n} identita'{' ' + domain if domain else ''} "
+                                   f"per il rank {self.rank} dopo {self.wait_s:.0f}s (produttori fermi?)")
             time.sleep(0.5)
             self.refresh()
         self.c["wait_s"] += time.time() - t0
 
     # --- batch ------------------------------------------------------------------------------------------
-    def pick(self, B: int, max_views: int, rng: np.random.Generator) -> list:
-        """B gruppi con chiavi distinte: eleggibili (usi < reuse) in ordine casuale, poi i meno usati.
-        Ritorna [(seq, g, [viste])]; aggiorna i contatori d'uso."""
+    def pick(self, B: int, max_views: int, rng: np.random.Generator, domain: str | None = None) -> list:
+        """B gruppi con chiavi distinte (del solo ``domain``, se dato): eleggibili (usi < reuse) in ordine casuale,
+        poi i meno usati. Ritorna [(seq, g, [viste])]; aggiorna i contatori d'uso."""
         self.refresh()
         self._wait_for(max(B, self.min_groups))
-        keys = list(self.pool)
+        if domain is not None:
+            self._wait_for(B, domain)
+        keys = [k for k, st in self.pool.items() if domain is None or st["domain"] == domain]
         out, seen = [], set()
 
         def take(k) -> bool:
@@ -368,13 +382,27 @@ class StreamConsumer:
         tmp.replace(path)
         return len(rows)
 
-    def plan(self, B: int, max_views: int, drawcfg, rng: np.random.Generator):
-        """Un BatchPlan del trainer (sampler_v3): soggetti = chiavi delle identita', entries con handle allo
-        stream; rumore del batch come _draw_batch (probabilita', sigma log-uniforme, modo per mesh)."""
+    def plan(self, B: int, max_views: int, drawcfg, rng: np.random.Generator, domain: str | None = None,
+             epoch: int = 0):
+        """Un BatchPlan del trainer (sampler_v3): soggetti = chiavi delle identita' (del solo ``domain``, se dato),
+        entries con handle allo stream; rumore del batch come _draw_batch (probabilita', sigma log-uniforme, modo
+        per mesh)."""
         from robustness.noise import sample_log_uniform_sigma
         from sampler_v3 import BatchPlan
         t0 = time.perf_counter()
-        picked = self.pick(B, max_views, rng)
+        picked = self.pick(B, max_views, rng, domain)
+        doms = [self.readers[seq].groups[g]["domain"] for seq, g, _ in picked]
+        if len(set(doms)) > 1:
+            self.c["batches_mixed"] += 1
+        bd = doms[0] if len(set(doms)) == 1 else "misto"
+        self.c["batches_by_domain"][bd] = self.c["batches_by_domain"].get(bd, 0) + 1
+        if self.batch_log is not None and self.c["plans"] < self.log_batches:
+            new = not self.batch_log.exists()
+            with open(self.batch_log, "a") as fh:
+                if new:
+                    fh.write("plan,epoch,rank,domain_drawn,n_ids,n_views,domains\n")
+                fh.write(f"{self.c['plans']},{epoch},{self.rank},{domain or '-'},{len(picked)},"
+                         f"{sum(len(vs) for _, _, vs in picked)},{'|'.join(doms)}\n")
         do_noise = bool(rng.uniform() < float(drawcfg.p_noise))
         sigma = sample_log_uniform_sigma(drawcfg.sigma_min, drawcfg.sigma_max, rng) if do_noise else 0.0
         probs = np.asarray(drawcfg.noise_mode_probs, dtype=np.float64)
@@ -498,9 +526,16 @@ class StreamPlans:
     anticipo. A fine iterazione (anche interrotta) una riga di statistiche in ``log_path``."""
 
     def __init__(self, consumer: StreamConsumer, steps: int, B: int, max_views: int, drawcfg, rng, epoch: int,
-                 log_path: Path | None = None) -> None:
+                 log_path: Path | None = None, batch_domains=None) -> None:
         self.consumer, self.steps, self.B, self.max_views = consumer, int(steps), int(B), int(max_views)
         self.drawcfg, self.rng, self.epoch, self.log_path = drawcfg, rng, int(epoch), log_path
+        self.order = None
+        if batch_domains:      # sampler_v3.plan_epoch_balanced, mixed=False, alpha 0: passi uguali fra i domini
+            from sampler_v3 import _largest_remainder
+            doms = sorted(batch_domains)
+            alloc = _largest_remainder(self.steps, {d: 1.0 / len(doms) for d in doms})
+            order = [d for d in doms for _ in range(alloc[d])]
+            self.order = [order[int(i)] for i in self.rng.permutation(len(order))]
 
     def __len__(self) -> int:
         return self.steps
@@ -510,13 +545,14 @@ class StreamPlans:
         before = c.stats()
         t0 = time.time()
         c.c["seq_used_min"] = c.c["seq_used_max"] = None
-        make = lambda: c.plan(self.B, self.max_views, self.drawcfg, self.rng)  # noqa: E731
+        make = lambda i: c.plan(self.B, self.max_views, self.drawcfg, self.rng,  # noqa: E731
+                                self.order[i] if self.order else None, self.epoch)
         n = 0
         try:
-            nxt = make() if self.steps > 0 else None
+            nxt = make(0) if self.steps > 0 else None
             for i in range(self.steps):
                 cur = nxt
-                nxt = make() if i + 1 < self.steps else None
+                nxt = make(i + 1) if i + 1 < self.steps else None
                 n += 1
                 yield cur
         finally:
@@ -528,8 +564,9 @@ class StreamPlans:
                        **{f"d_{k}": after[k] - before[k] for k in ("uses", "unique_views_used", "views_seen",
                                                                     "groups_seen", "views_evicted_unused",
                                                                     "groups_evicted_unused", "over_reuse_groups",
-                                                                    "wait_s", "serve_s", "plan_s")},
-                       "by_domain": after["by_domain"], "by_label": after["by_label"]}
+                                                                    "wait_s", "serve_s", "plan_s", "batches_mixed")},
+                       "by_domain": after["by_domain"], "by_label": after["by_label"],
+                       "batches_by_domain": after["batches_by_domain"]}
                 if after["uses_by_ring"]:
                     row["uses_by_ring"] = after["uses_by_ring"]
                 if "mirror" in after:

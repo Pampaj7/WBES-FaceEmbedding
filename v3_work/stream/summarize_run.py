@@ -4,7 +4,8 @@
     python3 v3_work/stream/summarize_run.py aau/runs/evidence/stream/train_<job> [...]   (solo stdlib)
 
 Scrive ``summary.json`` nella directory e stampa una riga per run:
-  * passo: s/passo per epoca (train.log), mesh/s consumate = 64 mesh per passo / s per passo;
+  * passo: s/passo per epoca (train.log), mesh/s consumate = identita' x viste massime per passo / s per passo
+    (tetto) e usi del rank 0 / secondi dell'epoca (misurate); lr per epoca (deve restare costante con --lr-constant);
   * stream (stream_stats_rank0.jsonl): usi, viste distinte, riuso per epoca e cumulato, shard usati (seq),
     viste uscite dall'anello senza uso, gruppi oltre il tetto di riuso, attese e servizio per passo;
   * produttori (producers.json): viste fresche/s a regime;
@@ -34,6 +35,7 @@ def summarize(d: Path) -> dict:
     out["steps"] = sum(n for _, n, _ in ep)
     out["s_per_step_by_epoch"] = [s for _, _, s in ep]
     out["loss_by_epoch"] = losses
+    out["lr_by_epoch"] = [float(x) for x in re.findall(r"^Epoch \d+ \| .*? lr=([\d.e+-]+)", log, flags=re.M)]
     out["loss_finite"] = all(x == x and abs(x) != float("inf") for x in losses)
     if mesh_per_step and ep:
         out["meshes_per_step"] = mesh_per_step
@@ -48,8 +50,10 @@ def summarize(d: Path) -> dict:
             "over_reuse_groups": r["d_over_reuse_groups"], "wait_ms_per_step": 1e3 * r["d_wait_s"] / max(r["plans_yielded"], 1),
             "serve_ms_per_step": 1e3 * r["d_serve_s"] / max(r["plans_yielded"], 1),
             "plan_ms_per_step": 1e3 * r["d_plan_s"] / max(r["plans_yielded"], 1), "mean_age_s": r["mean_age_s"],
-            "pool_groups": r["pool_groups"]} for r in rows]
+            "pool_groups": r["pool_groups"], "meshes_per_s_rank0": r["d_uses"] / max(r["seconds"], 1e-9),
+            "batches_mixed": r.get("d_batches_mixed")} for r in rows]
         out["by_domain_uses"] = rows[-1]["by_domain"]
+        out["batches_by_domain"] = rows[-1].get("batches_by_domain")
         out["by_label_uses"] = rows[-1]["by_label"]
     if (d / "producers.json").exists():
         p = json.loads((d / "producers.json").read_text())
@@ -87,6 +91,7 @@ def main() -> None:
         print(f"{a}: {s['steps']} passi, s/passo {sp[0]:.3f} -> {sp[-1]:.3f}, GPU {s.get('gpu_util_mean_while_training', float('nan')):.0f}%, "
               f"fresche/s {s.get('producers', {}).get('views_per_s_steady', float('nan')):.1f}, "
               f"riuso {s.get('stream_by_epoch', [{}])[-1].get('reuse_cumulative', float('nan')):.2f}, "
+              f"lr {sorted(set(s.get('lr_by_epoch') or []))}, batch per dominio {s.get('batches_by_domain')}, "
               f"memoria {s.get('mem_peak_gib')}")
 
 

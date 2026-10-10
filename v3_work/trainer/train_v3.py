@@ -21,6 +21,7 @@ Flag v3 (default = v2):
   --width / --n_blocks             taglia (flag v1)
   --ema-decay D                    EMA dei pesi (0 = spenta); i checkpoint *_ema.pth hanno i pesi EMA
   --compact-cache                  cache senza perdita: int32 per facce e indici, niente L (-~28% RAM)
+  --lr-constant                    lr costante senza scheduler (alternativo a --lr-steps / --plateau-patience)
   --resume auto|none|<file>        ripresa da checkpoints/last.pth (scritto a ogni epoca)
   --max-hours H                    si ferma pulito (last.pth e checkpoint finale) oltre H ore
 DDP: lanciato con torchrun (``--nproc-per-node N``, elastico con ``--max-restarts``), ogni rank tiene in RAM
@@ -161,6 +162,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="GT moltiplicata per k al caricamento (es. kappa della GT shape: i margini v2 sono in unita' GT)")
     p.add_argument("--plateau-patience", type=int, default=None)
     p.add_argument("--lr-steps", default="")
+    p.add_argument("--lr-constant", action="store_true",
+                   help="lr costante (--lr) per tutto il run, nessuno scheduler (la ricetta di C3F/C3M, dove il "
+                        "confine di --lr-steps cade oltre la fine); alternativo a --lr-steps e --plateau-patience. "
+                        "Senza nessuno dei tre: ReduceLROnPlateau(0.5, patience 8), il default di v2")
     p.add_argument("--pin-cache", action="store_true")
     p.add_argument("--train-threads", type=int, default=0)
     p.add_argument("--cache-residency", default="ram", choices=["ram"])
@@ -247,8 +252,8 @@ def check_args(a: argparse.Namespace) -> None:
         raise SystemExit("--data-spec richiede --split-json, --stage-root (o --store) e --total-steps")
     if not a.data_spec and not a.data_dir:
         raise SystemExit("serve --data-spec o --data_dir")
-    if a.lr_steps and a.plateau_patience is not None:
-        raise SystemExit("--lr-steps e --plateau-patience sono alternativi")
+    if sum([bool(a.lr_steps), a.plateau_patience is not None, bool(a.lr_constant)]) > 1:
+        raise SystemExit("--lr-steps, --plateau-patience e --lr-constant sono alternativi")
     if a.batch_domains == "mixed" and a.sampler != "balanced":
         raise SystemExit("--batch-domains mixed va con --sampler balanced")
     if a.batch_domains == "mixed" and a.domain_blocked:
@@ -287,6 +292,8 @@ FACTORIZED_DEFAULTS = {"scale_table": "", "global_unit_mm": 100.0, "global_ops":
                        "size_table": "", "lambda_size": 1.0, "size_hidden": 64, "scale_aug": "", "gt_scale": 1.0,
                        "size_mask_domains": "", "dist_npz_shape": "", "gt_scale_shape": 1.0, "lambda_form": 1.0,
                        "lambda_shape": 1.0}
+# flag aggiunti dopo i run validati, fuori dall'hash al default per la stessa ragione
+LATER_DEFAULTS = {"lr_constant": False}
 
 
 def make_run_dir(args: argparse.Namespace) -> Path:
@@ -294,7 +301,7 @@ def make_run_dir(args: argparse.Namespace) -> Path:
     dal default + hash di tutti gli argomenti che cambiano il training."""
     skip = {"runs_root", "device", "resume", "max_hours", "log_every", "test_crash_at_step", "cache_workers",
             "cache_max_gb", "prepass_proc", "train_threads", "stage_root", "pin_cache", "data_dir", "size_init"}
-    skip |= {k for k, d in FACTORIZED_DEFAULTS.items() if getattr(args, k, d) == d}
+    skip |= {k for k, d in {**FACTORIZED_DEFAULTS, **LATER_DEFAULTS}.items() if getattr(args, k, d) == d}
     fp = {k: v for k, v in sorted(vars(args).items()) if k not in skip}
     h = hashlib.sha1(json.dumps(fp, sort_keys=True, default=str).encode()).hexdigest()[:8]
     v3 = [f"{k.replace('_', '')}-{getattr(args, k)}" for k, d in V3_DEFAULTS.items() if getattr(args, k) != d]
@@ -855,9 +862,16 @@ def run(args: argparse.Namespace) -> None:
     lr_steps = sorted((int(b_), float(v)) for b_, v in (x.split(":") for x in args.lr_steps.split(",") if x)) \
         if args.lr_steps else []
     scheduler = None
-    if not lr_steps:
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode="min", factor=0.5, patience=8 if args.plateau_patience is None else int(args.plateau_patience))
+    if lr_steps:
+        log0(f"[v3] lr {args.lr:g}, a passi {lr_steps} (--lr-steps)")
+    elif args.lr_constant:
+        log0(f"[v3] lr {args.lr:g} costante (--lr-constant)")
+    else:
+        pp = 8 if args.plateau_patience is None else int(args.plateau_patience)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=pp)
+        log0(f"[v3] lr {args.lr:g}, ReduceLROnPlateau(factor 0.5, patience {pp}) sulla loss d'epoca"
+             + (" (default v2: nessuno fra --lr-steps, --plateau-patience, --lr-constant)"
+                if args.plateau_patience is None else ""))
     ema = EMA(model, args.ema_decay) if (args.ema_decay > 0 and rank == 0) else None
 
     embedder = StepEmbedder(model, args.forward, args.bucket_ratio, args.pad_slack).to(device)

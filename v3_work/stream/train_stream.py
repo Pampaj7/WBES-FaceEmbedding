@@ -34,6 +34,16 @@ Piu' nodi (torchrun con rendezvous, un anello per nodo): gli shard si dividono f
 anelli condivisi (CephFS) di produttori solo CPU su altri nodi, divisi col rank globale.
 Rilascio: ``--stream-sources open_core`` addestra sul solo nucleo aperto; ``--stream-log-views`` registra ogni vista
 usata con la provenienza (producer.py --provenance), da cui regen.py la rigenera.
+
+Ricetta dei bracci decisivi (C3F/C3M), con ``--stream`` resa esplicita (10 ottobre, critic del run massivo):
+  * batch: ``--stream-batch-domains single`` (default) = batch a dominio singolo, passi dell'epoca uguali fra i
+    domini di ``--stream-sources`` (consumer.StreamPlans), come ``--sampler balanced --domain-alpha 0
+    --batch-domains single`` di train_v3, che con lo stream non agiscono; ``mixed`` = domini mescolati nel batch
+    (la loss v2 pesa uguali le coppie fra domini), solo se chiesto;
+  * lr: obbligatorio uno fra ``--lr-constant`` (C3M), ``--lr-steps``, ``--plateau-patience``;
+  * ``--size-mask-domains``: solo domini fra le fonti (``bfm``, BFM REMESH, nello stream non maschera nulla);
+  * ``--stream-log-batches N``: dominio delle identita' dei primi N batch per rank,
+    ``<run_dir>/batch_domains_rank<r>.csv``.
 """
 from __future__ import annotations
 
@@ -82,6 +92,11 @@ def build_parser():
                    help="registro delle viste usate con la provenienza: <run_dir>/views_used/*.npz (views_log.py)")
     g.add_argument("--stream-gt", default="unified", choices=["unified", "fr", "sr"],
                    help="GT del batch: unificata (s_i) o GT di E12 (producer.py --canonical-gt)")
+    g.add_argument("--stream-batch-domains", default="single", choices=["single", "mixed"],
+                   help="single: batch a dominio singolo, passi uguali fra i domini di --stream-sources (C3F/C3M); "
+                        "mixed: domini mescolati nel batch")
+    g.add_argument("--stream-log-batches", type=int, default=0,
+                   help="dominio delle identita' dei primi N batch del rank in <run_dir>/batch_domains_rank<r>.csv")
     return p
 
 
@@ -119,7 +134,8 @@ def consumer():
             extra_rings=[(r, rank, world) for r in args.stream_extra.split(",") if r],
             domains=sources.parse_sources(args.stream_sources) if args.stream_sources else None,
             log_views=args.stream_log_views, extra_mirror=args.stream_extra_mirror,
-            mirror_threads=args.stream_extra_mirror_threads)
+            mirror_threads=args.stream_extra_mirror_threads,
+            batch_log=STREAM["run_dir"] / f"batch_domains_rank{rank}.csv", log_batches=args.stream_log_batches)
         STREAM["log"] = STREAM["run_dir"] / f"stream_stats_rank{rank}.jsonl"
         unit = {"unified": "mm (unificata)", "fr": "mm (GT-FR di E12)", "sr": "d_P (GT-SR di E12)"}[args.stream_gt]
         tv.log0(f"[stream] anello {args.stream}: rank {rank}/{world} (shard {sr} di {sw}), riuso <= "
@@ -128,14 +144,27 @@ def consumer():
                 + (f", anelli in piu' {args.stream_extra}" if args.stream_extra else "")
                 + (f", fonti {sources.parse_sources(args.stream_sources)}" if args.stream_sources else "")
                 + (", registro delle viste usate" if args.stream_log_views else ""))
+        tv.log0(f"[stream] batch: {args.batch_subjects} identita' x <= {args.max_meshes_per_subject_train} viste per "
+                + ("rank, a dominio singolo, passi uguali fra " + ",".join(batch_domains(args))
+                   if args.stream_batch_domains == "single"
+                   else "rank, domini MESCOLATI nel batch (--stream-batch-domains mixed)")
+                + (f"; --size-mask-domains {args.size_mask_domains}" if args.size_mask_domains else ""))
     return STREAM["consumer"]
+
+
+def batch_domains(args) -> list | None:
+    """Domini fra cui ripartire i batch a dominio singolo (None = batch misti)."""
+    if args.stream_batch_domains != "single":
+        return None
+    import sources
+    return sorted(sources.parse_sources(args.stream_sources))
 
 
 def stream_epoch_plans(args, data, epoch, S, steps, B, drawcfg, seed_r):
     from consumer import StreamPlans
     rng = np.random.default_rng(int(seed_r) + 977 + int(epoch))
     plans = StreamPlans(consumer(), steps, B, int(args.max_meshes_per_subject_train), drawcfg, rng, epoch,
-                        STREAM["log"])
+                        STREAM["log"], batch_domains=batch_domains(args))
     return ProfiledPlans(plans) if PROF else plans
 
 
@@ -297,6 +326,26 @@ def install() -> None:
     factorized_v3.domain_of = stream_domain_of      # --size-mask-domains coi domini dello stream
 
 
+def check_stream_recipe(args) -> None:
+    """Le scelte che con lo stream devono essere esplicite (niente default silenziosi diversi dai bracci)."""
+    if not (args.lr_steps or args.plateau_patience is not None or args.lr_constant):
+        raise SystemExit("--stream: scheduler del lr esplicito: --lr-constant (C3F/C3M), --lr-steps o "
+                         "--plateau-patience")
+    if args.batch_domains != "single":
+        raise SystemExit("--stream: --batch-domains non agisce sullo stream, usare --stream-batch-domains")
+    if args.domain_alpha != 0:
+        raise SystemExit("--stream: solo --domain-alpha 0 (passi uguali fra i domini)")
+    if args.stream_batch_domains == "single" and not args.stream_sources:
+        raise SystemExit("--stream-batch-domains single richiede --stream-sources (i domini fra cui ripartire i batch)")
+    if args.size_mask_domains:
+        import sources
+        have = set(sources.parse_sources(args.stream_sources)) if args.stream_sources else set(sources.ALL_DOMAINS)
+        bad = sorted({d for d in args.size_mask_domains.split(",") if d} - have)
+        if bad:
+            raise SystemExit(f"--size-mask-domains {bad}: domini assenti dalle fonti dello stream {sorted(have)}, la "
+                             "maschera non agirebbe")
+
+
 def main() -> None:
     import faulthandler
     import signal
@@ -317,6 +366,7 @@ def main() -> None:
         if args.input_norm == "global" and args.stream_scale != 0:
             raise SystemExit("--input-norm global: --stream-scale 0 (la scala cambierebbe la taglia senza il "
                              "bersaglio; l'augmentation di scala con bersaglio e' --scale-aug)")
+        check_stream_recipe(args)
         STREAM["args"] = args
         # la run dir PRIMA che run() riscriva epochs e save_every negli args (l'hash li contiene)
         STREAM["run_dir"] = tv.make_run_dir(args)

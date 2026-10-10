@@ -97,7 +97,8 @@ CMD=(v3_work/stream/train_stream.py --stream "$RING" --stream-reuse "$R"
   --dist_npz face_embedding/gt_encdec/autoencoder/latent_analysis/gt_distance_matrix/normalized_matrix_distances.npz
   "${RECIPE_V1[@]}" --batch_subjects 16 --max_meshes_per_subject_train 4 --max_subjects_eval_train 8
   --forward groups --fast-data --ema-decay 0.999 --train-threads 8 --eval_every 1000 --save_every 1000
-  --seed 1234 --runs_root "$E/runs" --log-every 50 --ckpt-minutes 10)
+  --seed 1234 --runs_root "$E/runs" --log-every 50 --ckpt-minutes 10
+  --plateau-patience 8 --stream-batch-domains mixed)      # il comportamento di prima, ora esplicito (train_stream.py)
 printf '%q ' "${CMD[@]}" > "$E/launch.txt"; echo >> "$E/launch.txt"
 OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 "${TS[@]}" "$AAU_DIR/run.sh" "${CMD[@]}" 2>&1 \
   | stdbuf -oL tr '\r' '\n' | grep --line-buffered -v '%|' > "$E/train.log"
