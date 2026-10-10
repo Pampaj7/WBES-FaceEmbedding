@@ -1202,3 +1202,23 @@ C3F − max(C2F, C2F-GNM), a 21.096 passi:
 2. **Le baseline geometriche sono state calcolate su mesh normalizzate per maxabs, quindi sono cieche alla taglia.** Con FR sono svantaggiate ingiustamente. Lanciato un coder (`aau/baselines_mm/`) per ricalcolarle in mm, con ICP rigido per FR e similarità per SR, più le banali stimate, su HIFI3D, FaceScape, FaceVerse e FaMoS TEST.
 
 Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo).
+
+### 10 ottobre, 06:40: prime cifre dei bracci decisivi (HIFI3D nocrop, 21.096 passi)
+
+| Braccio | GT FR (s1234 / s2345) | GT SR (s1234 / s2345) |
+|---|---|---|
+| ctrl-FR | **0.757** [0.686, 0.818] / 0.746 | 0.34 / 0.35 |
+| factorized (d_F) | 0.643 / 0.631 | **0.55** [0.47, 0.63] / 0.54 |
+| factorized2 | — / 0.569 | (in arrivo) |
+
+**Riferimenti con FR:** e108 0.194; ICP+Chamfer in mm 0.643; NICP su template in mm 0.614; NICP per coppia in mm 0.495; taglia stimata 0.600; taglia oracolo 0.736.
+**Riferimenti con SR:** NICP per coppia (cs) 0.595; e108 0.279.
+
+**Lettura provvisoria:**
+- addestrare sulla GT giusta con ingresso in mm porta HIFI3D/FR da 0.194 a circa 0.75, sopra tutte le baseline in mm;
+- per FR vince ctrl-FR; per SR vince factorized, vicino a NICP per coppia. Serve il test appaiato;
+- **ipotesi per il run massivo:** due teste su un backbone comune, una addestrata su FR e una su SR.
+- **Da verificare:**
+  - delta appaiati contro la taglia stimata e contro ICP+Chamfer in mm;
+  - FaceScape, FaceVerse, FaMoS e NoW (in corso);
+  - critic.
