@@ -1,12 +1,13 @@
-\documentclass{article}
+% Formato CVPR, versione per la revisione (due colonne, anonima, righe numerate). Kit autori ufficiale in
+% paper/cvpr_kit/ (README.md li'): e' quello di CVPR 2026, SEGNAPOSTO finche' non esce il kit 2027.
+% Il testo NeurIPS inviato e' main_short.tex (invariato).
+\documentclass[10pt,twocolumn,letterpaper]{article}
 
-\PassOptionsToPackage{numbers, compress}{natbib}
-
-\usepackage[eandd]{neurips_2026}
+\usepackage[review]{cvpr_kit/cvpr}      % versione per la revisione
+% \usepackage{cvpr_kit/cvpr}            % versione finale (camera-ready)
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{amsfonts}
@@ -19,6 +20,14 @@
 \usepackage{placeins}
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
 
+% hyperref per ultimo, come nel kit (pagebackref aiuta i revisori)
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\def\paperID{*****} % TODO: ID dell'articolo assegnato da OpenReview
+\def\confName{CVPR}
+\def\confYear{2027} % il kit e' quello 2026 (segnaposto)
+
 \title{When Alignment Hurts: A Controlled Benchmark for Ranking-Preserving 3D Face Metrics}
 % TODO titolo (11 ott): la tesi non e' piu' "l'allineamento peggiora e la metrica appresa vince";
 % e' forma+taglia senza registrazione, senza crop, dove la taglia varia (HIFI3D). Titolo da rivedere CON L'UTENTE
@@ -29,8 +38,8 @@
 % FORMA: togliere la scala (ICP cs) su HIFI3D 0.643 -> 0.359; NICP per coppia sotto l'ICP rigido in mm sui tre domini
 % (0.495, 0.374, 0.201). NICP su template non e' sempre sotto (FaceScape 0.544). Delta appaiati fra pipeline: mancano.
 
-% For double-blind submission, the NeurIPS style handles anonymization.
-% Replace with real authors only for camera-ready or nonanonymous submission.
+% In modalita' review cvpr.sty sostituisce gli autori con "Anonymous CVPR submission, Paper ID".
+% Gli autori veri vanno solo nella versione finale.
 \author{%
   Anonymous Authors \\
   Anonymous Institution \\
@@ -249,14 +258,16 @@ $\bar z_s = M_s^{-1}\sum_{m=1}^{M_s} z_{s,m}$.
 
 The model is trained with a mixed subject- and mesh-level objective:
 \begin{equation}
-\mathcal L =
+\begin{split}
+\mathcal L ={}&
 \lambda_{\mathrm{subj}}
 \left(
 \mathcal L^{\mathrm{subj}}_{\mathrm{stress}}
 +
 \lambda_r \mathcal L^{\mathrm{subj}}_{\mathrm{rank}}
 \right)
-+
+\\
+&+
 \lambda_{\mathrm{mesh}}
 \left(
 \mathcal L^{\mathrm{mesh}}_{\mathrm{stress}}
@@ -265,6 +276,7 @@ The model is trained with a mixed subject- and mesh-level objective:
 \right)
 +
 \lambda_i \mathcal L_{\mathrm{id}} .
+\end{split}
 \end{equation}
 Subject-level terms preserve the identity manifold defined by $D_{\mathrm{GT}}$,
 while mesh-level terms expose the model to topology-induced variation. We use
@@ -589,7 +601,7 @@ capture uncertainty over the held-out subject population under the fixed
 checkpoint and evaluation protocol, but not training or split-selection
 variability.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
 \small
 \caption{Effect of rigid and non-rigid alignment on identity-ranking fidelity.
@@ -608,7 +620,7 @@ Rigid ICP + NICP + P2P & 0.456 [0.357, 0.544] & 0.414 [0.326, 0.499] \\
 Rigid ICP + NICP + P2Tri & 0.468 [0.373, 0.552] & 0.433 [0.350, 0.514] \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 On REMESH with the legacy maxabs reference (fb100), stronger alignment does not improve ranking fidelity. Even in the original-to-original setting, where topology is fixed, rigid ICP followed by Chamfer distance reduces Spearman correlation from $0.729$ to $0.600$, and non-rigid ICP further reduces it to approximately $0.46$--$0.47$. The same trend holds in the no-crop cross-topology setting: removing crop pairs improves Chamfer, but registration-based distances still remain below both Chamfer and the learned metric. Under this reference, pairwise alignment is not a neutral preprocessing step: it can improve local surface fit while reducing the global comparability of distances across subject pairs. This does not carry over to held-out families under the form reference, where a rigid alignment helps (Sect.~\ref{sec:limitations}).
 % NOTA (11 ott, critic): limitato a REMESH, GT maxabs, fb100. Con FR in mm sulle famiglie tenute fuori l'ICP rigido
@@ -620,7 +632,7 @@ On REMESH with the legacy maxabs reference (fb100), stronger alignment does not 
 % 1067778/1067782 operatori, 1067780 forward, 1067779 confronto di una coppia); conclusions.md, emendamento 2.
 Our metric enrols each mesh once and compares embeddings, so it avoids the per-pair cost of pairwise registration. Its per-mesh cost, however, is comparable to that of fitting a 3DMM to the mesh, which shares the same structure (Table~\ref{tab:cost_measured}). Enrolment is dominated by a geometric step on CPU in both cases: the Laplacian eigendecomposition ($k=128$) for our encoder, non-rigid ICP for the fits. The network itself takes 6.5\,ms per mesh on one L40S. Comparing two enrolled meshes costs microseconds for both.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
 \scriptsize
 \caption{Measured cost. Enrolment: median seconds per mesh on CPU, one thread per mesh with the node full of such processes (as in production); in brackets, a single process on an idle node (for the fits, on HIFI3D). Fits: all 815 timed meshes, including non-rigid ICP. Pair: microseconds per comparison, one thread.}
@@ -637,7 +649,7 @@ FLAME 2023 Open fit, model in the loop & 2.15 (1.04) & 4.6 (coefficients) \\
 
 \vspace{0.3em}
 \footnotesize{FLAME with free expressions and jaw on FaceVerse: 85\,s per mesh. Identity-mesh distances of the fits: 20--74\,$\mu$s per pair plus 0.8--3\,ms per mesh once. Ours amortized over all pairs: 0.03\,$\mu$s.}
-\end{table}
+\end{table*}
 % TODO run massivo: tempi del modello finale; operatori su GPU non misurati end-to-end (paper/drafts/README.md).
 
 % SMENTITO (11 ott): il testo e la tabella commentati qui sotto presentavano il costo come molto inferiore
@@ -699,9 +711,9 @@ such as facial depth, jaw profile, forehead shape, and local protrusions, making
 different identities appear artificially more similar
 (Fig.~\ref{fig:icp_identity_suppression}).
 
-\begin{figure}[!ht]
+\begin{figure*}[!ht]
     \centering
-    \includegraphics[width=0.95\linewidth]{imgs/rigid_mixed_sigma0.20_id0084_GTready_down8k__to__id0478_GTready_up60k_paper_identity.png}
+    \includegraphics[width=0.8\textwidth]{imgs/rigid_mixed_sigma0.20_id0084_GTready_down8k__to__id0478_GTready_up60k_paper_identity.png}
     \caption{
     Qualitative illustration of identity-signal suppression by pairwise ICP.
     The figure compares two distinct identities before and after pairwise
@@ -713,7 +725,7 @@ different identities appear artificially more similar
     pairs.
     }
     \label{fig:icp_identity_suppression}
-\end{figure}
+\end{figure*}
 
 We quantify this effect over 148{,}500 clean cross-topology mesh pairs by
 measuring the spread of inter-subject distance distributions. If registration
@@ -722,7 +734,7 @@ range; if it suppresses such variation, the distribution should compress. We
 report the interquartile range (IQR), standard deviation, range, and normalized
 spread ratios relative to raw Chamfer in Table~\ref{tab:distance_compression}.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
 \small
 \caption{
@@ -744,7 +756,7 @@ NICP P2P & 0.0288 & 0.0044 & 0.0036 & 0.0344 & 0.219 & 0.216 \\
 NICP P2Tri & 0.0258 & 0.0048 & 0.0038 & 0.0360 & 0.236 & 0.232 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Registration substantially compresses inter-subject distances. Rigid ICP retains
 only 53.7\% of the raw Chamfer IQR, while NICP P2P retains only 21.9\% \todo{33.9\% under the corrected GT frame, see Limitations}. Thus,
@@ -752,12 +764,12 @@ subject pairs that should remain separated under the ground-truth ranking are
 mapped to a much narrower registered-distance range
 (Fig.~\ref{fig:registration_distance_compression}).
 
-\begin{figure}[!ht]
+\begin{figure*}[!ht]
     \centering
-    \includegraphics[width=0.9\linewidth]{imgs/raw_vs_registered_density_panels_shared_axes.png}
+    \includegraphics[width=0.85\textwidth]{imgs/raw_vs_registered_density_panels_shared_axes.png}
     \caption{Registration compresses the distance landscape. Each panel compares raw Chamfer distances with distances obtained after a registration-based pipeline on clean cross-topology mesh pairs. The diagonal indicates identity mapping, while the binned median shows that non-rigid ICP maps pairs with substantially different raw distances into a narrow registered-distance range.}
 \label{fig:registration_distance_compression}
-\end{figure}
+\end{figure*}
 
 This compression explains why stronger geometric fitting can reduce agreement with ground-truth identity rankings. Registration does not merely rescale distances; it reduces the dynamic range needed to distinguish subject pairs. The learned metric avoids this pair-specific fitting step by embedding all meshes into a shared space and comparing them with a single global distance function.
 
@@ -774,7 +786,7 @@ Appendix~\ref{app:faceverse_adaptation}.
 
 \begin{table}[!ht]
 \centering
-\small
+\footnotesize
 \caption{Zero-shot transfer on FaceScape is nontrivial in the within-topology full-neutral setting, insufficient in the harder cross-topology setting, and improves after few-shot target-domain adaptation.}
 \label{tab:faceverse_summary}
 \begin{tabular}{lccc}
@@ -795,13 +807,12 @@ Cross-topology zero-shot, clean & 0.115 & 0.598 & -0.483 \\
 \label{sec:extended_baselines}
 Table~\ref{tab:extended_baselines} compares the registration-free baselines of Sect.~\ref{sec:baseline_protocol} on the 100 held-out REMESH identities. The cross-topology column of Sect.~\ref{sec:xtopo_results} (no crop) is split into pairs that differ only in tessellation (12 ordered topology pairs) and pairs that involve the noisy variant (8). Varifold and currents are computed at full resolution with the measure normalized to unit mass in the max-abs frame, so that meshes with different areas are comparable.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
-\scriptsize
+\footnotesize
 \caption{Extended baselines on the held-out REMESH split: Spearman correlation ($\uparrow$) with $D_{\mathrm{GT}}$, 95\% subject-level bootstrap CIs in brackets. Bold: best non-control row per column. The bounding-box proxy (centre and diagonal of the per-mesh-normalized mesh) is a control, not a shape metric.}
 \label{tab:extended_baselines}
 \setlength{\tabcolsep}{3pt}
-\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Method & Same topology & Cross, no crop & Tessellation only & Perturbation only \\
@@ -818,8 +829,7 @@ BBox proxy (control) & 0.284 [0.194, 0.369] & 0.117 [0.076, 0.162] & 0.088 [0.05
 Learned metric & \todo{final model} & \todo{} & \todo{} & \todo{} \\
 \bottomrule
 \end{tabular}
-}
-\end{table}
+\end{table*}
 
 Chamfer remains the best baseline whenever topology changes: in the no-crop cross-topology column it reaches $0.469$, against $0.258$ for the unit-mass varifold and at most $0.218$ for every other baseline. The varifold overtakes Chamfer only when the change is purely one of tessellation ($0.496$ vs.\ $0.454$, with overlapping CIs), and falls to $0.307$ under perturbation. In the same-topology column the three geometric distances are statistically indistinguishable ($0.644$--$0.663$). The bounding-box control is informative for the perceptual baselines: in the no-crop cross-topology column and under perturbation, CLIP ($0.087$, $0.039$) and DINOv2 ($0.058$, $0.034$) do not exceed a proxy that sees only the position and size of the bounding box ($0.117$, $0.167$); they exceed it only in the tessellation-only column. Learned-metric row: \todo{held-out numbers of the final model, not yet decided}.
 
@@ -827,13 +837,12 @@ Chamfer remains the best baseline whenever topology changes: in the no-crop cros
 \label{sec:multiface_recon}
 We rank 3DDFA\_V2, SynergyNet and PRNet on 13 Multiface subjects (3,075 reconstructions per method) under three criteria (Sect.~\ref{sec:ref_sets}): similarity-ICP point-to-surface distance, Chamfer distance on a patch equal to the ground-truth one, and our latent distance. Table~\ref{tab:multiface_recon} reports the resulting rankings and the per-subject Kendall $\tau$ with subject-level bootstrap CIs.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
-\scriptsize
+\footnotesize
 \caption{Reconstruction methods on Multiface (13 subjects). (a) Per-criterion score (lower is better; mean over subjects of the per-subject median) and resulting order. (b) Per-subject Kendall $\tau$ between criteria, 95\% subject-level bootstrap CI. Under independent rankings $\tau$ has mean 0 and s.d.\ 0.177, and 16.7\% of subjects have identical order. Split-half reliability within a criterion: 0.86--0.98.}
 \label{tab:multiface_recon}
 \setlength{\tabcolsep}{3pt}
-\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccl}
 \toprule
 \multicolumn{5}{l}{\textbf{(a) Rankings}}\\
@@ -853,8 +862,7 @@ Chamfer (equal patch) vs.\ learned & \multicolumn{2}{c}{0.18 [$-$0.08, 0.44]} & 
 Chamfer (mm, ICP scale) vs.\ learned & \multicolumn{2}{c}{0.13 \todo{CI}} & \multicolumn{2}{c}{--} \\
 \bottomrule
 \end{tabular}
-}
-\end{table}
+\end{table*}
 
 At equal support and scale, the geometric criteria with and without ICP agree ($\tau=0.80$, identical order for 69\% of subjects): on real reconstructions, alignment does not change the ranking of the methods. The learned metric disagrees with all of them ($\tau=0.13$--$0.18$ against Chamfer, $-0.03$ against ICP, all within about one standard deviation, $0.177$, of chance), and this disagreement is reliable rather than noise (split-half reliability $0.92$ for the learned metric). It ranks PRNet last, where the geometric criteria rank SynergyNet last. Without an external identity reference we cannot say which ranking is right. We therefore report this as a negative result: Multiface does not support the claim that alignment distorts the ranking of reconstruction methods, which rests here on synthetic data and the crop control (Sect.~\ref{sec:ref_sets}), and it is a limit of our evidence on real scans. We do not test whether the disagreement stems from the encoder reading per-mesh-normalized, unclipped reconstructions. \todo{final tau table with CIs for all pairs exported to a result file}
 
@@ -862,7 +870,7 @@ At equal support and scale, the geometric criteria with and without ICP agree ($
 \label{sec:expressions}
 We test robustness to expression on the 100 held-out ICT identities, each with 5 random expression vectors per subject (3--8 active blendshapes out of 45, coefficients 0.3--1.0, gaze excluded), so that expressions perturb each identity differently. Spearman correlation is computed against the neutral $D_{\mathrm{GT}}$ with the area-normalized BFM-trained model (seed 1234); Table~\ref{tab:expressions} gives three regimes.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
 \centering
 \small
 \caption{Spearman correlation ($\uparrow$) with the neutral $D_{\mathrm{GT}}$ on 100 held-out ICT subjects, under per-subject random expressions (BFM-trained model, seed 1234). $\Delta$: change from the neutral-vs-neutral reference. 95\% subject-level bootstrap CIs.}
@@ -877,7 +885,7 @@ Expression vs.\ neutral & 0.784 [0.727, 0.831] & $-$0.056 & 0.914 [0.884, 0.938]
 Mixed expressions & 0.739 [0.680, 0.790] & $-$0.101 & 0.886 [0.846, 0.917] & $-$0.065 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 Expressions degrade the identity ranking for both distances, and the learned metric suffers more than Chamfer (mixed regime: $-0.101$ vs.\ $-0.065$; expression-vs-neutral: $-0.056$ vs.\ $-0.036$; point estimates, \todo{paired CI on the difference of drops}). This is expected: the model is trained on neutral BFM faces only. \todo{ICT-trained and joint models}
 
@@ -1011,7 +1019,7 @@ applications if misused. We therefore frame the release as a benchmark and
 metric-evaluation tool, report its domain limitations, and avoid redistributing
 licensed mesh assets directly.
 {\small
-\bibliographystyle{IEEEtran}
+\bibliographystyle{cvpr_kit/ieeenat_fullname}
 \bibliography{references,refs_cvpr_add}
 }
 
@@ -1137,14 +1145,17 @@ between $0.001$ and $0.03$.
 At the mesh level, we compare two valid mesh pairs $a$ and $b$ and enforce the
 ordering induced by their corresponding subject-level ground-truth distances:
 \begin{equation}
+\begin{split}
 \mathcal L^{\mathrm{mesh}}_{\mathrm{rank}}
-=
+={}&
 \mathbb E_{(a,b)}
-\left[
+\Big[
 \max
-\left(
+\Big(
 0,\;
-\gamma -
+\gamma
+\\
+&-
 \operatorname{sign}
 \left(
 D_{\mathrm{GT}}^a-D_{\mathrm{GT}}^b
@@ -1152,8 +1163,9 @@ D_{\mathrm{GT}}^a-D_{\mathrm{GT}}^b
 \left(
 d_z^a-d_z^b
 \right)
-\right)
-\right],
+\Big)
+\Big],
+\end{split}
 \end{equation}
 where $d_z^a$ and $d_z^b$ are the latent distances of the two mesh pairs. We
 ignore comparisons whose ground-truth distance difference is below $\tau=0.02$.
@@ -1488,7 +1500,7 @@ introduced.
 
 \begin{table}[h]
 \centering
-\small
+\footnotesize
 \caption{
 FaceScape full-neutral zero-shot evaluation. The REMESH-trained model transfers
 nontrivial identity-ranking structure, but Chamfer remains stronger in this
@@ -1522,7 +1534,7 @@ topology variation that is not present in the full-neutral setting.
 
 \begin{table}[h]
 \centering
-\small
+\footnotesize
 \caption{
 FaceScape cross-topology zero-shot evaluation. This setting exposes a strong
 domain shift for the REMESH-trained latent metric.
@@ -1558,7 +1570,7 @@ entries for fine-tuning and evaluates on 35 held-out subjects, 70 samples, and
 1,190 subject pairs. Table~\ref{tab:faceverse_75shot_app} reports the strongest
 stored held-out result from this branch.
 
-\begin{table}[h]
+\begin{table*}[h]
 \centering
 \small
 \caption{
@@ -1574,7 +1586,7 @@ clean & 0.537433 & 0.403222 & +0.134211 \\
 translation $\sigma=0.10$ & 0.485680 & 0.416691 & +0.068990 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 After few-shot target-domain adaptation, the learned metric becomes stronger than
 Chamfer in the held-out FaceScape cross-topology setting. In the clean case, it
@@ -1600,7 +1612,7 @@ protocol. The evaluation uses 100 held-out REMESH identities, 600 meshes, and
 checkpoint, we only recompute the latent metric and compare it against the
 pre-fine-tuning REMESH model.
 
-\begin{table}[h]
+\begin{table*}[h]
 \centering
 \small
 \caption{
@@ -1620,7 +1632,7 @@ FaceScape shot75 clean-biased & 0.595 & 0.637 & -0.128 \\
 FaceScape shot75 mixed-augmentation & 0.519 & 0.587 & -0.177 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 The results show clear source-domain forgetting. The clean-biased FaceScape
 checkpoint drops from $0.764$ to $0.637$ mean topology-pair Spearman, while the
@@ -1716,8 +1728,5 @@ model. These results motivate future adaptation strategies that explicitly
 control forgetting, such as mixed REMESH--FaceScape rehearsal, distillation from
 the REMESH checkpoint, partial freezing of the encoder, or multi-domain training.
 
-\FloatBarrier
-\newpage
-\input{checklist.tex}
-
+% Formato CVPR: niente checklist NeurIPS (era \input{checklist.tex}).
 \end{document}
