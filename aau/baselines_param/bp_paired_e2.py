@@ -219,6 +219,41 @@ def gt_controls() -> dict:
     return out
 
 
+def crop_shift() -> dict:
+    """Diagnostica aggiunta DOPO i numeri di all_cross (non prevista dal protocollo): quanto il crop sposta gli
+    embedding dei bracci rispetto alle 5 topologie senza crop dello stesso soggetto. factorized: spostamento medio di
+    log S (crop - media delle senza crop) contro la deviazione standard fra soggetti di log S medio; per tutti:
+    distanza media crop -> senza crop dello stesso soggetto, fra senza crop dello stesso soggetto, e mediana fra
+    soggetti diversi (original), nella distanza del braccio (d_P = ||u||, ctrlfr ||z||; unita' dell'embedding)."""
+    out = {}
+    nocrop = [t for t in blmm.TOPOLOGIES if t != "crop"]
+    for view in bp.CROP_VIEWS:
+        out[view] = {}
+        for pre, v, e in fp.MODELS:
+            if pre not in ("factorized_s1234", "factorized_s2345", "ctrlfr_s1234", "ctrlfr_s2345"):
+                continue
+            path = fp.embeddings(fp.VIEWS[view][0], v, e)
+            with np.load(path, allow_pickle=True) as z:
+                Z = np.asarray(z["Z"], np.float64)
+                pos = {(str(a), str(b)): k for k, (a, b) in enumerate(zip(z["subjects"], z["topologies"]))}
+            subj = sorted({a for a, _ in pos})
+            X = Z[:, 1:] if pre.startswith("factorized") else Z
+            same_c = [np.linalg.norm(X[pos[(s, "crop")]] - X[pos[(s, t)]]) for s in subj for t in nocrop]
+            same_n = [np.linalg.norm(X[pos[(s, a)]] - X[pos[(s, b)]]) for s in subj
+                      for k, a in enumerate(nocrop) for b in nocrop[k + 1:]]
+            O = X[[pos[(s, "original")] for s in subj]]
+            diff = np.linalg.norm(O[:, None] - O[None], axis=-1)[np.triu_indices(len(subj), 1)]
+            r = {"same_subject_crop_vs_nocrop": float(np.mean(same_c)), "same_subject_nocrop": float(np.mean(same_n)),
+                 "different_subjects_original_median": float(np.median(diff))}
+            if pre.startswith("factorized"):
+                ls = np.asarray([[Z[pos[(s, t)], 0] for t in nocrop] for s in subj]).mean(1)
+                lc = np.asarray([Z[pos[(s, "crop")], 0] for s in subj])
+                r.update(dlogS_crop_mean=float((lc - ls).mean()), dlogS_crop_sd=float((lc - ls).std()),
+                         logS_sd_between_subjects=float(ls.std()))
+            out[view][pre] = r
+    return out
+
+
 def controls_e1_rows(P: pd.DataFrame) -> dict:
     """Controllo 3: le righe di ``paired_e1.csv`` (bracci, colonne originali e dell'emendamento 1) ridate."""
     ref = pd.read_csv(OUT / "paired_e1.csv")
@@ -423,8 +458,21 @@ def results_e2() -> list:
                     S, k = z["surf_vb"], np.nanmedian(z["vb_kept"], axis=0)
                     md.append(f"| {v} | {m} | {len(S)} | {len(z['failed_vb'])} | {np.nanmedian(S[:, 0]):.2f} | "
                               f"{np.nanmedian(S[:, 1]):.2f} | {np.nanmax(S[:, 1]):.2f} | {k[0]:.2f} / {k[1]:.2f} |")
+    if "crop_shift" in c:
+        md += ["", "## Diagnostica del crop sui bracci (aggiunta dopo i numeri, non nel protocollo)", "",
+               "Spostamento di log S dei fattorizzati (crop - media delle 5 topologie senza crop, stesso soggetto) e "
+               "distanze nell'embedding del braccio (d_P = ||u|| per factorized, ||z|| per ctrlfr): crop -> senza crop "
+               "dello stesso soggetto, fra senza crop dello stesso soggetto, mediana fra soggetti diversi.", "",
+               "| vista | braccio | d log S crop (media, sd) | sd di log S fra soggetti | stesso sogg. crop | stesso sogg. "
+               "senza crop | soggetti diversi |", "| --- | --- | --- | --- | --- | --- | --- |"]
+        for v, arms in c["crop_shift"].items():
+            for a, r in arms.items():
+                ds = (f"{r['dlogS_crop_mean']:+.4f} ({r['dlogS_crop_sd']:.4f})" if "dlogS_crop_mean" in r else "-")
+                sd = f"{r['logS_sd_between_subjects']:.4f}" if "logS_sd_between_subjects" in r else "-"
+                md.append(f"| {v} | {a} | {ds} | {sd} | {r['same_subject_crop_vs_nocrop']:.3f} | "
+                          f"{r['same_subject_nocrop']:.3f} | {r['different_subjects_original_median']:.3f} |")
     md += ["", "## Costi misurati (sez. 3)", ""] + cost_tables()
-    md += ["", "## Controlli dell'emendamento 2", "", "```", json.dumps({k: v for k, v in c.items() if k != "frozen"},
+    md += ["", "## Controlli dell'emendamento 2", "", "```", json.dumps({k: v for k, v in c.items() if k not in ("frozen", "crop_shift")},
                                                                        indent=1), "```", ""]
     return md + body
 
@@ -471,6 +519,9 @@ def main() -> None:
                 "gt": gt_controls(), "info": info, "sens_columns": sens}
         (OUT / "controls_e2.json").write_text(json.dumps(ctrl, indent=1, default=str) + "\n")
         print(json.dumps({k: ctrl[k] for k in ("paired_e1_rows", "gt")}, indent=1), flush=True)
+    ctrl = json.loads((OUT / "controls_e2.json").read_text())
+    ctrl["crop_shift"] = crop_shift()
+    (OUT / "controls_e2.json").write_text(json.dumps(ctrl, indent=1, default=str) + "\n")
     bpp.write_results(pd.read_csv(OUT / "paired.csv"), *json.loads((OUT / "controls.json").read_text()).values())
 
 
