@@ -59,8 +59,10 @@ per mesh, sotto la soglia delle 2 ore).
   del protocollo aderiva male alla superficie; B corregge.
 - **Variante A (senza espressione sulle viste neutre)**: nessuna cella cambia segno. A favore del braccio, su 24 (4
   bracci x 6 colonne): HIFI3D FR 24, SR 20; FaceScape FR 24, SR 22; FaceVerse con espressioni FR 9, SR 17; FaceVerse
-  neutra FR 19, SR 22; FaMoS FR 10, SR 9; nessuna sotto 0. Spearman quasi invariati (es. HIFI3D FR GNM coefficienti
-  0.619 -> 0.603, FLAME mesh FR 0.639 -> 0.641). Togliere l'espressione aumenta |beta| (GNM su HIFI3D da 4.6 a 7.0 di
+  neutra FR 19, SR 22; FaMoS FR 10, SR 9; nessuna sotto 0. Con le letture corrispondenti (coefficienti, `_fr` con FR,
+  `_sr` con SR) gli Spearman cambiano al piu' di 0.04 (es. HIFI3D FR GNM coefficienti 0.619 -> 0.603, FLAME mesh FR
+  0.639 -> 0.641), tranne FaMoS GNM mesh SR con SR (0.547 -> 0.439, 15 soggetti); la lettura non corrispondente mesh
+  SR con FR cala di piu' (HIFI3D GNM 0.482 -> 0.291). Togliere l'espressione aumenta |beta| (GNM su HIFI3D da 4.6 a 7.0 di
   mediana: l'espressione assorbiva identita', come detto dal critic) ma non cambia il ranking.
 - **Variante B (modello nel ciclo): 21 celle dichiarate su 240 passano a IC sotto 0** (concorrente davanti al
   braccio). A favore / contro / non risolte, su 24 per dominio e GT: HIFI3D FR 24 / 0 / 0, SR 8 / 8 / 8; FaceScape FR
