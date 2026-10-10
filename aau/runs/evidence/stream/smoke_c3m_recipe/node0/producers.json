@@ -1,0 +1,69 @@
+{
+ "n_proc": 24,
+ "k_eig": 128,
+ "evecs_dtype": "fp32",
+ "alpha": 0.0,
+ "probs": {
+  "bfm2019": 0.3333333333333333,
+  "gnm": 0.3333333333333333,
+  "ict": 0.3333333333333333
+ },
+ "views_per_group": 6,
+ "elapsed_s": 346.9341051578522,
+ "views": 2074,
+ "views_per_s_wall": 5.978080474551059,
+ "views_steady": 1786,
+ "views_per_s_steady": 6.072701092577378,
+ "groups": 344,
+ "shards_written": 172,
+ "bytes_written": 15342478028,
+ "mean_verts_per_view": 10341.644165863067,
+ "bytes_per_view": 7397530.389585342,
+ "failures": 0,
+ "expr_fraction": 0.15139826422372227,
+ "expr_fraction_by_domain": {
+  "gnm": 0.20572916666666666,
+  "bfm2019": 0.0,
+  "ict": 0.23636363636363636
+ },
+ "views_by_origin": {
+  "pure": 2070
+ },
+ "mm_aug": {},
+ "canonical_gt": true,
+ "expr_frac": {
+  "bfm2019": 0.0,
+  "ict": 0.2315,
+  "gnm": 0.1968
+ },
+ "p_expr": 0.6,
+ "label_draw": "perm",
+ "last_failure": "",
+ "cpu_s_per_view": {
+  "ident": 0.002632690001756901,
+  "mesh": 0.010189875419248927,
+  "gen": 0.39784174009492096,
+  "ops": 3.0815567968412334,
+  "pack": 0.036325682116503555,
+  "write": 0.009942545439004396
+ },
+ "views_by_domain": {
+  "gnm": 768,
+  "bfm2019": 642,
+  "ict": 660
+ },
+ "views_by_label": {
+  "remesh": 345,
+  "noisy": 346,
+  "down8k": 345,
+  "original": 346,
+  "up60k": 346,
+  "crop": 346
+ },
+ "ring": {
+  "shards": 172,
+  "gib": 14.28879613801837,
+  "seq_min": 0,
+  "seq_max": 171
+ }
+}

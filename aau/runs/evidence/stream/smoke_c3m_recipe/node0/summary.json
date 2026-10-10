@@ -1,0 +1,223 @@
+{
+ "dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/smoke_c3m_recipe/node0",
+ "steps": 500,
+ "s_per_step_by_epoch": [
+  0.447,
+  0.435,
+  0.436,
+  0.437,
+  0.437
+ ],
+ "loss_by_epoch": [
+  0.1114,
+  0.0897,
+  0.08,
+  0.0709,
+  0.065
+ ],
+ "lr_by_epoch": [
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001,
+  0.0001
+ ],
+ "loss_finite": true,
+ "meshes_per_step": 30,
+ "meshes_per_s_consumed": [
+  67.11409395973155,
+  68.96551724137932,
+  68.80733944954129,
+  68.64988558352402,
+  68.64988558352402
+ ],
+ "stream_by_epoch": [
+  {
+   "epoch": 1,
+   "seq_used": [
+    0,
+    70
+   ],
+   "uses": 3000,
+   "unique_views": 432,
+   "reuse_epoch": 6.944444444444445,
+   "reuse_cumulative": 6.944444444444445,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 213,
+   "wait_ms_per_step": 0.031414031982421875,
+   "serve_ms_per_step": 0.3890263754874468,
+   "plan_ms_per_step": 1.5091629885137081,
+   "mean_age_s": 35.99902682971954,
+   "pool_groups": 72,
+   "meshes_per_s_rank0": 67.06206898242499,
+   "batches_mixed": 0,
+   "batches_mixed_sources": 0
+  },
+  {
+   "epoch": 2,
+   "seq_used": [
+    0,
+    94
+   ],
+   "uses": 3000,
+   "unique_views": 144,
+   "reuse_epoch": 20.833333333333332,
+   "reuse_cumulative": 10.416666666666666,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 403,
+   "wait_ms_per_step": 0.044841766357421875,
+   "serve_ms_per_step": 0.6335754552856088,
+   "plan_ms_per_step": 1.4767610561102629,
+   "mean_age_s": 41.57601524066925,
+   "pool_groups": 96,
+   "meshes_per_s_rank0": 68.90350597486778,
+   "batches_mixed": 0,
+   "batches_mixed_sources": 0
+  },
+  {
+   "epoch": 3,
+   "seq_used": [
+    0,
+    118
+   ],
+   "uses": 3000,
+   "unique_views": 144,
+   "reuse_epoch": 20.833333333333332,
+   "reuse_cumulative": 12.5,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 404,
+   "wait_ms_per_step": 0.05770683288574219,
+   "serve_ms_per_step": 0.48486312851309776,
+   "plan_ms_per_step": 1.4370173588395119,
+   "mean_age_s": 43.214442500591275,
+   "pool_groups": 120,
+   "meshes_per_s_rank0": 69.02796020588985,
+   "batches_mixed": 0,
+   "batches_mixed_sources": 0
+  },
+  {
+   "epoch": 4,
+   "seq_used": [
+    0,
+    142
+   ],
+   "uses": 3000,
+   "unique_views": 144,
+   "reuse_epoch": 20.833333333333332,
+   "reuse_cumulative": 13.88888888888889,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 404,
+   "wait_ms_per_step": 0.07008790969848633,
+   "serve_ms_per_step": 0.5718986364081502,
+   "plan_ms_per_step": 2.1031713811680675,
+   "mean_age_s": 43.66451443874836,
+   "pool_groups": 144,
+   "meshes_per_s_rank0": 68.64766568044219,
+   "batches_mixed": 0,
+   "batches_mixed_sources": 0
+  },
+  {
+   "epoch": 5,
+   "seq_used": [
+    0,
+    166
+   ],
+   "uses": 3000,
+   "unique_views": 144,
+   "reuse_epoch": 20.833333333333332,
+   "reuse_cumulative": 14.880952380952381,
+   "views_evicted_unused": 0,
+   "over_reuse_groups": 404,
+   "wait_ms_per_step": 0.08409738540649414,
+   "serve_ms_per_step": 0.6225040880963206,
+   "plan_ms_per_step": 1.6556006064638495,
+   "mean_age_s": 44.48085924606323,
+   "pool_groups": 168,
+   "meshes_per_s_rank0": 68.67525874770394,
+   "batches_mixed": 0,
+   "batches_mixed_sources": 0
+  }
+ ],
+ "reuse": {
+  "cap_soft": 4.0,
+  "cumulative": 14.880952380952381,
+  "steady_last_epochs": 20.833333333333332,
+  "window_epochs": 3,
+  "over_reuse_groups": 1828
+ },
+ "by_domain_uses": {
+  "bfm2019": 5100,
+  "gnm": 4950,
+  "ict": 4950
+ },
+ "batches_by_domain": {
+  "bfm2019": 170,
+  "gnm": 165,
+  "ict": 165
+ },
+ "batches_by_sources": {
+  "bfm2019": 170,
+  "gnm": 165,
+  "ict": 165
+ },
+ "by_label_uses": {
+  "remesh": 2162,
+  "down8k": 2181,
+  "up60k": 2133,
+  "original": 2086,
+  "noisy": 2117,
+  "crop": 2161,
+  "up60k+x": 367,
+  "original+x": 414,
+  "crop+x": 339,
+  "down8k+x": 319,
+  "remesh+x": 338,
+  "noisy+x": 383
+ },
+ "producers": {
+  "n_proc": 24,
+  "k_eig": 128,
+  "evecs_dtype": "fp32",
+  "views_per_s_steady": 6.072701092577378,
+  "views_per_s_wall": 5.978080474551059,
+  "views": 2074,
+  "bytes_per_view": 7397530.389585342,
+  "mean_verts_per_view": 10341.644165863067,
+  "failures": 0,
+  "views_by_domain": {
+   "gnm": 768,
+   "bfm2019": 642,
+   "ict": 660
+  },
+  "views_by_label": {
+   "remesh": 345,
+   "noisy": 346,
+   "down8k": 345,
+   "original": 346,
+   "up60k": 346,
+   "crop": 346
+  },
+  "expr_frac": {
+   "bfm2019": 0.0,
+   "ict": 0.2315,
+   "gnm": 0.1968
+  },
+  "expr_fraction": 0.15139826422372227,
+  "expr_fraction_by_domain": {
+   "gnm": 0.20572916666666666,
+   "bfm2019": 0.0,
+   "ict": 0.23636363636363636
+  },
+  "label_draw": "perm",
+  "mm_aug": {},
+  "views_by_origin": {
+   "pure": 2070
+  }
+ },
+ "gpu_util_mean_while_training": 76.09183673469387,
+ "gpu_samples": 98,
+ "mem_peak_gib": {
+  "cgroup_job": 35.13727951049805,
+  "ring_tmp": 13.965477555058897
+ }
+}
