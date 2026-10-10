@@ -152,3 +152,13 @@ Il braccio della prima versione (GT shape mia, confronto `robal`) resta in `trai
   (CV sezione 5), quindi il segnale di taglia viene da ICT e GNM.
 - Solo `--forward sequential` con la testa fattorizzata (packed e groups chiamano pool_proj).
 - Lo stream (`v3_work/stream/`) non e' toccato: il training massivo a streaming non ha ancora l'ingresso globale.
+
+## 7. Testa doppia (`--head dual`), preparata, NON lanciata in un run lungo
+
+`factorized_v3.DualEncoderV3`: backbone comune, z_F (`pool_proj`, loss v2 su GT-FR di `--dist_npz`, come ctrlfr) e u
+(`pool_proj_u`, loss v2 su GT-SR di `--dist-npz-shape` x `--gt-scale-shape`, come factorized), loss
+`--lambda-form` L(z_F) + `--lambda-shape` L(u); eval online su z_F; in eval `WBES_V3_FACTORIZED_OUT` = zf | u | full.
+Test (`tests/test_factorized.py`, `factorized/units_dual.json`): encoder e pool_proj identici a EncoderV3 allo stesso
+seme, uscite 512/256/256, gradiente su entrambe le proiezioni. Run breve di stabilita' (`slurm/dual_short.sbatch`, job
+1066211, dati di prova, 1.000 passi, pesi 1/1, ricetta dei bracci FR): rc 0, nessun NaN; loss di z_F 0.076 -> 0.013,
+loss di u 0.089 -> 0.016; Spearman online (z_F contro FR) 0.65-0.68.
