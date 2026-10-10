@@ -304,6 +304,22 @@ def explore_section(P: list, cal: dict, kbl: dict) -> list[str]:
     return md
 
 
+def intro(P: list) -> list[str]:
+    """Titolo e paragrafo iniziale di factorized_results.md; P = righe di factorized_paired.csv."""
+    # semi delle repliche di fact_paired (quelli di blmm_eval per dominio), dalla colonna seed
+    pseeds = ", ".join(f"{d} {s}" for d, s in dict.fromkeys((r["domain"], r["seed"]) for r in P))
+    return ["# Risultati di factorized_protocol.md (emendamenti 1-5)", "",
+           "Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche): "
+           "seme 1234 per graduata e rank-1 calcolate qui; delta appaiati (anche nel verdetto), analisi della taglia, "
+           "regola dual ed esplorativa usano righe e repliche di `fact_paired.py`, con il seme di "
+           f"`aau/baselines_mm/blmm_eval.py` per dominio ({pseeds or 'in attesa'}; colonna `seed` di "
+           "`factorized_paired.csv`). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), "
+           "calcolata dagli embedding. Distanze del modello: d_F grezza (`form`), d_F calibrata (`form_cal`, c primaria "
+           "dell'emendamento 4; `form_cal_ls` con c dei minimi quadrati) e d_P (`shape`) per factorized/factorized2/C3M, "
+           "||z|| per ctrlfr, ||z_F|| (FR) e ||u|| (SR) per dual. C3M (factorized sul run su scala, un seme) e' "
+           "descrittivo, fuori dalle regole.", ""]
+
+
 def main() -> None:
     rows, missing, famos_ch = [], [], {}
     cal = fact_calib.load()
@@ -348,13 +364,7 @@ def main() -> None:
     bl = baselines()
     pp = EV / "factorized_paired.csv"
     P = list(csv.DictReader(open(pp))) if pp.exists() else []
-    md = ["# Risultati di factorized_protocol.md (emendamenti 1-5)", "",
-          "Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche, "
-          "seme 1234). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), "
-          "calcolata dagli embedding. Distanze del modello: d_F grezza (`form`), d_F calibrata (`form_cal`, c primaria "
-          "dell'emendamento 4; `form_cal_ls` con c dei minimi quadrati) e d_P (`shape`) per factorized/factorized2/C3M, "
-          "||z|| per ctrlfr, ||z_F|| (FR) e ||u|| (SR) per dual. C3M (factorized sul run su scala, un seme) e' "
-          "descrittivo, fuori dalle regole.", ""]
+    md = intro(P)
     last = [r for r in rows if r["steps"] == 21096]
     c3m = [r for r in rows if r["arm"] == "factorizedc3m"]
 

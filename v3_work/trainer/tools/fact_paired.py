@@ -356,13 +356,31 @@ def summarize(V: dict, view: str, M: list, bl: list, n_rows: int, seed: int) -> 
     return recs
 
 
+def dual_dpu(ckpt: Path) -> float:
+    """dp_per_unit di u per dual (eval_factorized.dp_from_ckpt, copiata): GT shape di --dist-npz-shape x
+    --gt-scale-shape."""
+    import torch
+    args = torch.load(ckpt, map_location="cpu", weights_only=False)["args"]
+    side = json.loads(Path(args["dist_npz_shape"]).with_suffix(".json").read_text())
+    return float(side.get("dp_per_unit", side.get("dP_per_unit"))) / float(args.get("gt_scale_shape", 1.0))
+
+
 def test_scale(view: str, cols: dict, mask: np.ndarray, M: list) -> list[dict]:
     """Emendamento 5, sez. 3 (iii): c e k "ideali" sul test, mediana(d_P GT) / mediana(d_P del metodo) sulle righe
-    della maschera (d_P GT = GT-SR x dP_per_unit del suo json). Informazione, non parametro."""
+    della maschera (d_P GT = GT-SR x dP_per_unit del suo json; d_P di dual = ||u|| x dual_dpu, come c in
+    fact_calib.calib_one). Informazione, non parametro."""
     dpu = float(json.loads((be.EVAL_GT / f"{be.GT_SET[view]}_sr.json").read_text())["dP_per_unit"])
     t = np.median(cols["gt_sr"][mask] * dpu)
     cs_ref = blmm.params()["domains"][blmm.VIEWS[view]["domain"]]["cs_ref"]
-    dp = {m.replace("|", " "): cols[m][mask] for m in M if m.endswith("|shape") or m.endswith("|u")}
+    emb = {pre: embeddings(VIEWS[view][0], v, e) for pre, v, e in MODELS}
+    dp = {}
+    for m in M:
+        pre, _, d = m.partition("|")
+        if d == "shape":
+            dp[f"{pre} {d}"] = cols[m][mask]
+        elif d == "u":
+            with np.load(emb[pre], allow_pickle=True) as z:
+                dp[f"{pre} {d}"] = cols[m][mask] * dual_dpu(Path(str(z["checkpoint"])))
     dp.update({b: cols[b][mask] / cs_ref for b in ("cs_rigid_icp_chamfer", "cs_nicp_p2tri") if b in cols})
     return [{"domain": view, "method": k, "median_dP_gt": float(t), "median_dP_method": float(np.median(v)),
              "scale_test": float(t / np.median(v)), "n_rows": int(mask.sum())} for k, v in dp.items()]

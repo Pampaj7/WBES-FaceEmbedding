@@ -1,6 +1,6 @@
 # Risultati di factorized_protocol.md (emendamenti 1-5)
 
-Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche, seme 1234). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), calcolata dagli embedding. Distanze del modello: d_F grezza (`form`), d_F calibrata (`form_cal`, c primaria dell'emendamento 4; `form_cal_ls` con c dei minimi quadrati) e d_P (`shape`) per factorized/factorized2/C3M, ||z|| per ctrlfr, ||z_F|| (FR) e ||u|| (SR) per dual. C3M (factorized sul run su scala, un seme) e' descrittivo, fuori dalle regole.
+Generato da `v3_work/trainer/tools/fact_summary.py`. Pesi EMA. IC 95% bootstrap per soggetto (1000 repliche): seme 1234 per graduata e rank-1 calcolate qui; delta appaiati (anche nel verdetto), analisi della taglia, regola dual ed esplorativa usano righe e repliche di `fact_paired.py`, con il seme di `aau/baselines_mm/blmm_eval.py` per dominio (hifi3d 990708, faceverse 271049, facescape 796786, famos 1234; colonna `seed` di `factorized_paired.csv`). Graduata: livello coppia di mesh, senza crop, topologie diverse (il `nocrop_cross` di E12), calcolata dagli embedding. Distanze del modello: d_F grezza (`form`), d_F calibrata (`form_cal`, c primaria dell'emendamento 4; `form_cal_ls` con c dei minimi quadrati) e d_P (`shape`) per factorized/factorized2/C3M, ||z|| per ctrlfr, ||z_F|| (FR) e ||u|| (SR) per dual. C3M (factorized sul run su scala, un seme) e' descrittivo, fuori dalle regole.
 
 ## Calibrazione della scala di d_P (emendamento 4, sez. 1)
 
@@ -686,8 +686,8 @@ Scala "ideale" sul test = mediana(d_P GT) / mediana(d_P del metodo) sulle righe 
 | factorized_s2345 shape | 0.405 | 0.507 | 1.25 | 0.352 | 0.87 |
 | factorized2_s1234 shape | 0.331 | 0.403 | 1.22 | 0.262 | 0.79 |
 | factorized2_s2345 shape | 0.305 | 0.388 | 1.27 | 0.259 | 0.85 |
-| dual_s1234 u | 0.307 | 0.095 | 0.31 | 0.063 | 0.21 |
-| dual_s2345 u | 0.278 | 0.084 | 0.30 | 0.057 | 0.21 |
+| dual_s1234 u | 0.307 | 0.389 | 1.27 | 0.259 | 0.84 |
+| dual_s2345 u | 0.278 | 0.342 | 1.23 | 0.234 | 0.84 |
 | factorizedc3m_e123 shape | 0.257 | 0.319 | 1.24 | 0.208 | 0.81 |
 | factorizedc3m_e205 shape | 0.225 | 0.280 | 1.25 | 0.180 | 0.80 |
 | cs_rigid_icp_chamfer | 1.708 | 2.130 | 1.25 | 1.488 | 0.87 |
