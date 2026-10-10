@@ -21,7 +21,13 @@
 
 \title{When Alignment Hurts: A Controlled Benchmark for Ranking-Preserving 3D Face Metrics}
 % TODO titolo (11 ott): la tesi non e' piu' "l'allineamento peggiora e la metrica appresa vince";
-% e' forma+taglia senza registrazione, robusta alla discretizzazione. Titolo da rivedere con l'utente.
+% e' forma+taglia senza registrazione, senza crop, dove la taglia varia (HIFI3D). Titolo da rivedere CON L'UTENTE
+% (il critic chiede di non cambiarlo qui). Lettura che i numeri reggono: "When Alignment Hurts" vale solo in dominio
+% (REMESH, GT maxabs). Sulle famiglie tenute fuori, con FR in mm, l'allineamento rigido (l'invarianza minima) AIUTA:
+% Chamfer in mm -> ICP rigido + Chamfer in mm, HIFI3D 0.411 -> 0.643, FaceScape 0.211 -> 0.467, FaceVerse con
+% espressioni 0.281 -> 0.337 (aau/runs/evidence/baselines_mm/spearman.csv, gruppi senza crop). Cio' che toglie piu' del necessario peggiora la
+% FORMA: togliere la scala (ICP cs) su HIFI3D 0.643 -> 0.359; NICP per coppia sotto l'ICP rigido in mm sui tre domini
+% (0.495, 0.374, 0.201). NICP su template non e' sempre sotto (FaceScape 0.544). Delta appaiati fra pipeline: mancano.
 
 % For double-blind submission, the NeurIPS style handles anonymization.
 % Replace with real authors only for camera-ready or nonanonymous submission.
@@ -38,10 +44,12 @@
 \begin{abstract}
 % fonti dei numeri: aau/runs/evidence/baselines_param/results.md (hifi3d nocrop_cross, emendamento 1,
 % composizione dell'emendamento 2), aau/runs/evidence/trainer_v3/factorized_results.md (delta appaiati GT FR),
-% aau/runs/evidence/baselines_param/conclusions.md (costi, FaceScape, crop).
-% TODO run massivo: i numeri dell'abstract sono quelli di factorized s1234 (C3F, 21.096 passi); vanno sostituiti
-% con il modello finale, con la sua c ricalibrata.
-Comparing 3D faces that come from different templates, resolutions and pipelines is usually done by aligning each pair and measuring a geometric error. We revisit this practice as a metric meta-evaluation problem and first make the reference explicit: a \emph{form} reference, which keeps facial size and removes pose with one rigid fit per identity (never per pair), and a \emph{shape} reference, which also removes size. Against these references we evaluate a registration-free mesh encoder whose embedding factorizes into a log-size and a shape code; the two are combined by the size-and-shape decomposition of geometric morphometrics, with a single scale constant calibrated on synthetic held-out data. The encoder is trained only on samples of three synthetic morphable models and evaluated zero-shot on held-out face families, always on pairs of meshes with different topologies. On HIFI3D, where facial size varies, the calibrated form distance reaches a Spearman correlation of $0.749$ [$0.673$, $0.806$] with the form reference, above rigid ICP + Chamfer in millimetres ($+0.106$ [$+0.062$, $+0.154$]) and above fits of two 3DMMs (GNM Head and FLAME 2023 Open), including a stronger model-in-the-loop fit; it is never below a size-plus-shape composition of the fitted models. The advantage comes from combining size and shape where size varies, not from shape alone: against an oracle size scalar the difference is not resolved, and where size barely varies (FaceScape) a model-in-the-loop 3DMM fit ranks shape better than our encoder. Enrolling a mesh costs a few seconds on CPU, comparable to a 3DMM fit. The embedding is robust to remeshing, decimation, noise and upsampling, but not to boundary crops, a limitation we report in full.
+% aau/runs/evidence/baselines_param/conclusions.md (costi, FaceScape, crop); calibrazione POST HOC:
+% aau/runs/evidence/trainer_v3/factorized_protocol_emendamento_4.md (r. 1-12); d_F non calibrata (preregistrata) contro
+% ICP + Chamfer in mm: factorized_results.md, "GT FR", riga form.
+% TODO run massivo: i numeri dell'abstract sono quelli di factorized (C3F, 21.096 passi, semi 1234 e 2345); vanno
+% sostituiti con il modello finale, con la sua c ricalibrata.
+Comparing 3D faces that come from different templates, resolutions and pipelines is usually done by aligning each pair and measuring a geometric error. We revisit this practice as a metric meta-evaluation problem and first make the reference explicit: a \emph{form} reference, which keeps facial size and removes pose with one rigid fit per identity (never per pair), and a \emph{shape} reference, which also removes size. Against these references we evaluate a registration-free mesh encoder whose embedding factorizes into a log-size and a shape code; the two are combined by the size-and-shape decomposition of geometric morphometrics, with a single scale constant calibrated on synthetic held-out data. The encoder is trained only on samples of three synthetic morphable models and evaluated zero-shot on held-out face families, always on pairs of meshes with different topologies. On HIFI3D, where facial size varies, and without boundary crops, the calibrated form distance reaches a Spearman correlation of $0.749$ [$0.673$, $0.806$] with the form reference (training seed 1234; $0.731$ with seed 2345), above rigid ICP + Chamfer in millimetres ($+0.106$ [$+0.062$, $+0.154$]) and above fits of two 3DMMs (GNM Head and FLAME 2023 Open), including a stronger model-in-the-loop fit; without crops it is never below a size-plus-shape composition of the fitted models. The calibration, however, is a post-hoc amendment, added after the uncalibrated results were known: the pre-registered, uncalibrated distance scores $0.642$ and is only level with rigid ICP + Chamfer in millimetres ($-0.001$ [$-0.055$, $+0.055$]). The advantage comes from combining size and shape where size varies, not from shape alone: against an oracle size scalar the difference is not resolved, and where size barely varies (FaceScape) a model-in-the-loop 3DMM fit ranks both shape and form better than our encoder. Enrolling a mesh costs a few seconds, dominated by a Laplacian eigendecomposition on CPU (the network itself runs in milliseconds on a GPU), comparable to a 3DMM fit. The encoder is not robust to boundary crops: with them its advantage over the fits does not hold, a limitation we report in full.
 
 % SMENTITO (11 ott): l'abstract qui sotto (versione NeurIPS) dice che la metrica appresa "consistently preserves
 % ground-truth rankings better than standard pipelines". Vale solo in dominio (REMESH, GT maxabs). Fuori dominio, con
@@ -62,6 +70,7 @@ Comparing 3D faces that come from different templates, resolutions and pipelines
 \end{abstract}
 
 \section{Introduction}
+\label{sec:intro}
 Reconstructing 3D faces from single or multiple images is a long-standing problem in computer vision. Recent methods can produce increasingly realistic and detailed facial geometry, even under challenging imaging conditions~\cite{3ddfav2, 3di, deca, deep3d, mica, synergynet, emoca, inorig}. However, as these methods become more diverse in template, topology, resolution, and preprocessing, one key question becomes more critical: \emph{how should we measure reconstruction quality when predicted meshes are not directly comparable?}
 %Reconstructing 3D faces from single or multiple images is a long-standing problem in computer vision, with recent methods producing increasingly plausible and detailed facial geometry across challenging imaging conditions~\cite{3ddfav2, 3di, deca, deep3d, mica, synergynet, emoca, inorig}. As reconstruction methods become more diverse in template, topology, resolution, and preprocessing, however, a basic question becomes increasingly important: \emph{how should reconstruction quality be measured when predicted meshes are not directly comparable?}
 
@@ -74,7 +83,7 @@ This distinction is important because the true geometric error between two arbit
 Measuring this distortion requires a reference that does not itself discard identity. The reference of the original version of this work normalizes every mesh by its own maximum coordinate, which removes facial size; under a size-preserving reference the ranking of methods changes. % fonte: aau/runs/evidence/e12/summary.md, sez. 5 (22 metodi su HIFI3D, ordine ribaltato fra maxabs e FR)
  We therefore define two references with one rigid fit per identity, never per pair (Sect.~\ref{sec:form_shape_reference}): a \emph{form} reference (FR) for metric data, which keeps size, and a \emph{shape} reference (SR), which removes it. We then ask a narrower question than the original submission: can a registration-free encoder, which embeds each mesh once, rank identities by form and by shape across changes of discretization, on face families it has never seen, as well as pairwise registration and 3DMM fitting do?
 
-Our answer is mixed, and we report it as such. An encoder whose embedding factorizes into a log-size and a shape code, combined by the size-and-shape decomposition with one scale calibrated on synthetic held-out data (Sect.~\ref{sec:factorized_head}), ranks HIFI3D identities by form better than rigid ICP + Chamfer in millimetres, non-rigid registration to a template, and fits of two 3DMMs, including a model-in-the-loop fit (Sects.~\ref{sec:factorized_results} and~\ref{sec:param_competitors}). It does not resolve a difference against an oracle size scalar, so its advantage is to combine size and shape without registration, not to see shape beyond size. On FaceScape, where size barely varies, a model-in-the-loop 3DMM fit ranks shape better than our encoder. Its per-mesh cost is comparable to a 3DMM fit, not lower (Sect.~\ref{sec:computational_cost}). It is robust to remeshing, decimation, noise and upsampling, but not to boundary crops (Sect.~\ref{sec:limitations}). The main contributions are:
+Our answer is mixed, and we report it as such. An encoder whose embedding factorizes into a log-size and a shape code, combined by the size-and-shape decomposition with one scale calibrated on synthetic held-out data (Sect.~\ref{sec:factorized_head}), ranks HIFI3D identities by form, on mesh pairs without boundary crops, better than rigid ICP + Chamfer in millimetres, non-rigid registration to a template, and fits of two 3DMMs, including a model-in-the-loop fit (Sects.~\ref{sec:factorized_results} and~\ref{sec:param_competitors}). The calibration is a post-hoc amendment to our pre-registered protocol; without it the encoder is only level with rigid ICP + Chamfer. It does not resolve a difference against an oracle size scalar, so its advantage is to combine size and shape without registration, not to see shape beyond size. On FaceScape, where size barely varies, a model-in-the-loop 3DMM fit ranks shape and form better than our encoder. Its per-mesh cost is comparable to a 3DMM fit, not lower (Sect.~\ref{sec:computational_cost}). All these comparisons pair meshes of different discretizations (remeshing, decimation, noise, upsampling); with boundary crops the advantage does not hold (Sect.~\ref{sec:limitations}). The main contributions are:
 % SMENTITO (11 ott): il paragrafo commentato sotto ("Our results show that the learned latent metric better preserves
 % ground-truth identity rankings across topology changes and perturbations") e' smentito fuori dominio: sul crop i
 % bracci cadono al livello di ICP in mm e su FaceScape un fit 3DMM con il modello nel ciclo li batte
@@ -84,10 +93,12 @@ Our answer is mixed, and we report it as such. An encoder whose embedding factor
 \begin{itemize}
 \item We make the reference distance explicit: a form reference and a shape reference, each with one rigid fit per identity and never a pairwise transformation, and we show that the legacy per-mesh-scale reference discards facial size. % TODO integrare paper/drafts/sec_gt.tex (arbitro FaMoS, rivalutazione dei 22 metodi)
 \item We propose a registration-free encoder with a factorized size-and-shape head, trained only on synthetic morphable-model samples, whose calibrated form distance combines a predicted size with a learned shape distance through the size-and-shape decomposition of geometric morphometrics.
-\item We evaluate it zero-shot on held-out face families, always across topologies, with paired subject-level bootstrap against geometric pipelines in millimetres and against fits of two 3DMMs (GNM Head, FLAME 2023 Open), including stronger post-hoc fits: it leads where size varies (HIFI3D, form), it loses to a model-in-the-loop fit where size barely varies (FaceScape), and its per-mesh cost is comparable to the fits. % TODO run massivo: rifare con il modello finale
-\item We release code, checkpoints, reproducibility artifacts, subject splits,
-ground-truth distance matrices, and benchmark metadata; meshes are not
-redistributed due to 3DMM licensing constraints.
+\item We evaluate it zero-shot on held-out face families, always across topologies, with paired subject-level bootstrap against geometric pipelines in millimetres and against fits of two 3DMMs (GNM Head, FLAME 2023 Open), including stronger post-hoc fits: without boundary crops it leads where size varies (HIFI3D, form, with a post-hoc calibration), it loses to a model-in-the-loop fit in shape and form where size barely varies (FaceScape), and its per-mesh cost is comparable to the fits; with crops it loses its advantage. % TODO run massivo: rifare con il modello finale
+\item We release code, subject splits and benchmark metadata, and, for the openly licensed models (GNM Head~\cite{ploumpis2026gnmhead}, Apache-2.0; ICT-FaceKit~\cite{ict-facekit}, MIT; FLAME 2023 Open~\cite{li2017flame}, CC~BY~4.0), meshes, coefficients, seeds and distance matrices. For BFM, FaceScape, HIFI3D, FaceVerse and FaMoS we release only recipes and seeds: their licenses do not allow redistributing the meshes, and the status of derived distance matrices is unclear (for FaMoS, not allowed or unclear). Weights trained on data that include BFM are released only with the licensor's written permission; otherwise we release a second model trained on the openly licensed models only. \todo{permesso scritto (Unitectra per BFM) o modello sul solo nucleo aperto}
+% fonte: literature/LICENZE_RILASCIO_2026-10-09.md (non e' un parere legale: va rivista dall'ufficio legale di AAU
+% prima della pubblicazione); persone reali (FaMoS, HIFI3D, FaceVerse, FaceScape): consenso e GDPR da verificare.
+% Licenze: GNM ~/data/gnm_head/PROVENANCE.md (Apache-2.0); FLAME 2023 Open, Readme del pacchetto
+% external_data/FLAME2023Open.zip (CC BY 4.0, https://flame.is.tue.mpg.de/modellicense.html).
 \end{itemize}
 % SMENTITO (11 ott): lista dei contributi della versione precedente. Il secondo e il terzo punto restano veri in
 % dominio (REMESH), ma non sono piu' la tesi; il "cross-3DMM: risultati WS2" e' superato dalla valutazione zero-shot
@@ -313,6 +324,10 @@ definitions are given in Appendix~\ref{app:mesh_level_ranking_loss}.
 % fonte: aau/runs/evidence/trainer_v3/factorized.md (sez. 1) e factorized_protocol.md ("Bracci", "Distanze del
 % modello"); c: factorized_results.md, "Calibrazione della scala di d_P"; dati: aau/runs/evidence/e1/design.md (c3f);
 % crop nel training: aau/runs/evidence/baselines_param/PROTOCOL_emendamento_3.md, sez. 3, punto 1.
+% Calibrazione POST HOC (critic, 11 ott): factorized_protocol_emendamento_4.md, r. 1-12 (scritto dopo i numeri non
+% calibrati; motivo (1): mediana di sqrt(S_i S_j) d_P su HIFI3D 4.4 mm nella GT, 8.6-15.7 mm nei modelli). Distanza
+% preregistrata (factorized_protocol.md, "Distanze del modello"): d_F non calibrata. Delta: factorized_results.md, GT FR,
+% riga form; contro FLAME mesh FR preregistrata: baselines_param/results.md r. 26-27.
 % NOTA (11 ott): le sottosezioni precedenti descrivono il modello v1 (ingresso normalizzato per maxabs, una sola
 % distanza latente). I risultati della tesi attuale usano la testa qui sotto, con lo stesso backbone DiffusionNet.
 A size-blind embedding cannot follow a form reference where size varies. The model used for all new results therefore receives every mesh in millimetres in a common frame, divided by one global constant (100\,mm) instead of a per-mesh scale, with area-weighted pooling. Its embedding is $[s,u]$: a shape code $u\in\mathbb{R}^{256}$, trained with the stress, ranking and identity terms of Sect.~\ref{sec:training_objective} against the shape reference of the training domains, and a scalar $s$ from a small head on the same pooled features, trained with a squared error against the log centroid size of the identity. Sizes are augmented by a log-uniform factor in $[0.8,1.25]$ applied to both the input and the target. With $S_i=e^{s_i}$ and $d_P(i,j)=\|u_i-u_j\|$, the calibrated form distance follows Eq.~\eqref{eq:size_shape_main}:
@@ -320,7 +335,7 @@ A size-blind embedding cannot follow a form reference where size varies. The mod
 d_F(i,j)=\sqrt{(S_i-S_j)^2+S_iS_j\,\big(c\,d_P(i,j)\big)^2},
 \label{eq:factorized_distance}
 \end{equation}
-where the single constant $c$ is the ratio of the median reference shape distance to the median $d_P$ over pairs of \emph{synthetic} held-out identities of the training domains (100 per domain, 297{,}000 pairs); no test domain is used. Both training seeds give $c=0.405$. Without calibration, the shape term is over-weighted and $d_F$ follows FR less well (Sect.~\ref{sec:factorized_results}). The model is trained only on synthetic samples of three morphable models (BFM, ICT-FaceKit, GNM Head; 392, 4{,}557 and 844 training identities), each seen in several discretizations including a boundary crop, for 21{,}096 steps, with two seeds; we report the EMA weights of the last checkpoint.
+where the single constant $c$ is the ratio of the median reference shape distance to the median $d_P$ over pairs of \emph{synthetic} held-out identities of the training domains (100 per domain, 297{,}000 pairs); no test domain enters its value. Both training seeds give $c=0.405$. The calibration is a post-hoc amendment to our pre-registered protocol: it was introduced after the uncalibrated results were known, motivated in part by a check on the HIFI3D reference, where the median shape term of our models was 8.6--15.7\,mm against 4.4\,mm in the reference. Its value comes only from synthetic data, but the decision to calibrate was not blind to a test family. The pre-registered distance is the uncalibrated $d_F$ ($c=1$): on HIFI3D it scores 0.642 and 0.631 for the two seeds, level with rigid ICP + Chamfer in millimetres ($-0.001$ [$-0.055$, $+0.055$], $-0.012$ [$-0.075$, $+0.051$]) and with the identity mesh of the pre-registered FLAME 2023 Open fit ($+0.003$ [$-0.073$, $+0.081$], $-0.008$ [$-0.088$, $+0.074$]; Sect.~\ref{sec:param_competitors}). We report it next to the calibrated one (Table~\ref{tab:form_shape_main}). The model is trained only on synthetic samples of three morphable models (BFM, ICT-FaceKit, GNM Head; 392, 4{,}557 and 844 training identities), each seen in several discretizations including a boundary crop, for 21{,}096 steps, with two seeds; we report the EMA weights of the last checkpoint.
 % TODO run massivo: dati, passi, c e semi del modello finale (PLAN_MASSIVE.md sez. 22).
 % NOTA: GNM Head e' anche uno dei due concorrenti parametrici (Sect. sec:param_competitors): e' un prior VISTO in
 % training, FLAME 2023 Open no.
@@ -413,19 +428,20 @@ Across all reference sets, Spearman rank correlation with the corresponding $D_{
 % fonti: aau/runs/evidence/trainer_v3/factorized_results.md (delta appaiati, analisi della taglia, regola dual,
 % esplorativa); aau/runs/evidence/baselines_param/results.md (tabelle hifi3d e facescape nocrop_cross, emendamento 1,
 % composizione dell'emendamento 2: stesse righe e repliche di fact_paired.py).
-\paragraph{Protocol.} We evaluate on face families never used in training: HIFI3D (100 identities, primary) and FaceScape (100 neutral subjects), plus FaceVerse and the FaMoS test subjects as secondary sets. Each identity is represented by six discretizations (original, remesh, down8k, up60k, noisy, crop). The primary group uses all pairs of meshes of different identities \emph{and different topologies} without crop (20 ordered topology pairs); crops are analysed in Sect.~\ref{sec:limitations}. The statistic is the Spearman correlation with FR or SR, with 95\% subject-level bootstrap intervals (1{,}000 replicates); every difference between two methods is a paired difference on the same rows and replicates. Baselines that keep size operate in millimetres; those marked ``size removed'' normalize each mesh by its centroid size. FaceScape is our development set (it entered model selection), so it is not a clean test; the choice between a factorized and a two-head model was made by a pre-registered rule evaluated on HIFI3D and FaceScape.
-% fonte: factorized_results.md, "Regola dual (emendamento 4, sez. 5)"; PLAN_MASSIVE.md sez. 22.2
+\paragraph{Protocol.} We evaluate on face families never used in training: HIFI3D (100 identities, primary) and FaceScape (100 neutral subjects), plus FaceVerse and the FaMoS test subjects as secondary sets. Each identity is represented by six discretizations (original, remesh, down8k, up60k, noisy, crop). The primary group uses all pairs of meshes of different identities \emph{and different topologies} without crop (20 ordered topology pairs); crops are analysed in Sect.~\ref{sec:limitations}. The statistic is the Spearman correlation with FR or SR, with 95\% subject-level bootstrap intervals (1{,}000 replicates); every difference between two methods is a paired difference on the same rows and replicates. Baselines that keep size operate in millimetres; those marked ``size removed'' normalize each mesh by its centroid size. FaceScape is our development set (it entered model selection), so it is not a clean test. HIFI3D is not a clean test either: it was never used for training, but it entered model selection (the choice between a factorized and a two-head model was made by a pre-registered rule evaluated on HIFI3D and FaceScape, and the number of Laplacian eigenvectors was chosen on HIFI3D, FaceScape and FaceVerse), and it motivated the post-hoc calibration (Sect.~\ref{sec:factorized_head}). Of the sets we evaluate on, only the FaMoS test subjects and NoW never entered any selection.
+% fonte: factorized_results.md, "Regola dual (emendamento 4, sez. 5)"; PLAN_MASSIVE.md sez. 22.2; k_eig:
+% trainer_v3/ablations/k_ablation/results.md (HIFI3D, FaceScape, FaceVerse); calibrazione: emendamento 4, r. 1-12.
 
 \begin{table*}[!ht]
 \centering
 \scriptsize
-\caption{Spearman correlation ($\uparrow$) with the form (FR) and shape (SR) references, cross-topology pairs without crop, 95\% subject-level bootstrap CIs. Same rows and bootstrap replicates for every method within a domain (HIFI3D 98{,}224 rows, FaceScape 88{,}725). For each 3DMM fit we report the best of its three readings (coefficients, identity mesh compared under FR, identity mesh compared under SR), chosen per cell, which favours the fits. ``Model in the loop'' and the compositions are post-hoc, stronger variants of the pre-registered fit. FaceScape is our development set. --: not a declared reading.}
+\caption{Spearman correlation ($\uparrow$) with the form (FR) and shape (SR) references, cross-topology pairs without crop, 95\% subject-level bootstrap CIs. Same rows and bootstrap replicates for every method within a domain (HIFI3D 98{,}224 rows, FaceScape 88{,}725). For each 3DMM fit we report the best of its three readings (coefficients, identity mesh compared under FR, identity mesh compared under SR), chosen per cell, which favours the fits. ``Model in the loop'' and the compositions are post-hoc, stronger variants of the pre-registered fit; the calibration of our $d_F$ is post hoc too, and the pre-registered uncalibrated $d_F$ is reported next to it ($d_P$, hence SR, does not depend on $c$). FaceScape is our development set; HIFI3D, never used for training, also entered model selection (Sect.~\ref{sec:factorized_results}). --: not a declared reading.}
 \label{tab:form_shape_main}
 \setlength{\tabcolsep}{3pt}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-& \multicolumn{2}{c}{\textbf{HIFI3D} (held-out)} & \multicolumn{2}{c}{\textbf{FaceScape} (development)} \\
+& \multicolumn{2}{c}{\textbf{HIFI3D} (primary)} & \multicolumn{2}{c}{\textbf{FaceScape} (development)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 Method & FR & SR & FR & SR \\
 \midrule
@@ -448,9 +464,13 @@ FLAME 2023 Open, model in the loop        & 0.686 [0.597, 0.758] & 0.597 [0.518,
 GNM, model in the loop, size + shape      & 0.698 [0.612, 0.769] & -- & 0.800 [0.741, 0.847] & -- \\
 FLAME 2023 Open, model in the loop, size + shape & 0.712 [0.627, 0.781] & -- & 0.731 [0.657, 0.794] & -- \\
 \midrule
-\multicolumn{5}{l}{\emph{Ours, registration-free (FR: calibrated $d_F$; SR: $d_P$)}} \\
+\multicolumn{5}{l}{\emph{Ours, registration-free (FR: calibrated $d_F$, post hoc; SR: $d_P$)}} \\
 Factorized, seed 1234                     & 0.749 [0.673, 0.806] & 0.622 [0.550, 0.685] & 0.661 [0.586, 0.727] & 0.747 [0.677, 0.804] \\
 Factorized, seed 2345                     & 0.731 [0.657, 0.792] & 0.613 [0.533, 0.688] & 0.669 [0.597, 0.733] & 0.753 [0.687, 0.813] \\
+Factorized, seed 1234, uncalibrated $d_F$ (pre-registered) & 0.642 [0.570, 0.706] & -- & 0.687 [0.612, 0.758] & -- \\
+Factorized, seed 2345, uncalibrated $d_F$ (pre-registered) & 0.631 [0.560, 0.697] & -- & 0.698 [0.619, 0.770] & -- \\
+% fonte righe non calibrate: aau/runs/evidence/trainer_v3/factorized_paired.csv (kind rho, distance form, arm_point e
+% arm_ci_*, stesse righe e repliche delle altre righe: HIFI3D seme 990708, FaceScape 796786).
 Final model                               & \todo{} & \todo{} & \todo{} & \todo{} \\ % TODO run massivo
 \bottomrule
 \end{tabular}
@@ -461,7 +481,7 @@ Final model                               & \todo{} & \todo{} & \todo{} & \todo{
 % Niente grassetto: i confronti che contano sono i delta appaiati nel testo.
 \end{table*}
 
-\paragraph{Where size varies (HIFI3D), form.} The calibrated form distance is above every pipeline that keeps size: rigid ICP + Chamfer in mm ($+0.106$ [$+0.062$, $+0.154$] and $+0.088$ [$+0.040$, $+0.138$] for the two seeds), NICP to a template ($+0.134$ [$+0.085$, $+0.188$], $+0.117$ [$+0.066$, $+0.171$]), and the best reading of the strongest 3DMM fit (FLAME 2023 Open, model in the loop: $+0.063$ [$+0.023$, $+0.101$], $+0.045$ [$+0.004$, $+0.085$]). Against the size-plus-shape composition of the fitted models it is never below: $+0.051$ [$+0.009$, $+0.094$] and $+0.033$ [$-0.009$, $+0.075$] for GNM, $+0.037$ [$-0.002$, $+0.075$] and $+0.019$ [$-0.019$, $+0.057$] for FLAME. Calibration matters: without $c$ the same model scores 0.642 and 0.631, level with rigid ICP + Chamfer ($-0.001$ [$-0.055$, $+0.055$]).
+\paragraph{Where size varies (HIFI3D), form.} Without crops, the calibrated form distance is above rigid ICP + Chamfer in mm ($+0.106$ [$+0.062$, $+0.154$] and $+0.088$ [$+0.040$, $+0.138$] for the two seeds), NICP to a template in mm ($+0.134$ [$+0.085$, $+0.188$], $+0.117$ [$+0.066$, $+0.171$]), and the best reading of the strongest 3DMM fit (FLAME 2023 Open, model in the loop: $+0.063$ [$+0.023$, $+0.101$], $+0.045$ [$+0.004$, $+0.085$]). It is not above every pipeline that keeps size: it is level with ``estimated size + rigid ICP'' and below ``oracle size + rigid ICP'' (next paragraph). Against the size-plus-shape composition of the fitted models it is never below: $+0.051$ [$+0.009$, $+0.094$] and $+0.033$ [$-0.009$, $+0.075$] for GNM, $+0.037$ [$-0.002$, $+0.075$] and $+0.019$ [$-0.019$, $+0.057$] for FLAME. These results rest on the post-hoc calibration: the pre-registered uncalibrated distance scores 0.642 and 0.631, level with rigid ICP + Chamfer ($-0.001$ [$-0.055$, $+0.055$], $-0.012$ [$-0.075$, $+0.051$]).
 % fonte: factorized_results.md "HIFI3D FR e SR con d_F calibrata: delta appaiati", GT FR; baselines_param/results.md
 % (hifi3d, emendamento 1, GT FR; hifi3d, composizione, GT FR).
 
@@ -470,35 +490,45 @@ Final model                               & \todo{} & \todo{} & \todo{} & \todo{
 % Esplorativa (post hoc, non nel testo): la sola d_P ha parziale 0.554 [0.487, 0.622], +0.029 [-0.024, +0.086]
 % contro NICP cs (n.s.).
 
-\paragraph{Shape (SR).} On HIFI3D the shape distance $d_P$ is level with pairwise NICP with size removed ($+0.027$ [$-0.029$, $+0.083$], $+0.018$ [$-0.046$, $+0.082$]) and with the strongest 3DMM fit (GNM coefficients, model in the loop: $-0.053$ [$-0.136$, $+0.032$], $-0.062$ [$-0.149$, $+0.032$]), without any pairwise registration or fitting.
+\paragraph{Shape (SR).} Without crops, on HIFI3D the shape distance $d_P$ is level with pairwise NICP with size removed ($+0.027$ [$-0.029$, $+0.083$], $+0.018$ [$-0.046$, $+0.082$]) and with the strongest 3DMM fit (GNM coefficients, model in the loop: $-0.053$ [$-0.136$, $+0.032$], $-0.062$ [$-0.149$, $+0.032$]), without any pairwise registration or fitting; with crops it falls below that fit (Sect.~\ref{sec:limitations}).
 % fonte: factorized_results.md, GT SR; baselines_param/results.md, hifi3d emendamento 1, GT SR.
 
-\paragraph{Where size barely varies (FaceScape).} Against the geometric pipelines our distances lead (form: $+0.207$ [$+0.160$, $+0.257$] over rigid ICP + Chamfer in mm and $+0.119$ [$+0.030$, $+0.210$] over NICP to a template, seed 1234; shape: $+0.349$ [$+0.291$, $+0.401$] over pairwise NICP). A 3DMM fitted with the model in the loop is better: GNM ranks shape at 0.854 against our 0.747 and 0.753 ($-0.107$ [$-0.155$, $-0.065$], $-0.101$ [$-0.148$, $-0.058$]), FLAME 2023 Open, never seen by our model, at 0.820 ($-0.074$ [$-0.129$, $-0.022$], $-0.067$ [$-0.120$, $-0.014$]); under FR the GNM composition is ahead by $-0.139$ [$-0.194$, $-0.090$] and $-0.131$ [$-0.184$, $-0.086$], the FLAME one by $-0.070$ [$-0.127$, $-0.017$] and $-0.062$ [$-0.123$, $-0.009$]. The loss carries over from SR to FR because on FaceScape size varies little (coefficient of variation 1.6\% against 4.7\% on HIFI3D) and FR orders pairs almost as SR does (0.888 against 0.628), so whoever ranks shape best also ranks form best. This is a measured but partial explanation: FaceVerse has a similarly narrow size distribution (1.8\%) and there the fits do not win. Why the fitted shape is so much better on FaceScape is not explained by surface error, which is comparably low on HIFI3D and FaceVerse. FaceScape is our development set, so this loss weighs more, not less.
+\paragraph{Where size barely varies (FaceScape).} Without crops, against the geometric pipelines our distances lead (form: $+0.207$ [$+0.160$, $+0.257$] over rigid ICP + Chamfer in mm and $+0.119$ [$+0.030$, $+0.210$] over NICP to a template, seed 1234; shape: $+0.349$ [$+0.291$, $+0.401$] over pairwise NICP). A 3DMM fitted with the model in the loop is better, in shape and in form. In shape, GNM ranks at 0.854 against our 0.747 and 0.753 ($-0.107$ [$-0.155$, $-0.065$], $-0.101$ [$-0.148$, $-0.058$]), FLAME 2023 Open, never seen by our model, at 0.820 ($-0.074$ [$-0.129$, $-0.022$], $-0.067$ [$-0.120$, $-0.014$]). In form, our calibrated distance is below the size-free GNM identity mesh scored under FR ($-0.106$ [$-0.175$, $-0.027$], $-0.098$ [$-0.167$, $-0.014$]) and below the size-plus-shape compositions of both fits in all eight declared cells (GNM: $-0.139$ [$-0.194$, $-0.090$] and $-0.131$ [$-0.184$, $-0.086$]; FLAME: $-0.070$ [$-0.127$, $-0.017$] and $-0.062$ [$-0.123$, $-0.009$]). The loss carries over from SR to FR because on FaceScape size varies little (coefficient of variation 1.6\% against 4.7\% on HIFI3D) and FR orders pairs almost as SR does (0.888 against 0.628), so whoever ranks shape best also ranks form best. This is a measured but partial explanation: FaceVerse has a similarly narrow size distribution (1.8\%) and there the fits do not win. Why the fitted shape is so much better on FaceScape is not explained by surface error, which is comparably low on HIFI3D and FaceVerse. FaceScape is our development set, so this loss weighs more, not less.
 % fonte: factorized_results.md (facescape GT FR e SR, delta appaiati); baselines_param/results.md (facescape,
-% emendamento 1, GT SR; facescape, composizione); baselines_param/conclusions.md, emendamento 1, "Perche' FaceScape".
+% emendamento 1, GT FR (GNM vB mesh d'identita' SR letta con FR) e GT SR; facescape, composizione: 8 / 8 contro);
+% baselines_param/conclusions.md, emendamento 1, "Perche' FaceScape".
 
-\paragraph{Secondary sets.} On FaceVerse with expressions every method, ours included, stays around 0.3 with FR, and on its neutral view the best method is rigid ICP + Chamfer in mm (0.409 [0.328, 0.485]); nearly all differences with the 3DMM fits are unresolved there and on the 15 FaMoS test subjects, whose intervals are about 0.6 wide. Across the five topologies without crop, rank-1 identification on HIFI3D is 1.000 for both seeds.
-% fonte: factorized_results.md ("FaceVerse con espressioni", "Riconoscimento rank-1", "FaMoS TEST");
-% aau/runs/evidence/faceverse_neutral/results.md (ICP + Chamfer in mm 0.409 [0.328, 0.485]);
-% baselines_param/conclusions.md, emendamento 1 ("Cosa regge").
+\paragraph{Secondary sets.} On FaceVerse with expressions every method, ours included, stays around 0.3 with FR; on its neutral view the highest point estimate is rigid ICP + Chamfer in mm (0.409 [0.328, 0.485], an interval from a bootstrap with a different seed than our paired comparisons). Nearly all differences with the 3DMM fits are unresolved there and on the 15 FaMoS test subjects, whose intervals are about 0.6 wide.
+% fonte: factorized_results.md ("FaceVerse con espressioni", "FaMoS TEST");
+% aau/runs/evidence/faceverse_neutral/results.md (ICP + Chamfer in mm 0.409 [0.328, 0.485], bootstrap seme 1234;
+% i delta appaiati di FaceVerse usano il seme 271049 di baselines_mm); baselines_param/conclusions.md, emendamento 1
+% ("Cosa regge").
 
-\paragraph{Discretization.} Every correlation above compares two meshes in \emph{different} topologies (original, remeshed, decimated, upsampled, noisy), embedded independently and without correspondence. Pooling the 20 topology pairs does not hide systematic offsets between them: \todo{media dentro le coppie di topologie senza crop, dal gruppo (d) dell'emendamento 3}.
-% TODO emendamento 3: valori del critic da ricalcolare (gruppo d, "media 15" e "media crop 5"): senza crop FaceScape
-% 0.667, HIFI3D ctrlfr 0.758; con crop 0.376 e 0.239. Non vanno nel testo finche' non stanno in un file di risultati.
+\paragraph{Discretization.} Every correlation above compares two meshes in \emph{different} topologies (original, remeshed, decimated, upsampled, noisy), embedded independently and without correspondence, and excludes boundary crops. Across these five topologies our model identifies every HIFI3D subject (rank-1 1.000 for both seeds). Whether pooling the 20 ordered topology pairs hides systematic offsets between them is measured by the mean Spearman correlation within topology pairs: \todo{media dentro le 10 coppie di topologie senza crop, con IC (emendamento 3)}.
+% fonte rank-1: factorized_results.md, "Riconoscimento rank-1 senza crop" (HIFI3D 1.000, form, form_cal, shape, due semi).
+% TODO emendamento 3: serve la media dello Spearman DENTRO le 10 coppie non ordinate di topologie SENZA crop, con IC.
+% Il gruppo (d) dell'emendamento 3 definisce "media 15" (15 coppie, di cui 5 col crop: NON e' senza crop) e
+% "media crop 5"; la media senza crop va aggiunta (o ricavata per replica). Le stime del critic dell'emendamento 2
+% (senza crop: FaceScape 0.667, HIFI3D ctrlfr 0.758; col crop 0.376 e 0.239) non stanno in un file di risultati: non
+% vanno nel testo.
 
 \subsection{Parametric Competitors}
 \label{sec:param_competitors}
 % fonti: aau/runs/evidence/baselines_param/PROTOCOL.md (preregistrato, commit 451b30c), PROTOCOL_emendamento_1.md e
 % _2.md (POST HOC), conclusions.md, results.md.
-A registration-free metric must be compared with the strongest per-mesh alternative: fitting a morphable model to each mesh and comparing identities in its space. We fit GNM Head~\todo{cit.} and FLAME 2023 Open~\todo{cit.} to every mesh (non-rigid ICP to the model template, then projection on the identity basis) and read three distances: the identity coefficients, and the identity mesh compared under FR and under SR. GNM is a prior seen in our training; FLAME 2023 Open is not. The protocol was written before any number. With the pre-registered fit no competitor is ahead of our model in any domain. Two post-hoc variants, written after seeing these numbers, make the fits stronger: \emph{model in the loop} (correspondences re-estimated against the current model instance, hyperparameters chosen on non-evaluated subjects), which lowers the median surface error from 1.0--1.6\,mm to 0.29--0.56\,mm, and a \emph{size + shape} composition of its output with a constant calibrated on synthetic held-out data, like ours. With the stronger fit, 21 of 240 declared paired differences fall below zero (the competitor ahead): all on FaceScape (form and shape) or, on HIFI3D shape, against a control model with a single embedding trained on the form reference, which we do not propose for shape; plus one fragile cell on neutral FaceVerse. On HIFI3D form our model is ahead of every reading of both fits and never below their size-plus-shape composition (Table~\ref{tab:form_shape_main}). No correction for multiple comparisons is applied; all post-hoc results are reported next to the pre-registered ones.
+A registration-free metric must be compared with the strongest per-mesh alternative: fitting a morphable model to each mesh and comparing identities in its space. We fit GNM Head~\cite{ploumpis2026gnmhead} (Apache-2.0) and FLAME 2023 Open~\cite{li2017flame} (CC~BY~4.0) to every mesh (non-rigid ICP to the model template, then projection on the identity basis) and read three distances: the identity coefficients, and the identity mesh compared under FR and under SR. GNM is a prior seen in our training; FLAME 2023 Open is not. The protocol was written before any number of these fits, but after our calibration (Sect.~\ref{sec:factorized_head}), whose distance it declares. Without crops and with the pre-registered fit no competitor is ahead of our model in any domain; with our pre-registered, uncalibrated distance the identity mesh of the FLAME fit is level with it on HIFI3D form ($+0.003$ [$-0.073$, $+0.081$], $-0.008$ [$-0.088$, $+0.074$]). Two post-hoc variants, written after seeing these numbers, make the fits stronger: \emph{model in the loop} (correspondences re-estimated against the current model instance, hyperparameters chosen on non-evaluated subjects), which lowers the median surface error from 1.0--1.6\,mm to 0.29--0.56\,mm, and a \emph{size + shape} composition of its output with a constant calibrated on synthetic held-out data, like ours. Without crops and with the stronger fit, 21 of 240 declared paired differences fall below zero (the competitor ahead): all on FaceScape (form and shape) or, on HIFI3D shape, against a control model with a single embedding trained on the form reference, which we do not propose for shape; plus one fragile cell on neutral FaceVerse. The weight $\sigma$ of the coefficient prior of this fit was chosen on non-evaluated subjects at the edge of its grid ($\sigma=2$\,mm); a second post-hoc pilot on a wider grid chooses $\sigma=8$\,mm, again at the edge. With it, 24 of 240 cells fall below zero, in the same areas; HIFI3D form stays ours in 23 of 24 cells, the remaining one (seed 2345 against the FLAME identity mesh under FR) being unresolved ($+0.037$ [$-0.004$, $+0.077$]), and on FaceScape the GNM identity mesh ranks shape at 0.873 [0.829, 0.908]. Without crops, on HIFI3D form our model is ahead of every reading of both fits and never below their size-plus-shape composition (Table~\ref{tab:form_shape_main}); with crops this no longer holds (Sect.~\ref{sec:limitations}). No correction for multiple comparisons is applied; all post-hoc results, including this sensitivity analysis, are reported next to the pre-registered ones.
 % fonte: baselines_param/conclusions.md ("Lettura", "Emendamento 1 (POST HOC): lettura", "Emendamento 2 (POST HOC):
-% lettura"); le 8 celle HIFI3D SR sono tutte contro ctrlfr (braccio di controllo con GT FR).
+% lettura", sensibilita' a sigma); results.md r. 26-27 (d_F non calibrata contro FLAME mesh FR preregistrata),
+% "hifi3d, composizione ... e sensibilita' a sigma" e "facescape, ..." (sigma 8: 23 / 0 / 1, GNM mesh SR con SR
+% 0.873); le 8 celle HIFI3D SR sono tutte contro ctrlfr (braccio di controllo con GT FR). Protocollo dei concorrenti
+% (PROTOCOL.md, commit 451b30c, 10 ott 19:01) scritto dopo l'emendamento 4 di factorized (10 ott 11:15).
+% Licenze: GNM ~/data/gnm_head/PROVENANCE.md; FLAME 2023 Open, Readme di external_data/FLAME2023Open.zip.
 % TODO emendamento 3: il controllo di equita' (bracci sulla regione di B) puo' cambiare questo paragrafo.
 
 
 \subsection{Cross-Topology Ranking}
 \label{sec:xtopo_results}
-We first evaluate whether candidate distances preserve the ground-truth identity ranking under topology changes. For each ordered topology pair $\tau_a \rightarrow \tau_b$, we compute pairwise distances over all $\binom{100}{2}=4950$ held-out subject pairs and correlate them with $D_{\mathrm{GT}}$ as reported in Table~\ref{tab:clean_xtopo_chamfer_latent_matrices}. Subject-level bootstrap confidence intervals for all topology-pair entries are reported in Appendix~\ref{app:xtopo_bootstrap_ci}.
+We first evaluate whether candidate distances preserve the ground-truth identity ranking under topology changes. For each ordered topology pair $\tau_a \rightarrow \tau_b$, we compute pairwise distances over all $\binom{100}{2}=4950$ subject pairs of fb100 (Sect.~\ref{sec:heldout_contamination}) and correlate them with $D_{\mathrm{GT}}$ as reported in Table~\ref{tab:clean_xtopo_chamfer_latent_matrices}. Subject-level bootstrap confidence intervals for all topology-pair entries are reported in Appendix~\ref{app:xtopo_bootstrap_ci}.
 
 \begin{table*}[!ht]
 \centering
@@ -540,11 +570,11 @@ up60k
 }
 \end{table*}
 
-Raw Chamfer is competitive when source and target meshes share the same or a very similar representation, but it deteriorates sharply under support and topology mismatch. The failure is most visible for crop-involving pairs, where Chamfer correlations often become close to zero or negative. In contrast, the learned metric remains strongly correlated with the ground-truth identity ranking across all topology pairs. The appendix confidence intervals show that this pattern is stable under subject-level bootstrap resampling. This indicates that the gain is not only an aggregate effect, but a systematic reduction of topology-induced evaluation bias.
-% SMENTITO (11 ott) per le coppie col crop fuori dominio: qui e' il modello v1 in dominio (REMESH, GT maxabs, fb100
-% contaminato per la riga latente). Sulle famiglie tenute fuori, con FR in mm, le righe col crop fanno scendere i
-% bracci al livello di ICP + Chamfer in mm (baselines_param/conclusions.md, emendamento 2; Sect. sec:limitations).
-% Non generalizzare "across all topology pairs" oltre REMESH.
+Raw Chamfer is competitive when source and target meshes share the same or a very similar representation, but it deteriorates sharply under support and topology mismatch. The failure is most visible for crop-involving pairs, where Chamfer correlations often become close to zero or negative. In contrast, on REMESH with the legacy maxabs reference the v1 learned metric stays correlated with the reference across all topology pairs, crop included, and the appendix confidence intervals show that this pattern is stable under subject-level bootstrap resampling. These numbers are in domain and on fb100, a subject set that overlaps the training identities of this checkpoint (Sect.~\ref{sec:heldout_contamination}); they do not carry over to held-out face families, where boundary crops break our current encoder (Sect.~\ref{sec:limitations}).
+% SMENTITO (11 ott, critic): tolta la frase "systematic reduction of topology-induced evaluation bias". Qui e' il
+% modello v1 in dominio (REMESH, GT maxabs, fb100 contaminato per la riga latente). Sulle famiglie tenute fuori, con FR
+% in mm, le righe col crop fanno scendere i bracci al livello di ICP + Chamfer in mm (baselines_param/conclusions.md,
+% emendamento 2; Sect. sec:limitations). Non generalizzare "across all topology pairs" oltre REMESH.
 
 \subsection{Does Alignment Help?}
 \label{sec:alignment_results}
@@ -580,7 +610,9 @@ Rigid ICP + NICP + P2Tri & 0.468 [0.373, 0.552] & 0.433 [0.350, 0.514] \\
 \end{tabular}
 \end{table}
 
-Stronger alignment does not improve ranking fidelity. Even in the original-to-original setting, where topology is fixed, rigid ICP followed by Chamfer distance reduces Spearman correlation from $0.729$ to $0.600$, and non-rigid ICP further reduces it to approximately $0.46$--$0.47$. The same trend holds in the no-crop cross-topology setting: removing crop pairs improves Chamfer, but registration-based distances still remain below both Chamfer and the learned metric. These results support the claim that pairwise alignment is not a neutral preprocessing step for identity-aware evaluation. Alignment can improve local surface fit while reducing the global comparability of distances across subject pairs.
+On REMESH with the legacy maxabs reference (fb100), stronger alignment does not improve ranking fidelity. Even in the original-to-original setting, where topology is fixed, rigid ICP followed by Chamfer distance reduces Spearman correlation from $0.729$ to $0.600$, and non-rigid ICP further reduces it to approximately $0.46$--$0.47$. The same trend holds in the no-crop cross-topology setting: removing crop pairs improves Chamfer, but registration-based distances still remain below both Chamfer and the learned metric. Under this reference, pairwise alignment is not a neutral preprocessing step: it can improve local surface fit while reducing the global comparability of distances across subject pairs. This does not carry over to held-out families under the form reference, where a rigid alignment helps (Sect.~\ref{sec:limitations}).
+% NOTA (11 ott, critic): limitato a REMESH, GT maxabs, fb100. Con FR in mm sulle famiglie tenute fuori l'ICP rigido
+% migliora la Chamfer in mm (baselines_mm/spearman.csv; Sect. sec:limitations).
 
 \subsection{Computational Cost}
 \label{sec:computational_cost}
@@ -860,8 +892,11 @@ The anonymized code repository is available at:
 \url{https://anonymous.4open.science/r/WBES-FaceEmbedding-120B/README.md}.
 The repository includes training and inference scripts, evaluation code,
 configuration files, and a reproducibility README describing how to reproduce the
-main tables and figures. The full non-anonymized code repository, trained model checkpoint, model card,
-and reproducibility artifact bundle will be released publicly upon acceptance.
+main tables and figures. The full non-anonymized code repository, model card,
+and reproducibility artifact bundle will be released publicly upon acceptance; data, distance matrices and trained
+checkpoints follow the license constraints stated with our contributions (Sect.~\ref{sec:intro}).
+% NOTA (11 ott, critic): allineato a literature/LICENZE_RILASCIO_2026-10-09.md: pesi addestrati su dati misti (con BFM)
+% solo con permesso scritto, altrimenti un modello sul solo nucleo aperto.
 %The artifact bundle will include trained checkpoints, evaluation outputs,
 %generated tables, plots, configuration files and auxiliary metadata. 
 %used to produce the results reported in the paper. This is intended to make the numerical results auditable and to reduce the computation required to inspect or reproduce the reported comparisons.
@@ -872,28 +907,39 @@ and reproducibility artifact bundle will be released publicly upon acceptance.
 Because the underlying 3DMM used to generate the synthetic REMESH data, the
 Basel Face Model 2009 (BFM09)~\cite{paysan2009bfm},
 requires a separate license agreement, we do not redistribute the original mesh
-assets directly. Instead, we will release the generation coefficients and the
-benchmark metadata needed to reconstruct the evaluation protocol. 
+assets directly. Instead, we will release the generation coefficients \todo{i coefficienti BFM delle 500 identit\`a REMESH non sono stati conservati (App.~\ref{app:identity_distinctness}): decidere cosa si rilascia per ricostruire REMESH} and the
+benchmark metadata needed to reconstruct the evaluation protocol.
 %including subject split files, ground-truth identity-distance matrices, topology realization metadata, and evaluation resources. %This design preserves the
 %reproducibility of the metric meta-evaluation while respecting the licensing
 % constraints of the underlying morphable model.
 
 \section{Conclusions and Limitations}\label{sec:limitations}
 % TODO run massivo: riscrivere il primo paragrafo con il modello finale.
-A registration-free encoder that factorizes size and shape ranks identities by form, on face families it never saw in training and always across discretizations, better than registration pipelines in millimetres and than 3DMM fits where facial size varies, at a per-mesh cost comparable to a fit. Its form advantage on HIFI3D is not resolved against an oracle size scalar, and where size barely varies a 3DMM fitted with the model in the loop ranks shape better. We report these limits next to the gains.
+% fonte FaMoS: baselines_param/conclusions.md, emendamento 2 (composizione 0.753 / 0.708, non risolte);
+% factorized_results.md, analisi della taglia, FaMoS (c) 0.678 / 0.654; CV di S 4.4% (controls_e2.json, famos S_cv).
+On HIFI3D, where facial size varies, and without boundary crops, a registration-free encoder that factorizes size and shape ranks identities by form across discretizations, on a face family it never saw in training, better than registration pipelines in millimetres and than 3DMM fits, at a per-mesh cost comparable to a fit. This rests on a post-hoc calibration of its shape scale, without which it is level with rigid ICP + Chamfer. The advantage does not extend to every family where size varies: on the 15 FaMoS test subjects (coefficient of variation of size 4.4\%) it is below the size-plus-shape composition of the fits in point estimate, unresolved (0.678 and 0.654 against 0.753 and 0.708). Its form advantage on HIFI3D is not resolved against an oracle size scalar, where size barely varies (FaceScape) a 3DMM fitted with the model in the loop ranks shape and form better, and boundary crops break it. We report these limits next to the gains.
 
-% NOTA (11 ott): il paragrafo seguente (compressione da registrazione) resta valido in dominio, con la GT maxabs;
-% va riletto quando paper/drafts/sec_gt.tex sara' integrato.
-We investigated a key limitation of standard error-computation pipelines for
-3D face reconstruction. Our experiments show that pre-processing and alignment
-steps commonly used in registration-based pipelines can distort the global
-structure of shape similarity, making distances less consistent across mesh
-pairs and degrading identity-ranking fidelity. This occurs because pair-specific
-surface-fit objectives can suppress identity-related morphology and non-uniformly
-compress inter-subject distances. Therefore, reconstruction evaluation should
-distinguish global canonical normalization from pair-specific alignment, and
-should not assume that lower post-registration surface error implies better
-identity-aware comparability.
+% SMENTITO (11 ott, critic) fuori dominio: il paragrafo commentato sotto dice che l'allineamento degrada la fedelta'
+% del ranking d'identita'. Vale solo in dominio (REMESH, GT maxabs). Con FR sulle famiglie tenute fuori l'ICP rigido
+% migliora la Chamfer in mm (HIFI3D 0.411 -> 0.643, FaceScape 0.211 -> 0.467, FaceVerse 0.281 -> 0.337,
+% baselines_mm/spearman.csv) e, gia' con la normalizzazione maxabs, NICP 0.367 e ICP 0.325 stanno sopra e108 (0.194;
+% e12/summary.md sez. 5, F + rigida robusta; delta +0.174 [+0.092, +0.253] e +0.131 [+0.044, +0.223],
+% baselines_mm/paired.csv).
+%We investigated a key limitation of standard error-computation pipelines for
+%3D face reconstruction. Our experiments show that pre-processing and alignment
+%steps commonly used in registration-based pipelines can distort the global
+%structure of shape similarity, making distances less consistent across mesh
+%pairs and degrading identity-ranking fidelity. This occurs because pair-specific
+%surface-fit objectives can suppress identity-related morphology and non-uniformly
+%compress inter-subject distances. Therefore, reconstruction evaluation should
+%distinguish global canonical normalization from pair-specific alignment, and
+%should not assume that lower post-registration surface error implies better
+%identity-aware comparability.
+% fonte del paragrafo nuovo: baselines_mm/spearman.csv (FR; HIFI3D e FaceScape nocrop_cross, FaceVerse
+% mesh_pair_nocrop; mm_chamfer, mm_rigid_icp_chamfer, cs_rigid_icp_chamfer, mm_nicp_p2tri, mm_nicp_template).
+% baselines_mm/paired.csv non ha delta appaiati fra pipeline (solo contro e108 e fra normalizzazioni): IC appaiati
+% dei confronti qui sotto da calcolare.
+Our evidence on alignment is narrower than in the original submission. On REMESH with the legacy maxabs reference, pre-processing and pairwise alignment compress inter-subject distances and lower the agreement with identity rankings (Sects.~\ref{sec:alignment_results} and~\ref{sec:distance_compression}). On held-out families with the form reference, a single rigid alignment, the minimal invariance, helps instead: rigid ICP raises centred Chamfer in millimetres from 0.411 to 0.643 on HIFI3D, from 0.211 to 0.467 on FaceScape and from 0.281 to 0.337 on FaceVerse with expressions (point estimates; \todo{IC appaiati}), and even with the legacy per-mesh normalization rigid ICP and NICP rank form above an earlier, size-blind version of our encoder on HIFI3D (0.325 and 0.367 against 0.194). The reading these numbers support is that alignment which removes more than the pair requires lowers form ranking. Removing scale lowers rigid ICP from 0.643 to 0.359 on HIFI3D, where size varies (on FaceScape and FaceVerse, where it barely varies, from 0.467 to 0.429 and from 0.337 to 0.290), and pairwise non-rigid ICP stays below rigid ICP in millimetres on all three families (0.495, 0.374 and 0.201), whereas registering each mesh non-rigidly to a common template is not consistently below it (0.614, 0.544 and 0.212). Reconstruction evaluation should therefore declare its reference and distinguish one canonical fit per identity from pair-specific alignment.
 
 % SMENTITO (11 ott): il paragrafo commentato sotto dice che le distanze latenti non sono in unita' fisiche e cita lo
 % zero-shot FaceScape del modello v1. Ora d_F calibrata e' in mm a meno di un fattore che dipende dal dominio (sotto),
@@ -913,17 +959,24 @@ identity-aware comparability.
 % fonti: aau/runs/evidence/baselines_param/results.md (hifi3d e facescape all_cross e "righe col crop"; "Diagnostica
 % del crop sui bracci"), conclusions.md (emendamento 2), PROTOCOL_emendamento_3.md sez. 3 (crop nel training, fragilita'
 % nota); aau/runs/evidence/baselines_mm/spearman.csv (ICP + Chamfer in mm, all_cross, FR); aau/runs/evidence/e1/summary.md
-% (C3F, GT maxabs); paper/REPORT.md (Weyl, lambda_128).
+% (C3F, GT maxabs, matrice a 21.096 passi, r. 276; a 10.548 passi, r. 256, era 0.716 [0.645, 0.776] -> 0.587).
+% HIFI3D col crop contro B: baselines_param/results.md, "hifi3d, all_cross" e "... righe col crop" (r. 140-147 e
+% 183-191 della lettura dell'emendamento 2).
+% NOTA (11 ott, critic B1): tolta la causa "Weyl / lambda_128 si sposta del 16%". Non vale per questo modello: gli
+% operatori sono calcolati su mesh ad area 1 (v2_work/potential/areanorm_operators.py) e il loader divide gli
+% autovalori per lam_max = evals[k_eig-1] (v2_work/fastio/area_norm_data.py; trainer_v3/factorized.md sez. 1), quindi
+% lambda_128 = 1 per ogni mesh (Weyl normalization dichiarata in sec:learned_metric_protocol).
 % Decisione del PI (11 ott): il crop esce dalla tesi principale ma resta qui, con numeri e causa.
-Our encoder is not robust to boundary crops, although cropped meshes are part of its training distribution (the same crop generator is applied to BFM, ICT and GNM). When the pairs that involve a crop are added (all cross-topology pairs), the calibrated form distance drops on FaceScape from 0.661 and 0.669 to 0.370 [0.320, 0.418] and 0.351 [0.308, 0.393], about the level of rigid ICP + Chamfer in millimetres on all pairs (0.381 [0.326, 0.434]); on HIFI3D it drops from 0.749 and 0.731 to 0.709 [0.635, 0.771] and 0.661 [0.587, 0.724] (rigid ICP + Chamfer in mm: 0.556 [0.488, 0.617]), and to 0.663 [0.592, 0.722] and 0.552 [0.480, 0.615] on the pairs that involve a crop. The 3DMM fits barely move (GNM with the model in the loop, shape on FaceScape: 0.854 without crop, 0.840 on all pairs, 0.830 on crop pairs), so on all pairs every declared comparison on FaceScape favours the fits. The fragility predates this model: with the legacy reference, an earlier encoder scored 0.716 [0.645, 0.776] on HIFI3D without crop and 0.587 [0.504, 0.657] on all pairs. The reference is defined on a region that the crop does not touch; the embedding is not. On FaceScape the crop lowers the predicted log size by 0.061--0.070, about four times the between-subject standard deviation of log size (0.016--0.017), and the shape distance $d_P$ (before calibration) between a cropped mesh and the same subject (0.68--0.71) exceeds the median distance between different subjects (0.55); on HIFI3D the shift is smaller ($-0.024$ to $-0.034$) against a wider spread of log size (standard deviation 0.047), and the crop costs less. A likely mechanism is spectral: by Weyl's law the Laplacian eigenvalues scale inversely with surface area, and in our measurements a 14.6\% area loss moves $\lambda_{128}$ by 16\%, against 17\% predicted. The fits, in contrast, compare meshes only on a model region that excludes the boundary ring and discard correspondences on boundary triangles.
-% TODO emendamento 3: controllo di equita' (bracci sull'ingresso ritagliato alla regione di B: recupero o no sulle
-% righe col crop) e diagnosi del crop sugli held-out sintetici del training. Riportare qui l'esito, qualunque sia.
+Our encoder is not robust to boundary crops, although cropped meshes are part of its training distribution (the same crop generator is applied to BFM, ICT and GNM). When the pairs that involve a crop are added (all cross-topology pairs), the calibrated form distance drops on FaceScape from 0.661 and 0.669 to 0.370 [0.320, 0.418] and 0.351 [0.308, 0.393], about the level of rigid ICP + Chamfer in millimetres on all pairs (0.381 [0.326, 0.434]); on HIFI3D it drops from 0.749 and 0.731 to 0.709 [0.635, 0.771] and 0.661 [0.587, 0.724] (rigid ICP + Chamfer in mm: 0.556 [0.488, 0.617]), and to 0.663 [0.592, 0.722] and 0.552 [0.480, 0.615] on the pairs that involve a crop. The 3DMM fits barely move (GNM with the model in the loop, shape on FaceScape: 0.854 without crop, 0.840 on all pairs, 0.830 on crop pairs), so on all pairs every declared comparison on FaceScape favours the fits. On HIFI3D, too, the advantage over the fits does not survive the crop: on all pairs seed 1234 stays above the identity meshes of both fits scored under FR ($+0.058$ [$+0.019$, $+0.100$] GNM, $+0.039$ [$+0.004$, $+0.075$] FLAME), but seed 2345 is level with them ($+0.010$ [$-0.026$, $+0.047$], $-0.009$ [$-0.043$, $+0.025$]) and below them on the pairs that involve a crop ($-0.072$ [$-0.114$, $-0.031$], $-0.086$ [$-0.126$, $-0.048$]); in shape, $d_P$ falls below the GNM coefficients on all pairs ($-0.108$ [$-0.193$, $-0.022$], $-0.124$ [$-0.216$, $-0.032$]). The fragility predates this model: with the legacy reference, an earlier, size-blind encoder trained on the same data for the same 21{,}096 steps scored 0.716 [0.650, 0.773] on HIFI3D without crop and 0.598 [0.523, 0.662] on all pairs. The reference is defined on a region that the crop does not touch; the embedding is not. A post-hoc diagnostic shows that on FaceScape the crop lowers the predicted log size by 0.061--0.070, about four times the between-subject standard deviation of log size (0.016--0.017), and that the shape distance $d_P$ (before calibration) between a cropped mesh and the same subject (0.68--0.71) exceeds the median distance between different subjects (0.55); on HIFI3D the shift is smaller ($-0.024$ to $-0.034$) against a wider spread of log size (standard deviation 0.047), and the crop costs less. The mechanism behind these shifts is not identified. The fits, in contrast, compare meshes only on a model region that excludes the boundary ring and discard correspondences on boundary triangles.
+% TODO emendamento 3: meccanismo del crop non identificato (diagnosi sugli held-out sintetici del training) e
+% controllo di equita' (bracci sull'ingresso ritagliato alla regione di B: recupero o no sulle righe col crop).
+% Riportare qui l'esito, qualunque sia.
 % TODO run massivo / ablazione: run secondario su A100 con augmentation di parzialita' variabile (decisione del PI);
 % il run principale non cambia ricetta per il crop.
 
 \paragraph{Size, shape and calibration.}
 % fonte: factorized_results.md, "Analisi della taglia" e "(iii) Errore di dominio della calibrazione".
-On HIFI3D our form advantage is not resolved against an oracle size scalar, and a pre-registered criterion for form beyond size fails for every model we trained (Sect.~\ref{sec:factorized_results}). The constant $c$ is estimated on synthetic held-out data and does not transfer exactly: the value that would match medians on the test families is 0.503 on HIFI3D and 0.343 on FaceScape, against the 0.405 we use (ratios 1.24 and 0.85). The calibrated composition of rigid ICP is off by the same ratios (1.25 and 0.87), so the error comes from the domains rather than from the model, but $d_F$ remains sensitive to $c$. Where size barely varies (FaceScape, our development set), a 3DMM fitted with the model in the loop ranks shape better than our encoder (Sect.~\ref{sec:factorized_results}).
+On HIFI3D our form advantage is not resolved against an oracle size scalar, and a pre-registered criterion for form beyond size fails for every model we trained (Sect.~\ref{sec:factorized_results}). The constant $c$ is a post-hoc amendment (Sect.~\ref{sec:factorized_head}); it is estimated on synthetic held-out data and does not transfer exactly: the value that would match medians on the test families is 0.503 and 0.507 on HIFI3D and 0.343 and 0.352 on FaceScape for the two seeds, against the 0.405 we use (ratios 1.24--1.25 and 0.85--0.87). The calibrated composition of rigid ICP is off by similar ratios (1.25 and 0.87), so the error comes from the domains rather than from the model, but $d_F$ remains sensitive to $c$. Where size barely varies (FaceScape, our development set), a 3DMM fitted with the model in the loop ranks shape and form better than our encoder (Sect.~\ref{sec:factorized_results}).
 
 REMESH also has scope limitations that constrain the generality of our
 conclusions. All identities are represented in a neutral expression;
@@ -1048,9 +1101,12 @@ operators. Thus, intrinsic operators do not guarantee topology invariance by
 themselves. Our model combines extrinsic XYZ coordinates with geometry-aware
 diffusion operators and is explicitly trained across topology variants, so that
 topology-dependent operator differences are treated as nuisance variation while
-identity-related geometric differences are preserved. This holds for remeshing,
-decimation, noise and upsampling, but not for boundary crops, although they are
-in the training distribution (Sect.~\ref{sec:limitations}).
+identity-related geometric differences are preserved. Our evaluation pairs meshes
+across remeshing, decimation, noise and upsampling (Sect.~\ref{sec:factorized_results});
+boundary crops, although in the training distribution, break the embedding
+(Sect.~\ref{sec:limitations}).
+% NOTA (11 ott, critic): "This holds for remeshing..." tolto: la robustezza alla discretizzazione non ha ancora un
+% numero dedicato (media dentro le coppie di topologie senza crop, emendamento 3).
 
 \subsection{Training Details}
 \label{app:training_details}
@@ -1189,12 +1245,14 @@ up60k & 0.705 [0.631, 0.766] & 0.798 [0.744, 0.844] & 0.798 [0.744, 0.843] & 0.7
 
 Table~\ref{tab:xtopo_latent_chamfer_app} reports cross-topology Spearman
 correlation across perturbation regimes for representative ordered topology
-pairs. Each entry reports latent distance / raw Chamfer. The results confirm the
-trend observed in the main paper: Chamfer is highly sensitive to topology and
-support mismatch, while the learned metric preserves substantially stronger
-agreement with the ground-truth ranking.
+pairs. Each entry reports latent distance / raw Chamfer. On REMESH with the legacy
+maxabs reference (v1 model, fb100; Sect.~\ref{sec:heldout_contamination}), Chamfer
+is highly sensitive to topology and support mismatch, while the learned metric
+keeps a stronger agreement with the reference ranking. This in-domain result does
+not carry over to held-out families, where boundary crops break our current
+encoder (Sect.~\ref{sec:limitations}).
 % SMENTITO (11 ott) fuori dominio per le coppie col crop: vale solo per il modello v1 su REMESH (GT maxabs). Vedi
-% Sect. sec:limitations.
+% Sect. sec:limitations. Tolto "confirm the trend observed in the main paper" (critic, 11 ott).
 
 \begin{table*}[h]
 \centering
@@ -1319,12 +1377,14 @@ NICP P2Tri
 
 % NOTA (11 ott): in dominio (REMESH, GT maxabs, baseline normalizzate per maxabs). Con la GT FR e le baseline in mm
 % il quadro cambia (aau/runs/evidence/e12/summary.md, sez. 5; Sect. sec:factorized_results).
-Across clean, translation, rotation, and jitter perturbations, the learned
-latent distance remains more correlated with the ground-truth identity distance
-than all geometry-only baselines. The gap is particularly pronounced under
-jitter, where rigid and non-rigid registration become nearly uncorrelated with
-identity ranking, while the latent distance still preserves a Spearman
-correlation of $0.562$.
+On REMESH with the legacy maxabs reference, across clean, translation, rotation,
+and jitter perturbations, the learned latent distance remains more correlated
+with the reference identity distance than all geometry-only baselines. The gap
+is particularly pronounced under jitter, where rigid and non-rigid registration
+become nearly uncorrelated with identity ranking, while the latent distance still
+preserves a Spearman correlation of $0.562$. With the form reference and
+size-preserving baselines on held-out families the picture changes
+(Sect.~\ref{sec:limitations}).
 
 \section{Additional Registration Compression Analysis}
 \label{app:compression_analysis}
