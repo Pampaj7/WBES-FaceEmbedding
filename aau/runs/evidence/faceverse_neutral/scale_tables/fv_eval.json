@@ -1,0 +1,44 @@
+{
+ "view_dir": "datasets/FACEVERSE_ZS/eval_view/npz",
+ "domain": "faceverse",
+ "n_meshes": 3000,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "faceverse": {
+   "u": 161.8146394877962,
+   "R": [
+    [
+     0.9997685133935781,
+     0.0005234195626563084,
+     0.021509199398293922
+    ],
+    [
+     0.0022570003496356888,
+     -0.9967397476079051,
+     -0.08065222556105738
+    ],
+    [
+     0.02139685902687316,
+     0.08068210192162419,
+     -0.9965101970643815
+    ]
+   ],
+   "unit_source": "IPD: 63 mm / IPD della media"
+  }
+ },
+ "definition": "area_mm2 = u_d^2 * area totale della geometria grezza (unita' native); fattore al servizio sqrt(area_mm2 / area(V_loader)), poi rotazione R_d (global_v3.py)",
+ "check_maxabs_vs_view": {
+  "n_checked": 0,
+  "max_abs": null
+ },
+ "sqrt_area_mm_median": {
+  "faceverse|crop": 180.7227585386293,
+  "faceverse|down8k": 188.77909048824785,
+  "faceverse|noisy": 299.84156760163705,
+  "faceverse|original": 188.8997973312873,
+  "faceverse|remesh": 186.08157269818025,
+  "faceverse|up60k": 188.89851279013456
+ },
+ "seconds": 29.102211952209473,
+ "host": "a768-l40s-05.srv.aau.dk"
+}

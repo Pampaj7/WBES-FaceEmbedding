@@ -1,0 +1,190 @@
+what,source,published,recomputed,abs_diff
+espressioni factorized s1234 form GT fr (point),factorized_results.csv / form_spearman.csv,0.296852447129,0.296852447129,0.0
+espressioni factorized s1234 form GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.22834306718610128,0.22834306718610128,0.0
+espressioni factorized s1234 form GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.36046282251496947,0.36046282251496947,0.0
+neutra factorized s1234 form GT fr (point),faceverse_neutral/form (eval_factorized.py),0.3368942683187284,0.3368942683187284,0.0
+neutra factorized s1234 form GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.2565865901299074,0.2565865901299074,0.0
+neutra factorized s1234 form GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.40909892947298193,0.40909892947298193,0.0
+espressioni factorized s1234 shape GT sr (point),factorized_results.csv / form_spearman.csv,0.2860847848006688,0.2860847848006688,0.0
+espressioni factorized s1234 shape GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.21843348646528096,0.21843348646528096,0.0
+espressioni factorized s1234 shape GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3530004788529449,0.3530004788529449,0.0
+neutra factorized s1234 shape GT sr (point),faceverse_neutral/form (eval_factorized.py),0.3334428059870654,0.3334428059870654,0.0
+neutra factorized s1234 shape GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.25568956429435497,0.25568956429435497,0.0
+neutra factorized s1234 shape GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.40175472541599266,0.40175472541599266,0.0
+espressioni factorized s1234 form GT maxabs (point),factorized_results.csv / form_spearman.csv,0.3278143993715284,0.3278143993715284,0.0
+espressioni factorized s1234 form GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.25887625779984924,0.25887625779984924,0.0
+espressioni factorized s1234 form GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.39590380479514753,0.39590380479514753,0.0
+neutra factorized s1234 form GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.38362413675096885,0.38362413675096885,0.0
+neutra factorized s1234 form GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.30700967244539595,0.30700967244539595,0.0
+neutra factorized s1234 form GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.45764578229526076,0.45764578229526076,0.0
+espressioni factorized s2345 form GT fr (point),factorized_results.csv / form_spearman.csv,0.31700342704141277,0.31700342704141277,0.0
+espressioni factorized s2345 form GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.24807278281302275,0.24807278281302275,0.0
+espressioni factorized s2345 form GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.38349414724697556,0.38349414724697556,0.0
+neutra factorized s2345 form GT fr (point),faceverse_neutral/form (eval_factorized.py),0.3733024279812152,0.3733024279812152,0.0
+neutra factorized s2345 form GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.29749460563701663,0.29749460563701663,0.0
+neutra factorized s2345 form GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.4442294989933968,0.4442294989933968,0.0
+espressioni factorized s2345 shape GT sr (point),factorized_results.csv / form_spearman.csv,0.3130505040630866,0.3130505040630866,0.0
+espressioni factorized s2345 shape GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.2402149470173562,0.2402149470173562,0.0
+espressioni factorized s2345 shape GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.380797168259839,0.380797168259839,0.0
+neutra factorized s2345 shape GT sr (point),faceverse_neutral/form (eval_factorized.py),0.37191267598031574,0.37191267598031574,0.0
+neutra factorized s2345 shape GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.2944850585851804,0.2944850585851804,0.0
+neutra factorized s2345 shape GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.44213542893714575,0.44213542893714575,0.0
+espressioni factorized s2345 form GT maxabs (point),factorized_results.csv / form_spearman.csv,0.3213560516241845,0.3213560516241845,0.0
+espressioni factorized s2345 form GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.24034169937583674,0.24034169937583674,0.0
+espressioni factorized s2345 form GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.4011908376679541,0.4011908376679541,0.0
+neutra factorized s2345 form GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.38787035655994634,0.38787035655994634,0.0
+neutra factorized s2345 form GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.3037691282478726,0.3037691282478726,0.0
+neutra factorized s2345 form GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.4763182200263896,0.4763182200263896,0.0
+espressioni factorized2 s1234 form GT fr (point),factorized_results.csv / form_spearman.csv,0.33699703874228315,0.33699703874228315,0.0
+espressioni factorized2 s1234 form GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.2744853243253991,0.2744853243253991,0.0
+espressioni factorized2 s1234 form GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.3917588934920563,0.3917588934920563,0.0
+neutra factorized2 s1234 form GT fr (point),faceverse_neutral/form (eval_factorized.py),0.39594267449088316,0.39594267449088316,0.0
+neutra factorized2 s1234 form GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.3202420466717613,0.3202420466717613,0.0
+neutra factorized2 s1234 form GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.4642434213321474,0.4642434213321474,0.0
+espressioni factorized2 s1234 shape GT sr (point),factorized_results.csv / form_spearman.csv,0.337381636621748,0.337381636621748,0.0
+espressioni factorized2 s1234 shape GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.27283739002303414,0.27283739002303414,0.0
+espressioni factorized2 s1234 shape GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3920942585268752,0.3920942585268752,0.0
+neutra factorized2 s1234 shape GT sr (point),faceverse_neutral/form (eval_factorized.py),0.40686036914492707,0.40686036914492707,0.0
+neutra factorized2 s1234 shape GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.3379977915298343,0.3379977915298343,0.0
+neutra factorized2 s1234 shape GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.47715166523734726,0.47715166523734726,0.0
+espressioni factorized2 s1234 form GT maxabs (point),factorized_results.csv / form_spearman.csv,0.37331962320378254,0.37331962320378254,0.0
+espressioni factorized2 s1234 form GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.3022671023070066,0.3022671023070066,0.0
+espressioni factorized2 s1234 form GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.4371670929323511,0.4371670929323511,0.0
+neutra factorized2 s1234 form GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.43682113818809704,0.43682113818809704,0.0
+neutra factorized2 s1234 form GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.36218541245565783,0.36218541245565783,0.0
+neutra factorized2 s1234 form GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.5051002018420666,0.5051002018420666,0.0
+espressioni factorized2 s2345 form GT fr (point),factorized_results.csv / form_spearman.csv,0.3398417683411419,0.3398417683411419,0.0
+espressioni factorized2 s2345 form GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.2709914919564492,0.2709914919564492,0.0
+espressioni factorized2 s2345 form GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.4040696313624711,0.4040696313624711,0.0
+neutra factorized2 s2345 form GT fr (point),faceverse_neutral/form (eval_factorized.py),0.37510143642009414,0.37510143642009414,0.0
+neutra factorized2 s2345 form GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.3022919855022881,0.3022919855022881,0.0
+neutra factorized2 s2345 form GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.4461516305060572,0.4461516305060572,0.0
+espressioni factorized2 s2345 shape GT sr (point),factorized_results.csv / form_spearman.csv,0.3323574286200802,0.3323574286200802,0.0
+espressioni factorized2 s2345 shape GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.25545110639594965,0.25545110639594965,0.0
+espressioni factorized2 s2345 shape GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3971014989266185,0.3971014989266185,0.0
+neutra factorized2 s2345 shape GT sr (point),faceverse_neutral/form (eval_factorized.py),0.37362696276798874,0.37362696276798874,0.0
+neutra factorized2 s2345 shape GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.2952390551415692,0.2952390551415692,0.0
+neutra factorized2 s2345 shape GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.4441296958395057,0.4441296958395057,0.0
+espressioni factorized2 s2345 form GT maxabs (point),factorized_results.csv / form_spearman.csv,0.3404922185277278,0.3404922185277278,0.0
+espressioni factorized2 s2345 form GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.25904935897814496,0.25904935897814496,0.0
+espressioni factorized2 s2345 form GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.4176706995943976,0.4176706995943976,0.0
+neutra factorized2 s2345 form GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.38186670078113816,0.38186670078113816,0.0
+neutra factorized2 s2345 form GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.28971586175442876,0.28971586175442876,0.0
+neutra factorized2 s2345 form GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.4621566327832952,0.4621566327832952,0.0
+espressioni ctrlfr s1234 z GT fr (point),factorized_results.csv / form_spearman.csv,0.2822557253044096,0.2822557253044096,0.0
+espressioni ctrlfr s1234 z GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.21779271117480334,0.21779271117480334,0.0
+espressioni ctrlfr s1234 z GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.3429417042124061,0.3429417042124061,0.0
+neutra ctrlfr s1234 z GT fr (point),faceverse_neutral/form (eval_factorized.py),0.32721820668551066,0.32721820668551066,0.0
+neutra ctrlfr s1234 z GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.2573120295786737,0.2573120295786737,0.0
+neutra ctrlfr s1234 z GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.39553919058219883,0.39553919058219883,0.0
+espressioni ctrlfr s1234 z GT sr (point),factorized_results.csv / form_spearman.csv,0.272761339633166,0.272761339633166,0.0
+espressioni ctrlfr s1234 z GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.1979063679627916,0.1979063679627916,0.0
+espressioni ctrlfr s1234 z GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3404251506398665,0.3404251506398665,0.0
+neutra ctrlfr s1234 z GT sr (point),faceverse_neutral/form (eval_factorized.py),0.3261507952302133,0.3261507952302133,0.0
+neutra ctrlfr s1234 z GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.24735343514570873,0.24735343514570873,0.0
+neutra ctrlfr s1234 z GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.3968417116332638,0.3968417116332638,0.0
+espressioni ctrlfr s1234 z GT maxabs (point),factorized_results.csv / form_spearman.csv,0.307683314100698,0.307683314100698,0.0
+espressioni ctrlfr s1234 z GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.23058384331919593,0.23058384331919593,0.0
+espressioni ctrlfr s1234 z GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.3790627476559368,0.3790627476559368,0.0
+neutra ctrlfr s1234 z GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.3519646554310207,0.3519646554310207,0.0
+neutra ctrlfr s1234 z GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.2617571085615975,0.2617571085615975,0.0
+neutra ctrlfr s1234 z GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.43048667090480613,0.43048667090480613,0.0
+espressioni ctrlfr s2345 z GT fr (point),factorized_results.csv / form_spearman.csv,0.2578261288287584,0.2578261288287584,0.0
+espressioni ctrlfr s2345 z GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.18712223553392845,0.18712223553392845,0.0
+espressioni ctrlfr s2345 z GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.32228883139627945,0.32228883139627945,0.0
+neutra ctrlfr s2345 z GT fr (point),faceverse_neutral/form (eval_factorized.py),0.2992747111190866,0.2992747111190866,0.0
+neutra ctrlfr s2345 z GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.21531217482786394,0.21531217482786394,0.0
+neutra ctrlfr s2345 z GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.3781827083191822,0.3781827083191822,0.0
+espressioni ctrlfr s2345 z GT sr (point),factorized_results.csv / form_spearman.csv,0.2589830114397992,0.2589830114397992,0.0
+espressioni ctrlfr s2345 z GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.1849860574676384,0.1849860574676384,0.0
+espressioni ctrlfr s2345 z GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3276926723821667,0.3276926723821667,0.0
+neutra ctrlfr s2345 z GT sr (point),faceverse_neutral/form (eval_factorized.py),0.30541714343967963,0.30541714343967963,0.0
+neutra ctrlfr s2345 z GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.22324054319791442,0.22324054319791442,0.0
+neutra ctrlfr s2345 z GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.3841983123192131,0.3841983123192131,0.0
+espressioni ctrlfr s2345 z GT maxabs (point),factorized_results.csv / form_spearman.csv,0.3129868011105511,0.3129868011105511,0.0
+espressioni ctrlfr s2345 z GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.24140377670073584,0.24140377670073584,0.0
+espressioni ctrlfr s2345 z GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.37887819754156266,0.37887819754156266,0.0
+neutra ctrlfr s2345 z GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.36937786462053573,0.36937786462053573,0.0
+neutra ctrlfr s2345 z GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.2930544514362183,0.2930544514362183,0.0
+neutra ctrlfr s2345 z GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.4422663559601841,0.4422663559601841,0.0
+espressioni C3M e205 form GT fr (point),factorized_results.csv / form_spearman.csv,0.30508679413667805,0.30508679413667805,0.0
+espressioni C3M e205 form GT fr (ci_low),factorized_results.csv / form_spearman.csv,0.23180701847034013,0.23180701847034013,0.0
+espressioni C3M e205 form GT fr (ci_high),factorized_results.csv / form_spearman.csv,0.37156088080622524,0.37156088080622524,0.0
+neutra C3M e205 form GT fr (point),faceverse_neutral/form (eval_factorized.py),0.35701015012206494,0.35701015012206494,0.0
+neutra C3M e205 form GT fr (ci_low),faceverse_neutral/form (eval_factorized.py),0.26884242655598245,0.26884242655598245,0.0
+neutra C3M e205 form GT fr (ci_high),faceverse_neutral/form (eval_factorized.py),0.4340998215268465,0.4340998215268465,0.0
+espressioni C3M e205 shape GT sr (point),factorized_results.csv / form_spearman.csv,0.314459461766127,0.314459461766127,0.0
+espressioni C3M e205 shape GT sr (ci_low),factorized_results.csv / form_spearman.csv,0.2440493856858131,0.2440493856858131,0.0
+espressioni C3M e205 shape GT sr (ci_high),factorized_results.csv / form_spearman.csv,0.3800299941819409,0.3800299941819409,0.0
+neutra C3M e205 shape GT sr (point),faceverse_neutral/form (eval_factorized.py),0.3819163319619543,0.3819163319619543,0.0
+neutra C3M e205 shape GT sr (ci_low),faceverse_neutral/form (eval_factorized.py),0.3018361939049937,0.3018361939049937,0.0
+neutra C3M e205 shape GT sr (ci_high),faceverse_neutral/form (eval_factorized.py),0.45577764876374266,0.45577764876374266,0.0
+espressioni C3M e205 form GT maxabs (point),factorized_results.csv / form_spearman.csv,0.33515968644210054,0.33515968644210054,0.0
+espressioni C3M e205 form GT maxabs (ci_low),factorized_results.csv / form_spearman.csv,0.25605772542124977,0.25605772542124977,0.0
+espressioni C3M e205 form GT maxabs (ci_high),factorized_results.csv / form_spearman.csv,0.40598691684963706,0.40598691684963706,0.0
+neutra C3M e205 form GT maxabs (point),faceverse_neutral/form (eval_factorized.py),0.3878507538110303,0.3878507538110303,0.0
+neutra C3M e205 form GT maxabs (ci_low),faceverse_neutral/form (eval_factorized.py),0.30396689548564393,0.30396689548564393,0.0
+neutra C3M e205 form GT maxabs (ci_high),faceverse_neutral/form (eval_factorized.py),0.4614149508288291,0.4614149508288291,0.0
+espressioni e108 (cieco alla taglia) GT fr (point),baselines_mm/spearman.csv (punto),0.1844364557528601,0.1844364557528601,0.0
+espressioni e108 (cieco alla taglia) GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.129743928570045,0.1266231189394131,0.003120809630631882
+espressioni e108 (cieco alla taglia) GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.23336534747227197,0.24040730697830562,0.007041959506033646
+espressioni e108 (cieco alla taglia) GT sr (point),baselines_mm/spearman.csv (punto),0.18967480030810996,0.18967480030810996,0.0
+espressioni e108 (cieco alla taglia) GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.13588776421282805,0.13145838606197793,0.004429378150850122
+espressioni e108 (cieco alla taglia) GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.23960051926017142,0.24631488173692714,0.00671436247675572
+espressioni e108 (cieco alla taglia) GT maxabs (point),baselines_mm/spearman.csv (punto),0.2646340450610306,0.2646337144942545,3.30566776118868e-07
+espressioni e108 (cieco alla taglia) GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.20082001935168456,0.19818413421060294,0.002635885141081623
+espressioni e108 (cieco alla taglia) GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.3204661263794195,0.3257268640148618,0.00526073763544227
+espressioni ICP + Chamfer in mm GT fr (point),baselines_mm/spearman.csv (punto),0.33721269979761886,0.33721269979761886,0.0
+espressioni ICP + Chamfer in mm GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.26193657222881483,0.26237636415327553,0.00043979192446069737
+espressioni ICP + Chamfer in mm GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.4097946340395965,0.4048293505080506,0.004965283531545905
+espressioni ICP + Chamfer in mm GT sr (point),baselines_mm/spearman.csv (punto),0.30940498041386943,0.30940498041386943,0.0
+espressioni ICP + Chamfer in mm GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.2344117368287526,0.23548826985244398,0.0010765330236913728
+espressioni ICP + Chamfer in mm GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.37973319108503034,0.38017430398755986,0.00044111290252951685
+espressioni ICP + Chamfer in mm GT maxabs (point),baselines_mm/spearman.csv (punto),0.36390593598082055,0.36390609637432936,1.6039350880792114e-07
+espressioni ICP + Chamfer in mm GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.28798859492740025,0.2964930348715296,0.00850443994412936
+espressioni ICP + Chamfer in mm GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.4280299821658451,0.42504134294905965,0.002988639216785438
+espressioni NICP per coppia in mm GT fr (point),baselines_mm/spearman.csv (punto),0.20100825099426228,0.20100825099426228,0.0
+espressioni NICP per coppia in mm GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.12782684782702217,0.12587530515779455,0.0019515426692276183
+espressioni NICP per coppia in mm GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.2765461582608326,0.28325922549707155,0.006713067236238934
+espressioni NICP per coppia in mm GT sr (point),baselines_mm/spearman.csv (punto),0.22326991128490298,0.22326991128490298,0.0
+espressioni NICP per coppia in mm GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.14709140173030913,0.14775290697701582,0.0006615052467066895
+espressioni NICP per coppia in mm GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.29802574621036526,0.3033906284898135,0.005364882279448258
+espressioni NICP per coppia in mm GT maxabs (point),baselines_mm/spearman.csv (punto),0.17512982792530668,0.17512982216826853,5.7570381517546565e-09
+espressioni NICP per coppia in mm GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.092765456915048,0.09818881300592605,0.005423356090878045
+espressioni NICP per coppia in mm GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.2501618808774413,0.25469690841163384,0.004535027534192548
+espressioni NICP su template in mm GT fr (point),baselines_mm/spearman.csv (punto),0.2117644775796159,0.2117644775796159,0.0
+espressioni NICP su template in mm GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.11737360935275053,0.1169001578398457,0.00047345151290482945
+espressioni NICP su template in mm GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.30781795505195114,0.3032046641444298,0.004613290907521328
+espressioni NICP su template in mm GT sr (point),baselines_mm/spearman.csv (punto),0.1517279574588967,0.1517279574588967,0.0
+espressioni NICP su template in mm GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.05759714767382671,0.06092226775745248,0.003325120083625767
+espressioni NICP su template in mm GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.24622241973594972,0.24558519320397285,0.00063722653197687
+espressioni NICP su template in mm GT maxabs (point),baselines_mm/spearman.csv (punto),0.2445000333232122,0.244500002421776,3.090143621542474e-08
+espressioni NICP su template in mm GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.15237245035849994,0.1513106824650149,0.001061767893485055
+espressioni NICP su template in mm GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.3306830482655583,0.32700918485041036,0.0036738634151479155
+"espressioni NICP per coppia, modo cs GT fr (point)",baselines_mm/spearman.csv (punto),0.21173259779316414,0.21173259779316414,0.0
+"espressioni NICP per coppia, modo cs GT fr (ci_low)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.13122275395401686,0.1292032772968945,0.0020194766571223766
+"espressioni NICP per coppia, modo cs GT fr (ci_high)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.2919454527323459,0.29150919575014056,0.0004362569822053408
+"espressioni NICP per coppia, modo cs GT sr (point)",baselines_mm/spearman.csv (punto),0.23516918514079374,0.23516918514079374,0.0
+"espressioni NICP per coppia, modo cs GT sr (ci_low)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.15827577564881692,0.1556936224844648,0.002582153164352119
+"espressioni NICP per coppia, modo cs GT sr (ci_high)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.3095940104601772,0.3119657619598421,0.002371751499664898
+"espressioni NICP per coppia, modo cs GT maxabs (point)",baselines_mm/spearman.csv (punto),0.19735027699560603,0.19735029403513135,1.7039525318507387e-08
+"espressioni NICP per coppia, modo cs GT maxabs (ci_low)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.1150883068727913,0.11698752726155895,0.00189922038876765
+"espressioni NICP per coppia, modo cs GT maxabs (ci_high)","baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.27267134576067104,0.27842849113545076,0.005757145374779726
+espressioni taglia stimata (non oracolo) GT fr (point),baselines_mm/spearman.csv (punto),0.12627862501520556,0.12627862501520556,0.0
+espressioni taglia stimata (non oracolo) GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.0369757496610719,0.02641403903319402,0.01056171062787788
+espressioni taglia stimata (non oracolo) GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.21372110910907707,0.20762785260308636,0.006093256505990713
+espressioni taglia stimata (non oracolo) GT sr (point),baselines_mm/spearman.csv (punto),0.08006436772298421,0.08006436772298421,0.0
+espressioni taglia stimata (non oracolo) GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",-0.002103140682139225,-0.006610591905026763,0.004507451222887537
+espressioni taglia stimata (non oracolo) GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.16985736528192943,0.15534036122659023,0.014517004055339205
+espressioni taglia stimata (non oracolo) GT maxabs (point),baselines_mm/spearman.csv (punto),0.12391710989628074,0.1239170112528744,9.864340634602176e-08
+espressioni taglia stimata (non oracolo) GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.033973551025653824,0.029895564057084257,0.004077986968569567
+espressioni taglia stimata (non oracolo) GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.21000827790055937,0.21153378559480535,0.0015255076942459755
+espressioni taglia oracolo GT fr (point),baselines_mm/spearman.csv (punto),0.20906440808141163,0.20906440808141163,0.0
+espressioni taglia oracolo GT fr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.11433081225902636,0.1139656960955348,0.00036511616349156617
+espressioni taglia oracolo GT fr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.3068643889697884,0.30841684856228896,0.0015524595925005547
+espressioni taglia oracolo GT sr (point),baselines_mm/spearman.csv (punto),0.018772085595447085,0.018772085595447085,0.0
+espressioni taglia oracolo GT sr (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",-0.06678265688481302,-0.06999265892342448,0.003210002038611451
+espressioni taglia oracolo GT sr (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.10630333248470197,0.1098686349515946,0.003565302466892628
+espressioni taglia oracolo GT maxabs (point),baselines_mm/spearman.csv (punto),0.023937395203609615,0.02393768862346141,2.9341985179412444e-07
+espressioni taglia oracolo GT maxabs (ci_low),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",-0.06269130816494066,-0.0586558477791266,0.004035460385814059
+espressioni taglia oracolo GT maxabs (ci_high),"baselines_mm/spearman.csv (IC, seme di E12 contro 1234)",0.11044057595548243,0.1099500791408882,0.0004904968145942323

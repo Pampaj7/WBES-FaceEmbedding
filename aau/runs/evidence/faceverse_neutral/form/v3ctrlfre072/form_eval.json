@@ -1,0 +1,79 @@
+{
+ "embeddings": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/faceverse_neutral/embed/data_184ec4171e/scale_v3ctrlfrfulle072_flip_embed/zs_zeroshot/embeddings.npz",
+ "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/ctrlfr/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_seed1234__1d3ea212/checkpoints/epoch072_ema.pth",
+ "head": "embed",
+ "dp_per_unit": NaN,
+ "pairs": "nocrop_cross",
+ "n_subjects": 100,
+ "n_mesh_pairs": 99000,
+ "gts": {
+  "fr": "datasets/CANONICAL_GT/eval/faceverse_fr.npz",
+  "sr": "datasets/CANONICAL_GT/eval/faceverse_sr.npz",
+  "maxabs": "datasets/FACEVERSE_ZS/eval_view/gt_matrix.npz"
+ },
+ "median_model": {
+  "z": 1.2962083687532715
+ },
+ "spearman": [
+  {
+   "level": "mesh_pair",
+   "distance": "z",
+   "gt": "fr",
+   "point": 0.32721820668551066,
+   "ci_low": 0.2573120295786737,
+   "ci_high": 0.39553919058219883,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "z",
+   "gt": "sr",
+   "point": 0.3261507952302133,
+   "ci_low": 0.24735343514570873,
+   "ci_high": 0.3968417116332638,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "z",
+   "gt": "maxabs",
+   "point": 0.3519646554310207,
+   "ci_low": 0.2617571085615975,
+   "ci_high": 0.43048667090480613,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "z",
+   "gt": "fr",
+   "point": 0.366277993725841,
+   "ci_low": 0.2866866279409728,
+   "ci_high": 0.44031789182798237,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "z",
+   "gt": "sr",
+   "point": 0.36442922212058587,
+   "ci_low": 0.2790218352401985,
+   "ci_high": 0.44117897805289485,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "z",
+   "gt": "maxabs",
+   "point": 0.39191774187148554,
+   "ci_low": 0.2921090851719981,
+   "ci_high": 0.4739973040385623,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  }
+ ]
+}
