@@ -242,7 +242,7 @@ def fit_table() -> list[str]:
 def fit_table_e1() -> list[str]:
     """Fit delle varianti ed errore di superficie (sez. 3 dell'emendamento) per (vista, modello, fit)."""
     md = ["| vista | modello | fit | mesh | fallite (numericamente) | superficie mm: mediana | p95 (mediana sulle mesh) | "
-          "p95 max | ingresso -> M tenuti | B: corrisp. tenute M -> ingr. / ingr. -> M | s/mesh (A + B + superficie) |",
+          "p95 max | ingresso -> M tenuti | B: corrisp. tenute M -> ingr. / ingr. -> M | s/mesh (NICP + A + B + superficie) |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for v in VIEW_ORDER:
         for m, p in fit_files(v).items():
