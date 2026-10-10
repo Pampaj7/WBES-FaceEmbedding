@@ -128,7 +128,7 @@ def install(ckpt_args: dict) -> dict:
         mh.forward_model = forward_model
         _rebind("forward_model", forward_model)
     return {"pooling": pooling, "input_norm": norm, "area_weights": aw, "head": head,
-            "out": out_mode if head in ("factorized", "factorized2") else "z"}
+            "out": out_mode if head in ("factorized", "factorized2", "dual") else "z"}
 
 
 GLOBAL_KEYS = ("global_area_mm2", "global_R")

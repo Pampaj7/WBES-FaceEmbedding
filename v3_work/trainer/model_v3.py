@@ -107,7 +107,7 @@ def build_model_v3(args, device: torch.device) -> nn.Module:
     if str(args.model) != "xyz_dn":
         raise SystemExit("il trainer v3 supporta solo --model xyz_dn")
     pooling = str(getattr(args, "pooling", "meanmax"))
-    if str(getattr(args, "head", "embed")) in ("factorized", "factorized2"):
+    if str(getattr(args, "head", "embed")) in ("factorized", "factorized2", "dual"):
         if pooling == "meanmax":
             raise SystemExit("--head factorized richiede un pooling per area (--area on|robust o --pooling area_*)")
         import factorized_v3

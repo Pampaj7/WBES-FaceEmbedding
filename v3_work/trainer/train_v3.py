@@ -193,7 +193,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--global-unit-mm", type=float, default=100.0, help="global: L0, la costante (mm) uguale per tutte")
     p.add_argument("--global-ops", default="areanorm", choices=["areanorm", "mm"],
                    help="global: operatori come serviti (area 1) o massa/autovettori nelle unita' di xyz (equivalenti)")
-    p.add_argument("--head", default="embed", choices=["embed", "factorized", "factorized2"])
+    p.add_argument("--head", default="embed", choices=["embed", "factorized", "factorized2", "dual"])
+    p.add_argument("--dist-npz-shape", default="", help="dual: GT di u (GT-SR); --dist_npz e' quella di z_F (GT-FR)")
+    p.add_argument("--gt-scale-shape", type=float, default=1.0, help="dual: come --gt-scale, per la GT di u")
+    p.add_argument("--lambda-form", type=float, default=1.0, help="dual: peso della loss su z_F")
+    p.add_argument("--lambda-shape", type=float, default=1.0, help="dual: peso della loss su u")
     p.add_argument("--size-table", default="", help="factorized: log centroid size per identita' "
                                                     "(tools/build_factorized_targets.py, size.npz)")
     p.add_argument("--lambda-size", type=float, default=1.0)
@@ -266,6 +270,10 @@ def check_args(a: argparse.Namespace) -> None:
         factorized_v3.parse_scale_aug(a.scale_aug)
     elif a.size_table:
         raise SystemExit("--size-table solo con --head factorized")
+    if (a.head == "dual") != bool(a.dist_npz_shape):
+        raise SystemExit("--head dual va con --dist-npz-shape (e --dist-npz-shape solo con dual)")
+    if a.head == "dual" and (a.forward != "sequential" or a.pooling == "meanmax"):
+        raise SystemExit("--head dual: --forward sequential e un pooling per area (--area on|robust)")
 
 
 # --- run dir ----------------------------------------------------------------------------------------
@@ -277,7 +285,8 @@ V3_DEFAULTS = {"forward": "sequential", "loss": "v2", "sampler": "v2", "batch_do
 # loro resta quello di prima (una ripresa con --resume auto ritrova il suo last.pth)
 FACTORIZED_DEFAULTS = {"scale_table": "", "global_unit_mm": 100.0, "global_ops": "areanorm", "head": "embed",
                        "size_table": "", "lambda_size": 1.0, "size_hidden": 64, "scale_aug": "", "gt_scale": 1.0,
-                       "size_mask_domains": ""}
+                       "size_mask_domains": "", "dist_npz_shape": "", "gt_scale_shape": 1.0, "lambda_form": 1.0,
+                       "lambda_shape": 1.0}
 
 
 def make_run_dir(args: argparse.Namespace) -> Path:
@@ -498,6 +507,14 @@ class Data:
         self.counts = {}
         for s in self.train:
             self.counts[domain_of(s)] = self.counts.get(domain_of(s), 0) + 1
+        self.gt_shape = self.n2i_shape = None
+        if args.head == "dual":            # GT di u (GT-SR); data.gt resta quella di z_F (GT-FR)
+            self.gt_shape, self.n2i_shape = dv.load_gt(args.dist_npz_shape, keep_scale=args.gt_keep_scale)
+            if args.gt_scale_shape != 1.0:
+                self.gt_shape *= np.float32(args.gt_scale_shape) if self.gt_shape.dtype == np.float32 else args.gt_scale_shape
+            miss = sorted((set(self.train) | set(self.online)) - set(self.n2i_shape))
+            if miss:
+                raise SystemExit(f"--dist-npz-shape: {len(miss)} soggetti assenti ({miss[:3]})")
         self.log_cs, self.size_init = None, 0.0
         if args.head in ("factorized", "factorized2"):      # log centroid size per identita' (bersaglio di s)
             import factorized_v3    # qui ``fz`` e' il json del held-out congelato (sopra)
@@ -671,6 +688,8 @@ def train_epoch(args, plans, embedder, net, model, optimizer, ema, data: Data, l
                           batch_subjects=list(plan.subjects), gt=data.gt, name_to_idx=data.name_to_idx)
         if args.head in ("factorized", "factorized2"):
             loss, terms = fz.factorized_loss(args, batch, data.log_cs, log_a)
+        elif args.head == "dual":
+            loss, terms = fz.dual_loss(args, batch, data.gt_shape, data.n2i_shape)
         else:
             loss, terms = compute_loss(args.loss, batch, args)
         loss.backward()
@@ -1013,7 +1032,7 @@ def run(args: argparse.Namespace) -> None:
         if rank == 0:
             eval_model = ema.model if ema is not None else model
             if do_eval:
-                fz.set_output(eval_model, "u")     # --head factorized: l'eval online legge solo u (forma)
+                fz.set_output(eval_model, "eval")  # fattorizzati: u (forma); dual: z_F contro data.gt (FR)
                 pack = evaluate_subject_robustness_grid(model=eval_model, eval_ctx=eval_ctx, sigma_grid=sigma_grid,
                                                         noise_modes=noise_modes, params=perturbation,
                                                         seed=args.seed + 50_000 + epoch, eval_mode=args.eval_mode)

@@ -19,11 +19,15 @@ if [[ "$ARM" == factorized* || "$ARM" == ctrlfr* ]]; then
   # (tools/eval_famos_v3.py); ``now``: la pipeline di e108, patch NoW alla taglia del template (le ricostruzioni
   # monoculari non sono metriche: per i fattorizzati conta u), factorized.md.
   ST="$AAU_RUNS/evidence/trainer_v3/factorized/scale_tables"
-  WBES_V3_SCALE_TABLES="$ST/hifi3d_eval.npz:$ST/devfs_eval.npz:$ST/devfs_expr.npz:$ST/fv_expr.npz:$ST/now_scan.npz"
-  for m in 3ddfa_v2 synergynet prnet mica mica_loop2; do WBES_V3_SCALE_TABLES+=":$ST/now_$m.npz"; done
-  export WBES_V3_SCALE_TABLES
+  # UNA tabella per passo (dev FaceScape neutra ed espressioni hanno gli stessi nomi di file: insieme si
+  # contraddicono, ScaleTable si ferma). Metriche dagli embedding (graduata per coppia di mesh come E12, rank-1):
+  # niente breakdown con la Chamfer per braccio. Operatori dei set in cache condivisa.
+  NOW_TABLES="$ST/now_scan.npz"
+  for m in 3ddfa_v2 synergynet prnet mica mica_loop2; do NOW_TABLES+=":$ST/now_$m.npz"; done
   export WBES_V3_FACTORIZED_OUT=u
-  DEF_STEPS="hifi devfs fv form famos now"
+  export WBES_ZS_OPS_CACHE="$WBES_ROOT/datasets/V3_OPS_CACHE"
+  mkdir -p "$WBES_ZS_OPS_CACHE"
+  DEF_STEPS="form famos now"
 fi
 STEPS=" ${WBES_V3_EVAL_STEPS:-$DEF_STEPS} "
 OUT="$AAU_RUNS/evidence/trainer_v3/ablations/c3f_eval"
@@ -43,6 +47,28 @@ ARMS=""; for e in $EPS; do ARMS+="${ARMS:+ }scale_${TAG[$e]}"; done
 ZS="/tmp/zs_v3c3f_${SLURM_JOB_ID:-manual}_${SLURM_RESTART_COUNT:-0}.sh"
 sed 's|^LAUNCH=()$|LAUNCH=(v3_work/trainer/eval_v3.py --)|' "$AAU_DIR/zs3dmm/zs_zeroshot.sbatch" > "$ZS"
 grep -qx 'LAUNCH=(v3_work/trainer/eval_v3.py --)' "$ZS" || { echo "ERRORE: LAUNCH non sostituito" >&2; exit 1; }
+# WBES_ZS_OPS_CACHE (solo bracci a ingresso globale): gli operatori del set valutato non dipendono dal braccio; si
+# calcolano UNA volta in $WBES_ZS_OPS_CACHE/<sha1 di subjects.json: vista, soggetti, frame, flip> (lock), poi si riusano
+python3 - "$ZS" <<'PY'
+import sys
+p = sys.argv[1]; s = open(p).read()
+a = 'echo "[zs-zs] b. operatori (k_eig 128, area unitaria) su /tmp"\n'
+b = (a + 'OPS_DIR="$STAGE_TMP/ops"\nif [[ -n "${WBES_ZS_OPS_CACHE:-}" ]]; then\n'
+     '    OPS_KEY=$(python3 -c "import json,sys; print(json.dumps(json.load(open(sys.argv[1])), sort_keys=True))" '
+     '"$STAGE_TMP/subjects.json" | sha1sum | cut -c1-16)\n'
+     '    OPS_DIR="$WBES_ZS_OPS_CACHE/$OPS_KEY"; mkdir -p "$OPS_DIR"; cp "$STAGE_TMP/subjects.json" "$OPS_DIR.subjects.json"\n'
+     '    exec 9> "$OPS_DIR.lock"; flock 9; find "$OPS_DIR" -name ".*.tmp.npz" -delete; echo "[zs-zs] cache degli operatori $OPS_DIR"\nfi\n')
+c = '--input-dir "$STAGE_TMP/in" --output-dir "$STAGE_TMP/ops"'
+d = 'N_OPS=$(find "$STAGE_TMP/ops" -name "*.npz" | wc -l)'
+e = 'echo "ERRORE: operatori incompleti" >&2\n    exit 1\nfi\n'
+for x in (a, c, d, e):
+    assert s.count(x) == 1, x
+s = s.replace(a, b).replace(c, '--input-dir "$STAGE_TMP/in" --output-dir "$OPS_DIR"')
+s = s.replace(d, 'N_OPS=$(find "$OPS_DIR" -name "*.npz" | wc -l)')
+s = s.replace(e, e + 'if [[ "$OPS_DIR" != "$STAGE_TMP/ops" ]]; then flock -u 9; rm -rf "$STAGE_TMP/ops"; ln -s "$OPS_DIR" "$STAGE_TMP/ops"; fi\n')
+open(p, "w").write(s)
+PY
+grep -q 'WBES_ZS_OPS_CACHE' "$ZS" || { echo "ERRORE: cache degli operatori non agganciata" >&2; exit 1; }
 NOWS="/tmp/now_v3c3f_${SLURM_JOB_ID:-manual}_${SLURM_RESTART_COUNT:-0}.sh"
 sed 's|"\$AAU_DIR/run.sh" aau/recon/now_latent.py|"$AAU_DIR/run.sh" v3_work/trainer/eval_v3.py -- aau/recon/now_latent.py|' \
   "$AAU_DIR/recon/now_ops_latent.sbatch" > "$NOWS"
@@ -85,20 +111,26 @@ step_form() {  # bracci a ingresso globale: [s, u] (o z) di ogni mesh, poi tools
   local e dom set g emb V="${ARM}${SFX#_}" FARMS
   FARMS=""; for e in $EPS; do FARMS+="${FARMS:+ }scale_v3${V}fulle$e"; done
   for e in $EPS; do export "WBES_ZS_CKPT_SCALE_V3${V^^}FULLE$e=${CK[$e]}"; done
-  WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=hifi WBES_HIFI_RUNS="$OUT/form_hifi" WBES_ZS_ARMS="$FARMS" \
-    WBES_ZS_PART=embed bash "$ZS" || return 1
+  WBES_V3_SCALE_TABLES="$ST/hifi3d_eval.npz" WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=hifi \
+    WBES_HIFI_RUNS="$OUT/form_hifi" WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed bash "$ZS" || return 1
   ( source aau/zs3dmm/dev_facescape_env.sh
     export WBES_FV_RUNS="$OUT/form_devfs" WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed WBES_V3_FACTORIZED_OUT=full
+    export WBES_V3_SCALE_TABLES="$ST/devfs_eval.npz"
     unset WBES_ZS_EXPR WBES_ZS_FLIP_FACES
     bash "$ZS" ) || return 1
-  WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 WBES_FV_RUNS="$OUT/form_fv" WBES_ZS_FLIP_FACES=1 \
-    WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed bash "$ZS" || return 1
+  ( source aau/zs3dmm/dev_facescape_env.sh
+    export WBES_FV_RUNS="$OUT/form_devfs" WBES_ZS_EXPR=1 WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed
+    export WBES_V3_FACTORIZED_OUT=full WBES_V3_SCALE_TABLES="$ST/devfs_expr.npz"
+    unset WBES_ZS_FLIP_FACES
+    bash "$ZS" ) || return 1
+  WBES_V3_SCALE_TABLES="$ST/fv_expr.npz" WBES_V3_FACTORIZED_OUT=full WBES_ZS_DOMAIN=fv WBES_ZS_EXPR=1 \
+    WBES_FV_RUNS="$OUT/form_fv" WBES_ZS_FLIP_FACES=1 WBES_ZS_ARMS="$FARMS" WBES_ZS_PART=embed bash "$ZS" || return 1
   local G=datasets/CANONICAL_GT/eval
   for pair in hifi:hifi3d:HIFI3D/eval_view devfs:facescape:DEV_FACESCAPE/eval_view fv:faceverse:FACEVERSE_ZS/expr_view; do
     IFS=: read -r dom set view <<< "$pair"
     gts=(--gt "fr=$G/${set}_fr.npz" --gt "sr=$G/${set}_sr.npz" --gt "maxabs=datasets/$view/gt_matrix.npz")
     for e in $EPS; do
-      emb=$(find "$OUT"/form_${dom}* -path "*scale_v3${V}fulle${e}*" -name embeddings.npz | head -1)
+      emb=$(find "$OUT/form_${dom}$([[ $dom == fv ]] && echo _expr)" -path "*scale_v3${V}fulle${e}*" -name embeddings.npz | head -1)
       [[ -n "$emb" ]] || { echo "[v3-eval] ERRORE: embedding [s, u] di $dom e$e assenti"; return 1; }
       AAU_NV= "$AAU_DIR/run.sh" v3_work/trainer/tools/eval_factorized.py --embeddings "$emb" "${gts[@]}" \
         --size-table "$G/${set}_centroid_size.npz" --out-dir "$OUT/form/$dom/v3${V}e$e" || return 1
@@ -121,7 +153,7 @@ step_famos() {  # FaMoS TEST: operatori ad area unitaria delle patch su /tmp, po
   rm -rf "$T"
 }
 step_now() {  # $1 W, $2 O, $3 checkpoint
-  WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
+  WBES_V3_SCALE_TABLES="${NOW_TABLES:-}" WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" WBES_CKPT="$3" bash "$NOWS" \
     && WBES_NOW_WORK="$1" WBES_NOW_OUT="$2" AAU_NV= "$AAU_DIR/run.sh" aau/recon/now_summarize.py
 }
 if [[ "$STEPS" == *" hifi "* ]]; then

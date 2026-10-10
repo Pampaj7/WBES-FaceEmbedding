@@ -272,6 +272,43 @@ def t_factorized2_exact() -> dict:
             "u_scale": float(z0[1:].abs().max()), "rows": rows}
 
 
+def t_dual() -> dict:
+    """--head dual: uscite [z_F, u] (512), z_F e u (256); encoder e pool_proj identici a EncoderV3 con lo stesso seme
+    (pool_proj_u nasce in fork_rng); loss doppia finita, gradiente su pool_proj e pool_proj_u."""
+    from robustness.data_utils import sample_to_device
+    from robustness.model_helpers import forward_model
+    torch.manual_seed(0)
+    m = build_model_v3(_args(head="dual", dropout=0.0), torch.device("cpu"))
+    torch.manual_seed(0)
+    ref = build_model_v3(_args(head="embed", dropout=0.0), torch.device("cpu"))
+    same = all(torch.equal(a, ref.state_dict()[k]) for k, a in m.state_dict().items() if k in ref.state_dict())
+    ds = _view_dataset()
+    gf = global_v3.GlobalFrame(global_v3.ScaleTable([TD / "scale_table.npz"]), 100.0, "smooth")
+    dims = {}
+    for mode in ("full", "zf", "u"):
+        fz.set_output(m, mode)
+        s = sample_to_device(gf(ds.files[0], dict(ds[0])), torch.device("cpu"))
+        dims[mode] = int(forward_model(m, s, s["verts"], False, False)[0].shape[-1])
+    fz.set_output(m, "full")
+    Z = torch.stack([forward_model(m, s, s["verts"], False, False)[0][0] for s in
+                     (sample_to_device(gf(n, dict(ds[i])), torch.device("cpu")) for i, n in enumerate(ds.files))])
+    subj = [n.split("_")[0] for n in ds.files]
+    topo = [n[:-4].split("_GTready_")[1] for n in ds.files]
+    ids = sorted(set(subj))
+    D1 = np.array([[0, .3, .4, .5], [.3, 0, .2, .35], [.4, .2, 0, .25], [.5, .35, .25, 0]], dtype=np.float32)
+    D2 = (D1[::-1, ::-1] * 0.5).copy()
+    n2i = {s_: i for i, s_ in enumerate(ids)}
+    args = _args(head="dual", lambda_form=1.0, lambda_shape=0.7)
+    loss, terms = fz.dual_loss(args, StepBatch(Z, subj, topo, ids, D1.view(dv.NanGuardedMatrix), n2i),
+                               D2.view(dv.NanGuardedMatrix), n2i)
+    loss.backward()
+    g1 = float(m.pool_proj.weight.grad.abs().sum())
+    g2 = float(m.pool_proj_u.weight.grad.abs().sum())
+    ok = same and dims == {"full": 512, "zf": 256, "u": 256} and bool(torch.isfinite(loss)) and g1 > 0 and g2 > 0
+    return {"pass": bool(ok), "encoder_identical_to_embed": same, "dims": dims, "loss": float(loss),
+            "terms": terms, "grad_pool_proj": g1, "grad_pool_proj_u": g2}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
@@ -281,7 +318,7 @@ def main() -> None:
     res = {}
     for name, fn in (("run_dir_defaults", t_run_dir), ("global_frame", lambda: t_global_frame(table)),
                      ("global_ops_mm", lambda: t_ops_mm(table)), ("eval_hook", lambda: t_eval_hook(table_path)),
-                     ("head_loss", t_head_loss), ("scale_draws", t_scale_draws), ("form_identity", t_form_identity), ("factorized2_exact", t_factorized2_exact)):
+                     ("head_loss", t_head_loss), ("scale_draws", t_scale_draws), ("form_identity", t_form_identity), ("factorized2_exact", t_factorized2_exact), ("dual", t_dual)):
         try:
             res[name] = fn()
         except Exception as exc:  # noqa: BLE001

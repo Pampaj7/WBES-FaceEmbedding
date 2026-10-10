@@ -36,7 +36,7 @@ from common import domain_of
 from losses_v3 import StepBatch, compute_loss
 from model_v3 import EncoderV3
 
-HEADS = ("embed", "factorized", "factorized2")
+HEADS = ("embed", "factorized", "factorized2", "dual")
 FACTORIZED = ("factorized", "factorized2")
 
 
@@ -124,7 +124,40 @@ class FactorizedNormEncoderV3(FactorizedEncoderV3):
         return out
 
 
+class DualEncoderV3(EncoderV3):
+    """``--head dual``: backbone comune, due proiezioni dalle stesse feature aggregate: z_F (``pool_proj``, loss di
+    forma su GT-FR, come ctrlfr) e u (``pool_proj_u``, loss di forma su GT-SR, come factorized). forward -> [z_F, u]
+    (``full``), z_F (``zf``) o u (``u``). pool_proj_u nasce in fork_rng: encoder e pool_proj identici a EncoderV3."""
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        with torch.random.fork_rng(devices=[]):
+            self.pool_proj_u = nn.Linear(self.pool_proj.in_features, self.pool_proj.out_features)
+        self.out_mode = "full"
+
+    def pool(self, Z: torch.Tensor, mass: torch.Tensor, w_raw: torch.Tensor | None = None) -> torch.Tensor:
+        w = (mass if w_raw is None else w_raw).reshape(-1).clamp_min(0)
+        w = (w / w.sum().clamp_min(1e-30)).to(Z.dtype)
+        z_mean = (w.unsqueeze(1) * Z).sum(dim=0, keepdim=True)
+        if self.pooling == "area_meanmax":
+            feat = torch.cat([z_mean, Z.max(dim=0, keepdim=True).values], dim=1)
+        else:
+            logits = self.attn(Z) + torch.log(w.clamp_min(1e-30)).unsqueeze(1)
+            alpha = torch.softmax(logits, dim=0)
+            feat = torch.cat([z_mean, (alpha.transpose(0, 1) @ Z).reshape(1, -1)], dim=1)
+        if self.out_mode == "zf":
+            return self.pool_proj(feat)
+        if self.out_mode == "u":
+            return self.pool_proj_u(feat)
+        return torch.cat([self.pool_proj(feat), self.pool_proj_u(feat)], dim=1)
+
+
 def build(args, device: torch.device) -> nn.Module:
+    if str(getattr(args, "head", "factorized")) == "dual":
+        md = DualEncoderV3(latent_dim=args.latent_dim, width=args.width, n_blocks=args.n_blocks, dropout=args.dropout,
+                           pooling=str(args.pooling), attn_heads=int(getattr(args, "attn_heads", 1)),
+                           area_weights=str(getattr(args, "area_weights", "mass")))
+        return md.to(device)
     if str(getattr(args, "head", "factorized")) == "factorized2":
         m2 = FactorizedNormEncoderV3(latent_dim=args.latent_dim, width=args.width, n_blocks=args.n_blocks,
                                      dropout=args.dropout, pooling=str(args.pooling),
@@ -142,10 +175,16 @@ def build(args, device: torch.device) -> nn.Module:
 
 
 def set_output(model: nn.Module, mode: str) -> None:
-    if mode not in ("full", "u"):
-        raise ValueError(f"uscita {mode!r} (full|u)")
-    if isinstance(model, FactorizedEncoderV3):
-        model.out_mode = mode
+    """``full``, ``u`` (forma); ``eval`` = l'uscita dell'eval online (u per i fattorizzati, z_F per dual); ``zf`` solo
+    dual. Nessun effetto sui modelli senza teste multiple."""
+    if mode not in ("full", "u", "zf", "eval"):
+        raise ValueError(f"uscita {mode!r} (full|u|zf|eval)")
+    if isinstance(model, DualEncoderV3):
+        model.out_mode = "zf" if mode == "eval" else mode
+    elif isinstance(model, FactorizedEncoderV3):
+        if mode == "zf":
+            raise ValueError("uscita zf solo con --head dual")
+        model.out_mode = "u" if mode == "eval" else mode
 
 
 @contextlib.contextmanager
@@ -214,6 +253,30 @@ def factorized_loss(args, batch: StepBatch, log_cs: Dict[str, float], log_a: np.
     terms["size_mse"] = float(l_size.item())
     terms["size_mae"] = float(((w * err.abs()).sum() / w.sum().clamp_min(1.0)).item())
     return loss, terms
+
+
+def dual_loss(args, batch: StepBatch, gt_shape, n2i_shape):
+    """lambda_form x loss di forma su z_F (GT di --dist_npz, FR) + lambda_shape x loss su u (GT-SR, --dist-npz-shape)."""
+    L = batch.Z.shape[1] // 2
+    lf, tf = compute_loss(args.loss, dataclasses.replace(batch, Z=batch.Z[:, :L]), args)
+    ls, ts = compute_loss(args.loss, dataclasses.replace(batch, Z=batch.Z[:, L:], gt=gt_shape, name_to_idx=n2i_shape), args)
+    terms = dict(tf)
+    terms.update({f"shape_{k}": v for k, v in ts.items() if k in ("stress", "rank", "id")})
+    terms["form_loss"], terms["shape_loss"] = float(lf.item()), float(ls.item())
+    return float(args.lambda_form) * lf + float(args.lambda_shape) * ls, terms
+
+
+def model_distances(Z, i, j, head: str, dp_per_unit: float = float("nan")) -> Dict[str, np.ndarray]:
+    """Distanze del modello per le coppie (i, j) di righe di Z, secondo la testa: fattorizzati -> form (d_F, mm) e
+    shape (d_P); dual -> zf e u; altrimenti z."""
+    Z = np.asarray(Z, dtype=np.float64)
+    if head in FACTORIZED:
+        d = pair_distances(Z, i, j, dp_per_unit)
+        return {"form": d["form_mm"], "shape": d["dP"]}
+    if head == "dual":
+        L = Z.shape[1] // 2
+        return {"zf": np.linalg.norm(Z[i, :L] - Z[j, :L], axis=1), "u": np.linalg.norm(Z[i, L:] - Z[j, L:], axis=1)}
+    return {"z": np.linalg.norm(Z[i] - Z[j], axis=1)}
 
 
 # --- valutazione ---------------------------------------------------------------------------------------
