@@ -467,8 +467,35 @@ Nel frattempo si aspettano i risultati, senza lanciare il run.
 
 ## 22. Configurazione proposta per il run massivo (bozza per la revisione con l'utente, 10 ottobre)
 
-Bozza del coder per il PI, da rivedere con l'utente e col critic (gate della §21). Nessun job lanciato. Ogni numero
-ha la sua fonte; "R" = `aau/runs/evidence/trainer_v3/factorized_results.md`. IC 95% bootstrap per soggetto.
+Bozza del coder per il PI, da rivedere con l'utente e col critic (gate della §21). Run massivo non lanciato; lanciati
+solo lo smoke a 2 L40S (job 1067645) e la prova a 6 + 6 L40S (job 1067683, in attesa). Ogni numero ha la sua fonte;
+"R" = `aau/runs/evidence/trainer_v3/factorized_results.md`. IC 95% bootstrap per soggetto.
+Aggiornata il 10 ottobre notte dopo due giri del critic sulla configurazione (22.0).
+
+### 22.0 Correzioni dopo i due giri del critic
+
+**Primo giro** (commit 26aee75, 2ec7c79, 85de102):
+- lr 1e-4 costante ed esplicito (`--lr-constant`). Prima valeva il default v2 (ReduceLROnPlateau), che non è
+  quello del C3M; ora, senza uno scheduler esplicito, lo stream non parte.
+- Batch a dominio singolo con passi uguali fra i domini (`--stream-batch-domains single`), come `--sampler balanced
+  --domain-alpha 0` del C3M. Lo stream mescolava i domini nel batch.
+- Ricetta per rank del C3M resa esplicita: 5 identità × ≤ 6 viste, produttori con 6 viste per identità.
+- `STREAM_SOURCES` obbligatorio, senza default. Preset `validated` (bfm2019, ict, gnm) e `max` (+ FLAME 2023 Open,
+  FaMoS TRAIN). Maschera di taglia esplicita. Checkpoint ogni ~10% del run.
+- `fact_calib.py calib-ckpt`: c di un checkpoint qualunque, anche dello stream (verificato sul C3M e205: 0.2246).
+
+**Secondo giro** (verdetto RISERVE: tre bloccanti chiusi, ma `validated` cambiava sei cose insieme rispetto al
+C3M). Decisione del PI: `validated` è la ricetta del C3M scalata. Ogni deviazione resta una variabile esplicita e
+sta nel preset `max` (22.7). In codice, `STREAM_RECIPE=c3m` è il default con `validated`:
+- niente moltiplicatori mm_aug. Il critic ha misurato il 27-33% di gruppi ibridi e il 13-18% con espressioni
+  trasferite da un altro dominio;
+- quota d'espressioni del C3M per dominio (vedi 22.7);
+- nessuna rotazione casuale a ogni uso (`STREAM_ROT=0`). Prima era ±30/15/10° fissa, non sovrascrivibile;
+- discretizzazioni senza reinserimento nell'identità (`--label-draw perm`): 6 viste, 6 discretizzazioni diverse,
+  come `_sample_subject_mesh_entries` del C3M. Prima si estraevano con reinserimento;
+- batch misti contati anche per FONTI (`prov.sources` dei gruppi), non solo per template: contatore e log dei
+  primi 200 batch per rank;
+- log del riuso corretto: il tetto è morbido (22.7, "Riuso").
 
 ### 22.1 Esito delle evidenze
 
@@ -525,6 +552,7 @@ in nessuno dei due semi. Le righe con estremo inferiore ≤ −0.03:
 **Esito: si sceglie factorized con d_F calibrata.** Per informazione, senza effetto sulla regola: dual z_F è il
 migliore su HIFI3D FR (0.764 ; 0.771) ed è l'unico braccio col delta contro "taglia stimata + ICP cs cal." sopra 0
 in entrambi i semi (tabella 22.1). Anche dual non soddisfa "forma oltre la taglia".
+La regola si valuta su HIFI3D e dev FaceScape: la testa è quindi scelta anche su HIFI3D (vedi 22.6).
 
 ### 22.3 GT, loss e ricetta
 
@@ -544,6 +572,16 @@ Su HIFI3D con FR e SR perde −0.024 [−0.059, +0.011] e −0.018 [−0.053, +0
 0.818 s/passo (A100); nello stream 40.5 contro 89.9 viste/s per nodo (`stream/massive_ready.md` §10). k256 è
 abbandonato per costo, per decisione dell'utente (emendamento 1).
 
+Limiti della scelta, da dire all'utente:
+- la cella peggiore, l'unica con IC tutto sotto 0, è HIFI3D **maxabs**, la GT legacy che in 22.3 "non è mai
+  decisiva". Senza maxabs decidono le celle FaceVerse FR −0.043 [−0.097, +0.014] e SR −0.033 [−0.088, +0.021],
+  entrambe n.s.;
+- l'ablazione è sui bracci robal, con la testa standard, non sulla testa factorized del run;
+- un solo seme;
+- k64 è **significativamente migliore** su dev FaceScape SR: +0.029 [+0.003, +0.056] (e072).
+
+k64 darebbe 2.2 volte le viste fresche/s (89.9 contro 40.5 per nodo).
+
 ### 22.5 Calibrazione c per checkpoint
 
 - c deriva coi passi: C3M 0.257 a e123, 0.225 a e205 (R, tabella di calibrazione). Un c fisso non va bene.
@@ -552,6 +590,16 @@ abbandonato per costo, per decisione dell'utente (emendamento 1).
 - **Aperto:** oggi gli held-out sono quelli dello split C3M (bfm 108 REMESH, ict 992, gnm 100). Nel preset
   `massive` dello stream ci sono BFM 2019, FLAME 2023 e FaMoS, senza held-out di calibrazione. Va definito prima del
   lancio: semi riservati per i 3DMM; per FaMoS servono persone TRAIN escluse.
+- **Anche con `validated` gli held-out bfm sono BFM REMESH**, cioè non il dominio di training (BFM 2019). Per
+  `calib-ckpt` (100 soggetti per dominio) la c del dominio bfm è quindi già fuori dominio.
+- **c per dominio, da dichiarare con la c globale.** Smoke 1067645, `epoch010_ema` dopo 1000 passi
+  (`smoke_validated_1067645/calib_e010/calib.json`):
+  - mediana 12.85, LS 11.45;
+  - per dominio: bfm 17.76, ict 9.37, gnm 13.09.
+
+  Il valore è atteso: la scala di z_F è libera e l'EMA a 0.999 dopo 1000 passi è ancora vicina
+  all'inizializzazione. Il C3M dà 0.225-0.257 a fine run. Va ricontrollata sul checkpoint al 10% del run: se
+  resta lontana da quell'ordine, o se lo scarto fra domini resta circa 2×, si discute prima di proseguire.
 
 ### 22.6 Selezione del checkpoint e domini
 
@@ -559,8 +607,14 @@ abbandonato per costo, per decisione dell'utente (emendamento 1).
   solo su held-out sintetici o sul dev FaceScape, con la regola scritta prima del run. Mai sui test.
 - Il C3M mostra che la scelta conta: da e123 a e205 HIFI3D FR cal. passa da 0.748 a 0.739, dev FaceScape FR cal. da
   0.666 a 0.712 (R).
-- **Zero-shot (mai in training né in selezione):** HIFI3D, FaceVerse (dichiarati "visti durante lo sviluppo",
-  §14.5), FaMoS TEST (15 persone), NoW; dev FaceScape solo per decisioni prese prima del lancio.
+- **Zero-shot, mai in training.** Ma NON "mai in selezione", come diceva la bozza:
+  - la testa (22.2) è stata scelta su HIFI3D e dev FaceScape;
+  - k128 (22.4) su HIFI3D, FaceVerse e dev FaceScape.
+
+  HIFI3D e FaceVerse vanno dichiarati "usati nella selezione della configurazione" (oltre che "visti durante lo
+  sviluppo", §14.5). Intatti, cioè mai usati né in training né in selezione, restano solo **FaMoS TEST** (15
+  persone; intatto solo se FaMoS TRAIN resta fuori dal training, 22.7) e **NoW**. Il dev FaceScape serve solo per
+  decisioni prese prima del lancio.
 - **Training:** BFM (2019 nello stream; 3DDFA nel C3M), ICT, GNM; FLAME 2023 Open e FaMoS TRAIN dipendono dalle
   domande (b) ed (e) qui sotto.
 
@@ -569,43 +623,100 @@ abbandonato per costo, per decisione dell'utente (emendamento 1).
 **Pipeline.** Il C3M ha letto viste pre-generate (tar e store, 64.400 identità di training: BFM 392, ICT 54.008,
 GNM 10.000; `aau/data_scale/split_scale_all.json`). Il run massivo è preparato sullo stream P1
 (`stream/massive_ready.md`): identità fresche, GT di E12 al volo, provenienza per vista. Lo stream non è mai stato
-provato oltre 2000 passi su 2 L40S (§11 di quel file).
+provato oltre 2000 passi su 2 L40S (§11 di quel file), né su 6 + 6 GPU (job 1067683 in attesa).
 
-**Mix proposto** (default di `massive.sbatch`, nessuno ablato):
-- domini uniformi (alpha 0);
-- quota di espressioni 0.5 per gruppo (`--expr-frac`; nel C3M circa il 25% per le ICT nuove,
-  `data_scale/PLAN.md`). Motivo: E1 premia la cella con più espressioni nel riconoscimento; FaceVerse neutra dà
-  INTERMEDIO;
-- moltiplicatori mm_aug: puri 0.4, ibridi 0.3, trasferimenti d'espressione 0.15, bump RBF 0.15. Gli ibridi escono
-  dal sottospazio di A per il 6.5-13% in RMS; nessuno si avvicina ai test più dei puri
-  (`aau/runs/evidence/mm_aug/README.md`).
+**Ricetta del run principale: `validated` = il C3M scalato** (`STREAM_SOURCES=validated`; `STREAM_RECIPE=c3m` è il
+suo default, `massive_node.sh`).
+- **Per rank come il C3M:** 5 identità × ≤ 6 viste, produttori a 6 viste per identità, batch a dominio singolo con
+  passi uguali fra i domini (alpha 0), lr 1e-4 costante.
+- **12 rank invece di 6:** 60 identità per passo, il doppio del C3M, **con lo stesso lr**. Dichiarato: il batch
+  globale raddoppia e nessuna regola di scala del lr è applicata.
+- **Domini:** BFM 2019, ICT, GNM. BFM 2019 sta al posto di BFM REMESH, che lo stream non ha (392 identità fisse da
+  3DDFA nel C3M).
+- **Maschera di taglia vuota.** Il C3M toglie bfm dalla MSE di s perché le taglie di BFM REMESH sono normalizzate
+  mesh per mesh. Quelle di BFM 2019 sono vere (CV 0.049, `massive_ready.md` §3). `STREAM_SIZE_MASK=bfm2019`
+  riproduce la maschera.
+- **Quota d'espressioni del C3M per dominio** (`STREAM_EXPR_FRAC=bfm2019=0,ict=0.2315,gnm=0.1968`). Viene dalle
+  etichette `rexprA/B` di `factorized/c3m/spec.json` col campionatore v1, che prende 6 etichette su 8, una per
+  topologia:
+  - ICT: 50.000 identità su 54.008 hanno 2 etichette d'espressione su 8, quindi 0.2315;
+  - GNM: 5.038 ne hanno 2 su 8, 4.962 una su 7, quindi 0.1968;
+  - BFM: 0.
 
-**Quantità.** Nello stream la quantità è limitata dalle viste fresche al secondo, non dal disco. Stima del file (non
-misurata sul run intero): a k128 circa 280 viste/s con la flotta di produttori, riuso circa 4.7
-(`massive_ready.md` §14). Disco misurato con getfattr il 10 ottobre sera: 783.5 GB liberi su 2199.0 GB, cioè 483 GB
-sopra la soglia dei 300. L'anello condiviso su CephFS ha un tetto imposto di 150 GiB. Sulla via tar del C3M, invece,
-gli shard ICT (50.000 identità) occupano 132.8 GB, quelli GNM 16.1 GB, e la GT densa cresce come N² (17.2 GB a
-65.600 identità, `datasets/SCALE_ALL`). Prima di usare nv-ai-04 va controllata la memoria libera: era occupata per
-965 GB su 980 dai job A100 (`massive_ready.md` §14).
+  Simulato col campionatore su 3000 soggetti per dominio: 0.233 e 0.199. Lo stream fissa la quota per gruppo
+  (arrotondamento stocastico di f × 6), con la stessa media.
+- **Niente moltiplicatori mm_aug.**
+- **Nessuna rotazione a ogni uso.** Il C3M ruota solo nel modo `rotation` del rumore (`--rigid_rot_deg 12`), che è
+  uguale nello stream.
+- **6 discretizzazioni diverse per identità**, senza reinserimento.
+- **Differenze che restano:**
+  - identità fresche invece di 64.400 fisse;
+  - forward a gruppi (il C3M è sequenziale);
+  - nel C3M le espressioni stanno sulla topologia `original`, nello stream su una qualunque delle 6;
+  - BFM 2019 e maschera vuota (sopra).
 
-**Rilasciabilità.**
-- Nucleo aperto (`open_core`): GNM Apache-2.0, ICT Light MIT, FLAME 2023 Open CC BY 4.0 "con restrizioni d'uso"
+**Deviazioni opzionali: DOMANDE PER L'UTENTE.** Ognuna è una variabile di `massive.sbatch`; il preset `max`
+(`STREAM_RECIPE=max`, default per ogni `STREAM_SOURCES` diverso da `validated`) le accende tutte. Nessuna è stata
+provata con i bracci decisivi. **Raccomandazione del PI: `validated` per il run principale; le deviazioni solo in
+run secondari o ablazioni, una alla volta.**
+
+| | deviazione | variabile | `validated` (C3M) | `max` | pro | contro |
+|---|---|---|---|---|---|---|
+| (f) | moltiplicatori mm_aug | `STREAM_MM_AUG` | nessuno | ibridi 0.3, trasferimenti 0.15, bump 0.15 | identità fuori dal sottospazio di A (6.5-13% RMS); nessuna più vicina ai test dei puri (`mm_aug/README.md`) | 27-33% di gruppi ibridi, 13-18% con espressioni di un altro dominio (critic) |
+| (g) | quota d'espressioni | `STREAM_EXPR_FRAC` | 0 ; 0.2315 ; 0.1968 | 0.5 | E1 premia la cella con più espressioni nel riconoscimento; FaceVerse neutra INTERMEDIO | raddoppia la quota del C3M |
+| (h) | rotazione a ogni uso | `STREAM_ROT` | 0 | ±30/15/10° | robustezza alla posa | il C3M non l'ha; l'ingresso globale è già nel frame canonico |
+| (i) | FLAME 2023 Open, FaMoS TRAIN | `STREAM_SOURCES` | no | sì | quarto 3DMM aperto; espressioni reali | domande (b) ed (e); licenze (sotto) |
+| (j) | batch misti | `STREAM_BATCH_DOMAINS=mixed` | no | no | coppie fra domini nella loss | il C3M è a dominio singolo |
+| (k) | discretizzazioni con reinserimento | `STREAM_LABEL_DRAW=replace` | no | sì | up60k più raro (pesi), meno CPU | discretizzazioni ripetute nell'identità |
+
+**Riuso.**
+- **C3M:** 60.000 passi × 6 rank × 5 identità × 6 mesh = 10.8 M usi su circa 801k mesh distinte, cioè **13.5 usi
+  per mesh**. Coi passi uguali fra domini il riuso è molto diverso fra domini: bfm circa 1531 (392 identità × 6
+  mesh), gnm circa 48, ict circa 5. Per identità: 1.8 M usi su 64.400, cioè 28.
+- **Smoke 1067645** (2 L40S, 24 produttori, 8.8 viste fresche/s): riuso a regime circa 17.6 (16.7-17.9 nelle
+  epoche 7-10), cumulato 13.5 a 1000 passi. Circa il 78% delle estrazioni era oltre il tetto.
+- **Il tetto `STREAM_REUSE` 4 è morbido.** Se gli eleggibili non bastano si prendono i gruppi meno usati. 4 è un
+  numero di progetto, non un requisito. Il log del trainer lo scrive come tale; `summarize_run.py` riporta il
+  riuso a regime (ultime 3 epoche), il cumulato e i gruppi oltre il tetto.
+- **Stima a 12 GPU (6 + 6), non misurata:** senza flotta circa 11-18; con la flotta di produttori su CPU
+  (`STREAM_EXTRA`) circa 3.5. Da misurare con il job 1067683.
+
+**Quantità.** Nello stream la quantità è limitata dalle viste fresche al secondo, non dal disco. Disco misurato con
+getfattr il 10 ottobre sera: 783.5 GB liberi su 2199.0 GB, cioè 483 GB sopra la soglia dei 300. L'anello condiviso
+su CephFS ha un tetto imposto di 150 GiB. Sulla via tar del C3M, invece, gli shard ICT (50.000 identità) occupano
+132.8 GB, quelli GNM 16.1 GB, e la GT densa cresce come N² (17.2 GB a 65.600 identità, `datasets/SCALE_ALL`).
+Prima di usare nv-ai-04 va controllata la memoria libera: era occupata per 965 GB su 980 dai job A100
+(`massive_ready.md` §14).
+
+**Rilasciabilità** (`literature/LICENZE_RILASCIO_2026-10-09.md`; non è un parere legale).
+- **Nucleo aperto** (`open_core`): GNM Apache-2.0, ICT Light MIT, FLAME 2023 Open CC BY 4.0 "con restrizioni d'uso"
   (Readme del pacchetto; da verificare). Mesh ridistribuibili al 100% (`massive_ready.md` §7).
-- BFM 2019, FLAME 2020 e FaMoS: solo ricetta e semi. `regen.py` rigenera le mesh entro 1.3e-7, non gli operatori.
-  Col preset `massive` è ridistribuibile il 47% delle viste (prova a 2 GPU, §11).
+- **BFM 2019 e FLAME 2020:** solo ricetta e semi. `regen.py` rigenera le mesh entro 1.3e-7, non gli operatori.
+- **FaMoS: non rilasciabile, nemmeno come ricetta e semi** (riga MPI del file: no per mesh, coefficienti/semi e
+  pesi). La bozza diceva "solo ricetta e semi", ed era sbagliato. Anche `sources.LICENSES` scrive ancora "solo
+  ricetta" per FaMoS (rango 2): va corretto prima di usarlo.
+- **Pesi:** con BFM 2019 (o FLAME 2020, FaMoS) in training i pesi non sono rilasciabili senza un permesso scritto
+  (Basilea/Unitectra; MPI). Il modello `validated` quindi non è rilasciabile.
 
 **Domande per l'utente.**
 - **(a) FaceScape in training?** Raccomandazione del PI: **no**. Resta dev e zero-shot (§14.5; critic del 10 ottobre).
-- **(b) FaMoS TRAIN in training?** È nel preset `massive` di default.
+- **(b) FaMoS TRAIN in training?** Sta nel preset `max`, non in `validated`.
   - Pro: le uniche identità ed espressioni reali.
-  - Contro: licenza MPI non ridistribuibile; FaMoS TEST smette di essere zero-shot per dominio (stesso sistema di
-    cattura e stessa registrazione FLAME); 80 persone al 20% dei gruppi; NoW viene dallo stesso sistema MPI.
-  - Proposta della bozza: fuori dal run principale, dentro un secondario.
-- **(c) Modello "nucleo aperto" sulle A100 secondarie** (`STREAM_SOURCES=open_core`, `--requeue`, ripresa provata)?
-  Proposta: sì, perché serve al rilascio del dataset.
+  - Contro: non rilasciabile nemmeno come ricetta e semi; FaMoS TEST smette di essere zero-shot per dominio (stesso
+    sistema di cattura e stessa registrazione FLAME) e resterebbe intatto solo NoW, che viene dallo stesso sistema
+    MPI; 80 persone al 20% dei gruppi.
+  - Proposta: fuori dal run principale, al massimo in un secondario.
+- **(c) Modello a nucleo aperto** (ICT + GNM + FLAME 2023 Open, `STREAM_SOURCES=open_core`) **sulle A100
+  secondarie**, con `--requeue` e ripresa provata? È l'unico modello con pesi rilasciabili. Proposta: sì.
 - **(d) Run secondari:** secondo seme (il C3M ne ha uno solo) prima del LODO? Proposta: sì, in quest'ordine.
 - **(e) FLAME 2023 Open in training?** Aggiunge un quarto 3DMM ed è nel nucleo aperto. Però il concorrente FLAME 2023
   di `baselines_param` diventa "stesso prior", e FaMoS è in topologia FLAME.
+- **(f)-(k)** le deviazioni della tabella sopra.
+- **(l) BFM 2019 nel run principale?**
+  - Pro: i bracci decisivi hanno BFM, quindi `validated` ne è la ricetta scalata; taglie vere.
+  - Contro: i pesi non sono rilasciabili.
+  - Alternative: (c) come modello rilasciabile accanto al principale; oppure un principale senza BFM, che però non
+    è più la ricetta validata.
 
 ### 22.8 Calcolo
 
@@ -613,17 +724,28 @@ gli shard ICT (50.000 identità) occupano 132.8 GB, quelli GNM 16.1 GB, e la GT 
   blocca (misurato con 2 + 1, `massive_ready.md` §6), quindi niente 8 + 4. Così non restano L40S per le valutazioni
   durante il run.
 - **A100 di nv-ai-04 (unprivileged):** solo secondari ripartibili e valutazioni brevi.
-- **Conto dal C3M** (job 1062944, `factorized/c3m/train.log`; 6 L40S, 5 identità × ≤ 6 mesh per rank):
-  - 60.000 passi in 205 epoche; somma dei tempi d'epoca 62.163 s (17.27 h), quindi 1.036 s/passo in media;
-  - mediana per epoca 0.709 s/passo; le epoche con caricamento di blocco arrivano a 3.19;
-  - wall dalle 15:15:51 alle 09:54:28, cioè 18 h 39 min: circa 1.4 h di avvio e staging;
-  - ore ≈ 1.4 + T × 1.036 / 3600, quindi T = 60k → 18.7 h, 120k → 35.9 h, 160k → 47.4 h.
-- **Ipotesi del conto, non misurate a 6 + 6:** stessa ricetta di batch del C3M e stesso s/passo a 12 rank. Sullo
-  stream il passo fra nodi è risultato uguale a quello su un nodo (1.09 contro 1.08 s, 1 + 1 GPU, §13). A 12 rank
-  ogni passo vede il doppio delle identità del C3M.
-- La ricetta stream (16 × 4 per rank, groups) ha tempi suoi: circa 293k passi in 48 h è una stima del file
-  (`massive_ready.md` §14), non derivata dal C3M.
-- **T va fissato con l'utente.** Il C3M non dice che più passi aiutino HIFI3D (22.6).
+- **Passo:** 12 rank × 5 identità × ≤ 6 viste = 60 identità e 360 viste per passo (C3M: 30 e 180).
+- **Ore: DA MISURARE CON IL JOB 1067683** (prova 6 + 6, 2400 passi, in attesa). s/passo a 12 rank: **[segnaposto]**;
+  avvio fino al primo passo: **[segnaposto]**.
+- **Stima provvisoria dallo smoke 1067645** (2 L40S su un nodo): 0.37-0.41 s/passo nelle 10 epoche, GPU al 75%.
+  Non è una misura a 12 rank:
+  - il passo fra due nodi può essere più lento (con 1 + 1 GPU era uguale: 1.09 contro 1.08 s, §13);
+  - i produttori di un nodo servono 6 GPU invece di 2.
+
+  | T (passi) | identità viste (T × 60) | rispetto al C3M | ore, stima provvisoria (senza avvio) |
+  |---|---|---|---|
+  | 30.000 | 1.8 M | = C3M | 3.1-3.4 |
+  | 60.000 | 3.6 M | 2× | 6.2-6.8 |
+  | 120.000 | 7.2 M | 4× | 12.3-13.7 |
+  | 240.000 | 14.4 M | 8× | 24.7-27.3 |
+
+  "Identità viste" conta gli usi, riuso compreso. C3M: 60.000 passi × 30 = 1.8 M usi di identità.
+- **Domanda (m) per l'utente: T.** Parità col C3M in identità viste = 30k passi; parità in passi = 60k (il doppio
+  delle identità). Il C3M non dice che più passi aiutino HIFI3D (22.6).
+- **Per riferimento, il C3M** (job 1062944, `factorized/c3m/train.log`, 6 L40S, via tar/store, forward
+  sequenziale): 60.000 passi in 205 epoche; 1.036 s/passo in media (somma dei tempi d'epoca 62.163 s), mediana per
+  epoca 0.709 s/passo, fino a 3.19 nelle epoche con caricamento di blocco; wall 18 h 39 min, di cui circa 1.4 h di
+  avvio e staging.
 
 ### 22.9 Concorrenti per il paper
 
@@ -649,11 +771,14 @@ gli shard ICT (50.000 identità) occupano 132.8 GB, quelli GNM 16.1 GB, e la GT 
 - **Studio umano v2:** senza conteggio delle risposte. Manca l'arbitro percettivo; resta quello d'identificabilità (E12).
 - **Cambio di pipeline:** i bracci decisivi vengono dalla via tar/store con forward sequenziale. Lo stream cambia
   insieme dati, batch e forward a gruppi (gradienti relativi fino a 3.1e-4, `massive_ready.md` §14).
+- **Batch globale doppio con lo stesso lr** (60 identità per passo contro 30 del C3M, 22.7): non provato.
 - **Un solo seme** nel run principale; **calendario:** numeri finali entro il 24 ottobre (§0).
 
 ### 22.11 Cosa serve dall'utente per partire
 
-1. Risposte a (a)-(e) della 22.7.
-2. Il numero di passi T, e quindi le ore, con 12 L40S 6 + 6 occupate per tutta la durata.
-3. Il via alla definizione degli held-out di calibrazione per i domini nuovi (22.5), prima del lancio.
-4. Il via al critic su questa configurazione (gate della §21).
+1. Risposte a (a)-(l) della 22.7. Raccomandazione: `validated` per il run principale, deviazioni (f)-(k) solo in
+   run secondari o ablazioni.
+2. Il numero di passi T (domanda (m), 22.8), e quindi le ore, con 12 L40S 6 + 6 occupate per tutta la durata.
+3. Il s/passo misurato dalla prova 6 + 6 (job 1067683) al posto dei segnaposto della 22.8.
+4. Il via alla definizione degli held-out di calibrazione per i domini nuovi (22.5), prima del lancio.
+5. Il via al critic su questa configurazione (gate della §21).
