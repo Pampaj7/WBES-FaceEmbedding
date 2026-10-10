@@ -67,7 +67,7 @@ def surf_of(f: dict, Vin, Fin, Xs, ctx, surf_in) -> np.ndarray:
 
 def _pilot(task):
     view, subject, topology, path = task
-    ctx = _C["ctx"][view]
+    ctx, grid = _C["ctx"][view], _C["grid"]
     free = view not in bp.NEUTRAL_VIEWS
     t0 = time.perf_counter()
     out = {"fail": {}, "beta": {}, "surf": {}, "sec": {}}
@@ -76,16 +76,16 @@ def _pilot(task):
         surf_in = bp.Surface(Vin, Fin)
         fits = {"orig": bp.fit_points(Y, ctx), "va": bp.fit_registered(Y, ctx, free)}
         out["sec"]["va"] = time.perf_counter() - t0
-        for s in bp.LOOP_GRID["sigma"]:
-            for tau in bp.LOOP_GRID["tau"]:
+        for s in grid["sigma"]:
+            for tau in grid["tau"]:
                 t1 = time.perf_counter()
                 try:
-                    fb = bp.fit_loop(Vin, Fin, Xs, fits["va"], ctx, free, s, tau, max(bp.LOOP_GRID["iters"]),
-                                     record=bp.LOOP_GRID["iters"])
-                    for it in bp.LOOP_GRID["iters"]:
+                    fb = bp.fit_loop(Vin, Fin, Xs, fits["va"], ctx, free, s, tau, max(grid["iters"]),
+                                     record=grid["iters"])
+                    for it in grid["iters"]:
                         fits[f"vb|{s}|{tau}|{it}"] = fb["states"][it]
                 except Exception as exc:  # noqa: BLE001
-                    for it in bp.LOOP_GRID["iters"]:
+                    for it in grid["iters"]:
                         out["fail"][f"vb|{s}|{tau}|{it}"] = f"{type(exc).__name__}: {exc}"
                 out["sec"][f"vb|{s}|{tau}"] = time.perf_counter() - t1
         for key, f in fits.items():
@@ -122,9 +122,13 @@ def select(scores: dict) -> str:
     return sorted(tied, key=key)[0]
 
 
-def run_pilot(name: str, workers: int) -> None:
+def run_pilot(name: str, workers: int, grid: dict | None = None, root=None) -> None:
+    """Pilota di un modello sulla griglia ``grid`` (default ``bp.LOOP_GRID``); uscite in ``root`` (default
+    ``<OUT_ROOT>/pilot_e1``; l'emendamento 2 passa sigma 4, 8 e ``pilot_e2``)."""
+    grid = grid or bp.LOOP_GRID
+    root = root or bp.OUT_ROOT / "pilot_e1"
     prm = blmm.params()
-    _C.update(prm=prm, ctx={})
+    _C.update(prm=prm, ctx={}, grid=grid)
     tasks, subj = [], {}
     for view in bp.PILOT_VIEWS:
         with np.load(bp.out_dir(view, name) / "fit.npz") as z:
@@ -140,8 +144,8 @@ def run_pilot(name: str, workers: int) -> None:
     print(f"[bp-e1-pilot] {name}: {len(tasks)} mesh, viste {bp.PILOT_VIEWS}", flush=True)
     with mp.get_context("fork").Pool(workers) as pool:
         res = pool.map(_pilot, tasks, chunksize=1)
-    keys = ["orig", "va"] + [f"vb|{s}|{tau}|{it}" for s in bp.LOOP_GRID["sigma"] for tau in bp.LOOP_GRID["tau"]
-                             for it in bp.LOOP_GRID["iters"]]
+    keys = ["orig", "va"] + [f"vb|{s}|{tau}|{it}" for s in grid["sigma"] for tau in grid["tau"]
+                             for it in grid["iters"]]
     per_view, surf, fails, betas = {}, {}, {}, {}
     for view in bp.PILOT_VIEWS:
         idx = [i for i, t in enumerate(tasks) if t[0] == view]
@@ -166,10 +170,9 @@ def run_pilot(name: str, workers: int) -> None:
     _, s, tau, it = choice.split("|")
     sec = {k: float(np.median([r["sec"][k] for r in res if k in r["sec"]])) for k in res[0]["sec"]}
     out = {"model": name, "views": list(bp.PILOT_VIEWS), "subjects": subj, "topologies": list(TOPOLOGIES),
-           "grid": bp.LOOP_GRID, "score": scores, "separation_by_view": per_view, "surface": surf,
+           "grid": grid, "score": scores, "separation_by_view": per_view, "surface": surf,
            "failed": fails, "choice": {"key": choice, "sigma": float(s), "tau": float(tau), "iters": int(it)},
            "seconds_median": sec, "wall_s": time.time() - t0}
-    root = bp.OUT_ROOT / "pilot_e1"
     bp.atomic_json(root / f"{name}.json", out)
     blmm.atomic_savez(root / f"{name}.npz", **{k.replace("|", "__"): v for k, v in betas.items()})
     print(f"[bp-e1-pilot] {name}: scelta {out['choice']} (S {scores[choice]:.4f}; originale {scores['orig']:.4f}, "

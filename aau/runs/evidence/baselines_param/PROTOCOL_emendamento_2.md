@@ -188,4 +188,36 @@ paired.
 
 ## 9. Valori congelati
 
-(Da aggiungere dopo i passi `heldout` e `pilot`, PRIMA del passo `paired`.)
+Aggiunta del 10 ottobre 2026, dopo i passi senza GT di test e PRIMA del passo `paired` (le sez. 1-8 sono quelle del
+commit 05eceb0, sha256 `0bd93adb...`). Nessuna GT dei domini di test e' stata letta dai job di questa sezione.
+
+**k della composizione (sez. 2)**, job 1067774 (48 core CPU, 12 min 49 s; stage 1.500 mesh, 1.6 GB su /tmp): 0 fit
+falliti su 1.500 per modello, 297.000 coppie (le stesse dell'`icp_cs` di factorized_calibration_bl.csv), mediana d_P
+GT 0.0713.
+
+| modello | k (mediana) | k_LS | k bfm | k ict | k gnm | mediana d_P B | vertici della regione bfm / ict / gnm |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GNM | **1.6981** | 1.5767 | 1.791 | 1.569 | 1.713 | 0.0420 | 7.999 / 8.906 / 8.167 |
+| FLAME 2023 Open | **1.6096** | 1.5012 | 1.678 | 1.518 | 1.604 | 0.0443 | 1.599 / 1.736 / 1.549 |
+
+**Pilota della sensibilita' (sez. 4)**, job 1067775 (GNM, 3 min 49 s) e 1067776 (FLAME, 12 min 16 s), 40 core: 0 fit
+falliti nelle 12 configurazioni nuove; controllo: S del fit originale e della variante A identici a `pilot_e1`
+(scarto 0). Scelta della regola sull'unione delle 30 configurazioni:
+
+| modello | scelta | S | entro l'1% | B congelata (S) |
+| --- | --- | --- | --- | --- |
+| GNM | **sigma 8 mm, tau 10 mm, 10 iterazioni** | 0.1389 | (8, 10, 10), (8, 5, 10) | sigma 2, tau 10, 5 (0.1566) |
+| FLAME 2023 Open | **sigma 8 mm, tau 5 mm, 10 iterazioni** | 0.1766 | solo la scelta | sigma 2, tau 5, 5 (0.2106) |
+
+La scelta ha sigma diversa da `bp.LOOP` per entrambi i modelli: la sez. 4 si applica, B con queste configurazioni su
+tutte le viste valutate, colonne `<modello>_vbs_*`, lette come sensibilita'. Da dichiarare con i numeri: il minimo di S per
+sigma cala in modo monotono (GNM: 0.156 a sigma 2, 0.149 a 4, 0.139 a 8; FLAME 0.209, 0.198, 0.177) e **la scelta sta di
+nuovo sul bordo superiore della griglia** (8 mm): la griglia non si allarga ancora (sarebbe una terza scelta dopo
+aver visto il pilota). Col prior piu' forte l'errore di superficie sul pilota sale (GNM mediana 0.42-0.81 mm, FLAME
+0.54-0.86 mm, contro 0.3-0.6 mm della B congelata).
+
+**Crop (sez. 1)**, job 1067773 (48 core, 6 min 12 s): 0 fit falliti in A e B su 800 (4 viste x 100 x 2 modelli).
+**Riproducibilita' (sez. 3)**: rifatti su altri nodi, i beta di B differiscono da `fit_e1.npz` fino a 8.8e-3 (FLAME
+HIFI3D; in unita' di sigma del prior), lo stesso valore su due nodi diversi (job 1067777 e 1067783): non e'
+bit-a-bit, coerente con un'architettura di CPU diversa da quella dei job dell'emendamento 1 (i256-a10-06 e -08); il
+crop di GNM e FLAME e' stato calcolato su i256-a10-08.

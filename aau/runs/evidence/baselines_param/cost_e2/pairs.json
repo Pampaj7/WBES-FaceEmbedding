@@ -1,0 +1,48 @@
+{
+ "threads": "1",
+ "host": "a256-t4-02.srv.aau.dk",
+ "job": "1067779",
+ "cpu": "AMD EPYC 7302 16-Core Processor",
+ "cpus_allocated": "2",
+ "python": "3.10.12",
+ "B": {
+  "gnm": {
+   "n_region_vertices": 7700,
+   "k_id": 170,
+   "enroll_identity_mesh_s": 0.0030184776801615953,
+   "pair_coef_s": 4.596899962052703e-06,
+   "pair_mesh_fr_or_sr_s": 7.16742454872777e-05,
+   "pair_comp_s": 7.39560592143486e-05,
+   "mesh_distances_all_s": 2.1741247470490634,
+   "mesh_distances_n": 500,
+   "mesh_distances_per_pair_s": 1.7427853683760026e-05
+  },
+  "flame2023": {
+   "n_region_vertices": 1517,
+   "k_id": 300,
+   "enroll_identity_mesh_s": 0.0007681920006871223,
+   "pair_coef_s": 4.626530843476455e-06,
+   "pair_mesh_fr_or_sr_s": 2.042679418809712e-05,
+   "pair_comp_s": 2.2469371324405073e-05,
+   "mesh_distances_all_s": 0.5017418791539967,
+   "mesh_distances_n": 500,
+   "mesh_distances_per_pair_s": 4.021978991214402e-06
+  }
+ },
+ "arms": {
+  "factorized_s1234": {
+   "dim": 257,
+   "pair_s": 6.998682767152786e-06,
+   "all_pairs_s": 0.005672135390341282,
+   "n": 600,
+   "per_pair_amortized_s": 3.156447073089194e-08
+  },
+  "ctrlfr_s1234": {
+   "dim": 256,
+   "pair_s": 4.683038452640176e-06,
+   "all_pairs_s": 0.005640525836497545,
+   "n": 600,
+   "per_pair_amortized_s": 3.138856892875651e-08
+  }
+ }
+}

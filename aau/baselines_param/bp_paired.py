@@ -61,6 +61,7 @@ _DN = {"coef": "coefficienti", "fr": "mesh d'identita' FR", "sr": "mesh d'identi
 LABEL.update({f"{m}_{v}_{d}": f"{_MN[m]} {'vA' if v == 'va' else 'vB'}, {_DN[d]}" for m in bp.MODELS
               for v in bp.VARIANTS for d in _DN})
 COLS = list(NEW)        # colonne nuove dell'analisi in corso (NEW, o NEW + NEW_E1 con --e1)
+EXTRA: list = []        # emendamento 2: funzioni (vista, chiavi) -> {colonna: D} aggiunte da bp_paired_e2.py
 NEUTRAL_EMB = REPO / "aau/runs/evidence/faceverse_neutral/embed"
 VIEW_ORDER = ("hifi3d", "facescape", "faceverse", "faceverse_neutral", "famos")
 # riferimenti delle tabelle: (colonna, etichetta)
@@ -119,6 +120,8 @@ def new_matrices(view: str) -> tuple[dict, list]:
     if k != keys:
         raise SystemExit(f"{view}: mesh del varifold diverse da quelle dei fit")
     out["varifold"] = varifold_distances(G)
+    for f in EXTRA:
+        out.update(f(view, keys))
     return out, keys
 
 
@@ -381,6 +384,9 @@ def write_results(P: pd.DataFrame, info: dict, ctrl: dict) -> None:
     if (out / "paired_e1.csv").exists() and (out / "controls_e1.json").exists():
         c1 = json.loads((out / "controls_e1.json").read_text())
         md += results_e1(pd.read_csv(out / "paired_e1.csv"), c1["info"], c1["paired_csv"])
+    if (out / "paired_e2.csv").exists() and (out / "controls_e2.json").exists():
+        import bp_paired_e2                              # emendamento 2 (sezioni in fondo)
+        md += bp_paired_e2.results_e2()
     (out / "results.md").write_text("\n".join(md) + "\n")
 
 

@@ -1,0 +1,98 @@
+{
+ "key": "ctrlfr_s1234",
+ "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/ctrlfr/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_seed1234__1d3ea212/checkpoints/epoch072_ema.pth",
+ "reference_embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3ctrlfrfulle072_embed/zs_zeroshot/embeddings.npz",
+ "checkpoint_matches_reference": true,
+ "max_abs_diff_vs_reference": 0.0011493563652038574,
+ "device": "NVIDIA L40S",
+ "n_meshes": 600,
+ "warmup": 10,
+ "group": 30,
+ "batch1": {
+  "load_ops_npz": {
+   "n": 600,
+   "median": 0.03384934749919921,
+   "p95": 0.08671398687874898,
+   "mean": 0.03813391359290108,
+   "max": 0.09056559903547168
+  },
+  "to_device": {
+   "n": 600,
+   "median": 0.0008854003390297294,
+   "p95": 0.001793880492914468,
+   "mean": 0.0009359585870212564,
+   "max": 0.001882330048829317
+  },
+  "forward": {
+   "n": 600,
+   "median": 0.006425854982808232,
+   "p95": 0.007672482170164585,
+   "mean": 0.00652686691765363,
+   "max": 0.008513727923855186
+  },
+  "total": {
+   "n": 600,
+   "median": 0.041243452578783035,
+   "p95": 0.0961726120323874,
+   "mean": 0.045596739097575965,
+   "max": 0.10003485390916467
+  }
+ },
+ "batch1_forward_by_topology": {
+  "crop": {
+   "n": 100,
+   "median": 0.006274047074839473,
+   "p95": 0.006436440092511475,
+   "mean": 0.006290653792675584,
+   "max": 0.006855895975604653
+  },
+  "down8k": {
+   "n": 100,
+   "median": 0.005947335506789386,
+   "p95": 0.006062465813010931,
+   "mean": 0.005952552140224725,
+   "max": 0.0060906060971319675
+  },
+  "noisy": {
+   "n": 100,
+   "median": 0.006473951041698456,
+   "p95": 0.006548636697698384,
+   "mean": 0.006494669755920768,
+   "max": 0.008513727923855186
+  },
+  "original": {
+   "n": 100,
+   "median": 0.0064893345115706325,
+   "p95": 0.006572958419565111,
+   "mean": 0.006509985246229917,
+   "max": 0.007149867946282029
+  },
+  "remesh": {
+   "n": 100,
+   "median": 0.006246499018743634,
+   "p95": 0.0063677568221464755,
+   "mean": 0.006262975151184946,
+   "max": 0.006442815065383911
+  },
+  "up60k": {
+   "n": 100,
+   "median": 0.007648722035810351,
+   "p95": 0.00774585654726252,
+   "mean": 0.007650365419685841,
+   "max": 0.007844092091545463
+  }
+ },
+ "group_forward_per_mesh": {
+  "n": 20,
+  "median": 0.005573120398912579,
+  "p95": 0.0057011925409703205,
+  "mean": 0.005550292848686998,
+  "max": 0.005802624168184897
+ },
+ "n_vertices_median": 9309.5,
+ "host": "a768-l40s-03.srv.aau.dk",
+ "job": "1067780",
+ "cpu": "AMD EPYC 9354 32-Core Processor",
+ "cpus_allocated": "8",
+ "python": "3.10.12"
+}

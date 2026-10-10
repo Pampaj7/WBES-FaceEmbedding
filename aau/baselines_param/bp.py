@@ -82,6 +82,9 @@ LOOP_GRID = {"sigma": (0.5, 1.0, 2.0), "tau": (2.0, 5.0, 10.0), "iters": (5, 10)
 PILOT_VIEWS, PILOT_SUBJECTS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral"), 10
 # {sigma, tau, iters} di B congelati dal pilota (job 1067652, 1067653; sez. 8 dell'emendamento, prima delle viste valutate)
 LOOP = {"gnm": {"sigma": 2.0, "tau": 10.0, "iters": 5}, "flame2023": {"sigma": 2.0, "tau": 5.0, "iters": 5}}
+# emendamento 2 (PROTOCOL_emendamento_2.md, POST HOC): crop, composizione forma B + taglia B, sensibilita' a sigma
+CROP_VIEWS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral")   # viste con la topologia crop (FaMoS no)
+SENS_GRID = {"sigma": (4.0, 8.0), "tau": LOOP_GRID["tau"], "iters": LOOP_GRID["iters"]}   # pilota della sez. 4
 
 
 # ------------------------------------------------------------------------------------------ modelli
@@ -179,12 +182,14 @@ def references(view: str) -> list[tuple[str, np.ndarray, np.ndarray]]:
     return [(f"media di {len(Vs)} original del template", np.mean(np.stack(Vs), axis=0), F)]
 
 
-def region(view: str, m: dict) -> dict:
-    """Vertici della regione del modello dentro il dominio (indici nella regione del modello), voti, diagnostica."""
+def region(view: str, m: dict, refs: list | None = None) -> dict:
+    """Vertici della regione del modello dentro il dominio (indici nella regione del modello), voti, diagnostica.
+    ``refs``: riferimenti (nome, V, F) in mm nel frame canonico, se non quelli di ``references(view)`` (emendamento 2:
+    le original held-out sintetiche)."""
     import mesh_ops as mo
     from scipy.spatial import cKDTree
     M = place_canonical(m["name"], m["mu"])
-    refs = references(view)
+    refs = references(view) if refs is None else refs
     votes = np.zeros(len(M))
     diag = []
     for name, V, F in refs:
@@ -358,6 +363,21 @@ def mesh_distances(beta: np.ndarray, ctx: dict) -> dict:
     coef = np.sqrt(np.clip(Gb, 0.0, None))
     np.fill_diagonal(coef, 0.0)
     return {"coef": 0.5 * (coef + coef.T), "fr": euclid(a), "sr": euclid(s)}
+
+
+def identity_sizes(beta: np.ndarray, ctx: dict) -> np.ndarray:
+    """(n,) centroid size (mm) delle mesh d'identita' mu + B beta sulla regione, pesi d'area di mu attorno al
+    baricentro pesato: la S per cui SR scala ogni mesh in ``mesh_distances`` (NaN dove il fit e' fallito)."""
+    wn = ctx["w_r"] / ctx["w_r"].sum()
+    X = identity_meshes(np.atleast_2d(beta), ctx)
+    c = np.einsum("v,nvd->nd", wn, X)
+    return np.sqrt(np.einsum("v,nv->n", wn, ((X - c[:, None]) ** 2).sum(-1)))
+
+
+def composition(S: np.ndarray, D_sr: np.ndarray, ctx: dict, k: float) -> np.ndarray:
+    """Emendamento 2, sez. 2: d_F = sqrt((S_i - S_j)^2 + S_i S_j (k d_P)^2), d_P = SR / S(mu) (adimensionale)."""
+    dP = D_sr / identity_sizes(np.zeros((1, ctx["B_r"].shape[2])), ctx)[0]
+    return np.sqrt((S[:, None] - S[None, :]) ** 2 + S[:, None] * S[None, :] * (k * dP) ** 2)
 
 
 # --------------------------------------------------------------------- emendamento 1 (post hoc)

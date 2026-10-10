@@ -1,0 +1,42 @@
+{
+ "model": "flame2023",
+ "n_meshes": 1500,
+ "n_failed_vb": 0,
+ "failed_vb": [],
+ "n_pairs": 297000,
+ "n_pairs_dropped": 0,
+ "median_dP_gt": 0.0712853841740877,
+ "median_dP_B": 0.04428856322622385,
+ "k_median": 1.6095664203411926,
+ "k_ls": 1.501189813289013,
+ "loop": {
+  "sigma": 2.0,
+  "tau": 5.0,
+  "iters": 5
+ },
+ "regions": {
+  "bfm": {
+   "n_refs": 100,
+   "n_vertices": 1599,
+   "kept_median": 0.8889199776161164,
+   "median_mm_median": 1.1764938198694557
+  },
+  "ict": {
+   "n_refs": 100,
+   "n_vertices": 1736,
+   "kept_median": 0.9320089535534415,
+   "median_mm_median": 1.65170430353395
+  },
+  "gnm": {
+   "n_refs": 100,
+   "n_vertices": 1549,
+   "kept_median": 0.8483491885842194,
+   "median_mm_median": 1.5250793877974127
+  }
+ },
+ "definition": "PROTOCOL_emendamento_2.md sez. 2: k = mediana(d_P GT-SR x dP_per_unit) / mediana(SR di B / S(mu)) sulle coppie di fact_calib.heldout_pairs",
+ "wall_s": 111.01301050186157,
+ "k_median_bfm": 1.6778954765236027,
+ "k_median_ict": 1.5175286148158638,
+ "k_median_gnm": 1.603930331084432
+}
