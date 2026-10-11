@@ -1,0 +1,13 @@
+{
+ "views": 432,
+ "mine_views": 89,
+ "mine_max": 28,
+ "mine_total": 754,
+ "igl_views": 89,
+ "igl_max": 28,
+ "igl_total": 754,
+ "views_equal": 432,
+ "examples_differ": [],
+ "job": 1068091,
+ "what": "vertici a farfalla delle 432 viste della geometria di test_partial: test_partial.butterfly (piu' di un ventaglio di facce) contro igl.is_vertex_manifold (vertici usati)"
+}

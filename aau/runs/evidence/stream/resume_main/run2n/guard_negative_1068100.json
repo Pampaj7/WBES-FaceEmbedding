@@ -1,0 +1,25 @@
+{
+ "job": 1068100,
+ "what": "continuazione con STREAM_RUN_TAG=999 (sbagliato) sullo stesso STREAM_OUT: la run dir della riga di lancio cambia (anello /tmp/999_stream/r0) e non ha last.pth",
+ "launch": "STREAM_RUN_TAG=999 STREAM_SOURCES=validated STREAM_STEPS=600 STREAM_SPE=100 STREAM_EVAL_EVERY=3 STREAM_OUT=<run2n> sbatch --nodes=2 --gpus-per-node=l40s:1 --cpus-per-gpu=20 --mem-per-gpu=80G --time=00:15:00 massive.sbatch",
+ "sacct": [
+  "JobID|State|Start|End|Elapsed|ExitCode|NodeList",
+  "1068100|FAILED|2026-10-11T02:53:11|2026-10-11T02:54:26|00:01:15|15:0|a768-l40s-[02-03]",
+  "1068100.batch|FAILED|2026-10-11T02:53:11|2026-10-11T02:54:26|00:01:15|15:0|a768-l40s-02",
+  "1068100.extern|COMPLETED|2026-10-11T02:53:11|2026-10-11T02:54:26|00:01:15|0:0|a768-l40s-[02-03]",
+  "1068100.0|FAILED|2026-10-11T02:53:12|2026-10-11T02:54:26|00:01:14|3:0|a768-l40s-[02-03]"
+ ],
+ "massive_log": [
+  "[massive] 2026-10-11_02:53:12 job=1068100 riavvio=0 segmento=3 nodi=a768-l40s-02 a768-l40s-03 rendezvous=a768-l40s-02:29500 arm=factorized fonti=validated codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code (21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche) tag=999 ripresa=1"
+ ],
+ "node0_log": [
+  "[node0] 2026-10-11_02:53:12 host=a768-l40s-02.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=22 riavvio=0 segmento=3 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/999_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+  "[node0] 2026-10-11_02:54:18 anello pronto: 23 shard",
+  "[node0] 2026-10-11_02:54:23 ERRORE: [resume] ERRORE: ripresa attesa (riavvio o continuazione) ma /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__9d8c1885/checkpoints/last.pth manca; run dir con last.pth in /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs: ['v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f']. Non riparto da zero: stessa riga di lancio (STREAM_OUT, STREAM_RUN_TAG, variabili) o un STREAM_OUT nuovo"
+ ],
+ "segments_log_last": "3 job=1068100 riavvio=0 2026-10-11_02:53:12",
+ "run_dirs_after": [
+  "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f"
+ ],
+ "pass": true
+}

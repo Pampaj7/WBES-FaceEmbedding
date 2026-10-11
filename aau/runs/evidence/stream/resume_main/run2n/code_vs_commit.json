@@ -1,0 +1,18 @@
+{
+ "snapshot": {
+  "head": "21afea82f67643f70c4785656cdf0f5c75edaba9",
+  "code_version": "21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche",
+  "files": 986,
+  "links": 275,
+  "bytes": 7341796,
+  "time": "2026-10-11 02:36:45",
+  "host": "a768-l40s-02.srv.aau.dk",
+  "job": "1068078"
+ },
+ "commit": "ce0ae82",
+ "v3_work_files_compared": 158,
+ "identical": 158,
+ "different": 0,
+ "what": "la copia congelata eseguita dalla prova (fatta prima del commit, quindi '+modifiche') contro ce0ae82: stessi sha256 per tutti i file di v3_work",
+ "pass": true
+}

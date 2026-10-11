@@ -1,0 +1,160 @@
+{
+ "producer": {
+  "views": 1160,
+  "views_per_s_steady": 7.665150742965411,
+  "views_by_domain": {
+   "flame2023": 248,
+   "gnm": 236,
+   "famos": 248,
+   "ict": 220,
+   "bfm2019": 208
+  },
+  "expr_fraction": 0.5,
+  "failures": 0,
+  "bytes_per_view": 1926821.3896551724,
+  "views_by_origin": {
+   "expr_transfer": 152,
+   "hybrid": 220,
+   "pure": 652,
+   "rbf": 136
+  },
+  "mm_aug": {
+   "hybrid": 0.3,
+   "expr_transfer": 0.15,
+   "rbf": 0.15
+  }
+ },
+ "regen": {
+  "groups": 80,
+  "views": 320,
+  "groups_by_origin": {
+   "pure": 41,
+   "rbf": 11,
+   "expr_transfer": 11,
+   "hybrid": 17
+  },
+  "pass": true,
+  "domains": [
+   "bfm2019",
+   "famos",
+   "flame2023",
+   "gnm",
+   "ict"
+  ],
+  "max_verts_abs": 1.2817120687014238e-07,
+  "failed": []
+ },
+ "licenses": {
+  "pass": true,
+  "table": {
+   "gnm": [
+    "Apache-2.0 (google/GNM, NOTICE)",
+    0
+   ],
+   "ict": [
+    "MIT (ICT-FaceKit Light, commit da5f95a)",
+    0
+   ],
+   "flame2023": [
+    "CC-BY-4.0 (FLAME 2023 Open, restrizioni d'uso)",
+    0
+   ],
+   "flame2020": [
+    "FLAME 2020 (MPI): solo ricetta",
+    1
+   ],
+   "bfm2019": [
+    "BFM 2019 (Basilea): solo ricetta",
+    1
+   ],
+   "famos": [
+    "FaMoS (MPI): solo ricetta, persone reali",
+    2
+   ]
+  }
+ },
+ "consumer": {
+  "pool_domains": [
+   "flame2023",
+   "gnm",
+   "ict"
+  ],
+  "unique_views_used": 88,
+  "log_rows": 88,
+  "summary": {
+   "files": 1,
+   "rows": 88,
+   "unique_views": 88,
+   "groups": 22,
+   "identities": 22,
+   "identities_by_domain": {
+    "flame2023": 6,
+    "gnm": 8,
+    "ict": 8
+   },
+   "identities_by_origin": {
+    "hybrid": 5,
+    "pure": 15,
+    "expr_transfer": 1,
+    "rbf": 1
+   },
+   "views_by_domain": {
+    "flame2023": 24,
+    "gnm": 32,
+    "ict": 32
+   },
+   "views_by_origin": {
+    "hybrid": 20,
+    "pure": 60,
+    "expr_transfer": 4,
+    "rbf": 4
+   },
+   "views_by_label": {
+    "remesh": 18,
+    "noisy": 16,
+    "original": 16,
+    "down8k": 10,
+    "crop": 25,
+    "up60k": 3
+   },
+   "views_by_expr": {
+    "expr": 44,
+    "neutral": 44
+   },
+   "views_by_license": {
+    "CC-BY-4.0 (FLAME 2023 Open, restrizioni d'uso)": 24,
+    "Apache-2.0 (google/GNM, NOTICE)": 32,
+    "MIT (ICT-FaceKit Light, commit da5f95a)": 32
+   },
+   "share_redistributable_views": 1.0,
+   "with_seed": 1.0,
+   "rings": {
+    "0": 88
+   },
+   "S_by_domain": {
+    "flame2023": {
+     "n": 6,
+     "S_mean_mm": 54.82177416483561,
+     "S_cv": 0.05981023908660526
+    },
+    "gnm": {
+     "n": 8,
+     "S_mean_mm": 55.998592376708984,
+     "S_cv": 0.04852325435756744
+    },
+    "ict": {
+     "n": 8,
+     "S_mean_mm": 57.65522575378418,
+     "S_cv": 0.05214924372215309
+    }
+   }
+  },
+  "pass": true
+ },
+ "mm_aug": {
+  "returncode": 1,
+  "message": "'chimera' non in ('hybrid', 'expr_transfer', 'rbf')",
+  "pass": true
+ },
+ "pass": true
+}

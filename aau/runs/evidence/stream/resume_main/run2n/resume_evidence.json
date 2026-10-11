@@ -1,0 +1,458 @@
+{
+ "stream_out": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n",
+ "run_dirs": [
+  "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f"
+ ],
+ "run_dir_lines": [
+  "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f"
+ ],
+ "massive_log": [
+  "[code] copia di 986 file (7.0 MiB) e 275 link al repo, commit 21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche (19 file diversi dal commit) -> /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+  "[massive] 2026-10-11_02:36:45 job=1068078 riavvio=0 segmento=0 nodi=a768-l40s-02 a768-l40s-03 rendezvous=a768-l40s-02:29478 arm=factorized fonti=validated codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code (21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche) tag=1068078 ripresa=0",
+  "[code] /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code: 986 file identici al manifesto (commit 21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche, copia del 2026-10-11 02:36:45, job 1068078)",
+  "[massive] 2026-10-11_02:43:12 job=1068078 riavvio=1 segmento=1 nodi=a768-l40s-02 a768-l40s-03 rendezvous=a768-l40s-02:29478 arm=factorized fonti=validated codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code (21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche) tag=1068078 ripresa=1",
+  "[code] /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code: 986 file identici al manifesto (commit 21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche, copia del 2026-10-11 02:36:45, job 1068078)",
+  "[massive] 2026-10-11_02:47:11 job=1068090 riavvio=0 segmento=2 nodi=a768-l40s-02 a768-l40s-03 rendezvous=a768-l40s-02:29490 arm=factorized fonti=validated codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code (21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche) tag=1068078 ripresa=1",
+  "[massive] 2026-10-11_02:50:12 fine"
+ ],
+ "segments_log": [
+  "0 job=1068078 riavvio=0 2026-10-11_02:36:45",
+  "1 job=1068078 riavvio=1 2026-10-11_02:43:12",
+  "2 job=1068090 riavvio=0 2026-10-11_02:47:11"
+ ],
+ "run_tag": "1068078",
+ "node_log": {
+  "node0": [
+   "[node0] 2026-10-11_02:36:45 host=a768-l40s-02.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=22 riavvio=0 segmento=0 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node0] 2026-10-11_02:36:45 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node0] 2026-10-11_02:36:45 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node0] 2026-10-11_02:36:45 CPU dei rank: 35,36,37,38,99,100,101,102; produttori: 14 processi",
+   "[node0] 2026-10-11_02:37:51 anello pronto: 25 shard",
+   "[node0] 2026-10-11_02:37:51 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node0] 2026-10-11_02:37:51 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29478",
+   "[node0] 2026-10-11_02:40:45 trainer finito rc=1 (tentativo 0)",
+   "[node0] 2026-10-11_02:40:45 SIGTERM (prelazione o requeue): nessun nuovo tentativo",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/node0: 200 passi, s/passo 0.471 -> 0.438, GPU 79%, fresche/s 6.5, riuso a regime 5.25 (ultime 3 epoche), cumulato 5.25, tetto morbido 4.0 (gruppi oltre 324), lr [0.0001], batch per dominio {'bfm2019': 88, 'gnm': 87, 'ict': 81}, per fonti {'bfm2019': 88, 'gnm': 87, 'ict': 81}, memoria {'cgroup_job': 26.784263610839844, 'ring_tmp': 8.945921848528087}",
+   "[node0] 2026-10-11_02:43:13 host=a768-l40s-02.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=22 riavvio=1 segmento=1 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node0] 2026-10-11_02:43:13 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node0] 2026-10-11_02:43:13 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node0] 2026-10-11_02:43:13 CPU dei rank: 35,36,37,38,99,100,101,102; produttori: 14 processi",
+   "[node0] 2026-10-11_02:44:18 anello pronto: 24 shard",
+   "[node0] 2026-10-11_02:44:25 [resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 255 (epoca 3, batch 55), si riprende da li'",
+   "[node0] 2026-10-11_02:44:25 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node0] 2026-10-11_02:44:25 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29478",
+   "[node0] 2026-10-11_02:46:38 trainer finito rc=1 (tentativo 0)",
+   "[node0] 2026-10-11_02:46:38 SIGTERM (prelazione o requeue): nessun nuovo tentativo",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/node0: 400 passi, s/passo 0.471 -> 0.438, GPU 74%, fresche/s 6.1, riuso a regime 5.18 (ultime 3 epoche), cumulato 5.18, tetto morbido 4.0 (gruppi oltre 555), lr [0.0001], batch per dominio {'bfm2019': 69, 'ict': 73, 'gnm': 61}, per fonti {'bfm2019': 69, 'ict': 73, 'gnm': 61}, memoria {'cgroup_job': 26.784263610839844, 'ring_tmp': 8.945921848528087}",
+   "[node0] 2026-10-11_02:47:12 host=a768-l40s-02.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=22 riavvio=0 segmento=2 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node0] 2026-10-11_02:47:12 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node0] 2026-10-11_02:47:12 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node0] 2026-10-11_02:47:12 CPU dei rank: 35,36,37,38,99,100,101,102; produttori: 14 processi",
+   "[node0] 2026-10-11_02:48:17 anello pronto: 25 shard",
+   "[node0] 2026-10-11_02:48:22 [resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 457 (epoca 5, batch 57), si riprende da li'",
+   "[node0] 2026-10-11_02:48:22 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node0] 2026-10-11_02:48:22 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29490",
+   "[node0] 2026-10-11_02:50:10 trainer finito rc=0 (tentativo 0)",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/node0: 600 passi, s/passo 0.471 -> 0.440, GPU 74%, fresche/s 5.2, riuso a regime 5.91 (ultime 3 epoche), cumulato 5.04, tetto morbido 4.0 (gruppi oltre 704), lr [0.0001], batch per dominio {'gnm': 51, 'ict': 44, 'bfm2019': 48}, per fonti {'gnm': 51, 'ict': 44, 'bfm2019': 48}, memoria {'cgroup_job': 26.784263610839844, 'ring_tmp': 8.945921848528087}"
+  ],
+  "node1": [
+   "[node1] 2026-10-11_02:36:46 host=a768-l40s-03.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=20 riavvio=0 segmento=0 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node1] 2026-10-11_02:36:46 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node1] 2026-10-11_02:36:46 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node1] 2026-10-11_02:36:46 CPU dei rank: 34,42,43,44,98,106,107,108; produttori: 12 processi",
+   "[node1] 2026-10-11_02:38:21 anello pronto: 21 shard",
+   "[node1] 2026-10-11_02:38:21 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node1] 2026-10-11_02:38:21 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29478",
+   "[node1] 2026-10-11_02:40:44 trainer finito rc=1 (tentativo 0)",
+   "[node1] 2026-10-11_02:40:44 SIGTERM (prelazione o requeue): nessun nuovo tentativo",
+   "[node1] 2026-10-11_02:43:13 host=a768-l40s-03.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=20 riavvio=1 segmento=1 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node1] 2026-10-11_02:43:13 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node1] 2026-10-11_02:43:13 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node1] 2026-10-11_02:43:13 CPU dei rank: 34,42,43,44,98,106,107,108; produttori: 12 processi",
+   "[node1] 2026-10-11_02:44:23 anello pronto: 19 shard",
+   "[node1] 2026-10-11_02:44:30 [resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 255 (epoca 3, batch 55), si riprende da li'",
+   "[node1] 2026-10-11_02:44:30 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node1] 2026-10-11_02:44:30 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29478",
+   "[node1] 2026-10-11_02:46:37 trainer finito rc=1 (tentativo 0)",
+   "[node1] 2026-10-11_02:46:38 SIGTERM (prelazione o requeue): nessun nuovo tentativo",
+   "[node1] 2026-10-11_02:47:12 host=a768-l40s-03.srv.aau.dk GPU=1 (1 NVIDIA L40S) CPU=20 riavvio=0 segmento=2 arm=factorized fonti=validated k=128 T=600 S=100 R=4 anello=/tmp/1068078_stream/r0 (10GiB) codice=/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code",
+   "[node1] 2026-10-11_02:47:12 dati: ricetta c3m, quota d'espressioni bfm2019=0,ict=0.2315,gnm=0.1968, mm_aug no, rotazione a ogni uso 0 gradi, discretizzazioni perm",
+   "[node1] 2026-10-11_02:47:12 ricetta: batch 5 identita' x <= 6 viste per rank (produttori: 6 viste per identita'), batch single, lr costante, maschera di taglia: nessuna, forward groups",
+   "[node1] 2026-10-11_02:47:12 CPU dei rank: 34,42,43,44,98,106,107,108; produttori: 12 processi",
+   "[node1] 2026-10-11_02:48:22 anello pronto: 20 shard",
+   "[node1] 2026-10-11_02:48:29 [resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 457 (epoca 5, batch 57), si riprende da li'",
+   "[node1] 2026-10-11_02:48:29 prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni 20 min",
+   "[node1] 2026-10-11_02:48:29 torchrun tentativo 0: 2 nodi, 1 rank qui, rendezvous a768-l40s-02:29490",
+   "[node1] 2026-10-11_02:50:10 trainer finito rc=0 (tentativo 0)"
+  ]
+ },
+ "resume_check": {
+  "node0": [
+   "[resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 457 (epoca 5, batch 57), si riprende da li'"
+  ],
+  "node1": [
+   "[resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f: last.pth al passo 457 (epoca 5, batch 57), si riprende da li'"
+  ]
+ },
+ "preempt_logs": {
+  "preempt_rank0.log": [
+   "[preempt] 2026-10-11 02:40:42 rank 0: segnale 15 al passo 254, checkpoint dopo il passo in corso",
+   "[v3] checkpoint di ripresa: epoca 3, batch 55, passo 255",
+   "[preempt] checkpoint di ripresa al passo 255 (segnale 15 arrivato al passo 254, 0.2s fa): esco con 143",
+   "[preempt] 2026-10-11 02:46:36 rank 0: segnale 15 al passo 456, checkpoint dopo il passo in corso",
+   "[v3] checkpoint di ripresa: epoca 5, batch 57, passo 457",
+   "[preempt] checkpoint di ripresa al passo 457 (segnale 15 arrivato al passo 456, 0.2s fa): esco con 143"
+  ],
+  "preempt_rank1.log": [
+   "[preempt] 2026-10-11 02:40:42 rank 1: segnale 15 al passo 254, checkpoint dopo il passo in corso",
+   "[preempt] 2026-10-11 02:46:36 rank 1: segnale 15 al passo 456, checkpoint dopo il passo in corso"
+  ]
+ },
+ "train_log_key_lines": [
+  "[preempt] WBES_PREEMPT_SAVE=1: su SIGTERM checkpoint di ripresa al passo in corso e uscita",
+  "[v3] epoca 1: 100 passi (100 in questo processo) in 47s (0.471 s/passo)",
+  "[v3] epoca 2: 100 passi (100 in questo processo) in 44s (0.438 s/passo)",
+  "[preempt] WBES_PREEMPT_SAVE=1: su SIGTERM checkpoint di ripresa al passo in corso e uscita",
+  "[v3] RIPRESA da /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f/checkpoints/last.pth: epoca 3 dal batch 55, passo 255, world 2 (il checkpoint era a world 2)",
+  "[v3] generatori ripristinati al passo 255",
+  "[v3] epoca 3: 100 passi (45 in questo processo) in 21s (0.470 s/passo)",
+  "[v3] epoca 4: 100 passi (100 in questo processo) in 44s (0.438 s/passo)",
+  "[preempt] WBES_PREEMPT_SAVE=1: su SIGTERM checkpoint di ripresa al passo in corso e uscita",
+  "[v3] RIPRESA da /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f/checkpoints/last.pth: epoca 5 dal batch 57, passo 457, world 2 (il checkpoint era a world 2)",
+  "[v3] generatori ripristinati al passo 457",
+  "[v3] epoca 5: 100 passi (43 in questo processo) in 20s (0.468 s/passo)",
+  "[v3] epoca 6: 100 passi (100 in questo processo) in 44s (0.440 s/passo)",
+  "DONE",
+  "[v3] passi eseguiti: 600 (richiesti 600)"
+ ],
+ "train_log_node1_key_lines": [
+  "Traceback (most recent call last):",
+  "  File \"/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py\", line 355, in wrapper",
+  "Traceback (most recent call last):",
+  "  File \"/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py\", line 355, in wrapper"
+ ],
+ "steps": {
+  "T": 600,
+  "n_rows": 600,
+  "unique": 600,
+  "missing": [],
+  "duplicates": 0,
+  "monotone": true,
+  "saves_on_sigterm": [
+   255,
+   457
+  ],
+  "resumes_from": [
+   255,
+   457
+  ],
+  "resume_equals_save": true,
+  "loss_mean_50_before_after_255": [
+   0.09028,
+   0.0775
+  ],
+  "loss_mean_50_before_after_457": [
+   0.06472,
+   0.06484
+  ],
+  "pass": true
+ },
+ "registry": {
+  "rank0": {
+   "files": 8,
+   "file_steps": [
+    100,
+    200,
+    255,
+    300,
+    400,
+    457,
+    500,
+    600
+   ],
+   "rows": 3492,
+   "unique_views": 3492,
+   "sum_views_logged": 3492,
+   "sum_d_unique_views_used": 3492,
+   "stats_rows": [
+    {
+     "epoch": 1,
+     "plans_yielded": 100,
+     "d_unique_views_used": 954,
+     "views_logged": 954
+    },
+    {
+     "epoch": 2,
+     "plans_yielded": 100,
+     "d_unique_views_used": 336,
+     "views_logged": 336
+    },
+    {
+     "epoch": 3,
+     "plans_yielded": 55,
+     "d_unique_views_used": 174,
+     "views_logged": 174
+    },
+    {
+     "epoch": 3,
+     "plans_yielded": 45,
+     "d_unique_views_used": 528,
+     "views_logged": 528
+    },
+    {
+     "epoch": 4,
+     "plans_yielded": 100,
+     "d_unique_views_used": 480,
+     "views_logged": 480
+    },
+    {
+     "epoch": 5,
+     "plans_yielded": 57,
+     "d_unique_views_used": 168,
+     "views_logged": 168
+    },
+    {
+     "epoch": 5,
+     "plans_yielded": 43,
+     "d_unique_views_used": 498,
+     "views_logged": 498
+    },
+    {
+     "epoch": 6,
+     "plans_yielded": 100,
+     "d_unique_views_used": 354,
+     "views_logged": 354
+    }
+   ],
+   "expected_seed0_by_segment": [
+    {
+     "steps": [
+      1,
+      255
+     ],
+     "seed0": 20261009
+    },
+    {
+     "steps": [
+      256,
+      457
+     ],
+     "seed0": 20361009
+    },
+    {
+     "steps": [
+      458,
+      600
+     ],
+     "seed0": 20461009
+    }
+   ],
+   "files_with_wrong_seed": [],
+   "pass": true
+  },
+  "rank1": {
+   "files": 8,
+   "file_steps": [
+    100,
+    200,
+    255,
+    300,
+    400,
+    457,
+    500,
+    600
+   ],
+   "rows": 2646,
+   "unique_views": 2646,
+   "sum_views_logged": 2646,
+   "sum_d_unique_views_used": 2658,
+   "stats_rows": [
+    {
+     "epoch": 1,
+     "plans_yielded": 100,
+     "d_unique_views_used": 594,
+     "views_logged": 594
+    },
+    {
+     "epoch": 2,
+     "plans_yielded": 100,
+     "d_unique_views_used": 258,
+     "views_logged": 258
+    },
+    {
+     "epoch": 3,
+     "plans_yielded": 55,
+     "d_unique_views_used": 156,
+     "views_logged": 156
+    },
+    {
+     "epoch": 3,
+     "plans_yielded": 45,
+     "d_unique_views_used": 432,
+     "views_logged": 432
+    },
+    {
+     "epoch": 4,
+     "plans_yielded": 100,
+     "d_unique_views_used": 378,
+     "views_logged": 378
+    },
+    {
+     "epoch": 5,
+     "plans_yielded": 57,
+     "d_unique_views_used": 150,
+     "views_logged": 138
+    },
+    {
+     "epoch": 5,
+     "plans_yielded": 43,
+     "d_unique_views_used": 408,
+     "views_logged": 408
+    },
+    {
+     "epoch": 6,
+     "plans_yielded": 100,
+     "d_unique_views_used": 282,
+     "views_logged": 282
+    }
+   ],
+   "expected_seed0_by_segment": [
+    {
+     "steps": [
+      1,
+      255
+     ],
+     "seed0": 20262009
+    },
+    {
+     "steps": [
+      256,
+      457
+     ],
+     "seed0": 20362009
+    },
+    {
+     "steps": [
+      458,
+      600
+     ],
+     "seed0": 20462009
+    }
+   ],
+   "files_with_wrong_seed": [],
+   "pass": true
+  }
+ },
+ "launch_vs_reference": {
+  "cmd0_now": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code/v3_work/stream/train_stream.py",
+  "test_keys": [
+   "stream",
+   "total_steps",
+   "steps_per_epoch",
+   "epochs",
+   "eval_every",
+   "save_every",
+   "runs_root"
+  ],
+  "mini_smoke_c3m_1067709": {
+   "differing_args_ref_now": {
+    "epochs": [
+     "5",
+     "6"
+    ],
+    "eval_every": [
+     "5",
+     "3"
+    ],
+    "runs_root": [
+     "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/smoke_c3m_recipe/runs",
+     "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs"
+    ],
+    "stream": [
+     "/tmp/1067709_stream/r0",
+     "/tmp/1068078_stream/r0"
+    ],
+    "total_steps": [
+     "500",
+     "600"
+    ]
+   },
+   "run_dir_names": {
+    "now": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f",
+    "ref": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__8a0a69d7",
+    "now_with_ref_test_values": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__8a0a69d7"
+   },
+   "ref_existing_run_dirs": [
+    "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__8a0a69d7"
+   ],
+   "only_test_keys_differ": true,
+   "pass": true
+  },
+  "smoke_validated_1067645": {
+   "differing_args_ref_now": {
+    "epochs": [
+     "10",
+     "6"
+    ],
+    "eval_every": [
+     "5",
+     "3"
+    ],
+    "runs_root": [
+     "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/smoke_validated_1067645/runs",
+     "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/runs"
+    ],
+    "stream": [
+     "/tmp/1067645_stream/r0",
+     "/tmp/1068078_stream/r0"
+    ],
+    "stream_rot": [
+     "30,15,10",
+     "0"
+    ],
+    "total_steps": [
+     "1000",
+     "600"
+    ]
+   },
+   "run_dir_names": {
+    "now": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__59f6f46f",
+    "ref": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+    "now_with_ref_test_values": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__bcc43981"
+   },
+   "ref_existing_run_dirs": [
+    "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52"
+   ],
+   "only_test_keys_differ": false,
+   "pass": false
+  },
+  "pass": true
+ },
+ "code_snapshot": {
+  "head": "21afea82f67643f70c4785656cdf0f5c75edaba9",
+  "code_version": "21afea82f67643f70c4785656cdf0f5c75edaba9+modifiche",
+  "files": 986,
+  "links": 275,
+  "bytes": 7341796,
+  "time": "2026-10-11 02:36:45",
+  "host": "a768-l40s-02.srv.aau.dk",
+  "job": "1068078",
+  "dirty_v3_work": [
+   "v3_work/stream/consumer.py",
+   "v3_work/stream/producer.py",
+   "v3_work/stream/slurm/code_snapshot.py",
+   "v3_work/stream/slurm/massive.sbatch",
+   "v3_work/stream/slurm/massive_node.sh",
+   "v3_work/stream/slurm/secondary_partial_a100.sbatch",
+   "v3_work/stream/tests/test_partial.py",
+   "v3_work/stream/train_stream.py"
+  ],
+  "launch_cmd0": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/resume_main_run2n/code/v3_work/stream/train_stream.py"
+ },
+ "pass": {
+  "steps": true,
+  "launch_vs_reference": true,
+  "registry_rank0": true,
+  "registry_rank1": true
+ }
+}

@@ -1,0 +1,95 @@
+{
+ "unit_checks": {
+  "butterfly": {
+   "got": {
+    "vertice_condiviso": 1,
+    "spigolo_condiviso": 0,
+    "ventaglio_chiuso": 0,
+    "due_ventagli": 1,
+    "catena": 2,
+    "spigolo_non_manifold": 0
+   },
+   "expected": {
+    "vertice_condiviso": 1,
+    "spigolo_condiviso": 0,
+    "ventaglio_chiuso": 0,
+    "due_ventagli": 1,
+    "catena": 2,
+    "spigolo_non_manifold": 0
+   },
+   "pass": true,
+   "igl_is_vertex_manifold_catena": "[False  True  True False  True  True  True]"
+  },
+  "streamplans": {
+   "given": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "made": 5,
+   "rows_at_checkpoint_after_step2": [
+    0,
+    1,
+    2
+   ],
+   "rows_after_flush_and_step3": [
+    3
+   ],
+   "rows_after_close": [
+    3
+   ],
+   "skip4_plans": [
+    null,
+    null,
+    null,
+    null,
+    0,
+    1
+   ],
+   "skip4_rows": [
+    0,
+    1
+   ],
+   "pass": true
+  },
+  "views_log": {
+   "saved": [
+    "rng_rank0.pt",
+    "rng_rank1.pt",
+    "last.pth"
+   ],
+   "flushed": [
+    "rank000_e00003_s000000251.npz"
+   ],
+   "left_after_prune_300": [
+    "rank000_e00001_1728600000.npz",
+    "rank000_e00003_s000000251.npz",
+    "rank001_e00002_s000000200.npz"
+   ],
+   "pass": true
+  },
+  "check_resume": {
+   "missing": "[resume] ERRORE: ripresa attesa (riavvio o continuazione) ma /tmp/tmpgp8c3jh5/runs/A/checkpoints/last.pth manca; run dir con last.pth in /tmp/tmpgp8c3jh5/runs: ['B']. Non riparto da zero: stessa riga di lancio (STREAM_OUT, STREAM_RUN_TAG, variabili) o un STREAM_OUT nuovo",
+   "pass": true
+  },
+  "pass": true
+ },
+ "unit_stdout_log_lines": [
+  "[stream] ripresa al passo 300: tolti 2 registri delle viste oltre il checkpoint ['rank000_e00003_s000000251.tmp.npz', 'rank001_e00003_s000000400.npz']"
+ ],
+ "rc": [
+  "rc_unit=0",
+  "rc_check_ok=0",
+  "rc_check_bad=1"
+ ],
+ "check_only_validated_line": [
+  "[resume] v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52: last.pth al passo 1000 (epoca 10, batch None), si riprende da li'"
+ ],
+ "check_only_other_job_id": [
+  "[resume] ERRORE: ripresa attesa (riavvio o continuazione) ma /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/smoke_validated_1067645/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__1e41334f/checkpoints/last.pth manca; run dir con la"
+ ],
+ "job": 1068076,
+ "what": "controlli unitari (farfalle su mesh piccole, StreamPlans con consumatore finto, registro scritto con rng_rank<r>.pt e potato alla ripresa, check_resume) e la guardia end-to-end (WBES_EXPECT_RESUME=1 WBES_CHECK_RESUME_ONLY=1) sulla riga di lancio validata e sulla stessa con --stream /tmp/9999999_stream/r0",
+ "pass": true
+}
