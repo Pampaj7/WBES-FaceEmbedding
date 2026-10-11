@@ -1,0 +1,78 @@
+{
+ "definition": "PROTOCOL_D.md sez. 3.2-3.3",
+ "seeds": {
+  "identity": 20261111,
+  "noise": 20261112,
+  "gnm_noise": 20261011
+ },
+ "sets": {
+  "flame2023_s1": {
+   "n_identities": 200,
+   "n_meshes": 1000,
+   "frame": "flame",
+   "source": "flame2023",
+   "subdiv": 1,
+   "gt_converged": 1.0,
+   "S_mean_mm": 56.3427241666598,
+   "dP_gt_median": 0.07063272844773014,
+   "verts_by_label": {
+    "original": [
+     6986,
+     6986
+    ],
+    "remesh": [
+     4901,
+     4912
+    ],
+    "down8k": [
+     2442,
+     2452
+    ],
+    "noisy": [
+     6986,
+     6986
+    ],
+    "up60k": [
+     17857,
+     17879
+    ]
+   }
+  },
+  "flame2023": {
+   "n_identities": 200,
+   "n_meshes": 1000,
+   "frame": "flame",
+   "source": "flame2023",
+   "subdiv": 0,
+   "gt_converged": 1.0,
+   "S_mean_mm": 56.3427241666598,
+   "dP_gt_median": 0.07063272844773014,
+   "verts_by_label": {
+    "original": [
+     1787,
+     1787
+    ],
+    "remesh": [
+     1255,
+     1261
+    ],
+    "down8k": [
+     628,
+     634
+    ],
+    "noisy": [
+     1787,
+     1787
+    ],
+    "up60k": [
+     4522,
+     4529
+    ]
+   }
+  }
+ },
+ "n_meshes": 2000,
+ "seconds_gen": 12.079371213912964,
+ "raw_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ABL2X2_D1/in",
+ "seconds": 26.10841941833496
+}

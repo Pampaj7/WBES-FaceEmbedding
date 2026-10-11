@@ -1,0 +1,85 @@
+{
+ "definition": "verifiche di v3_work/stream/eval_ablation.py PRIMA dei numeri dell'ablazione (11 ottobre 2026); nessun checkpoint dell'ablazione coinvolto",
+ "validation_official": {
+  "cells": {
+   "A": "factorized_s1234",
+   "B": "factorized_s2345",
+   "C": "factorizedc3m_e123",
+   "D": "factorizedc3m_e205"
+  },
+  "epochs": {
+   "A": "072",
+   "B": "072",
+   "C": "123",
+   "D": "205"
+  },
+  "n_boot": 1000,
+  "job": 1068135,
+  "note": "radice finta con i checkpoint ufficiali (C3F factorized s1234 / s2345, C3M e123 / e205), i loro embedding e le c di factorized_calibration.csv; nocrop entro 0.002 da fact_paired perche' fact_paired toglie anche le righe con una baseline NaN (FaceScape 88.725 righe, HIFI3D 98.224), il protocollo no (99.000)",
+  "by_group": {
+   "nocrop": {
+    "reference": "factorized_paired.csv",
+    "n": 60,
+    "max_abs_point": 0.0018478845831345625,
+    "max_abs_ci": 0.0035069917831033193,
+    "official_rows": [
+     "facescape:88725",
+     "faceverse:99000",
+     "hifi3d:98224"
+    ]
+   },
+   "all_cross": {
+    "reference": "baselines_param/paired_e2.csv",
+    "n": 60,
+    "max_abs_point": 0.0,
+    "max_abs_ci": 0.0,
+    "official_rows": [
+     "facescape:148500",
+     "faceverse:148500",
+     "hifi3d:148500"
+    ]
+   },
+   "crop": {
+    "reference": "baselines_param/paired_e2.csv",
+    "n": 60,
+    "max_abs_point": 0.0,
+    "max_abs_ci": 0.0,
+    "official_rows": [
+     "facescape:49500",
+     "faceverse:49500",
+     "hifi3d:49500"
+    ]
+   },
+   "d1": {
+    "reference": "diagnostics/d1_spearman.csv",
+    "n": 52,
+    "max_abs_point": 3.3306690738754696e-16,
+    "max_abs_ci": 3.3306690738754696e-16,
+    "official_rows": [
+     "bfm:99000",
+     "flame2023:398000",
+     "flame2023_s1:398000",
+     "gnm:99000",
+     "ict:99000"
+    ]
+   }
+  }
+ },
+ "dry_run_identical_cells": {
+  "job": 1068209,
+  "checkpoint": "smoke_c3m_recipe epoch005_ema.pth per A, B, C, D",
+  "n_boot": 20,
+  "result": "struttura reale di ablation_2x2_eval.sbatch letta; tutti gli effetti 0 [0, 0]; R_F NO, R_P1 NO, R_P2 non costa, R_I nessuna; righe all_cross senza crop = fact_paired.rows_for su HIFI3D, FaceScape, FaceVerse (99.000, scarto GT 0); FaceVerse all_cross 148.500 righe, 49.500 col crop"
+ },
+ "test_eval_job": {
+  "job": 1068133,
+  "node": "nv-ai-04 (A100, unprivileged)",
+  "elapsed": "00:46:20",
+  "steps": "calibrazione 7 min (c 12.67, c_LS 10.29 sullo smoke a 500 passi), embedding dei test e eval_factorized 31 min, FLAME 8 min"
+ },
+ "flame_regen_job": {
+  "job": 1068132,
+  "elapsed": "00:04:48",
+  "check": "d1flame/check.json: GT identica a D1 (scarto relativo <= 2e-13), vertici per etichetta identici; 2000 operatori, 9.1 GB"
+ }
+}

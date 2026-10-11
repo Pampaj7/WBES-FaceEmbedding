@@ -1,0 +1,116 @@
+{
+ "definition": "eval_ablation.py flame-gen: GT e vertici per etichetta degli insiemi rigenerati contro D1",
+ "reference": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/diagnostics/d1",
+ "raw_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/ABL2X2_D1/in",
+ "sets": {
+  "flame2023_s1": {
+   "names_equal": true,
+   "max_rel_diff": {
+    "D_fr": 1.6339545997986696e-13,
+    "D_sr": 1.9693521233878036e-13,
+    "S": 0.0
+   },
+   "verts_by_label_equal": true,
+   "verts_by_label": {
+    "original": [
+     6986,
+     6986
+    ],
+    "remesh": [
+     4901,
+     4912
+    ],
+    "down8k": [
+     2442,
+     2452
+    ],
+    "noisy": [
+     6986,
+     6986
+    ],
+    "up60k": [
+     17857,
+     17879
+    ]
+   },
+   "verts_by_label_d1": {
+    "original": [
+     6986,
+     6986
+    ],
+    "remesh": [
+     4901,
+     4912
+    ],
+    "down8k": [
+     2442,
+     2452
+    ],
+    "noisy": [
+     6986,
+     6986
+    ],
+    "up60k": [
+     17857,
+     17879
+    ]
+   },
+   "pass": true
+  },
+  "flame2023": {
+   "names_equal": true,
+   "max_rel_diff": {
+    "D_fr": 1.6339545997986696e-13,
+    "D_sr": 1.9693521233878036e-13,
+    "S": 0.0
+   },
+   "verts_by_label_equal": true,
+   "verts_by_label": {
+    "original": [
+     1787,
+     1787
+    ],
+    "remesh": [
+     1255,
+     1261
+    ],
+    "down8k": [
+     628,
+     634
+    ],
+    "noisy": [
+     1787,
+     1787
+    ],
+    "up60k": [
+     4522,
+     4529
+    ]
+   },
+   "verts_by_label_d1": {
+    "original": [
+     1787,
+     1787
+    ],
+    "remesh": [
+     1255,
+     1261
+    ],
+    "down8k": [
+     628,
+     634
+    ],
+    "noisy": [
+     1787,
+     1787
+    ],
+    "up60k": [
+     4522,
+     4529
+    ]
+   },
+   "pass": true
+  }
+ },
+ "pass": true
+}
