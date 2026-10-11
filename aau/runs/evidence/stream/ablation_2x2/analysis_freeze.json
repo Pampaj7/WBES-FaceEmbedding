@@ -1,0 +1,13 @@
+{
+ "definition": "emendamento 1 dell'ablazione 2x2, sez. 7: codice d'analisi congelato (ablation_2x2_summary_em1.sbatch e eval_ablation_em1.py si fermano se un file differisce)",
+ "commit": "7a398c9c32715aaf007463bb37463af81d23438a",
+ "sha256": {
+  "v3_work/stream/eval_ablation.py": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+  "v3_work/stream/eval_ablation_em1.py": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+  "v3_work/trainer/tools/fact_paired.py": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+  "aau/baselines_mm/blmm_eval.py": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+  "aau/diagnostics/diag.py": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+  "aau/diagnostics/d1_stats.py": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+  "v3_work/stream/slurm/ablation_2x2_summary_em1.sbatch": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71"
+ }
+}
