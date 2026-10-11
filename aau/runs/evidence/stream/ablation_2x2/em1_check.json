@@ -1,0 +1,30 @@
+{
+ "definition": "prove di v3_work/stream/eval_ablation_em1.py e della sua sbatch PRIMA dei numeri dell'ablazione (11 ottobre 2026); nessun checkpoint dell'ablazione",
+ "official_checkpoints": {
+  "job": 1068237,
+  "roles": {
+   "A": "factorized_s1234",
+   "B": "factorizedc3m_e123",
+   "C": "factorizedc3m_e205",
+   "D": "factorized_s2345",
+   "Ap": "factorized_s2345",
+   "Bp": "factorizedc3m_e123"
+  },
+  "n_boot": 200,
+  "result": "sei celle lette; soglie per cella da A' (s2345 contro s1234: HIFI3D all_cross effetto principale 0.085 al posto di 0.05, interazione 0.17); controllo FLAME 'non interpretabile' con B - A non positivo con IC sopra 0; D - C 'controllo assente' senza embedding FLAME di C; sottoinsiemi down8k 39.600 / 59.400 righe con le stesse repliche"
+ },
+ "dry_identical_cells": {
+  "jobs": [
+   1068238,
+   1068242,
+   1068245
+  ],
+  "n_boot": 20,
+  "result": "checkpoint smoke per le sei celle: effetti 0, sezioni nuove (riuso, verso della distorsione, c al 10%, down8k meno altre) scritte; correzione del verso con r = 0 prima del congelamento"
+ },
+ "frozen_code": {
+  "job": 1068253,
+  "commit": "7a398c9c32715aaf007463bb37463af81d23438a",
+  "result": "sbatch: 7 file uguali al blob del commit e al valore congelato (git, fuori dal container); script: moduli importati con percorso e sha256 congelati; controls.json con freeze pass e code_state pass"
+ }
+}
