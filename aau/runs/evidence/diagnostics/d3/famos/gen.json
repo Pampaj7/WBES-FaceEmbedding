@@ -1,0 +1,45 @@
+{
+ "definition": "PROTOCOL_D3.md sez. 3 (b)",
+ "seeds": {
+  "noise": 20261120
+ },
+ "id_base": 720000,
+ "subdiv": 1,
+ "n_persons": 80,
+ "n_meshes": 400,
+ "raw_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/DIAG_D3/famos/in",
+ "gt_converged": 1.0,
+ "S_mean_mm": 57.46518907522309,
+ "dP_gt_median": 0.06853197073780404,
+ "dFR_gt_median_mm": 4.868295341219255,
+ "verts_by_label": {
+  "original": [
+   6986,
+   6986
+  ],
+  "remesh": [
+   4897,
+   4910
+  ],
+  "down8k": [
+   2445,
+   2452
+  ],
+  "noisy": [
+   6986,
+   6986
+  ],
+  "up60k": [
+   17835,
+   17851
+  ]
+ },
+ "K3": {
+  "reference": "datasets/CANONICAL_GT/famos_F_rig_rob.npz",
+  "max_abs_mm": 3.058074029560487e-07,
+  "pass": true,
+  "median_ref_mm": 4.868295297929404
+ },
+ "seconds_gen": 5.239717483520508,
+ "seconds": 7.18808388710022
+}
