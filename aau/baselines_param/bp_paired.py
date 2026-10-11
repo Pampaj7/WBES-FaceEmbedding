@@ -387,6 +387,9 @@ def write_results(P: pd.DataFrame, info: dict, ctrl: dict) -> None:
     if (out / "paired_e2.csv").exists() and (out / "controls_e2.json").exists():
         import bp_paired_e2                              # emendamento 2 (sezioni in fondo)
         md += bp_paired_e2.results_e2()
+    if (out / "controls_e3.json").exists():
+        import bp_paired_e3                              # emendamento 3 (sezioni in fondo)
+        md += bp_paired_e3.results_e3()
     (out / "results.md").write_text("\n".join(md) + "\n")
 
 
