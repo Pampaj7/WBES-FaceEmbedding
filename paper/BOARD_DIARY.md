@@ -1386,7 +1386,7 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
 
 ### Emendamento 3: risultati in arrivo
 
-(da riempire)
+Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
 
 ## 2026-10-11 — ricetta del run massivo sospesa; critic sulla bozza CVPR: BLOCCANTE, correzioni applicate
 
@@ -1445,3 +1445,45 @@ Le bozze delle sezioni del paper sono in `paper/drafts/` (GT, protocollo, costo)
     kit CVPR non versionato tranne README e `.bst` (LPPL), come `neurips_2026.sty`. Frase sulla discretizzazione
     invariata (aspetta l'emendamento 3). Compilazione (job 1068022): 23 pagine, corpo fino a p. 15, nessun
     riferimento indefinito, nessuna riga oltre 1pt.
+
+## 2026-10-11 notte — emendamento 3, diagnostiche D1/D2 e critic, Ava-256, ripresa del run principale
+
+- **Emendamento 3 dei concorrenti parametrici** (commit acaf0ab, 6d23536, b3b8777, e68646f, 798db7d; job 1067973,
+  1068029, 1068051; `aau/runs/evidence/baselines_param/conclusions.md`). Critic: RISERVE. I numeri ricalcolati
+  tornano tutti; quattro letture del testo non reggevano e sono corrette nel commit 798db7d. Paragrafo corretto dal
+  critic:
+
+  > Il ribaltamento dell'emendamento 2 sul crop viene dalla banda di bordo fuori dalla regione di B. Ritagliato l'ingresso dei bracci alla regione di B (posta in modo rigido e senza scala), crop e original diventano quasi la stessa mesh (area entro 0.1-2%), e sulle righe col crop ogni braccio vale quanto senza crop (da −0.07 a +0.05): il recupero è per costruzione. FaceScape: FR factorized s1234 sulle righe col crop 0.351 → 0.687; contro B FR da 0/24/0 a 13/2/9 (8/2/14 senza crop). HIFI3D: ctrlfr s1234 0.236 → 0.602; factorized è invariante al crop con entrambe le regioni, ma il ritaglio costa su tutte le righe (FR senza crop da −0.05 a −0.16, peggio con FLAME); contro B FR 11/0/13 col crop (6/14/4 coi bracci interi) e 12/3/9 senza crop (24/0/0 coi bracci interi). Il costo è soprattutto di taglia: la finestra fissa comprime la variabilità d'area fra soggetti (sd di log sqrt(area) 0.045 → 0.010-0.012), che i bracci usano come scala e B conserva nell'identità; con FLAME si perde anche forma (SR −0.14). Su FaceScape la FR dipende poco dalla taglia e il costo non c'è. Held-out sintetici: invarianza al crop su ICT e GNM (Δρ ≥ −0.021, d log S ≤ 0.12 sd), parziale su BFM (d log S −0.023/−0.019, cioè 1.3/1.0 sd), dello stesso ordine di HIFI3D (−0.024/−0.034). La sensibilità al crop sui test supera quella in-distribuzione su FaceScape e per ctrlfr su HIFI3D, non per factorized su HIFI3D. Se il run massivo (stesso crop, più famiglie di generatori) la riduca è da misurare. Senza crop, passando dalla stessa topologia a topologie diverse, factorized s1234 d_F cal. con FR perde −0.011 [−0.013, −0.009] su HIFI3D e −0.039 [−0.047, −0.032] su FaceScape: piccolo ma sistematico (fino a −0.054 per ctrlfr s1234 su FaceScape).
+
+- **Diagnostiche D1/D2** (commit 251bdd6, 844d876, 81e5690; `aau/runs/evidence/diagnostics/results.md`) e **critic**.
+  - D1, d_P contro SR sui sintetici: generatori visti 0.90-0.93 (C3M 0.95-0.96); FLAME 2023, mai visto, 0.806.
+    B-FLAME incrociato sui visti 0.71-0.79.
+  - D2, sonda lineare a CV per soggetto: FaceScape SR 0.889 contro d_P 0.745.
+  - **Correzione importante.** FaceScape dev, HIFI3D e FaceVerse sono campioni di 3DMM (bilineare FaceScape v1.6,
+    AI-NEXT, FaceVerse v2), NON dati reali. Gli unici domini reali sono FaMoS e Ava-256. Il PI li aveva chiamati
+    "reali" negli aggiornamenti all'utente: era sbagliato.
+  - **Verdetti del critic:** R1 RISERVE (Δgen +0.108, al limite della soglia); R2 BLOCCANTE come "nessun limite di
+    lettura" (B è un lettore debole); R3 VIA LIBERA, con ambito ristretto. La lettura del PI ("il limite è la testa,
+    non la varietà") è BLOCCANTE.
+  - **Lettura corretta:**
+    - sui generatori visti la testa è già ottimale; su quelli nuovi l'informazione c'è ma è pesata male. Il limite è
+      la copertura dei generatori nella supervisione della testa;
+    - una testa di un solo generatore non si trasferisce: FaceScape→HIFI3D 0.598 contro d_P 0.622. Una congiunta sì.
+      Una testa supervisionata da FLAME porta FaceScape da 0.747 a circa 0.83. Su HIFI3D nessuna sorgente aiuta;
+    - circa metà della differenza GT fra coppie è tangente alla superficie (49% GNM, 41% FLAME, prima della rigida),
+      ed è invisibile a un fit punto-superficie;
+    - invarianza alla discretizzazione parziale su FaceScape (varianza intra-soggetto 13% contro 3-6%); una
+      Mahalanobis intra-soggetto senza GT dà +0.05-0.07.
+- **D3** riprogettato prima dei numeri come schema leave-one-generator-out multi-sorgente (bfm, ict, gnm, FLAME, pool
+  non valutati di FaceScape/AI-NEXT/FaceVerse, FaMoS TRAIN). Risultati in arrivo.
+- **Ava-256 preparato come test confermativo vergine reale** (commit 985bed2, 82c062d): 256 soggetti, mm, CV della
+  taglia 4.8%, affidabilità della GT fra frame della stessa sessione 0.97.
+  - Critic: RISERVE. Correzioni in corso: suddivisione 1-a-4 prima delle viste, patch senza buchi, impronta
+    indipendente da FLAME, split 56+200.
+  - Ricerca dei test set vergini in `literature/TEST_SET_VERGINE_2026-10-11.md`. Moduli LYHM/MimicMe e mail ad
+    AST-Face da fare a cura dell'utente.
+- **Ripresa del run principale** corretta e provata su 2 nodi (commit ce0ae82, 59a87e7, 51850f1). Prova 1067683
+  cancellata. Incidente: `.gitignore` sovrascritto per 1-2 minuti e ripristinato.
+- **Stato della decisione:** la ricetta del massivo resta sospesa. Le leve indicate da D1/D2, emendamento 3 ed E1 sono
+  la varietà dei generatori (nella testa e forse nell'encoder) e il trattamento del supporto. Il run massivo resta
+  subordinato alla revisione con l'utente.
