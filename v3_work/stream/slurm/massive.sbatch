@@ -25,8 +25,18 @@
 #   e GPU uguali per componente (es. 2 A100 di nv-ai-04 + 2 L40S, provato).
 #   A100 (secondari): sbatch -p aicentre-a100 --qos=unprivileged --gpus-per-node=a100:8 --cpus-per-gpu=28 \
 #            --mem-per-gpu=110G --time=2-00:00:00 v3_work/stream/slurm/massive.sbatch
-# Ripresa: --requeue + --resume auto del trainer (la run dir non dipende dal job ne' dai riavvii); l'anello si
-# riempie da capo, i produttori ripartono con semi nuovi (SEME + 1000 x nodo + 100000 x riavvio, scritti in ogni gruppo).
+# Ripresa: --requeue + --resume auto del trainer + checkpoint al passo in corso su SIGTERM (STREAM_PREEMPTIBLE=1, il
+# default, massive_node.sh). La run dir dipende dal job (l'anello /tmp/<job>_stream/r0 e' nell'hash) ma non dai riavvii;
+# l'anello si riempie da capo, i produttori ripartono con semi nuovi (SEME + 1000 x nodo + 100000 x segmento, scritti in
+# ogni gruppo; segmento = partenze precedenti del run, righe di $STREAM_OUT/segments.log).
+# Codice congelato: alla prima partenza slurm/code_snapshot.py copia il codice del repo (*.py, *.sh, *.sbatch) in
+# $STREAM_OUT/code e questo script si riesegue da li': massive_node.sh, produttori e trainer usano la copia, i dati
+# restano quelli del repo (stessi percorsi nella riga di lancio, quindi stessa run dir). A ogni riavvio la copia si
+# verifica (sha256 del manifesto) e la ripresa e' obbligatoria: senza last.pth nella run dir errore esplicito
+# (massive_node.sh, STREAM_EXPECT_RESUME), mai ripartenza da zero; un riavvio senza la copia e' un errore.
+# Continuazione dopo un TIMEOUT con un job nuovo: lo stesso STREAM_OUT (il job della prima partenza, STREAM_RUN_TAG, si
+# legge da $STREAM_OUT/run_tag) e le stesse variabili:
+#   STREAM_OUT=<STREAM_OUT del run> STREAM_SOURCES=<le stesse> sbatch <le stesse opzioni> v3_work/stream/slurm/massive.sbatch
 # Variabili (default = la prova breve; ricetta e differenze dai bracci C3F/C3M in testa a massive_node.sh):
 #   STREAM_SOURCES  OBBLIGATORIA, nessun default (senza, il job esce con errore). Preset (sources.SOURCE_PRESETS):
 #                     validated = bfm2019, ict, gnm: i domini dei bracci decisivi C3F/C3M (BFM REMESH, ICT, GNM), con
@@ -50,15 +60,45 @@
 #   STREAM_RING_GB_PER_GPU (10), STREAM_TRAIN_CPUS_PER_RANK (8), STREAM_EXTRA (anelli condivisi, es. CephFS),
 #   STREAM_MIRROR_THREADS (2)
 #   STREAM_OUT (aau/runs/evidence/stream/massive_<job>), STREAM_SEED (1234), STREAM_TEST_CRASH (passo, solo test)
+#   STREAM_PREEMPTIBLE (1: su SIGTERM il trainer salva al passo in corso; 0 = trainer in primo piano, come prima),
+#   STREAM_CKPT_MIN (20: checkpoint di ripresa ogni N minuti; entra nell'hash della run dir: uguale fra le partenze)
 set -euo pipefail
 if [[ -z "${STREAM_SOURCES:-}" ]]; then
   echo "[massive] ERRORE: STREAM_SOURCES obbligatorio (validated | max | open_core | lista di domini), nessun default" >&2
   exit 2
 fi
-source "${WBES_ROOT:-$PWD}/aau/env.sh"
+if [[ -z "${STREAM_CODE:-}" ]]; then
+  # --- prima del resto: copia del codice (prima partenza) o sua verifica (riavvio, continuazione), poi si riesegue
+  # questo script dalla copia. WBES_ROOT e AAU_RUNS restano il repo vivo: dati e percorsi della riga di lancio
+  export WBES_ROOT="${WBES_ROOT:-$PWD}"
+  export AAU_RUNS="${AAU_RUNS:-$WBES_ROOT/aau/runs}" AAU_LOGS="${AAU_LOGS:-$WBES_ROOT/aau/logs}"
+  export STREAM_OUT="${STREAM_OUT:-$AAU_RUNS/evidence/stream/massive_${SLURM_JOB_ID:-manual}}"
+  mkdir -p "$STREAM_OUT"
+  STREAM_OUT="$(cd "$STREAM_OUT" && pwd)"
+  export STREAM_CODE="$STREAM_OUT/code"
+  if [[ -f "$STREAM_CODE/MANIFEST.json" ]]; then
+    python3 "$STREAM_CODE/v3_work/stream/slurm/code_snapshot.py" verify "$STREAM_CODE" 2>&1 | tee -a "$STREAM_OUT/massive.log"
+    export STREAM_RUN_TAG="${STREAM_RUN_TAG:-$(cat "$STREAM_OUT/run_tag" 2>/dev/null || echo "${SLURM_JOB_ID:-manual}")}"
+    export STREAM_EXPECT_RESUME=1
+  elif [[ "${SLURM_RESTART_COUNT:-0}" -gt 0 ]]; then
+    echo "[massive] ERRORE: riavvio ${SLURM_RESTART_COUNT} senza la copia del codice ($STREAM_CODE/MANIFEST.json)" >&2
+    exit 2
+  else
+    python3 "$WBES_ROOT/v3_work/stream/slurm/code_snapshot.py" make "$WBES_ROOT" "$STREAM_CODE" 2>&1 \
+      | tee -a "$STREAM_OUT/massive.log"
+    export STREAM_RUN_TAG="${STREAM_RUN_TAG:-${SLURM_JOB_ID:-manual}}"
+    echo "$STREAM_RUN_TAG" > "$STREAM_OUT/run_tag"
+  fi
+  exec bash "$STREAM_CODE/v3_work/stream/slurm/massive.sbatch"
+fi
+source "$STREAM_CODE/aau/env.sh"
 cd "$WBES_ROOT"
-export STREAM_OUT="${STREAM_OUT:-$AAU_RUNS/evidence/stream/massive_${SLURM_JOB_ID:-manual}}"
-mkdir -p "$STREAM_OUT"
+# segmento = partenze precedenti del run (semi dei produttori, massive_node.sh); versione del codice nelle ricette
+SEG=0
+[[ -f "$STREAM_OUT/segments.log" ]] && SEG=$(wc -l < "$STREAM_OUT/segments.log")
+echo "$SEG job=${SLURM_JOB_ID:-} riavvio=${SLURM_RESTART_COUNT:-0} $(date +%F_%T)" >> "$STREAM_OUT/segments.log"
+export STREAM_SEGMENT="$SEG"
+export WBES_CODE_VERSION="$(python3 "$STREAM_CODE/v3_work/stream/slurm/code_snapshot.py" version "$STREAM_CODE")"
 # nodi: quelli del job o, in un job eterogeneo, dei suoi componenti in ordine (massive_node.sh ne ricava indice e numero)
 if [[ -n "${SLURM_HET_SIZE:-}" ]]; then
   NL=""; for i in $(seq 0 $(( SLURM_HET_SIZE - 1 ))); do v="SLURM_JOB_NODELIST_HET_GROUP_$i"; NL+="${NL:+,}${!v}"; done
@@ -78,9 +118,10 @@ if [[ -n "${SLURM_HET_SIZE:-}" && "${STREAM_ALLOW_HETERO:-0}" != 1 ]]; then
   exit 2
 fi
 export STREAM_PORT=$(( 29400 + ${SLURM_JOB_ID:-0} % 500 ))
-echo "[massive] $(date +%F_%T) job=${SLURM_JOB_ID:-} riavvio=${SLURM_RESTART_COUNT:-0} nodi=$STREAM_NODES" \
-     "rendezvous=$STREAM_MASTER:$STREAM_PORT arm=${STREAM_ARM:-factorized} fonti=$STREAM_SOURCES" \
+echo "[massive] $(date +%F_%T) job=${SLURM_JOB_ID:-} riavvio=${SLURM_RESTART_COUNT:-0} segmento=$SEG" \
+     "nodi=$STREAM_NODES rendezvous=$STREAM_MASTER:$STREAM_PORT arm=${STREAM_ARM:-factorized} fonti=$STREAM_SOURCES" \
+     "codice=$STREAM_CODE ($WBES_CODE_VERSION) tag=${STREAM_RUN_TAG:-${SLURM_JOB_ID:-manual}} ripresa=${STREAM_EXPECT_RESUME:-0}" \
   | tee -a "$STREAM_OUT/massive.log"
 # un task per nodo, con tutte le CPU e le GPU del nodo nel job
-srun "${SRUN[@]}" --kill-on-bad-exit=1 bash v3_work/stream/slurm/massive_node.sh
+srun "${SRUN[@]}" --kill-on-bad-exit=1 bash "$STREAM_CODE/v3_work/stream/slurm/massive_node.sh"
 echo "[massive] $(date +%F_%T) fine" | tee -a "$STREAM_OUT/massive.log"

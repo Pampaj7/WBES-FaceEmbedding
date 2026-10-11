@@ -2,7 +2,8 @@
 # Corpo PER NODO di massive.sbatch (uno srun per nodo; variabili STREAM_* documentate li').
 #   1. CPU del nodo: i primi STREAM_TRAIN_CPUS_PER_RANK x GPU core (coi gemelli SMT) ai rank, le altre ai produttori;
 #   2. producer.py --provenance --canonical-gt --expr-frac --label-draw sulle fonti STREAM_SOURCES, anello in /tmp
-#      (RAM, conta contro la memoria del job) da STREAM_RING_GB_PER_GPU x GPU GiB, semi distinti per nodo e riavvio;
+#      (RAM, conta contro la memoria del job) da STREAM_RING_GB_PER_GPU x GPU GiB, semi distinti per nodo e segmento
+#      (STREAM_SEGMENT: partenze precedenti del run, riavvii e continuazioni, massive.sbatch);
 #   3. nvidia-smi (gpu.csv) e memoria del job (mem.csv), in $STREAM_OUT/node<N>/;
 #   4. torchrun (rendezvous c10d su $STREAM_MASTER:$STREAM_PORT, GPU del nodo come rank locali) di train_stream.py con la
 #      testa di STREAM_ARM, GT di E12 al volo, ingresso globale, registro delle viste usate; eval online sul BFM
@@ -28,20 +29,31 @@
 #   0.049, massive_ready.md sez. 3; STREAM_SIZE_MASK=bfm2019 per riprodurre la maschera); forward groups (C3M
 #   sequential); identita' fresche dai produttori invece di 64.400 fisse; espressioni su qualunque discretizzazione
 #   (nel C3M rexpr* sono sulla topologia original); k_eig STREAM_K 128.
-# Opt-in del run SECONDARIO (secondary_partial_a100.sbatch), spenti di default (riga di lancio e anello di prima):
-#   STREAM_PARTIAL p (STREAM_PARTIAL_AREA lo,hi): parzialita' variabile per vista, producer.py --partial-p (partial_aug.py);
-#   STREAM_PREEMPTIBLE=1: WBES_PREEMPT_SAVE=1 al trainer (su SIGTERM salva last.pth al passo in corso ed esce:
-#   train_stream.py). Prelazione e scontrol requeue mandano SIGTERM SOLO al capo del task, cioe' a questo bash, non ai
-#   figli (proctrack/cgroup, Slurm 21.08: misurato l'11 ottobre, aau/runs/evidence/stream/partial_aug/sigtest), e
-#   SIGKILL a tutti dopo KillWait (30 s): qui torchrun gira in background, la trap inoltra SIGTERM (run.sh -> singularity
-#   -> torchrun -> rank, inoltro misurato) e non fa partire altri tentativi; l'anello resta finche' il trainer ha salvato.
+# Opt-in del run SECONDARIO (secondary_partial_a100.sbatch), spento di default (riga di lancio e anello di prima):
+#   STREAM_PARTIAL p (STREAM_PARTIAL_AREA lo,hi): parzialita' variabile per vista, producer.py --partial-p (partial_aug.py).
+# Ripresa, anche del run principale:
+#   STREAM_PREEMPTIBLE (default 1; 0 = trainer in primo piano, come prima): WBES_PREEMPT_SAVE=1 al trainer (su SIGTERM
+#   salva last.pth al passo in corso ed esce: train_stream.py). Prelazione, scontrol requeue e scancel mandano SIGTERM
+#   SOLO al capo del task, cioe' a questo bash, non ai figli (proctrack/cgroup, Slurm 21.08: misurato l'11 ottobre,
+#   aau/runs/evidence/stream/partial_aug/sigtest), e SIGKILL a tutti dopo KillWait (30 s): qui torchrun gira in
+#   background, la trap inoltra SIGTERM (run.sh -> singularity -> torchrun -> rank, inoltro misurato) e non fa partire
+#   altri tentativi; l'anello resta finche' il trainer ha salvato. Con 0 il bash muore sul SIGTERM e la trap EXIT
+#   termina i rank senza salvataggio: si riprende dall'ultimo checkpoint periodico (STREAM_CKPT_MIN).
+#   --stream (l'anello) e --ckpt-minutes entrano nell'hash della run dir (train_v3.make_run_dir): l'anello e'
+#   /tmp/<STREAM_RUN_TAG>_stream/r0 a ogni partenza (STREAM_RUN_TAG = il job della prima partenza, anche in una
+#   continuazione con un job nuovo, massive.sbatch) e STREAM_CKPT_MIN non va cambiato fra le partenze.
+#   Codice: la copia in STREAM_CODE (massive.sbatch, prima partenza; vuota = il repo); dati e percorsi della riga di
+#   lancio dal repo vivo (WBES_ROOT, AAU_RUNS), come prima. STREAM_EXPECT_RESUME=1 (riavvio o continuazione): la run dir
+#   di questa riga di lancio deve avere last.pth (controllo prima del primo tentativo), altrimenti errore e uscita 3.
 set -euo pipefail
-source "${WBES_ROOT:-$PWD}/aau/env.sh"
+source "${STREAM_CODE:-${WBES_ROOT:-$PWD}}/aau/env.sh"
 cd "$WBES_ROOT"
+CODE="${STREAM_CODE:-$WBES_ROOT}"
 source "$AAU_DIR/data_scale/recipe_v1.sh"
 read -r NODE NN < <(python3 -c "import socket, sys; n = sys.argv[1].split(); h = socket.gethostname().split('.')[0]; \
 print(next(i for i, x in enumerate(n) if x.split('.')[0] == h), len(n))" "${STREAM_NODES:-$(hostname -s)}")
 RST="${SLURM_RESTART_COUNT:-0}"
+SEG="${STREAM_SEGMENT:-$RST}"              # partenze precedenti del run (= RST se non ci sono continuazioni)
 G=$(nvidia-smi -L | wc -l)
 ARM="${STREAM_ARM:-factorized}"
 SOURCES="${STREAM_SOURCES:?STREAM_SOURCES obbligatorio: validated | max | open_core | lista di domini (massive.sbatch)}"
@@ -72,17 +84,17 @@ SEED="${STREAM_SEED:-1234}"
 E="$STREAM_OUT/node$NODE"
 mkdir -p "$E"
 ln -sfn ../runs "$E/runs"
-JOBTMP="/tmp/${SLURM_JOB_ID:-manual}_stream"
-RING="$JOBTMP/r$RST"
-# prelazionabile: --stream e' nell'hash della run dir (train_v3.make_run_dir), con r$RST un requeue cambierebbe run dir
-# e ripartirebbe da zero invece di riprendere da last.pth; r0 a ogni riavvio (JOBTMP si svuota comunque qui sotto)
-[[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]] && RING="$JOBTMP/r0"
+JOBTMP="/tmp/${STREAM_RUN_TAG:-${SLURM_JOB_ID:-manual}}_stream"
+# --stream e' nell'hash della run dir (train_v3.make_run_dir): con r$RST un requeue cambierebbe run dir e ripartirebbe
+# da zero invece di riprendere da last.pth; r0 a ogni partenza (JOBTMP si svuota comunque qui sotto); alla prima
+# partenza RST = 0, quindi riga di lancio e run dir sono quelle di prima
+RING="$JOBTMP/r0"
 rm -rf "$JOBTMP"
 mkdir -p "$RING"
 trap 'kill $(jobs -p) 2>/dev/null || true; rm -rf "$JOBTMP"' EXIT
 log() { echo "[node$NODE] $(date +%F_%T) $*" | tee -a "$E/node.log"; }
 log "host=$(hostname) GPU=$G ($(nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq -c | xargs)) CPU=$(nproc)" \
-    "riavvio=$RST arm=$ARM fonti=$SOURCES k=$K T=$T S=$S R=$R anello=${RGB}GiB"
+    "riavvio=$RST segmento=$SEG arm=$ARM fonti=$SOURCES k=$K T=$T S=$S R=$R anello=$RING (${RGB}GiB) codice=$CODE"
 log "dati: ricetta $RCP, quota d'espressioni $EF, mm_aug ${MMAUG:-no}, rotazione a ogni uso $ROT gradi," \
     "discretizzazioni $LD"
 [[ -n "$PART" ]] && log "parzialita' variabile: p=$PART per vista, area ${PAREA:-default} (producer.py --partial-p)"
@@ -121,8 +133,8 @@ NPROD=$(python3 -c "import sys; print(len([x for it in sys.argv[1].split(',') fo
 log "CPU dei rank: $TRAIN_CPUS; produttori: $NPROD processi"
 
 # --- produttori ------------------------------------------------------------------------------------------
-PSEED=$(( 20261009 + 1000 * NODE + 100000 * RST ))
-AAU_NV= "$AAU_DIR/run.sh" v3_work/stream/producer.py --ring "$RING" --ring-gb "$RGB" --n-proc "$NPROD" --k-eig "$K" \
+PSEED=$(( 20261009 + 1000 * NODE + 100000 * SEG ))
+AAU_NV= "$AAU_DIR/run.sh" "$CODE/v3_work/stream/producer.py" --ring "$RING" --ring-gb "$RGB" --n-proc "$NPROD" --k-eig "$K" \
     --evecs-dtype fp32 --sources "$SOURCES" --provenance --canonical-gt --expr-frac "$EF" --seed "$PSEED" \
     --views "$VIEWS" --label-draw "$LD" \
     ${MMAUG:+--mm-aug "$MMAUG"} ${PART:+--partial-p "$PART"} ${PAREA:+--partial-area "$PAREA"} \
@@ -165,7 +177,7 @@ EXTRA=()
 [[ -n "${STREAM_EXTRA:-}" ]] && EXTRA+=(--stream-extra "$STREAM_EXTRA" --stream-extra-mirror "$JOBTMP/mirror" --stream-extra-mirror-threads "${STREAM_MIRROR_THREADS:-2}")
 EP=$(( (T + S - 1) / S ))
 # checkpoint (pesi + EMA, epochNNN.pth 11.7 MB + epochNNN_ema.pth 2.9 MB nel C3M) ogni ~10% del run e alla fine
-CMD=(v3_work/stream/train_stream.py --stream "$RING" --stream-reuse "$R" --stream-rot "$ROT" --stream-sources "$SOURCES" --stream-log-views
+CMD=("$CODE/v3_work/stream/train_stream.py" --stream "$RING" --stream-reuse "$R" --stream-rot "$ROT" --stream-sources "$SOURCES" --stream-log-views
   --stream-wait-s 1800 --total-steps "$T" --steps-per-epoch "$S" --epochs "$EP"
   --data_dir datasets/REMESH/npz_data_topo_500_withops_areanorm --no-cache
   "${RECIPE_V1[@]}" --batch_subjects "$IDS" --max_meshes_per_subject_train "$MPI" --lr-constant
@@ -176,6 +188,15 @@ CMD=(v3_work/stream/train_stream.py --stream "$RING" --stream-reuse "$R" --strea
   --seed "$SEED" --runs_root "$STREAM_OUT/runs" --log-every 50 --ckpt-minutes "${STREAM_CKPT_MIN:-20}"
   "${ARMF[@]}" "${EXTRA[@]}")
 printf '%q ' "${CMD[@]}" > "$E/launch.txt"; echo >> "$E/launch.txt"
+if [[ "${STREAM_EXPECT_RESUME:-0}" == 1 ]]; then
+  # riavvio o continuazione: la run dir di QUESTA riga di lancio deve avere last.pth (train_stream.py, solo il controllo)
+  export WBES_EXPECT_RESUME=1
+  if ! WBES_CHECK_RESUME_ONLY=1 "$AAU_DIR/run.sh" "${CMD[@]}" > "$E/resume_check.log" 2>&1; then
+    log "ERRORE: $(grep -m1 '^\[resume\]' "$E/resume_check.log" || tail -3 "$E/resume_check.log")"
+    exit 3
+  fi
+  log "$(grep -m1 '^\[resume\]' "$E/resume_check.log")"
+fi
 export WBES_STACK_DUMP_S="${WBES_STACK_DUMP_S:-0}"
 export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 [[ -n "${STREAM_NCCL_IB_HCA:-}" ]] && export NCCL_IB_HCA="$STREAM_NCCL_IB_HCA"
@@ -185,7 +206,7 @@ export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 ATT=0
 TERMED=""
 TPID=""
-if [[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]]; then
+if [[ "${STREAM_PREEMPTIBLE:-1}" == 1 ]]; then
   export WBES_PREEMPT_SAVE=1
   trap 'TERMED=1; [[ -n "$TPID" ]] && kill -TERM "$TPID" 2>/dev/null' TERM
   log "prelazionabile: su SIGTERM il trainer salva al passo in corso; checkpoint ogni ${STREAM_CKPT_MIN:-20} min"
@@ -198,7 +219,7 @@ while :; do
     --nnodes "$NN" --nproc-per-node "$G" --rdzv-backend c10d --rdzv-endpoint "$STREAM_MASTER:$(( STREAM_PORT + ATT ))"
     --rdzv-id "${SLURM_JOB_ID:-manual}_${RST}_$ATT" --max-restarts 0 "${CMD[@]}" "${XC[@]}")
   set +e
-  if [[ "${STREAM_PREEMPTIBLE:-0}" == 1 ]]; then
+  if [[ "${STREAM_PREEMPTIBLE:-1}" == 1 ]]; then
     # in background: wait si interrompe per la trap (un comando in primo piano la rimanderebbe alla sua fine)
     OMP_NUM_THREADS="$CPR" MKL_NUM_THREADS="$CPR" "${TR[@]}" \
       > >(stdbuf -oL tr '\r' '\n' | grep --line-buffered -v '%|\|FloatTensor\|SparseTensor' >> "$E/train.log") 2>&1 &
@@ -225,5 +246,5 @@ while :; do
 done
 kill %1 2>/dev/null || true
 wait %1 2>/dev/null || true
-[[ "$NODE" == 0 ]] && python3 v3_work/stream/summarize_run.py "$E" | tee -a "$E/node.log" || true
+[[ "$NODE" == 0 ]] && python3 "$CODE/v3_work/stream/summarize_run.py" "$E" | tee -a "$E/node.log" || true
 exit "$rc"

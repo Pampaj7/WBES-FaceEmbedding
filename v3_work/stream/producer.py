@@ -20,7 +20,8 @@ Tutti i numeri casuali di un processo vengono da SeedSequence([seme, processo]).
 Run massivo (slurm/massive.sbatch, slurm/extra_producers.sbatch):
   * ``--sources massive|open_core|<domini>``: preset delle fonti (sources.SOURCE_PRESETS; FLAME 2023 Open, non 2020);
   * ``--provenance``: un generatore per gruppo, SeedSequence([seme, processo, gruppo]), e nello shard seme, fonti,
-    licenza ereditata, coefficienti, ricetta: regen.py rigenera ogni vista;
+    licenza ereditata, coefficienti, ricetta: regen.py rigenera ogni vista; versione del codice nella ricetta da
+    WBES_CODE_VERSION (la copia congelata di massive.sbatch) o, senza, da git;
   * ``--mm-aug hybrid=..,expr_transfer=..,rbf=..``: gruppi dei moltiplicatori di v3_work/mm_aug (aug_group_spec:
     UNA identita' ibrida / con bump / pura col trasferimento d'espressione e le sue viste), GT dalla neutra esatta;
   * ``--stats-dir`` per un anello condiviso da piu' job, ``--evict-every`` per un anello su CephFS.
@@ -535,7 +536,9 @@ def main() -> None:
     cfg.label_p = w / w.sum()
     domains = S.parse_sources(cfg.sources) if cfg.sources else [d for d in cfg.domains.split(",") if d]
     cfg.expr_frac = parse_expr_frac(cfg.expr_frac, domains)
-    if cfg.provenance:
+    # codice congelato di massive.sbatch (slurm/code_snapshot.py): la versione e' quella della copia, non del repo vivo
+    cfg.code_version = os.environ.get("WBES_CODE_VERSION", "")
+    if cfg.provenance and not cfg.code_version:
         import subprocess
         try:
             git = ["git", "-C", str(S.REPO_ROOT)]

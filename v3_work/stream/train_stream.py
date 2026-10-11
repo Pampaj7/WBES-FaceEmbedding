@@ -47,19 +47,31 @@ Ricetta dei bracci decisivi (C3F/C3M), con ``--stream`` resa esplicita (10 ottob
   * ``--stream-rot 0``: nessuna rotazione a ogni uso, come il C3M (che ruota solo nel modo ``rotation`` del rumore,
     ``--rigid_rot_deg 12`` della ricetta v1, uguale qui).
 
-Run prelazionabili (``WBES_PREEMPT_SAVE=1``, variabile d'ambiente e non flag: l'hash della run dir non cambia; la
-mette massive_node.sh con STREAM_PREEMPTIBLE=1, slurm/secondary_partial_a100.sbatch), A100 con --qos=unprivileged:
-  * prelazione e ``scontrol requeue`` mandano SIGTERM a tutti i processi e SIGKILL dopo KillWait (30 s; GraceTime 0
-    sulla partizione aicentre-a100). Su SIGTERM ogni rank segna il segnale e porta stdout/stderr su
+Run ripartibili (``WBES_PREEMPT_SAVE=1``, variabile d'ambiente e non flag: l'hash della run dir non cambia; la mette
+massive_node.sh con STREAM_PREEMPTIBLE=1, il default, anche nel run principale):
+  * prelazione, ``scontrol requeue`` e scancel mandano SIGTERM SOLO al capo di ogni task (il batch script e
+    massive_node.sh su ogni nodo; proctrack/cgroup, misurato l'11 ottobre: i figli no) e SIGKILL a tutti dopo KillWait
+    (30 s; GraceTime 0 sulla partizione aicentre-a100); massive_node.sh inoltra il SIGTERM al trainer (run.sh ->
+    singularity -> torchrun -> rank). Su SIGTERM ogni rank segna il segnale e porta stdout/stderr su
     ``<run_dir>/preempt_rank<r>.log`` (la pipe verso train.log muore col passo); dopo il passo in corso i rank
-    concordano (all_max, una riduzione per passo) e scrivono il checkpoint di ripresa di train_v3 (last.pth con
-    pesi, ottimizzatore, EMA, passo, epoca, batch nell'epoca e accumulatori; rng_rank<r>.pt coi generatori CPU e CUDA
-    di ogni rank), chiudono l'epoca dello stream (riga di statistiche, registro delle viste usate) ed escono (143);
+    concordano (all_max, una riduzione per passo: anche quelli a cui il segnale non e' arrivato) e scrivono il
+    checkpoint di ripresa di train_v3 (last.pth con pesi, ottimizzatore, EMA, passo, epoca, batch nell'epoca e
+    accumulatori; rng_rank<r>.pt coi generatori CPU e CUDA di ogni rank, e con lui il registro delle viste usate del
+    rank), chiudono l'epoca dello stream (riga di statistiche) ed escono tutti con os._exit(143);
   * ripresa: ``--resume auto`` di train_v3 da last.pth; i piani gia' eseguiti dell'epoca NON si estraggono dall'anello
-    (StreamPlans.skip): ne' usi ne' righe nel registro per viste mai addestrate. Lo stream non si riavvolge: l'anello
-    riparte vuoto con produttori a semi nuovi (massive_node.sh: + 100000 x riavvio), quindi contatori di riuso e pool
-    ripartono da zero su identita' nuove; i dati dopo la ripresa sono freschi, non quelli che avrebbe visto il run
-    senza interruzione (pesi, ottimizzatore, passo, lr, generatori del trainer e scale di --scale-aug si').
+    (StreamPlans.skip). Lo stream non si riavvolge: l'anello riparte vuoto con produttori a semi nuovi
+    (massive_node.sh: + 100000 x segmento), quindi contatori di riuso e pool ripartono da zero su identita' nuove; i
+    dati dopo la ripresa sono freschi, non quelli che avrebbe visto il run senza interruzione (pesi, ottimizzatore,
+    passo, lr, generatori del trainer e scale di --scale-aug si');
+  * ripresa obbligatoria (``WBES_EXPECT_RESUME=1``: massive_node.sh a ogni riavvio o continuazione): senza last.pth
+    nella run dir di questa riga di lancio, errore con le run dir che ce l'hanno, invece di ripartire da zero in
+    silenzio; con ``WBES_CHECK_RESUME_ONLY=1`` solo il controllo (massive_node.sh, prima del primo tentativo).
+Registro delle viste usate (``--stream-log-views``) coerente coi checkpoint: le righe di un piano entrano quando il
+piano passa al trainer (consumer.StreamPlans: il piano successivo, gia' estratto, no) e ogni rank le scrive insieme al
+suo rng_rank<r>.pt (save_last di train_v3: a ogni checkpoint di ripresa e a fine epoca) in
+``views_used/rank<r>_e<epoca>_s<passo>.npz``; alla ripresa il rank 0 toglie i registri oltre il passo del checkpoint
+(processo morto fra il registro e last.pth) e le scritture interrotte. Un crash perde le righe dopo l'ultimo
+checkpoint, come i passi.
 """
 from __future__ import annotations
 
@@ -241,19 +253,65 @@ def preempt_train_epoch(orig):
             return orig(args, plans, *a, start_batch=start_batch, partial=partial, saver=fn, **kw)
         except _Preempted:
             stopped = True
-        # fuori dall'except il traceback e' libero: il generatore dei piani si chiude (statistiche dell'epoca e
-        # registro delle viste usate scritti)
+        # fuori dall'except il traceback e' libero: il generatore dei piani si chiude (statistiche dell'epoca; il
+        # registro delle viste usate e' gia' scritto col checkpoint)
         import gc
         gc.collect()
-        tv.log0(f"[preempt] checkpoint di ripresa al passo {tv.STATE['steps']} dopo il segnale "
-                f"{PREEMPT.get('sig')} (arrivato al passo {PREEMPT.get('step')}, {time.time() - PREEMPT['t']:.1f}s fa): "
-                f"esco con {PREEMPT_RC}")
+        PREEMPT["exit"] = True          # anche sui rank a cui il segnale non e' arrivato: os._exit in main
+        got = (f"segnale {PREEMPT['sig']} arrivato al passo {PREEMPT['step']}, {time.time() - PREEMPT['t']:.1f}s fa"
+               if "t" in PREEMPT else "segnale arrivato a un altro rank")
+        tv.log0(f"[preempt] checkpoint di ripresa al passo {tv.STATE['steps']} ({got}): esco con {PREEMPT_RC}")
         raise SystemExit(PREEMPT_RC)
     return run_epoch
 
 
+# --- registro delle viste usate (--stream-log-views), scritto coi checkpoint di ripresa ------------------------
+
+def views_log_save(orig):
+    """train_v3._save che, dopo rng_rank<r>.pt (save_last: ogni rank, a ogni checkpoint di ripresa e a fine epoca),
+    scrive il registro del rank: le viste dei piani addestrati fino a quel passo (consumer.StreamPlans)."""
+    def save(obj, path) -> None:
+        orig(obj, path)
+        c = STREAM.get("consumer")
+        if c is not None and Path(path).name == f"rng_rank{c.rank}.pt":
+            c.flush_log(STREAM["run_dir"] / "views_used"
+                        / f"rank{c.rank:03d}_e{STREAM.get('epoch', 0):05d}_s{int(obj['step']):09d}.npz")
+    return save
+
+
+def prune_views_log(step: int) -> None:
+    """Ripresa (rank 0, prima che un rank scriva: il primo checkpoint segue il primo passo): via i registri oltre il
+    passo del checkpoint (processo morto fra il registro e last.pth) e le scritture interrotte (.tmp.npz)."""
+    import re
+    gone = []
+    for p in sorted((STREAM["run_dir"] / "views_used").glob("rank*_e*.npz")):
+        m = re.search(r"_s(\d+)\.npz$", p.name)
+        if p.name.endswith(".tmp.npz") or (m is not None and int(m.group(1)) > step):
+            p.unlink()
+            gone.append(p.name)
+    if gone:
+        tv.log0(f"[stream] ripresa al passo {step}: tolti {len(gone)} registri delle viste oltre il checkpoint "
+                f"{gone[:6]}")
+
+
+def check_resume(args) -> None:
+    """Riavvio o continuazione (WBES_EXPECT_RESUME=1, massive_node.sh): la run dir deve avere last.pth, altrimenti
+    errore invece di ripartire da zero in silenzio (run dir cambiata: riga di lancio, anello, codice; o nessun
+    checkpoint prima dell'interruzione)."""
+    last = STREAM["run_dir"] / "checkpoints" / "last.pth"
+    if args.resume != "auto" or last.exists():
+        return
+    have = sorted(p.parents[1].name for p in STREAM["run_dir"].parent.glob("*/checkpoints/last.pth"))
+    raise SystemExit(f"[resume] ERRORE: ripresa attesa (riavvio o continuazione) ma {last} manca; run dir con last.pth "
+                     f"in {STREAM['run_dir'].parent}: {have or 'nessuna'}. Non riparto da zero: stessa riga di lancio "
+                     f"(STREAM_OUT, STREAM_RUN_TAG, variabili) o un STREAM_OUT nuovo")
+
+
 def stream_epoch_plans(args, data, epoch, S, steps, B, drawcfg, seed_r):
     from consumer import StreamPlans
+    if "epoch" not in STREAM and args.stream_log_views and data.rank == 0:
+        prune_views_log(int(tv.STATE["steps"]))        # prima epoca di questo processo: dopo l'eventuale ripresa
+    STREAM["epoch"] = int(epoch)
     rng = np.random.default_rng(int(seed_r) + 977 + int(epoch))
     plans = StreamPlans(consumer(), steps, B, int(args.max_meshes_per_subject_train), drawcfg, rng, epoch,
                         STREAM["log"], batch_domains=batch_domains(args))
@@ -411,6 +469,8 @@ def install() -> None:
         return domain_of(sid)
 
     tv.epoch_plans = stream_epoch_plans
+    if STREAM["args"].stream_log_views:
+        tv._save = views_log_save(tv._save)
     if os.environ.get("WBES_PREEMPT_SAVE", "0") == "1":
         tv.train_epoch = preempt_train_epoch(tv.train_epoch)
     tv.StepEmbedder = StreamEmbedder
@@ -464,6 +524,15 @@ def main() -> None:
         STREAM["args"] = args
         # la run dir PRIMA che run() riscriva epochs e save_every negli args (l'hash li contiene)
         STREAM["run_dir"] = tv.make_run_dir(args)
+        if os.environ.get("WBES_EXPECT_RESUME", "0") == "1":
+            check_resume(args)
+            if os.environ.get("WBES_CHECK_RESUME_ONLY", "0") == "1":
+                import torch
+                last = STREAM["run_dir"] / "checkpoints" / "last.pth"
+                pack = torch.load(last, map_location="cpu", weights_only=False) if last.exists() else {}
+                print(f"[resume] {STREAM['run_dir'].name}: last.pth al passo {pack.get('step')} (epoca "
+                      f"{pack.get('epoch')}, batch {pack.get('in_epoch')}), si riprende da li'", flush=True)
+                return
         install()
         if os.environ.get("WBES_PREEMPT_SAVE", "0") == "1":
             from common import dist_info

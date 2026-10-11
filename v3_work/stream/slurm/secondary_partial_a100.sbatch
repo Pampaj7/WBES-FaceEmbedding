@@ -20,10 +20,12 @@
 # prelazionabile, quindi ripartibile.
 #   STREAM_STEPS=<T del run principale> sbatch v3_work/stream/slurm/secondary_partial_a100.sbatch
 # Ripresa:
-#   * prelazione (PreemptMode REQUEUE, GraceTime 0) e scontrol requeue: SIGTERM a tutti i processi, SIGKILL dopo
-#     KillWait (30 s). STREAM_PREEMPTIBLE=1 (massive_node.sh -> WBES_PREEMPT_SAVE=1, train_stream.py): il trainer salva
-#     last.pth al passo in corso ed esce; al riavvio --resume auto riparte da li' (stessa run dir: STREAM_OUT dipende
-#     solo dal job id, che il requeue conserva), anello nuovo con semi nuovi;
+#   * prelazione (PreemptMode REQUEUE, GraceTime 0) e scontrol requeue: SIGTERM SOLO al capo di ogni task (questo
+#     script e massive_node.sh su ogni nodo; proctrack/cgroup, misurato: i figli no), SIGKILL a tutti dopo KillWait
+#     (30 s). massive_node.sh inoltra il SIGTERM al trainer (STREAM_PREEMPTIBLE=1 -> WBES_PREEMPT_SAVE=1,
+#     train_stream.py), che salva last.pth al passo in corso ed esce; al riavvio --resume auto riparte da li' (stessa run
+#     dir: anello /tmp/<job>_stream/r0, il job id resta col requeue; codice congelato in STREAM_OUT/code,
+#     massive.sbatch), anello nuovo con semi nuovi;
 #   * --signal NON arriva sulla prelazione, solo 600 s prima del limite di tempo: qui (B:, solo questo script) USR2
 #     fa ``scontrol requeue`` del job, cioe' lo stesso percorso della prelazione (SIGTERM, salvataggio, coda) invece
 #     di un SIGKILL al limite; il run continua finche' non fa STREAM_STEPS passi;

@@ -53,7 +53,9 @@ un batch e' misto per fonti se contiene materiale di piu' di un 3DMM (o FaMoS).
 Registro delle viste usate (``log_views``): alla PRIMA estrazione di ogni vista una riga con dominio, origine,
 licenza, seme del gruppo, indice nella ricetta, discretizzazione, espressione, fotogramma, seme del rumore,
 vertici, area, S_i; ``flush_log`` scrive un npz compresso a colonne compatte (~64 byte per vista prima della
-compressione).
+compressione). Con StreamPlans le righe di un piano restano da parte finche' il piano non passa al trainer (il
+successivo, gia' estratto, non e' addestrato se l'epoca si ferma prima); train_stream.py le scrive a ogni checkpoint
+di ripresa.
 """
 from __future__ import annotations
 
@@ -540,7 +542,9 @@ class StreamConsumer:
 class StreamPlans:
     """Le ``steps`` BatchPlan di un'epoca, estratte una alla volta (la lista del trainer v3 e' deterministica,
     lo stream no). Il piano successivo nasce mentre il corrente e' in GPU, cosi' i suoi campioni si preparano in
-    anticipo. A fine iterazione (anche interrotta) una riga di statistiche in ``log_path``.
+    anticipo; le sue righe del registro delle viste entrano in ``consumer._log_rows`` solo quando passa al trainer.
+    A fine iterazione (anche interrotta) una riga di statistiche in ``log_path`` (``views_logged``: righe del registro
+    dei piani dati al trainer; il registro lo scrive train_stream.py coi checkpoint).
     ``skip`` (ripresa a meta' epoca di un run prelazionabile, train_stream.preempt_train_epoch): i primi ``skip``
     piani sono None, senza estrarre nulla dall'anello; i domini dei passi restanti sono quelli di ``order``."""
 
@@ -565,17 +569,26 @@ class StreamPlans:
         before = c.stats()
         t0 = time.time()
         c.c["seq_used_min"] = c.c["seq_used_max"] = None
-        make = lambda i: c.plan(self.B, self.max_views, self.drawcfg, self.rng,  # noqa: E731
-                                self.order[i] if self.order else None, self.epoch)
-        n = 0
+
+        def make(i: int) -> tuple:
+            """(piano, righe del registro delle sue viste nuove), le righe tolte da ``c._log_rows``."""
+            k = len(c._log_rows)
+            plan = c.plan(self.B, self.max_views, self.drawcfg, self.rng, self.order[i] if self.order else None,
+                          self.epoch)
+            rows = c._log_rows[k:]
+            del c._log_rows[k:]
+            return plan, rows
+        n = n_logged = 0
         s0 = min(int(self.skip), self.steps)
         try:
             for _ in range(s0):
                 yield None
             nxt = make(s0) if s0 < self.steps else None
             for i in range(s0, self.steps):
-                cur = nxt
+                cur, rows = nxt
                 nxt = make(i + 1) if i + 1 < self.steps else None
+                c._log_rows += rows               # nel registro solo le viste dei piani dati al trainer
+                n_logged += len(rows)
                 n += 1
                 yield cur
         finally:
@@ -598,7 +611,6 @@ class StreamPlans:
                 if "mirror" in after:
                     row["mirror"] = after["mirror"]
                 if c.log_views:
-                    p = self.log_path.parent / "views_used" / f"rank{c.rank:03d}_e{self.epoch:05d}_{int(t0)}.npz"
-                    row["views_logged"] = c.flush_log(p)
+                    row["views_logged"] = n_logged
                 with open(self.log_path, "a") as fh:
                     fh.write(json.dumps(row) + "\n")

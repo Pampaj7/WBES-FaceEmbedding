@@ -7,14 +7,18 @@
    discretizzazioni, ``--seeds`` semi per mesh, p = 1): perdita d'area per modo, log del rapporto sqrt(area) contro
    quello del crop di valutazione sulle stesse mesh (make_crop su original), validita' (una componente di facce,
    nessun vertice isolato, nessuna faccia degenere, >= min_verts, perdita <= max_loss), determinismo (due chiamate
-   identiche), operatori DiffusionNet (views.operators + serve_like_loader, valori finiti) su ``--ops`` viste.
+   identiche), operatori DiffusionNet (views.operators con valori grezzi finiti, poi serve_like_loader) sulle prime
+   ``--ops`` viste parziali e su TUTTE quelle con vertici a farfalla (non manifold: piu' di un ventaglio di facce),
+   che si contano ma non invalidano la vista.
 2. Invarianza (sottoprocessi freschi, stessa sequenza di chiamate): i gruppi di producer.make_group coi semi di
-   provenienza e gli argomenti di massive_node.sh (ricetta c3m) scritti dal codice di HEAD (``git archive``) e da
-   quello di adesso senza --partial-p: ricetta, metadati, header e byte dello shard (ring.Ring.write, a parte
-   t_created) e array identici bit per bit. Poi --partial-p 0.5 sugli
-   stessi semi: stesse identita', etichette, espressioni, semi del rumore; le viste non parziali identiche.
-3. Run dir: train_v3.make_run_dir sulla riga di lancio di smoke_validated_1067645 con il codice di HEAD e di adesso
-   (con e senza WBES_PREEMPT_SAVE): stesso nome, uguale alla directory del run.
+   provenienza e gli argomenti di massive_node.sh (ricetta c3m) scritti dal codice della revisione di base (``--base``,
+   default 3e8cae7: l'ultimo commit prima della parzialita', efffd74; ``git archive``) e da quello di adesso senza
+   --partial-p: ricetta, metadati, header e byte dello shard (ring.Ring.write, a parte t_created) e array identici bit
+   per bit. Poi --partial-p 0.5 sugli stessi semi: stesse identita', etichette, espressioni, semi del rumore; le viste
+   non parziali identiche.
+3. Run dir: train_v3.make_run_dir sulla riga di lancio di smoke_validated_1067645 con il codice di base, di adesso
+   (con e senza WBES_PREEMPT_SAVE) e della sua copia congelata (slurm/code_snapshot.py, come massive.sbatch): stesso
+   nome, uguale alla directory del run.
 4. Produttori veri con --partial-p 0.5 per ``--seconds``: quota di viste parziali, perdite, fallimenti; regen.check_shard
    rigenera i primi shard (facce, vertici, parametri della parzialita').
 5. StreamPlans.skip: con skip k i primi k piani sono None e il consumatore non ne estrae nessuno.
@@ -38,6 +42,7 @@ THIS = Path(__file__).resolve().parent
 STREAM = THIS.parent
 REPO = STREAM.parents[1]
 LAUNCH = REPO / "aau/runs/evidence/stream/smoke_validated_1067645/node0/launch.txt"
+BASE = "3e8cae7"         # ultimo commit prima della parzialita' (efffd74): v3_work come d310782, la ricetta c3m
 # producer.py come in massive_node.sh con STREAM_RECIPE c3m (senza anello, CPU, semi e statistiche)
 PROD_ARGS = ["--ring", "/nonexistent", "--k-eig", "128", "--evecs-dtype", "fp32", "--sources", "validated",
              "--provenance", "--canonical-gt", "--expr-frac", "bfm2019=0,ict=0.2315,gnm=0.1968", "--views", "6",
@@ -110,11 +115,11 @@ def dump_groups(root: Path, out: Path, n_groups: int, extra: list) -> None:
                                                    default=str))
 
 
-def head_tree(tmp: Path) -> Path:
-    """v3_work di HEAD (git archive) con il resto del repo in link simbolici."""
-    root = tmp / "head"
+def base_tree(tmp: Path, rev: str) -> Path:
+    """v3_work della revisione ``rev`` (git archive) con il resto del repo in link simbolici."""
+    root = tmp / "base"
     root.mkdir()
-    arc = subprocess.run(["git", "-C", str(REPO), "archive", "HEAD", "v3_work"], capture_output=True, check=True).stdout
+    arc = subprocess.run(["git", "-C", str(REPO), "archive", rev, "v3_work"], capture_output=True, check=True).stdout
     subprocess.run(["tar", "-x", "-C", str(root)], input=arc, check=True)
     for p in REPO.iterdir():
         if p.name not in ("v3_work", ".git"):
@@ -179,6 +184,24 @@ def run_dir_name(root: Path, preempt: bool) -> str:
 
 # --- 1. geometria -------------------------------------------------------------------------------------
 
+def butterfly(F: np.ndarray, n: int) -> int:
+    """Vertici a farfalla (non manifold): le facce attorno al vertice formano piu' di un ventaglio, cioe' piu' di una
+    componente fra i suoi angoli uniti dagli spigoli che partono dal vertice."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    F = np.asarray(F, dtype=np.int64)
+    m = len(F)
+    v = F.reshape(-1)                                       # angolo 3 f + j: vertice F[f, j]
+    keys = np.concatenate([v * n + F[:, [1, 2, 0]].reshape(-1), v * n + F[:, [2, 0, 1]].reshape(-1)])
+    uk, inv = np.unique(keys, return_inverse=True)          # spigoli (vertice dell'angolo, vicino)
+    N = 3 * m + len(uk)
+    corner = np.tile(np.arange(3 * m), 2)
+    _, lab = connected_components(coo_matrix((np.ones(len(corner)), (corner, 3 * m + inv.reshape(-1))), shape=(N, N)),
+                                  directed=False)
+    fans = np.unique(np.stack([v, lab[:3 * m]], 1), axis=0)[:, 0]
+    return int((np.bincount(fans, minlength=n) > 1).sum())
+
+
 def valid(V: np.ndarray, F: np.ndarray, cfg: dict) -> dict:
     import igl
     import partial_aug as PA
@@ -188,7 +211,19 @@ def valid(V: np.ndarray, F: np.ndarray, cfg: dict) -> dict:
     degen = int(((F[:, 0] == F[:, 1]) | (F[:, 1] == F[:, 2]) | (F[:, 0] == F[:, 2])).sum()
                 + (PA.face_areas(V, F) <= 0).sum())
     return {"components": n_comp, "isolated": int((~used).sum()), "degenerate": degen,
+            "butterfly": butterfly(F, len(V)),
             "ok": n_comp == 1 and bool(used.all()) and degen == 0 and len(V) >= cfg["min_verts"]}
+
+
+def check_ops(V: np.ndarray, F: np.ndarray) -> None:
+    """Operatori DiffusionNet della vista: valori grezzi finiti (serve_like_loader toglie i NaN prima del suo
+    controllo), poi il campione del loader."""
+    import views as VW
+    d = VW.operators(V, F, 128)
+    bad = [k for k, x in d.items() if np.asarray(x).dtype.kind == "f" and not np.isfinite(x).all()]
+    if bad:
+        raise RuntimeError(f"operatori con valori non finiti: {bad}")
+    VW.serve_like_loader(d)
 
 
 def geometry(a) -> dict:
@@ -201,7 +236,7 @@ def geometry(a) -> dict:
     uni = S.Unified()
     domains = S.parse_sources("validated")
     srcs = S.build_sources(domains, uni)
-    rows, crop_lr, ops, n_ops, t_part = [], [], {"ok": 0, "fail": 0, "errors": []}, 0, []
+    rows, crop_lr, ops, n_ops, t_part = [], [], {"ok": 0, "fail": 0, "butterfly_ok": 0, "errors": []}, 0, []
     for d in domains:
         rng = np.random.default_rng(np.random.SeedSequence([20261011, domains.index(d)]))
         for i in range(a.ids):
@@ -222,20 +257,22 @@ def geometry(a) -> dict:
                     Vq, Fq, info2 = PA.apply(Vd, Fd, cfg, seed)
                     det = info == info2 and np.array_equal(Vp, Vq) and np.array_equal(Fp, Fq)
                     lr = 0.5 * np.log(PA.face_areas(Vp, Fp).sum() / A0)
+                    vd = valid(Vp, Fp, cfg)
                     rows.append({"domain": d, "label": label, "on": info["on"], "mode": info.get("mode", "-"),
                                  "family": info.get("family", "-"), "holes": info.get("holes", 0),
                                  "target": info.get("target", np.nan), "loss": info.get("loss", 0.0),
                                  "log_sqrt_ratio": float(lr), "n_in": len(Vd), "n_out": len(Vp),
-                                 "fallback": bool(info.get("fallback")), "deterministic": bool(det),
-                                 **valid(Vp, Fp, cfg)})
-                    if n_ops < a.ops and info["on"]:
-                        n_ops += 1
+                                 "fallback": bool(info.get("fallback")), "deterministic": bool(det), **vd})
+                    first = n_ops < a.ops and info["on"]
+                    if first or vd["butterfly"]:             # le prime --ops parziali e tutte quelle a farfalla
+                        n_ops += int(first)
                         try:
-                            VW.serve_like_loader(VW.operators(Vp, Fp, 128))
+                            check_ops(Vp, Fp)
                             ops["ok"] += 1
+                            ops["butterfly_ok"] += int(vd["butterfly"] > 0)
                         except Exception as exc:  # noqa: BLE001
                             ops["fail"] += 1
-                            ops["errors"].append(f"{d}/{label}: {type(exc).__name__}: {exc}")
+                            ops["errors"].append(f"{d}/{label} (farfalla {vd['butterfly']}): {type(exc).__name__}: {exc}")
     on = [r for r in rows if r["on"]]
     loss = np.asarray([r["loss"] for r in on])
     lr = np.asarray([r["log_sqrt_ratio"] for r in on])
@@ -245,8 +282,13 @@ def geometry(a) -> dict:
         x = np.asarray([r["loss"] for r in on if r["mode"] == m])
         by_mode[m] = {"n": len(x), "loss": q(x)}
     tgt = np.asarray([r["loss"] - r["target"] for r in on if r["mode"] in ("band", "plane") and r["holes"] == 0])
+    bf = np.asarray([r["butterfly"] for r in rows])
     return {"views": len(rows), "partial": len(on), "fallback": sum(r["fallback"] for r in rows),
             "valid": sum(r["ok"] for r in rows), "invalid_examples": [r for r in rows if not r["ok"]][:5],
+            "butterfly": {"views": int((bf > 0).sum()), "views_partial": sum(r["butterfly"] > 0 for r in on),
+                          "max_per_view": int(bf.max()), "total": int(bf.sum()),
+                          "by_mode": {m: sum(r["butterfly"] > 0 for r in on if r["mode"] == m)
+                                      for m in sorted({r["mode"] for r in on})}},
             "deterministic": sum(r["deterministic"] for r in rows),
             "loss": q(loss), "log_sqrt_ratio": q(lr), "loss_by_mode": by_mode,
             "loss_minus_target_band_plane_noholes": q(tgt) if len(tgt) else None,
@@ -324,6 +366,7 @@ def main() -> None:
     ap.add_argument("--seconds", type=float, default=180)
     ap.add_argument("--n-proc", type=int, default=12)
     ap.add_argument("--max-shards", type=int, default=6)
+    ap.add_argument("--base", default=BASE, help="revisione di base del confronto bit per bit e della run dir")
     ap.add_argument("--dump", nargs=2, metavar=("ALBERO", "NPZ"), help="(interno) gruppi del confronto")
     ap.add_argument("--dump-extra", default="")
     ap.add_argument("--only", default="geometry,invariance,rundir,producers")
@@ -336,26 +379,31 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
         if "invariance" in only or "rundir" in only:
-            head = head_tree(tmp)
+            base = base_tree(tmp, a.base)
+            res["base"] = subprocess.run(["git", "-C", str(REPO), "rev-parse", a.base], capture_output=True,
+                                         text=True).stdout.strip()
             res["head"] = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"], capture_output=True,
                                          text=True).stdout.strip()
         if "invariance" in only:
-            jobs = {"head": (head, ""), "now_off": (REPO, ""), "now_on": (REPO, "--partial-p 0.5")}
+            jobs = {"base": (base, ""), "now_off": (REPO, ""), "now_on": (REPO, "--partial-p 0.5")}
             procs = {k: subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "--dump", str(root),
                                           str(tmp / f"{k}.npz"), "--groups", str(a.groups), "--dump-extra", ex])
                      for k, (root, ex) in jobs.items()}
             for k, p in procs.items():
                 if p.wait() != 0:
                     raise SystemExit(f"dump {k} fallito")
-            res["invariance_off_vs_head"] = compare_dumps(tmp / "head.npz", tmp / "now_off.npz")
+            res["invariance_off_vs_base"] = compare_dumps(tmp / "base.npz", tmp / "now_off.npz")
             res["partial_on_vs_off"] = compare_partial(tmp / "now_off.npz", tmp / "now_on.npz")
-            print(json.dumps({k: res[k] for k in ("invariance_off_vs_head", "partial_on_vs_off")}), flush=True)
+            print(json.dumps({k: res[k] for k in ("invariance_off_vs_base", "partial_on_vs_off")}), flush=True)
         if "rundir" in only:
-            names = {"head": run_dir_name(head, False), "now": run_dir_name(REPO, False),
-                     "now_preempt": run_dir_name(REPO, True)}
+            snap = tmp / "snapshot" / "code"           # la copia congelata di massive.sbatch
+            subprocess.run([sys.executable, str(STREAM / "slurm" / "code_snapshot.py"), "make", str(REPO), str(snap)],
+                           check=True)
+            names = {"base": run_dir_name(base, False), "now": run_dir_name(REPO, False),
+                     "now_preempt": run_dir_name(REPO, True), "now_snapshot": run_dir_name(snap, False)}
             existing = sorted(p.name for p in (LAUNCH.parent / "runs").iterdir())
             res["run_dir"] = {**names, "existing": existing,
-                              "pass": len(set(names.values())) == 1 and names["head"] in existing}
+                              "pass": len(set(names.values())) == 1 and names["base"] in existing}
             print(json.dumps(res["run_dir"]), flush=True)
         if "geometry" in only:
             res["geometry"], rows = geometry(a)
@@ -370,7 +418,7 @@ def main() -> None:
         if "producers" in only:
             res["producers"] = producers(a, tmp)
             print(json.dumps(res["producers"], default=str), flush=True)
-    g, inv = res.get("geometry"), res.get("invariance_off_vs_head")
+    g, inv = res.get("geometry"), res.get("invariance_off_vs_base")
     res["pass"] = {
         "geometry": None if g is None else g["valid"] == g["views"] and g["deterministic"] == g["views"]
         and g["operators"]["fail"] == 0 and g["fallback"] == 0,
