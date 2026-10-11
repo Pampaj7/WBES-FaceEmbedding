@@ -1,13 +1,18 @@
 {
-  "definition": "Unita', taglia, qualita' e GT FR / SR di Ava-256.\n\n    v3_work/unified_gt/run.sh aau/ava256/ava_gt.py          (dopo ava_neutral.py neutral)\n\nCONFERMATIVO: non valutare prima del protocollo confermativo (README). Solo dati e GT: nessun modello, nessuna\nbaseline (nemmeno \"solo taglia\"), nessuna metrica di prestazione. Le sole statistiche riguardano la GT stessa.\n\n1. Unita' (README, scelta 4; come E12, ``v3_work/canonical_gt/gt.py`` sez. 2b): IPD in unita' native dai 12 punti\n   del contorno degli occhi (``cgt.eye_proxies``: iBUG 36-47 sulla media FLAME, punto piu' vicino della regione\n   unificata). La forma media del dominio e' rappresentata dalla mediana delle IPD delle neutre: il template ha la\n   taglia della prima cattura (``domains.multiface`` fa lo stesso), la sua IPD si riporta a parte. ``u`` = potenza di\n   10 piu' vicina a 63 / IPD entro +-15% (``cgt.nearest_unit``), altrimenti 63 / IPD. Controlli: larghezza\n   intercantale (iBUG 39-42) e biorbitale (36-45) con gli stessi sostituti, confrontate con la media FLAME (stessa\n   costruzione, mm) e con i valori antropometrici; centroid size della regione contro gli altri domini (E12\n   ``size_cv.csv``); scala della similarita' canonica di ``correspond``.\n2. GT (scelta 5): ``train_fr_sr.factor`` sui punti della regione unificata delle neutre (frame di dominio: ``u``,\n   R = I, t = 0; segue la rigida robusta per identita' verso mu), scritte da ``train_fr_sr.save_eval`` nella cartella\n   delle GT di Ava-256 (NON ``datasets/CANONICAL_GT/eval``); ``identity_check`` su 400 coppie (seme 1234).\n3. Taglia: centroid size (S di FR), IPD e altezza della regione allineata; CV con IC 95% bootstrap per soggetto\n   (1000 repliche, seme 1234); una riga nel formato di ``aau/runs/evidence/e12/size_cv.csv``.\n4. Qualita' (scelta 6): soggetti validi; anomalie (centroid size, IPD, distanza da mu dopo Procrustes, rumore della\n   neutra oltre mediana +- 5 x 1.4826 MAD) elencate e NON escluse.\n5. Affidabilita' della GT (solo GT contro GT): FR / SR della neutra ripetuta (EXP_eye_neutral) e con la mappa di\n   Multiface, Spearman sulle coppie i < j; distanza FR fra neutra e neutro ripetuto della stessa persona contro la\n   mediana delle distanze FR fra persone, e quante persone hanno il proprio neutro ripetuto come vicino piu' prossimo.",
+  "definition": "Unita', taglia, qualita', split e GT FR / SR di Ava-256.\n\n    v3_work/unified_gt/run.sh aau/ava256/ava_gt.py          (dopo ava_neutral.py neutral)\n\nCONFERMATIVO: non valutare prima del protocollo confermativo (README). Solo dati e GT: nessun modello, nessuna\nbaseline (nemmeno \"solo taglia\"), nessuna metrica di prestazione. Le sole statistiche riguardano la GT stessa.\n\nScelte: README, scelte 4-6 e sezione \"Modifiche dell'11 ottobre\" (decisioni del PI PRIMA di qualsiasi valutazione).\n1. Unita': **u = 1 (mm), dichiarata** per analogia con Multiface (stesso laboratorio e stessa famiglia di topologia, mm\n   in ``domains.py``) e per la coerenza della centroid size della regione con la media FLAME in mm (E12 ``size_cv.csv``).\n   Si riporta anche la regola letterale di E12 (63 mm / IPD mediana, ``cgt.nearest_unit``): una scala globale, che dentro\n   la tolleranza non cambia gli Spearman. Controlli: IPD, larghezza intercantale (iBUG 39-42) e biorbitale (36-45) dai\n   sostituti di ``cgt.eye_proxies`` contro la media FLAME con la stessa costruzione; scala della similarita' canonica di\n   ``correspond`` (template della prima cattura -> media FLAME).\n2. Split fisso (``ava_common.split``): 56 soggetti di calibrazione (template del NICP, regione del fit B, L_d, cs_ref) e\n   200 di valutazione, per sha256 del sid con un sale dichiarato.\n3. GT: ``train_fr_sr.factor`` sui punti della regione unificata delle neutre (frame di dominio ``u``, R = I, t = 0; segue\n   la rigida robusta per identita' verso mu), scritte da ``train_fr_sr.save_eval`` nella cartella delle GT di Ava-256\n   (NON ``datasets/CANONICAL_GT/eval``): ``ava256_eval_*`` sui 200 di valutazione (la GT della prova), ``ava256_all_*`` su\n   tutti i 256 (affidabilita' e taglia); ``identity_check`` su 400 coppie (seme 1234).\n4. Taglia (256): centroid size (S di FR), IPD e altezza della regione allineata; CV con IC 95% bootstrap per soggetto\n   (1000 repliche, seme 1234); una riga nel formato di ``aau/runs/evidence/e12/size_cv.csv``.\n5. Qualita': soggetti validi; **stabilita' della neutra su TUTTI i frame** del segmento (distanza g dal medoide, mm;\n   segnalato chi ha un frame oltre 1 mm); anomali (centroid size, IPD, distanza da mu dopo Procrustes oltre mediana +-\n   5 x 1.4826 MAD). Tolta la regola MAD sulla distanza fra le meta' pari e dispari della neutra (frame consecutivi: non\n   informativa). I segnalati restano nella GT; i loro id stanno in ``datasets/AVA256/gt/quality_flags.json`` (fuori da\n   git), in git solo i conteggi.\n6. Affidabilita' della GT (solo GT contro GT, 256 soggetti): FR / SR della neutra ripetuta (EXP_eye_neutral) e con la mappa\n   di Multiface, Spearman sulle coppie i < j; distanza FR fra neutra e neutro ripetuto della stessa persona contro la\n   mediana delle distanze fra persone; quante persone hanno il proprio neutro ripetuto come vicino piu' prossimo. E' una\n   stima del rumore fra segmenti della stessa sessione, NON un tetto per gli Spearman dei metodi: viste e GT vengono dalla\n   stessa neutra.",
   "units": {
     "u": 1.0,
-    "unit": "millimetri",
-    "ipd_native_median": 66.02460813353771,
-    "mm_per_unit_from_ipd63": 0.9541896844367436,
-    "ratio_to_power_of_ten": 0.9541896844367436,
-    "tolerance": 0.15,
-    "widths_mm_with_u": {
+    "unit": "millimetri (dichiarata)",
+    "reason": "analogia con Multiface (stesso laboratorio, stessa famiglia di topologia, mm in domains.py) e coerenza della centroid size della regione con la media FLAME in mm (size, sotto)",
+    "e12_literal_rule": {
+      "ipd_native_median": 66.02460813353771,
+      "u_63_over_ipd": 0.9541896844367436,
+      "nearest_power_of_ten": "millimetri",
+      "ratio_to_power_of_ten": 0.9541896844367436,
+      "tolerance": 0.15,
+      "note": "scala globale entro la tolleranza: non cambia gli Spearman dentro il dominio"
+    },
+    "widths_mm": {
       "ipd": {
         "n": 256,
         "mean": 66.37656448503539,
@@ -75,7 +80,7 @@
       1.0345178415023426
     ],
     "canonical_similarity_s_template_to_flame": 0.8835843763778772,
-    "note": "proxy = punto piu' vicino della regione unificata al landmark iBUG sulla media FLAME (E12 2b); i valori FLAME con gli stessi proxy danno il riferimento della stessa costruzione; il template ha la taglia della prima cattura (solo il rapporto con la mediana: nessuna misura di un singolo soggetto in git)"
+    "note": "proxy = punto piu' vicino della regione unificata al landmark iBUG sulla media FLAME (E12 2b); il template ha la taglia della prima cattura (in git solo il rapporto con la mediana)"
   },
   "size": {
     "row": {
@@ -106,6 +111,7 @@
         0.07145268685231182
       ]
     },
+    "centroid_size_vs_flame_mean": 1.0327735280179156,
     "e12_centroid_size_mean_mm": {
       "hifi3d": 56.23839500779091,
       "faceverse": 54.92749607005816,
@@ -134,7 +140,7 @@
   "quality": {
     "n_captures": 256,
     "n_valid": 256,
-    "invalid": [],
+    "n_invalid": 0,
     "robust_rigid": {
       "converged_fraction": 1.0,
       "iterations": {
@@ -158,29 +164,37 @@
         "max": 9.027094785867702
       }
     },
-    "rule": "anomalo = oltre mediana +- 5 x 1.4826 MAD (elencati, NON esclusi)",
-    "flagged": {
-      "centroid_size": [],
-      "ipd": [],
-      "rms_to_mu_after_procrustes": [
-        "ava0163"
-      ],
-      "neutral_halves_mm": [
-        "ava0007",
-        "ava0010",
-        "ava0037",
-        "ava0059",
-        "ava0079",
-        "ava0082",
-        "ava0121",
-        "ava0214",
-        "ava0215",
-        "ava0231",
-        "ava0233",
-        "ava0252"
-      ]
+    "stability_rule": "distanza g (GT unificata, mm) di TUTTI i frame finiti di EXP_neutral_peak dal medoide; segnalato chi ne ha uno oltre 1 mm",
+    "stability_max_dist_mm": {
+      "n": 256,
+      "mean": 0.2719164505615481,
+      "sd": 0.296347936357629,
+      "min": 0.0181999821215868,
+      "p5": 0.034903278574347496,
+      "median": 0.13289010524749756,
+      "p95": 0.8097682595252991,
+      "max": 1.943503737449646
     },
-    "n_flagged": 13,
+    "kept_fraction": {
+      "n": 256,
+      "mean": 0.9198746850320983,
+      "sd": 0.091774303123094,
+      "min": 0.5882352941176471,
+      "p5": 0.7333333333333333,
+      "median": 0.9428104575163399,
+      "p95": 1.0,
+      "max": 1.0
+    },
+    "anomaly_rule": "oltre mediana +- 5 x 1.4826 MAD (centroid size, IPD, distanza da mu)",
+    "n_flagged_by_rule": {
+      "centroid_size": 0,
+      "ipd": 0,
+      "rms_to_mu_after_procrustes": 1,
+      "neutral_frame_over_1mm": 4
+    },
+    "n_flagged": 5,
+    "n_flagged_in_evaluation": 4,
+    "flagged_ids": "datasets/AVA256/gt/quality_flags.json (fuori da git)",
     "criteria_stats": {
       "centroid_size": {
         "n": 256,
@@ -211,24 +225,36 @@
         "median": 3.9211260321381385,
         "p95": 5.677580968976248,
         "max": 8.024451745801601
-      },
-      "neutral_halves_mm": {
-        "n": 256,
-        "mean": 0.014377718002833717,
-        "sd": 0.014301463271477516,
-        "min": 0.002981154713779688,
-        "p5": 0.006041930639185011,
-        "median": 0.011538280639797449,
-        "p95": 0.03237142600119114,
-        "max": 0.1725352257490158
       }
     },
     "non_finite_points": 0
   },
   "gt": {
-    "n": 256,
+    "n_all": 256,
+    "n_eval": 200,
+    "n_calibration": 56,
     "ids": "datasets/AVA256/gt/ids.json (id950000 + riga di 256_ids.csv)",
-    "fr_mm": {
+    "eval_fr_mm": {
+      "n": 19900,
+      "mean": 6.885697295149916,
+      "sd": 1.901775101117556,
+      "min": 2.931011751014575,
+      "p5": 4.403761829691163,
+      "median": 6.578965577214879,
+      "p95": 10.54627502023439,
+      "max": 18.24481933598073
+    },
+    "eval_sr_dP": {
+      "n": 19900,
+      "mean": 0.09990439153368655,
+      "sd": 0.021806791835288292,
+      "min": 0.04774315998358712,
+      "p5": 0.06937472734715346,
+      "median": 0.09722191114306702,
+      "p95": 0.1399427195625173,
+      "max": 0.20368680434792863
+    },
+    "all_fr_mm": {
       "n": 32640,
       "mean": 6.9751043041636,
       "sd": 1.896750752925809,
@@ -238,7 +264,7 @@
       "p95": 10.562225562660196,
       "max": 18.2448193359808
     },
-    "sr_dP": {
+    "all_sr_dP": {
       "n": 32640,
       "mean": 0.10037825341861098,
       "sd": 0.022149528317198464,
@@ -283,10 +309,12 @@
       "spearman_dP_common_vs_pairwise": 0.9937491666586563
     },
     "content_sha256": {
-      "fr": "58a3ba2c6a4217906a852bf3cf10450aa854f3557d59558f7d24ff2d013bba6e",
-      "sr": "5f5cb152fda3f13c9c00be3b6bf8dc3646a3cae488fd7498e4347b6a699c85cd"
+      "eval_fr": "9ccc80ba339c79a3aa6133a7f2c0d03dce4a9466dce90e8cff11f67a7954ea47",
+      "eval_sr": "33da2b51ea16af303cbd5e0f3c95c420fcc6629bc4b78049f2719380492392b8",
+      "all_fr": "58a3ba2c6a4217906a852bf3cf10450aa854f3557d59558f7d24ff2d013bba6e",
+      "all_sr": "5f5cb152fda3f13c9c00be3b6bf8dc3646a3cae488fd7498e4347b6a699c85cd"
     },
-    "files": "datasets/AVA256/gt/ava256_{fr,sr}.npz (D_orig / massimo, json con l'unita'), ava256_centroid_size.npz, frame.json"
+    "files": "datasets/AVA256/gt/ava256_{eval,all}_{fr,sr}.npz (D_orig / massimo, json con l'unita'), *_centroid_size.npz, split.json, frame.json"
   },
   "gt_reliability": {
     "repeat_eye_neutral": {
@@ -330,16 +358,6 @@
         "max": 0.8482284594985714
       }
     },
-    "neutral_split_halves_unified_mm": {
-      "n": 256,
-      "mean": 0.014377718002833717,
-      "sd": 0.014301463271477516,
-      "min": 0.002981154713779688,
-      "p5": 0.006041930639185011,
-      "median": 0.011538280639797449,
-      "p95": 0.03237142600119114,
-      "max": 0.1725352257490158
-    },
-    "note": "statistiche della sola GT: nessun modello ne' baseline; within = FR fra neutra (EXP_neutral_peak) e neutro ripetuto (EXP_eye_neutral) della stessa persona, entrambi con la rigida robusta verso mu"
+    "note": "statistiche della sola GT, nessun modello ne' baseline. Stima del rumore fra segmenti diversi della stessa sessione (EXP_neutral_peak contro EXP_eye_neutral, che contiene anche espressione): NON e' un tetto per gli Spearman dei metodi, perche' viste e GT vengono dalla stessa neutra"
   }
 }

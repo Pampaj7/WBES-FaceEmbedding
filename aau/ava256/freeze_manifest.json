@@ -1,0 +1,44 @@
+{
+ "frozen_at": "2026-10-11 03:13:20 CEST",
+ "rule": "impronte del CONTENUTO (le npz hanno le date nello zip, i file cambiano a ogni scrittura): sha256 di ``V``\nfloat32 e ``F`` int32 di ogni mesh delle viste ``eval_view`` e ``calib_view`` (``ava_views.mesh_sha256``), sha256 di\n``D_orig`` float32 e dei nomi di ogni GT (``ava_gt.content_sha256``), sha256 di nomi e ``area_mm2`` della tabella di scala.\nLe scrive in ``aau/ava256/freeze_manifest.json`` (in git: il riferimento) e in ``datasets/AVA256/FROZEN.json``; poi rende\nin sola lettura file E cartelle dei dati (con la cartella scrivibile, ``tmp.replace(file)`` sovrascriverebbe anche un file\nin sola lettura). Da quel momento ``ava_build.sbatch``, ``ava_gt.py``, ``ava_views.py`` e ``ava_scale_table.py`` si\nrifiutano di scrivere: rigenerare richiede una decisione del PI (togliere a mano ``FROZEN.json`` e la sola lettura).",
+ "split": {
+  "n_calibration": 56,
+  "n_evaluation": 200
+ },
+ "fingerprints": {
+  "views": {
+   "eval_view": {
+    "n_meshes": 1200,
+    "meshes": "a8208c76d102aff57c5c9b5ba68d3b2ee9dc54c56f81e17e100ba965f8cf3469",
+    "crop": "bc43538c0849c5afd5d356d26917e28002e555e8c619082c260bbea8ad1af82b",
+    "down8k": "9eaed2ba91e6c8cc7fe35bedd3f98f56b45a7671811eb7e52008c3e052d598ec",
+    "noisy": "ae919362312147f9c0638c6795af77cff2e731fe1228b1cbb632b5186e12e1bf",
+    "original": "a659031b150ba95b0ca266ffbdc8402721e652fe61afd84d6cda70e0c3381580",
+    "remesh": "20bc357b03348268c010e167dce61e67bf383137ee03b8a90b7dad47befaef86",
+    "up60k": "85e603cc9dd5681c9be527f7a920a713af6182adfd0d9a9651917c50db921881",
+    "gt_fr": "9ccc80ba339c79a3aa6133a7f2c0d03dce4a9466dce90e8cff11f67a7954ea47",
+    "gt_sr": "33da2b51ea16af303cbd5e0f3c95c420fcc6629bc4b78049f2719380492392b8"
+   },
+   "calib_view": {
+    "n_meshes": 336,
+    "meshes": "ae348a8c365053559ada3ab6a3c7714eced42990f46c10e8c917bd5ccff4a938",
+    "crop": "f7bdd250d0e4ac65bcbadc4da6f558d4a30bdc1a6333710f6f0e7f90ad54ad24",
+    "down8k": "ce04d4ac85cbf904bac69a53f3702a35623ce282826970c0db82289b76c7847d",
+    "noisy": "4bd9c6b4fed7913a8ceca7b24592e951ed6335828e24230b689a05c0ef338817",
+    "original": "85e0ffe35a03410828d687d42c77433df3afe0045d0b25e2b08b333ff2cc61a6",
+    "remesh": "87113ed44335660991fee8735068364b10443a157c27151b3a0c503c7a6d3325",
+    "up60k": "de2ab77ecf592362b479f115468b83f7bbe08984e928f157be5f7dacaa307080"
+   }
+  },
+  "gt": {
+   "ava256_eval_fr": "9ccc80ba339c79a3aa6133a7f2c0d03dce4a9466dce90e8cff11f67a7954ea47",
+   "ava256_eval_sr": "33da2b51ea16af303cbd5e0f3c95c420fcc6629bc4b78049f2719380492392b8",
+   "ava256_all_fr": "58a3ba2c6a4217906a852bf3cf10450aa854f3557d59558f7d24ff2d013bba6e",
+   "ava256_all_sr": "5f5cb152fda3f13c9c00be3b6bf8dc3646a3cae488fd7498e4347b6a699c85cd"
+  },
+  "scale": {
+   "eval_view": "4cf3b9d30746ec2d849c67b5ff8e3c6466fec07316a5d7fb2460aad18873ee5b",
+   "calib_view": "efa76bc2068dc38adbd8d9eb0db456c254176e5dff3cd7a355fc91c3bd16338e"
+  }
+ }
+}

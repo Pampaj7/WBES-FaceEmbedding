@@ -42,18 +42,5 @@
     }
   },
   "reference_multiface_corr": "datasets/UNIFIED_GT/corr/multiface.json: landmark 337, NICP 0.56 mm, tenuti fuori 0.69 mm, Chamfer 0.264 mm, coperti 1669/1671",
-  "patch": {
-    "n_vertices": 3127,
-    "n_faces": 6021,
-    "area_mm2_flame_frame": 37986.830426436856,
-    "area_flame_region_deformed_mm2": 39782.3324388388,
-    "bbox_mm_flame_frame": [
-      159.23659540703227,
-      178.5016937788315,
-      106.77875692155439
-    ],
-    "n_boundary_vertices": 247,
-    "template_vertices_dropped_interior": 92
-  },
-  "seconds": 52.74636387825012
+  "seconds": 52.92517948150635
 }

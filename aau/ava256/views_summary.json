@@ -1,96 +1,203 @@
 {
-  "n_subjects": 256,
-  "n_meshes": 1536,
-  "id_range": [
-    "id950000",
-    "id950255"
-  ],
+  "split": {
+    "evaluation": 200,
+    "calibration": 56
+  },
+  "views": {
+    "eval": {
+      "n_subjects": 200,
+      "n_meshes": 1200,
+      "content_digest": {
+        "meshes": "a8208c76d102aff57c5c9b5ba68d3b2ee9dc54c56f81e17e100ba965f8cf3469",
+        "original": "a659031b150ba95b0ca266ffbdc8402721e652fe61afd84d6cda70e0c3381580",
+        "remesh": "20bc357b03348268c010e167dce61e67bf383137ee03b8a90b7dad47befaef86",
+        "crop": "bc43538c0849c5afd5d356d26917e28002e555e8c619082c260bbea8ad1af82b",
+        "noisy": "ae919362312147f9c0638c6795af77cff2e731fe1228b1cbb632b5186e12e1bf",
+        "down8k": "9eaed2ba91e6c8cc7fe35bedd3f98f56b45a7671811eb7e52008c3e052d598ec",
+        "up60k": "85e603cc9dd5681c9be527f7a920a713af6182adfd0d9a9651917c50db921881",
+        "gt_fr": "9ccc80ba339c79a3aa6133a7f2c0d03dce4a9466dce90e8cff11f67a7954ea47",
+        "gt_sr": "33da2b51ea16af303cbd5e0f3c95c420fcc6629bc4b78049f2719380492392b8"
+      },
+      "topologies": {
+        "original": {
+          "vertices": {
+            "min": 12225.0,
+            "median": 12225.0,
+            "max": 12225.0
+          },
+          "faces": {
+            "min": 24036.0,
+            "median": 24036.0,
+            "max": 24036.0
+          }
+        },
+        "remesh": {
+          "vertices": {
+            "min": 8582.0,
+            "median": 8591.0,
+            "max": 8598.0
+          },
+          "faces": {
+            "min": 16824.0,
+            "median": 16825.0,
+            "max": 16825.0
+          }
+        },
+        "crop": {
+          "vertices": {
+            "min": 11204.0,
+            "median": 11409.0,
+            "max": 11561.0
+          },
+          "faces": {
+            "min": 21946.0,
+            "median": 22363.5,
+            "max": 22688.0
+          }
+        },
+        "noisy": {
+          "vertices": {
+            "min": 12225.0,
+            "median": 12225.0,
+            "max": 12225.0
+          },
+          "faces": {
+            "min": 24036.0,
+            "median": 24036.0,
+            "max": 24036.0
+          }
+        },
+        "down8k": {
+          "vertices": {
+            "min": 4259.0,
+            "median": 4266.0,
+            "max": 4274.0
+          },
+          "faces": {
+            "min": 8280.0,
+            "median": 8281.0,
+            "max": 8281.0
+          }
+        },
+        "up60k": {
+          "vertices": {
+            "min": 31356.0,
+            "median": 31366.5,
+            "max": 31382.0
+          },
+          "faces": {
+            "min": 62108.0,
+            "median": 62109.0,
+            "max": 62109.0
+          }
+        }
+      }
+    },
+    "calib": {
+      "n_subjects": 56,
+      "n_meshes": 336,
+      "content_digest": {
+        "meshes": "ae348a8c365053559ada3ab6a3c7714eced42990f46c10e8c917bd5ccff4a938",
+        "original": "85e0ffe35a03410828d687d42c77433df3afe0045d0b25e2b08b333ff2cc61a6",
+        "remesh": "87113ed44335660991fee8735068364b10443a157c27151b3a0c503c7a6d3325",
+        "crop": "f7bdd250d0e4ac65bcbadc4da6f558d4a30bdc1a6333710f6f0e7f90ad54ad24",
+        "noisy": "4bd9c6b4fed7913a8ceca7b24592e951ed6335828e24230b689a05c0ef338817",
+        "down8k": "ce04d4ac85cbf904bac69a53f3702a35623ce282826970c0db82289b76c7847d",
+        "up60k": "de2ab77ecf592362b479f115468b83f7bbe08984e928f157be5f7dacaa307080"
+      },
+      "topologies": {
+        "original": {
+          "vertices": {
+            "min": 12225.0,
+            "median": 12225.0,
+            "max": 12225.0
+          },
+          "faces": {
+            "min": 24036.0,
+            "median": 24036.0,
+            "max": 24036.0
+          }
+        },
+        "remesh": {
+          "vertices": {
+            "min": 8581.0,
+            "median": 8591.0,
+            "max": 8596.0
+          },
+          "faces": {
+            "min": 16824.0,
+            "median": 16824.0,
+            "max": 16825.0
+          }
+        },
+        "crop": {
+          "vertices": {
+            "min": 11323.0,
+            "median": 11411.5,
+            "max": 11552.0
+          },
+          "faces": {
+            "min": 22192.0,
+            "median": 22373.5,
+            "max": 22665.0
+          }
+        },
+        "noisy": {
+          "vertices": {
+            "min": 12225.0,
+            "median": 12225.0,
+            "max": 12225.0
+          },
+          "faces": {
+            "min": 24036.0,
+            "median": 24036.0,
+            "max": 24036.0
+          }
+        },
+        "down8k": {
+          "vertices": {
+            "min": 4259.0,
+            "median": 4266.0,
+            "max": 4272.0
+          },
+          "faces": {
+            "min": 8280.0,
+            "median": 8281.0,
+            "max": 8281.0
+          }
+        },
+        "up60k": {
+          "vertices": {
+            "min": 31357.0,
+            "median": 31366.0,
+            "max": 31380.0
+          },
+          "faces": {
+            "min": 62108.0,
+            "median": 62108.0,
+            "max": 62109.0
+          }
+        }
+      }
+    }
+  },
+  "units": "mm",
+  "frame": "nativo dei dati: frame della testa del tracking di Meta (+y alto, +z avanti)",
+  "subdivision": "1-a-4 a punto medio, 1 volta (mesh_ops.subdivide_midpoint = igl.upsample)",
   "patch": {
-    "n_vertices": 3127,
-    "n_faces": 6021,
+    "vertices_before_subdivision": 3107,
+    "faces_before_subdivision": 6009,
+    "n_vertices": 12225,
+    "n_faces": 24036,
     "outward_area": {
-      "min": 0.8476374510500246,
-      "median": 0.9579215748125361,
-      "max": 0.9977469238532193
+      "min": 0.8683415698803056,
+      "median": 0.9889434860362194,
+      "max": 0.9981085529123922
     },
     "n_folds": {
       "min": 0.0,
-      "median": 5.0,
-      "max": 29.0
-    }
-  },
-  "topologies": {
-    "original": {
-      "vertices": {
-        "min": 3127.0,
-        "median": 3127.0,
-        "max": 3127.0
-      },
-      "faces": {
-        "min": 6021.0,
-        "median": 6021.0,
-        "max": 6021.0
-      }
-    },
-    "remesh": {
-      "vertices": {
-        "min": 2208.0,
-        "median": 2212.0,
-        "max": 2215.0
-      },
-      "faces": {
-        "min": 4213.0,
-        "median": 4213.0,
-        "max": 4214.0
-      }
-    },
-    "crop": {
-      "vertices": {
-        "min": 2835.0,
-        "median": 2882.0,
-        "max": 2917.0
-      },
-      "faces": {
-        "min": 5430.0,
-        "median": 5532.5,
-        "max": 5610.0
-      }
-    },
-    "noisy": {
-      "vertices": {
-        "min": 3127.0,
-        "median": 3127.0,
-        "max": 3127.0
-      },
-      "faces": {
-        "min": 6021.0,
-        "median": 6021.0,
-        "max": 6021.0
-      }
-    },
-    "down8k": {
-      "vertices": {
-        "min": 1103.0,
-        "median": 1112.0,
-        "max": 1117.0
-      },
-      "faces": {
-        "min": 2073.0,
-        "median": 2074.0,
-        "max": 2074.0
-      }
-    },
-    "up60k": {
-      "vertices": {
-        "min": 7949.0,
-        "median": 7954.0,
-        "max": 7961.0
-      },
-      "faces": {
-        "min": 15557.0,
-        "median": 15557.0,
-        "max": 15558.0
-      }
+      "median": 14.0,
+      "max": 70.0
     }
   },
   "crop_check": {
@@ -98,23 +205,10 @@
     "n_crop_identical_to_original": 0,
     "identical": [],
     "kept_vertex_fraction": {
-      "min": 0.9066197633514551,
-      "median": 0.9216501439078989,
-      "max": 0.9328429804924848
+      "min": 0.9164826175869121,
+      "median": 0.9333742331288344,
+      "max": 0.9456850715746421
     }
   },
-  "units": "mm",
-  "frame": "nativo dei dati (identities/manifest.json)",
-  "content_digest": {
-    "original": "fd137341c528e0cd93bb158ca8f6f57c3f8e8b368dcac3e5658eca2c669d514a",
-    "remesh": "ca30af113e4c1195b0b396bdc44940d64470eef1bc586bf3dc465852139e892b",
-    "crop": "8a56da89cc9b6f3199750a95e5ee708c51606009c5f0a69a0fe6931bfbbdf618",
-    "noisy": "419ff871a6367b6a277f25b1d335d025de6c6e1742211fae832925fb06c1d35b",
-    "down8k": "026c8f9703e54a253fe301bee9885df944b0ffc9d94b673cae916e2373b607d7",
-    "up60k": "af59cbc5d404aac0439760f9883b7d6c68ac40a2d1362ac0d25e1446db7ee533",
-    "all": "8150ba42b702b892aa27b1b4eb3da1cc061aaaa5ad11723fa345935199ec9cd6"
-  },
-  "content_digest_rule": "sha256 delle righe '<mesh> <sha256(V float32, F int32)>' ordinate (content_sha256.txt)",
-  "reproducibility": "seconda esecuzione completa (job 1068023) contro la prima: GT entro 1.3e-4 mm, mappa entro 0.0025 mm (3 punti su 1478 con indici diversi), original/remesh/crop/noisy entro 1e-5 mm, down8k entro 6e-5 mm, up60k con tassellazione diversa: le viste si congelano per contenuto (content_digest), non per rigenerazione",
-  "reference_famos_test_view": "aau/runs/evidence/famos/test_view.json: pieghe mediana 22 (scansioni) e 41 (registrazioni); area verso +z mediana 0.978 e 0.922"
+  "reference_famos_test_view": "aau/runs/evidence/famos/test_view.json: pieghe mediana 22 (scansioni) e 41 (registrazioni) su 5215 triangoli; area verso +z mediana 0.978 e 0.922"
 }

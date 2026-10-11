@@ -42,9 +42,9 @@
     "frames_total": 4425,
     "frames_not_finite": 0,
     "captures_with_degenerate": 0,
-    "captures_with_flipped_patch": 216,
-    "frames_with_flipped_patch": 3581,
-    "max_flipped_patch": 154,
+    "captures_with_flipped_patch": 253,
+    "frames_with_flipped_patch": 4269,
+    "max_flipped_patch": 122,
     "max_flipped_surface": 766
   },
   "repeat": {
@@ -86,9 +86,9 @@
     "frames_total": 4075,
     "frames_not_finite": 0,
     "captures_with_degenerate": 0,
-    "captures_with_flipped_patch": 252,
-    "frames_with_flipped_patch": 3007,
-    "max_flipped_patch": 194,
+    "captures_with_flipped_patch": 256,
+    "frames_with_flipped_patch": 3840,
+    "max_flipped_patch": 157,
     "max_flipped_surface": 758
   },
   "note": "distanze g = GT unificata (Procrustes di similarita' verso mu, mm alla scala di mu) fra frame della regione unificata; halves = distanza g fra le medie dei frame tenuti pari e dispari; 'flipped' = triangoli con la normale a piu' di 90 gradi da quella del template dopo una rigida: variazione fra persone in zone molto curve (palpebre, bordo basso della patch), NON pieghe della mesh; le pieghe (patch_quality) sono in views_summary.json"

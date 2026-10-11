@@ -32,6 +32,7 @@ IDS_CSV = META_DIR / "256_ids.csv"
 TOPOLOGY_OBJ = META_DIR / "face_topology.obj"
 NEUTRAL_DIR = DATA_ROOT / "neutral"          # neutre per cattura (ava_neutral.py)
 GT_DIR = DATA_ROOT / "gt"                    # GT FR / SR (ava_gt.py), FUORI da datasets/CANONICAL_GT/eval
+PATCH_NPZ = DATA_ROOT / "corr" / "patch.npz"  # patch delle viste (ava_patch.py)
 EVID_DIR = DATA_ROOT / "evidence"            # diagnostici con geometria o render (mai in git)
 SUMMARY_DIR = THIS_DIR                       # numeri aggregati in git (json piccoli, senza geometria)
 
@@ -42,6 +43,32 @@ N_FACES = 11432
 # id<offset + NNNN> come le viste zero-shot: fuori da 900000 HIFI3D, 910000 FaceVerse, 920000 held-out GNM/ICT,
 # 930000 FaceScape dev, 940000 FaMoS
 ID_OFFSET = 950000
+# Split fisso di calibrazione (decisione del PI dell'11 ottobre, PRIMA di qualsiasi valutazione): i primi N_CALIB sid in
+# ordine di sha256(SPLIT_SALT + sid) servono SOLO a stimare template del NICP, regione del fit B, L_d e cs_ref; restano
+# fuori dalla valutazione di tutti i metodi. Gli altri sono i soggetti valutati.
+SPLIT_SALT = "ava256-confermativo-calibrazione-2026-10-11:"
+N_CALIB = 56
+FROZEN = DATA_ROOT / "FROZEN.json"          # presente = GT e viste congelate (ava_freeze.py)
+
+
+def refuse_if_frozen(what: str) -> None:
+    """Gli script che scrivono dati si fermano se GT e viste sono congelate (``ava_freeze.py``)."""
+    if FROZEN.exists():
+        raise SystemExit(f"{FROZEN}: dati congelati, {what} non si riscrive (serve una decisione del PI)")
+
+
+def split_key(sid: str) -> str:
+    import hashlib
+    return hashlib.sha256((SPLIT_SALT + sid).encode()).hexdigest()
+
+
+def split() -> dict:
+    """{"calibration": [...], "evaluation": [...]} di ava_id, in ordine di riga; la regola dipende solo dai sid."""
+    caps = captures()
+    order = sorted(caps, key=lambda c: split_key(c["sid"]))
+    calib = {c["ava_id"] for c in order[:N_CALIB]}
+    return {"calibration": [c["ava_id"] for c in caps if c["ava_id"] in calib],
+            "evaluation": [c["ava_id"] for c in caps if c["ava_id"] not in calib]}
 
 
 def captures() -> list[dict]:

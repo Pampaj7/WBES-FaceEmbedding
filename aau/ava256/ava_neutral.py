@@ -2,7 +2,7 @@
 """Template di Ava-256 per la corrispondenza, neutre per cattura e controlli dei frame.
 
     v3_work/unified_gt/run.sh aau/ava256/ava_neutral.py template --workers 32     (prima di ava_corr.py)
-    v3_work/unified_gt/run.sh aau/ava256/ava_neutral.py neutral --workers 32      (dopo ava_corr.py)
+    v3_work/unified_gt/run.sh aau/ava256/ava_neutral.py neutral --workers 32      (dopo ava_corr.py e ava_patch.py)
 
 CONFERMATIVO: non valutare prima del protocollo confermativo (README). Solo dati e GT.
 
@@ -16,7 +16,7 @@ entrano nei fit.
 frame di EXP_eye_neutral con la regola di FaMoS, ``famos_subsample.neutral_shape`` importata e non riscritta: le si
 passa uno spazio unificato la cui ``map`` usa la mappa di Ava-256 (``AvaSpace``). Controlli per frame: vertici
 finiti, triangoli degeneri (area < 1e-6 x la mediana del frame), triangoli girati rispetto al template dopo una
-rigida, su tutta la superficie e sulla patch delle viste (``patch_tri`` di ava_corr.py). Una cattura e' valida con
+rigida, su tutta la superficie e sulla patch delle viste (``patch_tri`` di ava_patch.py). Una cattura e' valida con
 almeno 3 frame finiti di EXP_neutral_peak (README, scelta 6; la convergenza della rigida robusta la controlla
 ava_gt.py).
 
@@ -120,7 +120,7 @@ def _init_neutral() -> None:
     _ST["used"] = np.unique(_ST["F"])
     with np.load(TEMPLATE) as z:
         _ST["tpl"] = z["V"]
-    with np.load(CORR_NPZ) as z:
+    with np.load(ac.PATCH_NPZ) as z:
         _ST["patch_tri"] = z["patch_tri"]
     _ST["tpl_n"] = C.face_normals(_ST["tpl"], _ST["F"])
 
@@ -225,6 +225,7 @@ def main() -> None:
     p.add_argument("stage", choices=("template", "neutral"))
     p.add_argument("--workers", type=int, default=16)
     a = p.parse_args()
+    ac.refuse_if_frozen(f"ava_neutral.py {a.stage}")
     if a.stage == "template":
         stage_template(a.workers)
     else:

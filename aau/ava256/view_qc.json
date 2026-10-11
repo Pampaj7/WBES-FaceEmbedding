@@ -1,0 +1,236 @@
+{
+  "definition": "Controlli delle viste di Ava-256 contro i domini di sviluppo: sola geometria delle viste, una mesh per volta (nessun\nmetodo, nessuna distanza fra soggetti, nessuna metrica di prestazione).\n\n    v3_work/unified_gt/run.sh aau/ava256/ava_view_qc.py [--ava-topo datasets/AVA256/topo] [--out ...]\n\nLe quantita' e le definizioni sono quelle dei controlli del critic dell'11 ottobre (check_ava3.py, check_ava6.py,\nscratchpad della sessione), qui nel repo:\n  - remesh: spostamento dei vertici interni della original dopo i 2 giri di smoothing di ``make_remesh``\n    (``mesh_ops.smooth_simple``), scomposto sulla normale al vertice: RMS normale e tangenziale, mm;\n  - lato medio (media dei tre lati di ogni triangolo) della original e di down8k, mm;\n  - anelli di bordo per topologia.\nInsiemi: HIFI3D, FaceVerse, FaceScape dev = le prime 10 original della vista di eval in ordine di nome (prime 5 per gli\nanelli), coordinate x u del frame di E12 (``aau/runs/evidence/e12/frames.json``); Ava-256 = le prime 10 identita' della\ncartella delle topologie, mm. Esito: ogni quantita' di Ava-256 dentro o fuori dall'intervallo [min, max] dei tre domini.",
+  "domains": {
+    "hifi3d": {
+      "n": 10,
+      "smooth_normal_rms_mm": 0.171,
+      "smooth_tangential_rms_mm": 0.114,
+      "mean_edge_original_mm": 2.109,
+      "mean_edge_down8k_mm": 4.007,
+      "boundary_loops": {
+        "original": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "remesh": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "crop": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "noisy": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "down8k": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "up60k": [
+          5,
+          5,
+          5,
+          5,
+          5
+        ]
+      }
+    },
+    "faceverse": {
+      "n": 10,
+      "smooth_normal_rms_mm": 0.083,
+      "smooth_tangential_rms_mm": 0.321,
+      "mean_edge_original_mm": 1.377,
+      "mean_edge_down8k_mm": 2.314,
+      "boundary_loops": {
+        "original": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "remesh": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "crop": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "noisy": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "down8k": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "up60k": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ]
+      }
+    },
+    "facescape": {
+      "n": 10,
+      "smooth_normal_rms_mm": 0.15,
+      "smooth_tangential_rms_mm": 0.319,
+      "mean_edge_original_mm": 1.683,
+      "mean_edge_down8k_mm": 3.549,
+      "boundary_loops": {
+        "original": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "remesh": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "crop": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "noisy": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "down8k": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "up60k": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    "ava256": {
+      "n": 10,
+      "smooth_normal_rms_mm": 0.134,
+      "smooth_tangential_rms_mm": 0.368,
+      "mean_edge_original_mm": 1.856,
+      "mean_edge_down8k_mm": 3.457,
+      "boundary_loops": {
+        "original": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "remesh": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "crop": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "noisy": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "down8k": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "up60k": [
+          4,
+          4,
+          4,
+          4,
+          4
+        ]
+      }
+    }
+  },
+  "checks": {
+    "smooth_normal_rms_mm": {
+      "ava256": 0.134,
+      "dev_min": 0.083,
+      "dev_max": 0.171,
+      "inside": true
+    },
+    "mean_edge_original_mm": {
+      "ava256": 1.856,
+      "dev_min": 1.377,
+      "dev_max": 2.109,
+      "inside": true
+    },
+    "mean_edge_down8k_mm": {
+      "ava256": 3.457,
+      "dev_min": 2.314,
+      "dev_max": 4.007,
+      "inside": true
+    },
+    "smooth_tangential_rms_mm": {
+      "ava256": 0.368,
+      "dev_min": 0.114,
+      "dev_max": 0.321,
+      "inside": false
+    }
+  },
+  "ava_topo": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/AVA256/topo"
+}
