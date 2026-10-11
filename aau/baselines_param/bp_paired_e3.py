@@ -647,7 +647,10 @@ def results_e3() -> list:
     md += ["", "## Recupero dei bracci sulle righe col crop (criteri della sez. 1)", "",
            "rho senza crop e righe col crop del braccio intero, righe col crop del braccio sulla regione; F = recupero "
            "della frazione del calo; D3 = braccio sulla regione - braccio intero (righe col crop; media dentro le 5 "
-           "coppie col crop).", "",
+           "coppie col crop). Nota (critic dell'emendamento 3): a regione uguale righe col crop e senza crop coincidono "
+           "(da -0.070 a +0.045 con FR), quindi F misura solo il costo o il guadagno del ritaglio sulle righe senza crop e "
+           "le letture di questa tabella sono meccaniche; la lettura corretta e' in cima, nella sezione dell'emendamento 3.",
+           "",
            "| vista | GT | braccio | regione | rho senza crop | rho col crop | col crop sulla regione | F | D3 righe col crop | "
            "D3 media crop 5 | lettura |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for v in bp_e3.CROP_VIEWS:

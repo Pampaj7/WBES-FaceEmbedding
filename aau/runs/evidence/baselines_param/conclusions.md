@@ -150,9 +150,9 @@ preregistrata e all'emendamento 1, e si legge come sensibilita'.
   su FaceScape 1.43 contro 0.79, su HIFI3D 1.24 contro 1.05. Su HIFI3D lo spostamento di log S (-0.024 / -0.034) e'
   piccolo rispetto alla varianza della taglia (0.047): per questo factorized regge meglio li'. La GT e B sono
   definite sulla regione comune, che il crop non tocca; i bracci vedono l'area della mesh (normalizzazione globale).
-  (Correzione dell'emendamento 3: il crop E' nella distribuzione di training, con perdita d'area comparabile; i
-  bracci vi sono invarianti sugli held-out sintetici ICT e GNM; il calo sui test dipende in gran parte dal supporto:
-  vedi sotto.)
+  (Correzione dell'emendamento 3: il crop E' nella distribuzione di training, con perdita d'area comparabile; sugli
+  held-out sintetici i bracci vi sono invarianti su ICT e GNM, parzialmente su BFM; il calo sui test viene dalla banda
+  di bordo fuori dalla regione di B: vedi sotto.)
 - **Composizione forma B + taglia B (sez. 2)**, k dagli held-out sintetici senza test (GNM 1.698, FLAME 1.610), lettura
   dichiarata con FR: HIFI3D GNM 0.698 [0.612, 0.769], FLAME 0.712 [0.627, 0.781] (meglio della migliore colonna FR di
   B, 0.686), contro factorized d_F cal. 0.749 / 0.731 e ctrlfr 0.757 / 0.746: 4 a favore dei bracci, 4 non risolte,
@@ -200,7 +200,10 @@ Job: ritagli, operatori ed embedding dell'esperimento 1 1067973 (4 A100 di nv-ai
 embedding dell'esperimento 1 finiti, 46 / 46); held-out 1068029 (4 A100); delta 1068051 (64 core, 19 min); sez. 6
 1067960; controllo della catena 1067965. Il primo tentativo 1067823 e' stato cancellato: con 4 processi di embedding a
 thread OpenMP di default il preload non avanzava (34 min senza un embedding); poi 8 thread per processo (~1 min per 600
-mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
+mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica. **Lettura corretta dopo il critic
+dell'emendamento 3** (RISERVE: numeri ricalcolati e confermati, quattro letture non reggevano: costo del ritaglio,
+run massivo, recupero, esperimento 2). I numeri marcati "critic" vengono dai suoi controlli (stime puntuali, 12-100
+soggetti, script non versionati); gli altri da `paired_e3.csv`, `heldout_e3.csv`, `e3/crop_stats.json`.
 
 - **Controlli.** Passati: `bp.region` rieseguita ridà i vertici di `region.npz` (8 / 8); 0 ritagli falliti su 4.800;
   catena: factorized s1234 sugli operatori dello store di HIFI3D ridà lo store entro 4.8e-7; bracci interi e B su
@@ -215,7 +218,7 @@ mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
      a quella dei test (log del rapporto sqrt(area) crop / original, valori del critic: training BFM -0.080, ICT -0.104,
      GNM -0.117; test HIFI3D -0.108, FaceScape -0.131, FaceVerse -0.047; misurati qui sui test: -0.109, -0.132, -0.045).
      Anche il run massivo lo ha (`v3_work/stream/views.py`, `LABEL_WEIGHTS` crop 1.0). Sugli held-out sintetici
-     l'invarianza al crop c'e' (esperimento 2, sotto).
+     l'invarianza al crop c'e' su ICT e GNM, parziale su BFM (esperimento 2, sotto).
   2. *Baseline geometriche su all_cross* (stesse 148.500 righe, `baselines_mm/spearman.csv`, ricalcolate identiche): FR
      FaceScape ICP + Chamfer mm 0.381 [0.326, 0.434], Chamfer pura 0.570 [0.499, 0.641]; HIFI3D 0.556 [0.488, 0.617] e
      0.645 [0.547, 0.725]. Con il crop i bracci interi arrivano al livello di ICP o sotto (FaceScape d_F cal. 0.370 /
@@ -225,8 +228,8 @@ mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
      e 4 (da -0.083 a -0.128).
   3. *C3M crolla anch'esso*: d_F cal. con FR, senza crop -> righe col crop, e205 HIFI3D 0.739 -> 0.472, FaceScape 0.712
      -> 0.449 (il critic: 0.739 -> 0.472, 0.711 -> 0.449), e123 0.748 -> 0.506 e 0.666 -> 0.472. Il run massivo ha lo
-     stesso crop fisso con peso 1.0: per l'esperimento 2 l'invarianza in-distribuzione c'e' gia', quindi non c'e'
-     ragione di attendersi che piu' training sullo stesso crop risolva da solo la fragilita' sui test.
+     stesso crop con peso 1.0, ma puo' usare piu' famiglie di generatori (e c'e' un run secondario con parzialita'
+     variabile): se e quanto riducano il crollo va misurato, non si deduce da questi esperimenti.
   4. *La fragilita' era nota*: `aau/runs/evidence/e1/summary.md` (HIFI3D, GT maxabs, senza crop -> all_cross: C3F 0.716
      -> 0.587, C3M 0.677 -> 0.509), dev FaceScape (e108 0.642 -> 0.335 col crop, `dev_facescape/results.md`),
      `paper/REPORT.md` (legge di Weyl: il crop sposta gli autovalori del Laplaciano). L'emendamento 2 non l'ha scoperta:
@@ -240,39 +243,58 @@ mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
   Conteggi mancanti (`controls_e3.json` `counts_e2`): FaceScape SR sulle righe col crop 0 / 19 / 5; FaceVerse neutra
   sulle righe col crop FR 0 / 3 / 21, SR 0 / 4 / 20 (7 celle contro, tutte contro GNM vB mesh SR), su all_cross 1.
 - **Ritaglio alla regione di B (diagnostica).** Copertura della regione da parte del crop 0.82-0.93 di mediana (altre
-  topologie 0.95-0.996): per la regola dichiarata (< 0.95) il crop toglie anche una parte della regione di B, che
-  quindi lavora gia' su dati parziali e regge lo stesso. Ma dopo il ritaglio crop e original hanno quasi la stessa
-  area (log sqrt(area crop / area original) da -0.009 a +0.001, contro -0.045 / -0.132 prima): la parte di regione tolta
-  e' una banda sottile al suo bordo (<= ~2% d'area). Il recupero sotto e' quindi atteso in gran parte per costruzione:
-  dice che il calo veniva dalla banda fuori dalla regione di B.
-- **Esperimento 1: con la stessa regione i bracci recuperano dove calavano.** FaceScape: tutti i bracci dichiarati, con
-  entrambe le regioni, tornano sulle righe col crop al livello senza crop (recupero F 0.91-1.28; D3 righe col crop da
-  +0.23 a +0.48, IC sopra 0): **dipendenza dal supporto**, 8 / 8 con FR e con SR. HIFI3D: ctrlfr recupera (F 0.70-0.74
-  con FR, > 1 con SR); factorized recupera in parte con la regione GNM (s2345 F 0.52 con FR e 0.78 con SR; s1234 0.20 e
-  0.62) e non con la regione FLAME (1.517 vertici; F <= 0.16, in tre casi su quattro negativo); lettura per maggioranza: regione GNM dipendenza
-  dal supporto (FR 3 / 4, SR 4 / 4), regione FLAME pari (2 / 2). FaceVerse (entrambe le viste): il calo del braccio
-  intero e' piccolo (< 0.05 per ctrlfr, 0.03-0.10 per factorized), quasi nulla da leggere. C3M (descrittivo) recupera
-  come i bracci (e205 HIFI3D F 0.80 / 0.56, FaceScape 0.86 / 0.70).
-  **Il ritaglio non e' gratis**: sulle righe senza crop di HIFI3D restringere l'ingresso alla regione costa a tutti i
-  bracci con FR (D3 0 / 8 / 0, da -0.05 a -0.16, peggio con la regione FLAME): su HIFI3D i bracci usano informazione
-  fuori dalla regione di B, la stessa che il crop rovina. Su FaceScape nessun costo (D3 senza crop FR 2 / 0 / 6, SR 3 /
-  0 / 5).
+  topologie 0.95-0.996), sotto la soglia dichiarata di 0.95. Lo scarto viene quasi tutto dalla striscia di bordo di R
+  (i vertici dei triangoli che toccano il bordo della regione): tolta quella, la copertura del crop sale a 0.99-1.00 con
+  la regione FLAME e a 0.90-0.93 con la regione GNM (critic, 12 soggetti, HIFI3D e FaceScape). "B lavora gia' su dati
+  parziali e regge" vale quindi poco con FLAME e solo per il 7-10% della regione interna con GNM. Dopo il ritaglio crop
+  e original diventano quasi la stessa mesh: log sqrt(area crop / area original) da -0.009 a +0.001 (area entro
+  0.1-2%), contro -0.045 / -0.132 prima. Il ritaglio ha dimensione fissa in mm: la regione e' posata con ICP rigido
+  senza scala (`bp_e3.py`, `placed_region` e `_crop`), quindi comprime anche la variabilita' d'area fra soggetti (sd di
+  log sqrt(area) delle original: HIFI3D 0.045 -> 0.010 GNM / 0.012 FLAME, FaceScape 0.015 -> 0.007 / 0.010; critic).
+- **Esperimento 1: il recupero e' per costruzione.** A regione uguale ogni braccio vale sulle righe col crop quanto
+  senza crop: nei 32 casi dichiarati con FR (4 viste x 4 bracci x 2 regioni) la differenza righe col crop - senza crop
+  va da -0.070 a +0.045 (con SR da -0.050 a +0.043), e la distanza nell'embedding crop -> original dello stesso
+  soggetto scende sotto quella noisy -> original (critic; HIFI3D factorized s1234: 0.42 col braccio intero, 0.15 / 0.05
+  con le regioni GNM / FLAME, noisy 0.22-0.24). Il recupero F della sez. 1 misura quindi solo quanto il ritaglio costa o
+  rende sulle righe senza crop, e le letture dichiarate ("dipendenza dal supporto" su FaceScape 8 / 8 con FR e con SR,
+  su HIFI3D regione GNM FR 3 / 4 e SR 4 / 4, regione FLAME pari 2 / 2; FaceVerse non leggibile, calo < 0.05) sono
+  meccaniche: non separano le due ipotesi del protocollo. Valori: FaceScape FR factorized s1234 sulle righe col crop
+  0.351 -> 0.687 (GNM) / 0.664 (FLAME); HIFI3D ctrlfr s1234 0.236 -> 0.602 / 0.606; C3M (descrittivo) come i bracci.
+  **Correzione:** non e' vero che factorized su HIFI3D "recupera solo con la regione GNM": con la regione FLAME e'
+  invariante al crop (righe col crop - senza crop +0.008 / +0.009) e il suo F basso viene dal costo del ritaglio
+  (-0.14 / -0.16 su tutte le righe). L'unico segnale informativo sul crop e' ctrlfr con la regione GNM su HIFI3D, che
+  perde ancora -0.053 / -0.070 con circa il 2% d'area di differenza fra crop e original ritagliati.
+  **Il costo del ritaglio su HIFI3D e' soprattutto di taglia.** Sulle righe senza crop il ritaglio costa a tutti i
+  bracci con FR (D3 0 / 8 / 0, da -0.05 a -0.16, peggio con FLAME). La finestra fissa in mm comprime la variabilita'
+  d'area fra soggetti, e i bracci ricavano la scala dall'area (`global_v3.frame_params`, fattore sqrt(area_mm2 /
+  area)); B la conserva nell'identita'. Critic, HIFI3D, factorized s1234, righe senza crop: Spearman fra area della mesh
+  e taglia oracolo 0.93 -> 0.68 (GNM) / 0.32 (FLAME); solo il termine di taglia di d_F contro FR 0.587 -> 0.488 /
+  0.332; d_P contro FR 0.426 -> 0.528 / 0.512 (la forma non peggiora). Con la regione FLAME si perde anche forma (D3 con
+  SR, factorized d_P, -0.141 / -0.142). Su FaceScape la FR dipende poco dalla taglia (solo il termine di taglia contro
+  FR 0.145, d_P 0.677; critic) e il costo non c'e' (D3 senza crop FR 2 / 0 / 6, SR 3 / 0 / 5). Di conseguenza "a regione
+  uguale" su HIFI3D e' sbilanciato contro i bracci: senza crop le loro celle FR contro B passano da 24 / 0 / 0 (bracci
+  interi, emendamento 1) a 12 / 3 / 9.
   **Contro B a regione uguale, righe col crop** (D1, a favore / contro / non risolte): FaceScape FR 13 / 2 / 9
-  (emendamento 2: 0 / 24 / 0), SR 15 / 6 / 3 (0 / 19 / 5); HIFI3D FR 11 / 0 / 13 (6 / 14 / 4), SR 8 / 10 / 6 (4 / 10 /
-  10). Restano per B: GNM vB mesh SR con FR su FaceScape contro factorized s1234 @ GNM (-0.068 [-0.118, -0.018]) e
-  ctrlfr s2345 @ GNM (-0.139); con SR le mesh SR di GNM e FLAME contro ctrlfr (4) e factorized (2, da -0.046 a -0.057)
-  su FaceScape, e su HIFI3D contro ctrlfr (8, che non e' un braccio per SR) e factorized @ FLAME (-0.082 / -0.087): la
-  stessa geografia delle celle B senza crop dell'emendamento 1. Contro le baseline geometriche (D2) sulle righe col
-  crop: HIFI3D FR 16 / 0 / 8, SR 24 / 0 / 0; FaceScape 24 / 0 / 0; FaceVerse FR 7 / 7 / 10, SR 8 / 6 / 10.
-- **Esperimento 2: in-distribuzione l'invarianza al crop c'e'.** Held-out sintetici (100 soggetti per dominio), coppie
-  col crop contro senza crop: ICT e GNM, delta dello Spearman da -0.021 a +0.008 per tutti i bracci dichiarati (con FR e
-  con SR), AUC di verifica 0.999-1.000 in entrambi i casi, d log S del crop da -0.004 a +0.006 (<= 0.12 sd fra
-  soggetti): **invarianza presente**. BFM: con SR -0.019 / -0.026 (IC sotto 0, ma |delta| < 0.05) e d log S -0.023 /
-  -0.019 (1.3 / 1.0 sd): **parziale** per factorized; ctrlfr presente; con FR BFM non si legge (taglia delle original
-  REMESH non e' quella del modello). Sui test, invece, il calo dei bracci interi col crop e' di 0.23-0.42 su FaceScape
-  (factorized FR 0.659 -> 0.351, 0.667 -> 0.278) e d log S era ~4 sd (emendamento 2). Quindi l'invarianza appresa sul
-  crop sintetico non si trasferisce ai domini di test: e' un limite di generalizzazione, non l'assenza del crop nel
-  training.
+  (emendamento 2: 0 / 24 / 0; senza crop a regione uguale 8 / 2 / 14), SR 15 / 6 / 3 (0 / 19 / 5); HIFI3D FR 11 / 0 /
+  13 (6 / 14 / 4), SR 8 / 10 / 6 (4 / 10 / 10). Restano per B: GNM vB mesh SR con FR su FaceScape contro factorized s1234
+  @ GNM (-0.068 [-0.118, -0.018]) e ctrlfr s2345 @ GNM (-0.139); con SR le mesh SR di GNM e FLAME contro ctrlfr (4) e
+  factorized (2, da -0.046 a -0.057) su FaceScape, e su HIFI3D contro ctrlfr (8, che non e' un braccio per SR) e
+  factorized @ FLAME (-0.082 / -0.087): la stessa geografia delle celle B senza crop dell'emendamento 1. Contro le
+  baseline geometriche (D2) sulle righe col crop: HIFI3D FR 16 / 0 / 8, SR 24 / 0 / 0; FaceScape 24 / 0 / 0; FaceVerse
+  FR 7 / 7 / 10, SR 8 / 6 / 10.
+  Nota del critic, descrittiva: con c raddoppiata (2c) factorized s1234 a ingresso intero su FaceScape sale sulle righe
+  col crop da 0.351 a 0.488 (senza crop 0.659 -> 0.688); c resta quella degli held-out.
+- **Esperimento 2: invarianza al crop in-distribuzione, ma "limite di generalizzazione" vale solo in parte.**
+  Held-out sintetici (100 soggetti per dominio), coppie col crop contro senza crop. ICT e GNM: delta dello Spearman da
+  -0.021 a +0.008 per tutti i bracci dichiarati (con FR e con SR), d log S del crop da -0.004 a +0.006 (<= 0.12 sd fra
+  soggetti): invarianza presente secondo i criteri dichiarati. BFM: parziale per factorized (SR -0.019 / -0.026, IC
+  sotto 0 ma |delta| < 0.05; d log S -0.023 / -0.019, cioe' 1.3 / 1.0 sd); ctrlfr presente. L'AUC di verifica e' a
+  soffitto (0.999-1.000 con e senza crop) e non sostiene l'invarianza. Il confronto coi test (critic): factorized su
+  HIFI3D si comporta come su BFM in-distribuzione (d log S del crop -0.024 / -0.034 contro -0.023 / -0.019; calo con FR
+  -0.086 / -0.179 contro -0.094 / -0.068, BFM con FR descrittivo), e C3M crolla con FR anche su BFM in-distribuzione
+  (-0.256 / -0.176). La sensibilita' al crop sui test supera quella in-distribuzione su FaceScape (calo dei bracci
+  interi 0.23-0.42, d log S ~4 sd nell'emendamento 2) e per ctrlfr su HIFI3D (0.47-0.52), non per factorized su HIFI3D:
+  solo li' si puo' parlare di limite di generalizzazione.
 - **Sez. 6 (descrittiva, non cieca), Spearman dentro le coppie di topologie senza crop**, bracci interi, IC per
   soggetto col seme di all_cross. HIFI3D factorized s1234 d_F cal. con FR: media sulle 20 coppie ordinate 0.749 [0.675,
   0.811] (min 0.730 remesh -> up60k, max 0.760 up60k -> original), stessa topologia 0.760 [0.685, 0.821], differenza -0.011
@@ -282,9 +304,14 @@ mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
   -0.001 a -0.010 su FaceVerse (0.26-0.32 di livello). Lettura: senza crop la discretizzazione costa poco (fino a 0.02
   su HIFI3D, fino a 0.05 su FaceScape, sistematico: IC della differenza sotto 0 su HIFI3D e FaceScape); la topologia
   peggiore e' spesso noisy.
-- **Lettura.** Il ribaltamento dell'emendamento 2 sulle righe col crop (FaceScape 48 / 48 celle contro i bracci) e' in
-  gran parte un'asimmetria di supporto: i bracci sono sensibili alla banda di bordo fuori dalla regione di B, che B non
-  guarda per costruzione; a regione uguale, con FR, non perdono quasi piu' contro B (FaceScape 13 a favore e 2 contro
-  su 24, HIFI3D 11 e 0) e restano dietro alle mesh SR di B su FaceScape SR, come senza crop. Non e' un esito gratis per i bracci: su HIFI3D senza crop la
-  regione di B costa (fino a -0.16), e sui test il crop resta un punto debole dei bracci sull'ingresso intero, ne' il
-  training sullo stesso crop lo cura (esperimento 2). Tutto post hoc; nessuna correzione per confronti multipli.
+- **Lettura.** Il ribaltamento dell'emendamento 2 sulle righe col crop (FaceScape 48 / 48 celle contro i bracci) viene
+  dalla banda di bordo fuori dalla regione di B, che B non guarda per costruzione. Ritagliato l'ingresso dei bracci alla
+  regione di B (posta in modo rigido e senza scala), crop e original diventano quasi la stessa mesh e sulle righe col
+  crop ogni braccio vale quanto senza crop: il recupero e' per costruzione, e l'esperimento 1 non separa "dipendenza dal
+  supporto" da "limite del descrittore" (unico segnale: ctrlfr @ GNM su HIFI3D, -0.05 / -0.07 col 2% d'area). A regione
+  uguale contro B con FR: FaceScape 13 / 2 / 9 col crop e 8 / 2 / 14 senza; HIFI3D 11 / 0 / 13 col crop e 12 / 3 / 9
+  senza (bracci interi 6 / 14 / 4 e 24 / 0 / 0): su HIFI3D il confronto a regione uguale e' sbilanciato contro i bracci,
+  perche' la finestra fissa toglie la variabilita' d'area da cui ricavano la scala. Held-out: invarianza su ICT e GNM,
+  parziale su BFM, dello stesso ordine di factorized su HIFI3D; sui test la sensibilita' al crop supera quella
+  in-distribuzione su FaceScape e per ctrlfr su HIFI3D. Se il run massivo (stesso crop, piu' famiglie di generatori) la
+  riduca va misurato. Tutto post hoc; nessuna correzione per confronti multipli.
