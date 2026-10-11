@@ -59,26 +59,86 @@ D3ROWS = "nocrop_cross, righe di D3"
 SR_MIN, FR_MIN, N_DOM, HARM = 0.02, -0.02, 2, -0.02            # lettura (sez. 5)
 LABEL = {"shape": "d_P", "form_cal": "d_F cal.", "z": "||z||"}
 _J: dict = {}
+CRITIC_DIR = "/home/create.aau.dk/ga41wf/critic_scratch_657e6a75/d4c"
+# lettura corretta dopo il critic (RISERVE), post hoc: numeri copiati da a_stats.out e b_geom.out del critic
+# (stesse righe e repliche di questo file, sottoinsiemi di etichette; geometria su 10 soggetti per vista), non rieseguiti
+CRITIC = [
+    "Critic: **RISERVE**. Il NO preregistrato e' vero e non nasce da un difetto del codice: il critic ha riverificato "
+    "pipeline, scala, normali (coseno della normale media canonica / ingresso 1.000 su tutte le etichette) e righe, e il "
+    "suo Spearman ricalcolato dagli npz su nocrop_cross rida' i nostri valori (FaceScape s1234 originale 0.7469, canonico 0.7494). Va "
+    "corretta la lettura del meccanismo. I numeri marcati \"critic, post hoc\" vengono dai suoi script (`a_stats.py`, "
+    "`b_geom.py`), copiati con le uscite in `" + CRITIC_DIR + "` (fuori dal repo, non versionati); non li ho "
+    "rieseguiti, coincidono coi nostri dove si sovrappongono (nocrop_cross, stessa topologia, residuo sulle 5 etichette, "
+    "diagonale per etichetta).",
+    "",
+    "1. **Falso** (nota 2 della versione e45a5dc): \"una ridiscretizzazione al test non tocca il gap\" e \"la "
+    "sfaccettatura di down8k viene conservata\". Il residuo stessa etichetta - incrociate calcolato SOLO sulle etichette "
+    "che cambiano la discretizzazione (original, down8k, up60k: superficie quasi identica alla original, sotto) va quasi "
+    "a zero dopo la canonizzazione (d_P con SR, critic, post hoc):",
+    "",
+    "| dominio | residuo prima, s1234 | prima, s2345 | dopo, s1234 | dopo, s2345 |",
+    "| --- | --- | --- | --- | --- |",
+    "| FaceScape | +0.026 [+0.020, +0.034] | +0.006 [+0.004, +0.008] | +0.003 [+0.001, +0.005] | +0.000 [-0.000, +0.002] |",
+    "| HIFI3D | +0.002 [+0.001, +0.004] | +0.002 [+0.001, +0.003] | -0.000 [-0.000, +0.000] | -0.000 [-0.000, +0.000] |",
+    "| FaceVerse neutra | +0.003 [+0.001, +0.006] | +0.003 [+0.001, +0.004] | +0.000 [-0.000, +0.000] | +0.000 [-0.000, +0.000] |",
+    "",
+    "   Sulle righe che contengono noisy o remesh il residuo resta: FaceScape +0.050 -> +0.046, HIFI3D +0.014 -> +0.012, "
+    "FaceVerse +0.022 -> +0.016 (s1234; s2345 +0.036 -> +0.040, +0.005 -> +0.007, +0.014 -> +0.014). Sulle sole righe "
+    "incrociate fra original, down8k e up60k FaceScape guadagna +0.015 [+0.006, +0.024] (s1234) e +0.007 [+0.003, "
+    "+0.011] (s2345); HIFI3D +0.007 [+0.000, +0.013] e +0.001, FaceVerse +0.005 e +0.002 con IC che toccano lo 0. Su "
+    "queste etichette il residuo si chiude in parte perche' sale l'incrociato e in parte perche' scende la stessa "
+    "etichetta (up60k-up60k 0.802 -> 0.777 su FaceScape s1234).",
+    "2. **Su noisy D4 non separa superficie e discretizzazione.** Con featuredeg = 30 (`d4_remesh.canonical`) gli "
+    "spigoli del rumore superano la soglia di diedro e restano come spigoli vivi: sono invariati il 95.6%, 90.4% e "
+    "98.1% dei vertici d'ingresso noisy (FaceScape, HIFI3D, FaceVerse; 2-13% per le altre etichette) e il 45-72% dei "
+    "vertici della canonica noisy sono vertici d'ingresso; diedro medio della canonica 41-68 gradi per noisy contro "
+    "3-7.5 per original (critic, post hoc). Lo mostrava gia' la nostra Hausdorff ingresso -> canonica su noisy, "
+    "0.003-0.012 mm: i vertici d'ingresso stanno sulla canonica perche' ci sono ancora.",
+    "3. **Il NO preregistrato non dice nulla sul meccanismo.** Il tetto plausibile del delta su nocrop_cross era "
+    "portare le righe incrociate al livello della migliore cella con la stessa etichetta di D3: per s2345 +0.019 su "
+    "HIFI3D (remesh-remesh 0.632 contro 0.613) e +0.017 su FaceVerse (noisy-noisy 0.389 contro 0.372), sotto +0.02, "
+    "quindi P(s2345) e il verdetto UTILE erano irraggiungibili per costruzione. Il protocollo (sez. 5) diceva "
+    "\"esigente\", non \"irraggiungibile\": va dichiarato. Il +0.053 di partenza (D3) era la cella remesh-remesh, "
+    "cioe' lo stesso smoothing ai due lati, non la stessa discretizzazione.",
+    "4. **Geometria** (critic, post hoc): distanza media simmetrica in mm dalla original dello stesso soggetto, mediana "
+    "su 10 soggetti per vista, ingresso -> canonica (contro la canonica della original):",
+    "",
+    "| dominio | noisy | remesh | down8k | up60k |",
+    "| --- | --- | --- | --- | --- |",
+    "| FaceScape | 0.435 -> 0.459 | 0.124 -> 0.241 | 0.016 -> 0.014 | 0.000 -> 0.014 |",
+    "| HIFI3D | 0.419 -> 0.413 | 0.137 -> 0.204 | 0.019 -> 0.018 | 0.000 -> 0.015 |",
+    "| FaceVerse neutra | 0.397 -> 0.382 | 0.060 -> 0.080 | 0.011 -> 0.022 | 0.000 -> 0.019 |",
+    "",
+    "   noisy e remesh cambiano la superficie (0.06-0.44 mm) e il remesh canonico la conserva o la allontana (remesh "
+    "0.124 -> 0.241 su FaceScape); down8k e up60k cambiano quasi solo la discretizzazione (<= 0.02 mm).",
+    "5. **Nome.** Ne' \"gap di discretizzazione\" (D3) ne' \"gap di vista\" (nota 2 sotto): **sensibilita' a "
+    "perturbazioni di superficie (rumore, smoothing)**. Affermazione positiva: sulle viste che cambiano solo la "
+    "discretizzazione il residuo e' <= 0.006 (FaceScape s1234 0.026) e il remesh canonico lo azzera (<= 0.003). Leva al "
+    "test non ancora provata: un filtro di superficie (smoothing o denoising canonico prima degli operatori); il suo "
+    "tetto e' chiudere il residuo sulle 5 etichette, FaceScape +0.042 / +0.029, HIFI3D +0.013 / +0.007, FaceVerse "
+    "+0.014 / +0.008 (d_P con SR, s1234 / s2345, tabella del residuo sotto).",
+]
 NOTES = [               # note del coder, scritte DOPO i numeri (commento, non regole)
     "- Verdetto preregistrato **NO** in entrambi i semi, non dannosa: nessun dominio arriva a +0.02 con d_P contro SR su "
     "nocrop_cross. Il delta piu' grande e' FaceScape s2345 +0.011 [+0.005, +0.019] (s1234 +0.002 [-0.005, +0.010]); "
     "HIFI3D +0.000 / -0.000 e FaceVerse neutra -0.000 / +0.001, con IC entro +-0.009. FR non peggiora (da -0.000 a "
     "+0.014; FaceScape +0.010 / +0.014 con IC sopra 0). Sulle righe di D3 (sensibilita') la lettura e' la stessa.",
-    "- **Il residuo stessa topologia - nocrop_cross non si chiude**: d_P con SR, FaceScape +0.042 -> +0.033 (s1234) e "
-    "+0.029 -> +0.027 (s2345), HIFI3D +0.013 -> +0.014 e +0.007 -> +0.007, FaceVerse +0.014 -> +0.011 e +0.008 -> "
-    "+0.007; frazione recuperata da -0.04 a 0.39 per factorized. Dopo il remesh tutte le mesh vengono dallo stesso "
-    "remesher allo stesso lato (2 mm; noisy un po' piu' fitta, 1.8-1.9 mm con CV 0.3), quindi cio' che resta non e' "
-    "connettivita' ne' densita': le etichette cambiano anche la "
-    "SUPERFICIE (remesh = smoothing + quadrica, down8k = sfaccettatura a 3-4k vertici, noisy = rumore, up60k = "
-    "suddivisione + quadrica) e il remesh canonico la riproietta, cioe' la conserva; con la stessa etichetta ai due lati "
-    "la perturbazione e' condivisa. Lettura, non verificata da un esperimento dedicato. Il \"gap di discretizzazione\" "
-    "di D3 (righe con la stessa etichetta) va quindi chiamato gap di vista, e una ridiscretizzazione al test non lo tocca.",
+    "- Il residuo stessa topologia - nocrop_cross sulle 5 etichette insieme cala poco: d_P con SR, FaceScape +0.042 -> "
+    "+0.033 (s1234) e +0.029 -> +0.027 (s2345), HIFI3D +0.013 -> +0.014 e +0.007 -> +0.007, FaceVerse +0.014 -> +0.011 e "
+    "+0.008 -> +0.007; frazione recuperata da -0.04 a 0.39 per factorized. **LETTO MALE** (critic, post hoc; sezione "
+    "sopra): nella versione e45a5dc ne deducevo che il remesh canonico conserva la superficie di tutte le etichette, "
+    "sfaccettatura di down8k compresa, che \"una ridiscretizzazione al test non tocca\" il gap e che andava chiamato "
+    "\"gap di vista\". E' FALSO: sulle etichette che cambiano solo la discretizzazione (original, down8k, up60k) il "
+    "residuo va quasi a zero; resta sulle righe con noisy e remesh (superficie diversa: rumore, smoothing), e su noisy "
+    "D4 non ridiscretizza (featuredeg = 30).",
     "- Le mesh sono cambiate davvero e l'embedding si e' mosso (tabella dello spostamento, descrittiva): spostamento "
     "canonico - originale mediano 0.06-0.13 in u per factorized (9-24% della distanza mediana fra soggetti); la "
     "distanza fra la original e le altre topologie dello STESSO soggetto scende su HIFI3D (0.092 -> 0.061, s1234) e "
     "FaceVerse (0.107 -> 0.054), quasi invariata su FaceScape (0.154 -> 0.146). La canonizzazione avvicina le topologie "
-    "dello stesso soggetto ma non migliora l'ordinamento fra soggetti diversi, che e' cio' che lo Spearman misura: "
-    "l'errore dominante non e' la dispersione fra topologie (coerente con D3: il limite e' il generatore).",
+    "dello stesso soggetto ma, sulle 5 etichette insieme, non migliora l'ordinamento fra soggetti diversi, che e' cio' "
+    "che lo Spearman misura (sulle sole righe incrociate original / down8k / up60k di FaceScape si', +0.015 con s1234: "
+    "critic, sezione sopra); l'errore dominante non e' la dispersione fra topologie (coerente con D3: il limite e' il "
+    "generatore).",
     "- Per etichetta (descrittivo): FaceScape up60k-up60k scende (0.802 -> 0.777, s1234; la densa da 32k vertici perde "
     "il vantaggio della discretizzazione condivisa), noisy-noisy sale per s2345 (0.767 -> 0.805) e cala per s1234 "
     "(0.791 -> 0.786); su HIFI3D e FaceVerse le etichette di factorized si muovono entro +-0.015.",
@@ -414,7 +474,9 @@ def summary() -> None:
                   f"{a['sr_up_domains']}; d_F cal. con FR >= -0.02 ovunque: {a['fr_ok_all']}); dannosa in "
                   f"{len(a['harm_domains'])} domini {a['harm_domains']}; " +
                   "; ".join(f"{v} SR {f3(*a['sr'][v])}, FR {f3(*a['fr'][v])}" for v in VIEWS if v in a["sr"]))
-    md += ["", "Note del coder, scritte DOPO i numeri (commento, non regole):", ""] + NOTES
+    md += ["", "## Lettura corretta dopo il critic (post hoc)", ""] + CRITIC
+    md += ["", "Note del coder, scritte DOPO i numeri (commento, non regole; la nota 2 e' corretta dalla sezione sopra):",
+           ""] + NOTES
     md += ["", "## Delta canonico - originale (stesse righe e repliche)", "",
            "| dominio | braccio | distanza | GT | nocrop_cross (primario) | stessa topologia | all_cross | righe col crop |",
            "| --- | --- | --- | --- | --- | --- | --- | --- |"]
