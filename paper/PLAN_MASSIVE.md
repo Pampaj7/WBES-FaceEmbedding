@@ -790,3 +790,36 @@ Prima di usare nv-ai-04 va controllata la memoria libera: era occupata per 965 G
 3. Il s/passo misurato dalla prova 6 + 6 (job 1067683) al posto dei segnaposto della 22.8.
 4. Il via alla definizione degli held-out di calibrazione per i domini nuovi (22.5), prima del lancio.
 5. Il via al critic su questa configurazione (gate della §21).
+
+### 22.12 Ripresa del run principale e A100 secondarie (11 ottobre)
+
+**Ripresa del run principale: corretta e provata.** Commit `ce0ae82`, evidenze in
+`aau/runs/evidence/stream/resume_main/`. Il critic su efffd74 era BLOCCANTE: un requeue faceva ripartire da zero
+(l'anello `r<riavvio>` entra nell'hash della run dir) e nessuno salvava su SIGTERM. Ora:
+- `STREAM_PREEMPTIBLE=1` di default: su SIGTERM il trainer salva al passo in corso;
+- anello `r0` a ogni partenza;
+- codice congelato in `STREAM_OUT/code` alla prima partenza;
+- ripresa obbligatoria: senza `last.pth`, errore esplicito;
+- continuazione dopo un TIMEOUT con un job nuovo: basta lo stesso `STREAM_OUT`;
+- `STREAM_CKPT_MIN` resta 20, perché entra nell'hash.
+
+La riga di lancio validata dà ancora `78085a52`; a parzialità spenta ricetta, shard e sha256 sono identici.
+
+Prova a due nodi (2 × 1 L40S, job 1068078 e 1068090):
+- `scontrol requeue` a metà dell'epoca 3, `scancel` come un TIMEOUT a metà dell'epoca 5, poi continuazione con un
+  job nuovo;
+- una sola run dir, ripresa dai passi salvati (255, 457), passi da 1 a 600 senza buchi né doppioni, registro delle
+  viste coerente, semi nuovi a ogni segmento;
+- con il job sbagliato nell'anello la guardia ferma il job (1068100).
+
+Non provata a 6 + 6. Il job 1067683, la prova 6 + 6, è cancellato perché superato: il s/passo a 12 rank della 22.8
+resta da misurare.
+
+**A100 di nv-ai-04 (dato del critic, `critic_scratch_657e6a75`).**
+- I produttori sono circa 5 volte più lenti per core (EPYC 7742 a 2.25 GHz; 1.8 contro 8.2 viste fresche/s con 16
+  processi, nodo carico).
+- Per il secondario a 8 A100 il critic stima circa 6-12 viste fresche/s, con riuso 35-40.
+- Il trainer fa 0.70 s per passo, contro 0.41 sulle L40S.
+
+Il secondario su A100 è quindi limitato dai dati. Per confrontarlo serve un controllo appaiato sullo stesso hardware:
+stessa configurazione 8 × 5 con `STREAM_PARTIAL=0`.
