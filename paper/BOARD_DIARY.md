@@ -1487,3 +1487,36 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
 - **Stato della decisione:** la ricetta del massivo resta sospesa. Le leve indicate da D1/D2, emendamento 3 ed E1 sono
   la varietà dei generatori (nella testa e forse nell'encoder) e il trattamento del supporto. Il run massivo resta
   subordinato alla revisione con l'utente.
+
+## 2026-10-11 mattina — D3: preregistrato NO, correzioni del critic, numeri post hoc
+
+- **D3 preregistrato** (protocollo 21afea8; emendamento 1 49fead6, schema leave-one-generator-out; codice 123492d;
+  risultati f0c643b, job 1068125; `aau/runs/evidence/diagnostics/results_d3.md`). Sorgenti: bfm, ict, gnm, FLAME 2023,
+  pool non valutati di FaceScape, AI-NEXT e FaceVerse (200 soggetti ciascuno), FaMoS TRAIN. R_LOGO **NO** in entrambi i
+  semi: nessun bersaglio (FaceScape, HIFI3D, FaceVerse neutra, FLAME) arriva a +0.05 in SR. Massimo FaceScape s1234
+  +0.038 [+0.014, +0.065]; media sui 4 bersagli +0.016 [+0.003, +0.029] (s1234) e −0.001 (s2345). Controlli: riferimenti
+  identici ai pubblicati (3e-16), embedding dei pool identici agli store ufficiali (5e-4).
+- **Critic: RISERVE.** Il NO resta; quattro letture corrette in `results_d3.md` (commit 19fb68b):
+  1. r = 0 scelto dalla CV, curva piatta di s2345 e "contributo di FaMoS" erano artefatti della griglia di λ: la
+     penalità agisce su x non standardizzate e con λ ≥ 1e-2 azzera W;
+  2. la perdita usava una sola scala per sorgenti con alpha0 da 0.355 a 0.565;
+  3. "una correzione lineare comune non esiste" era falso;
+  4. il guadagno della media sulle etichette viene dall'avere la stessa discretizzazione ai due lati della riga.
+- **Emendamento 2, POST HOC** (protocollo 36fe43e, numeri 3bec6b9; job 1068225-1068227, 1068254-1068255, 1068260).
+  - Catena LOGO con λ fino a 1e-6 e perdita riscalata per sorgente: n_SR = 0 in entrambi i semi; media +0.025
+    [+0.004, +0.045] (s1234) e +0.011 [−0.013, +0.037] (s2345). Il critic, con una CV ridotta, trova +0.033 / +0.022:
+    la nostra CV completa sceglie λ = 1e-6, che vince sulle sorgenti ma estrapola peggio.
+  - Testa congiunta su tutte le sorgenti (generatori visti, descrittiva): media +0.120 [+0.098, +0.142] (s1234) e
+    +0.102 (s2345); per s1234 FaceScape +0.142, HIFI3D +0.153, FaceVerse +0.112, FLAME +0.075.
+  - Alla configurazione fissa del critic i suoi 16 numeri si riproducono esattamente.
+  - Il guadagno LOGO cresce col numero di sorgenti. FaMoS aggiunge +0.01-0.03 su FaceScape, FLAME e FaceVerse, niente
+    su HIFI3D.
+- **Conseguenza.** La leva credibile è la varietà dei generatori nel training, sia dell'encoder sia della testa,
+  coerente con E1. Una correzione lineare comune esiste quando il generatore è visto; l'estrapolazione a generatori mai
+  visti resta piccola (+0.02 / +0.03). Una testa lineare post hoc non è quindi la leva economica per il paper.
+- **Ablazione 2×2 in corso** (FLAME come quarto generatore × parzialità, protocollo 27f4893): training 1068128-1068131,
+  valutazione 1068213-1068216, riepilogo 1068217; risultati attesi verso le 14:00.
+- **Idea separata: aumento al test con ridiscretizzazione canonica** (sempre lo stesso remesher ai due lati della
+  coppia). d_P con la stessa discretizzazione ai due lati: FaceScape 0.800 (remesh-remesh) contro 0.747 incrociate,
+  HIFI3D +0.02, FaceVerse +0.01, FLAME +0.03. Colpisce il gap di discretizzazione, non quello di generatore; da
+  preregistrare a parte.
