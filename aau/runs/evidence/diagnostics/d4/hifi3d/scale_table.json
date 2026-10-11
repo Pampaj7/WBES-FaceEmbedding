@@ -1,0 +1,44 @@
+{
+ "view_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/DIAG_D4/hifi3d/in",
+ "domain": "hifi3d",
+ "n_meshes": 600,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "hifi3d": {
+   "u": 9.335964456683786,
+   "R": [
+    [
+     0.9991247115085358,
+     0.01175042767271282,
+     -0.0401464606471579
+    ],
+    [
+     -0.005591458893147643,
+     0.9886384529237231,
+     0.15020900435071874
+    ],
+    [
+     0.04145535478598261,
+     -0.14985305085348238,
+     0.9878388110969683
+    ]
+   ],
+   "unit_source": "IPD: 63 mm / IPD della media"
+  }
+ },
+ "definition": "area_mm2 = u_d^2 * area totale della geometria grezza (unita' native); fattore al servizio sqrt(area_mm2 / area(V_loader)), poi rotazione R_d (global_v3.py)",
+ "check_maxabs_vs_view": {
+  "n_checked": 0,
+  "max_abs": null
+ },
+ "sqrt_area_mm_median": {
+  "hifi3d|crop": 175.07728250472013,
+  "hifi3d|down8k": 195.30217859813106,
+  "hifi3d|noisy": 229.7866717293023,
+  "hifi3d|original": 195.27486477300303,
+  "hifi3d|remesh": 190.83825205076516,
+  "hifi3d|up60k": 195.26961563847567
+ },
+ "seconds": 3.9989044666290283,
+ "host": "i256-a10-10.srv.aau.dk"
+}

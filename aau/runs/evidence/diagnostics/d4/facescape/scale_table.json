@@ -1,0 +1,44 @@
+{
+ "view_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/DIAG_D4/facescape/in",
+ "domain": "facescape",
+ "n_meshes": 600,
+ "frames": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/e12/frames.json",
+ "domains": {
+  "facescape": {
+   "u": 1.0,
+   "R": [
+    [
+     0.9995783720084295,
+     0.010681524213756085,
+     -0.026999689876907273
+    ],
+    [
+     -0.008023591352723047,
+     0.9952810863970918,
+     0.09670150485918254
+    ],
+    [
+     0.027905200138732822,
+     -0.09644409831968465,
+     0.994947152216901
+    ]
+   ],
+   "unit_source": "dichiarata (domains.py)"
+  }
+ },
+ "definition": "area_mm2 = u_d^2 * area totale della geometria grezza (unita' native); fattore al servizio sqrt(area_mm2 / area(V_loader)), poi rotazione R_d (global_v3.py)",
+ "check_maxabs_vs_view": {
+  "n_checked": 0,
+  "max_abs": null
+ },
+ "sqrt_area_mm_median": {
+  "facescape|crop": 185.91184930638633,
+  "facescape|down8k": 211.93496845976347,
+  "facescape|noisy": 264.5302671026493,
+  "facescape|original": 211.98045833882566,
+  "facescape|remesh": 206.88413045878914,
+  "facescape|up60k": 211.95354600316057
+ },
+ "seconds": 13.70223593711853,
+ "host": "i256-a10-10.srv.aau.dk"
+}

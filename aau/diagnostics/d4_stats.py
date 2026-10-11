@@ -59,6 +59,49 @@ D3ROWS = "nocrop_cross, righe di D3"
 SR_MIN, FR_MIN, N_DOM, HARM = 0.02, -0.02, 2, -0.02            # lettura (sez. 5)
 LABEL = {"shape": "d_P", "form_cal": "d_F cal.", "z": "||z||"}
 _J: dict = {}
+NOTES = [               # note del coder, scritte DOPO i numeri (commento, non regole)
+    "- Verdetto preregistrato **NO** in entrambi i semi, non dannosa: nessun dominio arriva a +0.02 con d_P contro SR su "
+    "nocrop_cross. Il delta piu' grande e' FaceScape s2345 +0.011 [+0.005, +0.019] (s1234 +0.002 [-0.005, +0.010]); "
+    "HIFI3D +0.000 / -0.000 e FaceVerse neutra -0.000 / +0.001, con IC entro +-0.009. FR non peggiora (da -0.000 a "
+    "+0.014; FaceScape +0.010 / +0.014 con IC sopra 0). Sulle righe di D3 (sensibilita') la lettura e' la stessa.",
+    "- **Il residuo stessa topologia - nocrop_cross non si chiude**: d_P con SR, FaceScape +0.042 -> +0.033 (s1234) e "
+    "+0.029 -> +0.027 (s2345), HIFI3D +0.013 -> +0.014 e +0.007 -> +0.007, FaceVerse +0.014 -> +0.011 e +0.008 -> "
+    "+0.007; frazione recuperata da -0.04 a 0.39 per factorized. Dopo il remesh tutte le mesh vengono dallo stesso "
+    "remesher allo stesso lato (2 mm; noisy un po' piu' fitta, 1.8-1.9 mm con CV 0.3), quindi cio' che resta non e' "
+    "connettivita' ne' densita': le etichette cambiano anche la "
+    "SUPERFICIE (remesh = smoothing + quadrica, down8k = sfaccettatura a 3-4k vertici, noisy = rumore, up60k = "
+    "suddivisione + quadrica) e il remesh canonico la riproietta, cioe' la conserva; con la stessa etichetta ai due lati "
+    "la perturbazione e' condivisa. Lettura, non verificata da un esperimento dedicato. Il \"gap di discretizzazione\" "
+    "di D3 (righe con la stessa etichetta) va quindi chiamato gap di vista, e una ridiscretizzazione al test non lo tocca.",
+    "- Le mesh sono cambiate davvero e l'embedding si e' mosso (tabella dello spostamento, descrittiva): spostamento "
+    "canonico - originale mediano 0.06-0.13 in u per factorized (9-24% della distanza mediana fra soggetti); la "
+    "distanza fra la original e le altre topologie dello STESSO soggetto scende su HIFI3D (0.092 -> 0.061, s1234) e "
+    "FaceVerse (0.107 -> 0.054), quasi invariata su FaceScape (0.154 -> 0.146). La canonizzazione avvicina le topologie "
+    "dello stesso soggetto ma non migliora l'ordinamento fra soggetti diversi, che e' cio' che lo Spearman misura: "
+    "l'errore dominante non e' la dispersione fra topologie (coerente con D3: il limite e' il generatore).",
+    "- Per etichetta (descrittivo): FaceScape up60k-up60k scende (0.802 -> 0.777, s1234; la densa da 32k vertici perde "
+    "il vantaggio della discretizzazione condivisa), noisy-noisy sale per s2345 (0.767 -> 0.805) e cala per s1234 "
+    "(0.791 -> 0.786); su HIFI3D e FaceVerse le etichette di factorized si muovono entro +-0.015.",
+    "- ctrlfr s1234 (secondario): piccole perdite su nocrop_cross, FaceScape FR -0.012 [-0.024, -0.000], HIFI3D FR -0.006 "
+    "[-0.012, -0.000] e SR -0.009 [-0.015, -0.003], FaceVerse 0. Righe col crop e all_cross: da -0.007 a +0.024; il "
+    "remesh non tocca il crop (e' parzialita', non discretizzazione), come atteso.",
+    "- Costo: remesh mediana 5.0 s per mesh su tutte le 1.800 (p90 21.6 s; noisy 11-30 s, perche' il rumore gonfia "
+    "l'area e la mesh canonica ha 1.8-3.5 volte i vertici delle altre); sul campione di 54 la pipeline canonica (remesh + "
+    "operatori) costa 9.1 s per mesh contro 4.1 s degli operatori sull'originale, rapporto mediano 2.45 (p10 0.90 dove "
+    "l'originale e' densa: FaceVerse 9.2 contro 10.1 s; p90 7.3 su noisy e down8k). Embedding di HIFI3D 82 s contro 75 s "
+    "per 600 mesh (stessa A100). Con guadagno nullo il costo non si giustifica.",
+    "- Il precedente E3b (rimesh ACVD al test per e108, senza operatori areanorm: -0.174 su HIFI3D) non si ripete: per i "
+    "bracci C3F il remesh canonico e' neutro, non dannoso. Perche' (operatori, remesher, modello) non e' separato qui.",
+    "- Deviazioni e aggiunte. (1) K1: il protocollo scriveva i conteggi di D3 per nocrop_cross (88.725 / 98.224 / "
+    "99.000), ma la maschera di D4 (bracci e GT, sez. 3) tiene 99.000 righe su tutte e tre le viste perche' non ha le "
+    "colonne delle baseline geometriche, che in D3 e fact_paired tolgono 10.275 righe a FaceScape e 776 a HIFI3D. Il "
+    "primario resta sulle 99.000 righe della sez. 3; K1 si legge sulle righe comuni (clausola della sez. 4, scritta per "
+    "il caso opposto) e passa con scarto 0; il gruppo \"righe di D3\" e' una sensibilita' aggiunta dopo la prova su dati "
+    "finti (`d4_test.py`, che ha mostrato i conteggi diversi) e PRIMA dei numeri canonici. (2) Post hoc, descrittivi: "
+    "Hausdorff ingresso -> canonica e tabella dello spostamento nell'embedding. (3) Il campione del costo e' stato "
+    "misurato su un nodo condiviso (a256-t4-02, 4 core chiesti, un thread usato), il remesh di tutte le 1.800 con 63 "
+    "processi in parallelo (i256-a10-10): i tempi includono la contesa del nodo.",
+]
 
 
 def primary_seed(view: str) -> int:
@@ -308,6 +351,34 @@ def f3(p, lo, hi, sign=True) -> str:
     return f"{p:{s}.3f} [{lo:{s}.3f}, {hi:{s}.3f}]"
 
 
+def embedding_shift() -> list[dict]:
+    """Descrittivo, post hoc (non nel protocollo): per vista e braccio, mediane di ||z_canonico - z_originale|| della
+    stessa mesh, della distanza fra soggetti (original contro original) e della distanza fra la original e le altre 4
+    topologie senza crop dello stesso soggetto, prima e dopo; u = z[1:] per factorized, z per ctrlfr."""
+    out = []
+    for view in VIEWS:
+        for pre, v, e in R.ARMS:
+            Z = {}
+            for kind, path in (("orig", R.bp_e3.store(view, v, e)), ("canon", D4 / "emb" / view / pre / "embeddings.npz")):
+                with np.load(path, allow_pickle=True) as z:
+                    Z[kind] = dict(zip(zip([str(x) for x in z["subjects"]], [str(x) for x in z["topologies"]]),
+                                       np.asarray(z["Z"], np.float64)))
+            s0 = 0 if pre.startswith("ctrlfr") else 1
+            keys = sorted(Z["orig"])
+            subj = sorted({k[0] for k in keys})
+            rec = {"domain": view, "arm": pre,
+                   "shift_median": float(np.median([np.linalg.norm(Z["orig"][k][s0:] - Z["canon"][k][s0:]) for k in keys]))}
+            for kind in ("orig", "canon"):
+                O = np.stack([Z[kind][(s, "original")][s0:] for s in subj])
+                rec[f"between_subjects_{kind}"] = float(np.median(np.linalg.norm(O[:, None] - O[None], axis=-1)[
+                    np.triu_indices(len(subj), 1)]))
+                rec[f"within_subject_{kind}"] = float(np.median([np.linalg.norm(Z[kind][(s, "original")][s0:] -
+                                                                                Z[kind][(s, t)][s0:])
+                                                                 for s in subj for t in NOCROP if t != "original"]))
+            out.append(rec)
+    return out
+
+
 def embed_times() -> dict:
     """{uscita relativa: secondi} dal log piu' recente di d4_embed.sbatch (righe ``gpu X: N s <uscita>``)."""
     logs = sorted((diag.REPO / "aau/logs").glob("wbes-d4-embed-*.out"), key=lambda q: q.stat().st_mtime)
@@ -343,6 +414,7 @@ def summary() -> None:
                   f"{a['sr_up_domains']}; d_F cal. con FR >= -0.02 ovunque: {a['fr_ok_all']}); dannosa in "
                   f"{len(a['harm_domains'])} domini {a['harm_domains']}; " +
                   "; ".join(f"{v} SR {f3(*a['sr'][v])}, FR {f3(*a['fr'][v])}" for v in VIEWS if v in a["sr"]))
+    md += ["", "Note del coder, scritte DOPO i numeri (commento, non regole):", ""] + NOTES
     md += ["", "## Delta canonico - originale (stesse righe e repliche)", "",
            "| dominio | braccio | distanza | GT | nocrop_cross (primario) | stessa topologia | all_cross | righe col crop |",
            "| --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -378,6 +450,14 @@ def summary() -> None:
                     o, c = y[y["input"] == "orig"], y[y["input"] == "canon"]
                     cells.append(f"{o.iloc[0].rho:.3f} -> {c.iloc[0].rho:.3f}" if len(o) and len(c) else "-")
                 md.append(f"| {v} | {pre} | {LABEL[d]} | {gt.upper()} | " + " | ".join(cells) + " |")
+    md += ["", "Spostamento nell'embedding (descrittivo, post hoc, non nel protocollo): mediane di ||z canonico - z "
+               "originale|| della stessa mesh, della distanza fra soggetti (original contro original) e della distanza fra "
+               "la original e le altre 4 topologie senza crop dello stesso soggetto; u per factorized, z per ctrlfr.", "",
+           "| dominio | braccio | spostamento canonico - originale | fra soggetti, originale -> canonico | stesso soggetto "
+           "fra topologie, originale -> canonico |", "| --- | --- | --- | --- | --- |"]
+    for r in embedding_shift():
+        md.append(f"| {r['domain']} | {r['arm']} | {r['shift_median']:.3f} | {r['between_subjects_orig']:.3f} -> "
+                  f"{r['between_subjects_canon']:.3f} | {r['within_subject_orig']:.3f} -> {r['within_subject_canon']:.3f} |")
     md += ["", "## Residuo stessa topologia - nocrop_cross, prima e dopo", "",
            "Frazione recuperata = delta canonico - originale su nocrop_cross / residuo originale (solo dove il residuo "
            "originale ha IC sopra 0; descrittiva).", "",

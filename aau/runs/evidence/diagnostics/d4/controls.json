@@ -1,0 +1,432 @@
+{
+ "views": {
+  "facescape": {
+   "seed": 796786,
+   "seed_fact_paired": 796786,
+   "seed_all_cross": 621096,
+   "subjects": 100,
+   "K5": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "rows_fact_paired_masked": 88725,
+   "rows": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 88725
+   },
+   "rows_masked": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 88725
+   },
+   "dropped_by_mask": {
+    "nocrop_cross": 0,
+    "stessa topologia": 0,
+    "all_cross": 0,
+    "righe col crop": 0,
+    "stessa: down8k": 0,
+    "stessa: noisy": 0,
+    "stessa: original": 0,
+    "stessa: remesh": 0,
+    "stessa: up60k": 0,
+    "nocrop_cross, righe di D3": 0
+   },
+   "nan_rows_by_column": {},
+   "gt_spread_within_subject_pair": 0.0,
+   "embeddings": {
+    "facescape|factorized_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_devfs/data_aca84a16c6/scale_v3factorizedfulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "facescape|factorized_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/facescape/factorized_s1234/embeddings.npz"
+    },
+    "facescape|factorized_s2345|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_devfs/data_aca84a16c6/scale_v3factorizeds2345fulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "facescape|factorized_s2345|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/facescape/factorized_s2345/embeddings.npz"
+    },
+    "facescape|ctrlfr_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_devfs/data_aca84a16c6/scale_v3ctrlfrfulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "facescape|ctrlfr_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/facescape/ctrlfr_s1234/embeddings.npz"
+    }
+   }
+  },
+  "hifi3d": {
+   "seed": 990708,
+   "seed_fact_paired": 990708,
+   "seed_all_cross": 757683,
+   "subjects": 100,
+   "K5": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "rows_fact_paired_masked": 98224,
+   "rows": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 98224
+   },
+   "rows_masked": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 98224
+   },
+   "dropped_by_mask": {
+    "nocrop_cross": 0,
+    "stessa topologia": 0,
+    "all_cross": 0,
+    "righe col crop": 0,
+    "stessa: down8k": 0,
+    "stessa: noisy": 0,
+    "stessa: original": 0,
+    "stessa: remesh": 0,
+    "stessa: up60k": 0,
+    "nocrop_cross, righe di D3": 0
+   },
+   "nan_rows_by_column": {},
+   "gt_spread_within_subject_pair": 0.0,
+   "embeddings": {
+    "hifi3d|factorized_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizedfulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "hifi3d|factorized_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/hifi3d/factorized_s1234/embeddings.npz"
+    },
+    "hifi3d|factorized_s2345|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizeds2345fulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "hifi3d|factorized_s2345|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/hifi3d/factorized_s2345/embeddings.npz"
+    },
+    "hifi3d|ctrlfr_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3ctrlfrfulle072_embed/zs_zeroshot/embeddings.npz"
+    },
+    "hifi3d|ctrlfr_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/hifi3d/ctrlfr_s1234/embeddings.npz"
+    }
+   }
+  },
+  "faceverse_neutral": {
+   "seed": 271049,
+   "seed_fact_paired": 271049,
+   "seed_all_cross": 566363,
+   "subjects": 100,
+   "K5": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "rows_fact_paired_masked": 99000,
+   "rows": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 99000
+   },
+   "rows_masked": {
+    "nocrop_cross": 99000,
+    "stessa topologia": 24750,
+    "all_cross": 148500,
+    "righe col crop": 49500,
+    "stessa: down8k": 4950,
+    "stessa: noisy": 4950,
+    "stessa: original": 4950,
+    "stessa: remesh": 4950,
+    "stessa: up60k": 4950,
+    "nocrop_cross, righe di D3": 99000
+   },
+   "dropped_by_mask": {
+    "nocrop_cross": 0,
+    "stessa topologia": 0,
+    "all_cross": 0,
+    "righe col crop": 0,
+    "stessa: down8k": 0,
+    "stessa: noisy": 0,
+    "stessa: original": 0,
+    "stessa: remesh": 0,
+    "stessa: up60k": 0,
+    "nocrop_cross, righe di D3": 0
+   },
+   "nan_rows_by_column": {},
+   "gt_spread_within_subject_pair": 0.0,
+   "embeddings": {
+    "faceverse_neutral|factorized_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/faceverse_neutral/embed/data_184ec4171e/scale_v3factorizedfulle072_flip_embed/zs_zeroshot/embeddings.npz"
+    },
+    "faceverse_neutral|factorized_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/faceverse_neutral/factorized_s1234/embeddings.npz"
+    },
+    "faceverse_neutral|factorized_s2345|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/faceverse_neutral/embed/data_184ec4171e/scale_v3factorizeds2345fulle072_flip_embed/zs_zeroshot/embeddings.npz"
+    },
+    "faceverse_neutral|factorized_s2345|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/faceverse_neutral/factorized_s2345/embeddings.npz"
+    },
+    "faceverse_neutral|ctrlfr_s1234|orig": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/faceverse_neutral/embed/data_184ec4171e/scale_v3ctrlfrfulle072_flip_embed/zs_zeroshot/embeddings.npz"
+    },
+    "faceverse_neutral|ctrlfr_s1234|canon": {
+     "meshes": 600,
+     "of": 600,
+     "embeddings": "aau/runs/evidence/diagnostics/d4/emb/faceverse_neutral/ctrlfr_s1234/embeddings.npz"
+    }
+   }
+  }
+ },
+ "K1": {
+  "cells": [
+   {
+    "view": "facescape",
+    "arm": "factorized_s1234",
+    "d3": 0.7465023074286559,
+    "d4": 0.7465023074286559,
+    "abs_diff": 0.0,
+    "rows_d3": 88725,
+    "rows_d4": 88725,
+    "seed_d3": 796786,
+    "seed_d4": 796786
+   },
+   {
+    "view": "facescape",
+    "arm": "factorized_s2345",
+    "d3": 0.7529973579582214,
+    "d4": 0.7529973579582214,
+    "abs_diff": 0.0,
+    "rows_d3": 88725,
+    "rows_d4": 88725,
+    "seed_d3": 796786,
+    "seed_d4": 796786
+   },
+   {
+    "view": "hifi3d",
+    "arm": "factorized_s1234",
+    "d3": 0.621676792653492,
+    "d4": 0.621676792653492,
+    "abs_diff": 0.0,
+    "rows_d3": 98224,
+    "rows_d4": 98224,
+    "seed_d3": 990708,
+    "seed_d4": 990708
+   },
+   {
+    "view": "hifi3d",
+    "arm": "factorized_s2345",
+    "d3": 0.6128492712028186,
+    "d4": 0.6128492712028186,
+    "abs_diff": 0.0,
+    "rows_d3": 98224,
+    "rows_d4": 98224,
+    "seed_d3": 990708,
+    "seed_d4": 990708
+   },
+   {
+    "view": "faceverse_neutral",
+    "arm": "factorized_s1234",
+    "d3": 0.3334428059870654,
+    "d4": 0.3334428059870654,
+    "abs_diff": 0.0,
+    "rows_d3": 99000,
+    "rows_d4": 99000,
+    "seed_d3": 271049,
+    "seed_d4": 271049
+   },
+   {
+    "view": "faceverse_neutral",
+    "arm": "factorized_s2345",
+    "d3": 0.3719126759803157,
+    "d4": 0.3719126759803157,
+    "abs_diff": 0.0,
+    "rows_d3": 99000,
+    "rows_d4": 99000,
+    "seed_d3": 271049,
+    "seed_d4": 271049
+   }
+  ],
+  "max_abs_diff": 0.0,
+  "rows_equal": true,
+  "pass": true
+ },
+ "K2": {
+  "n": 600,
+  "keys_equal": true,
+  "max_abs_diff": 4.76837158203125e-07,
+  "pass": true
+ },
+ "K3": {
+  "meshes": [
+   "id900001_GTready_crop.npz",
+   "id900001_GTready_down8k.npz",
+   "id900001_GTready_noisy.npz",
+   "id900001_GTready_original.npz",
+   "id900001_GTready_remesh.npz",
+   "id900001_GTready_up60k.npz",
+   "id900004_GTready_crop.npz",
+   "id900004_GTready_down8k.npz",
+   "id900004_GTready_noisy.npz",
+   "id900004_GTready_original.npz"
+  ],
+  "identical": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "pass": true
+ },
+ "K4": {
+  "facescape": {
+   "meshes": 600,
+   "expected": 600,
+   "valid": 600,
+   "invalid": [],
+   "fraction_invalid": 0.0,
+   "pass": true
+  },
+  "hifi3d": {
+   "meshes": 600,
+   "expected": 600,
+   "valid": 600,
+   "invalid": [],
+   "fraction_invalid": 0.0,
+   "pass": true
+  },
+  "faceverse_neutral": {
+   "meshes": 600,
+   "expected": 600,
+   "valid": 600,
+   "invalid": [],
+   "fraction_invalid": 0.0,
+   "pass": true
+  }
+ },
+ "K5": {
+  "facescape": {
+   "rows_nocrop": 99000,
+   "rows_fact_paired": 99000,
+   "keys_equal": true,
+   "max_abs_diff_gt": 0.0,
+   "pass": true
+  },
+  "hifi3d": {
+   "rows_nocrop": 99000,
+   "rows_fact_paired": 99000,
+   "keys_equal": true,
+   "max_abs_diff_gt": 0.0,
+   "pass": true
+  },
+  "faceverse_neutral": {
+   "rows_nocrop": 99000,
+   "rows_fact_paired": 99000,
+   "keys_equal": true,
+   "max_abs_diff_gt": 0.0,
+   "pass": true
+  }
+ },
+ "seeds": {
+  "facescape": {
+   "d4": 796786,
+   "fact_paired": 796786,
+   "d3": 796786,
+   "pass": true
+  },
+  "hifi3d": {
+   "d4": 990708,
+   "fact_paired": 990708,
+   "d3": 990708,
+   "pass": true
+  },
+  "faceverse_neutral": {
+   "d4": 271049,
+   "fact_paired": 271049,
+   "d3": 271049,
+   "pass": true
+  }
+ },
+ "seconds": 769.869106054306
+}
