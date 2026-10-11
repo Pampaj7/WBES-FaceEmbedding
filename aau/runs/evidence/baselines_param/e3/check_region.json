@@ -1,0 +1,42 @@
+{
+ "hifi3d|gnm": {
+  "n_region_npz": 7700,
+  "n_rerun": 7700,
+  "equal": true
+ },
+ "hifi3d|flame2023": {
+  "n_region_npz": 1517,
+  "n_rerun": 1517,
+  "equal": true
+ },
+ "facescape|gnm": {
+  "n_region_npz": 8061,
+  "n_rerun": 8061,
+  "equal": true
+ },
+ "facescape|flame2023": {
+  "n_region_npz": 1544,
+  "n_rerun": 1544,
+  "equal": true
+ },
+ "faceverse|gnm": {
+  "n_region_npz": 8654,
+  "n_rerun": 8654,
+  "equal": true
+ },
+ "faceverse|flame2023": {
+  "n_region_npz": 1674,
+  "n_rerun": 1674,
+  "equal": true
+ },
+ "faceverse_neutral|gnm": {
+  "n_region_npz": 8654,
+  "n_rerun": 8654,
+  "equal": true
+ },
+ "faceverse_neutral|flame2023": {
+  "n_region_npz": 1674,
+  "n_rerun": 1674,
+  "equal": true
+ }
+}

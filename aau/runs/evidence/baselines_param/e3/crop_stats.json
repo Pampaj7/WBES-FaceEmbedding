@@ -1,0 +1,482 @@
+{
+ "hifi3d|gnm": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 12.548945426940918,
+  "n_region_vertices": 7700,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.8210033716516518,
+    "coverage_p5": 0.7423607782911235,
+    "area_kept_median": 0.8740945553402851,
+    "vertices_after_median": 7320.0
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9754566367204008,
+    "coverage_p5": 0.9116100490954877,
+    "area_kept_median": 0.7049819944780218,
+    "vertices_after_median": 2557.5
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9862647929889832,
+    "coverage_p5": 0.9304143812784046,
+    "area_kept_median": 0.717841648262491,
+    "vertices_after_median": 7298.0
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9861404915096013,
+    "coverage_p5": 0.9312488213559272,
+    "area_kept_median": 0.7154690190643345,
+    "vertices_after_median": 7413.5
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9803915828721363,
+    "coverage_p5": 0.9229128268656274,
+    "area_kept_median": 0.7431756042084361,
+    "vertices_after_median": 5412.5
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9932949448421848,
+    "coverage_p5": 0.9573996735400543,
+    "area_kept_median": 0.7293773807490929,
+    "vertices_after_median": 19956.0
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.008956248750108335,
+   "q25": -0.019264047358570006,
+   "q75": -0.0023160943513127153
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.10886093158681395,
+   "q25": -0.11085335949121833,
+   "q75": -0.10615220124118793
+  }
+ },
+ "hifi3d|flame2023": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 6.58466649055481,
+  "n_region_vertices": 1517,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.8657589696273904,
+    "coverage_p5": 0.789587455366047,
+    "area_kept_median": 0.7097681320661395,
+    "vertices_after_median": 6622.5
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9765464401717048,
+    "coverage_p5": 0.9108072171370545,
+    "area_kept_median": 0.5618626394942081,
+    "vertices_after_median": 2245.0
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9851883299015567,
+    "coverage_p5": 0.9392338501624935,
+    "area_kept_median": 0.5884822880940405,
+    "vertices_after_median": 6557.5
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9845766648433318,
+    "coverage_p5": 0.930924987793115,
+    "area_kept_median": 0.5719479812705164,
+    "vertices_after_median": 6643.0
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9810464244860442,
+    "coverage_p5": 0.921374079991452,
+    "area_kept_median": 0.5912721513468582,
+    "vertices_after_median": 4877.0
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.991500308215663,
+    "coverage_p5": 0.9423363756167458,
+    "area_kept_median": 0.5863382381619804,
+    "vertices_after_median": 17769.5
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.0015015381485199934,
+   "q25": -0.002535198399411267,
+   "q75": -0.0006838334303546323
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.10886093158681395,
+   "q25": -0.11085335949121833,
+   "q75": -0.10615220124118793
+  }
+ },
+ "faceverse|gnm": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 12.675167322158813,
+  "n_region_vertices": 8654,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.9081901727027887,
+    "coverage_p5": 0.8638816091936358,
+    "area_kept_median": 0.8581695056769647,
+    "vertices_after_median": 22038.5
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.953884889999211,
+    "coverage_p5": 0.9149941788688598,
+    "area_kept_median": 0.7910911066123527,
+    "vertices_after_median": 7506.5
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9731017809869537,
+    "coverage_p5": 0.9406149323425087,
+    "area_kept_median": 0.759821794866128,
+    "vertices_after_median": 22252.0
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9655350732858652,
+    "coverage_p5": 0.9274285091373495,
+    "area_kept_median": 0.7983314114776487,
+    "vertices_after_median": 22294.0
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9598040544904425,
+    "coverage_p5": 0.9239000153575638,
+    "area_kept_median": 0.8164465731653514,
+    "vertices_after_median": 16072.0
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9722641605938127,
+    "coverage_p5": 0.9294593643769274,
+    "area_kept_median": 0.8108615817979052,
+    "vertices_after_median": 58922.5
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.008784323943847323,
+   "q25": -0.020290949516377946,
+   "q75": 0.0010557131636492584
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.04523654294437869,
+   "q25": -0.055254664848834345,
+   "q75": -0.03511276385216232
+  }
+ },
+ "faceverse|flame2023": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 11.514929056167603,
+  "n_region_vertices": 1674,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.9207815918010949,
+    "coverage_p5": 0.8596950337394433,
+    "area_kept_median": 0.7133779492468582,
+    "vertices_after_median": 18374.0
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9485709174598392,
+    "coverage_p5": 0.8837524124272473,
+    "area_kept_median": 0.6439717931750246,
+    "vertices_after_median": 6052.0
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9717221033041052,
+    "coverage_p5": 0.9363702854513247,
+    "area_kept_median": 0.6187853215169158,
+    "vertices_after_median": 18287.0
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9555080057113869,
+    "coverage_p5": 0.9104462755498114,
+    "area_kept_median": 0.6540854513371451,
+    "vertices_after_median": 18173.5
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9514882331197051,
+    "coverage_p5": 0.8988860918318454,
+    "area_kept_median": 0.6680062955423023,
+    "vertices_after_median": 13390.0
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9658659669386009,
+    "coverage_p5": 0.9134852774953184,
+    "area_kept_median": 0.6658405106576948,
+    "vertices_after_median": 48413.0
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": 0.000897268470333604,
+   "q25": -0.009512950940085666,
+   "q75": 0.009474658286407606
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.04523654294437869,
+   "q25": -0.055254664848834345,
+   "q75": -0.03511276385216232
+  }
+ },
+ "facescape|gnm": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 8.754535436630249,
+  "n_region_vertices": 8061,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.8560966389641922,
+    "coverage_p5": 0.8147081268608529,
+    "area_kept_median": 0.8228741762265626,
+    "vertices_after_median": 8757.5
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9917045808055265,
+    "coverage_p5": 0.9783645666731984,
+    "area_kept_median": 0.6339450125821127,
+    "vertices_after_median": 3179.0
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9938696503775504,
+    "coverage_p5": 0.9827158460455041,
+    "area_kept_median": 0.6221888879986698,
+    "vertices_after_median": 8377.0
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.993560006423781,
+    "coverage_p5": 0.9797462706280557,
+    "area_kept_median": 0.638128377865192,
+    "vertices_after_median": 8753.0
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9923841034682903,
+    "coverage_p5": 0.9773330712268482,
+    "area_kept_median": 0.6647139923739216,
+    "vertices_after_median": 6686.5
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9962826925807183,
+    "coverage_p5": 0.9919762935250196,
+    "area_kept_median": 0.6535097267774967,
+    "vertices_after_median": 24570.5
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.0036462829894929006,
+   "q25": -0.006179305287860296,
+   "q75": -0.001992649951671397
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.13189021076513682,
+   "q25": -0.13557460546565586,
+   "q75": -0.12726874623017742
+  }
+ },
+ "facescape|flame2023": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 7.825166463851929,
+  "n_region_vertices": 1544,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.8485379358013168,
+    "coverage_p5": 0.7844182837311917,
+    "area_kept_median": 0.7294513158934506,
+    "vertices_after_median": 8482.0
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9887047326370746,
+    "coverage_p5": 0.9642621889771567,
+    "area_kept_median": 0.5575766089218067,
+    "vertices_after_median": 2967.5
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9926394222237179,
+    "coverage_p5": 0.9796082633755779,
+    "area_kept_median": 0.5659255269275473,
+    "vertices_after_median": 8027.5
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9916595332441489,
+    "coverage_p5": 0.967451706392248,
+    "area_kept_median": 0.5607913988489837,
+    "vertices_after_median": 8481.5
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9907381395104464,
+    "coverage_p5": 0.9667041828347023,
+    "area_kept_median": 0.5834354347315085,
+    "vertices_after_median": 6414.0
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9946460429069884,
+    "coverage_p5": 0.9716044287467096,
+    "area_kept_median": 0.577975458674403,
+    "vertices_after_median": 23249.5
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.0005298402444201932,
+   "q25": -0.0013080786513759964,
+   "q75": 3.0492431611660954e-05
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.13189021076513682,
+   "q25": -0.13557460546565586,
+   "q75": -0.12726874623017742
+  }
+ },
+ "faceverse_neutral|gnm": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 14.181519269943237,
+  "n_region_vertices": 8654,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.9119129828652752,
+    "coverage_p5": 0.8662474626073468,
+    "area_kept_median": 0.8646209110382945,
+    "vertices_after_median": 21839.5
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9607148403338946,
+    "coverage_p5": 0.9193550181356867,
+    "area_kept_median": 0.796652359912802,
+    "vertices_after_median": 7497.5
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9769720413201332,
+    "coverage_p5": 0.9503942069722942,
+    "area_kept_median": 0.7625865723112016,
+    "vertices_after_median": 22218.0
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9687056616150804,
+    "coverage_p5": 0.9341856880977768,
+    "area_kept_median": 0.8048687507308818,
+    "vertices_after_median": 22389.0
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9652834287755601,
+    "coverage_p5": 0.9322688964452377,
+    "area_kept_median": 0.817965348414443,
+    "vertices_after_median": 16210.5
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9739249052055673,
+    "coverage_p5": 0.9446091389243573,
+    "area_kept_median": 0.8127406301662992,
+    "vertices_after_median": 59229.0
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.009203573062650443,
+   "q25": -0.01435138217364453,
+   "q75": -0.005246612014417649
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.044913793877243674,
+   "q25": -0.048959217780902745,
+   "q75": -0.04171705673549812
+  }
+ },
+ "faceverse_neutral|flame2023": {
+  "n_meshes": 600,
+  "failed": [],
+  "seconds": 13.282654285430908,
+  "n_region_vertices": 1674,
+  "by_topology": {
+   "crop": {
+    "n": 100,
+    "coverage_median": 0.9277583851395355,
+    "coverage_p5": 0.878410598222574,
+    "area_kept_median": 0.7238923350372968,
+    "vertices_after_median": 18226.5
+   },
+   "down8k": {
+    "n": 100,
+    "coverage_median": 0.9569754645410153,
+    "coverage_p5": 0.9103094147370037,
+    "area_kept_median": 0.6509165227794592,
+    "vertices_after_median": 5882.0
+   },
+   "noisy": {
+    "n": 100,
+    "coverage_median": 0.9766601257711831,
+    "coverage_p5": 0.9462494944353701,
+    "area_kept_median": 0.6179630796396834,
+    "vertices_after_median": 18158.5
+   },
+   "original": {
+    "n": 100,
+    "coverage_median": 0.9660564276357386,
+    "coverage_p5": 0.9231407721550534,
+    "area_kept_median": 0.661481408873992,
+    "vertices_after_median": 18243.5
+   },
+   "remesh": {
+    "n": 100,
+    "coverage_median": 0.9612417751185294,
+    "coverage_p5": 0.9183138200715829,
+    "area_kept_median": 0.673447189820094,
+    "vertices_after_median": 13508.5
+   },
+   "up60k": {
+    "n": 100,
+    "coverage_median": 0.9707584273908156,
+    "coverage_p5": 0.9252458291269869,
+    "area_kept_median": 0.6693492732479641,
+    "vertices_after_median": 48490.5
+   }
+  },
+  "log_sqrt_area_crop_over_original_after": {
+   "median": -0.000469077448079006,
+   "q25": -0.0009798859828136508,
+   "q75": -0.00012544532320121155
+  },
+  "log_sqrt_area_crop_over_original_before": {
+   "median": -0.044913793877243674,
+   "q25": -0.048959217780902745,
+   "q75": -0.04171705673549812
+  }
+ }
+}

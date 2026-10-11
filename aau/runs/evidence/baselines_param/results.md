@@ -144,7 +144,9 @@ preregistrata e all'emendamento 1, e si legge come sensibilita'.
   HIFI3D FR contro sono ctrlfr contro le mesh d'identita' FR di B (fino a -0.154 [-0.197, -0.114]); su HIFI3D SR,
   oltre a ctrlfr, ora anche factorized d_P perde contro GNM vB coefficienti (s1234 -0.108 [-0.193, -0.022], s2345
   -0.124 [-0.216, -0.032]). Sulle sole righe col crop: HIFI3D FR 6 / 14 / 4 (anche factorized s2345 d_F cal. sotto 0
-  contro le mesh FR di B), FaceScape FR 0 / 24 / 0. Su FaceVerse (entrambe le viste) quasi tutto resta non risolto.
+  contro le mesh FR di B), SR 4 / 10 / 10; FaceScape FR 0 / 24 / 0, SR 0 / 19 / 5; FaceVerse neutra FR 0 / 3 / 21, SR
+  0 / 4 / 20 (7 celle contro, tutte contro GNM vB mesh SR; su all_cross 1). Su FaceVerse con espressioni quasi tutto
+  resta non risolto (conteggi completati dall'emendamento 3, `controls_e3.json` `counts_e2`).
 - **Perche' i bracci cadono sul crop** (diagnostica aggiunta dopo i numeri, non nel protocollo; tabella in
   `results.md`): il crop sposta in modo sistematico l'embedding dei bracci. Su FaceScape factorized stima per il crop
   una taglia piu' piccola (log S -0.061 / -0.070, cioe' circa 4 volte la deviazione standard di log S fra soggetti,
@@ -152,7 +154,9 @@ preregistrata e all'emendamento 1, e si legge come sensibilita'.
   su FaceScape 1.43 contro 0.79, su HIFI3D 1.24 contro 1.05. Su HIFI3D lo spostamento di log S (-0.024 / -0.034) e'
   piccolo rispetto alla varianza della taglia (0.047): per questo factorized regge meglio li'. La GT e B sono
   definite sulla regione comune, che il crop non tocca; i bracci vedono l'area della mesh (normalizzazione globale).
-  Lo scenario crop e' fuori dalla distribuzione di training dei bracci? Non verificato qui.
+  (Correzione dell'emendamento 3: il crop E' nella distribuzione di training, con perdita d'area comparabile; i
+  bracci vi sono invarianti sugli held-out sintetici ICT e GNM; il calo sui test dipende in gran parte dal supporto:
+  vedi sotto.)
 - **Composizione forma B + taglia B (sez. 2)**, k dagli held-out sintetici senza test (GNM 1.698, FLAME 1.610), lettura
   dichiarata con FR: HIFI3D GNM 0.698 [0.612, 0.769], FLAME 0.712 [0.627, 0.781] (meglio della migliore colonna FR di
   B, 0.686), contro factorized d_F cal. 0.749 / 0.731 e ctrlfr 0.757 / 0.746: 4 a favore dei bracci, 4 non risolte,
@@ -184,11 +188,110 @@ preregistrata e all'emendamento 1, e si legge come sensibilita'.
   i bracci perdono gran parte del vantaggio su HIFI3D FR (ctrlfr scende sotto le mesh FR di B; factorized s1234 resta
   davanti a tutte le colonne di B, contro le mesh FR +0.058 [+0.019, +0.100] GNM e +0.039 [+0.004, +0.075] FLAME,
   s2345 e' pari alle mesh FR di B) e su FaceScape perdono contro B in tutte le 48 celle dichiarate: il gruppo primario senza
-  crop nascondeva una fragilita' dei bracci al ritaglio, che B non ha. (2) Una composizione dichiarata forma B +
+  crop nascondeva una fragilita' dei bracci al ritaglio, che B non ha (correzione dell'emendamento 3: fragilita' gia'
+  nota da E1, dal dev FaceScape e da `paper/REPORT.md`, e in gran parte dovuta al supporto diverso: vedi sotto). (2)
+  Una composizione dichiarata forma B +
   taglia B, con k fissato senza test, non batte i bracci su HIFI3D FR (4 a favore dei bracci, 4 non risolte) ma li
   batte su FaceScape. Quello che regge per i bracci contro tutto quanto provato: HIFI3D FR senza crop (contro B
   congelata, B a sigma 8 e la composizione). FaceScape e' il dominio di sviluppo dei bracci: le sconfitte li' pesano di
   piu'. Nessuna correzione per confronti multipli; la scelta di sigma resta sul bordo della griglia.
+
+## Emendamento 3 (POST HOC): lettura
+
+Protocollo `PROTOCOL_emendamento_3.md` (sez. 1-5 commit acaf0ab, sha256 `1c4331dc...`; sez. 6, aggiunta del critic del
+paper, commit 6d23536, sha256 `c52cd1e4...`), scritto dopo i numeri dell'emendamento 2 sul verdetto RISERVE del critic.
+Job: ritagli, operatori ed embedding dell'esperimento 1 1067973 (4 A100 di nv-ai-04, QoS unprivileged; cancellato a
+embedding dell'esperimento 1 finiti, 46 / 46); held-out 1068029 (4 A100); delta 1068051 (64 core, 19 min); sez. 6
+1067960; controllo della catena 1067965. Il primo tentativo 1067823 e' stato cancellato: con 4 processi di embedding a
+thread OpenMP di default il preload non avanzava (34 min senza un embedding); poi 8 thread per processo (~1 min per 600
+mesh da /tmp). Tutto e' post hoc e si legge come sensibilita' e diagnostica.
+
+- **Controlli.** Passati: `bp.region` rieseguita ridà i vertici di `region.npz` (8 / 8); 0 ritagli falliti su 4.800;
+  catena: factorized s1234 sugli operatori dello store di HIFI3D ridà lo store entro 4.8e-7; bracci interi e B su
+  all_cross e righe col crop ridanno `paired_e2.csv` (496 valori, scarto 8e-17 su punti e IC, stesse righe); baseline
+  geometriche su all_cross identiche a `baselines_mm/spearman.csv`; held-out: gli embedding delle 1.500 senza crop
+  coincidono con quelli della calibrazione entro 8e-4 (factorized) e 4.6e-3 (C3M). **Deviazioni:** FaceVerse neutra
+  non ha baseline geometriche ne' lo store C3M e123 (niente D2 li', C3M e123 saltato); per il resto come da protocollo.
+- **Correzioni al testo dell'emendamento 2 (sez. 3).**
+  1. *Il crop e' nella distribuzione di training* (al posto di "fuori distribuzione? non verificato"): C3F (REMESH
+     500 / 500, ICT 5000 / 5000, `gnm|crop`) e C3M (`trainer_v3/factorized/scale_tables/c3m.json`) hanno il crop dello
+     stesso generatore (`v2_work/genict/mesh_ops.py` `make_crop`, banda di bordo fissa), con perdita d'area comparabile
+     a quella dei test (log del rapporto sqrt(area) crop / original, valori del critic: training BFM -0.080, ICT -0.104,
+     GNM -0.117; test HIFI3D -0.108, FaceScape -0.131, FaceVerse -0.047; misurati qui sui test: -0.109, -0.132, -0.045).
+     Anche il run massivo lo ha (`v3_work/stream/views.py`, `LABEL_WEIGHTS` crop 1.0). Sugli held-out sintetici
+     l'invarianza al crop c'e' (esperimento 2, sotto).
+  2. *Baseline geometriche su all_cross* (stesse 148.500 righe, `baselines_mm/spearman.csv`, ricalcolate identiche): FR
+     FaceScape ICP + Chamfer mm 0.381 [0.326, 0.434], Chamfer pura 0.570 [0.499, 0.641]; HIFI3D 0.556 [0.488, 0.617] e
+     0.645 [0.547, 0.725]. Con il crop i bracci interi arrivano al livello di ICP o sotto (FaceScape d_F cal. 0.370 /
+     0.351, ctrlfr 0.334 / 0.323; HIFI3D ctrlfr 0.516 / 0.530; factorized s1234 0.709 resta sopra). Sulle righe col crop
+     i bracci interi perdono contro la Chamfer pura: HIFI3D FR ctrlfr -0.408 / -0.365 (anche contro ICP mm -0.181 /
+     -0.138) e factorized s2345 -0.091; FaceScape FR tutti e 4 (da -0.153 a -0.270), SR ctrlfr; FaceVerse FR e SR tutti
+     e 4 (da -0.083 a -0.128).
+  3. *C3M crolla anch'esso*: d_F cal. con FR, senza crop -> righe col crop, e205 HIFI3D 0.739 -> 0.472, FaceScape 0.712
+     -> 0.449 (il critic: 0.739 -> 0.472, 0.711 -> 0.449), e123 0.748 -> 0.506 e 0.666 -> 0.472. Il run massivo ha lo
+     stesso crop fisso con peso 1.0: per l'esperimento 2 l'invarianza in-distribuzione c'e' gia', quindi non c'e'
+     ragione di attendersi che piu' training sullo stesso crop risolva da solo la fragilita' sui test.
+  4. *La fragilita' era nota*: `aau/runs/evidence/e1/summary.md` (HIFI3D, GT maxabs, senza crop -> all_cross: C3F 0.716
+     -> 0.587, C3M 0.677 -> 0.509), dev FaceScape (e108 0.642 -> 0.335 col crop, `dev_facescape/results.md`),
+     `paper/REPORT.md` (legge di Weyl: il crop sposta gli autovalori del Laplaciano). L'emendamento 2 non l'ha scoperta:
+     l'ha misurata contro B.
+  5. *Asimmetria della regione*: B usa una regione per dominio stimata su 100 soggetti NON valutati con l'anello di
+     bordo escluso (`bp.py` `region`) e scarta le corrispondenze sul bordo della regione; i bracci fanno pooling su tutta
+     la superficie, bordo compreso. L'esperimento 1 la misura (sotto).
+  6. *Pooling*: all_cross mescola coppie di topologie con scarti diversi e sovrastima un po' il calo; per il crop si
+     leggono le righe col crop o la media dentro le coppie di topologie (gruppi c e d). Qui le due letture danno gli
+     stessi conteggi entro 1-2 celle.
+  Conteggi mancanti (`controls_e3.json` `counts_e2`): FaceScape SR sulle righe col crop 0 / 19 / 5; FaceVerse neutra
+  sulle righe col crop FR 0 / 3 / 21, SR 0 / 4 / 20 (7 celle contro, tutte contro GNM vB mesh SR), su all_cross 1.
+- **Ritaglio alla regione di B (diagnostica).** Copertura della regione da parte del crop 0.82-0.93 di mediana (altre
+  topologie 0.95-0.996): per la regola dichiarata (< 0.95) il crop toglie anche una parte della regione di B, che
+  quindi lavora gia' su dati parziali e regge lo stesso. Ma dopo il ritaglio crop e original hanno quasi la stessa
+  area (log sqrt(area crop / area original) da -0.009 a +0.001, contro -0.045 / -0.132 prima): la parte di regione tolta
+  e' una banda sottile al suo bordo (<= ~2% d'area). Il recupero sotto e' quindi atteso in gran parte per costruzione:
+  dice che il calo veniva dalla banda fuori dalla regione di B.
+- **Esperimento 1: con la stessa regione i bracci recuperano dove calavano.** FaceScape: tutti i bracci dichiarati, con
+  entrambe le regioni, tornano sulle righe col crop al livello senza crop (recupero F 0.91-1.28; D3 righe col crop da
+  +0.23 a +0.48, IC sopra 0): **dipendenza dal supporto**, 8 / 8 con FR e con SR. HIFI3D: ctrlfr recupera (F 0.70-0.74
+  con FR, > 1 con SR); factorized recupera in parte con la regione GNM (s2345 F 0.52 con FR e 0.78 con SR; s1234 0.20 e
+  0.62) e non con la regione FLAME (1.517 vertici; F <= 0.16, in tre casi su quattro negativo); lettura per maggioranza: regione GNM dipendenza
+  dal supporto (FR 3 / 4, SR 4 / 4), regione FLAME pari (2 / 2). FaceVerse (entrambe le viste): il calo del braccio
+  intero e' piccolo (< 0.05 per ctrlfr, 0.03-0.10 per factorized), quasi nulla da leggere. C3M (descrittivo) recupera
+  come i bracci (e205 HIFI3D F 0.80 / 0.56, FaceScape 0.86 / 0.70).
+  **Il ritaglio non e' gratis**: sulle righe senza crop di HIFI3D restringere l'ingresso alla regione costa a tutti i
+  bracci con FR (D3 0 / 8 / 0, da -0.05 a -0.16, peggio con la regione FLAME): su HIFI3D i bracci usano informazione
+  fuori dalla regione di B, la stessa che il crop rovina. Su FaceScape nessun costo (D3 senza crop FR 2 / 0 / 6, SR 3 /
+  0 / 5).
+  **Contro B a regione uguale, righe col crop** (D1, a favore / contro / non risolte): FaceScape FR 13 / 2 / 9
+  (emendamento 2: 0 / 24 / 0), SR 15 / 6 / 3 (0 / 19 / 5); HIFI3D FR 11 / 0 / 13 (6 / 14 / 4), SR 8 / 10 / 6 (4 / 10 /
+  10). Restano per B: GNM vB mesh SR con FR su FaceScape contro factorized s1234 @ GNM (-0.068 [-0.118, -0.018]) e
+  ctrlfr s2345 @ GNM (-0.139); con SR le mesh SR di GNM e FLAME contro ctrlfr (4) e factorized (2, da -0.046 a -0.057)
+  su FaceScape, e su HIFI3D contro ctrlfr (8, che non e' un braccio per SR) e factorized @ FLAME (-0.082 / -0.087): la
+  stessa geografia delle celle B senza crop dell'emendamento 1. Contro le baseline geometriche (D2) sulle righe col
+  crop: HIFI3D FR 16 / 0 / 8, SR 24 / 0 / 0; FaceScape 24 / 0 / 0; FaceVerse FR 7 / 7 / 10, SR 8 / 6 / 10.
+- **Esperimento 2: in-distribuzione l'invarianza al crop c'e'.** Held-out sintetici (100 soggetti per dominio), coppie
+  col crop contro senza crop: ICT e GNM, delta dello Spearman da -0.021 a +0.008 per tutti i bracci dichiarati (con FR e
+  con SR), AUC di verifica 0.999-1.000 in entrambi i casi, d log S del crop da -0.004 a +0.006 (<= 0.12 sd fra
+  soggetti): **invarianza presente**. BFM: con SR -0.019 / -0.026 (IC sotto 0, ma |delta| < 0.05) e d log S -0.023 /
+  -0.019 (1.3 / 1.0 sd): **parziale** per factorized; ctrlfr presente; con FR BFM non si legge (taglia delle original
+  REMESH non e' quella del modello). Sui test, invece, il calo dei bracci interi col crop e' di 0.23-0.42 su FaceScape
+  (factorized FR 0.659 -> 0.351, 0.667 -> 0.278) e d log S era ~4 sd (emendamento 2). Quindi l'invarianza appresa sul
+  crop sintetico non si trasferisce ai domini di test: e' un limite di generalizzazione, non l'assenza del crop nel
+  training.
+- **Sez. 6 (descrittiva, non cieca), Spearman dentro le coppie di topologie senza crop**, bracci interi, IC per
+  soggetto col seme di all_cross. HIFI3D factorized s1234 d_F cal. con FR: media sulle 20 coppie ordinate 0.749 [0.675,
+  0.811] (min 0.730 remesh -> up60k, max 0.760 up60k -> original), stessa topologia 0.760 [0.685, 0.821], differenza -0.011
+  [-0.013, -0.009]; FaceScape: 0.667 [0.598, 0.732] (min 0.628, max 0.706), stessa topologia 0.706 [0.640, 0.769],
+  differenza -0.039 [-0.047, -0.032]; le stime puntuali del critic sono ridate esattamente. Gli altri bracci: differenza
+  20 - stessa topologia da -0.005 a -0.021 su HIFI3D, da -0.020 a -0.054 su FaceScape (ctrlfr s1234 il piu' alto), da
+  -0.001 a -0.010 su FaceVerse (0.26-0.32 di livello). Lettura: senza crop la discretizzazione costa poco (fino a 0.02
+  su HIFI3D, fino a 0.05 su FaceScape, sistematico: IC della differenza sotto 0 su HIFI3D e FaceScape); la topologia
+  peggiore e' spesso noisy.
+- **Lettura.** Il ribaltamento dell'emendamento 2 sulle righe col crop (FaceScape 48 / 48 celle contro i bracci) e' in
+  gran parte un'asimmetria di supporto: i bracci sono sensibili alla banda di bordo fuori dalla regione di B, che B non
+  guarda per costruzione; a regione uguale, con FR, non perdono quasi piu' contro B (FaceScape 13 a favore e 2 contro
+  su 24, HIFI3D 11 e 0) e restano dietro alle mesh SR di B su FaceScape SR, come senza crop. Non e' un esito gratis per i bracci: su HIFI3D senza crop la
+  regione di B costa (fino a -0.16), e sui test il crop resta un punto debole dei bracci sull'ingresso intero, ne' il
+  training sullo stesso crop lo cura (esperimento 2). Tutto post hoc; nessuna correzione per confronti multipli.
 
 ## Fit
 
@@ -2464,4 +2567,1714 @@ GT SR:
 | FLAME 2023 Open vB sigma sens., coefficienti | -0.000 [-0.229, +0.272], P 0.462 | -0.012 [-0.209, +0.229], P 0.514 | -0.031 [-0.241, +0.131], P 0.661 | -0.050 [-0.261, +0.129], P 0.744 |
 | FLAME 2023 Open vB sigma sens., mesh d'identita' FR | +0.217 [-0.182, +0.642], P 0.153 | +0.205 [-0.158, +0.612], P 0.148 | +0.186 [-0.054, +0.421], P 0.054 | +0.167 [-0.061, +0.381], P 0.066 |
 | FLAME 2023 Open vB sigma sens., mesh d'identita' SR | -0.111 [-0.253, +0.030], P 0.924 | -0.123 [-0.289, +0.018], P 0.952 | -0.143 [-0.425, +0.089], P 0.912 | -0.161 [-0.447, +0.080], P 0.908 |
+
+# Emendamento 3 (POST HOC): bracci sulla regione di B, crop sugli held-out sintetici
+
+Protocollo `PROTOCOL_emendamento_3.md` (sha256 `c52cd1e4a52cbeda95dac9a8ae56d193cf96bc60018d0f0a8d12b03bcf488c85`), scritto dopo i numeri dell'emendamento 2. Numeri in `paired_e3.csv`, `spearman_e3.csv`, `heldout_e3.csv`, `controls_e3.json`, `e3/crop_stats.json`.
+
+## Ritaglio alla regione di B (diagnostica, senza GT)
+
+Copertura della regione = frazione d'area della regione di B (collocata su ogni mesh) presente nella mesh con la regola di voto di `bp.region`; area tenuta = area del ritaglio / area della mesh; crop / original = log(sqrt(area crop) / sqrt(area original)) per soggetto, mediana [IQR], prima e dopo il ritaglio.
+
+| vista | regione | fallite | copertura: crop mediana (p5) | altre topologie mediana | area tenuta crop / original | crop / original prima | dopo |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| hifi3d | regione GNM (7700 vertici) | 0 | 0.821 (0.742) | 0.975-0.993 | 0.87 / 0.72 | -0.109 [-0.111, -0.106] | -0.009 [-0.019, -0.002] |
+| hifi3d | regione FLAME (1517 vertici) | 0 | 0.866 (0.790) | 0.977-0.992 | 0.71 / 0.57 | -0.109 [-0.111, -0.106] | -0.002 [-0.003, -0.001] |
+| faceverse | regione GNM (8654 vertici) | 0 | 0.908 (0.864) | 0.954-0.973 | 0.86 / 0.80 | -0.045 [-0.055, -0.035] | -0.009 [-0.020, +0.001] |
+| faceverse | regione FLAME (1674 vertici) | 0 | 0.921 (0.860) | 0.949-0.972 | 0.71 / 0.65 | -0.045 [-0.055, -0.035] | +0.001 [-0.010, +0.009] |
+| facescape | regione GNM (8061 vertici) | 0 | 0.856 (0.815) | 0.992-0.996 | 0.82 / 0.64 | -0.132 [-0.136, -0.127] | -0.004 [-0.006, -0.002] |
+| facescape | regione FLAME (1544 vertici) | 0 | 0.849 (0.784) | 0.989-0.995 | 0.73 / 0.56 | -0.132 [-0.136, -0.127] | -0.001 [-0.001, +0.000] |
+| faceverse_neutral | regione GNM (8654 vertici) | 0 | 0.912 (0.866) | 0.961-0.977 | 0.86 / 0.80 | -0.045 [-0.049, -0.042] | -0.009 [-0.014, -0.005] |
+| faceverse_neutral | regione FLAME (1674 vertici) | 0 | 0.928 (0.878) | 0.957-0.977 | 0.72 / 0.66 | -0.045 [-0.049, -0.042] | -0.000 [-0.001, -0.000] |
+
+## Spearman dentro le coppie di topologie senza crop (sez. 6, descrittiva, non cieca)
+
+Bracci sull'ingresso intero. Media sulle 20 coppie ordinate di topologie diverse senza crop (righe di all_cross, 4.950 per coppia) e sulle 5 coppie di stessa topologia (righe costruite sulle stesse coppie di soggetti); IC 95% per soggetto col seme di all_cross; min e max = stime puntuali fra le coppie. Lettura dichiarata in grassetto (d_F cal. e ctrlfr con FR, d_P e ctrlfr con SR). Stime puntuali del critic dichiarate prima del calcolo: hifi3d factorized s1234, d_F cal. FR 0.749 [0.730, 0.760], stessa topologia 0.760; facescape factorized s1234, d_F cal. FR 0.667 [0.628, 0.706], stessa topologia 0.706.
+
+| vista | braccio | GT | media 20 senza crop | min (coppia) | max (coppia) | media 5 stessa topologia | min | max | 20 - 5 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hifi3d | factorized s1234, d_F cal. | FR | **0.749 [0.675, 0.811]** | 0.730 (remesh -> up60k) | 0.760 (up60k -> original) | **0.760 [0.685, 0.821]** | 0.754 (noisy -> noisy) | 0.764 (remesh -> remesh) | -0.011 [-0.013, -0.009] |
+| hifi3d | factorized s1234, d_F cal. | SR | 0.319 [0.229, 0.410] | 0.304 (remesh -> noisy) | 0.333 (original -> remesh) | 0.325 [0.233, 0.417] | 0.314 (noisy -> noisy) | 0.334 (remesh -> remesh) | -0.006 [-0.008, -0.004] |
+| hifi3d | factorized s1234, d_P | FR | 0.427 [0.331, 0.520] | 0.397 (noisy -> down8k) | 0.443 (remesh -> original) | 0.434 [0.338, 0.526] | 0.420 (noisy -> noisy) | 0.444 (original -> original) | -0.007 [-0.010, -0.004] |
+| hifi3d | factorized s1234, d_P | SR | **0.623 [0.550, 0.688]** | 0.594 (down8k -> noisy) | 0.640 (original -> remesh) | **0.635 [0.561, 0.700]** | 0.619 (noisy -> noisy) | 0.642 (remesh -> remesh) | -0.011 [-0.014, -0.009] |
+| hifi3d | factorized s2345, d_F cal. | FR | **0.731 [0.655, 0.794]** | 0.693 (remesh -> up60k) | 0.748 (down8k -> original) | **0.745 [0.669, 0.808]** | 0.735 (noisy -> noisy) | 0.748 (remesh -> remesh) | -0.014 [-0.016, -0.011] |
+| hifi3d | factorized s2345, d_F cal. | SR | 0.313 [0.220, 0.408] | 0.299 (remesh -> noisy) | 0.324 (down8k -> remesh) | 0.318 [0.224, 0.414] | 0.307 (noisy -> noisy) | 0.322 (remesh -> remesh) | -0.005 [-0.007, -0.003] |
+| hifi3d | factorized s2345, d_P | FR | 0.418 [0.321, 0.521] | 0.397 (noisy -> remesh) | 0.430 (down8k -> original) | 0.423 [0.326, 0.527] | 0.410 (noisy -> noisy) | 0.428 (original -> original) | -0.005 [-0.007, -0.003] |
+| hifi3d | factorized s2345, d_P | SR | **0.613 [0.529, 0.688]** | 0.594 (remesh -> noisy) | 0.627 (original -> up60k) | **0.620 [0.535, 0.695]** | 0.597 (noisy -> noisy) | 0.632 (remesh -> remesh) | -0.007 [-0.009, -0.005] |
+| hifi3d | ctrlfr s1234 | FR | **0.758 [0.684, 0.820]** | 0.715 (remesh -> up60k) | 0.782 (down8k -> original) | **0.779 [0.705, 0.841]** | 0.768 (noisy -> noisy) | 0.788 (remesh -> remesh) | -0.021 [-0.026, -0.017] |
+| hifi3d | ctrlfr s1234 | SR | **0.340 [0.246, 0.439]** | 0.317 (remesh -> noisy) | 0.353 (down8k -> original) | **0.348 [0.253, 0.451]** | 0.336 (noisy -> noisy) | 0.356 (remesh -> remesh) | -0.008 [-0.012, -0.005] |
+| hifi3d | ctrlfr s2345 | FR | **0.747 [0.670, 0.811]** | 0.686 (remesh -> noisy) | 0.770 (down8k -> original) | **0.765 [0.690, 0.829]** | 0.745 (noisy -> noisy) | 0.772 (remesh -> remesh) | -0.018 [-0.023, -0.015] |
+| hifi3d | ctrlfr s2345 | SR | **0.349 [0.257, 0.448]** | 0.313 (remesh -> noisy) | 0.363 (down8k -> original) | **0.357 [0.263, 0.457]** | 0.341 (noisy -> noisy) | 0.365 (original -> original) | -0.008 [-0.011, -0.005] |
+| facescape | factorized s1234, d_F cal. | FR | **0.667 [0.598, 0.732]** | 0.628 (up60k -> noisy) | 0.706 (original -> up60k) | **0.706 [0.640, 0.769]** | 0.691 (down8k -> down8k) | 0.724 (up60k -> up60k) | -0.039 [-0.047, -0.032] |
+| facescape | factorized s1234, d_F cal. | SR | 0.698 [0.634, 0.758] | 0.663 (up60k -> noisy) | 0.728 (original -> up60k) | 0.737 [0.676, 0.795] | 0.726 (down8k -> down8k) | 0.747 (up60k -> up60k) | -0.039 [-0.047, -0.032] |
+| facescape | factorized s1234, d_P | FR | 0.690 [0.612, 0.760] | 0.662 (noisy -> original) | 0.731 (up60k -> remesh) | 0.718 [0.643, 0.787] | 0.704 (down8k -> down8k) | 0.737 (up60k -> up60k) | -0.028 [-0.035, -0.023] |
+| facescape | factorized s1234, d_P | SR | **0.762 [0.697, 0.818]** | 0.741 (down8k -> up60k) | 0.795 (up60k -> remesh) | **0.790 [0.727, 0.843]** | 0.778 (original -> original) | 0.802 (up60k -> up60k) | -0.028 [-0.035, -0.023] |
+| facescape | factorized s2345, d_F cal. | FR | **0.673 [0.605, 0.735]** | 0.620 (noisy -> up60k) | 0.710 (original -> up60k) | **0.714 [0.648, 0.775]** | 0.702 (noisy -> noisy) | 0.736 (remesh -> remesh) | -0.041 [-0.050, -0.034] |
+| facescape | factorized s2345, d_F cal. | SR | 0.692 [0.628, 0.752] | 0.638 (noisy -> up60k) | 0.725 (original -> down8k) | 0.731 [0.667, 0.790] | 0.716 (noisy -> noisy) | 0.745 (remesh -> remesh) | -0.039 [-0.047, -0.032] |
+| facescape | factorized s2345, d_P | FR | 0.692 [0.610, 0.770] | 0.633 (noisy -> original) | 0.728 (up60k -> remesh) | 0.712 [0.630, 0.788] | 0.694 (noisy -> noisy) | 0.737 (remesh -> remesh) | -0.020 [-0.026, -0.014] |
+| facescape | factorized s2345, d_P | SR | **0.763 [0.699, 0.818]** | 0.715 (noisy -> original) | 0.796 (up60k -> remesh) | **0.783 [0.720, 0.837]** | 0.767 (noisy -> noisy) | 0.803 (remesh -> remesh) | -0.020 [-0.026, -0.015] |
+| facescape | ctrlfr s1234 | FR | **0.705 [0.642, 0.758]** | 0.592 (noisy -> remesh) | 0.760 (remesh -> original) | **0.758 [0.696, 0.811]** | 0.732 (noisy -> noisy) | 0.780 (remesh -> remesh) | -0.054 [-0.066, -0.042] |
+| facescape | ctrlfr s1234 | SR | **0.659 [0.584, 0.721]** | 0.562 (noisy -> original) | 0.717 (original -> remesh) | **0.708 [0.632, 0.769]** | 0.672 (noisy -> noisy) | 0.728 (remesh -> remesh) | -0.049 [-0.060, -0.037] |
+| facescape | ctrlfr s2345 | FR | **0.696 [0.632, 0.755]** | 0.616 (noisy -> remesh) | 0.739 (up60k -> original) | **0.733 [0.672, 0.790]** | 0.692 (noisy -> noisy) | 0.754 (remesh -> remesh) | -0.037 [-0.046, -0.028] |
+| facescape | ctrlfr s2345 | SR | **0.669 [0.596, 0.734]** | 0.607 (remesh -> noisy) | 0.707 (up60k -> original) | **0.702 [0.627, 0.766]** | 0.661 (noisy -> noisy) | 0.722 (remesh -> remesh) | -0.033 [-0.042, -0.025] |
+| faceverse | factorized s1234, d_F cal. | FR | **0.304 [0.232, 0.369]** | 0.278 (down8k -> original) | 0.337 (remesh -> noisy) | **0.307 [0.232, 0.376]** | 0.263 (down8k -> down8k) | 0.350 (noisy -> noisy) | -0.002 [-0.011, +0.005] |
+| faceverse | factorized s1234, d_F cal. | SR | 0.270 [0.197, 0.342] | 0.234 (original -> down8k) | 0.310 (remesh -> noisy) | 0.273 [0.196, 0.347] | 0.233 (down8k -> down8k) | 0.309 (noisy -> noisy) | -0.002 [-0.011, +0.004] |
+| faceverse | factorized s1234, d_P | FR | 0.284 [0.218, 0.352] | 0.256 (remesh -> down8k) | 0.321 (original -> noisy) | 0.290 [0.220, 0.361] | 0.260 (down8k -> down8k) | 0.341 (noisy -> noisy) | -0.005 [-0.015, +0.004] |
+| faceverse | factorized s1234, d_P | SR | **0.287 [0.219, 0.355]** | 0.252 (noisy -> down8k) | 0.323 (remesh -> noisy) | **0.294 [0.222, 0.365]** | 0.260 (down8k -> down8k) | 0.336 (noisy -> noisy) | -0.007 [-0.016, +0.001] |
+| faceverse | factorized s2345, d_F cal. | FR | **0.319 [0.259, 0.377]** | 0.279 (down8k -> up60k) | 0.350 (noisy -> remesh) | **0.321 [0.260, 0.381]** | 0.286 (down8k -> down8k) | 0.352 (noisy -> noisy) | -0.002 [-0.009, +0.004] |
+| faceverse | factorized s2345, d_F cal. | SR | 0.287 [0.213, 0.357] | 0.250 (original -> down8k) | 0.317 (up60k -> noisy) | 0.288 [0.212, 0.361] | 0.257 (down8k -> down8k) | 0.315 (noisy -> noisy) | -0.001 [-0.008, +0.005] |
+| faceverse | factorized s2345, d_P | FR | 0.308 [0.240, 0.375] | 0.286 (remesh -> down8k) | 0.339 (up60k -> noisy) | 0.310 [0.240, 0.378] | 0.290 (down8k -> down8k) | 0.344 (noisy -> noisy) | -0.002 [-0.010, +0.005] |
+| faceverse | factorized s2345, d_P | SR | **0.314 [0.249, 0.379]** | 0.287 (noisy -> up60k) | 0.343 (up60k -> noisy) | **0.316 [0.249, 0.384]** | 0.293 (down8k -> down8k) | 0.342 (noisy -> noisy) | -0.002 [-0.010, +0.005] |
+| faceverse | ctrlfr s1234 | FR | **0.291 [0.226, 0.358]** | 0.239 (remesh -> down8k) | 0.328 (up60k -> original) | **0.301 [0.235, 0.371]** | 0.238 (down8k -> down8k) | 0.355 (noisy -> noisy) | -0.010 [-0.021, +0.000] |
+| faceverse | ctrlfr s1234 | SR | **0.281 [0.214, 0.353]** | 0.238 (remesh -> down8k) | 0.310 (up60k -> original) | **0.288 [0.218, 0.363]** | 0.231 (down8k -> down8k) | 0.325 (noisy -> noisy) | -0.007 [-0.018, +0.004] |
+| faceverse | ctrlfr s2345 | FR | **0.262 [0.192, 0.335]** | 0.219 (down8k -> up60k) | 0.313 (noisy -> remesh) | **0.272 [0.200, 0.346]** | 0.212 (down8k -> down8k) | 0.352 (noisy -> noisy) | -0.010 [-0.019, -0.001] |
+| faceverse | ctrlfr s2345 | SR | **0.263 [0.192, 0.336]** | 0.221 (original -> down8k) | 0.306 (noisy -> remesh) | **0.271 [0.199, 0.344]** | 0.210 (down8k -> down8k) | 0.341 (noisy -> noisy) | -0.007 [-0.017, +0.001] |
+
+## Recupero dei bracci sulle righe col crop (criteri della sez. 1)
+
+rho senza crop e righe col crop del braccio intero, righe col crop del braccio sulla regione; F = recupero della frazione del calo; D3 = braccio sulla regione - braccio intero (righe col crop; media dentro le 5 coppie col crop).
+
+| vista | GT | braccio | regione | rho senza crop | rho col crop | col crop sulla regione | F | D3 righe col crop | D3 media crop 5 | lettura |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hifi3d | FR | factorized s1234, d_F cal. | regione GNM | 0.749 | 0.663 | 0.680 | 0.20 | +0.017 [-0.031, +0.060] | +0.017 [-0.032, +0.059] | limite del descrittore |
+| hifi3d | FR | factorized s1234, d_F cal. | regione FLAME | 0.749 | 0.663 | 0.617 | -0.53 | -0.046 [-0.120, +0.022] | -0.047 [-0.121, +0.021] | limite del descrittore |
+| hifi3d | FR | factorized s2345, d_F cal. | regione GNM | 0.731 | 0.552 | 0.645 | 0.52 | +0.093 [+0.046, +0.140] | +0.092 [+0.045, +0.138] | dipendenza dal supporto |
+| hifi3d | FR | factorized s2345, d_F cal. | regione FLAME | 0.731 | 0.552 | 0.581 | 0.16 | +0.029 [-0.044, +0.098] | +0.028 [-0.045, +0.096] | limite del descrittore |
+| hifi3d | FR | ctrlfr s1234 | regione GNM | 0.757 | 0.236 | 0.602 | 0.70 | +0.367 [+0.309, +0.422] | +0.367 [+0.310, +0.422] | dipendenza dal supporto |
+| hifi3d | FR | ctrlfr s1234 | regione FLAME | 0.757 | 0.236 | 0.606 | 0.71 | +0.371 [+0.308, +0.430] | +0.371 [+0.307, +0.430] | dipendenza dal supporto |
+| hifi3d | FR | ctrlfr s2345 | regione GNM | 0.746 | 0.279 | 0.622 | 0.74 | +0.344 [+0.291, +0.394] | +0.344 [+0.291, +0.394] | dipendenza dal supporto |
+| hifi3d | FR | ctrlfr s2345 | regione FLAME | 0.746 | 0.279 | 0.617 | 0.72 | +0.338 [+0.275, +0.401] | +0.337 [+0.273, +0.399] | dipendenza dal supporto |
+| hifi3d | FR | C3M e123, d_F cal. | regione GNM | 0.748 | 0.506 | 0.663 | 0.65 | +0.157 [+0.109, +0.205] | +0.157 [+0.110, +0.206] | dipendenza dal supporto (C3M, descrittivo) |
+| hifi3d | FR | C3M e123, d_F cal. | regione FLAME | 0.748 | 0.506 | 0.590 | 0.35 | +0.084 [+0.015, +0.150] | +0.084 [+0.015, +0.149] | misto (C3M, descrittivo) |
+| hifi3d | FR | C3M e205, d_F cal. | regione GNM | 0.739 | 0.472 | 0.685 | 0.80 | +0.213 [+0.166, +0.262] | +0.216 [+0.169, +0.267] | dipendenza dal supporto (C3M, descrittivo) |
+| hifi3d | FR | C3M e205, d_F cal. | regione FLAME | 0.739 | 0.472 | 0.621 | 0.56 | +0.149 [+0.086, +0.206] | +0.149 [+0.086, +0.208] | dipendenza dal supporto (C3M, descrittivo) |
+| hifi3d | SR | factorized s1234, d_P | regione GNM | 0.622 | 0.550 | 0.594 | 0.62 | +0.045 [+0.001, +0.089] | +0.044 [-0.000, +0.089] | dipendenza dal supporto |
+| hifi3d | SR | factorized s1234, d_P | regione FLAME | 0.622 | 0.550 | 0.485 | -0.90 | -0.065 [-0.160, +0.025] | -0.066 [-0.161, +0.024] | limite del descrittore |
+| hifi3d | SR | factorized s2345, d_P | regione GNM | 0.613 | 0.514 | 0.591 | 0.78 | +0.077 [+0.029, +0.124] | +0.076 [+0.028, +0.122] | dipendenza dal supporto |
+| hifi3d | SR | factorized s2345, d_P | regione FLAME | 0.613 | 0.514 | 0.480 | -0.34 | -0.034 [-0.128, +0.056] | -0.035 [-0.130, +0.055] | limite del descrittore |
+| hifi3d | SR | ctrlfr s1234 | regione GNM | 0.339 | 0.164 | 0.453 | 1.65 | +0.290 [+0.230, +0.354] | +0.290 [+0.230, +0.354] | dipendenza dal supporto |
+| hifi3d | SR | ctrlfr s1234 | regione FLAME | 0.339 | 0.164 | 0.440 | 1.58 | +0.277 [+0.185, +0.366] | +0.276 [+0.185, +0.366] | dipendenza dal supporto |
+| hifi3d | SR | ctrlfr s2345 | regione GNM | 0.348 | 0.188 | 0.430 | 1.52 | +0.242 [+0.186, +0.302] | +0.242 [+0.186, +0.302] | dipendenza dal supporto |
+| hifi3d | SR | ctrlfr s2345 | regione FLAME | 0.348 | 0.188 | 0.417 | 1.43 | +0.228 [+0.143, +0.311] | +0.227 [+0.142, +0.310] | dipendenza dal supporto |
+| hifi3d | SR | C3M e123, d_P | regione GNM | 0.595 | 0.462 | 0.514 | 0.39 | +0.052 [-0.011, +0.111] | +0.049 [-0.016, +0.107] | limite del descrittore (C3M, descrittivo) |
+| hifi3d | SR | C3M e123, d_P | regione FLAME | 0.595 | 0.462 | 0.460 | -0.02 | -0.002 [-0.093, +0.087] | -0.006 [-0.098, +0.084] | limite del descrittore (C3M, descrittivo) |
+| hifi3d | SR | C3M e205, d_P | regione GNM | 0.591 | 0.481 | 0.544 | 0.57 | +0.062 [+0.005, +0.120] | +0.063 [+0.005, +0.122] | dipendenza dal supporto (C3M, descrittivo) |
+| hifi3d | SR | C3M e205, d_P | regione FLAME | 0.591 | 0.481 | 0.471 | -0.10 | -0.011 [-0.107, +0.085] | -0.013 [-0.111, +0.084] | limite del descrittore (C3M, descrittivo) |
+| facescape | FR | factorized s1234, d_F cal. | regione GNM | 0.659 | 0.351 | 0.687 | 1.09 | +0.336 [+0.269, +0.401] | +0.316 [+0.247, +0.382] | dipendenza dal supporto |
+| facescape | FR | factorized s1234, d_F cal. | regione FLAME | 0.659 | 0.351 | 0.664 | 1.02 | +0.313 [+0.243, +0.383] | +0.293 [+0.218, +0.365] | dipendenza dal supporto |
+| facescape | FR | factorized s2345, d_F cal. | regione GNM | 0.667 | 0.278 | 0.703 | 1.09 | +0.425 [+0.352, +0.497] | +0.404 [+0.327, +0.477] | dipendenza dal supporto |
+| facescape | FR | factorized s2345, d_F cal. | regione FLAME | 0.667 | 0.278 | 0.697 | 1.08 | +0.419 [+0.342, +0.496] | +0.398 [+0.319, +0.478] | dipendenza dal supporto |
+| facescape | FR | ctrlfr s1234 | regione GNM | 0.663 | 0.264 | 0.714 | 1.13 | +0.450 [+0.385, +0.506] | +0.451 [+0.384, +0.512] | dipendenza dal supporto |
+| facescape | FR | ctrlfr s1234 | regione FLAME | 0.663 | 0.264 | 0.684 | 1.05 | +0.420 [+0.355, +0.479] | +0.434 [+0.366, +0.497] | dipendenza dal supporto |
+| facescape | FR | ctrlfr s2345 | regione GNM | 0.652 | 0.234 | 0.616 | 0.91 | +0.382 [+0.329, +0.433] | +0.389 [+0.333, +0.443] | dipendenza dal supporto |
+| facescape | FR | ctrlfr s2345 | regione FLAME | 0.652 | 0.234 | 0.692 | 1.10 | +0.458 [+0.396, +0.517] | +0.457 [+0.392, +0.520] | dipendenza dal supporto |
+| facescape | FR | C3M e123, d_F cal. | regione GNM | 0.666 | 0.472 | 0.661 | 0.97 | +0.189 [+0.120, +0.257] | +0.193 [+0.122, +0.260] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | FR | C3M e123, d_F cal. | regione FLAME | 0.666 | 0.472 | 0.612 | 0.72 | +0.139 [+0.070, +0.210] | +0.142 [+0.071, +0.212] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | FR | C3M e205, d_F cal. | regione GNM | 0.712 | 0.449 | 0.674 | 0.86 | +0.226 [+0.157, +0.293] | +0.239 [+0.171, +0.304] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | FR | C3M e205, d_F cal. | regione FLAME | 0.712 | 0.449 | 0.633 | 0.70 | +0.184 [+0.111, +0.255] | +0.195 [+0.120, +0.270] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | SR | factorized s1234, d_P | regione GNM | 0.747 | 0.518 | 0.787 | 1.18 | +0.269 [+0.218, +0.326] | +0.260 [+0.206, +0.318] | dipendenza dal supporto |
+| facescape | SR | factorized s1234, d_P | regione FLAME | 0.747 | 0.518 | 0.750 | 1.01 | +0.232 [+0.175, +0.298] | +0.222 [+0.163, +0.289] | dipendenza dal supporto |
+| facescape | SR | factorized s2345, d_P | regione GNM | 0.754 | 0.476 | 0.785 | 1.11 | +0.308 [+0.253, +0.370] | +0.303 [+0.246, +0.366] | dipendenza dal supporto |
+| facescape | SR | factorized s2345, d_P | regione FLAME | 0.754 | 0.476 | 0.786 | 1.12 | +0.310 [+0.250, +0.381] | +0.304 [+0.243, +0.377] | dipendenza dal supporto |
+| facescape | SR | ctrlfr s1234 | regione GNM | 0.621 | 0.247 | 0.724 | 1.28 | +0.477 [+0.430, +0.523] | +0.479 [+0.430, +0.528] | dipendenza dal supporto |
+| facescape | SR | ctrlfr s1234 | regione FLAME | 0.621 | 0.247 | 0.682 | 1.16 | +0.435 [+0.383, +0.486] | +0.448 [+0.393, +0.503] | dipendenza dal supporto |
+| facescape | SR | ctrlfr s2345 | regione GNM | 0.627 | 0.243 | 0.644 | 1.04 | +0.401 [+0.352, +0.447] | +0.408 [+0.357, +0.459] | dipendenza dal supporto |
+| facescape | SR | ctrlfr s2345 | regione FLAME | 0.627 | 0.243 | 0.690 | 1.16 | +0.446 [+0.391, +0.501] | +0.445 [+0.386, +0.502] | dipendenza dal supporto |
+| facescape | SR | C3M e123, d_P | regione GNM | 0.746 | 0.578 | 0.759 | 1.08 | +0.181 [+0.135, +0.232] | +0.185 [+0.138, +0.237] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | SR | C3M e123, d_P | regione FLAME | 0.746 | 0.578 | 0.709 | 0.78 | +0.131 [+0.083, +0.183] | +0.133 [+0.083, +0.186] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | SR | C3M e205, d_P | regione GNM | 0.756 | 0.555 | 0.763 | 1.03 | +0.208 [+0.165, +0.255] | +0.220 [+0.175, +0.271] | dipendenza dal supporto (C3M, descrittivo) |
+| facescape | SR | C3M e205, d_P | regione FLAME | 0.756 | 0.555 | 0.723 | 0.84 | +0.169 [+0.115, +0.222] | +0.173 [+0.116, +0.230] | dipendenza dal supporto (C3M, descrittivo) |
+| faceverse | FR | factorized s1234, d_F cal. | regione GNM | 0.303 | 0.252 | 0.305 | 1.05 | +0.053 [+0.000, +0.103] | +0.053 [+0.000, +0.103] | dipendenza dal supporto |
+| faceverse | FR | factorized s1234, d_F cal. | regione FLAME | 0.303 | 0.252 | 0.231 | -0.43 | -0.021 [-0.099, +0.051] | -0.022 [-0.100, +0.051] | limite del descrittore |
+| faceverse | FR | factorized s2345, d_F cal. | regione GNM | 0.318 | 0.234 | 0.275 | 0.49 | +0.041 [-0.018, +0.097] | +0.041 [-0.018, +0.096] | limite del descrittore |
+| faceverse | FR | factorized s2345, d_F cal. | regione FLAME | 0.318 | 0.234 | 0.208 | -0.31 | -0.026 [-0.104, +0.048] | -0.026 [-0.104, +0.048] | limite del descrittore |
+| faceverse | FR | ctrlfr s1234 | regione GNM | 0.282 | 0.256 | 0.276 | nan | +0.020 [-0.037, +0.070] | +0.018 [-0.039, +0.070] | calo < 0.05 |
+| faceverse | FR | ctrlfr s1234 | regione FLAME | 0.282 | 0.256 | 0.223 | nan | -0.033 [-0.108, +0.040] | -0.038 [-0.114, +0.035] | calo < 0.05 |
+| faceverse | FR | ctrlfr s2345 | regione GNM | 0.258 | 0.239 | 0.257 | nan | +0.019 [-0.037, +0.073] | +0.020 [-0.036, +0.074] | calo < 0.05 |
+| faceverse | FR | ctrlfr s2345 | regione FLAME | 0.258 | 0.239 | 0.200 | nan | -0.038 [-0.108, +0.031] | -0.040 [-0.110, +0.030] | calo < 0.05 |
+| faceverse | FR | C3M e123, d_F cal. | regione GNM | 0.289 | 0.253 | 0.272 | nan | +0.019 [-0.035, +0.074] | +0.018 [-0.037, +0.073] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | FR | C3M e123, d_F cal. | regione FLAME | 0.289 | 0.253 | 0.219 | nan | -0.034 [-0.110, +0.042] | -0.036 [-0.112, +0.042] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | FR | C3M e205, d_F cal. | regione GNM | 0.290 | 0.250 | 0.269 | nan | +0.019 [-0.027, +0.067] | +0.018 [-0.031, +0.068] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | FR | C3M e205, d_F cal. | regione FLAME | 0.290 | 0.250 | 0.219 | nan | -0.031 [-0.102, +0.031] | -0.033 [-0.107, +0.031] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | SR | factorized s1234, d_P | regione GNM | 0.286 | 0.251 | 0.312 | nan | +0.060 [+0.010, +0.115] | +0.060 [+0.010, +0.115] | calo < 0.05 |
+| faceverse | SR | factorized s1234, d_P | regione FLAME | 0.286 | 0.251 | 0.249 | nan | -0.002 [-0.085, +0.082] | -0.003 [-0.086, +0.081] | calo < 0.05 |
+| faceverse | SR | factorized s2345, d_P | regione GNM | 0.313 | 0.257 | 0.293 | 0.64 | +0.036 [-0.025, +0.097] | +0.036 [-0.026, +0.097] | limite del descrittore |
+| faceverse | SR | factorized s2345, d_P | regione FLAME | 0.313 | 0.257 | 0.243 | -0.25 | -0.014 [-0.096, +0.063] | -0.015 [-0.096, +0.063] | limite del descrittore |
+| faceverse | SR | ctrlfr s1234 | regione GNM | 0.273 | 0.239 | 0.271 | nan | +0.032 [-0.030, +0.086] | +0.030 [-0.032, +0.085] | calo < 0.05 |
+| faceverse | SR | ctrlfr s1234 | regione FLAME | 0.273 | 0.239 | 0.225 | nan | -0.014 [-0.090, +0.062] | -0.019 [-0.097, +0.056] | calo < 0.05 |
+| faceverse | SR | ctrlfr s2345 | regione GNM | 0.259 | 0.243 | 0.264 | nan | +0.021 [-0.035, +0.075] | +0.022 [-0.034, +0.076] | calo < 0.05 |
+| faceverse | SR | ctrlfr s2345 | regione FLAME | 0.259 | 0.243 | 0.205 | nan | -0.038 [-0.107, +0.031] | -0.039 [-0.109, +0.030] | calo < 0.05 |
+| faceverse | SR | C3M e123, d_P | regione GNM | 0.313 | 0.294 | 0.305 | nan | +0.011 [-0.044, +0.072] | +0.011 [-0.045, +0.072] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | SR | C3M e123, d_P | regione FLAME | 0.313 | 0.294 | 0.254 | nan | -0.040 [-0.118, +0.031] | -0.040 [-0.118, +0.032] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | SR | C3M e205, d_P | regione GNM | 0.314 | 0.308 | 0.305 | nan | -0.003 [-0.046, +0.046] | -0.003 [-0.046, +0.048] | calo < 0.05 (C3M, descrittivo) |
+| faceverse | SR | C3M e205, d_P | regione FLAME | 0.314 | 0.308 | 0.248 | nan | -0.060 [-0.130, +0.004] | -0.059 [-0.130, +0.005] | calo < 0.05 (C3M, descrittivo) |
+| faceverse_neutral | FR | factorized s1234, d_F cal. | regione GNM | 0.341 | 0.282 | 0.359 | 1.31 | +0.076 [+0.022, +0.130] | +0.076 [+0.022, +0.130] | dipendenza dal supporto |
+| faceverse_neutral | FR | factorized s1234, d_F cal. | regione FLAME | 0.341 | 0.282 | 0.317 | 0.59 | +0.034 [-0.042, +0.115] | +0.034 [-0.042, +0.115] | limite del descrittore |
+| faceverse_neutral | FR | factorized s2345, d_F cal. | regione GNM | 0.370 | 0.272 | 0.334 | 0.63 | +0.061 [-0.000, +0.124] | +0.061 [-0.001, +0.124] | limite del descrittore |
+| faceverse_neutral | FR | factorized s2345, d_F cal. | regione FLAME | 0.370 | 0.272 | 0.296 | 0.24 | +0.023 [-0.062, +0.103] | +0.023 [-0.062, +0.103] | limite del descrittore |
+| faceverse_neutral | FR | ctrlfr s1234 | regione GNM | 0.327 | 0.296 | 0.356 | nan | +0.060 [+0.000, +0.119] | +0.057 [-0.004, +0.118] | calo < 0.05 |
+| faceverse_neutral | FR | ctrlfr s1234 | regione FLAME | 0.327 | 0.296 | 0.315 | nan | +0.019 [-0.057, +0.096] | +0.012 [-0.065, +0.090] | calo < 0.05 |
+| faceverse_neutral | FR | ctrlfr s2345 | regione GNM | 0.299 | 0.269 | 0.329 | nan | +0.060 [-0.011, +0.125] | +0.061 [-0.010, +0.129] | calo < 0.05 |
+| faceverse_neutral | FR | ctrlfr s2345 | regione FLAME | 0.299 | 0.269 | 0.282 | nan | +0.012 [-0.066, +0.092] | +0.010 [-0.069, +0.089] | calo < 0.05 |
+| faceverse_neutral | FR | C3M e205, d_F cal. | regione GNM | 0.336 | 0.299 | 0.320 | nan | +0.021 [-0.028, +0.071] | +0.019 [-0.033, +0.072] | calo < 0.05 (C3M, descrittivo) |
+| faceverse_neutral | FR | C3M e205, d_F cal. | regione FLAME | 0.336 | 0.299 | 0.290 | nan | -0.009 [-0.080, +0.059] | -0.011 [-0.085, +0.060] | calo < 0.05 (C3M, descrittivo) |
+| faceverse_neutral | SR | factorized s1234, d_P | regione GNM | 0.333 | 0.304 | 0.378 | nan | +0.073 [+0.012, +0.138] | +0.074 [+0.012, +0.138] | calo < 0.05 |
+| faceverse_neutral | SR | factorized s1234, d_P | regione FLAME | 0.333 | 0.304 | 0.349 | nan | +0.045 [-0.036, +0.124] | +0.044 [-0.036, +0.124] | calo < 0.05 |
+| faceverse_neutral | SR | factorized s2345, d_P | regione GNM | 0.372 | 0.316 | 0.360 | 0.78 | +0.044 [-0.027, +0.116] | +0.043 [-0.028, +0.116] | limite del descrittore |
+| faceverse_neutral | SR | factorized s2345, d_P | regione FLAME | 0.372 | 0.316 | 0.325 | 0.17 | +0.009 [-0.085, +0.095] | +0.009 [-0.086, +0.095] | limite del descrittore |
+| faceverse_neutral | SR | ctrlfr s1234 | regione GNM | 0.326 | 0.291 | 0.359 | nan | +0.068 [+0.005, +0.125] | +0.065 [+0.000, +0.123] | calo < 0.05 |
+| faceverse_neutral | SR | ctrlfr s1234 | regione FLAME | 0.326 | 0.291 | 0.323 | nan | +0.032 [-0.045, +0.107] | +0.025 [-0.053, +0.101] | calo < 0.05 |
+| faceverse_neutral | SR | ctrlfr s2345 | regione GNM | 0.305 | 0.274 | 0.335 | nan | +0.060 [-0.011, +0.127] | +0.062 [-0.010, +0.130] | calo < 0.05 |
+| faceverse_neutral | SR | ctrlfr s2345 | regione FLAME | 0.305 | 0.274 | 0.296 | nan | +0.021 [-0.058, +0.101] | +0.019 [-0.060, +0.099] | calo < 0.05 |
+| faceverse_neutral | SR | C3M e205, d_P | regione GNM | 0.382 | 0.372 | 0.369 | nan | -0.003 [-0.056, +0.053] | -0.001 [-0.054, +0.054] | calo < 0.05 (C3M, descrittivo) |
+| faceverse_neutral | SR | C3M e205, d_P | regione FLAME | 0.382 | 0.372 | 0.341 | nan | -0.031 [-0.101, +0.038] | -0.027 [-0.098, +0.044] | calo < 0.05 (C3M, descrittivo) |
+
+## Conteggi dei delta dichiarati (a favore / contro / non risolte)
+
+D1 = braccio sulla regione di m - B di m (24 per GT); D2 = braccio sulla regione - baseline geometriche (24); D2 intero = braccio sull'ingresso intero - baseline geometriche (12); D3 = braccio sulla regione - braccio intero (8).
+
+| vista | gruppo | GT | D1 | D2 | D2 intero | D3 |
+| --- | --- | --- | --- | --- | --- | --- |
+| hifi3d | senza crop | FR | 12 / 3 / 9 | 0 / 0 / 24 | 12 / 0 / 0 | 0 / 8 / 0 |
+| hifi3d | senza crop | SR | 8 / 13 / 3 | 22 / 0 / 2 | 10 / 0 / 2 | 3 / 2 / 3 |
+| hifi3d | all_cross | FR | 12 / 1 / 11 | 9 / 0 / 15 | 5 / 2 / 5 | 4 / 2 / 2 |
+| hifi3d | all_cross | SR | 8 / 10 / 6 | 24 / 0 / 0 | 10 / 2 / 0 | 4 / 0 / 4 |
+| hifi3d | righe col crop | FR | 11 / 0 / 13 | 16 / 0 / 8 | 4 / 6 / 2 | 5 / 0 / 3 |
+| hifi3d | righe col crop | SR | 8 / 10 / 6 | 24 / 0 / 0 | 10 / 2 / 0 | 6 / 0 / 2 |
+| hifi3d | media 15 coppie | FR | 12 / 1 / 11 | 7 / 0 / 17 | 7 / 0 / 5 | 2 / 2 / 4 |
+| hifi3d | media 15 coppie | SR | 8 / 10 / 6 | 23 / 0 / 1 | 10 / 1 / 1 | 4 / 2 / 2 |
+| hifi3d | media crop 5 coppie | FR | 11 / 0 / 13 | 16 / 0 / 8 | 4 / 6 / 2 | 5 / 0 / 3 |
+| hifi3d | media crop 5 coppie | SR | 8 / 10 / 6 | 24 / 0 / 0 | 10 / 2 / 0 | 5 / 0 / 3 |
+| facescape | senza crop | FR | 8 / 2 / 14 | 20 / 0 / 4 | 9 / 0 / 3 | 2 / 0 / 6 |
+| facescape | senza crop | SR | 13 / 7 / 4 | 23 / 0 / 1 | 10 / 0 / 2 | 3 / 0 / 5 |
+| facescape | all_cross | FR | 11 / 2 / 11 | 24 / 0 / 0 | 4 / 5 / 3 | 8 / 0 / 0 |
+| facescape | all_cross | SR | 16 / 7 / 1 | 24 / 0 / 0 | 6 / 6 / 0 | 8 / 0 / 0 |
+| facescape | righe col crop | FR | 13 / 2 / 9 | 24 / 0 / 0 | 5 / 4 / 3 | 8 / 0 / 0 |
+| facescape | righe col crop | SR | 15 / 6 / 3 | 24 / 0 / 0 | 6 / 2 / 4 | 8 / 0 / 0 |
+| facescape | media 15 coppie | FR | 12 / 2 / 10 | 18 / 0 / 6 | 8 / 4 / 0 | 8 / 0 / 0 |
+| facescape | media 15 coppie | SR | 16 / 7 / 1 | 22 / 0 / 2 | 6 / 2 / 4 | 8 / 0 / 0 |
+| facescape | media crop 5 coppie | FR | 14 / 2 / 8 | 22 / 0 / 2 | 4 / 6 / 2 | 8 / 0 / 0 |
+| facescape | media crop 5 coppie | SR | 16 / 5 / 3 | 23 / 0 / 1 | 6 / 5 / 1 | 8 / 0 / 0 |
+| faceverse | senza crop | FR | 0 / 1 / 23 | 0 / 13 / 11 | 2 / 2 / 8 | 0 / 1 / 7 |
+| faceverse | senza crop | SR | 0 / 0 / 24 | 4 / 7 / 13 | 4 / 2 / 6 | 0 / 0 / 8 |
+| faceverse | all_cross | FR | 0 / 0 / 24 | 3 / 11 / 10 | 3 / 4 / 5 | 0 / 1 / 7 |
+| faceverse | all_cross | SR | 0 / 0 / 24 | 7 / 7 / 10 | 4 / 3 / 5 | 0 / 0 / 8 |
+| faceverse | righe col crop | FR | 0 / 0 / 24 | 7 / 7 / 10 | 4 / 4 / 4 | 1 / 0 / 7 |
+| faceverse | righe col crop | SR | 0 / 0 / 24 | 8 / 6 / 10 | 4 / 4 / 4 | 1 / 0 / 7 |
+| faceverse | media 15 coppie | FR | 0 / 0 / 24 | 2 / 11 / 11 | 3 / 4 / 5 | 0 / 1 / 7 |
+| faceverse | media 15 coppie | SR | 0 / 0 / 24 | 7 / 7 / 10 | 4 / 3 / 5 | 0 / 0 / 8 |
+| faceverse | media crop 5 coppie | FR | 0 / 0 / 24 | 7 / 7 / 10 | 4 / 4 / 4 | 1 / 0 / 7 |
+| faceverse | media crop 5 coppie | SR | 0 / 0 / 24 | 8 / 4 / 12 | 4 / 4 / 4 | 1 / 0 / 7 |
+| faceverse_neutral | senza crop | FR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | senza crop | SR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | all_cross | FR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | all_cross | SR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | righe col crop | FR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 2 / 0 / 6 |
+| faceverse_neutral | righe col crop | SR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 2 / 0 / 6 |
+| faceverse_neutral | media 15 coppie | FR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | media 15 coppie | SR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 8 |
+| faceverse_neutral | media crop 5 coppie | FR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 1 / 0 / 7 |
+| faceverse_neutral | media crop 5 coppie | SR | 0 / 0 / 24 | 0 / 0 / 0 | 0 / 0 / 0 | 2 / 0 / 6 |
+
+## hifi3d: Spearman con la GT per gruppo (rho, IC 95%; 148500 righe all_cross, seme 757683)
+
+GT FR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.749 [0.674, 0.810] | 0.709 [0.635, 0.771] | 0.663 [0.592, 0.722] | 0.720 [0.649, 0.781] | 0.663 [0.593, 0.723] |
+| factorized s1234, d_F cal. @ regione GNM | 0.688 [0.618, 0.746] | 0.684 [0.614, 0.743] | 0.680 [0.610, 0.742] | 0.686 [0.616, 0.746] | 0.680 [0.610, 0.742] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.609 [0.534, 0.685] | 0.611 [0.536, 0.687] | 0.617 [0.541, 0.693] | 0.612 [0.537, 0.688] | 0.617 [0.542, 0.693] |
+| factorized s2345, d_F cal. | 0.731 [0.656, 0.794] | 0.661 [0.587, 0.724] | 0.552 [0.480, 0.615] | 0.672 [0.599, 0.733] | 0.554 [0.482, 0.616] |
+| factorized s2345, d_F cal. @ regione GNM | 0.651 [0.587, 0.711] | 0.647 [0.583, 0.706] | 0.645 [0.581, 0.705] | 0.649 [0.585, 0.708] | 0.646 [0.581, 0.705] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.573 [0.492, 0.651] | 0.576 [0.495, 0.655] | 0.581 [0.500, 0.660] | 0.576 [0.495, 0.655] | 0.582 [0.501, 0.660] |
+| ctrlfr s1234 | 0.757 [0.682, 0.819] | 0.516 [0.444, 0.580] | 0.236 [0.183, 0.283] | 0.585 [0.524, 0.638] | 0.238 [0.186, 0.286] |
+| ctrlfr s1234 @ regione GNM | 0.655 [0.587, 0.716] | 0.633 [0.566, 0.693] | 0.602 [0.530, 0.667] | 0.641 [0.575, 0.700] | 0.606 [0.534, 0.670] |
+| ctrlfr s1234 @ regione FLAME | 0.597 [0.516, 0.673] | 0.600 [0.519, 0.676] | 0.606 [0.526, 0.681] | 0.604 [0.524, 0.679] | 0.609 [0.529, 0.683] |
+| ctrlfr s2345 | 0.746 [0.669, 0.811] | 0.530 [0.456, 0.594] | 0.279 [0.220, 0.331] | 0.592 [0.528, 0.644] | 0.281 [0.224, 0.334] |
+| ctrlfr s2345 @ regione GNM | 0.692 [0.630, 0.749] | 0.663 [0.599, 0.720] | 0.622 [0.549, 0.692] | 0.672 [0.607, 0.731] | 0.625 [0.552, 0.695] |
+| ctrlfr s2345 @ regione FLAME | 0.612 [0.527, 0.692] | 0.614 [0.528, 0.694] | 0.617 [0.532, 0.699] | 0.615 [0.531, 0.696] | 0.618 [0.533, 0.700] |
+| C3M e123, d_F cal. | 0.748 [0.669, 0.811] | 0.642 [0.565, 0.704] | 0.506 [0.431, 0.572] | 0.670 [0.594, 0.731] | 0.510 [0.435, 0.575] |
+| C3M e123, d_F cal. @ regione GNM | 0.679 [0.598, 0.746] | 0.672 [0.593, 0.740] | 0.663 [0.583, 0.732] | 0.679 [0.601, 0.747] | 0.667 [0.588, 0.736] |
+| C3M e123, d_F cal. @ regione FLAME | 0.567 [0.485, 0.650] | 0.575 [0.493, 0.657] | 0.590 [0.507, 0.673] | 0.580 [0.498, 0.663] | 0.594 [0.511, 0.677] |
+| C3M e205, d_F cal. | 0.739 [0.656, 0.805] | 0.630 [0.547, 0.693] | 0.472 [0.395, 0.537] | 0.653 [0.575, 0.716] | 0.476 [0.399, 0.540] |
+| C3M e205, d_F cal. @ regione GNM | 0.693 [0.619, 0.756] | 0.689 [0.615, 0.751] | 0.685 [0.610, 0.747] | 0.700 [0.626, 0.761] | 0.692 [0.618, 0.754] |
+| C3M e205, d_F cal. @ regione FLAME | 0.601 [0.522, 0.679] | 0.608 [0.529, 0.685] | 0.621 [0.541, 0.697] | 0.613 [0.535, 0.690] | 0.625 [0.546, 0.701] |
+| factorized s1234, d_P | 0.426 [0.331, 0.518] | 0.383 [0.290, 0.471] | 0.376 [0.281, 0.463] | 0.410 [0.314, 0.498] | 0.377 [0.282, 0.464] |
+| factorized s1234, d_P @ regione GNM | 0.528 [0.450, 0.607] | 0.515 [0.435, 0.595] | 0.489 [0.404, 0.569] | 0.517 [0.436, 0.597] | 0.490 [0.405, 0.570] |
+| factorized s1234, d_P @ regione FLAME | 0.512 [0.425, 0.593] | 0.511 [0.425, 0.591] | 0.511 [0.426, 0.591] | 0.512 [0.425, 0.592] | 0.511 [0.427, 0.592] |
+| factorized s2345, d_P | 0.418 [0.320, 0.521] | 0.370 [0.274, 0.463] | 0.347 [0.253, 0.440] | 0.395 [0.296, 0.496] | 0.348 [0.254, 0.441] |
+| factorized s2345, d_P @ regione GNM | 0.521 [0.439, 0.602] | 0.513 [0.429, 0.594] | 0.497 [0.415, 0.577] | 0.514 [0.430, 0.595] | 0.497 [0.416, 0.578] |
+| factorized s2345, d_P @ regione FLAME | 0.506 [0.410, 0.599] | 0.506 [0.411, 0.597] | 0.506 [0.412, 0.595] | 0.507 [0.412, 0.598] | 0.507 [0.413, 0.595] |
+| C3M e123, d_P | 0.401 [0.305, 0.497] | 0.313 [0.228, 0.393] | 0.317 [0.227, 0.405] | 0.377 [0.281, 0.469] | 0.321 [0.230, 0.412] |
+| C3M e123, d_P @ regione GNM | 0.526 [0.438, 0.609] | 0.507 [0.421, 0.590] | 0.471 [0.383, 0.556] | 0.513 [0.427, 0.596] | 0.475 [0.386, 0.560] |
+| C3M e123, d_P @ regione FLAME | 0.500 [0.414, 0.584] | 0.503 [0.417, 0.586] | 0.509 [0.423, 0.592] | 0.507 [0.424, 0.591] | 0.512 [0.426, 0.595] |
+| C3M e205, d_P | 0.405 [0.308, 0.500] | 0.326 [0.240, 0.408] | 0.329 [0.238, 0.420] | 0.384 [0.291, 0.474] | 0.333 [0.241, 0.426] |
+| C3M e205, d_P @ regione GNM | 0.529 [0.442, 0.607] | 0.515 [0.429, 0.595] | 0.486 [0.395, 0.574] | 0.525 [0.440, 0.607] | 0.493 [0.402, 0.581] |
+| C3M e205, d_P @ regione FLAME | 0.503 [0.422, 0.591] | 0.506 [0.425, 0.591] | 0.513 [0.429, 0.597] | 0.512 [0.431, 0.598] | 0.517 [0.434, 0.602] |
+| GNM (visto) vB, coefficienti | 0.550 [0.465, 0.631] | 0.540 [0.457, 0.619] | 0.524 [0.441, 0.601] | 0.542 [0.459, 0.621] | 0.524 [0.441, 0.602] |
+| GNM (visto) vB, mesh d'identita' FR | 0.664 [0.573, 0.740] | 0.651 [0.560, 0.727] | 0.625 [0.536, 0.705] | 0.651 [0.561, 0.728] | 0.625 [0.536, 0.705] |
+| GNM (visto) vB, mesh d'identita' SR | 0.411 [0.310, 0.508] | 0.395 [0.295, 0.489] | 0.380 [0.282, 0.475] | 0.401 [0.300, 0.496] | 0.381 [0.283, 0.475] |
+| FLAME 2023 Open vB, coefficienti | 0.585 [0.498, 0.659] | 0.570 [0.485, 0.643] | 0.542 [0.457, 0.617] | 0.572 [0.488, 0.645] | 0.543 [0.457, 0.618] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.686 [0.598, 0.762] | 0.670 [0.582, 0.748] | 0.639 [0.551, 0.719] | 0.670 [0.582, 0.748] | 0.639 [0.551, 0.719] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.458 [0.369, 0.548] | 0.448 [0.360, 0.536] | 0.433 [0.343, 0.518] | 0.450 [0.361, 0.538] | 0.433 [0.343, 0.518] |
+| ICP + Chamfer in mm | 0.643 [0.570, 0.705] | 0.556 [0.488, 0.617] | 0.416 [0.358, 0.474] | 0.587 [0.520, 0.646] | 0.435 [0.376, 0.494] |
+| Chamfer pura in mm | 0.646 [0.548, 0.726] | 0.645 [0.547, 0.725] | 0.643 [0.546, 0.724] | 0.646 [0.549, 0.726] | 0.645 [0.548, 0.725] |
+| NICP su template in mm | 0.614 [0.510, 0.701] | 0.514 [0.410, 0.601] | 0.337 [0.239, 0.427] | 0.522 [0.424, 0.606] | 0.337 [0.240, 0.427] |
+
+GT SR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.319 [0.228, 0.410] | 0.304 [0.218, 0.387] | 0.297 [0.218, 0.376] | 0.312 [0.226, 0.397] | 0.298 [0.218, 0.377] |
+| factorized s1234, d_F cal. @ regione GNM | 0.434 [0.339, 0.519] | 0.429 [0.335, 0.516] | 0.422 [0.330, 0.509] | 0.430 [0.336, 0.516] | 0.422 [0.330, 0.510] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.371 [0.262, 0.470] | 0.372 [0.262, 0.470] | 0.374 [0.266, 0.473] | 0.372 [0.263, 0.471] | 0.375 [0.266, 0.473] |
+| factorized s2345, d_F cal. | 0.313 [0.219, 0.408] | 0.286 [0.202, 0.372] | 0.255 [0.181, 0.328] | 0.294 [0.208, 0.382] | 0.256 [0.182, 0.329] |
+| factorized s2345, d_F cal. @ regione GNM | 0.452 [0.356, 0.538] | 0.444 [0.351, 0.529] | 0.430 [0.343, 0.514] | 0.445 [0.352, 0.530] | 0.431 [0.343, 0.514] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.395 [0.290, 0.496] | 0.398 [0.293, 0.498] | 0.403 [0.299, 0.503] | 0.398 [0.293, 0.499] | 0.403 [0.299, 0.503] |
+| ctrlfr s1234 | 0.339 [0.245, 0.438] | 0.244 [0.180, 0.311] | 0.164 [0.122, 0.207] | 0.282 [0.209, 0.360] | 0.166 [0.124, 0.210] |
+| ctrlfr s1234 @ regione GNM | 0.484 [0.389, 0.571] | 0.471 [0.381, 0.555] | 0.453 [0.366, 0.533] | 0.476 [0.385, 0.561] | 0.456 [0.369, 0.535] |
+| ctrlfr s1234 @ regione FLAME | 0.431 [0.318, 0.534] | 0.434 [0.320, 0.537] | 0.440 [0.328, 0.543] | 0.437 [0.324, 0.540] | 0.442 [0.330, 0.546] |
+| ctrlfr s2345 | 0.348 [0.257, 0.447] | 0.259 [0.190, 0.328] | 0.188 [0.144, 0.234] | 0.296 [0.221, 0.376] | 0.190 [0.146, 0.237] |
+| ctrlfr s2345 @ regione GNM | 0.477 [0.382, 0.566] | 0.458 [0.368, 0.542] | 0.430 [0.341, 0.516] | 0.463 [0.372, 0.547] | 0.432 [0.343, 0.518] |
+| ctrlfr s2345 @ regione FLAME | 0.414 [0.311, 0.517] | 0.415 [0.311, 0.519] | 0.417 [0.313, 0.522] | 0.417 [0.313, 0.521] | 0.418 [0.314, 0.523] |
+| C3M e123, d_F cal. | 0.292 [0.202, 0.384] | 0.252 [0.173, 0.332] | 0.220 [0.151, 0.288] | 0.270 [0.189, 0.354] | 0.223 [0.153, 0.291] |
+| C3M e123, d_F cal. @ regione GNM | 0.396 [0.294, 0.491] | 0.393 [0.294, 0.487] | 0.390 [0.291, 0.480] | 0.397 [0.298, 0.493] | 0.393 [0.293, 0.483] |
+| C3M e123, d_F cal. @ regione FLAME | 0.354 [0.247, 0.459] | 0.358 [0.250, 0.464] | 0.366 [0.257, 0.473] | 0.363 [0.254, 0.469] | 0.369 [0.260, 0.477] |
+| C3M e205, d_F cal. | 0.287 [0.195, 0.383] | 0.250 [0.167, 0.332] | 0.220 [0.151, 0.285] | 0.266 [0.181, 0.351] | 0.222 [0.152, 0.287] |
+| C3M e205, d_F cal. @ regione GNM | 0.398 [0.301, 0.488] | 0.398 [0.304, 0.486] | 0.400 [0.306, 0.486] | 0.405 [0.309, 0.493] | 0.404 [0.310, 0.491] |
+| C3M e205, d_F cal. @ regione FLAME | 0.364 [0.258, 0.466] | 0.366 [0.259, 0.468] | 0.369 [0.259, 0.473] | 0.370 [0.263, 0.474] | 0.372 [0.262, 0.477] |
+| factorized s1234, d_P | 0.622 [0.549, 0.687] | 0.557 [0.483, 0.621] | 0.550 [0.470, 0.618] | 0.599 [0.527, 0.665] | 0.551 [0.472, 0.619] |
+| factorized s1234, d_P @ regione GNM | 0.584 [0.500, 0.656] | 0.587 [0.503, 0.658] | 0.594 [0.514, 0.663] | 0.588 [0.505, 0.659] | 0.595 [0.514, 0.664] |
+| factorized s1234, d_P @ regione FLAME | 0.481 [0.372, 0.578] | 0.482 [0.373, 0.579] | 0.485 [0.377, 0.582] | 0.483 [0.374, 0.580] | 0.485 [0.377, 0.582] |
+| factorized s2345, d_P | 0.613 [0.528, 0.688] | 0.540 [0.457, 0.615] | 0.514 [0.426, 0.595] | 0.581 [0.495, 0.658] | 0.516 [0.428, 0.596] |
+| factorized s2345, d_P @ regione GNM | 0.569 [0.479, 0.647] | 0.576 [0.486, 0.650] | 0.591 [0.507, 0.659] | 0.577 [0.488, 0.651] | 0.591 [0.508, 0.660] |
+| factorized s2345, d_P @ regione FLAME | 0.471 [0.360, 0.568] | 0.474 [0.364, 0.571] | 0.480 [0.371, 0.577] | 0.475 [0.365, 0.572] | 0.481 [0.372, 0.577] |
+| C3M e123, d_P | 0.595 [0.506, 0.670] | 0.461 [0.377, 0.532] | 0.462 [0.377, 0.540] | 0.557 [0.473, 0.631] | 0.469 [0.383, 0.548] |
+| C3M e123, d_P @ regione GNM | 0.493 [0.393, 0.578] | 0.500 [0.401, 0.583] | 0.514 [0.416, 0.598] | 0.505 [0.406, 0.588] | 0.518 [0.418, 0.601] |
+| C3M e123, d_P @ regione FLAME | 0.443 [0.338, 0.548] | 0.449 [0.341, 0.554] | 0.460 [0.349, 0.566] | 0.453 [0.345, 0.559] | 0.463 [0.352, 0.569] |
+| C3M e205, d_P | 0.591 [0.499, 0.667] | 0.473 [0.389, 0.547] | 0.481 [0.393, 0.560] | 0.561 [0.473, 0.637] | 0.488 [0.398, 0.568] |
+| C3M e205, d_P @ regione GNM | 0.515 [0.421, 0.596] | 0.525 [0.434, 0.605] | 0.544 [0.454, 0.622] | 0.535 [0.444, 0.615] | 0.551 [0.462, 0.629] |
+| C3M e205, d_P @ regione FLAME | 0.456 [0.349, 0.557] | 0.461 [0.353, 0.562] | 0.471 [0.360, 0.572] | 0.467 [0.359, 0.568] | 0.475 [0.364, 0.577] |
+| GNM (visto) vB, coefficienti | 0.675 [0.607, 0.731] | 0.665 [0.597, 0.720] | 0.651 [0.580, 0.706] | 0.668 [0.601, 0.723] | 0.651 [0.581, 0.707] |
+| GNM (visto) vB, mesh d'identita' FR | 0.217 [0.126, 0.309] | 0.213 [0.123, 0.303] | 0.205 [0.118, 0.294] | 0.213 [0.124, 0.304] | 0.206 [0.118, 0.294] |
+| GNM (visto) vB, mesh d'identita' SR | 0.607 [0.524, 0.679] | 0.587 [0.504, 0.660] | 0.570 [0.482, 0.648] | 0.595 [0.513, 0.669] | 0.570 [0.482, 0.648] |
+| FLAME 2023 Open vB, coefficienti | 0.586 [0.512, 0.650] | 0.573 [0.500, 0.636] | 0.551 [0.481, 0.614] | 0.576 [0.503, 0.639] | 0.552 [0.481, 0.615] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.231 [0.143, 0.326] | 0.223 [0.136, 0.316] | 0.209 [0.126, 0.299] | 0.223 [0.136, 0.317] | 0.209 [0.126, 0.299] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.598 [0.513, 0.673] | 0.586 [0.498, 0.661] | 0.567 [0.478, 0.643] | 0.588 [0.500, 0.663] | 0.567 [0.478, 0.643] |
+| ICP + Chamfer in mm | 0.366 [0.278, 0.456] | 0.327 [0.249, 0.404] | 0.266 [0.205, 0.328] | 0.344 [0.262, 0.425] | 0.279 [0.214, 0.344] |
+| Chamfer pura in mm | 0.066 [-0.016, 0.158] | 0.065 [-0.017, 0.158] | 0.063 [-0.019, 0.153] | 0.066 [-0.017, 0.159] | 0.065 [-0.018, 0.156] |
+| NICP su template in mm | 0.083 [-0.007, 0.178] | 0.066 [-0.013, 0.148] | 0.047 [-0.012, 0.111] | 0.071 [-0.009, 0.153] | 0.047 [-0.012, 0.111] |
+
+Delta appaiati, righe col crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.156 [+0.068, +0.241], P 0.000 | +0.122 [+0.036, +0.206], P 0.003 | +0.078 [-0.006, +0.168], P 0.036 | +0.099 [+0.011, +0.188], P 0.017 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.055 [-0.008, +0.118], P 0.035 | +0.021 [-0.036, +0.075], P 0.242 | -0.022 [-0.096, +0.049], P 0.732 | -0.002 [-0.069, +0.064], P 0.527 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.299 [+0.205, +0.392], P 0.000 | +0.265 [+0.181, +0.348], P 0.000 | +0.222 [+0.132, +0.306], P 0.000 | +0.242 [+0.147, +0.334], P 0.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.263 [+0.212, +0.316], P 0.000 | +0.229 [+0.177, +0.281], P 0.000 | +0.186 [+0.123, +0.251], P 0.000 | +0.206 [+0.146, +0.270], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.037 [-0.035, +0.115], P 0.175 | +0.002 [-0.074, +0.088], P 0.488 | -0.041 [-0.129, +0.049], P 0.814 | -0.021 [-0.108, +0.069], P 0.672 |
+| NICP su template in mm (@ regione GNM) | +0.343 [+0.272, +0.417], P 0.000 | +0.308 [+0.239, +0.382], P 0.000 | +0.265 [+0.183, +0.349], P 0.000 | +0.285 [+0.209, +0.361], P 0.000 |
+| braccio intero (@ regione GNM) | +0.017 [-0.031, +0.060], P 0.216 | +0.093 [+0.046, +0.140], P 0.000 | +0.367 [+0.309, +0.422], P 0.000 | +0.344 [+0.291, +0.394], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.074 [-0.011, +0.170], P 0.051 | +0.039 [-0.054, +0.136], P 0.218 | +0.064 [-0.018, +0.149], P 0.085 | +0.075 [-0.017, +0.169], P 0.059 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.022 [-0.104, +0.051], P 0.706 | -0.057 [-0.144, +0.019], P 0.921 | -0.032 [-0.118, +0.044], P 0.789 | -0.022 [-0.102, +0.053], P 0.722 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | +0.183 [+0.108, +0.259], P 0.000 | +0.148 [+0.081, +0.221], P 0.000 | +0.173 [+0.105, +0.244], P 0.000 | +0.184 [+0.110, +0.260], P 0.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.200 [+0.132, +0.265], P 0.000 | +0.165 [+0.095, +0.237], P 0.000 | +0.190 [+0.125, +0.255], P 0.000 | +0.200 [+0.133, +0.268], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | -0.027 [-0.121, +0.071], P 0.701 | -0.062 [-0.164, +0.044], P 0.868 | -0.037 [-0.136, +0.059], P 0.782 | -0.026 [-0.124, +0.075], P 0.702 |
+| NICP su template in mm (@ regione FLAME) | +0.280 [+0.185, +0.371], P 0.000 | +0.244 [+0.149, +0.338], P 0.000 | +0.269 [+0.173, +0.363], P 0.000 | +0.280 [+0.186, +0.373], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.046 [-0.120, +0.022], P 0.898 | +0.029 [-0.044, +0.098], P 0.214 | +0.371 [+0.308, +0.430], P 0.000 | +0.338 [+0.275, +0.401], P 0.000 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | -0.056 [-0.143, +0.029], P 0.904 | -0.060 [-0.154, +0.028], P 0.910 | -0.198 [-0.285, -0.108], P 1.000 | -0.220 [-0.306, -0.136], P 1.000 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.389 [+0.307, +0.467], P 0.000 | +0.385 [+0.309, +0.461], P 0.000 | +0.248 [+0.176, +0.312], P 0.000 | +0.225 [+0.162, +0.286], P 0.000 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.024 [-0.035, +0.087], P 0.231 | +0.021 [-0.035, +0.072], P 0.248 | -0.117 [-0.186, -0.051], P 1.000 | -0.140 [-0.217, -0.071], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.328 [+0.262, +0.398], P 0.000 | +0.325 [+0.253, +0.398], P 0.000 | +0.187 [+0.122, +0.257], P 0.000 | +0.164 [+0.100, +0.230], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.531 [+0.424, +0.627], P 0.000 | +0.528 [+0.422, +0.626], P 0.000 | +0.390 [+0.290, +0.483], P 0.000 | +0.367 [+0.268, +0.455], P 0.000 |
+| NICP su template in mm (@ regione GNM) | +0.548 [+0.464, +0.622], P 0.000 | +0.544 [+0.461, +0.618], P 0.000 | +0.406 [+0.331, +0.481], P 0.000 | +0.384 [+0.306, +0.459], P 0.000 |
+| braccio intero (@ regione GNM) | +0.045 [+0.001, +0.089], P 0.020 | +0.077 [+0.029, +0.124], P 0.001 | +0.290 [+0.230, +0.354], P 0.000 | +0.242 [+0.186, +0.302], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | -0.066 [-0.181, +0.047], P 0.880 | -0.071 [-0.191, +0.047], P 0.879 | -0.111 [-0.224, -0.006], P 0.981 | -0.134 [-0.249, -0.022], P 0.990 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.276 [+0.179, +0.368], P 0.000 | +0.271 [+0.175, +0.365], P 0.000 | +0.232 [+0.151, +0.313], P 0.000 | +0.208 [+0.128, +0.286], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.082 [-0.168, -0.012], P 0.990 | -0.087 [-0.171, -0.011], P 0.990 | -0.127 [-0.206, -0.052], P 1.000 | -0.150 [-0.232, -0.073], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.219 [+0.131, +0.305], P 0.000 | +0.214 [+0.122, +0.307], P 0.000 | +0.174 [+0.094, +0.256], P 0.000 | +0.151 [+0.075, +0.233], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.422 [+0.308, +0.530], P 0.000 | +0.417 [+0.297, +0.533], P 0.000 | +0.377 [+0.271, +0.485], P 0.000 | +0.354 [+0.251, +0.459], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.438 [+0.332, +0.538], P 0.000 | +0.433 [+0.329, +0.533], P 0.000 | +0.394 [+0.298, +0.493], P 0.000 | +0.370 [+0.275, +0.468], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.065 [-0.160, +0.025], P 0.906 | -0.034 [-0.128, +0.056], P 0.755 | +0.277 [+0.185, +0.366], P 0.000 | +0.228 [+0.143, +0.311], P 0.000 |
+
+Delta appaiati, media crop 5 coppie (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.156 [+0.068, +0.241], P 0.000 | +0.121 [+0.036, +0.206], P 0.003 | +0.081 [-0.002, +0.171], P 0.028 | +0.101 [+0.013, +0.189], P 0.016 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.055 [-0.007, +0.119], P 0.035 | +0.021 [-0.036, +0.076], P 0.240 | -0.019 [-0.092, +0.053], P 0.703 | +0.000 [-0.066, +0.067], P 0.493 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.300 [+0.205, +0.392], P 0.000 | +0.265 [+0.181, +0.349], P 0.000 | +0.225 [+0.135, +0.309], P 0.000 | +0.244 [+0.150, +0.336], P 0.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.245 [+0.193, +0.298], P 0.000 | +0.211 [+0.159, +0.263], P 0.000 | +0.171 [+0.108, +0.238], P 0.000 | +0.190 [+0.130, +0.254], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.035 [-0.037, +0.113], P 0.183 | +0.000 [-0.077, +0.086], P 0.501 | -0.040 [-0.127, +0.050], P 0.803 | -0.020 [-0.108, +0.070], P 0.668 |
+| NICP su template in mm (@ regione GNM) | +0.343 [+0.272, +0.417], P 0.000 | +0.309 [+0.240, +0.382], P 0.000 | +0.268 [+0.187, +0.351], P 0.000 | +0.288 [+0.211, +0.363], P 0.000 |
+| braccio intero (@ regione GNM) | +0.017 [-0.032, +0.059], P 0.225 | +0.092 [+0.045, +0.138], P 0.000 | +0.367 [+0.310, +0.422], P 0.000 | +0.344 [+0.291, +0.394], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.074 [-0.011, +0.169], P 0.052 | +0.038 [-0.055, +0.135], P 0.223 | +0.066 [-0.016, +0.151], P 0.076 | +0.075 [-0.016, +0.169], P 0.058 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.022 [-0.104, +0.051], P 0.704 | -0.057 [-0.144, +0.019], P 0.921 | -0.030 [-0.116, +0.046], P 0.771 | -0.021 [-0.101, +0.054], P 0.714 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | +0.184 [+0.108, +0.260], P 0.000 | +0.148 [+0.082, +0.221], P 0.000 | +0.176 [+0.107, +0.247], P 0.000 | +0.185 [+0.111, +0.261], P 0.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.182 [+0.115, +0.246], P 0.000 | +0.147 [+0.077, +0.221], P 0.000 | +0.174 [+0.108, +0.239], P 0.000 | +0.183 [+0.114, +0.251], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | -0.028 [-0.122, +0.069], P 0.716 | -0.064 [-0.166, +0.042], P 0.874 | -0.036 [-0.136, +0.060], P 0.779 | -0.027 [-0.125, +0.074], P 0.707 |
+| NICP su template in mm (@ regione FLAME) | +0.280 [+0.185, +0.371], P 0.000 | +0.244 [+0.149, +0.338], P 0.000 | +0.272 [+0.175, +0.365], P 0.000 | +0.281 [+0.187, +0.375], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.047 [-0.121, +0.021], P 0.904 | +0.028 [-0.045, +0.096], P 0.223 | +0.371 [+0.307, +0.430], P 0.000 | +0.337 [+0.273, +0.399], P 0.000 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | -0.056 [-0.143, +0.029], P 0.904 | -0.060 [-0.155, +0.028], P 0.910 | -0.195 [-0.283, -0.106], P 1.000 | -0.219 [-0.304, -0.135], P 1.000 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.390 [+0.308, +0.467], P 0.000 | +0.386 [+0.309, +0.461], P 0.000 | +0.251 [+0.179, +0.315], P 0.000 | +0.227 [+0.164, +0.288], P 0.000 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.025 [-0.035, +0.088], P 0.225 | +0.021 [-0.035, +0.072], P 0.244 | -0.114 [-0.184, -0.048], P 1.000 | -0.138 [-0.216, -0.069], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.316 [+0.248, +0.390], P 0.000 | +0.312 [+0.239, +0.386], P 0.000 | +0.177 [+0.111, +0.247], P 0.000 | +0.153 [+0.087, +0.220], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.531 [+0.423, +0.626], P 0.000 | +0.527 [+0.421, +0.625], P 0.000 | +0.392 [+0.292, +0.485], P 0.000 | +0.368 [+0.269, +0.457], P 0.000 |
+| NICP su template in mm (@ regione GNM) | +0.548 [+0.465, +0.623], P 0.000 | +0.545 [+0.461, +0.618], P 0.000 | +0.409 [+0.334, +0.484], P 0.000 | +0.385 [+0.307, +0.461], P 0.000 |
+| braccio intero (@ regione GNM) | +0.044 [-0.000, +0.089], P 0.026 | +0.076 [+0.028, +0.122], P 0.001 | +0.290 [+0.230, +0.354], P 0.000 | +0.242 [+0.186, +0.302], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | -0.067 [-0.181, +0.047], P 0.883 | -0.071 [-0.191, +0.047], P 0.880 | -0.110 [-0.222, -0.005], P 0.981 | -0.134 [-0.248, -0.022], P 0.990 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.277 [+0.180, +0.368], P 0.000 | +0.272 [+0.176, +0.366], P 0.000 | +0.234 [+0.153, +0.315], P 0.000 | +0.209 [+0.129, +0.288], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.081 [-0.167, -0.011], P 0.989 | -0.086 [-0.171, -0.011], P 0.987 | -0.124 [-0.204, -0.050], P 1.000 | -0.149 [-0.231, -0.072], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.206 [+0.118, +0.292], P 0.000 | +0.201 [+0.108, +0.293], P 0.000 | +0.163 [+0.082, +0.245], P 0.000 | +0.138 [+0.061, +0.221], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.421 [+0.307, +0.530], P 0.000 | +0.416 [+0.296, +0.532], P 0.000 | +0.378 [+0.271, +0.487], P 0.000 | +0.353 [+0.251, +0.459], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.439 [+0.333, +0.539], P 0.000 | +0.434 [+0.330, +0.534], P 0.000 | +0.396 [+0.299, +0.495], P 0.000 | +0.371 [+0.276, +0.470], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.066 [-0.161, +0.024], P 0.913 | -0.035 [-0.130, +0.055], P 0.764 | +0.276 [+0.185, +0.366], P 0.000 | +0.227 [+0.142, +0.310], P 0.000 |
+
+Delta appaiati, senza crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.138 [+0.054, +0.225], P 0.000 | +0.101 [+0.019, +0.188], P 0.009 | +0.105 [+0.021, +0.188], P 0.011 | +0.142 [+0.059, +0.229], P 0.000 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.023 [-0.042, +0.085], P 0.234 | -0.014 [-0.074, +0.042], P 0.672 | -0.009 [-0.084, +0.059], P 0.611 | +0.028 [-0.039, +0.091], P 0.200 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.277 [+0.181, +0.368], P 0.000 | +0.240 [+0.154, +0.322], P 0.000 | +0.244 [+0.155, +0.332], P 0.000 | +0.281 [+0.191, +0.370], P 0.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.045 [-0.004, +0.096], P 0.036 | +0.007 [-0.044, +0.061], P 0.385 | +0.012 [-0.046, +0.074], P 0.336 | +0.049 [-0.004, +0.105], P 0.035 |
+| Chamfer pura in mm (@ regione GNM) | +0.042 [-0.030, +0.117], P 0.133 | +0.005 [-0.075, +0.089], P 0.473 | +0.009 [-0.072, +0.096], P 0.428 | +0.046 [-0.033, +0.131], P 0.125 |
+| NICP su template in mm (@ regione GNM) | +0.074 [-0.004, +0.150], P 0.030 | +0.037 [-0.044, +0.114], P 0.188 | +0.041 [-0.046, +0.128], P 0.160 | +0.078 [-0.003, +0.161], P 0.031 |
+| braccio intero (@ regione GNM) | -0.061 [-0.114, -0.011], P 0.996 | -0.080 [-0.133, -0.026], P 0.999 | -0.102 [-0.154, -0.054], P 1.000 | -0.053 [-0.104, -0.004], P 0.988 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.024 [-0.063, +0.120], P 0.340 | -0.012 [-0.103, +0.083], P 0.599 | +0.012 [-0.071, +0.097], P 0.413 | +0.027 [-0.061, +0.120], P 0.291 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.077 [-0.157, -0.002], P 0.976 | -0.113 [-0.198, -0.035], P 0.998 | -0.088 [-0.173, -0.012], P 0.990 | -0.074 [-0.154, +0.001], P 0.973 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | +0.150 [+0.073, +0.228], P 0.000 | +0.114 [+0.045, +0.189], P 0.000 | +0.139 [+0.067, +0.209], P 0.000 | +0.154 [+0.077, +0.233], P 0.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.034 [-0.098, +0.030], P 0.860 | -0.070 [-0.141, +0.003], P 0.970 | -0.046 [-0.121, +0.027], P 0.904 | -0.031 [-0.102, +0.045], P 0.804 |
+| Chamfer pura in mm (@ regione FLAME) | -0.037 [-0.130, +0.059], P 0.775 | -0.073 [-0.176, +0.030], P 0.909 | -0.048 [-0.147, +0.049], P 0.839 | -0.034 [-0.131, +0.070], P 0.758 |
+| NICP su template in mm (@ regione FLAME) | -0.005 [-0.104, +0.090], P 0.563 | -0.041 [-0.143, +0.056], P 0.790 | -0.017 [-0.118, +0.082], P 0.661 | -0.002 [-0.102, +0.094], P 0.530 |
+| braccio intero (@ regione FLAME) | -0.140 [-0.215, -0.070], P 1.000 | -0.158 [-0.238, -0.081], P 1.000 | -0.160 [-0.233, -0.096], P 1.000 | -0.134 [-0.206, -0.067], P 1.000 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | -0.091 [-0.175, -0.007], P 0.983 | -0.106 [-0.205, -0.016], P 0.987 | -0.191 [-0.279, -0.100], P 1.000 | -0.198 [-0.285, -0.108], P 1.000 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.366 [+0.280, +0.447], P 0.000 | +0.351 [+0.270, +0.430], P 0.000 | +0.267 [+0.197, +0.340], P 0.000 | +0.260 [+0.187, +0.329], P 0.000 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.023 [-0.078, +0.034], P 0.795 | -0.038 [-0.093, +0.017], P 0.924 | -0.123 [-0.195, -0.055], P 1.000 | -0.130 [-0.206, -0.059], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.218 [+0.143, +0.299], P 0.000 | +0.203 [+0.124, +0.282], P 0.000 | +0.118 [+0.050, +0.193], P 0.000 | +0.111 [+0.049, +0.179], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.517 [+0.413, +0.615], P 0.000 | +0.502 [+0.393, +0.603], P 0.000 | +0.418 [+0.317, +0.518], P 0.000 | +0.410 [+0.311, +0.505], P 0.000 |
+| NICP su template in mm (@ regione GNM) | +0.501 [+0.401, +0.600], P 0.000 | +0.485 [+0.380, +0.585], P 0.000 | +0.401 [+0.307, +0.497], P 0.000 | +0.394 [+0.300, +0.487], P 0.000 |
+| braccio intero (@ regione GNM) | -0.038 [-0.084, +0.008], P 0.953 | -0.044 [-0.093, +0.000], P 0.974 | +0.145 [+0.090, +0.202], P 0.000 | +0.129 [+0.080, +0.183], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | -0.105 [-0.221, +0.005], P 0.968 | -0.115 [-0.231, -0.000], P 0.975 | -0.155 [-0.265, -0.051], P 0.996 | -0.172 [-0.281, -0.062], P 0.999 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.250 [+0.151, +0.341], P 0.000 | +0.240 [+0.144, +0.334], P 0.000 | +0.200 [+0.121, +0.279], P 0.000 | +0.184 [+0.106, +0.259], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.117 [-0.203, -0.044], P 1.000 | -0.127 [-0.212, -0.053], P 1.000 | -0.166 [-0.251, -0.094], P 1.000 | -0.183 [-0.265, -0.106], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.115 [+0.027, +0.204], P 0.006 | +0.105 [+0.017, +0.196], P 0.007 | +0.065 [-0.013, +0.137], P 0.047 | +0.049 [-0.028, +0.130], P 0.112 |
+| Chamfer pura in mm (@ regione FLAME) | +0.414 [+0.302, +0.522], P 0.000 | +0.405 [+0.288, +0.517], P 0.000 | +0.365 [+0.260, +0.473], P 0.000 | +0.348 [+0.244, +0.453], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.398 [+0.283, +0.507], P 0.000 | +0.388 [+0.269, +0.497], P 0.000 | +0.348 [+0.245, +0.450], P 0.000 | +0.331 [+0.230, +0.429], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.141 [-0.231, -0.061], P 1.000 | -0.142 [-0.227, -0.059], P 1.000 | +0.092 [+0.024, +0.164], P 0.006 | +0.066 [-0.002, +0.135], P 0.028 |
+
+
+## facescape: Spearman con la GT per gruppo (rho, IC 95%; 148500 righe all_cross, seme 621096)
+
+GT FR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.659 [0.589, 0.724] | 0.370 [0.320, 0.418] | 0.351 [0.272, 0.428] | 0.569 [0.500, 0.636] | 0.375 [0.294, 0.456] |
+| factorized s1234, d_F cal. @ regione GNM | 0.684 [0.613, 0.750] | 0.685 [0.612, 0.751] | 0.687 [0.612, 0.755] | 0.692 [0.618, 0.758] | 0.691 [0.616, 0.758] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.640 [0.570, 0.704] | 0.648 [0.576, 0.710] | 0.664 [0.593, 0.729] | 0.653 [0.583, 0.716] | 0.667 [0.596, 0.732] |
+| factorized s2345, d_F cal. | 0.667 [0.599, 0.729] | 0.351 [0.308, 0.393] | 0.278 [0.206, 0.348] | 0.548 [0.485, 0.604] | 0.300 [0.225, 0.375] |
+| factorized s2345, d_F cal. @ regione GNM | 0.711 [0.639, 0.774] | 0.708 [0.635, 0.773] | 0.703 [0.625, 0.771] | 0.711 [0.638, 0.776] | 0.704 [0.625, 0.772] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.683 [0.615, 0.749] | 0.687 [0.619, 0.753] | 0.697 [0.628, 0.760] | 0.689 [0.621, 0.755] | 0.698 [0.630, 0.762] |
+| ctrlfr s1234 | 0.663 [0.596, 0.718] | 0.334 [0.296, 0.369] | 0.264 [0.196, 0.328] | 0.561 [0.502, 0.613] | 0.274 [0.202, 0.343] |
+| ctrlfr s1234 @ regione GNM | 0.725 [0.668, 0.774] | 0.721 [0.663, 0.770] | 0.714 [0.649, 0.768] | 0.737 [0.681, 0.785] | 0.726 [0.662, 0.779] |
+| ctrlfr s1234 @ regione FLAME | 0.639 [0.581, 0.693] | 0.652 [0.596, 0.704] | 0.684 [0.629, 0.732] | 0.682 [0.630, 0.733] | 0.708 [0.654, 0.756] |
+| ctrlfr s2345 | 0.652 [0.585, 0.710] | 0.323 [0.285, 0.359] | 0.234 [0.166, 0.298] | 0.547 [0.485, 0.602] | 0.247 [0.175, 0.317] |
+| ctrlfr s2345 @ regione GNM | 0.677 [0.612, 0.736] | 0.653 [0.587, 0.713] | 0.616 [0.543, 0.685] | 0.675 [0.611, 0.735] | 0.636 [0.563, 0.704] |
+| ctrlfr s2345 @ regione FLAME | 0.656 [0.598, 0.711] | 0.666 [0.609, 0.719] | 0.692 [0.634, 0.742] | 0.683 [0.626, 0.735] | 0.705 [0.647, 0.754] |
+| C3M e123, d_F cal. | 0.666 [0.594, 0.727] | 0.420 [0.364, 0.473] | 0.472 [0.394, 0.543] | 0.611 [0.544, 0.671] | 0.479 [0.400, 0.550] |
+| C3M e123, d_F cal. @ regione GNM | 0.694 [0.633, 0.747] | 0.682 [0.620, 0.736] | 0.661 [0.591, 0.722] | 0.695 [0.633, 0.749] | 0.672 [0.602, 0.732] |
+| C3M e123, d_F cal. @ regione FLAME | 0.602 [0.533, 0.666] | 0.605 [0.535, 0.669] | 0.612 [0.542, 0.678] | 0.616 [0.547, 0.680] | 0.621 [0.552, 0.687] |
+| C3M e205, d_F cal. | 0.712 [0.652, 0.763] | 0.427 [0.378, 0.472] | 0.449 [0.378, 0.511] | 0.637 [0.581, 0.685] | 0.453 [0.382, 0.516] |
+| C3M e205, d_F cal. @ regione GNM | 0.694 [0.637, 0.746] | 0.687 [0.626, 0.742] | 0.674 [0.608, 0.735] | 0.707 [0.647, 0.759] | 0.692 [0.627, 0.752] |
+| C3M e205, d_F cal. @ regione FLAME | 0.622 [0.550, 0.685] | 0.625 [0.555, 0.687] | 0.633 [0.564, 0.697] | 0.642 [0.573, 0.705] | 0.648 [0.578, 0.713] |
+| factorized s1234, d_P | 0.677 [0.599, 0.746] | 0.443 [0.374, 0.512] | 0.459 [0.369, 0.545] | 0.617 [0.536, 0.691] | 0.472 [0.381, 0.558] |
+| factorized s1234, d_P @ regione GNM | 0.686 [0.605, 0.759] | 0.685 [0.605, 0.757] | 0.682 [0.604, 0.755] | 0.693 [0.614, 0.765] | 0.687 [0.608, 0.759] |
+| factorized s1234, d_P @ regione FLAME | 0.632 [0.557, 0.699] | 0.639 [0.564, 0.706] | 0.655 [0.579, 0.722] | 0.646 [0.571, 0.714] | 0.659 [0.584, 0.728] |
+| factorized s2345, d_P | 0.684 [0.601, 0.762] | 0.422 [0.353, 0.485] | 0.426 [0.331, 0.507] | 0.606 [0.525, 0.682] | 0.433 [0.338, 0.515] |
+| factorized s2345, d_P @ regione GNM | 0.728 [0.654, 0.793] | 0.718 [0.643, 0.785] | 0.700 [0.618, 0.776] | 0.722 [0.647, 0.790] | 0.702 [0.620, 0.777] |
+| factorized s2345, d_P @ regione FLAME | 0.682 [0.611, 0.753] | 0.683 [0.611, 0.753] | 0.685 [0.612, 0.756] | 0.685 [0.614, 0.756] | 0.687 [0.614, 0.758] |
+| C3M e123, d_P | 0.674 [0.600, 0.740] | 0.452 [0.384, 0.517] | 0.515 [0.431, 0.591] | 0.634 [0.559, 0.700] | 0.527 [0.443, 0.602] |
+| C3M e123, d_P @ regione GNM | 0.694 [0.624, 0.756] | 0.687 [0.614, 0.750] | 0.675 [0.601, 0.740] | 0.703 [0.632, 0.767] | 0.689 [0.617, 0.754] |
+| C3M e123, d_P @ regione FLAME | 0.614 [0.539, 0.682] | 0.618 [0.545, 0.686] | 0.629 [0.561, 0.697] | 0.634 [0.561, 0.701] | 0.643 [0.574, 0.709] |
+| C3M e205, d_P | 0.684 [0.611, 0.749] | 0.458 [0.390, 0.522] | 0.498 [0.417, 0.570] | 0.637 [0.563, 0.703] | 0.511 [0.431, 0.584] |
+| C3M e205, d_P @ regione GNM | 0.679 [0.611, 0.741] | 0.677 [0.609, 0.739] | 0.674 [0.601, 0.737] | 0.702 [0.635, 0.761] | 0.697 [0.627, 0.758] |
+| C3M e205, d_P @ regione FLAME | 0.627 [0.556, 0.694] | 0.631 [0.559, 0.695] | 0.641 [0.570, 0.707] | 0.650 [0.579, 0.716] | 0.659 [0.588, 0.723] |
+| GNM (visto) vB, coefficienti | 0.565 [0.492, 0.635] | 0.559 [0.485, 0.630] | 0.549 [0.471, 0.620] | 0.561 [0.487, 0.632] | 0.550 [0.473, 0.622] |
+| GNM (visto) vB, mesh d'identita' FR | 0.680 [0.613, 0.739] | 0.661 [0.597, 0.715] | 0.628 [0.569, 0.680] | 0.664 [0.599, 0.718] | 0.630 [0.571, 0.682] |
+| GNM (visto) vB, mesh d'identita' SR | 0.767 [0.678, 0.843] | 0.758 [0.675, 0.831] | 0.755 [0.682, 0.823] | 0.763 [0.682, 0.836] | 0.756 [0.683, 0.823] |
+| FLAME 2023 Open vB, coefficienti | 0.549 [0.470, 0.626] | 0.535 [0.459, 0.608] | 0.514 [0.435, 0.586] | 0.539 [0.463, 0.613] | 0.515 [0.436, 0.588] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.631 [0.561, 0.693] | 0.606 [0.538, 0.668] | 0.561 [0.497, 0.621] | 0.608 [0.541, 0.670] | 0.562 [0.499, 0.623] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.711 [0.615, 0.792] | 0.707 [0.609, 0.788] | 0.703 [0.605, 0.784] | 0.709 [0.612, 0.789] | 0.703 [0.605, 0.785] |
+| ICP + Chamfer in mm | 0.467 [0.404, 0.528] | 0.381 [0.326, 0.434] | 0.281 [0.242, 0.320] | 0.467 [0.412, 0.522] | 0.341 [0.298, 0.384] |
+| Chamfer pura in mm | 0.608 [0.537, 0.679] | 0.570 [0.499, 0.641] | 0.504 [0.436, 0.573] | 0.639 [0.568, 0.711] | 0.615 [0.543, 0.688] |
+| NICP su template in mm | 0.544 [0.470, 0.606] | 0.266 [0.228, 0.301] | 0.064 [0.018, 0.114] | 0.386 [0.335, 0.435] | 0.066 [0.018, 0.116] |
+
+GT SR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.690 [0.625, 0.751] | 0.392 [0.343, 0.439] | 0.383 [0.310, 0.450] | 0.601 [0.536, 0.661] | 0.407 [0.330, 0.477] |
+| factorized s1234, d_F cal. @ regione GNM | 0.750 [0.696, 0.797] | 0.754 [0.698, 0.801] | 0.762 [0.705, 0.808] | 0.761 [0.707, 0.807] | 0.766 [0.709, 0.812] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.691 [0.631, 0.742] | 0.699 [0.641, 0.748] | 0.715 [0.659, 0.764] | 0.704 [0.647, 0.754] | 0.719 [0.663, 0.767] |
+| factorized s2345, d_F cal. | 0.686 [0.621, 0.747] | 0.365 [0.323, 0.404] | 0.307 [0.237, 0.371] | 0.571 [0.509, 0.626] | 0.331 [0.256, 0.397] |
+| factorized s2345, d_F cal. @ regione GNM | 0.751 [0.692, 0.802] | 0.750 [0.689, 0.801] | 0.749 [0.686, 0.801] | 0.753 [0.693, 0.804] | 0.750 [0.687, 0.802] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.726 [0.671, 0.777] | 0.732 [0.678, 0.782] | 0.743 [0.689, 0.793] | 0.734 [0.680, 0.785] | 0.745 [0.691, 0.795] |
+| ctrlfr s1234 | 0.621 [0.546, 0.683] | 0.315 [0.271, 0.354] | 0.247 [0.179, 0.312] | 0.525 [0.456, 0.583] | 0.257 [0.186, 0.325] |
+| ctrlfr s1234 @ regione GNM | 0.731 [0.669, 0.782] | 0.728 [0.668, 0.778] | 0.724 [0.661, 0.776] | 0.744 [0.688, 0.792] | 0.736 [0.673, 0.788] |
+| ctrlfr s1234 @ regione FLAME | 0.639 [0.576, 0.692] | 0.652 [0.591, 0.703] | 0.682 [0.628, 0.731] | 0.681 [0.625, 0.731] | 0.705 [0.653, 0.753] |
+| ctrlfr s2345 | 0.627 [0.553, 0.693] | 0.315 [0.273, 0.353] | 0.243 [0.178, 0.308] | 0.532 [0.463, 0.591] | 0.257 [0.187, 0.326] |
+| ctrlfr s2345 @ regione GNM | 0.695 [0.630, 0.752] | 0.674 [0.607, 0.733] | 0.644 [0.570, 0.709] | 0.697 [0.631, 0.756] | 0.665 [0.593, 0.729] |
+| ctrlfr s2345 @ regione FLAME | 0.657 [0.596, 0.712] | 0.666 [0.606, 0.722] | 0.690 [0.630, 0.742] | 0.683 [0.623, 0.736] | 0.702 [0.643, 0.755] |
+| C3M e123, d_F cal. | 0.688 [0.621, 0.745] | 0.438 [0.383, 0.489] | 0.501 [0.422, 0.561] | 0.636 [0.570, 0.687] | 0.508 [0.429, 0.570] |
+| C3M e123, d_F cal. @ regione GNM | 0.735 [0.680, 0.779] | 0.725 [0.671, 0.769] | 0.709 [0.649, 0.759] | 0.739 [0.686, 0.783] | 0.720 [0.659, 0.771] |
+| C3M e123, d_F cal. @ regione FLAME | 0.660 [0.602, 0.712] | 0.663 [0.606, 0.715] | 0.671 [0.613, 0.724] | 0.675 [0.618, 0.726] | 0.681 [0.625, 0.734] |
+| C3M e205, d_F cal. | 0.709 [0.646, 0.761] | 0.430 [0.381, 0.477] | 0.464 [0.396, 0.523] | 0.640 [0.584, 0.688] | 0.468 [0.399, 0.528] |
+| C3M e205, d_F cal. @ regione GNM | 0.732 [0.682, 0.775] | 0.728 [0.678, 0.771] | 0.722 [0.668, 0.771] | 0.749 [0.699, 0.791] | 0.741 [0.687, 0.789] |
+| C3M e205, d_F cal. @ regione FLAME | 0.678 [0.623, 0.726] | 0.682 [0.627, 0.730] | 0.694 [0.639, 0.743] | 0.700 [0.645, 0.748] | 0.709 [0.654, 0.759] |
+| factorized s1234, d_P | 0.747 [0.681, 0.805] | 0.489 [0.424, 0.548] | 0.518 [0.429, 0.599] | 0.685 [0.616, 0.746] | 0.533 [0.443, 0.614] |
+| factorized s1234, d_P @ regione GNM | 0.781 [0.726, 0.828] | 0.783 [0.728, 0.829] | 0.787 [0.730, 0.833] | 0.793 [0.740, 0.837] | 0.793 [0.737, 0.838] |
+| factorized s1234, d_P @ regione FLAME | 0.728 [0.669, 0.776] | 0.735 [0.675, 0.783] | 0.750 [0.693, 0.798] | 0.743 [0.684, 0.790] | 0.755 [0.700, 0.802] |
+| factorized s2345, d_P | 0.754 [0.688, 0.810] | 0.464 [0.402, 0.519] | 0.476 [0.384, 0.557] | 0.670 [0.603, 0.728] | 0.484 [0.393, 0.565] |
+| factorized s2345, d_P @ regione GNM | 0.803 [0.752, 0.844] | 0.796 [0.744, 0.840] | 0.785 [0.724, 0.834] | 0.802 [0.750, 0.845] | 0.787 [0.727, 0.836] |
+| factorized s2345, d_P @ regione FLAME | 0.777 [0.726, 0.824] | 0.780 [0.729, 0.826] | 0.786 [0.735, 0.831] | 0.783 [0.731, 0.828] | 0.789 [0.738, 0.833] |
+| C3M e123, d_P | 0.746 [0.685, 0.797] | 0.500 [0.436, 0.557] | 0.578 [0.503, 0.644] | 0.704 [0.643, 0.757] | 0.591 [0.516, 0.657] |
+| C3M e123, d_P @ regione GNM | 0.775 [0.723, 0.816] | 0.769 [0.716, 0.810] | 0.759 [0.704, 0.805] | 0.788 [0.737, 0.828] | 0.776 [0.722, 0.820] |
+| C3M e123, d_P @ regione FLAME | 0.693 [0.636, 0.747] | 0.697 [0.641, 0.750] | 0.709 [0.654, 0.759] | 0.715 [0.659, 0.765] | 0.724 [0.672, 0.773] |
+| C3M e205, d_P | 0.756 [0.698, 0.805] | 0.505 [0.444, 0.559] | 0.555 [0.481, 0.622] | 0.706 [0.646, 0.755] | 0.570 [0.495, 0.637] |
+| C3M e205, d_P @ regione GNM | 0.762 [0.715, 0.803] | 0.762 [0.714, 0.803] | 0.763 [0.711, 0.806] | 0.790 [0.745, 0.829] | 0.790 [0.742, 0.830] |
+| C3M e205, d_P @ regione FLAME | 0.709 [0.653, 0.759] | 0.712 [0.658, 0.761] | 0.723 [0.672, 0.770] | 0.733 [0.681, 0.780] | 0.743 [0.693, 0.788] |
+| GNM (visto) vB, coefficienti | 0.617 [0.548, 0.676] | 0.611 [0.543, 0.670] | 0.601 [0.531, 0.662] | 0.613 [0.546, 0.672] | 0.602 [0.533, 0.664] |
+| GNM (visto) vB, mesh d'identita' FR | 0.609 [0.533, 0.677] | 0.593 [0.521, 0.660] | 0.566 [0.493, 0.632] | 0.595 [0.522, 0.663] | 0.567 [0.495, 0.634] |
+| GNM (visto) vB, mesh d'identita' SR | 0.854 [0.804, 0.894] | 0.840 [0.791, 0.882] | 0.830 [0.783, 0.873] | 0.847 [0.799, 0.888] | 0.831 [0.784, 0.874] |
+| FLAME 2023 Open vB, coefficienti | 0.591 [0.517, 0.662] | 0.576 [0.502, 0.647] | 0.553 [0.478, 0.629] | 0.580 [0.506, 0.652] | 0.555 [0.480, 0.630] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.589 [0.515, 0.660] | 0.568 [0.498, 0.637] | 0.530 [0.462, 0.595] | 0.570 [0.500, 0.638] | 0.531 [0.463, 0.596] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.820 [0.759, 0.871] | 0.814 [0.752, 0.864] | 0.807 [0.745, 0.859] | 0.816 [0.755, 0.866] | 0.807 [0.745, 0.859] |
+| ICP + Chamfer in mm | 0.491 [0.429, 0.549] | 0.401 [0.346, 0.454] | 0.294 [0.254, 0.333] | 0.490 [0.436, 0.542] | 0.357 [0.314, 0.400] |
+| Chamfer pura in mm | 0.595 [0.518, 0.662] | 0.557 [0.481, 0.625] | 0.493 [0.416, 0.562] | 0.623 [0.545, 0.693] | 0.599 [0.517, 0.673] |
+| NICP su template in mm | 0.398 [0.314, 0.471] | 0.195 [0.154, 0.231] | 0.044 [-0.003, 0.093] | 0.282 [0.223, 0.340] | 0.046 [-0.002, 0.095] |
+
+Delta appaiati, righe col crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.139 [+0.061, +0.216], P 0.001 | +0.155 [+0.088, +0.227], P 0.000 | +0.165 [+0.090, +0.243], P 0.000 | +0.068 [-0.004, +0.140], P 0.033 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.059 [-0.003, +0.120], P 0.031 | +0.075 [+0.021, +0.130], P 0.009 | +0.086 [+0.032, +0.139], P 0.003 | -0.012 [-0.066, +0.046], P 0.646 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.068 [-0.118, -0.018], P 0.994 | -0.052 [-0.116, +0.013], P 0.948 | -0.041 [-0.094, +0.014], P 0.941 | -0.139 [-0.198, -0.080], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.407 [+0.349, +0.460], P 0.000 | +0.423 [+0.360, +0.481], P 0.000 | +0.433 [+0.384, +0.477], P 0.000 | +0.335 [+0.278, +0.391], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.183 [+0.121, +0.243], P 0.000 | +0.199 [+0.138, +0.266], P 0.000 | +0.209 [+0.154, +0.264], P 0.000 | +0.112 [+0.054, +0.174], P 0.000 |
+| NICP su template in mm (@ regione GNM) | +0.623 [+0.532, +0.700], P 0.000 | +0.639 [+0.560, +0.709], P 0.000 | +0.649 [+0.570, +0.717], P 0.000 | +0.552 [+0.468, +0.628], P 0.000 |
+| braccio intero (@ regione GNM) | +0.336 [+0.269, +0.401], P 0.000 | +0.425 [+0.352, +0.497], P 0.000 | +0.450 [+0.385, +0.506], P 0.000 | +0.382 [+0.329, +0.433], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.151 [+0.076, +0.231], P 0.000 | +0.183 [+0.108, +0.263], P 0.000 | +0.170 [+0.097, +0.246], P 0.000 | +0.178 [+0.107, +0.253], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.104 [+0.044, +0.162], P 0.000 | +0.136 [+0.079, +0.194], P 0.000 | +0.123 [+0.069, +0.175], P 0.000 | +0.132 [+0.079, +0.184], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.038 [-0.107, +0.033], P 0.862 | -0.006 [-0.073, +0.071], P 0.578 | -0.019 [-0.097, +0.057], P 0.687 | -0.011 [-0.081, +0.066], P 0.605 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.383 [+0.324, +0.438], P 0.000 | +0.416 [+0.359, +0.471], P 0.000 | +0.403 [+0.354, +0.447], P 0.000 | +0.411 [+0.368, +0.453], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.160 [+0.092, +0.228], P 0.000 | +0.192 [+0.121, +0.266], P 0.000 | +0.180 [+0.115, +0.244], P 0.000 | +0.188 [+0.130, +0.245], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.600 [+0.513, +0.670], P 0.000 | +0.632 [+0.556, +0.702], P 0.000 | +0.620 [+0.546, +0.685], P 0.000 | +0.628 [+0.554, +0.691], P 0.000 |
+| braccio intero (@ regione FLAME) | +0.313 [+0.243, +0.383], P 0.000 | +0.419 [+0.342, +0.496], P 0.000 | +0.420 [+0.355, +0.479], P 0.000 | +0.458 [+0.396, +0.517], P 0.000 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.186 [+0.131, +0.251], P 0.000 | +0.184 [+0.126, +0.249], P 0.000 | +0.123 [+0.064, +0.184], P 0.000 | +0.043 [-0.017, +0.109], P 0.089 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.221 [+0.161, +0.276], P 0.000 | +0.219 [+0.167, +0.267], P 0.000 | +0.158 [+0.103, +0.209], P 0.000 | +0.078 [+0.022, +0.130], P 0.002 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.043 [-0.090, +0.001], P 0.972 | -0.046 [-0.090, -0.005], P 0.982 | -0.106 [-0.157, -0.058], P 1.000 | -0.186 [-0.242, -0.134], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.493 [+0.455, +0.530], P 0.000 | +0.491 [+0.446, +0.532], P 0.000 | +0.430 [+0.384, +0.473], P 0.000 | +0.351 [+0.296, +0.401], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.294 [+0.237, +0.350], P 0.000 | +0.292 [+0.240, +0.349], P 0.000 | +0.232 [+0.176, +0.284], P 0.000 | +0.152 [+0.087, +0.213], P 0.000 |
+| NICP su template in mm (@ regione GNM) | +0.743 [+0.678, +0.808], P 0.000 | +0.740 [+0.670, +0.806], P 0.000 | +0.680 [+0.611, +0.746], P 0.000 | +0.600 [+0.526, +0.672], P 0.000 |
+| braccio intero (@ regione GNM) | +0.269 [+0.218, +0.326], P 0.000 | +0.308 [+0.253, +0.370], P 0.000 | +0.477 [+0.430, +0.523], P 0.000 | +0.401 [+0.352, +0.447], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.197 [+0.130, +0.267], P 0.000 | +0.233 [+0.164, +0.304], P 0.000 | +0.128 [+0.063, +0.194], P 0.000 | +0.136 [+0.067, +0.208], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.220 [+0.162, +0.280], P 0.000 | +0.257 [+0.203, +0.316], P 0.000 | +0.152 [+0.103, +0.203], P 0.000 | +0.160 [+0.109, +0.211], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.057 [-0.110, -0.004], P 0.977 | -0.020 [-0.068, +0.033], P 0.782 | -0.125 [-0.179, -0.068], P 1.000 | -0.117 [-0.168, -0.062], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.456 [+0.412, +0.497], P 0.000 | +0.493 [+0.451, +0.533], P 0.000 | +0.388 [+0.342, +0.432], P 0.000 | +0.396 [+0.353, +0.436], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.257 [+0.197, +0.321], P 0.000 | +0.294 [+0.234, +0.359], P 0.000 | +0.189 [+0.130, +0.247], P 0.000 | +0.197 [+0.140, +0.259], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.706 [+0.632, +0.776], P 0.000 | +0.742 [+0.672, +0.806], P 0.000 | +0.638 [+0.566, +0.707], P 0.000 | +0.645 [+0.575, +0.713], P 0.000 |
+| braccio intero (@ regione FLAME) | +0.232 [+0.175, +0.298], P 0.000 | +0.310 [+0.250, +0.381], P 0.000 | +0.435 [+0.383, +0.486], P 0.000 | +0.446 [+0.391, +0.501], P 0.000 |
+
+Delta appaiati, media crop 5 coppie (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.141 [+0.063, +0.218], P 0.001 | +0.154 [+0.087, +0.226], P 0.000 | +0.176 [+0.100, +0.254], P 0.000 | +0.086 [+0.014, +0.158], P 0.009 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.061 [-0.002, +0.121], P 0.029 | +0.075 [+0.020, +0.129], P 0.009 | +0.096 [+0.042, +0.148], P 0.001 | +0.007 [-0.048, +0.065], P 0.380 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.065 [-0.115, -0.015], P 0.993 | -0.051 [-0.116, +0.014], P 0.947 | -0.030 [-0.080, +0.026], P 0.881 | -0.119 [-0.176, -0.061], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.350 [+0.290, +0.405], P 0.000 | +0.363 [+0.301, +0.421], P 0.000 | +0.384 [+0.335, +0.430], P 0.000 | +0.295 [+0.236, +0.352], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.076 [+0.013, +0.135], P 0.009 | +0.090 [+0.028, +0.153], P 0.002 | +0.111 [+0.054, +0.167], P 0.000 | +0.022 [-0.042, +0.083], P 0.258 |
+| NICP su template in mm (@ regione GNM) | +0.625 [+0.533, +0.702], P 0.000 | +0.638 [+0.559, +0.709], P 0.000 | +0.660 [+0.580, +0.727], P 0.000 | +0.571 [+0.487, +0.645], P 0.000 |
+| braccio intero (@ regione GNM) | +0.316 [+0.247, +0.382], P 0.000 | +0.404 [+0.327, +0.477], P 0.000 | +0.451 [+0.384, +0.512], P 0.000 | +0.389 [+0.333, +0.443], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.152 [+0.078, +0.233], P 0.000 | +0.183 [+0.109, +0.262], P 0.000 | +0.193 [+0.121, +0.270], P 0.000 | +0.190 [+0.118, +0.265], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.105 [+0.045, +0.164], P 0.000 | +0.136 [+0.078, +0.192], P 0.000 | +0.146 [+0.092, +0.199], P 0.000 | +0.142 [+0.090, +0.195], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.036 [-0.105, +0.037], P 0.848 | -0.005 [-0.073, +0.072], P 0.567 | +0.005 [-0.072, +0.082], P 0.461 | +0.002 [-0.069, +0.077], P 0.496 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.326 [+0.267, +0.381], P 0.000 | +0.357 [+0.299, +0.411], P 0.000 | +0.367 [+0.316, +0.414], P 0.000 | +0.363 [+0.318, +0.408], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.052 [-0.016, +0.117], P 0.074 | +0.083 [+0.012, +0.153], P 0.012 | +0.093 [+0.027, +0.160], P 0.002 | +0.090 [+0.028, +0.152], P 0.005 |
+| NICP su template in mm (@ regione FLAME) | +0.601 [+0.516, +0.671], P 0.000 | +0.632 [+0.555, +0.701], P 0.000 | +0.642 [+0.571, +0.703], P 0.000 | +0.639 [+0.565, +0.704], P 0.000 |
+| braccio intero (@ regione FLAME) | +0.293 [+0.218, +0.365], P 0.000 | +0.398 [+0.319, +0.478], P 0.000 | +0.434 [+0.366, +0.497], P 0.000 | +0.457 [+0.392, +0.520], P 0.000 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.191 [+0.134, +0.255], P 0.000 | +0.185 [+0.127, +0.251], P 0.000 | +0.134 [+0.075, +0.192], P 0.000 | +0.063 [+0.002, +0.129], P 0.023 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.225 [+0.166, +0.279], P 0.000 | +0.220 [+0.167, +0.269], P 0.000 | +0.169 [+0.114, +0.219], P 0.000 | +0.098 [+0.042, +0.150], P 0.000 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.038 [-0.085, +0.005], P 0.952 | -0.044 [-0.089, -0.004], P 0.980 | -0.095 [-0.145, -0.047], P 1.000 | -0.166 [-0.224, -0.115], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.436 [+0.397, +0.477], P 0.000 | +0.430 [+0.386, +0.473], P 0.000 | +0.379 [+0.332, +0.423], P 0.000 | +0.308 [+0.253, +0.362], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.194 [+0.133, +0.256], P 0.000 | +0.188 [+0.128, +0.251], P 0.000 | +0.137 [+0.082, +0.196], P 0.000 | +0.066 [-0.004, +0.132], P 0.031 |
+| NICP su template in mm (@ regione GNM) | +0.747 [+0.683, +0.813], P 0.000 | +0.741 [+0.670, +0.807], P 0.000 | +0.690 [+0.622, +0.756], P 0.000 | +0.619 [+0.546, +0.693], P 0.000 |
+| braccio intero (@ regione GNM) | +0.260 [+0.206, +0.318], P 0.000 | +0.303 [+0.246, +0.366], P 0.000 | +0.479 [+0.430, +0.528], P 0.000 | +0.408 [+0.357, +0.459], P 0.000 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.200 [+0.133, +0.270], P 0.000 | +0.234 [+0.165, +0.306], P 0.000 | +0.150 [+0.087, +0.217], P 0.000 | +0.147 [+0.079, +0.219], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.224 [+0.166, +0.282], P 0.000 | +0.258 [+0.203, +0.317], P 0.000 | +0.174 [+0.125, +0.224], P 0.000 | +0.171 [+0.122, +0.221], P 0.000 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.052 [-0.105, +0.002], P 0.971 | -0.019 [-0.066, +0.035], P 0.760 | -0.102 [-0.154, -0.044], P 0.999 | -0.105 [-0.155, -0.048], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.398 [+0.351, +0.441], P 0.000 | +0.432 [+0.386, +0.475], P 0.000 | +0.348 [+0.300, +0.392], P 0.000 | +0.345 [+0.301, +0.388], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.156 [+0.091, +0.223], P 0.000 | +0.190 [+0.120, +0.260], P 0.000 | +0.106 [+0.039, +0.171], P 0.001 | +0.103 [+0.040, +0.167], P 0.000 |
+| NICP su template in mm (@ regione FLAME) | +0.709 [+0.635, +0.778], P 0.000 | +0.743 [+0.672, +0.807], P 0.000 | +0.659 [+0.589, +0.723], P 0.000 | +0.656 [+0.586, +0.723], P 0.000 |
+| braccio intero (@ regione FLAME) | +0.222 [+0.163, +0.289], P 0.000 | +0.304 [+0.243, +0.377], P 0.000 | +0.448 [+0.393, +0.503], P 0.000 | +0.445 [+0.386, +0.502], P 0.000 |
+
+Delta appaiati, senza crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.119 [+0.041, +0.195], P 0.001 | +0.146 [+0.079, +0.215], P 0.000 | +0.160 [+0.087, +0.237], P 0.000 | +0.111 [+0.040, +0.180], P 0.001 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.004 [-0.071, +0.077], P 0.440 | +0.031 [-0.032, +0.087], P 0.159 | +0.045 [-0.018, +0.106], P 0.072 | -0.003 [-0.065, +0.060], P 0.534 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.082 [-0.141, -0.023], P 0.995 | -0.056 [-0.128, +0.034], P 0.917 | -0.042 [-0.101, +0.022], P 0.910 | -0.090 [-0.152, -0.025], P 0.990 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.217 [+0.169, +0.269], P 0.000 | +0.244 [+0.187, +0.302], P 0.000 | +0.258 [+0.211, +0.306], P 0.000 | +0.210 [+0.166, +0.255], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.076 [+0.019, +0.128], P 0.007 | +0.103 [+0.045, +0.159], P 0.001 | +0.117 [+0.059, +0.175], P 0.000 | +0.068 [+0.012, +0.121], P 0.012 |
+| NICP su template in mm (@ regione GNM) | +0.141 [+0.042, +0.237], P 0.002 | +0.167 [+0.079, +0.253], P 0.001 | +0.182 [+0.102, +0.261], P 0.000 | +0.133 [+0.047, +0.217], P 0.002 |
+| braccio intero (@ regione GNM) | +0.025 [-0.021, +0.072], P 0.156 | +0.044 [+0.005, +0.082], P 0.011 | +0.063 [+0.021, +0.110], P 0.002 | +0.025 [-0.025, +0.076], P 0.169 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.091 [+0.016, +0.174], P 0.004 | +0.133 [+0.058, +0.212], P 0.000 | +0.090 [+0.019, +0.164], P 0.007 | +0.107 [+0.037, +0.185], P 0.002 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.010 [-0.056, +0.071], P 0.383 | +0.052 [-0.009, +0.110], P 0.042 | +0.008 [-0.048, +0.063], P 0.391 | +0.026 [-0.031, +0.082], P 0.196 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.071 [-0.144, +0.008], P 0.965 | -0.029 [-0.095, +0.048], P 0.790 | -0.072 [-0.151, +0.010], P 0.960 | -0.055 [-0.127, +0.024], P 0.930 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.174 [+0.121, +0.225], P 0.000 | +0.216 [+0.164, +0.270], P 0.000 | +0.172 [+0.121, +0.223], P 0.000 | +0.189 [+0.144, +0.235], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.032 [-0.028, +0.092], P 0.164 | +0.075 [+0.009, +0.137], P 0.012 | +0.031 [-0.031, +0.095], P 0.179 | +0.048 [-0.006, +0.104], P 0.052 |
+| NICP su template in mm (@ regione FLAME) | +0.097 [-0.002, +0.188], P 0.027 | +0.139 [+0.047, +0.229], P 0.004 | +0.095 [+0.020, +0.172], P 0.005 | +0.113 [+0.036, +0.189], P 0.004 |
+| braccio intero (@ regione FLAME) | -0.019 [-0.070, +0.029], P 0.784 | +0.016 [-0.030, +0.062], P 0.241 | -0.024 [-0.077, +0.032], P 0.823 | +0.004 [-0.048, +0.061], P 0.471 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.164 [+0.107, +0.229], P 0.000 | +0.186 [+0.126, +0.253], P 0.000 | +0.113 [+0.051, +0.176], P 0.000 | +0.078 [+0.016, +0.142], P 0.008 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.173 [+0.106, +0.234], P 0.000 | +0.195 [+0.131, +0.253], P 0.000 | +0.122 [+0.057, +0.179], P 0.000 | +0.086 [+0.028, +0.138], P 0.003 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.072 [-0.125, -0.025], P 0.993 | -0.050 [-0.096, -0.010], P 0.988 | -0.123 [-0.177, -0.076], P 1.000 | -0.159 [-0.212, -0.109], P 1.000 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.290 [+0.247, +0.337], P 0.000 | +0.312 [+0.267, +0.358], P 0.000 | +0.240 [+0.193, +0.289], P 0.000 | +0.204 [+0.158, +0.249], P 0.000 |
+| Chamfer pura in mm (@ regione GNM) | +0.186 [+0.126, +0.249], P 0.000 | +0.208 [+0.151, +0.269], P 0.000 | +0.136 [+0.079, +0.194], P 0.000 | +0.100 [+0.037, +0.161], P 0.001 |
+| NICP su template in mm (@ regione GNM) | +0.383 [+0.307, +0.466], P 0.000 | +0.405 [+0.329, +0.482], P 0.000 | +0.332 [+0.261, +0.408], P 0.000 | +0.297 [+0.222, +0.371], P 0.000 |
+| braccio intero (@ regione GNM) | +0.034 [-0.006, +0.076], P 0.042 | +0.050 [+0.010, +0.091], P 0.006 | +0.110 [+0.073, +0.155], P 0.000 | +0.068 [+0.025, +0.116], P 0.002 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.137 [+0.072, +0.204], P 0.000 | +0.186 [+0.122, +0.253], P 0.000 | +0.048 [-0.013, +0.111], P 0.073 | +0.066 [-0.000, +0.135], P 0.027 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.139 [+0.076, +0.206], P 0.000 | +0.188 [+0.127, +0.250], P 0.000 | +0.050 [-0.009, +0.109], P 0.045 | +0.068 [+0.010, +0.125], P 0.008 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.092 [-0.148, -0.041], P 0.999 | -0.043 [-0.093, +0.006], P 0.956 | -0.181 [-0.238, -0.126], P 1.000 | -0.163 [-0.220, -0.106], P 1.000 |
+| ICP + Chamfer in mm (@ regione FLAME) | +0.238 [+0.191, +0.287], P 0.000 | +0.286 [+0.241, +0.335], P 0.000 | +0.148 [+0.100, +0.196], P 0.000 | +0.166 [+0.125, +0.210], P 0.000 |
+| Chamfer pura in mm (@ regione FLAME) | +0.134 [+0.073, +0.197], P 0.000 | +0.182 [+0.121, +0.246], P 0.000 | +0.044 [-0.018, +0.105], P 0.064 | +0.062 [+0.006, +0.122], P 0.015 |
+| NICP su template in mm (@ regione FLAME) | +0.330 [+0.247, +0.414], P 0.000 | +0.379 [+0.303, +0.461], P 0.000 | +0.241 [+0.165, +0.317], P 0.000 | +0.259 [+0.187, +0.332], P 0.000 |
+| braccio intero (@ regione FLAME) | -0.019 [-0.062, +0.031], P 0.788 | +0.023 [-0.017, +0.070], P 0.136 | +0.019 [-0.026, +0.067], P 0.219 | +0.030 [-0.018, +0.082], P 0.117 |
+
+
+## faceverse: Spearman con la GT per gruppo (rho, IC 95%; 148500 righe all_cross, seme 566363)
+
+GT FR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.303 [0.231, 0.368] | 0.284 [0.211, 0.347] | 0.252 [0.176, 0.317] | 0.287 [0.213, 0.351] | 0.253 [0.176, 0.317] |
+| factorized s1234, d_F cal. @ regione GNM | 0.287 [0.212, 0.356] | 0.293 [0.218, 0.358] | 0.305 [0.224, 0.373] | 0.294 [0.219, 0.360] | 0.305 [0.225, 0.373] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.246 [0.163, 0.322] | 0.241 [0.160, 0.318] | 0.231 [0.137, 0.316] | 0.241 [0.160, 0.319] | 0.231 [0.138, 0.316] |
+| factorized s2345, d_F cal. | 0.318 [0.258, 0.376] | 0.288 [0.230, 0.342] | 0.234 [0.168, 0.290] | 0.290 [0.232, 0.345] | 0.234 [0.168, 0.291] |
+| factorized s2345, d_F cal. @ regione GNM | 0.271 [0.198, 0.343] | 0.272 [0.200, 0.339] | 0.275 [0.202, 0.340] | 0.272 [0.200, 0.341] | 0.275 [0.202, 0.341] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.224 [0.148, 0.293] | 0.219 [0.145, 0.289] | 0.208 [0.127, 0.287] | 0.219 [0.146, 0.289] | 0.208 [0.127, 0.287] |
+| ctrlfr s1234 | 0.282 [0.219, 0.348] | 0.273 [0.214, 0.335] | 0.256 [0.193, 0.318] | 0.281 [0.221, 0.344] | 0.263 [0.200, 0.327] |
+| ctrlfr s1234 @ regione GNM | 0.264 [0.200, 0.322] | 0.268 [0.206, 0.324] | 0.276 [0.205, 0.335] | 0.274 [0.212, 0.332] | 0.281 [0.209, 0.341] |
+| ctrlfr s1234 @ regione FLAME | 0.234 [0.160, 0.299] | 0.230 [0.156, 0.297] | 0.223 [0.139, 0.293] | 0.232 [0.157, 0.299] | 0.224 [0.140, 0.295] |
+| ctrlfr s2345 | 0.258 [0.187, 0.329] | 0.251 [0.187, 0.319] | 0.239 [0.167, 0.305] | 0.255 [0.191, 0.324] | 0.241 [0.169, 0.307] |
+| ctrlfr s2345 @ regione GNM | 0.241 [0.180, 0.300] | 0.246 [0.186, 0.306] | 0.257 [0.185, 0.320] | 0.250 [0.189, 0.310] | 0.261 [0.187, 0.324] |
+| ctrlfr s2345 @ regione FLAME | 0.210 [0.140, 0.275] | 0.207 [0.137, 0.272] | 0.200 [0.122, 0.277] | 0.207 [0.138, 0.272] | 0.201 [0.122, 0.277] |
+| C3M e123, d_F cal. | 0.289 [0.219, 0.350] | 0.277 [0.208, 0.336] | 0.253 [0.181, 0.316] | 0.283 [0.213, 0.343] | 0.257 [0.184, 0.322] |
+| C3M e123, d_F cal. @ regione GNM | 0.261 [0.197, 0.326] | 0.265 [0.200, 0.325] | 0.272 [0.202, 0.334] | 0.269 [0.205, 0.330] | 0.275 [0.204, 0.338] |
+| C3M e123, d_F cal. @ regione FLAME | 0.233 [0.159, 0.304] | 0.228 [0.154, 0.297] | 0.219 [0.137, 0.294] | 0.231 [0.156, 0.301] | 0.221 [0.139, 0.297] |
+| C3M e205, d_F cal. | 0.290 [0.228, 0.347] | 0.276 [0.217, 0.330] | 0.250 [0.184, 0.307] | 0.288 [0.225, 0.345] | 0.259 [0.190, 0.319] |
+| C3M e205, d_F cal. @ regione GNM | 0.259 [0.203, 0.315] | 0.262 [0.204, 0.320] | 0.269 [0.200, 0.329] | 0.272 [0.212, 0.333] | 0.276 [0.206, 0.338] |
+| C3M e205, d_F cal. @ regione FLAME | 0.227 [0.156, 0.291] | 0.224 [0.154, 0.289] | 0.219 [0.139, 0.292] | 0.233 [0.160, 0.302] | 0.225 [0.143, 0.300] |
+| factorized s1234, d_P | 0.283 [0.217, 0.351] | 0.271 [0.203, 0.339] | 0.252 [0.174, 0.324] | 0.273 [0.205, 0.341] | 0.252 [0.175, 0.324] |
+| factorized s1234, d_P @ regione GNM | 0.285 [0.216, 0.351] | 0.291 [0.221, 0.355] | 0.305 [0.225, 0.374] | 0.292 [0.222, 0.356] | 0.305 [0.225, 0.374] |
+| factorized s1234, d_P @ regione FLAME | 0.249 [0.165, 0.327] | 0.246 [0.166, 0.321] | 0.240 [0.151, 0.324] | 0.246 [0.166, 0.322] | 0.240 [0.151, 0.324] |
+| factorized s2345, d_P | 0.308 [0.239, 0.374] | 0.287 [0.221, 0.351] | 0.251 [0.181, 0.314] | 0.289 [0.222, 0.353] | 0.252 [0.181, 0.315] |
+| factorized s2345, d_P @ regione GNM | 0.278 [0.207, 0.347] | 0.278 [0.209, 0.347] | 0.280 [0.207, 0.346] | 0.279 [0.210, 0.348] | 0.280 [0.208, 0.346] |
+| factorized s2345, d_P @ regione FLAME | 0.231 [0.153, 0.306] | 0.228 [0.150, 0.302] | 0.221 [0.136, 0.304] | 0.228 [0.150, 0.302] | 0.221 [0.136, 0.305] |
+| C3M e123, d_P | 0.303 [0.225, 0.375] | 0.297 [0.221, 0.364] | 0.287 [0.209, 0.355] | 0.300 [0.223, 0.366] | 0.288 [0.210, 0.356] |
+| C3M e123, d_P @ regione GNM | 0.283 [0.216, 0.351] | 0.286 [0.220, 0.352] | 0.292 [0.223, 0.357] | 0.288 [0.221, 0.354] | 0.293 [0.224, 0.358] |
+| C3M e123, d_P @ regione FLAME | 0.248 [0.174, 0.321] | 0.246 [0.173, 0.317] | 0.242 [0.161, 0.315] | 0.247 [0.174, 0.321] | 0.243 [0.162, 0.317] |
+| C3M e205, d_P | 0.310 [0.238, 0.377] | 0.305 [0.235, 0.370] | 0.297 [0.225, 0.364] | 0.309 [0.238, 0.374] | 0.298 [0.227, 0.366] |
+| C3M e205, d_P @ regione GNM | 0.284 [0.218, 0.348] | 0.286 [0.223, 0.349] | 0.291 [0.221, 0.353] | 0.289 [0.226, 0.352] | 0.293 [0.223, 0.356] |
+| C3M e205, d_P @ regione FLAME | 0.244 [0.170, 0.316] | 0.241 [0.169, 0.310] | 0.235 [0.155, 0.309] | 0.245 [0.171, 0.315] | 0.237 [0.156, 0.311] |
+| GNM (visto) vB, coefficienti | 0.226 [0.142, 0.311] | 0.224 [0.142, 0.307] | 0.220 [0.130, 0.306] | 0.225 [0.143, 0.309] | 0.221 [0.131, 0.307] |
+| GNM (visto) vB, mesh d'identita' FR | 0.292 [0.205, 0.371] | 0.289 [0.202, 0.368] | 0.281 [0.191, 0.359] | 0.289 [0.202, 0.368] | 0.281 [0.191, 0.359] |
+| GNM (visto) vB, mesh d'identita' SR | 0.319 [0.234, 0.398] | 0.314 [0.230, 0.393] | 0.305 [0.226, 0.382] | 0.314 [0.231, 0.394] | 0.305 [0.226, 0.382] |
+| FLAME 2023 Open vB, coefficienti | 0.203 [0.126, 0.282] | 0.195 [0.113, 0.275] | 0.179 [0.089, 0.272] | 0.196 [0.114, 0.277] | 0.179 [0.089, 0.273] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.264 [0.183, 0.342] | 0.258 [0.176, 0.337] | 0.245 [0.159, 0.328] | 0.258 [0.176, 0.338] | 0.245 [0.160, 0.329] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.290 [0.204, 0.364] | 0.283 [0.198, 0.358] | 0.270 [0.181, 0.347] | 0.283 [0.198, 0.359] | 0.270 [0.181, 0.348] |
+| ICP + Chamfer in mm | 0.337 [0.256, 0.409] | 0.312 [0.237, 0.378] | 0.271 [0.204, 0.331] | 0.317 [0.241, 0.384] | 0.273 [0.206, 0.333] |
+| Chamfer pura in mm | 0.366 [0.298, 0.432] | 0.363 [0.295, 0.428] | 0.362 [0.294, 0.427] | 0.367 [0.299, 0.432] | 0.364 [0.297, 0.430] |
+| NICP su template in mm | 0.212 [0.101, 0.309] | 0.177 [0.087, 0.261] | 0.124 [0.051, 0.194] | 0.183 [0.089, 0.270] | 0.124 [0.051, 0.194] |
+
+GT SR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.269 [0.195, 0.340] | 0.251 [0.177, 0.321] | 0.220 [0.141, 0.291] | 0.253 [0.179, 0.324] | 0.220 [0.141, 0.291] |
+| factorized s1234, d_F cal. @ regione GNM | 0.269 [0.188, 0.344] | 0.275 [0.191, 0.348] | 0.286 [0.191, 0.360] | 0.275 [0.192, 0.349] | 0.286 [0.191, 0.360] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.230 [0.139, 0.314] | 0.225 [0.133, 0.310] | 0.215 [0.111, 0.308] | 0.225 [0.133, 0.311] | 0.215 [0.111, 0.309] |
+| factorized s2345, d_F cal. | 0.286 [0.212, 0.356] | 0.258 [0.187, 0.324] | 0.208 [0.134, 0.271] | 0.261 [0.189, 0.327] | 0.208 [0.135, 0.271] |
+| factorized s2345, d_F cal. @ regione GNM | 0.267 [0.186, 0.341] | 0.267 [0.186, 0.339] | 0.267 [0.183, 0.338] | 0.267 [0.187, 0.340] | 0.267 [0.184, 0.338] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.221 [0.137, 0.297] | 0.216 [0.137, 0.291] | 0.208 [0.118, 0.285] | 0.217 [0.137, 0.291] | 0.208 [0.119, 0.285] |
+| ctrlfr s1234 | 0.273 [0.205, 0.342] | 0.261 [0.198, 0.326] | 0.239 [0.174, 0.306] | 0.269 [0.206, 0.335] | 0.245 [0.180, 0.314] |
+| ctrlfr s1234 @ regione GNM | 0.264 [0.198, 0.326] | 0.266 [0.196, 0.327] | 0.271 [0.195, 0.337] | 0.272 [0.202, 0.333] | 0.276 [0.198, 0.343] |
+| ctrlfr s1234 @ regione FLAME | 0.237 [0.158, 0.308] | 0.233 [0.155, 0.303] | 0.225 [0.136, 0.300] | 0.235 [0.156, 0.306] | 0.226 [0.136, 0.302] |
+| ctrlfr s2345 | 0.259 [0.187, 0.331] | 0.253 [0.187, 0.317] | 0.243 [0.172, 0.305] | 0.257 [0.191, 0.321] | 0.245 [0.174, 0.307] |
+| ctrlfr s2345 @ regione GNM | 0.251 [0.187, 0.307] | 0.256 [0.191, 0.312] | 0.264 [0.186, 0.327] | 0.259 [0.194, 0.315] | 0.267 [0.189, 0.331] |
+| ctrlfr s2345 @ regione FLAME | 0.214 [0.139, 0.283] | 0.211 [0.137, 0.281] | 0.205 [0.116, 0.281] | 0.212 [0.137, 0.282] | 0.205 [0.115, 0.282] |
+| C3M e123, d_F cal. | 0.270 [0.192, 0.336] | 0.258 [0.180, 0.321] | 0.232 [0.156, 0.299] | 0.263 [0.184, 0.328] | 0.236 [0.158, 0.303] |
+| C3M e123, d_F cal. @ regione GNM | 0.258 [0.189, 0.322] | 0.262 [0.193, 0.325] | 0.272 [0.193, 0.337] | 0.266 [0.195, 0.329] | 0.274 [0.195, 0.341] |
+| C3M e123, d_F cal. @ regione FLAME | 0.233 [0.149, 0.312] | 0.227 [0.142, 0.304] | 0.215 [0.116, 0.302] | 0.230 [0.143, 0.309] | 0.217 [0.119, 0.304] |
+| C3M e205, d_F cal. | 0.275 [0.207, 0.334] | 0.263 [0.197, 0.319] | 0.239 [0.170, 0.299] | 0.274 [0.205, 0.331] | 0.247 [0.176, 0.311] |
+| C3M e205, d_F cal. @ regione GNM | 0.258 [0.199, 0.317] | 0.263 [0.202, 0.322] | 0.273 [0.198, 0.336] | 0.272 [0.206, 0.333] | 0.280 [0.204, 0.346] |
+| C3M e205, d_F cal. @ regione FLAME | 0.228 [0.148, 0.301] | 0.224 [0.141, 0.297] | 0.217 [0.118, 0.300] | 0.233 [0.147, 0.310] | 0.223 [0.122, 0.308] |
+| factorized s1234, d_P | 0.286 [0.217, 0.354] | 0.273 [0.208, 0.342] | 0.251 [0.175, 0.323] | 0.275 [0.210, 0.344] | 0.252 [0.176, 0.323] |
+| factorized s1234, d_P @ regione GNM | 0.292 [0.219, 0.361] | 0.299 [0.223, 0.363] | 0.312 [0.231, 0.379] | 0.299 [0.223, 0.365] | 0.312 [0.231, 0.380] |
+| factorized s1234, d_P @ regione FLAME | 0.263 [0.179, 0.341] | 0.259 [0.173, 0.337] | 0.249 [0.161, 0.335] | 0.258 [0.173, 0.337] | 0.249 [0.160, 0.336] |
+| factorized s2345, d_P | 0.313 [0.248, 0.378] | 0.293 [0.227, 0.356] | 0.257 [0.189, 0.322] | 0.295 [0.229, 0.358] | 0.257 [0.189, 0.323] |
+| factorized s2345, d_P @ regione GNM | 0.293 [0.216, 0.362] | 0.292 [0.219, 0.361] | 0.293 [0.221, 0.359] | 0.293 [0.220, 0.362] | 0.293 [0.221, 0.360] |
+| factorized s2345, d_P @ regione FLAME | 0.252 [0.171, 0.325] | 0.249 [0.167, 0.321] | 0.243 [0.157, 0.319] | 0.249 [0.168, 0.322] | 0.243 [0.158, 0.319] |
+| C3M e123, d_P | 0.313 [0.238, 0.386] | 0.306 [0.232, 0.375] | 0.294 [0.219, 0.364] | 0.309 [0.235, 0.378] | 0.295 [0.220, 0.366] |
+| C3M e123, d_P @ regione GNM | 0.292 [0.221, 0.364] | 0.296 [0.225, 0.364] | 0.305 [0.233, 0.375] | 0.298 [0.227, 0.368] | 0.306 [0.234, 0.376] |
+| C3M e123, d_P @ regione FLAME | 0.266 [0.186, 0.346] | 0.262 [0.181, 0.335] | 0.254 [0.170, 0.333] | 0.263 [0.183, 0.339] | 0.254 [0.171, 0.335] |
+| C3M e205, d_P | 0.314 [0.243, 0.377] | 0.312 [0.244, 0.374] | 0.308 [0.239, 0.372] | 0.315 [0.247, 0.377] | 0.310 [0.239, 0.373] |
+| C3M e205, d_P @ regione GNM | 0.292 [0.224, 0.355] | 0.296 [0.229, 0.358] | 0.305 [0.232, 0.371] | 0.299 [0.232, 0.362] | 0.307 [0.234, 0.374] |
+| C3M e205, d_P @ regione FLAME | 0.261 [0.184, 0.337] | 0.257 [0.177, 0.330] | 0.248 [0.160, 0.330] | 0.260 [0.180, 0.336] | 0.250 [0.162, 0.333] |
+| GNM (visto) vB, coefficienti | 0.222 [0.133, 0.311] | 0.223 [0.134, 0.310] | 0.224 [0.130, 0.310] | 0.224 [0.135, 0.312] | 0.225 [0.130, 0.311] |
+| GNM (visto) vB, mesh d'identita' FR | 0.244 [0.144, 0.333] | 0.241 [0.141, 0.330] | 0.235 [0.135, 0.327] | 0.241 [0.141, 0.330] | 0.235 [0.135, 0.328] |
+| GNM (visto) vB, mesh d'identita' SR | 0.327 [0.239, 0.407] | 0.323 [0.237, 0.402] | 0.316 [0.230, 0.398] | 0.324 [0.238, 0.404] | 0.316 [0.230, 0.399] |
+| FLAME 2023 Open vB, coefficienti | 0.193 [0.109, 0.272] | 0.188 [0.104, 0.269] | 0.178 [0.085, 0.271] | 0.189 [0.105, 0.272] | 0.179 [0.085, 0.272] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.218 [0.120, 0.312] | 0.213 [0.116, 0.307] | 0.202 [0.106, 0.299] | 0.213 [0.116, 0.307] | 0.202 [0.106, 0.299] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.293 [0.199, 0.371] | 0.288 [0.195, 0.368] | 0.278 [0.179, 0.361] | 0.288 [0.195, 0.369] | 0.278 [0.180, 0.362] |
+| ICP + Chamfer in mm | 0.309 [0.229, 0.380] | 0.287 [0.213, 0.355] | 0.251 [0.183, 0.312] | 0.291 [0.216, 0.359] | 0.253 [0.184, 0.315] |
+| Chamfer pura in mm | 0.342 [0.276, 0.406] | 0.339 [0.277, 0.404] | 0.340 [0.272, 0.404] | 0.343 [0.282, 0.408] | 0.342 [0.275, 0.407] |
+| NICP su template in mm | 0.152 [0.042, 0.250] | 0.125 [0.032, 0.205] | 0.085 [0.009, 0.147] | 0.130 [0.035, 0.212] | 0.085 [0.009, 0.147] |
+
+Delta appaiati, righe col crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.085 [-0.022, +0.190], P 0.056 | +0.055 [-0.045, +0.159], P 0.150 | +0.055 [-0.040, +0.152], P 0.148 | +0.037 [-0.060, +0.137], P 0.233 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.025 [-0.048, +0.094], P 0.246 | -0.006 [-0.072, +0.066], P 0.568 | -0.005 [-0.091, +0.073], P 0.561 | -0.023 [-0.105, +0.062], P 0.698 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.001 [-0.091, +0.086], P 0.495 | -0.030 [-0.113, +0.053], P 0.774 | -0.029 [-0.113, +0.051], P 0.772 | -0.047 [-0.127, +0.044], P 0.869 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.034 [-0.039, +0.105], P 0.153 | +0.003 [-0.058, +0.072], P 0.469 | +0.004 [-0.066, +0.075], P 0.472 | -0.014 [-0.084, +0.065], P 0.617 |
+| Chamfer pura in mm (@ regione GNM) | -0.057 [-0.131, +0.012], P 0.940 | -0.087 [-0.152, -0.011], P 0.986 | -0.087 [-0.158, -0.019], P 0.996 | -0.105 [-0.183, -0.029], P 0.996 |
+| NICP su template in mm (@ regione GNM) | +0.181 [+0.106, +0.256], P 0.000 | +0.151 [+0.080, +0.224], P 0.000 | +0.151 [+0.076, +0.232], P 0.000 | +0.133 [+0.052, +0.217], P 0.001 |
+| braccio intero (@ regione GNM) | +0.053 [+0.000, +0.103], P 0.025 | +0.041 [-0.018, +0.097], P 0.085 | +0.020 [-0.037, +0.070], P 0.242 | +0.019 [-0.037, +0.073], P 0.277 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.052 [-0.060, +0.159], P 0.189 | +0.030 [-0.074, +0.137], P 0.319 | +0.044 [-0.064, +0.150], P 0.229 | +0.022 [-0.080, +0.123], P 0.356 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.014 [-0.103, +0.074], P 0.651 | -0.037 [-0.122, +0.047], P 0.812 | -0.022 [-0.125, +0.070], P 0.690 | -0.045 [-0.130, +0.044], P 0.846 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.039 [-0.145, +0.061], P 0.785 | -0.062 [-0.151, +0.037], P 0.908 | -0.047 [-0.142, +0.045], P 0.846 | -0.070 [-0.153, +0.027], P 0.936 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.040 [-0.115, +0.039], P 0.845 | -0.063 [-0.134, +0.016], P 0.947 | -0.048 [-0.129, +0.028], P 0.885 | -0.071 [-0.145, +0.006], P 0.967 |
+| Chamfer pura in mm (@ regione FLAME) | -0.131 [-0.214, -0.053], P 0.999 | -0.154 [-0.237, -0.064], P 0.999 | -0.139 [-0.230, -0.056], P 0.999 | -0.162 [-0.246, -0.079], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.107 [+0.017, +0.194], P 0.006 | +0.084 [+0.002, +0.173], P 0.022 | +0.099 [+0.006, +0.189], P 0.017 | +0.076 [-0.008, +0.171], P 0.043 |
+| braccio intero (@ regione FLAME) | -0.021 [-0.099, +0.051], P 0.721 | -0.026 [-0.104, +0.048], P 0.761 | -0.033 [-0.108, +0.040], P 0.809 | -0.038 [-0.108, +0.031], P 0.871 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.087 [-0.019, +0.188], P 0.052 | +0.069 [-0.032, +0.167], P 0.097 | +0.047 [-0.054, +0.143], P 0.190 | +0.040 [-0.066, +0.144], P 0.225 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.077 [-0.021, +0.171], P 0.057 | +0.058 [-0.033, +0.155], P 0.104 | +0.036 [-0.048, +0.118], P 0.215 | +0.029 [-0.048, +0.108], P 0.250 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.004 [-0.089, +0.075], P 0.539 | -0.023 [-0.097, +0.053], P 0.721 | -0.045 [-0.135, +0.042], P 0.848 | -0.052 [-0.142, +0.043], P 0.883 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.061 [-0.021, +0.138], P 0.057 | +0.042 [-0.027, +0.118], P 0.124 | +0.020 [-0.048, +0.090], P 0.293 | +0.013 [-0.059, +0.087], P 0.374 |
+| Chamfer pura in mm (@ regione GNM) | -0.028 [-0.106, +0.044], P 0.768 | -0.047 [-0.115, +0.025], P 0.888 | -0.069 [-0.142, -0.003], P 0.980 | -0.076 [-0.153, -0.000], P 0.975 |
+| NICP su template in mm (@ regione GNM) | +0.227 [+0.142, +0.313], P 0.000 | +0.208 [+0.129, +0.291], P 0.000 | +0.186 [+0.114, +0.256], P 0.000 | +0.179 [+0.110, +0.253], P 0.000 |
+| braccio intero (@ regione GNM) | +0.060 [+0.010, +0.115], P 0.013 | +0.036 [-0.025, +0.097], P 0.131 | +0.032 [-0.030, +0.086], P 0.149 | +0.021 [-0.035, +0.075], P 0.243 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.071 [-0.043, +0.176], P 0.122 | +0.065 [-0.046, +0.167], P 0.134 | +0.047 [-0.058, +0.147], P 0.210 | +0.027 [-0.080, +0.122], P 0.323 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.047 [-0.057, +0.139], P 0.186 | +0.041 [-0.068, +0.139], P 0.212 | +0.023 [-0.082, +0.114], P 0.313 | +0.003 [-0.084, +0.089], P 0.494 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.029 [-0.116, +0.060], P 0.750 | -0.035 [-0.118, +0.053], P 0.804 | -0.053 [-0.146, +0.037], P 0.873 | -0.073 [-0.167, +0.019], P 0.941 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.001 [-0.085, +0.082], P 0.515 | -0.008 [-0.091, +0.074], P 0.579 | -0.026 [-0.110, +0.051], P 0.749 | -0.046 [-0.124, +0.030], P 0.885 |
+| Chamfer pura in mm (@ regione FLAME) | -0.090 [-0.182, -0.010], P 0.985 | -0.097 [-0.187, -0.011], P 0.986 | -0.115 [-0.198, -0.036], P 0.997 | -0.135 [-0.216, -0.052], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.164 [+0.068, +0.260], P 0.000 | +0.158 [+0.061, +0.248], P 0.001 | +0.140 [+0.048, +0.223], P 0.001 | +0.120 [+0.034, +0.206], P 0.005 |
+| braccio intero (@ regione FLAME) | -0.002 [-0.085, +0.082], P 0.541 | -0.014 [-0.096, +0.063], P 0.640 | -0.014 [-0.090, +0.062], P 0.647 | -0.038 [-0.107, +0.031], P 0.870 |
+
+Delta appaiati, media crop 5 coppie (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.085 [-0.023, +0.190], P 0.057 | +0.054 [-0.046, +0.159], P 0.155 | +0.060 [-0.037, +0.157], P 0.132 | +0.040 [-0.059, +0.140], P 0.217 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.025 [-0.048, +0.095], P 0.246 | -0.006 [-0.072, +0.066], P 0.568 | -0.000 [-0.088, +0.080], P 0.511 | -0.020 [-0.102, +0.065], P 0.666 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | +0.001 [-0.091, +0.086], P 0.497 | -0.030 [-0.114, +0.053], P 0.775 | -0.024 [-0.109, +0.057], P 0.731 | -0.044 [-0.125, +0.048], P 0.855 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.032 [-0.041, +0.103], P 0.165 | +0.002 [-0.060, +0.071], P 0.489 | +0.007 [-0.063, +0.080], P 0.439 | -0.013 [-0.082, +0.067], P 0.604 |
+| Chamfer pura in mm (@ regione GNM) | -0.059 [-0.134, +0.010], P 0.948 | -0.089 [-0.155, -0.014], P 0.987 | -0.084 [-0.156, -0.015], P 0.994 | -0.104 [-0.184, -0.027], P 0.996 |
+| NICP su template in mm (@ regione GNM) | +0.181 [+0.107, +0.256], P 0.000 | +0.151 [+0.080, +0.224], P 0.000 | +0.156 [+0.081, +0.237], P 0.000 | +0.136 [+0.054, +0.220], P 0.001 |
+| braccio intero (@ regione GNM) | +0.053 [+0.000, +0.103], P 0.025 | +0.041 [-0.018, +0.096], P 0.086 | +0.018 [-0.039, +0.070], P 0.269 | +0.020 [-0.036, +0.074], P 0.260 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.052 [-0.061, +0.158], P 0.193 | +0.029 [-0.076, +0.137], P 0.326 | +0.045 [-0.064, +0.152], P 0.226 | +0.021 [-0.080, +0.122], P 0.362 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.014 [-0.103, +0.074], P 0.653 | -0.037 [-0.122, +0.047], P 0.814 | -0.021 [-0.124, +0.072], P 0.680 | -0.044 [-0.130, +0.045], P 0.840 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.039 [-0.145, +0.061], P 0.786 | -0.062 [-0.151, +0.037], P 0.909 | -0.046 [-0.141, +0.046], P 0.844 | -0.069 [-0.153, +0.027], P 0.936 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.042 [-0.117, +0.038], P 0.855 | -0.065 [-0.136, +0.015], P 0.949 | -0.049 [-0.130, +0.027], P 0.885 | -0.073 [-0.146, +0.005], P 0.967 |
+| Chamfer pura in mm (@ regione FLAME) | -0.133 [-0.217, -0.055], P 0.999 | -0.156 [-0.239, -0.066], P 0.999 | -0.140 [-0.231, -0.056], P 0.999 | -0.164 [-0.250, -0.081], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.107 [+0.017, +0.194], P 0.006 | +0.084 [+0.001, +0.173], P 0.023 | +0.100 [+0.007, +0.191], P 0.016 | +0.076 [-0.008, +0.171], P 0.042 |
+| braccio intero (@ regione FLAME) | -0.022 [-0.100, +0.051], P 0.721 | -0.026 [-0.104, +0.048], P 0.762 | -0.038 [-0.114, +0.035], P 0.851 | -0.040 [-0.110, +0.030], P 0.880 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.087 [-0.021, +0.188], P 0.056 | +0.068 [-0.033, +0.167], P 0.098 | +0.051 [-0.052, +0.148], P 0.173 | +0.042 [-0.064, +0.147], P 0.213 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.077 [-0.021, +0.171], P 0.057 | +0.058 [-0.033, +0.155], P 0.100 | +0.041 [-0.042, +0.122], P 0.183 | +0.032 [-0.046, +0.111], P 0.224 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.004 [-0.090, +0.075], P 0.542 | -0.023 [-0.098, +0.053], P 0.727 | -0.040 [-0.131, +0.046], P 0.825 | -0.049 [-0.139, +0.047], P 0.867 |
+| ICP + Chamfer in mm (@ regione GNM) | +0.059 [-0.022, +0.137], P 0.063 | +0.041 [-0.029, +0.117], P 0.129 | +0.023 [-0.047, +0.094], P 0.262 | +0.014 [-0.058, +0.089], P 0.361 |
+| Chamfer pura in mm (@ regione GNM) | -0.030 [-0.109, +0.042], P 0.789 | -0.049 [-0.117, +0.024], P 0.901 | -0.066 [-0.140, +0.001], P 0.973 | -0.075 [-0.154, +0.002], P 0.972 |
+| NICP su template in mm (@ regione GNM) | +0.227 [+0.141, +0.313], P 0.000 | +0.208 [+0.128, +0.291], P 0.000 | +0.191 [+0.119, +0.261], P 0.000 | +0.182 [+0.113, +0.256], P 0.000 |
+| braccio intero (@ regione GNM) | +0.060 [+0.010, +0.115], P 0.013 | +0.036 [-0.026, +0.097], P 0.132 | +0.030 [-0.032, +0.085], P 0.170 | +0.022 [-0.034, +0.076], P 0.228 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.070 [-0.044, +0.175], P 0.126 | +0.064 [-0.047, +0.167], P 0.138 | +0.047 [-0.058, +0.148], P 0.209 | +0.026 [-0.080, +0.122], P 0.327 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.047 [-0.058, +0.139], P 0.187 | +0.041 [-0.068, +0.139], P 0.214 | +0.024 [-0.082, +0.115], P 0.305 | +0.003 [-0.083, +0.089], P 0.494 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.029 [-0.117, +0.060], P 0.750 | -0.036 [-0.119, +0.053], P 0.806 | -0.052 [-0.145, +0.039], P 0.870 | -0.073 [-0.167, +0.019], P 0.941 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.003 [-0.088, +0.080], P 0.531 | -0.010 [-0.094, +0.073], P 0.598 | -0.026 [-0.111, +0.051], P 0.752 | -0.047 [-0.126, +0.029], P 0.896 |
+| Chamfer pura in mm (@ regione FLAME) | -0.093 [-0.184, -0.011], P 0.989 | -0.099 [-0.190, -0.013], P 0.987 | -0.116 [-0.200, -0.036], P 0.997 | -0.137 [-0.218, -0.054], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.164 [+0.068, +0.260], P 0.000 | +0.158 [+0.061, +0.248], P 0.001 | +0.141 [+0.048, +0.225], P 0.001 | +0.121 [+0.033, +0.207], P 0.003 |
+| braccio intero (@ regione FLAME) | -0.003 [-0.086, +0.081], P 0.551 | -0.015 [-0.096, +0.063], P 0.647 | -0.019 [-0.097, +0.056], P 0.697 | -0.039 [-0.109, +0.030], P 0.879 |
+
+Delta appaiati, senza crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.062 [-0.043, +0.166], P 0.127 | +0.045 [-0.056, +0.149], P 0.190 | +0.038 [-0.050, +0.129], P 0.203 | +0.015 [-0.077, +0.112], P 0.365 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | -0.005 [-0.075, +0.061], P 0.559 | -0.022 [-0.091, +0.052], P 0.721 | -0.028 [-0.107, +0.054], P 0.749 | -0.052 [-0.133, +0.036], P 0.873 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.031 [-0.114, +0.049], P 0.773 | -0.048 [-0.130, +0.034], P 0.870 | -0.054 [-0.125, +0.021], P 0.917 | -0.078 [-0.148, +0.003], P 0.971 |
+| ICP + Chamfer in mm (@ regione GNM) | -0.050 [-0.120, +0.018], P 0.915 | -0.066 [-0.137, +0.007], P 0.957 | -0.073 [-0.147, +0.006], P 0.967 | -0.096 [-0.174, -0.011], P 0.988 |
+| Chamfer pura in mm (@ regione GNM) | -0.079 [-0.151, -0.005], P 0.985 | -0.096 [-0.167, -0.017], P 0.991 | -0.102 [-0.171, -0.035], P 0.999 | -0.126 [-0.197, -0.051], P 1.000 |
+| NICP su template in mm (@ regione GNM) | +0.076 [-0.020, +0.170], P 0.055 | +0.059 [-0.039, +0.166], P 0.101 | +0.052 [-0.052, +0.170], P 0.157 | +0.029 [-0.075, +0.144], P 0.273 |
+| braccio intero (@ regione GNM) | -0.015 [-0.072, +0.043], P 0.711 | -0.047 [-0.120, +0.024], P 0.919 | -0.018 [-0.080, +0.042], P 0.710 | -0.017 [-0.075, +0.038], P 0.723 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.043 [-0.060, +0.135], P 0.210 | +0.021 [-0.076, +0.112], P 0.343 | +0.031 [-0.065, +0.116], P 0.258 | +0.007 [-0.077, +0.089], P 0.447 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.018 [-0.095, +0.055], P 0.695 | -0.040 [-0.112, +0.030], P 0.870 | -0.031 [-0.123, +0.050], P 0.764 | -0.054 [-0.136, +0.026], P 0.900 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.043 [-0.136, +0.048], P 0.830 | -0.065 [-0.146, +0.020], P 0.934 | -0.056 [-0.132, +0.016], P 0.928 | -0.080 [-0.155, -0.002], P 0.978 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.091 [-0.161, -0.017], P 0.994 | -0.113 [-0.185, -0.034], P 0.998 | -0.104 [-0.193, -0.022], P 0.992 | -0.127 [-0.214, -0.045], P 0.998 |
+| Chamfer pura in mm (@ regione FLAME) | -0.120 [-0.199, -0.043], P 0.999 | -0.142 [-0.220, -0.059], P 1.000 | -0.133 [-0.210, -0.061], P 1.000 | -0.156 [-0.230, -0.085], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.034 [-0.059, +0.132], P 0.235 | +0.013 [-0.082, +0.116], P 0.381 | +0.022 [-0.093, +0.143], P 0.350 | -0.002 [-0.116, +0.111], P 0.497 |
+| braccio intero (@ regione FLAME) | -0.057 [-0.131, +0.016], P 0.943 | -0.094 [-0.168, -0.021], P 0.993 | -0.049 [-0.117, +0.018], P 0.924 | -0.048 [-0.114, +0.016], P 0.927 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.071 [-0.032, +0.172], P 0.092 | +0.071 [-0.028, +0.171], P 0.076 | +0.043 [-0.048, +0.132], P 0.192 | +0.030 [-0.063, +0.126], P 0.259 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.049 [-0.046, +0.151], P 0.165 | +0.049 [-0.038, +0.146], P 0.150 | +0.021 [-0.060, +0.106], P 0.322 | +0.008 [-0.073, +0.088], P 0.423 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.035 [-0.109, +0.036], P 0.818 | -0.034 [-0.107, +0.038], P 0.815 | -0.063 [-0.137, +0.016], P 0.941 | -0.076 [-0.151, +0.004], P 0.969 |
+| ICP + Chamfer in mm (@ regione GNM) | -0.017 [-0.099, +0.061], P 0.663 | -0.016 [-0.095, +0.063], P 0.638 | -0.045 [-0.118, +0.032], P 0.887 | -0.058 [-0.127, +0.020], P 0.931 |
+| Chamfer pura in mm (@ regione GNM) | -0.049 [-0.122, +0.017], P 0.918 | -0.049 [-0.115, +0.020], P 0.913 | -0.077 [-0.143, -0.015], P 0.987 | -0.090 [-0.157, -0.023], P 0.994 |
+| NICP su template in mm (@ regione GNM) | +0.141 [+0.022, +0.262], P 0.009 | +0.141 [+0.024, +0.259], P 0.006 | +0.113 [+0.018, +0.213], P 0.011 | +0.100 [+0.004, +0.202], P 0.021 |
+| braccio intero (@ regione GNM) | +0.006 [-0.050, +0.061], P 0.433 | -0.020 [-0.092, +0.047], P 0.719 | -0.008 [-0.073, +0.052], P 0.614 | -0.008 [-0.066, +0.049], P 0.626 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.071 [-0.034, +0.168], P 0.094 | +0.060 [-0.044, +0.148], P 0.123 | +0.045 [-0.049, +0.128], P 0.168 | +0.022 [-0.060, +0.099], P 0.312 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.045 [-0.060, +0.144], P 0.195 | +0.034 [-0.066, +0.126], P 0.249 | +0.019 [-0.081, +0.104], P 0.342 | -0.004 [-0.093, +0.077], P 0.556 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.029 [-0.105, +0.049], P 0.777 | -0.040 [-0.116, +0.036], P 0.853 | -0.055 [-0.133, +0.025], P 0.918 | -0.078 [-0.155, +0.000], P 0.974 |
+| ICP + Chamfer in mm (@ regione FLAME) | -0.046 [-0.138, +0.036], P 0.877 | -0.057 [-0.147, +0.028], P 0.911 | -0.072 [-0.159, +0.008], P 0.964 | -0.095 [-0.176, -0.019], P 0.989 |
+| Chamfer pura in mm (@ regione FLAME) | -0.079 [-0.157, -0.004], P 0.980 | -0.090 [-0.172, -0.008], P 0.984 | -0.104 [-0.178, -0.034], P 0.996 | -0.127 [-0.201, -0.053], P 1.000 |
+| NICP su template in mm (@ regione FLAME) | +0.111 [-0.011, +0.228], P 0.039 | +0.100 [-0.019, +0.216], P 0.044 | +0.086 [-0.021, +0.198], P 0.073 | +0.063 [-0.043, +0.168], P 0.125 |
+| braccio intero (@ regione FLAME) | -0.023 [-0.094, +0.047], P 0.733 | -0.061 [-0.139, +0.013], P 0.942 | -0.035 [-0.105, +0.034], P 0.827 | -0.045 [-0.116, +0.022], P 0.908 |
+
+
+## faceverse_neutral: Spearman con la GT per gruppo (rho, IC 95%; 148500 righe all_cross, seme 566363)
+
+GT FR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.341 [0.267, 0.410] | 0.319 [0.243, 0.386] | 0.282 [0.207, 0.348] | 0.322 [0.245, 0.389] | 0.283 [0.207, 0.348] |
+| factorized s1234, d_F cal. @ regione GNM | 0.334 [0.255, 0.406] | 0.342 [0.261, 0.413] | 0.359 [0.275, 0.429] | 0.343 [0.262, 0.414] | 0.359 [0.275, 0.429] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.314 [0.219, 0.400] | 0.315 [0.220, 0.403] | 0.317 [0.222, 0.404] | 0.315 [0.220, 0.403] | 0.317 [0.222, 0.404] |
+| factorized s2345, d_F cal. | 0.370 [0.304, 0.435] | 0.335 [0.274, 0.395] | 0.272 [0.212, 0.329] | 0.338 [0.276, 0.400] | 0.273 [0.213, 0.329] |
+| factorized s2345, d_F cal. @ regione GNM | 0.321 [0.235, 0.405] | 0.325 [0.242, 0.404] | 0.334 [0.253, 0.406] | 0.325 [0.242, 0.405] | 0.334 [0.254, 0.406] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.289 [0.198, 0.382] | 0.291 [0.201, 0.384] | 0.296 [0.207, 0.386] | 0.291 [0.201, 0.384] | 0.296 [0.207, 0.386] |
+| ctrlfr s1234 | 0.327 [0.255, 0.398] | 0.316 [0.248, 0.387] | 0.296 [0.227, 0.362] | 0.329 [0.259, 0.400] | 0.306 [0.234, 0.374] |
+| ctrlfr s1234 @ regione GNM | 0.336 [0.261, 0.406] | 0.343 [0.269, 0.409] | 0.356 [0.285, 0.417] | 0.351 [0.274, 0.417] | 0.363 [0.292, 0.425] |
+| ctrlfr s1234 @ regione FLAME | 0.305 [0.217, 0.388] | 0.308 [0.221, 0.390] | 0.315 [0.227, 0.398] | 0.311 [0.223, 0.394] | 0.318 [0.229, 0.401] |
+| ctrlfr s2345 | 0.299 [0.222, 0.379] | 0.289 [0.215, 0.363] | 0.269 [0.200, 0.341] | 0.295 [0.221, 0.371] | 0.273 [0.202, 0.345] |
+| ctrlfr s2345 @ regione GNM | 0.309 [0.233, 0.383] | 0.316 [0.241, 0.386] | 0.329 [0.251, 0.398] | 0.322 [0.245, 0.393] | 0.334 [0.255, 0.404] |
+| ctrlfr s2345 @ regione FLAME | 0.278 [0.187, 0.364] | 0.279 [0.188, 0.366] | 0.282 [0.188, 0.368] | 0.280 [0.188, 0.368] | 0.283 [0.189, 0.369] |
+| C3M e205, d_F cal. | 0.336 [0.270, 0.399] | 0.324 [0.257, 0.385] | 0.299 [0.226, 0.360] | 0.346 [0.274, 0.411] | 0.313 [0.235, 0.377] |
+| C3M e205, d_F cal. @ regione GNM | 0.294 [0.232, 0.355] | 0.302 [0.241, 0.364] | 0.320 [0.256, 0.384] | 0.317 [0.255, 0.379] | 0.332 [0.267, 0.397] |
+| C3M e205, d_F cal. @ regione FLAME | 0.268 [0.185, 0.344] | 0.274 [0.193, 0.351] | 0.290 [0.204, 0.371] | 0.291 [0.204, 0.373] | 0.302 [0.213, 0.388] |
+| factorized s1234, d_P | 0.321 [0.241, 0.394] | 0.310 [0.232, 0.384] | 0.293 [0.209, 0.368] | 0.312 [0.233, 0.386] | 0.293 [0.209, 0.368] |
+| factorized s1234, d_P @ regione GNM | 0.337 [0.251, 0.411] | 0.345 [0.259, 0.420] | 0.361 [0.273, 0.440] | 0.346 [0.260, 0.421] | 0.361 [0.273, 0.441] |
+| factorized s1234, d_P @ regione FLAME | 0.324 [0.232, 0.412] | 0.325 [0.233, 0.414] | 0.328 [0.236, 0.417] | 0.325 [0.233, 0.414] | 0.328 [0.236, 0.417] |
+| factorized s2345, d_P | 0.361 [0.283, 0.443] | 0.341 [0.265, 0.418] | 0.306 [0.227, 0.381] | 0.343 [0.266, 0.419] | 0.306 [0.228, 0.382] |
+| factorized s2345, d_P @ regione GNM | 0.336 [0.253, 0.417] | 0.339 [0.260, 0.415] | 0.346 [0.268, 0.421] | 0.340 [0.261, 0.416] | 0.346 [0.268, 0.421] |
+| factorized s2345, d_P @ regione FLAME | 0.297 [0.198, 0.391] | 0.300 [0.202, 0.393] | 0.305 [0.207, 0.397] | 0.300 [0.202, 0.393] | 0.305 [0.207, 0.397] |
+| C3M e205, d_P | 0.363 [0.282, 0.439] | 0.357 [0.277, 0.433] | 0.345 [0.265, 0.423] | 0.362 [0.282, 0.439] | 0.346 [0.266, 0.424] |
+| C3M e205, d_P @ regione GNM | 0.330 [0.261, 0.393] | 0.334 [0.265, 0.397] | 0.342 [0.273, 0.408] | 0.339 [0.269, 0.403] | 0.345 [0.275, 0.411] |
+| C3M e205, d_P @ regione FLAME | 0.301 [0.218, 0.386] | 0.306 [0.222, 0.390] | 0.315 [0.232, 0.402] | 0.313 [0.227, 0.400] | 0.321 [0.236, 0.408] |
+| GNM (visto) vB, coefficienti | 0.299 [0.206, 0.386] | 0.297 [0.202, 0.383] | 0.292 [0.198, 0.377] | 0.298 [0.203, 0.385] | 0.293 [0.199, 0.378] |
+| GNM (visto) vB, mesh d'identita' FR | 0.321 [0.228, 0.404] | 0.321 [0.229, 0.403] | 0.323 [0.234, 0.403] | 0.322 [0.229, 0.404] | 0.323 [0.234, 0.403] |
+| GNM (visto) vB, mesh d'identita' SR | 0.373 [0.289, 0.451] | 0.375 [0.291, 0.454] | 0.379 [0.299, 0.455] | 0.375 [0.291, 0.455] | 0.379 [0.299, 0.456] |
+| FLAME 2023 Open vB, coefficienti | 0.249 [0.154, 0.346] | 0.240 [0.145, 0.339] | 0.223 [0.127, 0.325] | 0.241 [0.147, 0.342] | 0.223 [0.128, 0.326] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.315 [0.226, 0.398] | 0.312 [0.224, 0.393] | 0.306 [0.219, 0.386] | 0.312 [0.224, 0.393] | 0.306 [0.219, 0.386] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.358 [0.269, 0.440] | 0.355 [0.267, 0.437] | 0.348 [0.259, 0.433] | 0.355 [0.267, 0.437] | 0.348 [0.259, 0.433] |
+
+GT SR:
+
+| metodo | senza crop | all_cross | righe col crop | media 15 coppie | media crop 5 coppie |
+| --- | --- | --- | --- | --- | --- |
+| factorized s1234, d_F cal. | 0.308 [0.226, 0.379] | 0.288 [0.211, 0.358] | 0.255 [0.176, 0.326] | 0.291 [0.213, 0.360] | 0.255 [0.176, 0.326] |
+| factorized s1234, d_F cal. @ regione GNM | 0.318 [0.232, 0.397] | 0.326 [0.238, 0.403] | 0.341 [0.251, 0.416] | 0.326 [0.239, 0.404] | 0.341 [0.251, 0.416] |
+| factorized s1234, d_F cal. @ regione FLAME | 0.300 [0.195, 0.398] | 0.301 [0.195, 0.397] | 0.302 [0.198, 0.398] | 0.301 [0.195, 0.397] | 0.303 [0.198, 0.398] |
+| factorized s2345, d_F cal. | 0.336 [0.254, 0.411] | 0.303 [0.228, 0.372] | 0.247 [0.178, 0.306] | 0.306 [0.231, 0.375] | 0.247 [0.178, 0.306] |
+| factorized s2345, d_F cal. @ regione GNM | 0.315 [0.222, 0.399] | 0.317 [0.226, 0.398] | 0.322 [0.234, 0.398] | 0.318 [0.226, 0.398] | 0.322 [0.234, 0.398] |
+| factorized s2345, d_F cal. @ regione FLAME | 0.284 [0.188, 0.378] | 0.286 [0.191, 0.379] | 0.290 [0.196, 0.380] | 0.286 [0.191, 0.379] | 0.290 [0.196, 0.380] |
+| ctrlfr s1234 | 0.326 [0.251, 0.398] | 0.314 [0.240, 0.382] | 0.291 [0.214, 0.363] | 0.326 [0.250, 0.398] | 0.301 [0.222, 0.374] |
+| ctrlfr s1234 @ regione GNM | 0.339 [0.262, 0.410] | 0.346 [0.269, 0.414] | 0.359 [0.282, 0.424] | 0.353 [0.274, 0.422] | 0.365 [0.287, 0.432] |
+| ctrlfr s1234 @ regione FLAME | 0.314 [0.224, 0.398] | 0.317 [0.227, 0.401] | 0.323 [0.232, 0.407] | 0.320 [0.230, 0.405] | 0.325 [0.234, 0.410] |
+| ctrlfr s2345 | 0.305 [0.229, 0.381] | 0.294 [0.221, 0.367] | 0.274 [0.200, 0.346] | 0.301 [0.227, 0.375] | 0.278 [0.203, 0.350] |
+| ctrlfr s2345 @ regione GNM | 0.318 [0.243, 0.389] | 0.324 [0.248, 0.393] | 0.335 [0.257, 0.404] | 0.330 [0.252, 0.401] | 0.340 [0.262, 0.410] |
+| ctrlfr s2345 @ regione FLAME | 0.291 [0.196, 0.379] | 0.293 [0.198, 0.381] | 0.296 [0.202, 0.382] | 0.294 [0.199, 0.382] | 0.297 [0.202, 0.383] |
+| C3M e205, d_F cal. | 0.329 [0.260, 0.389] | 0.318 [0.249, 0.376] | 0.297 [0.228, 0.356] | 0.339 [0.266, 0.401] | 0.310 [0.238, 0.373] |
+| C3M e205, d_F cal. @ regione GNM | 0.301 [0.242, 0.363] | 0.311 [0.252, 0.372] | 0.331 [0.268, 0.392] | 0.326 [0.265, 0.388] | 0.342 [0.276, 0.406] |
+| C3M e205, d_F cal. @ regione FLAME | 0.270 [0.180, 0.354] | 0.277 [0.187, 0.361] | 0.293 [0.198, 0.379] | 0.293 [0.198, 0.382] | 0.305 [0.208, 0.394] |
+| factorized s1234, d_P | 0.333 [0.262, 0.404] | 0.323 [0.254, 0.391] | 0.304 [0.231, 0.376] | 0.324 [0.255, 0.392] | 0.305 [0.231, 0.376] |
+| factorized s1234, d_P @ regione GNM | 0.351 [0.266, 0.424] | 0.360 [0.275, 0.433] | 0.378 [0.293, 0.449] | 0.361 [0.276, 0.434] | 0.378 [0.293, 0.450] |
+| factorized s1234, d_P @ regione FLAME | 0.344 [0.252, 0.435] | 0.346 [0.254, 0.436] | 0.349 [0.258, 0.439] | 0.346 [0.255, 0.437] | 0.349 [0.258, 0.440] |
+| factorized s2345, d_P | 0.372 [0.303, 0.443] | 0.352 [0.283, 0.423] | 0.316 [0.245, 0.389] | 0.353 [0.284, 0.425] | 0.317 [0.245, 0.390] |
+| factorized s2345, d_P @ regione GNM | 0.352 [0.261, 0.433] | 0.354 [0.268, 0.432] | 0.360 [0.276, 0.433] | 0.355 [0.268, 0.433] | 0.360 [0.276, 0.433] |
+| factorized s2345, d_P @ regione FLAME | 0.319 [0.218, 0.411] | 0.321 [0.223, 0.412] | 0.325 [0.229, 0.415] | 0.321 [0.223, 0.412] | 0.325 [0.229, 0.415] |
+| C3M e205, d_P | 0.382 [0.306, 0.448] | 0.378 [0.304, 0.446] | 0.372 [0.301, 0.439] | 0.384 [0.309, 0.452] | 0.373 [0.302, 0.439] |
+| C3M e205, d_P @ regione GNM | 0.350 [0.282, 0.416] | 0.356 [0.289, 0.422] | 0.369 [0.299, 0.434] | 0.360 [0.293, 0.426] | 0.371 [0.302, 0.437] |
+| C3M e205, d_P @ regione FLAME | 0.324 [0.236, 0.415] | 0.330 [0.241, 0.421] | 0.341 [0.254, 0.432] | 0.337 [0.245, 0.429] | 0.346 [0.258, 0.438] |
+| GNM (visto) vB, coefficienti | 0.304 [0.207, 0.391] | 0.301 [0.206, 0.390] | 0.296 [0.199, 0.384] | 0.303 [0.207, 0.392] | 0.297 [0.200, 0.385] |
+| GNM (visto) vB, mesh d'identita' FR | 0.275 [0.168, 0.373] | 0.275 [0.170, 0.372] | 0.276 [0.176, 0.371] | 0.275 [0.170, 0.373] | 0.276 [0.176, 0.372] |
+| GNM (visto) vB, mesh d'identita' SR | 0.399 [0.310, 0.474] | 0.400 [0.312, 0.475] | 0.402 [0.317, 0.478] | 0.400 [0.312, 0.475] | 0.402 [0.317, 0.478] |
+| FLAME 2023 Open vB, coefficienti | 0.268 [0.169, 0.364] | 0.258 [0.160, 0.355] | 0.238 [0.139, 0.338] | 0.259 [0.161, 0.358] | 0.239 [0.140, 0.339] |
+| FLAME 2023 Open vB, mesh d'identita' FR | 0.274 [0.170, 0.370] | 0.271 [0.171, 0.366] | 0.265 [0.167, 0.356] | 0.271 [0.171, 0.366] | 0.265 [0.167, 0.356] |
+| FLAME 2023 Open vB, mesh d'identita' SR | 0.382 [0.288, 0.464] | 0.378 [0.283, 0.461] | 0.371 [0.275, 0.457] | 0.378 [0.284, 0.462] | 0.371 [0.276, 0.457] |
+
+Delta appaiati, righe col crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.067 [-0.037, +0.168], P 0.104 | +0.042 [-0.064, +0.148], P 0.209 | +0.064 [-0.043, +0.165], P 0.123 | +0.037 [-0.063, +0.145], P 0.248 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.036 [-0.049, +0.117], P 0.210 | +0.011 [-0.071, +0.094], P 0.403 | +0.033 [-0.057, +0.127], P 0.253 | +0.006 [-0.089, +0.106], P 0.450 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.020 [-0.112, +0.062], P 0.689 | -0.045 [-0.138, +0.041], P 0.852 | -0.023 [-0.111, +0.060], P 0.719 | -0.050 [-0.143, +0.053], P 0.848 |
+| braccio intero (@ regione GNM) | +0.076 [+0.022, +0.130], P 0.003 | +0.061 [-0.000, +0.124], P 0.027 | +0.060 [+0.000, +0.119], P 0.023 | +0.060 [-0.011, +0.125], P 0.042 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.094 [-0.028, +0.205], P 0.064 | +0.073 [-0.046, +0.183], P 0.117 | +0.092 [-0.027, +0.202], P 0.077 | +0.059 [-0.058, +0.170], P 0.181 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.011 [-0.087, +0.100], P 0.404 | -0.010 [-0.104, +0.075], P 0.590 | +0.009 [-0.101, +0.105], P 0.427 | -0.024 [-0.133, +0.080], P 0.669 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.031 [-0.137, +0.074], P 0.738 | -0.053 [-0.155, +0.050], P 0.859 | -0.033 [-0.139, +0.070], P 0.744 | -0.067 [-0.168, +0.035], P 0.893 |
+| braccio intero (@ regione FLAME) | +0.034 [-0.042, +0.115], P 0.205 | +0.023 [-0.062, +0.103], P 0.290 | +0.019 [-0.057, +0.096], P 0.317 | +0.012 [-0.066, +0.092], P 0.381 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.082 [-0.024, +0.185], P 0.052 | +0.064 [-0.042, +0.167], P 0.122 | +0.063 [-0.041, +0.164], P 0.141 | +0.039 [-0.061, +0.145], P 0.242 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.102 [-0.011, +0.219], P 0.039 | +0.084 [-0.018, +0.193], P 0.061 | +0.083 [-0.009, +0.174], P 0.044 | +0.059 [-0.034, +0.156], P 0.114 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.024 [-0.116, +0.064], P 0.724 | -0.042 [-0.126, +0.042], P 0.830 | -0.043 [-0.130, +0.046], P 0.824 | -0.067 [-0.161, +0.031], P 0.917 |
+| braccio intero (@ regione GNM) | +0.073 [+0.012, +0.138], P 0.011 | +0.044 [-0.027, +0.116], P 0.134 | +0.068 [+0.005, +0.125], P 0.015 | +0.060 [-0.011, +0.127], P 0.044 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.111 [-0.013, +0.227], P 0.041 | +0.087 [-0.041, +0.199], P 0.087 | +0.085 [-0.038, +0.192], P 0.095 | +0.057 [-0.059, +0.166], P 0.177 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.084 [-0.031, +0.191], P 0.090 | +0.061 [-0.051, +0.171], P 0.158 | +0.058 [-0.051, +0.158], P 0.159 | +0.031 [-0.069, +0.134], P 0.282 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.022 [-0.115, +0.078], P 0.670 | -0.045 [-0.142, +0.056], P 0.818 | -0.048 [-0.145, +0.055], P 0.840 | -0.075 [-0.172, +0.028], P 0.930 |
+| braccio intero (@ regione FLAME) | +0.045 [-0.036, +0.124], P 0.158 | +0.009 [-0.085, +0.095], P 0.430 | +0.032 [-0.045, +0.107], P 0.231 | +0.021 [-0.058, +0.101], P 0.298 |
+
+Delta appaiati, media crop 5 coppie (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.066 [-0.038, +0.167], P 0.108 | +0.041 [-0.066, +0.147], P 0.218 | +0.070 [-0.036, +0.171], P 0.106 | +0.041 [-0.059, +0.150], P 0.231 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.036 [-0.049, +0.118], P 0.209 | +0.011 [-0.071, +0.094], P 0.403 | +0.040 [-0.050, +0.134], P 0.190 | +0.011 [-0.084, +0.112], P 0.412 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.020 [-0.112, +0.062], P 0.689 | -0.045 [-0.138, +0.041], P 0.853 | -0.016 [-0.105, +0.067], P 0.666 | -0.045 [-0.139, +0.059], P 0.820 |
+| braccio intero (@ regione GNM) | +0.076 [+0.022, +0.130], P 0.003 | +0.061 [-0.001, +0.124], P 0.027 | +0.057 [-0.004, +0.118], P 0.035 | +0.061 [-0.010, +0.129], P 0.041 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.094 [-0.029, +0.205], P 0.065 | +0.072 [-0.048, +0.182], P 0.118 | +0.094 [-0.027, +0.204], P 0.075 | +0.059 [-0.059, +0.171], P 0.181 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.011 [-0.087, +0.100], P 0.404 | -0.010 [-0.104, +0.075], P 0.591 | +0.011 [-0.099, +0.109], P 0.413 | -0.023 [-0.132, +0.081], P 0.659 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.031 [-0.137, +0.074], P 0.738 | -0.053 [-0.155, +0.050], P 0.859 | -0.031 [-0.137, +0.072], P 0.730 | -0.066 [-0.168, +0.036], P 0.888 |
+| braccio intero (@ regione FLAME) | +0.034 [-0.042, +0.115], P 0.205 | +0.023 [-0.062, +0.103], P 0.296 | +0.012 [-0.065, +0.090], P 0.397 | +0.010 [-0.069, +0.089], P 0.404 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.081 [-0.025, +0.185], P 0.055 | +0.063 [-0.043, +0.167], P 0.127 | +0.068 [-0.037, +0.171], P 0.116 | +0.043 [-0.058, +0.151], P 0.224 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.102 [-0.011, +0.219], P 0.039 | +0.084 [-0.018, +0.193], P 0.061 | +0.090 [-0.003, +0.181], P 0.031 | +0.064 [-0.028, +0.163], P 0.103 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.024 [-0.116, +0.064], P 0.723 | -0.042 [-0.127, +0.042], P 0.832 | -0.037 [-0.124, +0.052], P 0.797 | -0.062 [-0.158, +0.036], P 0.894 |
+| braccio intero (@ regione GNM) | +0.074 [+0.012, +0.138], P 0.011 | +0.043 [-0.028, +0.116], P 0.136 | +0.065 [+0.000, +0.123], P 0.025 | +0.062 [-0.010, +0.130], P 0.042 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.110 [-0.014, +0.226], P 0.042 | +0.086 [-0.042, +0.199], P 0.092 | +0.086 [-0.037, +0.194], P 0.093 | +0.057 [-0.060, +0.166], P 0.178 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.084 [-0.031, +0.191], P 0.088 | +0.061 [-0.051, +0.171], P 0.158 | +0.061 [-0.050, +0.162], P 0.146 | +0.032 [-0.068, +0.135], P 0.277 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.022 [-0.115, +0.078], P 0.670 | -0.045 [-0.142, +0.056], P 0.819 | -0.045 [-0.143, +0.059], P 0.824 | -0.074 [-0.171, +0.029], P 0.930 |
+| braccio intero (@ regione FLAME) | +0.044 [-0.036, +0.124], P 0.158 | +0.009 [-0.086, +0.095], P 0.442 | +0.025 [-0.053, +0.101], P 0.289 | +0.019 [-0.060, +0.099], P 0.327 |
+
+Delta appaiati, senza crop (braccio sulla regione di m - concorrente; IC 95%, P(delta <= 0)):
+
+GT FR:
+
+| concorrente | factorized s1234, d_F cal. | factorized s2345, d_F cal. | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.035 [-0.068, +0.135], P 0.249 | +0.021 [-0.083, +0.124], P 0.337 | +0.037 [-0.073, +0.140], P 0.238 | +0.010 [-0.091, +0.113], P 0.412 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.014 [-0.068, +0.093], P 0.368 | -0.000 [-0.082, +0.087], P 0.508 | +0.015 [-0.078, +0.107], P 0.388 | -0.011 [-0.107, +0.089], P 0.579 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.038 [-0.130, +0.044], P 0.818 | -0.052 [-0.151, +0.036], P 0.877 | -0.037 [-0.121, +0.052], P 0.801 | -0.064 [-0.155, +0.040], P 0.907 |
+| braccio intero (@ regione GNM) | -0.006 [-0.072, +0.061], P 0.597 | -0.050 [-0.136, +0.032], P 0.898 | +0.009 [-0.058, +0.078], P 0.401 | +0.010 [-0.062, +0.079], P 0.407 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.065 [-0.049, +0.171], P 0.133 | +0.040 [-0.080, +0.149], P 0.248 | +0.056 [-0.064, +0.160], P 0.192 | +0.029 [-0.086, +0.135], P 0.311 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | -0.001 [-0.097, +0.086], P 0.505 | -0.026 [-0.117, +0.062], P 0.709 | -0.010 [-0.121, +0.087], P 0.564 | -0.037 [-0.138, +0.064], P 0.747 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.045 [-0.140, +0.054], P 0.816 | -0.070 [-0.166, +0.031], P 0.925 | -0.054 [-0.150, +0.045], P 0.877 | -0.081 [-0.177, +0.020], P 0.941 |
+| braccio intero (@ regione FLAME) | -0.027 [-0.108, +0.057], P 0.743 | -0.082 [-0.180, +0.007], P 0.968 | -0.023 [-0.103, +0.056], P 0.706 | -0.021 [-0.104, +0.060], P 0.704 |
+
+GT SR:
+
+| concorrente | factorized s1234, d_P | factorized s2345, d_P | ctrlfr s1234 | ctrlfr s2345 |
+| --- | --- | --- | --- | --- |
+| GNM (visto) vB, coefficienti (@ regione GNM) | +0.048 [-0.054, +0.144], P 0.174 | +0.048 [-0.058, +0.148], P 0.184 | +0.036 [-0.071, +0.140], P 0.256 | +0.015 [-0.083, +0.115], P 0.374 |
+| GNM (visto) vB, mesh d'identita' FR (@ regione GNM) | +0.077 [-0.041, +0.198], P 0.084 | +0.077 [-0.029, +0.195], P 0.091 | +0.065 [-0.032, +0.156], P 0.086 | +0.044 [-0.048, +0.142], P 0.187 |
+| GNM (visto) vB, mesh d'identita' SR (@ regione GNM) | -0.047 [-0.138, +0.035], P 0.869 | -0.047 [-0.132, +0.038], P 0.845 | -0.059 [-0.146, +0.035], P 0.896 | -0.080 [-0.172, +0.020], P 0.952 |
+| braccio intero (@ regione GNM) | +0.018 [-0.047, +0.084], P 0.312 | -0.020 [-0.104, +0.059], P 0.688 | +0.013 [-0.053, +0.084], P 0.356 | +0.013 [-0.058, +0.082], P 0.375 |
+| FLAME 2023 Open vB, coefficienti (@ regione FLAME) | +0.077 [-0.045, +0.189], P 0.105 | +0.051 [-0.072, +0.166], P 0.207 | +0.047 [-0.069, +0.153], P 0.233 | +0.024 [-0.090, +0.128], P 0.342 |
+| FLAME 2023 Open vB, mesh d'identita' FR (@ regione FLAME) | +0.070 [-0.043, +0.180], P 0.123 | +0.044 [-0.067, +0.155], P 0.227 | +0.040 [-0.071, +0.136], P 0.238 | +0.017 [-0.084, +0.114], P 0.373 |
+| FLAME 2023 Open vB, mesh d'identita' SR (@ regione FLAME) | -0.038 [-0.127, +0.056], P 0.811 | -0.063 [-0.155, +0.032], P 0.913 | -0.068 [-0.157, +0.029], P 0.923 | -0.091 [-0.181, +0.011], P 0.963 |
+| braccio intero (@ regione FLAME) | +0.011 [-0.067, +0.087], P 0.419 | -0.053 [-0.156, +0.041], P 0.867 | -0.012 [-0.090, +0.071], P 0.616 | -0.014 [-0.100, +0.065], P 0.647 |
+
+
+## Esperimento 2: crop sugli held-out sintetici del training
+
+Per dominio, coppie di soggetti diversi: senza crop (etichette diverse, entrambe senza crop) e col crop (un lato crop); Spearman con GT-FR calibrata (`gt_frcal`) e GT-SR (`gt_sr`); AUC di verifica (genuine = stesso soggetto). BFM: FR non si legge (taglia delle original REMESH allineate per similarita').
+
+| dominio | metodo | misura | senza crop | col crop | col crop - senza crop |
+| --- | --- | --- | --- | --- | --- |
+| bfm | ctrlfr s1234 | rho_fr | 0.899 [0.877, 0.918] | 0.890 [0.865, 0.909] | -0.009 [-0.022, +0.003] |
+| bfm | ctrlfr s1234 | rho_sr | 0.880 [0.853, 0.903] | 0.862 [0.833, 0.885] | -0.017 [-0.028, -0.007] |
+| bfm | ctrlfr s1234 | auc | 1.000 [1.000, 1.000] | 0.999 [0.997, 1.000] | -0.001 [-0.003, -0.000] |
+| bfm | ctrlfr s2345 | rho_fr | 0.898 [0.875, 0.915] | 0.879 [0.852, 0.900] | -0.019 [-0.034, -0.004] |
+| bfm | ctrlfr s2345 | rho_sr | 0.870 [0.835, 0.896] | 0.845 [0.809, 0.872] | -0.024 [-0.040, -0.010] |
+| bfm | ctrlfr s2345 | auc | 1.000 [1.000, 1.000] | 0.997 [0.992, 1.000] | -0.003 [-0.008, -0.000] |
+| bfm | factorized s1234, d_F cal. | rho_fr | 0.825 [0.781, 0.866] | 0.731 [0.677, 0.775] | -0.094 [-0.116, -0.075] |
+| bfm | factorized s1234, d_F cal. | rho_sr | 0.859 [0.822, 0.890] | 0.763 [0.714, 0.800] | -0.096 [-0.117, -0.078] |
+| bfm | factorized s1234, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.992 [0.982, 0.998] | -0.008 [-0.018, -0.002] |
+| bfm | factorized s1234, d_P | rho_fr | 0.843 [0.801, 0.878] | 0.832 [0.794, 0.863] | -0.012 [-0.024, +0.001] |
+| bfm | factorized s1234, d_P | rho_sr | 0.902 [0.878, 0.922] | 0.883 [0.857, 0.903] | -0.019 [-0.031, -0.008] |
+| bfm | factorized s1234, d_P | auc | 1.000 [1.000, 1.000] | 0.998 [0.995, 1.000] | -0.002 [-0.005, -0.000] |
+| bfm | factorized s2345, d_F cal. | rho_fr | 0.818 [0.771, 0.860] | 0.749 [0.692, 0.799] | -0.068 [-0.089, -0.050] |
+| bfm | factorized s2345, d_F cal. | rho_sr | 0.862 [0.823, 0.894] | 0.787 [0.735, 0.828] | -0.075 [-0.095, -0.058] |
+| bfm | factorized s2345, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.993 [0.981, 0.999] | -0.007 [-0.019, -0.001] |
+| bfm | factorized s2345, d_P | rho_fr | 0.843 [0.801, 0.879] | 0.826 [0.784, 0.862] | -0.018 [-0.035, -0.003] |
+| bfm | factorized s2345, d_P | rho_sr | 0.905 [0.881, 0.927] | 0.879 [0.849, 0.902] | -0.026 [-0.041, -0.015] |
+| bfm | factorized s2345, d_P | auc | 1.000 [1.000, 1.000] | 0.998 [0.995, 1.000] | -0.002 [-0.005, -0.000] |
+| bfm | C3M e123, d_F cal. | rho_fr | 0.828 [0.786, 0.862] | 0.572 [0.510, 0.627] | -0.256 [-0.294, -0.219] |
+| bfm | C3M e123, d_F cal. | rho_sr | 0.845 [0.807, 0.876] | 0.606 [0.546, 0.658] | -0.239 [-0.278, -0.206] |
+| bfm | C3M e123, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.940 [0.922, 0.957] | -0.060 [-0.078, -0.043] |
+| bfm | C3M e123, d_P | rho_fr | 0.887 [0.854, 0.916] | 0.879 [0.847, 0.906] | -0.008 [-0.017, -0.000] |
+| bfm | C3M e123, d_P | rho_sr | 0.949 [0.935, 0.959] | 0.938 [0.923, 0.949] | -0.010 [-0.017, -0.005] |
+| bfm | C3M e123, d_P | auc | 1.000 [1.000, 1.000] | 0.998 [0.994, 1.000] | -0.002 [-0.006, -0.000] |
+| bfm | C3M e205, d_F cal. | rho_fr | 0.847 [0.810, 0.878] | 0.671 [0.615, 0.719] | -0.176 [-0.208, -0.146] |
+| bfm | C3M e205, d_F cal. | rho_sr | 0.872 [0.839, 0.897] | 0.706 [0.653, 0.751] | -0.167 [-0.199, -0.138] |
+| bfm | C3M e205, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.970 [0.958, 0.979] | -0.030 [-0.042, -0.021] |
+| bfm | C3M e205, d_P | rho_fr | 0.893 [0.861, 0.921] | 0.886 [0.856, 0.912] | -0.006 [-0.015, +0.002] |
+| bfm | C3M e205, d_P | rho_sr | 0.955 [0.942, 0.965] | 0.948 [0.935, 0.957] | -0.007 [-0.014, -0.002] |
+| bfm | C3M e205, d_P | auc | 1.000 [1.000, 1.000] | 0.999 [0.998, 1.000] | -0.001 [-0.002, -0.000] |
+| ict | ctrlfr s1234 | rho_fr | 0.965 [0.950, 0.976] | 0.960 [0.941, 0.972] | -0.006 [-0.011, -0.002] |
+| ict | ctrlfr s1234 | rho_sr | 0.568 [0.463, 0.654] | 0.573 [0.466, 0.658] | +0.005 [-0.005, +0.015] |
+| ict | ctrlfr s1234 | auc | 1.000 [1.000, 1.000] | 0.999 [0.999, 1.000] | -0.001 [-0.001, -0.000] |
+| ict | ctrlfr s2345 | rho_fr | 0.966 [0.951, 0.976] | 0.958 [0.941, 0.971] | -0.007 [-0.012, -0.004] |
+| ict | ctrlfr s2345 | rho_sr | 0.578 [0.470, 0.664] | 0.569 [0.462, 0.657] | -0.009 [-0.020, +0.002] |
+| ict | ctrlfr s2345 | auc | 1.000 [1.000, 1.000] | 0.999 [0.998, 1.000] | -0.001 [-0.002, -0.000] |
+| ict | factorized s1234, d_F cal. | rho_fr | 0.895 [0.859, 0.920] | 0.887 [0.849, 0.915] | -0.008 [-0.018, +0.002] |
+| ict | factorized s1234, d_F cal. | rho_sr | 0.610 [0.507, 0.698] | 0.605 [0.498, 0.691] | -0.005 [-0.017, +0.007] |
+| ict | factorized s1234, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+| ict | factorized s1234, d_P | rho_fr | 0.578 [0.474, 0.663] | 0.570 [0.464, 0.658] | -0.008 [-0.021, +0.004] |
+| ict | factorized s1234, d_P | rho_sr | 0.930 [0.905, 0.947] | 0.920 [0.894, 0.940] | -0.010 [-0.018, -0.002] |
+| ict | factorized s1234, d_P | auc | 1.000 [1.000, 1.000] | 0.999 [0.998, 1.000] | -0.001 [-0.002, -0.000] |
+| ict | factorized s2345, d_F cal. | rho_fr | 0.904 [0.874, 0.925] | 0.883 [0.845, 0.911] | -0.021 [-0.033, -0.011] |
+| ict | factorized s2345, d_F cal. | rho_sr | 0.603 [0.499, 0.692] | 0.586 [0.481, 0.675] | -0.017 [-0.032, -0.003] |
+| ict | factorized s2345, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+| ict | factorized s2345, d_P | rho_fr | 0.582 [0.475, 0.671] | 0.576 [0.465, 0.664] | -0.006 [-0.018, +0.004] |
+| ict | factorized s2345, d_P | rho_sr | 0.934 [0.912, 0.949] | 0.927 [0.902, 0.945] | -0.007 [-0.015, -0.000] |
+| ict | factorized s2345, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, -0.000] |
+| ict | C3M e123, d_F cal. | rho_fr | 0.961 [0.945, 0.972] | 0.938 [0.916, 0.955] | -0.023 [-0.035, -0.013] |
+| ict | C3M e123, d_F cal. | rho_sr | 0.635 [0.532, 0.714] | 0.616 [0.511, 0.697] | -0.019 [-0.040, -0.000] |
+| ict | C3M e123, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.999 [0.998, 1.000] | -0.001 [-0.002, -0.000] |
+| ict | C3M e123, d_P | rho_fr | 0.616 [0.517, 0.697] | 0.605 [0.505, 0.686] | -0.011 [-0.024, -0.002] |
+| ict | C3M e123, d_P | rho_sr | 0.964 [0.950, 0.974] | 0.957 [0.942, 0.968] | -0.007 [-0.013, -0.003] |
+| ict | C3M e123, d_P | auc | 1.000 [1.000, 1.000] | 0.999 [0.999, 1.000] | -0.001 [-0.001, -0.000] |
+| ict | C3M e205, d_F cal. | rho_fr | 0.964 [0.949, 0.974] | 0.948 [0.929, 0.962] | -0.016 [-0.025, -0.008] |
+| ict | C3M e205, d_F cal. | rho_sr | 0.637 [0.533, 0.718] | 0.611 [0.505, 0.694] | -0.026 [-0.047, -0.007] |
+| ict | C3M e205, d_F cal. | auc | 1.000 [1.000, 1.000] | 0.999 [0.999, 1.000] | -0.001 [-0.001, -0.000] |
+| ict | C3M e205, d_P | rho_fr | 0.610 [0.506, 0.693] | 0.605 [0.505, 0.689] | -0.004 [-0.015, +0.006] |
+| ict | C3M e205, d_P | rho_sr | 0.969 [0.956, 0.978] | 0.965 [0.951, 0.974] | -0.005 [-0.009, -0.001] |
+| ict | C3M e205, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+| gnm | ctrlfr s1234 | rho_fr | 0.946 [0.929, 0.958] | 0.944 [0.926, 0.957] | -0.002 [-0.006, +0.002] |
+| gnm | ctrlfr s1234 | rho_sr | 0.572 [0.465, 0.666] | 0.581 [0.478, 0.670] | +0.008 [-0.000, +0.017] |
+| gnm | ctrlfr s1234 | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | +0.000 [-0.000, +0.000] |
+| gnm | ctrlfr s2345 | rho_fr | 0.938 [0.919, 0.952] | 0.940 [0.921, 0.953] | +0.001 [-0.004, +0.006] |
+| gnm | ctrlfr s2345 | rho_sr | 0.562 [0.455, 0.658] | 0.557 [0.455, 0.650] | -0.005 [-0.015, +0.005] |
+| gnm | ctrlfr s2345 | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+| gnm | factorized s1234, d_F cal. | rho_fr | 0.857 [0.819, 0.890] | 0.850 [0.812, 0.883] | -0.007 [-0.016, +0.001] |
+| gnm | factorized s1234, d_F cal. | rho_sr | 0.573 [0.468, 0.670] | 0.586 [0.479, 0.679] | +0.013 [+0.002, +0.023] |
+| gnm | factorized s1234, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+| gnm | factorized s1234, d_P | rho_fr | 0.540 [0.445, 0.630] | 0.528 [0.429, 0.622] | -0.011 [-0.027, +0.003] |
+| gnm | factorized s1234, d_P | rho_sr | 0.910 [0.886, 0.929] | 0.907 [0.883, 0.927] | -0.003 [-0.012, +0.005] |
+| gnm | factorized s1234, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, -0.000] |
+| gnm | factorized s2345, d_F cal. | rho_fr | 0.839 [0.796, 0.877] | 0.827 [0.782, 0.864] | -0.012 [-0.021, -0.005] |
+| gnm | factorized s2345, d_F cal. | rho_sr | 0.552 [0.446, 0.649] | 0.553 [0.446, 0.647] | +0.002 [-0.008, +0.011] |
+| gnm | factorized s2345, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, -0.000] |
+| gnm | factorized s2345, d_P | rho_fr | 0.529 [0.435, 0.621] | 0.527 [0.430, 0.622] | -0.002 [-0.016, +0.011] |
+| gnm | factorized s2345, d_P | rho_sr | 0.902 [0.875, 0.923] | 0.902 [0.877, 0.921] | +0.000 [-0.007, +0.008] |
+| gnm | factorized s2345, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, -0.000] |
+| gnm | C3M e123, d_F cal. | rho_fr | 0.939 [0.919, 0.954] | 0.930 [0.908, 0.946] | -0.009 [-0.016, -0.002] |
+| gnm | C3M e123, d_F cal. | rho_sr | 0.574 [0.461, 0.673] | 0.567 [0.455, 0.664] | -0.008 [-0.020, +0.003] |
+| gnm | C3M e123, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, -0.000] |
+| gnm | C3M e123, d_P | rho_fr | 0.571 [0.479, 0.656] | 0.555 [0.459, 0.647] | -0.016 [-0.028, -0.005] |
+| gnm | C3M e123, d_P | rho_sr | 0.953 [0.941, 0.963] | 0.950 [0.936, 0.960] | -0.003 [-0.008, +0.000] |
+| gnm | C3M e123, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.000, -0.000] |
+| gnm | C3M e205, d_F cal. | rho_fr | 0.953 [0.935, 0.965] | 0.950 [0.932, 0.962] | -0.003 [-0.009, +0.003] |
+| gnm | C3M e205, d_F cal. | rho_sr | 0.582 [0.472, 0.680] | 0.576 [0.464, 0.672] | -0.007 [-0.017, +0.003] |
+| gnm | C3M e205, d_F cal. | auc | 1.000 [1.000, 1.000] | 1.000 [0.999, 1.000] | -0.000 [-0.001, +0.000] |
+| gnm | C3M e205, d_P | rho_fr | 0.575 [0.482, 0.661] | 0.570 [0.474, 0.661] | -0.005 [-0.014, +0.004] |
+| gnm | C3M e205, d_P | rho_sr | 0.955 [0.942, 0.965] | 0.955 [0.942, 0.965] | -0.000 [-0.004, +0.004] |
+| gnm | C3M e205, d_P | auc | 1.000 [1.000, 1.000] | 1.000 [1.000, 1.000] | -0.000 [-0.000, -0.000] |
+
+Spostamento del crop (held-out): d log S = log S(crop) - media delle 5 senza crop (media [IC 95% per soggetto], sd), sd di log S fra soggetti; distanze nell'embedding (||u|| o ||z||).
+
+| dominio | braccio | d log S | sd | sd fra soggetti | d log S / sd fra soggetti | stesso sogg. crop | stesso sogg. senza crop | soggetti diversi |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| bfm | factorized_s1234 | -0.023 [-0.024, -0.022] | 0.0073 | 0.0181 | -1.27 | 0.282 | 0.146 | 0.693 |
+| bfm | factorized_s2345 | -0.019 [-0.020, -0.017] | 0.0084 | 0.0181 | -1.02 | 0.280 | 0.132 | 0.722 |
+| bfm | ctrlfr_s1234 | - | - | - | - | 0.371 | 0.228 | 0.919 |
+| bfm | ctrlfr_s2345 | - | - | - | - | 0.425 | 0.257 | 0.994 |
+| bfm | factorizedc3m_e123 | -0.046 [-0.048, -0.044] | 0.0124 | 0.0236 | -1.95 | 0.420 | 0.284 | 1.133 |
+| bfm | factorizedc3m_e205 | -0.038 [-0.040, -0.036] | 0.0112 | 0.0203 | -1.87 | 0.448 | 0.325 | 1.311 |
+| ict | factorized_s1234 | +0.001 [-0.001, +0.002] | 0.0080 | 0.0495 | +0.02 | 0.280 | 0.200 | 0.688 |
+| ict | factorized_s2345 | +0.006 [+0.004, +0.008] | 0.0093 | 0.0498 | +0.12 | 0.269 | 0.166 | 0.684 |
+| ict | ctrlfr_s1234 | - | - | - | - | 0.447 | 0.345 | 1.250 |
+| ict | ctrlfr_s2345 | - | - | - | - | 0.478 | 0.323 | 1.343 |
+| ict | factorizedc3m_e123 | -0.000 [-0.003, +0.002] | 0.0122 | 0.0489 | -0.00 | 0.424 | 0.308 | 1.086 |
+| ict | factorizedc3m_e205 | +0.001 [-0.001, +0.003] | 0.0116 | 0.0489 | +0.02 | 0.454 | 0.327 | 1.243 |
+| gnm | factorized_s1234 | -0.002 [-0.003, -0.001] | 0.0055 | 0.0508 | -0.04 | 0.281 | 0.174 | 0.750 |
+| gnm | factorized_s2345 | -0.004 [-0.005, -0.002] | 0.0066 | 0.0523 | -0.07 | 0.255 | 0.131 | 0.735 |
+| gnm | ctrlfr_s1234 | - | - | - | - | 0.373 | 0.262 | 1.153 |
+| gnm | ctrlfr_s2345 | - | - | - | - | 0.410 | 0.266 | 1.233 |
+| gnm | factorizedc3m_e123 | -0.005 [-0.006, -0.003] | 0.0073 | 0.0502 | -0.09 | 0.402 | 0.279 | 1.144 |
+| gnm | factorizedc3m_e205 | -0.002 [-0.004, -0.001] | 0.0076 | 0.0502 | -0.04 | 0.445 | 0.332 | 1.304 |
+
+## Controlli dell'emendamento 3
+
+```
+{
+ "topo": {
+  "hifi3d": {
+   "seed": 757683,
+   "rows_cross": 99000,
+   "rows_same": 24750,
+   "rows_kept": 123750,
+   "groups": {
+    "down8k|down8k": 4950,
+    "down8k|noisy": 4950,
+    "down8k|original": 4950,
+    "down8k|remesh": 4950,
+    "down8k|up60k": 4950,
+    "noisy|down8k": 4950,
+    "noisy|noisy": 4950,
+    "noisy|original": 4950,
+    "noisy|remesh": 4950,
+    "noisy|up60k": 4950,
+    "original|down8k": 4950,
+    "original|noisy": 4950,
+    "original|original": 4950,
+    "original|remesh": 4950,
+    "original|up60k": 4950,
+    "remesh|down8k": 4950,
+    "remesh|noisy": 4950,
+    "remesh|original": 4950,
+    "remesh|remesh": 4950,
+    "remesh|up60k": 4950,
+    "up60k|down8k": 4950,
+    "up60k|noisy": 4950,
+    "up60k|original": 4950,
+    "up60k|remesh": 4950,
+    "up60k|up60k": 4950
+   },
+   "gt_spread_within_subject_pair": 0.0
+  },
+  "facescape": {
+   "seed": 621096,
+   "rows_cross": 99000,
+   "rows_same": 24750,
+   "rows_kept": 123750,
+   "groups": {
+    "down8k|down8k": 4950,
+    "down8k|noisy": 4950,
+    "down8k|original": 4950,
+    "down8k|remesh": 4950,
+    "down8k|up60k": 4950,
+    "noisy|down8k": 4950,
+    "noisy|noisy": 4950,
+    "noisy|original": 4950,
+    "noisy|remesh": 4950,
+    "noisy|up60k": 4950,
+    "original|down8k": 4950,
+    "original|noisy": 4950,
+    "original|original": 4950,
+    "original|remesh": 4950,
+    "original|up60k": 4950,
+    "remesh|down8k": 4950,
+    "remesh|noisy": 4950,
+    "remesh|original": 4950,
+    "remesh|remesh": 4950,
+    "remesh|up60k": 4950,
+    "up60k|down8k": 4950,
+    "up60k|noisy": 4950,
+    "up60k|original": 4950,
+    "up60k|remesh": 4950,
+    "up60k|up60k": 4950
+   },
+   "gt_spread_within_subject_pair": 0.0
+  },
+  "faceverse": {
+   "seed": 566363,
+   "rows_cross": 99000,
+   "rows_same": 24750,
+   "rows_kept": 123750,
+   "groups": {
+    "down8k|down8k": 4950,
+    "down8k|noisy": 4950,
+    "down8k|original": 4950,
+    "down8k|remesh": 4950,
+    "down8k|up60k": 4950,
+    "noisy|down8k": 4950,
+    "noisy|noisy": 4950,
+    "noisy|original": 4950,
+    "noisy|remesh": 4950,
+    "noisy|up60k": 4950,
+    "original|down8k": 4950,
+    "original|noisy": 4950,
+    "original|original": 4950,
+    "original|remesh": 4950,
+    "original|up60k": 4950,
+    "remesh|down8k": 4950,
+    "remesh|noisy": 4950,
+    "remesh|original": 4950,
+    "remesh|remesh": 4950,
+    "remesh|up60k": 4950,
+    "up60k|down8k": 4950,
+    "up60k|noisy": 4950,
+    "up60k|original": 4950,
+    "up60k|remesh": 4950,
+    "up60k|up60k": 4950
+   },
+   "gt_spread_within_subject_pair": 0.0
+  }
+ },
+ "heldout": {
+  "embeddings_vs_calib_heldout": {
+   "factorized_s1234": {
+    "n": 1500,
+    "keys_equal": true,
+    "max_abs_diff": 0.0008167028427124023
+   },
+   "factorized_s2345": {
+    "n": 1500,
+    "keys_equal": true,
+    "max_abs_diff": 0.0007919073104858398
+   },
+   "factorizedc3m_e123": {
+    "n": 1500,
+    "keys_equal": true,
+    "max_abs_diff": 0.0027254223823547363
+   },
+   "factorizedc3m_e205": {
+    "n": 1500,
+    "keys_equal": true,
+    "max_abs_diff": 0.004578590393066406
+   }
+  },
+  "shift": {
+   "bfm": {
+    "factorized_s1234": {
+     "same_subject_crop_vs_nocrop": 0.28228864958920835,
+     "same_subject_nocrop": 0.14604167824285824,
+     "different_subjects_original_median": 0.6930568055030766,
+     "dlogS_crop_mean": -0.02293174791336059,
+     "dlogS_crop_sd": 0.007286780831252524,
+     "logS_sd_between_subjects": 0.018087617917918197
+    },
+    "factorized_s2345": {
+     "same_subject_crop_vs_nocrop": 0.2804242539456843,
+     "same_subject_nocrop": 0.1323976723753412,
+     "different_subjects_original_median": 0.7220530148261051,
+     "dlogS_crop_mean": -0.01854188203811648,
+     "dlogS_crop_sd": 0.008404136380639103,
+     "logS_sd_between_subjects": 0.018140716042163222
+    },
+    "ctrlfr_s1234": {
+     "same_subject_crop_vs_nocrop": 0.37058721352360985,
+     "same_subject_nocrop": 0.22752818920613174,
+     "different_subjects_original_median": 0.9185634287512429
+    },
+    "ctrlfr_s2345": {
+     "same_subject_crop_vs_nocrop": 0.42483261513893955,
+     "same_subject_nocrop": 0.25689354126067665,
+     "different_subjects_original_median": 0.9943947236575692
+    },
+    "factorizedc3m_e123": {
+     "same_subject_crop_vs_nocrop": 0.420394670966399,
+     "same_subject_nocrop": 0.28376887012434154,
+     "different_subjects_original_median": 1.1333123272519443,
+     "dlogS_crop_mean": -0.04603087759017946,
+     "dlogS_crop_sd": 0.01240013094743287,
+     "logS_sd_between_subjects": 0.02357339057866504
+    },
+    "factorizedc3m_e205": {
+     "same_subject_crop_vs_nocrop": 0.4479255903973109,
+     "same_subject_nocrop": 0.32504667188597147,
+     "different_subjects_original_median": 1.311336778152762,
+     "dlogS_crop_mean": -0.03792652130126953,
+     "dlogS_crop_sd": 0.011200136072115932,
+     "logS_sd_between_subjects": 0.020266867997979082
+    }
+   },
+   "ict": {
+    "factorized_s1234": {
+     "same_subject_crop_vs_nocrop": 0.2797349190633614,
+     "same_subject_nocrop": 0.19950234192499994,
+     "different_subjects_original_median": 0.6878170616027741,
+     "dlogS_crop_mean": 0.0008960962295532271,
+     "dlogS_crop_sd": 0.00795013092010158,
+     "logS_sd_between_subjects": 0.049539283303819286
+    },
+    "factorized_s2345": {
+     "same_subject_crop_vs_nocrop": 0.26946313328957056,
+     "same_subject_nocrop": 0.16647109317763312,
+     "different_subjects_original_median": 0.6842622665680896,
+     "dlogS_crop_mean": 0.006085906505584724,
+     "dlogS_crop_sd": 0.009326343912734758,
+     "logS_sd_between_subjects": 0.049816322154345255
+    },
+    "ctrlfr_s1234": {
+     "same_subject_crop_vs_nocrop": 0.4469222738757654,
+     "same_subject_nocrop": 0.34534915051111104,
+     "different_subjects_original_median": 1.2500570905218418
+    },
+    "ctrlfr_s2345": {
+     "same_subject_crop_vs_nocrop": 0.4779085627975885,
+     "same_subject_nocrop": 0.3226816520877233,
+     "different_subjects_original_median": 1.3432678182431341
+    },
+    "factorizedc3m_e123": {
+     "same_subject_crop_vs_nocrop": 0.4242021010754996,
+     "same_subject_nocrop": 0.3080436089673774,
+     "different_subjects_original_median": 1.0859951192877246,
+     "dlogS_crop_mean": -0.0002051653861999192,
+     "dlogS_crop_sd": 0.012197713827851777,
+     "logS_sd_between_subjects": 0.04888881391538357
+    },
+    "factorizedc3m_e205": {
+     "same_subject_crop_vs_nocrop": 0.4537339539872053,
+     "same_subject_nocrop": 0.3272687804173346,
+     "different_subjects_original_median": 1.2431057272297172,
+     "dlogS_crop_mean": 0.001128187656402555,
+     "dlogS_crop_sd": 0.011605384330849131,
+     "logS_sd_between_subjects": 0.04887814870372237
+    }
+   },
+   "gnm": {
+    "factorized_s1234": {
+     "same_subject_crop_vs_nocrop": 0.28101023467256575,
+     "same_subject_nocrop": 0.1738229788540134,
+     "different_subjects_original_median": 0.7495749691613834,
+     "dlogS_crop_mean": -0.001798263072967541,
+     "dlogS_crop_sd": 0.005470164658375153,
+     "logS_sd_between_subjects": 0.05079831684814294
+    },
+    "factorized_s2345": {
+     "same_subject_crop_vs_nocrop": 0.25519972223506904,
+     "same_subject_nocrop": 0.13147174604884485,
+     "different_subjects_original_median": 0.7348718678525938,
+     "dlogS_crop_mean": -0.003656077861785896,
+     "dlogS_crop_sd": 0.0066441122707671585,
+     "logS_sd_between_subjects": 0.05232139316668677
+    },
+    "ctrlfr_s1234": {
+     "same_subject_crop_vs_nocrop": 0.37318506657034606,
+     "same_subject_nocrop": 0.2624811522136583,
+     "different_subjects_original_median": 1.15283188856489
+    },
+    "ctrlfr_s2345": {
+     "same_subject_crop_vs_nocrop": 0.4098499393456873,
+     "same_subject_nocrop": 0.266358534399839,
+     "different_subjects_original_median": 1.232504260733069
+    },
+    "factorizedc3m_e123": {
+     "same_subject_crop_vs_nocrop": 0.40155884046575113,
+     "same_subject_nocrop": 0.2794752594915452,
+     "different_subjects_original_median": 1.1437693320300135,
+     "dlogS_crop_mean": -0.004553506851196261,
+     "dlogS_crop_sd": 0.007251241306004904,
+     "logS_sd_between_subjects": 0.050165144428094506
+    },
+    "factorizedc3m_e205": {
+     "same_subject_crop_vs_nocrop": 0.44467035425973156,
+     "same_subject_nocrop": 0.33228249017807204,
+     "different_subjects_original_median": 1.3038669568717292,
+     "dlogS_crop_mean": -0.0021910924911499484,
+     "dlogS_crop_sd": 0.0075865330587389515,
+     "logS_sd_between_subjects": 0.05018898914799079
+    }
+   }
+  }
+ },
+ "paired": {
+  "hifi3d": {
+   "seed": 757683,
+   "rows": 148500,
+   "rows_mask": 148500,
+   "rows_mask_crop": 49500,
+   "topology_pairs": 15,
+   "nan_rows_by_column": {},
+   "arm_meshes": {
+    "hifi3d|gnm|factorized_s1234": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|factorized_s1234": {
+     "meshes": 600
+    },
+    "hifi3d|gnm|factorized_s2345": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|factorized_s2345": {
+     "meshes": 600
+    },
+    "hifi3d|gnm|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "hifi3d|gnm|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "hifi3d|gnm|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "hifi3d|gnm|factorizedc3m_e205": {
+     "meshes": 600
+    },
+    "hifi3d|flame2023|factorizedc3m_e205": {
+     "meshes": 600
+    }
+   },
+   "vb600_vs_fit_e1": {
+    "gnm_vb_coef": 5.329070518200751e-15,
+    "gnm_vb_fr": 2.4555507627255224e-10,
+    "gnm_vb_sr": 2.164604051557717e-10,
+    "flame2023_vb_coef": 5.329070518200751e-15,
+    "flame2023_vb_fr": 1.8132939594295294e-11,
+    "flame2023_vb_sr": 1.181801878580302e-11
+   },
+   "geo_missing": [
+    "hifi3d maxabs_chamfer (FileNotFoundError)",
+    "hifi3d maxabs_rigid_icp_chamfer (FileNotFoundError)",
+    "hifi3d maxabs_nicp_p2tri (FileNotFoundError)"
+   ]
+  },
+  "facescape": {
+   "seed": 621096,
+   "rows": 148500,
+   "rows_mask": 148500,
+   "rows_mask_crop": 49500,
+   "topology_pairs": 15,
+   "nan_rows_by_column": {},
+   "arm_meshes": {
+    "facescape|gnm|factorized_s1234": {
+     "meshes": 600
+    },
+    "facescape|flame2023|factorized_s1234": {
+     "meshes": 600
+    },
+    "facescape|gnm|factorized_s2345": {
+     "meshes": 600
+    },
+    "facescape|flame2023|factorized_s2345": {
+     "meshes": 600
+    },
+    "facescape|gnm|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "facescape|flame2023|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "facescape|gnm|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "facescape|flame2023|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "facescape|gnm|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "facescape|flame2023|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "facescape|gnm|factorizedc3m_e205": {
+     "meshes": 600
+    },
+    "facescape|flame2023|factorizedc3m_e205": {
+     "meshes": 600
+    }
+   },
+   "vb600_vs_fit_e1": {
+    "gnm_vb_coef": 3.552713678800501e-15,
+    "gnm_vb_fr": 1.8770898724262963e-10,
+    "gnm_vb_sr": 2.0568172165447152e-10,
+    "flame2023_vb_coef": 1.0658141036401503e-14,
+    "flame2023_vb_fr": 9.568817960214915e-12,
+    "flame2023_vb_sr": 1.1014272827125637e-11
+   },
+   "geo_missing": []
+  },
+  "faceverse": {
+   "seed": 566363,
+   "rows": 148500,
+   "rows_mask": 148500,
+   "rows_mask_crop": 49500,
+   "topology_pairs": 15,
+   "nan_rows_by_column": {},
+   "arm_meshes": {
+    "faceverse|gnm|factorized_s1234": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|factorized_s1234": {
+     "meshes": 600
+    },
+    "faceverse|gnm|factorized_s2345": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|factorized_s2345": {
+     "meshes": 600
+    },
+    "faceverse|gnm|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "faceverse|gnm|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "faceverse|gnm|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|factorizedc3m_e123": {
+     "meshes": 600
+    },
+    "faceverse|gnm|factorizedc3m_e205": {
+     "meshes": 600
+    },
+    "faceverse|flame2023|factorizedc3m_e205": {
+     "meshes": 600
+    }
+   },
+   "vb600_vs_fit_e1": {
+    "gnm_vb_coef": 3.552713678800501e-15,
+    "gnm_vb_fr": 3.684685889737693e-11,
+    "gnm_vb_sr": 5.672307068493865e-11,
+    "flame2023_vb_coef": 5.329070518200751e-15,
+    "flame2023_vb_fr": 2.295164058807586e-12,
+    "flame2023_vb_sr": 3.5534908349177385e-12
+   },
+   "geo_missing": [
+    "faceverse maxabs_chamfer (FileNotFoundError)",
+    "faceverse maxabs_rigid_icp_chamfer (FileNotFoundError)",
+    "faceverse maxabs_nicp_p2tri (FileNotFoundError)"
+   ]
+  },
+  "faceverse_neutral": {
+   "seed": 566363,
+   "rows": 148500,
+   "rows_mask": 148500,
+   "rows_mask_crop": 49500,
+   "topology_pairs": 15,
+   "nan_rows_by_column": {},
+   "arm_meshes": {
+    "faceverse_neutral|gnm|factorized_s1234": {
+     "meshes": 600
+    },
+    "faceverse_neutral|flame2023|factorized_s1234": {
+     "meshes": 600
+    },
+    "faceverse_neutral|gnm|factorized_s2345": {
+     "meshes": 600
+    },
+    "faceverse_neutral|flame2023|factorized_s2345": {
+     "meshes": 600
+    },
+    "faceverse_neutral|gnm|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "faceverse_neutral|flame2023|ctrlfr_s1234": {
+     "meshes": 600
+    },
+    "faceverse_neutral|gnm|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "faceverse_neutral|flame2023|ctrlfr_s2345": {
+     "meshes": 600
+    },
+    "faceverse_neutral|factorizedc3m_e123": "store assente, braccio saltato",
+    "faceverse_neutral|gnm|factorizedc3m_e205": {
+     "meshes": 600
+    },
+    "faceverse_neutral|flame2023|factorizedc3m_e205": {
+     "meshes": 600
+    }
+   },
+   "vb600_vs_fit_e1": {
+    "gnm_vb_coef": 3.552713678800501e-15,
+    "gnm_vb_fr": 1.485143952262291e-10,
+    "gnm_vb_sr": 1.738424404429395e-10,
+    "flame2023_vb_coef": 7.105427357601002e-15,
+    "flame2023_vb_fr": 1.094402346524248e-11,
+    "flame2023_vb_sr": 1.020522555350567e-11
+   },
+   "geo_missing": [
+    "faceverse_neutral maxabs_chamfer (FileNotFoundError)",
+    "faceverse_neutral maxabs_rigid_icp_chamfer (FileNotFoundError)",
+    "faceverse_neutral maxabs_nicp_p2tri (FileNotFoundError)",
+    "faceverse_neutral maxabs_nicp_template (FileNotFoundError)",
+    "faceverse_neutral mm_chamfer (FileNotFoundError)",
+    "faceverse_neutral mm_chamfer_pure (FileNotFoundError)",
+    "faceverse_neutral mm_rigid_icp_chamfer (FileNotFoundError)",
+    "faceverse_neutral mm_nicp_p2tri (FileNotFoundError)",
+    "faceverse_neutral mm_nicp_template (FileNotFoundError)",
+    "faceverse_neutral cs_chamfer (FileNotFoundError)",
+    "faceverse_neutral cs_rigid_icp_chamfer (FileNotFoundError)",
+    "faceverse_neutral cs_nicp_p2tri (FileNotFoundError)",
+    "faceverse_neutral cs_nicp_template (FileNotFoundError)",
+    "faceverse_neutral mm_rigid_icp_chamfer assente",
+    "faceverse_neutral mm_chamfer_pure assente",
+    "faceverse_neutral mm_nicp_template assente"
+   ]
+  }
+ },
+ "paired_e2_values": {
+  "n_matched": 496,
+  "columns": [
+   "ctrlfr_s1234|z",
+   "ctrlfr_s2345|z",
+   "factorized_s1234|form_cal",
+   "factorized_s1234|shape",
+   "factorized_s2345|form_cal",
+   "factorized_s2345|shape",
+   "factorizedc3m_e123|form_cal",
+   "factorizedc3m_e123|shape",
+   "factorizedc3m_e205|form_cal",
+   "factorizedc3m_e205|shape",
+   "flame2023_vb_coef",
+   "flame2023_vb_fr",
+   "flame2023_vb_sr",
+   "gnm_vb_coef",
+   "gnm_vb_fr",
+   "gnm_vb_sr"
+  ],
+  "max_abs_diff_point": 8.326672684688674e-17,
+  "max_abs_diff_ci": 8.326672684688674e-17,
+  "rows_equal": true
+ },
+ "chain": {
+  "n": 600,
+  "keys_equal": true,
+  "max_abs_diff": 4.76837158203125e-07
+ },
+ "counts_e2": {
+  "hifi3d | all_cross": "FR 12 / 4 / 8, SR 5 / 10 / 9",
+  "hifi3d | all_cross, righe col crop": "FR 6 / 14 / 4, SR 4 / 10 / 10",
+  "facescape | all_cross": "FR 0 / 24 / 0, SR 0 / 24 / 0",
+  "facescape | all_cross, righe col crop": "FR 0 / 24 / 0, SR 0 / 19 / 5",
+  "faceverse | all_cross": "FR 1 / 0 / 23, SR 1 / 0 / 23",
+  "faceverse | all_cross, righe col crop": "FR 0 / 0 / 24, SR 0 / 0 / 24",
+  "faceverse_neutral | all_cross": "FR 0 / 0 / 24, SR 0 / 1 / 23",
+  "faceverse_neutral | all_cross, righe col crop": "FR 0 / 3 / 21, SR 0 / 4 / 20"
+ },
+ "region": {
+  "hifi3d|gnm": {
+   "n_region_npz": 7700,
+   "n_rerun": 7700,
+   "equal": true
+  },
+  "hifi3d|flame2023": {
+   "n_region_npz": 1517,
+   "n_rerun": 1517,
+   "equal": true
+  },
+  "facescape|gnm": {
+   "n_region_npz": 8061,
+   "n_rerun": 8061,
+   "equal": true
+  },
+  "facescape|flame2023": {
+   "n_region_npz": 1544,
+   "n_rerun": 1544,
+   "equal": true
+  },
+  "faceverse|gnm": {
+   "n_region_npz": 8654,
+   "n_rerun": 8654,
+   "equal": true
+  },
+  "faceverse|flame2023": {
+   "n_region_npz": 1674,
+   "n_rerun": 1674,
+   "equal": true
+  },
+  "faceverse_neutral|gnm": {
+   "n_region_npz": 8654,
+   "n_rerun": 8654,
+   "equal": true
+  },
+  "faceverse_neutral|flame2023": {
+   "n_region_npz": 1674,
+   "n_rerun": 1674,
+   "equal": true
+  }
+ }
+}
+```
 
