@@ -1520,3 +1520,43 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   coppia). d_P con la stessa discretizzazione ai due lati: FaceScape 0.800 (remesh-remesh) contro 0.747 incrociate,
   HIFI3D +0.02, FaceVerse +0.01, FLAME +0.03. Colpisce il gap di discretizzazione, non quello di generatore; da
   preregistrare a parte.
+
+## 11 ottobre, mattina, D4 — ridiscretizzazione canonica al test: preregistrato NO, letture corrette dal critic
+
+- **D4 preregistrato** (protocollo 5fd3061, sha256 `77a93f61…`; codice f722b21; risultati e45a5dc; job prep 1068284,
+  embedding 1068285 su 2 A100 di nv-ai-04 dalle 08:46 alle 08:57, costo 1068289, statistiche 1068299;
+  `aau/runs/evidence/diagnostics/results_d4.md`).
+  - Remesh isotropico esplicito di pymeshlab a lato fisso 2 mm (la mediana del training è 2.04 mm) su tutte le 6
+    topologie dei 100 soggetti valutati di FaceScape dev, HIFI3D e FaceVerse neutra; tabella di scala con l'area della
+    mesh canonica, operatori areanorm k128, bracci factorized s1234 / s2345 e ctrlfr s1234.
+  - Verdetto **NO** in entrambi i semi, non dannosa. Delta d_P con SR su nocrop_cross: FaceScape +0.002 / +0.011
+    [+0.005, +0.019], HIFI3D +0.000 / −0.000, FaceVerse −0.000 / +0.001; d_F cal. con FR da −0.000 a +0.014.
+  - Controlli: originale = D3 (scarto 0 sulle righe di D3), catena 4.8e-7, remesh deterministico (10/10), 1.800/1.800
+    mesh valide.
+  - Costo per mesh: remesh 5.0 s; pipeline canonica 9.1 s contro 4.1 s degli operatori sull'originale (×2.45).
+- **Critic: RISERVE.** Il NO è vero e non nasce da un difetto del codice: pipeline, scala, normali e righe riverificate.
+  La lettura del meccanismo era sbagliata; corretta in `results_d4.md` (commit 5fd15b2) coi numeri del critic, post hoc:
+  1. falso che "una ridiscretizzazione al test non tocca il gap" e che la sfaccettatura di down8k venga conservata.
+     Sulle etichette che cambiano solo la discretizzazione (original, down8k, up60k) il residuo stessa etichetta −
+     incrociate va quasi a zero: FaceScape +0.026 [+0.020, +0.034] → +0.003 (s1234) e +0.006 → +0.000 (s2345); HIFI3D
+     e FaceVerse +0.002 / +0.003 → 0.000. Sulle righe con noisy o remesh resta: FaceScape +0.050 → +0.046, HIFI3D
+     +0.014 → +0.012, FaceVerse +0.022 → +0.016 (s1234). Sulle sole righe incrociate fra original, down8k e up60k
+     FaceScape guadagna +0.015 [+0.006, +0.024] (s1234) e +0.007 (s2345), in parte per il calo di up60k-up60k
+     (0.802 → 0.777);
+  2. su noisy D4 non separa superficie e discretizzazione: con featuredeg = 30 il rumore resta come spigoli vivi, e il
+     90-98% dei vertici noisy non cambia;
+  3. il NO non dice nulla sul meccanismo: per s2345 il tetto era +0.019 su HIFI3D e +0.017 su FaceVerse, sotto la
+     soglia di +0.02, quindi UTILE era irraggiungibile per costruzione;
+  4. geometria: noisy e remesh cambiano la superficie (FaceScape, distanza media dalla original 0.435 e 0.124 mm, dopo
+     il remesh 0.459 e 0.241), down8k e up60k quasi no (≤ 0.02 mm); diedro medio della canonica 41-68° per noisy
+     contro 3-7.5° per original.
+- **Correzione alle voci precedenti** (D3, punto 4, e "Idea separata"). Il +0.053 di FaceScape (remesh-remesh −
+  incrociate) non era la stessa discretizzazione ai due lati, ma lo stesso smoothing: l'etichetta remesh è smoothing
+  umbrella + quadrica.
+- **Nome per il paper.** Né "gap di discretizzazione" né "gap di vista", ma **sensibilità a perturbazioni di superficie
+  (rumore, smoothing)**. Affermazione positiva: sulle viste che cambiano solo la discretizzazione il residuo è ≤ 0.006
+  (FaceScape s1234 0.026) e il remesh canonico lo azzera (≤ 0.003).
+- **Leva residua, non provata:** un filtro di superficie al test (smoothing o denoising canonico prima degli operatori).
+  Il tetto è chiudere il residuo sulle 5 etichette (d_P con SR, s1234 / s2345): FaceScape +0.042 / +0.029, HIFI3D
+  +0.013 / +0.007, FaceVerse +0.014 / +0.008. La ridiscretizzazione canonica da sola non serve al paper: vale 0 e
+  costa ×2.45.
