@@ -1,22 +1,60 @@
 controllo,valore,atteso
-"hifi 10548: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
-"hifi 21096: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
-"devfs 10548: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
-"devfs 21096: celle presenti (stesse righe, stessi soggetti)","['c2f', 'c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
-"flame 10548: celle presenti (stesse righe, stessi soggetti)","['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
-"flame 21096: celle presenti (stesse righe, stessi soggetti)","['c3f', 'c2fgnm', 'c3ml']; 100 soggetti, 148500 righe",-
+"hifi 10548: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"hifi 21096: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"devfs 10548: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"devfs 21096: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"flame 10548: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"flame 21096: celle presenti (stesse righe, stessi soggetti)","['c3mv', 'c2m', 'c2f', 'c3f', 'c2fgnm', 'c3fugt', 'c3fugtraw', 'c2fs2', 'c3fs2', 'c2f40', 'c3f40', 'g1', 'c3ml']; 100 soggetti, 148500 righe",-
+"hifi C3M 10548: embedding contro latent_distance, max |diff|",6.06e-07,< 1e-4
+"hifi C3M 21096: embedding contro latent_distance, max |diff|",6.02e-07,< 1e-4
+"hifi C2M 10548: embedding contro latent_distance, max |diff|",7.00e-07,< 1e-4
+"hifi C2M 21096: embedding contro latent_distance, max |diff|",7.40e-07,< 1e-4
 "hifi C2F 10548: embedding contro latent_distance, max |diff|",6.71e-07,< 1e-4
 "hifi C2F 21096: embedding contro latent_distance, max |diff|",7.02e-07,< 1e-4
 "hifi C3F 10548: embedding contro latent_distance, max |diff|",6.08e-07,< 1e-4
 "hifi C3F 21096: embedding contro latent_distance, max |diff|",5.99e-07,< 1e-4
 "hifi C2F-GNM 10548: embedding contro latent_distance, max |diff|",5.89e-07,< 1e-4
 "hifi C2F-GNM 21096: embedding contro latent_distance, max |diff|",5.97e-07,< 1e-4
+"hifi C3F-UGT 10548: embedding contro latent_distance, max |diff|",5.94e-07,< 1e-4
+"hifi C3F-UGT 21096: embedding contro latent_distance, max |diff|",6.04e-07,< 1e-4
+"hifi C3F-UGT non tarata 10548: embedding contro latent_distance, max |diff|",5.76e-07,< 1e-4
+"hifi C3F-UGT non tarata 21096: embedding contro latent_distance, max |diff|",6.07e-07,< 1e-4
+"hifi C2F s2 10548: embedding contro latent_distance, max |diff|",7.08e-07,< 1e-4
+"hifi C2F s2 21096: embedding contro latent_distance, max |diff|",7.03e-07,< 1e-4
+"hifi C3F s2 10548: embedding contro latent_distance, max |diff|",5.88e-07,< 1e-4
+"hifi C3F s2 21096: embedding contro latent_distance, max |diff|",6.47e-07,< 1e-4
+"hifi C2F40 10548: embedding contro latent_distance, max |diff|",6.83e-07,< 1e-4
+"hifi C2F40 21096: embedding contro latent_distance, max |diff|",7.02e-07,< 1e-4
+"hifi C3F40 10548: embedding contro latent_distance, max |diff|",5.87e-07,< 1e-4
+"hifi C3F40 21096: embedding contro latent_distance, max |diff|",6.01e-07,< 1e-4
+"hifi G1 10548: embedding contro latent_distance, max |diff|",6.20e-07,< 1e-4
+"hifi G1 21096: embedding contro latent_distance, max |diff|",6.04e-07,< 1e-4
 "hifi C3M L40S (rif.) 10548: embedding contro latent_distance, max |diff|",6.06e-07,< 1e-4
 "hifi C3M L40S (rif.) 21096: embedding contro latent_distance, max |diff|",6.08e-07,< 1e-4
+NoW C3M 10548: tau ricalcolato contro concordance.csv della cella,0.339015 / 0.339015,uguali
+NoW C3M 21096: tau ricalcolato contro concordance.csv della cella,0.386364 / 0.386364,uguali
+NoW C2M 10548: tau ricalcolato contro concordance.csv della cella,0.198864 / 0.198864,uguali
+NoW C2M 21096: tau ricalcolato contro concordance.csv della cella,0.145833 / 0.145833,uguali
+NoW C2F 10548: tau ricalcolato contro concordance.csv della cella,0.183712 / 0.183712,uguali
+NoW C2F 21096: tau ricalcolato contro concordance.csv della cella,0.231061 / 0.231061,uguali
 NoW C3F 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
 NoW C3F 21096: tau ricalcolato contro concordance.csv della cella,0.274621 / 0.274621,uguali
 NoW C2F-GNM 10548: tau ricalcolato contro concordance.csv della cella,0.109848 / 0.109848,uguali
 NoW C2F-GNM 21096: tau ricalcolato contro concordance.csv della cella,0.094697 / 0.094697,uguali
+NoW C3F-UGT 10548: tau ricalcolato contro concordance.csv della cella,0.357955 / 0.357955,uguali
+NoW C3F-UGT 21096: tau ricalcolato contro concordance.csv della cella,0.244318 / 0.244318,uguali
+NoW C3F-UGT non tarata 10548: tau ricalcolato contro concordance.csv della cella,0.363636 / 0.363636,uguali
+NoW C3F-UGT non tarata 21096: tau ricalcolato contro concordance.csv della cella,0.253788 / 0.253788,uguali
+NoW C2F s2 10548: tau ricalcolato contro concordance.csv della cella,0.236742 / 0.236742,uguali
+NoW C2F s2 21096: tau ricalcolato contro concordance.csv della cella,0.212121 / 0.212121,uguali
+NoW C3F s2 10548: tau ricalcolato contro concordance.csv della cella,0.310606 / 0.310606,uguali
+NoW C3F s2 21096: tau ricalcolato contro concordance.csv della cella,0.221591 / 0.221591,uguali
+NoW C2F40 10548: tau ricalcolato contro concordance.csv della cella,0.219697 / 0.219697,uguali
+NoW C2F40 21096: tau ricalcolato contro concordance.csv della cella,0.202652 / 0.202652,uguali
+NoW C3F40 10548: tau ricalcolato contro concordance.csv della cella,0.373106 / 0.373106,uguali
+NoW C3F40 21096: tau ricalcolato contro concordance.csv della cella,0.348485 / 0.348485,uguali
+NoW G1 10548: tau ricalcolato contro concordance.csv della cella,-0.045455 / -0.045455,uguali
+NoW G1 21096: tau ricalcolato contro concordance.csv della cella,0.119318 / 0.119318,uguali
 NoW C3M L40S (rif.) 10548: tau ricalcolato contro concordance.csv della cella,0.299242 / 0.299242,uguali
 NoW C3M L40S (rif.) 21096: tau ricalcolato contro concordance.csv della cella,0.346591 / 0.346591,uguali
 "HIFI3D C3M L40S 10548 nocrop_cross: rivalutato su A100 contro curve.md (L40S), |diff| del punto",5.20e-05,~0 (hardware di valutazione)

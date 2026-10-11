@@ -29,21 +29,49 @@
     "c2f": 0.6165,
     "c2fgnm": 0.6595
    },
-   "s2": null,
-   "noise": NaN,
+   "s2": {
+    "a": 0.657947810182072,
+    "b": 0.4572854152371145,
+    "diff": 0.20066239494495752,
+    "ci_low": 0.15932396023156276,
+    "ci_high": 0.2386916339382559,
+    "p_le0": 0.0
+   },
+   "noise": 0.057941706156846906,
    "noise_parts": {
-    "C3M V100 - L40S": null,
-    "C2F s1 - s2": null,
-    "C3F s1 - s2": null
+    "C3M V100 - L40S": {
+     "a": 0.6918239001956829,
+     "b": 0.6632841063622156,
+     "diff": 0.028539793833467275,
+     "ci_low": 0.01476531864168846,
+     "ci_high": 0.04421329445776633,
+     "p_le0": 0.0
+    },
+    "C2F s1 - s2": {
+     "a": 0.4342522183975121,
+     "b": 0.4572854152371145,
+     "diff": -0.02303319683960242,
+     "ci_low": -0.04684639037350231,
+     "ci_high": 0.0016559598465096179,
+     "p_le0": 0.963
+    },
+    "C3F s1 - s2": {
+     "a": 0.715889516338919,
+     "b": 0.657947810182072,
+     "diff": 0.057941706156846906,
+     "ci_low": 0.03504856186248065,
+     "ci_high": 0.08408696249342203,
+     "p_le0": 0.0
+    }
    },
    "cond": {
     "(a) Delta >= +0.05 e IC > 0": true,
     "(b) dev FaceScape stessa direzione": true,
     "(c) FaceVerse rank-1 non inferiore (IC > -0.05)": false,
-    "(d) Delta oltre il pavimento del rumore": null,
-    "(e) secondo seme C3F s2 - C2F s2 > 0": null
+    "(d) Delta oltre il pavimento del rumore": true,
+    "(e) secondo seme C3F s2 - C2F s2 > 0": true
    },
-   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca"
+   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale"
   },
   {
    "steps": 10548,
@@ -74,43 +102,99 @@
     "c2f": 0.5035,
     "c2fgnm": 0.6115
    },
-   "s2": null,
-   "noise": NaN,
+   "s2": {
+    "a": 0.6800917604442354,
+    "b": 0.42151657885884736,
+    "diff": 0.258575181585388,
+    "ci_low": 0.22127863467663894,
+    "ci_high": 0.29362799829673986,
+    "p_le0": 0.0
+   },
+   "noise": 0.04217037602579882,
    "noise_parts": {
-    "C3M V100 - L40S": null,
-    "C2F s1 - s2": null,
-    "C3F s1 - s2": null
+    "C3M V100 - L40S": {
+     "a": 0.6864003466141482,
+     "b": 0.6773036707205538,
+     "diff": 0.00909667589359442,
+     "ci_low": -0.0065538770184373485,
+     "ci_high": 0.02638940058303747,
+     "p_le0": 0.129
+    },
+    "C2F s1 - s2": {
+     "a": 0.4636869548846462,
+     "b": 0.42151657885884736,
+     "diff": 0.04217037602579882,
+     "ci_low": 0.019180896256042326,
+     "ci_high": 0.06581618615452813,
+     "p_le0": 0.0
+    },
+    "C3F s1 - s2": {
+     "a": 0.7161043722662387,
+     "b": 0.6800917604442354,
+     "diff": 0.036012611822003326,
+     "ci_low": 0.014062013804326132,
+     "ci_high": 0.059142047299638865,
+     "p_le0": 0.0
+    }
    },
    "cond": {
     "(a) Delta >= +0.05 e IC > 0": true,
     "(b) dev FaceScape stessa direzione": true,
     "(c) FaceVerse rank-1 non inferiore (IC > -0.05)": false,
-    "(d) Delta oltre il pavimento del rumore": null,
-    "(e) secondo seme C3F s2 - C2F s2 > 0": null
+    "(d) Delta oltre il pavimento del rumore": true,
+    "(e) secondo seme C3F s2 - C2F s2 > 0": true
    },
-   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale; (d) Delta oltre il pavimento del rumore manca; (e) secondo seme C3F s2 - C2F s2 > 0 manca"
+   "verdict": "NON CONCLUDENTE: (c) FaceVerse rank-1 non inferiore (IC > -0.05) non vale"
   }
  ],
  "ugt": [
   {
    "steps": 21096,
    "baseline": "rigid_icp_chamfer",
-   "x": null
+   "x": {
+    "a": 0.5748988174957531,
+    "b": 0.5219516727834344,
+    "diff": 0.05294714471231876,
+    "ci_low": -0.015337631251507253,
+    "ci_high": 0.12246240228223133,
+    "p_le0": 0.057
+   }
   },
   {
    "steps": 21096,
    "baseline": "nicp_p2tri",
-   "x": null
+   "x": {
+    "a": 0.5753989141737835,
+    "b": 0.5770224100163602,
+    "diff": -0.0016234958425767054,
+    "ci_low": -0.06317341621708043,
+    "ci_high": 0.06514086147331954,
+    "p_le0": 0.515
+   }
   },
   {
    "steps": 10548,
    "baseline": "rigid_icp_chamfer",
-   "x": null
+   "x": {
+    "a": 0.5328551697103718,
+    "b": 0.5219516727834344,
+    "diff": 0.010903496926937484,
+    "ci_low": -0.05668392328018768,
+    "ci_high": 0.08026262996640994,
+    "p_le0": 0.373
+   }
   },
   {
    "steps": 10548,
    "baseline": "nicp_p2tri",
-   "x": null
+   "x": {
+    "a": 0.53313730520278,
+    "b": 0.5770224100163602,
+    "diff": -0.04388510481358021,
+    "ci_low": -0.11027643642532435,
+    "ci_high": 0.022861380319359935,
+    "p_le0": 0.901
+   }
   }
  ]
 }
