@@ -1,0 +1,118 @@
+{
+ "recipe": {
+  "groups_per_domain": 3000,
+  "by_domain": {
+   "bfm2019": {
+    "expr_fraction": 0.0,
+    "expected": 0.0,
+    "se": 7.4535599249993e-09,
+    "expr_views_per_group": {
+     "0": 3000
+    },
+    "distinct_labels_per_group": {
+     "6": 3000
+    },
+    "pass": true
+   },
+   "ict": {
+    "expr_fraction": 0.23277777777777778,
+    "expected": 0.2315,
+    "se": 0.003143845398375831,
+    "expr_views_per_group": {
+     "1": 1810,
+     "2": 1190
+    },
+    "distinct_labels_per_group": {
+     "6": 3000
+    },
+    "pass": true
+   },
+   "gnm": {
+    "expr_fraction": 0.19666666666666666,
+    "expected": 0.1968,
+    "se": 0.0029633854513602064,
+    "expr_views_per_group": {
+     "1": 2460,
+     "2": 540
+    },
+    "distinct_labels_per_group": {
+     "6": 3000
+    },
+    "pass": true
+   }
+  },
+  "pass": true
+ },
+ "producer": {
+  "views": 1380,
+  "views_per_s_steady": 5.980012302601964,
+  "views_by_domain": {
+   "ict": 486,
+   "bfm2019": 510,
+   "gnm": 384
+  },
+  "expr_fraction": 0.1398550724637681,
+  "expr_fraction_by_domain": {
+   "ict": 0.24691358024691357,
+   "bfm2019": 0.0,
+   "gnm": 0.19010416666666666
+  },
+  "views_by_origin": {
+   "pure": 1380
+  },
+  "label_draw": "perm",
+  "expr_frac": {
+   "bfm2019": 0.0,
+   "ict": 0.2315,
+   "gnm": 0.1968
+  },
+  "failures": 0
+ },
+ "shards": {
+  "groups": 142,
+  "groups_not_pure_single_source": 0,
+  "groups_with_repeated_labels": 0,
+  "recipe_headers": [
+   "{\"expr_frac\": {\"bfm2019\": 0.0, \"gnm\": 0.1968, \"ict\": 0.2315}, \"label_draw\": \"perm\", \"mm_aug_probs\": {}}"
+  ],
+  "regen_groups": 12,
+  "regen_pass": true,
+  "pass": true
+ },
+ "consumer": {
+  "plans": 60,
+  "batches_mixed": 0,
+  "batches_mixed_sources": 0,
+  "batches_by_sources": {
+   "bfm2019": 20,
+   "gnm": 20,
+   "ict": 20
+  },
+  "rot_deg": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "views_booked": 1800,
+  "views_with_rotation": 0,
+  "distinct_labels_per_id": {
+   "6": 300
+  },
+  "reuse_factor": 2.3255813953488373,
+  "pass": true
+ },
+ "positive_control": {
+  "plans": 30,
+  "batches_mixed": 0,
+  "batches_mixed_sources": 30,
+  "batches_by_sources": {
+   "bfm2019+gnm+ict": 24,
+   "bfm2019+gnm": 5,
+   "bfm2019+ict": 1
+  },
+  "views_with_rotation": 900,
+  "views_booked": 900,
+  "pass": true
+ },
+ "pass": true
+}

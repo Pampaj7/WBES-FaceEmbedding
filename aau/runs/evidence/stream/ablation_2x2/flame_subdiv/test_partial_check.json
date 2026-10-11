@@ -1,0 +1,84 @@
+{
+ "base": "4e3114a217acde2a8ba3ff3d688310b268b7137c",
+ "head": "f9792e46dd5c6aecd564fb2b6b9ad84714234877",
+ "invariance_off_vs_base": {
+  "recipe_equal": true,
+  "n_arrays": 348,
+  "same_array_keys": true,
+  "fields_differing": [],
+  "groups_meta_equal": true,
+  "views_meta_equal": true,
+  "views": 36,
+  "shard_head_equal": true,
+  "shard_bytes": [
+   268654160,
+   268654160
+  ],
+  "shard_data_equal": true
+ },
+ "partial_on_vs_off": {
+  "recipe_partial": {
+   "v": 1,
+   "p": 0.5,
+   "lo": 0.03,
+   "hi": 0.4,
+   "modes": {
+    "band": 0.5,
+    "plane": 0.3,
+    "holes": 0.2
+   },
+   "band_pct": [
+    0.0,
+    90.0
+   ],
+   "band_arc_deg": [
+    60.0,
+    240.0
+   ],
+   "extra_holes_p": [
+    0.6,
+    0.3,
+    0.1
+   ],
+   "hole_extra": [
+    0.005,
+    0.02
+   ],
+   "hole_only_p": [
+    0.5,
+    0.5
+   ],
+   "hole_only": [
+    0.01,
+    0.05
+   ],
+   "max_loss": 0.5,
+   "min_verts": 300,
+   "tries": 3
+  },
+  "same_identities_labels_expr_noise": true,
+  "untouched_views_identical": true,
+  "views_partial": 18,
+  "views_whole": 18,
+  "loss_mean": 0.14188233333333333,
+  "failures": 0
+ },
+ "run_dir": {
+  "base": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "now": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "now_preempt": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "now_snapshot": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "existing": [
+   "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52"
+  ],
+  "pass": true
+ },
+ "pass": {
+  "geometry": null,
+  "invariance": true,
+  "partial_on_vs_off": true,
+  "run_dir": true,
+  "regen": null,
+  "skip": null
+ }
+}

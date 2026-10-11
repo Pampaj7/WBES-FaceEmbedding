@@ -31,6 +31,8 @@
 #   (nel C3M rexpr* sono sulla topologia original); k_eig STREAM_K 128.
 # Opt-in del run SECONDARIO (secondary_partial_a100.sbatch), spento di default (riga di lancio e anello di prima):
 #   STREAM_PARTIAL p (STREAM_PARTIAL_AREA lo,hi): parzialita' variabile per vista, producer.py --partial-p (partial_aug.py).
+# Opt-in della cella B' dell'ablazione 2x2 (emendamento 1), spento di default: STREAM_FLAME_SUBDIV n, le viste di
+#   flame2023 suddivise 1-a-4 n volte coi punti medi (producer.py --subdiv flame2023=n, come gli insiemi FLAME di D1).
 # Ripresa, anche del run principale:
 #   STREAM_PREEMPTIBLE (default 1; 0 = trainer in primo piano, come prima): WBES_PREEMPT_SAVE=1 al trainer (su SIGTERM
 #   salva last.pth al passo in corso ed esce: train_stream.py). Prelazione, scontrol requeue e scancel mandano SIGTERM
@@ -78,6 +80,7 @@ ROT="${STREAM_ROT:-$D_ROT}"                # yaw,pitch,roll massimi a ogni uso (
 LD="${STREAM_LABEL_DRAW:-$D_LD}"           # perm (senza reinserimento, C3M) | replace
 PART="${STREAM_PARTIAL:-}"                 # probabilita' per vista della parzialita' (vuoto = spenta)
 PAREA="${STREAM_PARTIAL_AREA:-}"           # lo,hi della frazione d'area tolta (vuoto = default di partial_aug)
+FSUB="${STREAM_FLAME_SUBDIV:-}"            # suddivisioni 1-a-4 delle viste di flame2023 (vuoto = nessuna)
 CPR="${STREAM_TRAIN_CPUS_PER_RANK:-8}"     # ottimo misurato il 10 ottobre: groups 8 / 12 / 16 CPU = 108 / 112 / 110 mesh/s
 RGB=$(( ${STREAM_RING_GB_PER_GPU:-10} * G ))
 SEED="${STREAM_SEED:-1234}"
@@ -98,6 +101,7 @@ log "host=$(hostname) GPU=$G ($(nvidia-smi --query-gpu=name --format=csv,noheade
 log "dati: ricetta $RCP, quota d'espressioni $EF, mm_aug ${MMAUG:-no}, rotazione a ogni uso $ROT gradi," \
     "discretizzazioni $LD"
 [[ -n "$PART" ]] && log "parzialita' variabile: p=$PART per vista, area ${PAREA:-default} (producer.py --partial-p)"
+[[ -n "$FSUB" ]] && log "viste di flame2023 suddivise 1-a-4 $FSUB volte (producer.py --subdiv)"
 log "ricetta: batch ${IDS} identita' x <= ${MPI} viste per rank (produttori: ${VIEWS} viste per identita'), batch" \
     "$BDOM, lr costante, maschera di taglia: ${SMASK:-nessuna}, forward ${STREAM_FORWARD:-groups}"
 
@@ -138,6 +142,7 @@ AAU_NV= "$AAU_DIR/run.sh" "$CODE/v3_work/stream/producer.py" --ring "$RING" --ri
     --evecs-dtype fp32 --sources "$SOURCES" --provenance --canonical-gt --expr-frac "$EF" --seed "$PSEED" \
     --views "$VIEWS" --label-draw "$LD" \
     ${MMAUG:+--mm-aug "$MMAUG"} ${PART:+--partial-p "$PART"} ${PAREA:+--partial-area "$PAREA"} \
+    ${FSUB:+--subdiv "flame2023=$FSUB"} \
     --cpus "$PROD_CPUS" --stats-every 60 --summary "$E/producers.json" > "$E/producers.log" 2>&1 &
 nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used --format=csv,noheader -l 5 >> "$E/gpu.csv" 2>/dev/null &
 (

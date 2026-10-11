@@ -28,6 +28,9 @@ Run massivo (slurm/massive.sbatch, slurm/extra_producers.sbatch):
 Run secondario (ablazione, slurm/secondary_partial_a100.sbatch): ``--partial-p p [--partial-area lo,hi]``, parzialita'
 variabile per vista (partial_aug.py: banda dal bordo, taglio planare, buchi; seme dal seme del rumore della vista,
 nessuna estrazione dal generatore del gruppo). Spenta (p = 0, default) l'anello e la ricetta sono quelli di prima.
+Suddivisione (ablazione 2x2, emendamento 1): ``--subdiv flame2023=1``, le viste di quei 3DMM suddivise 1-a-4 coi punti
+medi prima della discretizzazione (sources.MMSource.upsample, come gli insiemi FLAME di D1); nessuna estrazione in piu',
+``subdiv`` nella ricetta (regen.py la rispetta). Vuota (default) anello e ricetta sono quelli di prima.
 
 Statistiche: ``<ring>/stats/w<NNN>.json`` per processo (viste, gruppi, byte, secondi per fase, fallimenti) e,
 dal padre, una riga ogni ``--stats-every`` s con viste/s nell'intervallo, shard e GiB nell'anello;
@@ -115,6 +118,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--partial-area", default="",
                    help="lo,hi: frazione d'area tolta da banda o taglio planare, U(lo, hi) (default di partial_aug: "
                         "0.03,0.40)")
+    p.add_argument("--subdiv", default="",
+                   help="suddivisioni 1-a-4 delle viste per dominio, es. 'flame2023=1' (sources.MMSource.upsample; "
+                        "vuoto = nessuna, il default)")
     p.add_argument("--seed", type=int, default=20261009)
     p.add_argument("--duration", type=float, default=0.0, help="secondi (0 = finche' non viene fermato)")
     p.add_argument("--stats-every", type=float, default=30.0)
@@ -344,6 +350,8 @@ def recipe(cfg, acfg=None) -> dict:
            "mm_aug_config": acfg.to_dict() if acfg is not None else None}
     if getattr(cfg, "partial", None) is not None:
         out["partial"] = dict(cfg.partial)
+    if getattr(cfg, "subdiv", None):
+        out["subdiv"] = dict(cfg.subdiv)
     return out
 
 
@@ -506,6 +514,7 @@ def summarize(ring: Ring, t0: float, cfg) -> dict:
             "label_draw": cfg.label_draw,
             "last_failure": next((s["last_failure"] for s in st if s.get("last_failure")), ""),
             **(partial_summary(st, views) if getattr(cfg, "partial", None) is not None else {}),
+            **({"subdiv": dict(cfg.subdiv)} if getattr(cfg, "subdiv", None) else {}),
             "cpu_s_per_view": {k: v / max(views, 1) for k, v in phases.items()},
             "views_by_domain": by_dom, "views_by_label": by_lab,
             "ring": {"shards": len(lst), "gib": sum(b for _, b, _ in lst) / 2 ** 30,
@@ -536,6 +545,9 @@ def main() -> None:
     cfg.label_p = w / w.sum()
     domains = S.parse_sources(cfg.sources) if cfg.sources else [d for d in cfg.domains.split(",") if d]
     cfg.expr_frac = parse_expr_frac(cfg.expr_frac, domains)
+    cfg.subdiv = {k: int(v) for k, v in parse_weights(cfg.subdiv, domains).items()} if cfg.subdiv else {}
+    if cfg.subdiv and cfg.mm_aug_probs:
+        raise SystemExit("--subdiv con --mm-aug: i gruppi dei moltiplicatori non passano da MMSource.view_mesh")
     # codice congelato di massive.sbatch (slurm/code_snapshot.py): la versione e' quella della copia, non del repo vivo
     cfg.code_version = os.environ.get("WBES_CODE_VERSION", "")
     if cfg.provenance and not cfg.code_version:
@@ -551,7 +563,9 @@ def main() -> None:
             cfg.code_version = ""
     t_load = time.time()
     uni = S.Unified()
-    srcs = S.build_sources(domains, uni, v_max=cfg.v_max, v_work=cfg.v_work)
+    srcs = S.build_sources(domains, uni, v_max=cfg.v_max, v_work=cfg.v_work, **({"subdiv": cfg.subdiv} if cfg.subdiv else {}))
+    if cfg.subdiv:
+        print(f"[producer] suddivisione 1-a-4 delle viste: {cfg.subdiv}", flush=True)
     tg = None
     if cfg.canonical_gt:
         from targets import CanonTargets

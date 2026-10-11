@@ -21,6 +21,11 @@ neutra di riferimento di aau/famos/famos_subsample.py (``V_neutral``), mappa ``f
 
 Frame delle viste: canonico FLAME in mm (``MorphableModel.canonical_transform``; BFM 2019 con la similarita'
 della sua corrispondenza). FaMoS: ogni fotogramma allineato rigidamente (senza scala) alla patch media FLAME.
+
+Suddivisione (opt-in, ``build_sources(..., subdiv={dominio: n})``, ``producer.py --subdiv``; spenta di default): la
+mesh di ogni vista di un 3DMM, nelle unita' native e prima del frame canonico, suddivisa 1-a-4 n volte coi punti
+medi (``igl.upsample``, lineare: come gli insiemi FLAME di D1, ``aau/diagnostics/d1_gen.work_mesh``); la GT resta
+quella dei punti della regione unificata (invariata). Nessuna estrazione dal generatore in piu'.
 """
 from __future__ import annotations
 
@@ -175,13 +180,14 @@ class MMSource:
 
     kind = "mm"
 
-    def __init__(self, name: str, unified: Unified, v_max: int = V_MAX, v_work: int = V_WORK) -> None:
+    def __init__(self, name: str, unified: Unified, v_max: int = V_MAX, v_work: int = V_WORK, subdiv: int = 0) -> None:
         from v3_work.mm import BilinearModel, load_for_training
         m = load_for_training(name)
         if isinstance(m, BilinearModel):
             raise ValueError(f"{name}: modello bilineare, non supportato dallo stream")
         self.name, self.model = name, m
         self.n_id = m.n_id
+        self.subdiv = int(subdiv)          # suddivisioni 1-a-4 di ogni vista (0 = nessuna, il default)
         # punti della regione unificata: dalla numerazione nativa alla posizione nella patch
         vidx, bary = unified.map_of(name)
         rv = np.asarray(m.region_vertices if m.region_vertices is not None else np.arange(m.n_verts))
@@ -228,13 +234,26 @@ class MMSource:
         if expr:
             V = V + self.ex_w @ self.model.sample_expression(rng)
             tag = "expr"
+        F = self.faces
+        if self.subdiv:
+            V, F = self.upsample(V)
         c = self.canon
-        return c["scale"] * (V @ np.asarray(c["R"]).T) + np.asarray(c["t"]), self.faces, tag
+        return c["scale"] * (V @ np.asarray(c["R"]).T) + np.asarray(c["t"]), F, tag
+
+    def upsample(self, V: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """(V, F) suddivisi 1-a-4 ``self.subdiv`` volte coi punti medi (igl.upsample, come d1_gen.work_mesh)."""
+        import igl
+        Vs, Fs = igl.upsample(np.asarray(V, dtype=np.float64), np.asarray(self.faces, dtype=np.int64), self.subdiv)
+        return Vs, np.ascontiguousarray(Fs, dtype=np.asarray(self.faces).dtype)
 
     def describe(self) -> dict:
-        return {"name": self.name, "kind": self.kind, "n_id": self.n_id, "n_verts_work": int(len(self.mean_w)),
-                "n_faces_work": int(len(self.faces)), "work_topology": "patch" if self.work is None else "decimata",
-                "canonical": self.canon["source"]}
+        out = {"name": self.name, "kind": self.kind, "n_id": self.n_id, "n_verts_work": int(len(self.mean_w)),
+               "n_faces_work": int(len(self.faces)), "work_topology": "patch" if self.work is None else "decimata",
+               "canonical": self.canon["source"]}
+        if self.subdiv:
+            Vs, Fs = self.upsample(self.mean_w)
+            out.update(subdiv=self.subdiv, n_verts_view=int(len(Vs)), n_faces_view=int(len(Fs)))
+        return out
 
 
 def _npz_memmap(path: Path, key: str) -> np.ndarray:
@@ -316,11 +335,18 @@ class FamosSource:
                 "n_faces_work": int(len(self.faces)), "persons": len(self.persons)}
 
 
-def build_sources(domains, unified: Unified | None = None, v_max: int = V_MAX, v_work: int = V_WORK) -> dict:
+def build_sources(domains, unified: Unified | None = None, v_max: int = V_MAX, v_work: int = V_WORK,
+                  subdiv: dict | None = None) -> dict:
+    """Sorgenti dei domini; ``subdiv`` {dominio: n} suddivide le viste di quei 3DMM (opt-in, vuoto = nessuna)."""
     unified = unified or Unified()
+    subdiv = {d: int(n) for d, n in (subdiv or {}).items() if int(n) > 0}
+    bad = sorted(set(subdiv) - (set(domains) - {"famos"}))
+    if bad:
+        raise ValueError(f"suddivisione per {bad}: non sono 3DMM fra le fonti {list(domains)}")
     out = {}
     for d in domains:
         if d not in ALL_DOMAINS:
             raise ValueError(f"dominio {d!r} non in {ALL_DOMAINS}")
-        out[d] = FamosSource(unified) if d == "famos" else MMSource(d, unified, v_max=v_max, v_work=v_work)
+        out[d] = FamosSource(unified) if d == "famos" else \
+            MMSource(d, unified, v_max=v_max, v_work=v_work, **({"subdiv": subdiv[d]} if d in subdiv else {}))
     return out

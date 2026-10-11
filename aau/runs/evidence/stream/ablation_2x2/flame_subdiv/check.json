@@ -1,0 +1,127 @@
+{
+ "base": "4e3114a217acde2a8ba3ff3d688310b268b7137c",
+ "head": "f9792e46dd5c6aecd564fb2b6b9ad84714234877",
+ "invariance_off_vs_base": {
+  "recipe_equal": true,
+  "n_arrays": 464,
+  "same_array_keys": true,
+  "fields_differing": [],
+  "groups_meta_equal": true,
+  "views_meta_equal": true,
+  "views": 48,
+  "shard_head_equal": true,
+  "shard_bytes": [
+   285339876,
+   285339876
+  ],
+  "shard_data_equal": true
+ },
+ "subdiv_on_vs_off": {
+  "recipe_subdiv_on": {
+   "flame2023": 1
+  },
+  "recipe_subdiv_off": null,
+  "recipe_equal_but_subdiv": true,
+  "same_identities_labels_expr_noise": true,
+  "non_flame_views_identical": true,
+  "flame_views": 12,
+  "failures": 0
+ },
+ "d1_procedure": {
+  "views_neutral": 10,
+  "views_expr": 2,
+  "faces_equal": 10,
+  "max_abs_served": 8.33107774989017e-08,
+  "verts_by_label": {
+   "crop": [
+    6582,
+    6618
+   ],
+   "down8k": [
+    2444,
+    2447
+   ],
+   "noisy": [
+    6986
+   ],
+   "original": [
+    6986
+   ],
+   "remesh": [
+    4904
+   ],
+   "up60k": [
+    17840,
+    17842
+   ]
+  },
+  "regen": {
+   "groups": 8,
+   "pass": 8,
+   "max_verts_abs": 1.1638118357915062e-07
+  },
+  "pass": true
+ },
+ "producers": {
+  "producer": {
+   "views": 564,
+   "views_per_s_steady": 2.808507576755461,
+   "failures": 0,
+   "last_failure": "",
+   "subdiv": {
+    "flame2023": 1
+   },
+   "views_by_domain": {
+    "flame2023": 126,
+    "bfm2019": 204,
+    "gnm": 108,
+    "ict": 126
+   },
+   "mean_verts_per_view": 9863.017730496455,
+   "expr_fraction_by_domain": {
+    "flame2023": 0.21428571428571427,
+    "bfm2019": 0.0,
+    "gnm": 0.21296296296296297,
+    "ict": 0.23809523809523808
+   }
+  },
+  "flame_verts_by_label": {
+   "crop": [
+    6560,
+    6630
+   ],
+   "down8k": [
+    2444,
+    2449
+   ],
+   "noisy": [
+    6986,
+    6986
+   ],
+   "original": [
+    6986,
+    6986
+   ],
+   "remesh": [
+    4902,
+    4911
+   ],
+   "up60k": [
+    17838,
+    17848
+   ]
+  },
+  "regen": {
+   "groups": 12,
+   "pass": 12,
+   "max_verts_abs": 1.2889951506167563e-07
+  },
+  "pass": true
+ },
+ "pass": {
+  "invariance": true,
+  "subdiv_on_vs_off": true,
+  "d1_procedure": true,
+  "producers": true
+ }
+}

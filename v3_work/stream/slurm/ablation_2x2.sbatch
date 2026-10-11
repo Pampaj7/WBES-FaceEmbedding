@@ -23,6 +23,7 @@
 #   C  validated, parzialita' p = 0.5 per vista (partial_aug.py, area di default 0.03-0.40)
 #   D  validated + flame2023, parzialita' p = 0.5
 #   Ap A con il seme del trainer 2345 (emendamento 1: rumore fra semi per le soglie per cella); produttori come A
+#   Bp B con le viste di flame2023 suddivise 1-a-4 (STREAM_FLAME_SUBDIV=1, emendamento 1), stessi semi di B
 # STREAM_RECIPE=c3m esplicito (con fonti diverse da "validated" il default di massive_node.sh sarebbe max); quota
 # d'espressioni del C3M per bfm2019, ict, gnm e, con flame2023, 0.2142 = media delle quote di ICT e GNM.
 # T = 60.000 passi da 600 (100 epoche): checkpoint ed eval online ogni 10 epoche (10%), lettura su epoch100_ema.pth.
@@ -31,21 +32,28 @@
 # codice congelato della prima partenza).
 set -euo pipefail
 SEED=1234
+FSUB=""
 case "${CELL:-}" in
   A) SRC=validated;           PART="" ;;
   B) SRC=validated,flame2023; PART="" ;;
   C) SRC=validated;           PART=0.5 ;;
   D) SRC=validated,flame2023; PART=0.5 ;;
   Ap) SRC=validated;          PART="";  SEED=2345 ;;
-  *) echo "[abl2x2] ERRORE: CELL=A|B|C|D|Ap" >&2; exit 2 ;;
+  Bp) SRC=validated,flame2023; PART=""; FSUB=1 ;;
+  *) echo "[abl2x2] ERRORE: CELL=A|B|C|D|Ap|Bp" >&2; exit 2 ;;
 esac
+if [[ -n "$FSUB" ]] && ! grep -q 'STREAM_FLAME_SUBDIV' v3_work/stream/slurm/massive_node.sh; then
+  echo "[abl2x2] ERRORE: massive_node.sh senza STREAM_FLAME_SUBDIV: la cella $CELL sarebbe uguale a B" >&2
+  exit 2
+fi
 EF="bfm2019=0,ict=0.2315,gnm=0.1968"
 [[ "$SRC" == *flame2023* ]] && EF+=",flame2023=0.2142"
-export STREAM_SOURCES="$SRC" STREAM_RECIPE=c3m STREAM_EXPR_FRAC="$EF" STREAM_PARTIAL="$PART"
+export STREAM_SOURCES="$SRC" STREAM_RECIPE=c3m STREAM_EXPR_FRAC="$EF" STREAM_PARTIAL="$PART" STREAM_FLAME_SUBDIV="$FSUB"
 export STREAM_ARM=factorized STREAM_STEPS=60000 STREAM_SPE=600 STREAM_SEED="$SEED"
 export STREAM_OUT="/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/$CELL"
 mkdir -p "$STREAM_OUT"
 echo "[abl2x2] $(date +%F_%T) cella $CELL job=${SLURM_JOB_ID:-} riavvio=${SLURM_RESTART_COUNT:-0}" \
      "nodo=$(hostname -s) fonti=$SRC quota=$EF parzialita'=${PART:-spenta} T=$STREAM_STEPS S=$STREAM_SPE seme=$SEED" \
+     "suddivisione flame2023=${FSUB:-nessuna}" \
   | tee -a "$STREAM_OUT/ablation.log"
 exec bash v3_work/stream/slurm/massive.sbatch
