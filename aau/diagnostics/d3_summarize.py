@@ -21,7 +21,35 @@ TESTS = (("facescape", "FaceScape (3DMM bilineare)"), ("hifi3d", "HIFI3D (AI-NEX
          ("faceverse", "FaceVerse con espressioni (secondaria)"), ("famos", "FaMoS TRAIN, reale (secondaria)"))
 PRIMARY = ("facescape", "hifi3d", "faceverse_neutral", "flame2023_s1")
 SOURCES = ("bfm", "ict", "gnm", "flame2023_s1", "facescape", "hifi3d", "faceverse", "famos")
-NOTES: list[str] = []      # note del coder, scritte DOPO i numeri (commento, non regole)
+NOTES = [                  # note del coder, scritte DOPO i numeri (commento, non regole)
+    "- R_LOGO e' NO in entrambi i semi: nessun bersaglio arriva a +0.05. Il guadagno piu' grande e' FaceScape s1234, "
+    "+0.038 [+0.014, +0.065], sotto la soglia; la media sui 4 bersagli e' +0.016 [+0.003, +0.029] (s1234) e -0.001 "
+    "[-0.012, +0.011] (s2345). FR non peggiora oltre -0.03 da nessuna parte con la testa (i).",
+    "- La CV dentro le sorgenti sceglie r = 0 (d_P invariata) in 3 impostazioni su 9 per s1234 (HIFI3D con e senza FaMoS, "
+    "FaceScape senza FaMoS) e in 6 su 9 per s2345 (FaceScape, HIFI3D, FLAME): li' il delta e' 0 per costruzione. Dove "
+    "sceglie una correzione, lambda e' sempre sul bordo basso (1e-4, riportato, griglia non allargata) e il guadagno di CV "
+    "su d_P va da +0.001 a +0.043 (il piu' grande quando il bersaglio e' FaceVerse, cioe' senza il pool FaceVerse fra le "
+    "sorgenti). 12.555 fit di CV, tutti convergenti.",
+    "- Le sorgenti tirano in direzioni diverse (iperparametri fissi, k = 1): FLAME da solo porta FaceScape a +0.060 (s1234) "
+    "e +0.086 (C3M), FaMoS da solo a +0.068 e +0.071, come le anteprime P3; HIFI3D da solo lo porta a -0.074 (s1234). "
+    "Tutte insieme danno meno della sorgente migliore e la curva non e' monotona (s1234: cresce su FaceScape, non su "
+    "FaceVerse e FLAME). Per s2345 la curva della testa (i) e' piatta a 0 perche' la configurazione scelta e' r = 0: il suo "
+    "\"non decrescente\" e' un artefatto, e il verdetto \"non risolto\" viene da li'.",
+    "- (ii) intra-soggetto stimata sulle sorgenti peggiora HIFI3D (-0.069 e -0.059 in SR con IC sotto 0; FR -0.031 e "
+    "-0.026: per s1234 oltre la soglia), e' nulla su FaceScape e +0.056 / +0.025 su FaceVerse (IC che tocca lo 0): la "
+    "covarianza intra-soggetto delle sorgenti non e' quella del bersaglio (l'anteprima P4, +0.05-0.07 su FaceScape, la "
+    "stimava sul bersaglio stesso).",
+    "- CORAL (esplorativa, covarianza dal pool non valutato): da -0.12 a -0.21 su FaceScape e HIFI3D, circa 0 su FaceVerse, "
+    "come l'anteprima P4.",
+    "- Invarianza: la sola media sulle etichette alza d_P su FaceScape (0.747 -> 0.802, s1234), poco su HIFI3D (0.622 -> "
+    "0.639); il guadagno della testa (i) su FaceScape s1234 scende da +0.038 (righe incrociate) a +0.019 (mediate): circa "
+    "meta' e' invarianza alla discretizzazione, il resto pesatura.",
+    "- Dato reale (FaMoS): il contributo misurabile passa dalla scelta degli iperparametri: con FaMoS la CV di s1234 sceglie "
+    "una correzione per FaceScape (r = 32), senza sceglie r = 0 (+0.038 [+0.014, +0.065]); per s2345 zero. FaMoS come "
+    "bersaglio (secondario): +0.021 (s1234), -0.018 (s2345), +0.026 (C3M).",
+    "- C3M e123 (descrittivo): media +0.007; su HIFI3D la testa peggiora (-0.031 [-0.053, -0.011]). B-GNM resta sopra tutte "
+    "le teste su FaceScape SR (0.854).",
+]
 
 
 def cell(p, lo, hi, sign=True) -> str:
