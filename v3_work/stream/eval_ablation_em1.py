@@ -17,7 +17,8 @@ le letture che le usano sono "provvisorie" (A': soglie della sola tabella) o "in
 rieseguito quando ci sono. FLAME 2023 di D1 per ogni cella con ``eval/flame/embeddings.npz``.
 Gruppi delle famiglie: ``nocrop`` (fact_paired.rows_for), ``nocrop_down8k`` / ``nocrop_altre`` (righe nocrop con
 down8k su almeno un lato / le altre, stesse repliche: descrittive), ``all_cross``, ``crop``, ``nocrop_all`` (solo per il
-crollo). Effetti: E_F, E_P, I e semplici (eval_ablation.effects_of) con A-D; ``Bp-A``, ``Bp-B``, ``Ap-A``; sugli insiemi
+crollo); ``down8k_meno_altre`` = effetto sulle righe con down8k meno effetto sulle altre, replica per replica.
+Effetti: E_F, E_P, I e semplici (eval_ablation.effects_of) con A-D; ``Bp-A``, ``Bp-B``, ``Ap-A``; sugli insiemi
 FLAME ogni cella contro A e D - C. Soglia per (insieme, gruppo, GT, distanza) = max(soglia della tabella, 2.5 x m x
 |rho_A' - rho_A| / sqrt(2)), m = 1 (principale), sqrt(2) (semplice e contrasti), 2 (interazione).
 Uscite in ``ablation_2x2/em1`` (``--out``): spearman.csv, effects.csv, readings.json, controls.json, results.md, reps.npz.
@@ -246,7 +247,10 @@ def summarize(V: dict) -> tuple[list, list, dict]:
                 rho[(view, "crollo", gt, dist, x)] = v
             for k, v in contrasts(R, False).items():
                 E[(view, "crollo", gt, dist, k)] = v
-    for g in GROUPS + ("crollo",):           # medie sulle famiglie (stime indipendenti, replica per replica)
+    for (st, g, gt, dist, k), v in list(E.items()):   # down8k contro le altre righe nocrop (stesse repliche)
+        if g == "nocrop_down8k" and (st, "nocrop_altre", gt, dist, k) in E:
+            E[(st, "down8k_meno_altre", gt, dist, k)] = v - E[(st, "nocrop_altre", gt, dist, k)]
+    for g in GROUPS + ("down8k_meno_altre", "crollo"):   # medie sulle famiglie (stime indipendenti, replica per replica)
         for gt in ("fr", "sr"):
             for dist in EA.DISTS:
                 for k in set(k for (_, gg, _, _, k) in E if gg == g):
@@ -376,9 +380,13 @@ def diversity(root: Path, cells: list) -> dict:
         if not all(u.get(p) and u.get(q) for p, q in pairs):
             return None
         r = float(np.mean([np.log(u[p] / u[q]) for p, q in pairs]))
-        return {"ln_ratio_unique_views": r, "beyond_ln_1.2": abs(r) > LN12,
-                "direction": "a favore dell'effetto (le celle trattate vedono piu' viste distinte: possibile sovrastima)"
-                if r > 0 else "contro l'effetto (le celle trattate vedono meno viste distinte: possibile sottostima)"}
+        if r > 0:
+            d = "a favore dell'effetto (le celle trattate vedono piu' viste distinte: possibile sovrastima)"
+        elif r < 0:
+            d = "contro l'effetto (le celle trattate vedono meno viste distinte: possibile sottostima)"
+        else:
+            d = "nessuna (stesse viste distinte per epoca)"
+        return {"ln_ratio_unique_views": r, "beyond_ln_1.2": abs(r) > LN12, "direction": d}
     return {"cells": out, "flags_ln_1.2": flags,
             "bias": {"E_F": bias((("B", "A"), ("D", "C"))), "E_P": bias((("C", "A"), ("D", "B"))),
                      "Bp-A": bias((("Bp", "A"),))}}
@@ -463,7 +471,7 @@ def results_md(out: Path, sp: list, ef: list, rd: dict, cells: dict, ctrl: dict,
                "| famiglia | gruppo | " + " | ".join(lab(x) for x in cols) + " | E_F | E_P | I | B' - A | A' - A |",
                "|---|---|" + "---|" * (len(cols) + 5)]
         for f in EA.FAMILIES + ("media famiglie",):
-            for g in GROUPS + ("crollo",):
+            for g in GROUPS + ("down8k_meno_altre", "crollo"):
                 if (f, g, gt, dist, "E_F") not in F:
                     continue
                 rho = [EA.fmt_rho(S[(f, g, gt, dist, x)]) if (f, g, gt, dist, x) in S else "-" for x in cols]
