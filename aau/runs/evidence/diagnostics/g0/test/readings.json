@@ -1,0 +1,76 @@
+{
+ "arms": {
+  "factorized_s1234": {
+   "families_up": [],
+   "famos_up": false,
+   "P": false,
+   "families_below": [],
+   "below": false,
+   "flame_up_descriptive": false,
+   "delta_sr": {
+    "facescape": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "hifi3d": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "faceverse_neutral": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "flame2023_s1": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "famos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "factorized_s2345": {
+   "families_up": [],
+   "famos_up": false,
+   "P": false,
+   "families_below": [],
+   "below": false,
+   "flame_up_descriptive": false,
+   "delta_sr": {
+    "facescape": [
+     -0.00649505052956556,
+     -0.030683061222349553,
+     0.018622052668520787
+    ],
+    "hifi3d": [
+     0.008827521450673337,
+     -0.025374988179633275,
+     0.0431172701773035
+    ],
+    "faceverse_neutral": [
+     -0.038469869993250305,
+     -0.0986930373222633,
+     0.023342134187070276
+    ],
+    "flame2023_s1": [
+     4.998266442035604e-05,
+     -0.017941855807619537,
+     0.01785766174380154
+    ],
+    "famos": [
+     0.010545355709161597,
+     -0.017030652538211653,
+     0.04101932871447861
+    ]
+   }
+  }
+ },
+ "verdict": "NO",
+ "below": false
+}

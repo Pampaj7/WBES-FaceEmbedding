@@ -1,0 +1,22 @@
+{
+ "definition": "PROTOCOL_G0.md sez. 2 e K3",
+ "set": "heldout",
+ "out": "/tmp/wbes_g0_1069973/meshes/heldout",
+ "n_meshes": 1500,
+ "K3": {
+  "reference": "datasets/V3_OPS_CACHE/heldout_calib/scale_table.npz",
+  "n_meshes": 1500,
+  "missing": [],
+  "n_missing": 0,
+  "not_in_reference": [],
+  "max_rel_diff": 0.0,
+  "failed": [],
+  "n_failed": 0,
+  "up60k_accepted": [],
+  "n_up60k_accepted": 0,
+  "verts_by_label": {},
+  "pass": true
+ },
+ "seconds": 381.9493670463562,
+ "host": "i256-a10-09.srv.aau.dk"
+}

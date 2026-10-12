@@ -1,0 +1,78 @@
+{
+ "definition": "PROTOCOL_G0.md sez. 2 e K3",
+ "set": "famos",
+ "out": "/tmp/wbes_g0_1069973/meshes/famos",
+ "n_meshes": 400,
+ "K3": {
+  "reference": "aau/runs/evidence/diagnostics/d3/famos/scale_table.npz",
+  "n_meshes": 400,
+  "missing": [],
+  "n_missing": 0,
+  "not_in_reference": [],
+  "max_rel_diff": 0.0,
+  "failed": [],
+  "n_failed": 0,
+  "up60k_accepted": [],
+  "n_up60k_accepted": 0,
+  "verts_by_label": {
+   "original": {
+    "got": [
+     6986,
+     6986
+    ],
+    "ref": [
+     6986,
+     6986
+    ],
+    "equal": true
+   },
+   "remesh": {
+    "got": [
+     4897,
+     4910
+    ],
+    "ref": [
+     4897,
+     4910
+    ],
+    "equal": true
+   },
+   "down8k": {
+    "got": [
+     2445,
+     2452
+    ],
+    "ref": [
+     2445,
+     2452
+    ],
+    "equal": true
+   },
+   "noisy": {
+    "got": [
+     6986,
+     6986
+    ],
+    "ref": [
+     6986,
+     6986
+    ],
+    "equal": true
+   },
+   "up60k": {
+    "got": [
+     17835,
+     17851
+    ],
+    "ref": [
+     17835,
+     17851
+    ],
+    "equal": true
+   }
+  },
+  "pass": true
+ },
+ "seconds": 5.392343521118164,
+ "host": "i256-a10-09.srv.aau.dk"
+}

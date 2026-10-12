@@ -1,0 +1,78 @@
+{
+ "definition": "PROTOCOL_G0.md sez. 2 e K3",
+ "set": "flame2023_s1",
+ "out": "/tmp/wbes_g0_1069973/meshes/flame2023_s1",
+ "n_meshes": 1000,
+ "K3": {
+  "reference": "aau/runs/evidence/diagnostics/d1/scale_table.npz",
+  "n_meshes": 1000,
+  "missing": [],
+  "n_missing": 0,
+  "not_in_reference": [],
+  "max_rel_diff": 0.0,
+  "failed": [],
+  "n_failed": 0,
+  "up60k_accepted": [],
+  "n_up60k_accepted": 0,
+  "verts_by_label": {
+   "original": {
+    "got": [
+     6986,
+     6986
+    ],
+    "ref": [
+     6986,
+     6986
+    ],
+    "equal": true
+   },
+   "remesh": {
+    "got": [
+     4901,
+     4912
+    ],
+    "ref": [
+     4901,
+     4912
+    ],
+    "equal": true
+   },
+   "down8k": {
+    "got": [
+     2442,
+     2452
+    ],
+    "ref": [
+     2442,
+     2452
+    ],
+    "equal": true
+   },
+   "noisy": {
+    "got": [
+     6986,
+     6986
+    ],
+    "ref": [
+     6986,
+     6986
+    ],
+    "equal": true
+   },
+   "up60k": {
+    "got": [
+     17857,
+     17879
+    ],
+    "ref": [
+     17857,
+     17879
+    ],
+    "equal": true
+   }
+  },
+  "pass": true
+ },
+ "seconds": 10.681398630142212,
+ "host": "i256-a10-09.srv.aau.dk"
+}
