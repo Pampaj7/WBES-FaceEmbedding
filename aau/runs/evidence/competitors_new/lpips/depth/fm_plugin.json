@@ -1,0 +1,21 @@
+{
+ "label": "LPIPS alex su render [profondita']",
+ "family": "percettivo su render",
+ "declared": true,
+ "method": "lpips",
+ "variant": "depth",
+ "readings": {
+  "fr": {
+   "label": "LPIPS alex su render [profondita'], mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "LPIPS alex su render [profondita'], a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

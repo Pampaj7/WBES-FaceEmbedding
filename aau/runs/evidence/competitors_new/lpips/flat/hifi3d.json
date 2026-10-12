@@ -1,0 +1,67 @@
+{
+ "view": "hifi3d",
+ "n_meshes": 600,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 119.12457268538166,
+ "cam_k": 1.3,
+ "L_mm": 91.63428668106282,
+ "cs_ref_mm": 66.65926974253658,
+ "device": "cpu",
+ "threads": 32,
+ "workers_render": 32,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "degenerate_triangle_fraction_by_topology": {
+  "crop": {
+   "median": 0.0,
+   "max": 0.00011249226615670173
+  },
+  "down8k": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "noisy": {
+   "median": 0.0,
+   "max": 5.352172982230786e-05
+  },
+  "original": {
+   "median": 0.0,
+   "max": 0.00010704345964461572
+  },
+  "remesh": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "up60k": {
+   "median": 0.024348564563569326,
+   "max": 0.027610920087824682
+  }
+ },
+ "render_s_per_mesh_median": 8.837553668301553,
+ "render_wall_s": 190.50950026512146,
+ "render_note": "s per mesh = 18 render (flat, smooth, depth x fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1070934",
+ "date": "2026-10-12 21:30:35",
+ "method": "lpips",
+ "variant": "flat",
+ "wall_s": 24.622885704040527,
+ "s_per_pair": 0.00013702217976650265,
+ "check_gram_vs_forward_max_abs": {
+  "fr|+0": 2.659454556575014e-08,
+  "fr|-30": 1.936743371233618e-08,
+  "fr|+30": 2.0940106204569986e-08,
+  "sr|+0": 2.8119557460293265e-08,
+  "sr|-30": 2.17846531369581e-08,
+  "sr|+30": 3.374427726132723e-08
+ },
+ "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"
+}

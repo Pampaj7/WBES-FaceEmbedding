@@ -1,0 +1,21 @@
+{
+ "label": "DreamSim ensemble su render [ombreggiato con normali per vertice]",
+ "family": "percettivo su render",
+ "declared": true,
+ "method": "dreamsim",
+ "variant": "smooth",
+ "readings": {
+  "fr": {
+   "label": "DreamSim ensemble su render [ombreggiato con normali per vertice], mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "DreamSim ensemble su render [ombreggiato con normali per vertice], a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

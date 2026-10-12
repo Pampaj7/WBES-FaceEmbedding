@@ -1,0 +1,21 @@
+{
+ "label": "Gromov-Wasserstein (POT) [euclid_128_cgw2]",
+ "family": "geometrico senza corrispondenza",
+ "declared": true,
+ "method": "gw",
+ "variant": "euclid_128_cgw2",
+ "readings": {
+  "fr": {
+   "label": "Gromov-Wasserstein (POT) [euclid_128_cgw2], mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "Gromov-Wasserstein (POT) [euclid_128_cgw2], a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

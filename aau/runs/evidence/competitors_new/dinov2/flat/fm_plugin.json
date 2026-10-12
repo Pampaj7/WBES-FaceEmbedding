@@ -1,0 +1,21 @@
+{
+ "label": "DINOv2 ViT-S/14 su render [ombreggiato per faccia] (non dichiarata)",
+ "family": "percettivo su render",
+ "declared": false,
+ "method": "dinov2",
+ "variant": "flat",
+ "readings": {
+  "fr": {
+   "label": "DINOv2 ViT-S/14 su render [ombreggiato per faccia] (non dichiarata), mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "DINOv2 ViT-S/14 su render [ombreggiato per faccia] (non dichiarata), a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "view": "faceverse_neutral",
+ "n_meshes": 600,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 110.2997643394149,
+ "cam_k": 1.3,
+ "L_mm": 84.8459725687807,
+ "cs_ref_mm": 64.20453072953245,
+ "device": "cpu",
+ "threads": 32,
+ "workers_render": 32,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "degenerate_triangle_fraction_by_topology": {
+  "crop": {
+   "median": 0.0,
+   "max": 1.9962072063080146e-05
+  },
+  "down8k": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "noisy": {
+   "median": 0.0,
+   "max": 1.7637306430561925e-05
+  },
+  "original": {
+   "median": 0.0,
+   "max": 1.7637306430561925e-05
+  },
+  "remesh": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "up60k": {
+   "median": 0.010716321300270705,
+   "max": 0.013910788027712364
+  }
+ },
+ "render_s_per_mesh_median": 15.750670392299071,
+ "render_wall_s": 353.281366109848,
+ "render_note": "s per mesh = 18 render (flat, smooth, depth x fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1070937",
+ "date": "2026-10-12 21:33:19",
+ "method": "dinov2",
+ "variant": "smooth",
+ "load_s": 5.358670949935913,
+ "embed_wall_s": 104.36520385742188,
+ "s_per_image": 0.028990334404839408,
+ "s_per_mesh_total": 5.4241654705287266,
+ "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+}

@@ -1,0 +1,21 @@
+{
+ "label": "DreamSim ensemble su render [profondita'] (non dichiarata)",
+ "family": "percettivo su render",
+ "declared": false,
+ "method": "dreamsim",
+ "variant": "depth",
+ "readings": {
+  "fr": {
+   "label": "DreamSim ensemble su render [profondita'] (non dichiarata), mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "DreamSim ensemble su render [profondita'] (non dichiarata), a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

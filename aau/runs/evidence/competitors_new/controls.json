@@ -3,34 +3,109 @@
   "seed": 757683,
   "rows": 148500,
   "rows_mask": 148500,
-  "rows_mask_crop": 49500,
-  "nan_rows_by_column": {
-   "gw_fr": 0,
-   "gw_sr": 0,
-   "dinov2_fr": 0,
-   "dinov2_sr": 0,
-   "clip_fr": 0,
-   "clip_sr": 0,
-   "lpips_fr": 0,
-   "lpips_sr": 0,
-   "dreamsim_fr": 0,
-   "dreamsim_sr": 0
+  "rows_by_group": {
+   "senza crop": 99000,
+   "all_cross": 148500,
+   "righe col crop": 49500,
+   "senza crop, senza noisy": 59400,
+   "con original": 39600,
+   "con remesh": 39600,
+   "con down8k": 39600,
+   "con up60k": 39600,
+   "con noisy": 39600
   },
-  "methods": {
-   "gw": {
-    "meshes": 600
+  "nan_rows_by_column": {
+   "gw/euclid_128_cgw2_fr": 0,
+   "gw/euclid_128_cgw2_sr": 0,
+   "gw/euclid_256_cg_fr": 0,
+   "gw/euclid_256_cg_sr": 0,
+   "gw/euclid_256_cgw2_fr": 0,
+   "gw/euclid_256_cgw2_sr": 0,
+   "dinov2/depth_fr": 0,
+   "dinov2/depth_sr": 0,
+   "dinov2/flat_fr": 0,
+   "dinov2/flat_sr": 0,
+   "dinov2/smooth_fr": 0,
+   "dinov2/smooth_sr": 0,
+   "clip/depth_fr": 0,
+   "clip/depth_sr": 0,
+   "clip/flat_fr": 0,
+   "clip/flat_sr": 0,
+   "clip/smooth_fr": 0,
+   "clip/smooth_sr": 0,
+   "lpips/depth_fr": 0,
+   "lpips/depth_sr": 0,
+   "lpips/flat_fr": 0,
+   "lpips/flat_sr": 0,
+   "lpips/smooth_fr": 0,
+   "lpips/smooth_sr": 0,
+   "dreamsim/depth_fr": 0,
+   "dreamsim/depth_sr": 0,
+   "dreamsim/flat_fr": 0,
+   "dreamsim/flat_sr": 0,
+   "dreamsim/smooth_fr": 0,
+   "dreamsim/smooth_sr": 0
+  },
+  "columns": {
+   "gw/euclid_128_cgw2": {
+    "meshes": 600,
+    "declared": true
    },
-   "dinov2": {
-    "meshes": 600
+   "gw/euclid_256_cg": {
+    "meshes": 600,
+    "declared": false
    },
-   "clip": {
-    "meshes": 600
+   "gw/euclid_256_cgw2": {
+    "meshes": 600,
+    "declared": false
    },
-   "lpips": {
-    "meshes": 600
+   "dinov2/depth": {
+    "meshes": 600,
+    "declared": true
    },
-   "dreamsim": {
-    "meshes": 600
+   "dinov2/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dinov2/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/smooth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/depth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "lpips/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/smooth": {
+    "meshes": 600,
+    "declared": true
    }
   }
  },
@@ -38,34 +113,109 @@
   "seed": 621096,
   "rows": 148500,
   "rows_mask": 148500,
-  "rows_mask_crop": 49500,
-  "nan_rows_by_column": {
-   "gw_fr": 0,
-   "gw_sr": 0,
-   "dinov2_fr": 0,
-   "dinov2_sr": 0,
-   "clip_fr": 0,
-   "clip_sr": 0,
-   "lpips_fr": 0,
-   "lpips_sr": 0,
-   "dreamsim_fr": 0,
-   "dreamsim_sr": 0
+  "rows_by_group": {
+   "senza crop": 99000,
+   "all_cross": 148500,
+   "righe col crop": 49500,
+   "senza crop, senza noisy": 59400,
+   "con original": 39600,
+   "con remesh": 39600,
+   "con down8k": 39600,
+   "con up60k": 39600,
+   "con noisy": 39600
   },
-  "methods": {
-   "gw": {
-    "meshes": 600
+  "nan_rows_by_column": {
+   "gw/euclid_128_cgw2_fr": 0,
+   "gw/euclid_128_cgw2_sr": 0,
+   "gw/euclid_256_cg_fr": 0,
+   "gw/euclid_256_cg_sr": 0,
+   "gw/euclid_256_cgw2_fr": 0,
+   "gw/euclid_256_cgw2_sr": 0,
+   "dinov2/depth_fr": 0,
+   "dinov2/depth_sr": 0,
+   "dinov2/flat_fr": 0,
+   "dinov2/flat_sr": 0,
+   "dinov2/smooth_fr": 0,
+   "dinov2/smooth_sr": 0,
+   "clip/depth_fr": 0,
+   "clip/depth_sr": 0,
+   "clip/flat_fr": 0,
+   "clip/flat_sr": 0,
+   "clip/smooth_fr": 0,
+   "clip/smooth_sr": 0,
+   "lpips/depth_fr": 0,
+   "lpips/depth_sr": 0,
+   "lpips/flat_fr": 0,
+   "lpips/flat_sr": 0,
+   "lpips/smooth_fr": 0,
+   "lpips/smooth_sr": 0,
+   "dreamsim/depth_fr": 0,
+   "dreamsim/depth_sr": 0,
+   "dreamsim/flat_fr": 0,
+   "dreamsim/flat_sr": 0,
+   "dreamsim/smooth_fr": 0,
+   "dreamsim/smooth_sr": 0
+  },
+  "columns": {
+   "gw/euclid_128_cgw2": {
+    "meshes": 600,
+    "declared": true
    },
-   "dinov2": {
-    "meshes": 600
+   "gw/euclid_256_cg": {
+    "meshes": 600,
+    "declared": false
    },
-   "clip": {
-    "meshes": 600
+   "gw/euclid_256_cgw2": {
+    "meshes": 600,
+    "declared": false
    },
-   "lpips": {
-    "meshes": 600
+   "dinov2/depth": {
+    "meshes": 600,
+    "declared": true
    },
-   "dreamsim": {
-    "meshes": 600
+   "dinov2/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dinov2/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/smooth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/depth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "lpips/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/smooth": {
+    "meshes": 600,
+    "declared": true
    }
   }
  },
@@ -73,34 +223,109 @@
   "seed": 566363,
   "rows": 148500,
   "rows_mask": 148500,
-  "rows_mask_crop": 49500,
-  "nan_rows_by_column": {
-   "gw_fr": 0,
-   "gw_sr": 0,
-   "dinov2_fr": 0,
-   "dinov2_sr": 0,
-   "clip_fr": 0,
-   "clip_sr": 0,
-   "lpips_fr": 0,
-   "lpips_sr": 0,
-   "dreamsim_fr": 0,
-   "dreamsim_sr": 0
+  "rows_by_group": {
+   "senza crop": 99000,
+   "all_cross": 148500,
+   "righe col crop": 49500,
+   "senza crop, senza noisy": 59400,
+   "con original": 39600,
+   "con remesh": 39600,
+   "con down8k": 39600,
+   "con up60k": 39600,
+   "con noisy": 39600
   },
-  "methods": {
-   "gw": {
-    "meshes": 600
+  "nan_rows_by_column": {
+   "gw/euclid_128_cgw2_fr": 0,
+   "gw/euclid_128_cgw2_sr": 0,
+   "gw/euclid_256_cg_fr": 0,
+   "gw/euclid_256_cg_sr": 0,
+   "gw/euclid_256_cgw2_fr": 0,
+   "gw/euclid_256_cgw2_sr": 0,
+   "dinov2/depth_fr": 0,
+   "dinov2/depth_sr": 0,
+   "dinov2/flat_fr": 0,
+   "dinov2/flat_sr": 0,
+   "dinov2/smooth_fr": 0,
+   "dinov2/smooth_sr": 0,
+   "clip/depth_fr": 0,
+   "clip/depth_sr": 0,
+   "clip/flat_fr": 0,
+   "clip/flat_sr": 0,
+   "clip/smooth_fr": 0,
+   "clip/smooth_sr": 0,
+   "lpips/depth_fr": 0,
+   "lpips/depth_sr": 0,
+   "lpips/flat_fr": 0,
+   "lpips/flat_sr": 0,
+   "lpips/smooth_fr": 0,
+   "lpips/smooth_sr": 0,
+   "dreamsim/depth_fr": 0,
+   "dreamsim/depth_sr": 0,
+   "dreamsim/flat_fr": 0,
+   "dreamsim/flat_sr": 0,
+   "dreamsim/smooth_fr": 0,
+   "dreamsim/smooth_sr": 0
+  },
+  "columns": {
+   "gw/euclid_128_cgw2": {
+    "meshes": 600,
+    "declared": true
    },
-   "dinov2": {
-    "meshes": 600
+   "gw/euclid_256_cg": {
+    "meshes": 600,
+    "declared": false
    },
-   "clip": {
-    "meshes": 600
+   "gw/euclid_256_cgw2": {
+    "meshes": 600,
+    "declared": false
    },
-   "lpips": {
-    "meshes": 600
+   "dinov2/depth": {
+    "meshes": 600,
+    "declared": true
    },
-   "dreamsim": {
-    "meshes": 600
+   "dinov2/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dinov2/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/smooth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/depth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "lpips/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/smooth": {
+    "meshes": 600,
+    "declared": true
    }
   }
  },
@@ -108,34 +333,109 @@
   "seed": 566363,
   "rows": 148500,
   "rows_mask": 148500,
-  "rows_mask_crop": 49500,
-  "nan_rows_by_column": {
-   "gw_fr": 0,
-   "gw_sr": 0,
-   "dinov2_fr": 0,
-   "dinov2_sr": 0,
-   "clip_fr": 0,
-   "clip_sr": 0,
-   "lpips_fr": 0,
-   "lpips_sr": 0,
-   "dreamsim_fr": 0,
-   "dreamsim_sr": 0
+  "rows_by_group": {
+   "senza crop": 99000,
+   "all_cross": 148500,
+   "righe col crop": 49500,
+   "senza crop, senza noisy": 59400,
+   "con original": 39600,
+   "con remesh": 39600,
+   "con down8k": 39600,
+   "con up60k": 39600,
+   "con noisy": 39600
   },
-  "methods": {
-   "gw": {
-    "meshes": 600
+  "nan_rows_by_column": {
+   "gw/euclid_128_cgw2_fr": 0,
+   "gw/euclid_128_cgw2_sr": 0,
+   "gw/euclid_256_cg_fr": 0,
+   "gw/euclid_256_cg_sr": 0,
+   "gw/euclid_256_cgw2_fr": 0,
+   "gw/euclid_256_cgw2_sr": 0,
+   "dinov2/depth_fr": 0,
+   "dinov2/depth_sr": 0,
+   "dinov2/flat_fr": 0,
+   "dinov2/flat_sr": 0,
+   "dinov2/smooth_fr": 0,
+   "dinov2/smooth_sr": 0,
+   "clip/depth_fr": 0,
+   "clip/depth_sr": 0,
+   "clip/flat_fr": 0,
+   "clip/flat_sr": 0,
+   "clip/smooth_fr": 0,
+   "clip/smooth_sr": 0,
+   "lpips/depth_fr": 0,
+   "lpips/depth_sr": 0,
+   "lpips/flat_fr": 0,
+   "lpips/flat_sr": 0,
+   "lpips/smooth_fr": 0,
+   "lpips/smooth_sr": 0,
+   "dreamsim/depth_fr": 0,
+   "dreamsim/depth_sr": 0,
+   "dreamsim/flat_fr": 0,
+   "dreamsim/flat_sr": 0,
+   "dreamsim/smooth_fr": 0,
+   "dreamsim/smooth_sr": 0
+  },
+  "columns": {
+   "gw/euclid_128_cgw2": {
+    "meshes": 600,
+    "declared": true
    },
-   "dinov2": {
-    "meshes": 600
+   "gw/euclid_256_cg": {
+    "meshes": 600,
+    "declared": false
    },
-   "clip": {
-    "meshes": 600
+   "gw/euclid_256_cgw2": {
+    "meshes": 600,
+    "declared": false
    },
-   "lpips": {
-    "meshes": 600
+   "dinov2/depth": {
+    "meshes": 600,
+    "declared": true
    },
-   "dreamsim": {
-    "meshes": 600
+   "dinov2/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dinov2/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "clip/smooth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/depth": {
+    "meshes": 600,
+    "declared": true
+   },
+   "lpips/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "lpips/smooth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/depth": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/flat": {
+    "meshes": 600,
+    "declared": false
+   },
+   "dreamsim/smooth": {
+    "meshes": 600,
+    "declared": true
    }
   }
  },
@@ -143,38 +443,103 @@
   "seed": 1234,
   "rows": 105,
   "rows_mask": 105,
-  "methods": {
-   "gw": {
-    "meshes": 15
+  "columns": {
+   "gw/euclid_128_cgw2": {
+    "meshes": 15,
+    "declared": true
    },
-   "dinov2": {
-    "meshes": 15
+   "gw/euclid_256_cg": {
+    "meshes": 15,
+    "declared": false
    },
-   "clip": {
-    "meshes": 15
+   "gw/euclid_256_cgw2": {
+    "meshes": 15,
+    "declared": false
    },
-   "lpips": {
-    "meshes": 15
+   "dinov2/depth": {
+    "meshes": 15,
+    "declared": true
    },
-   "dreamsim": {
-    "meshes": 15
+   "dinov2/flat": {
+    "meshes": 15,
+    "declared": false
+   },
+   "dinov2/smooth": {
+    "meshes": 15,
+    "declared": false
+   },
+   "clip/depth": {
+    "meshes": 15,
+    "declared": false
+   },
+   "clip/flat": {
+    "meshes": 15,
+    "declared": false
+   },
+   "clip/smooth": {
+    "meshes": 15,
+    "declared": true
+   },
+   "lpips/depth": {
+    "meshes": 15,
+    "declared": true
+   },
+   "lpips/flat": {
+    "meshes": 15,
+    "declared": false
+   },
+   "lpips/smooth": {
+    "meshes": 15,
+    "declared": false
+   },
+   "dreamsim/depth": {
+    "meshes": 15,
+    "declared": false
+   },
+   "dreamsim/flat": {
+    "meshes": 15,
+    "declared": false
+   },
+   "dreamsim/smooth": {
+    "meshes": 15,
+    "declared": true
    }
   },
   "nan_rows_by_column": {
-   "gw_fr": 0,
-   "gw_sr": 0,
-   "dinov2_fr": 0,
-   "dinov2_sr": 0,
-   "clip_fr": 0,
-   "clip_sr": 0,
-   "lpips_fr": 0,
-   "lpips_sr": 0,
-   "dreamsim_fr": 0,
-   "dreamsim_sr": 0
+   "gw/euclid_128_cgw2_fr": 0,
+   "gw/euclid_128_cgw2_sr": 0,
+   "gw/euclid_256_cg_fr": 0,
+   "gw/euclid_256_cg_sr": 0,
+   "gw/euclid_256_cgw2_fr": 0,
+   "gw/euclid_256_cgw2_sr": 0,
+   "dinov2/depth_fr": 0,
+   "dinov2/depth_sr": 0,
+   "dinov2/flat_fr": 0,
+   "dinov2/flat_sr": 0,
+   "dinov2/smooth_fr": 0,
+   "dinov2/smooth_sr": 0,
+   "clip/depth_fr": 0,
+   "clip/depth_sr": 0,
+   "clip/flat_fr": 0,
+   "clip/flat_sr": 0,
+   "clip/smooth_fr": 0,
+   "clip/smooth_sr": 0,
+   "lpips/depth_fr": 0,
+   "lpips/depth_sr": 0,
+   "lpips/flat_fr": 0,
+   "lpips/flat_sr": 0,
+   "lpips/smooth_fr": 0,
+   "lpips/smooth_sr": 0,
+   "dreamsim/depth_fr": 0,
+   "dreamsim/depth_sr": 0,
+   "dreamsim/flat_fr": 0,
+   "dreamsim/flat_sr": 0,
+   "dreamsim/smooth_fr": 0,
+   "dreamsim/smooth_sr": 0
   }
  },
- "wall_s": 200.2144901752472,
- "host": "a256-t4-04.srv.aau.dk",
- "job": "1070649",
- "date": "2026-10-12 20:01:24"
+ "wall_s": 404.8147323131561,
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1070939",
+ "date": "2026-10-12 22:07:16"
 }

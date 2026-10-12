@@ -1,0 +1,21 @@
+{
+ "label": "CLIP ViT-B/32 su render [ombreggiato con normali per vertice]",
+ "family": "percettivo su render",
+ "declared": true,
+ "method": "clip",
+ "variant": "smooth",
+ "readings": {
+  "fr": {
+   "label": "CLIP ViT-B/32 su render [ombreggiato con normali per vertice], mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "CLIP ViT-B/32 su render [ombreggiato con normali per vertice], a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

@@ -1,0 +1,21 @@
+{
+ "label": "LPIPS alex su render [ombreggiato con normali per vertice] (non dichiarata)",
+ "family": "percettivo su render",
+ "declared": false,
+ "method": "lpips",
+ "variant": "smooth",
+ "readings": {
+  "fr": {
+   "label": "LPIPS alex su render [ombreggiato con normali per vertice] (non dichiarata), mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "LPIPS alex su render [ombreggiato con normali per vertice] (non dichiarata), a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

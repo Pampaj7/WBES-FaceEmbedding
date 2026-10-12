@@ -1,0 +1,21 @@
+{
+ "label": "CLIP ViT-B/32 su render [profondita'] (non dichiarata)",
+ "family": "percettivo su render",
+ "declared": false,
+ "method": "clip",
+ "variant": "depth",
+ "readings": {
+  "fr": {
+   "label": "CLIP ViT-B/32 su render [profondita'] (non dichiarata), mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "CLIP ViT-B/32 su render [profondita'] (non dichiarata), a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

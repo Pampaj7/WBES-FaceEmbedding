@@ -1,0 +1,61 @@
+{
+ "view": "hifi3d",
+ "n_meshes": 600,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 119.12457268538166,
+ "cam_k": 1.3,
+ "L_mm": 91.63428668106282,
+ "cs_ref_mm": 66.65926974253658,
+ "device": "cpu",
+ "threads": 32,
+ "workers_render": 32,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "degenerate_triangle_fraction_by_topology": {
+  "crop": {
+   "median": 0.0,
+   "max": 0.00011249226615670173
+  },
+  "down8k": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "noisy": {
+   "median": 0.0,
+   "max": 5.352172982230786e-05
+  },
+  "original": {
+   "median": 0.0,
+   "max": 0.00010704345964461572
+  },
+  "remesh": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "up60k": {
+   "median": 0.024348564563569326,
+   "max": 0.027610920087824682
+  }
+ },
+ "render_s_per_mesh_median": 8.837553668301553,
+ "render_wall_s": 190.50950026512146,
+ "render_note": "s per mesh = 18 render (flat, smooth, depth x fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1070934",
+ "date": "2026-10-12 21:30:35",
+ "method": "clip",
+ "variant": "flat",
+ "load_s": 3.303213357925415,
+ "embed_wall_s": 87.37050580978394,
+ "s_per_image": 0.024269584947162203,
+ "s_per_mesh_total": 3.0914687324501573,
+ "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+}

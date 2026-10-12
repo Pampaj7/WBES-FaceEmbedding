@@ -24,29 +24,30 @@ Le scelte si fanno sui 12 soggetti NON valutati per vista del pilota, con la lor
 
 ## Formato delle uscite
 
-Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim` e vista `v` in `hifi3d`, `facescape`, `faceverse`
-(con espressioni), `faceverse_neutral`, `famos` (TEST, le 15 scansioni di galleria):
+Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim`, variante `q` (GW: `euclid_128_cgw2` dichiarata,
+`euclid_256_cgw2`, `euclid_256_cg` = giro 1; percettivi: `flat`, `smooth`, `depth`) e vista `v` in `hifi3d`,
+`facescape`, `faceverse` (con espressioni), `faceverse_neutral`, `famos` (TEST, le 15 scansioni di galleria):
 
-- `m/v.npz` (fuori da git): `subjects`, `topologies`, `paths` (n mesh, nell'ordine di `blmm.subjects(v)` x
+- `m/q/v.npz` (fuori da git): `subjects`, `topologies`, `paths` (n mesh, nell'ordine di `blmm.subjects(v)` x
   `blmm.TOPOLOGIES`, crop compreso; FaMoS: `bp.meshes("famos")`, topologia `scan_gallery`), `D_fr`, `D_sr` (n x n,
   simmetriche, diagonale 0, NaN dove la distanza non e' calcolata), `cs` (centroid size robusta, mm). Percettivi anche
   `E_fr`, `E_sr` (n, 3 viste, d: embedding L2 per vista). Le matrici GW hanno valori solo sulle coppie di
   `gp_common.pairs` (soggetti diversi e topologie diverse; FaMoS: soggetti diversi), le percettive su tutte.
-- `m/pairs_v.csv` (fuori da git per la regola `pairs_*.csv`): una riga per coppia non ordinata di `gp_common.pairs`
-  con `subject_a, topology_a, subject_b, topology_b, d_fr, d_sr`. Sono le 148.500 coppie di all_cross per vista (crop
-  compreso) e le 105 di FaMoS. Le distanze sono simmetriche: la riga (a, b) e la riga (b, a) di all_cross leggono la
-  stessa cella, quindi per unirle alla matrice: `M[pos[(subject_a, topology_a)], pos[(subject_b, topology_b)]]` sulle
-  chiavi di `zes.Index(blmm.subjects(v))` (come `blmm_eval.add_columns`).
-- `m/v.json`: configurazione, tempi, controlli (mesh fallite, mesh fuori quadro, controllo LPIPS Gram contro forward).
-- `m/fm_plugin.json`: etichetta, famiglia e letture (`fr` -> GT FR, `sr` -> GT SR) per `aau/full_matrix/fm_eval.py`, che
-  legge queste cartelle come plug-in (provato: 148.500 / 148.500 righe di all_cross finite per vista, 105 / 105 su FaMoS).
-  GW e' NaN sulle righe "stessa topologia" della matrice unificata (calcolate solo le coppie di all_cross, come
-  richiesto): `fm_eval.py` lo mette in un passo a parte. Aggiungerle costa circa 29.700 coppie per vista, ~9 ore-core.
-- Intermedi di GW (misure, distanze del pilota, parti) in `aau/runs/gw_percettivi/` (fuori da git e fuori dalle cartelle
-  dei plug-in).
-- Colonne nella valutazione: `<m>_fr` (render o matrici in mm: confronto con GT FR) e `<m>_sr` (mesh a CS_ref: con GT
-  SR). `spearman.csv`: `domain, group, gt, kind, column, method, mode, point, ci_low, ci_high, n_boot, n_rows, seed`
-  (`kind`: `rho` con GT FR e SR, `partial` dato l'oracolo, `q20` quintile basso: `fact_paired._rep`).
+- `m/q/pairs_v.csv` (fuori da git per la regola `pairs_*.csv`): una riga per coppia non ordinata di `gp_common.pairs`
+  con `subject_a, topology_a, subject_b, topology_b, d_fr, d_sr`: le 148.500 coppie di all_cross per vista (crop
+  compreso) e le 105 di FaMoS. Distanze simmetriche: la riga (a, b) e la (b, a) di all_cross leggono la stessa cella.
+- `m/q/v.json`: configurazione, tempi, controlli (mesh fallite, fuori quadro, triangoli degeneri, LPIPS Gram/forward).
+- `m/q/fm_plugin.json`: marca la cartella come plug-in di `aau/full_matrix/fm_eval.py`, con etichetta, famiglia,
+  letture (`fr` -> GT FR, `sr` -> GT SR) e `declared` (true solo per la variante scelta dalla regola del pilota; le altre
+  hanno `false` e "(non dichiarata)" nell'etichetta). Provato con `fm_eval.plugin_columns`: 15 plug-in, 148.500 /
+  148.500 righe di all_cross finite per vista. GW e' NaN sulle righe "stessa topologia" della matrice unificata (non
+  richieste; ~29.700 coppie per vista, a n = 128 con partenza W2 meno di un'ora-core).
+- Pilota e intermedi (misure GW, distanze dei piloti, parti, render di controllo) in `aau/runs/gw_percettivi/`, fuori da
+  git e fuori da `competitors_new`. In `competitors_new` dei piloti restano solo `gw/pilot_choice.json`,
+  `gw/pilot_scores.csv`, `percettivi/pilot_choice.json`, `percettivi/pilot_scores.csv` (nessun npz).
+- `spearman.csv`: `domain, group, gt, kind, column, method, variant, declared, mode, point, ci_low, ci_high, n_boot,
+  n_rows, seed` (`kind`: `rho` con GT FR e SR, `partial` dato l'oracolo, `q20` quintile basso: `fact_paired._rep`;
+  `group`: senza crop, all_cross, righe col crop, senza crop senza noisy, `con <t>`).
 
 ## Scelte
 
@@ -57,13 +58,18 @@ Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim` e vista `v` in `hi
   original di un soggetto NON valutato, e punta del naso (z massima) sul piano mediano.
 - **GW**: misura = FPS sui vertici + pesi di Voronoi d'area (densita' dei vertici indifferente), matrici euclidee o
   geodetiche (metodo del calore), solutore POT; configurazione scelta sul pilota (`gw/pilot_choice.json`,
-  `gw/pilot_scores.csv`), con 12 soggetti NON valutati per vista e la loro GT, mai quella dei valutati.
-- **Percettivi**: renderer e modelli delle baseline percettive gia' nel repo (`perceptual_matrix.py`), camera unica per
-  dominio in mm (semilato 1,3 L_d), 3 viste (yaw 0, +-30), nessun iperparametro scelto sui dati.
+  `gw/pilot_scores.csv`), con 12 soggetti NON valutati per vista e la loro GT, mai quella dei valutati. **Partenza del
+  CG dichiarata (`cgw2`): G0 = accoppiamento W2 fra i campioni nel frame canonico**, cioe' la stessa posa canonica che
+  usano tutti gli altri metodi; il valore resta un GW (stesso funzionale, minimo locale da una partenza migliore), ma
+  non e' piu' "senza allineamento" in senso stretto: la partenza usa la posa dei dati.
+- **Percettivi**: modelli delle baseline percettive gia' nel repo (`perceptual_matrix.py`), renderer del repo copiato
+  in `gp_percettivi.render` con tre colorazioni (per faccia, normali per vertice, profondita'), camera unica per
+  dominio in mm (semilato 1,3 L_d), 3 viste (yaw 0, +-30); variante dichiarata scelta sul pilota dei NON valutati.
 
 ## Limiti dichiarati
 
-- GW e' invariante alle isometrie, compresa la RIFLESSIONE: un volto e il suo specchio hanno distanza 0.
+- GW e' invariante alle isometrie, compresa la RIFLESSIONE: un volto e il suo specchio hanno distanza 0 (la partenza W2
+  sceglie di fatto il minimo locale nell'orientamento dei dati, ma il funzionale resta cieco allo specchio).
 - Sul crop GW confronta insiemi diversi della superficie: misura la differenza di supporto, non solo d'identita'.
 - I percettivi sono ciechi alla taglia per costruzione salvo il render in scala metrica: la colonna `_fr` (camera in
   mm) la vede, la `_sr` no.
@@ -71,45 +77,61 @@ Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim` e vista `v` in `hi
 ## Pilota di GW (`gw/pilot_choice.json`, `gw/pilot_scores.csv`)
 
 12 soggetti NON valutati per vista (`blmm.template_subjects`), 6 coppie ordinate di topologie per coppia di soggetti
-(`gp_gw.pilot_pairs`, crop compreso), 1.584 coppie in tutto, GT FR / SR di quei soggetti. Punteggio = media sulle 4
-viste di (rho(mm, GT FR) + rho(CS_ref, GT SR)) / 2. Budget fissato prima dei punteggi: mediana <= 1 s per soluzione
-(un thread), perche' la valutazione sono 1,19 milioni di soluzioni. Griglia fissata dai tempi misurati prima (job 1070585,
-1070589): n = 512 fuori budget (CG 3-6 s per soluzione), entropico fuori budget a ogni n (2-18 s), nel pilota solo come
-confronto descrittivo.
+(`gp_gw.pilot_pairs`, crop compreso), 1.584 coppie, GT FR / SR di quei soggetti. Punteggio = media sulle 4 viste di
+(rho(mm, GT FR) + rho(CS_ref, GT SR)) / 2; budget fissato prima: mediana <= 1 s per soluzione (un thread). Giro 1: la
+griglia senza `cgw2` / `cgmin` aveva scelto `euclid|256|cg`; giro 2: griglia estesa, stessa regola.
 
-| configurazione | punteggio | s per soluzione (mediana) |
+| configurazione | punteggio | s per soluzione |
 |---|---|---|
-| euclid, n = 128, CG | 0.154 | 0.056 |
-| **euclid, n = 256, CG (scelta)** | **0.183** | 0.460 |
-| geo, n = 128, CG | 0.060 | 0.054 |
-| geo, n = 256, CG | 0.061 | 0.443 |
-| euclid, n = 128, entropico eps 0.005 (fuori budget) | 0.231 | 6.8 |
-| euclid, n = 256, entropico eps 0.005 (fuori budget) | 0.234 | 13.6 |
-| geo, n = 128, entropico eps 0.005 (fuori budget) | 0.046 | 5.4 |
-| geo, n = 256, entropico eps 0.005 (fuori budget) | 0.029 | 11.0 |
+| euclid, 128, CG da p qᵀ | 0.154 | 0.056 |
+| **euclid, 128, CG da W2 (dichiarata: entro 0,01 dalla migliore e la piu' economica)** | **0.235** | 0.030 |
+| euclid, 128, minimo delle due partenze | 0.236 | 0.090 |
+| euclid, 256, CG da p qᵀ (giro 1) | 0.183 | 0.460 |
+| euclid, 256, CG da W2 | 0.236 | 0.166 |
+| euclid, 256, minimo delle due partenze | 0.232 | 0.652 |
+| geo, 128 / 256, CG da W2 | 0.114 / 0.102 | 0.026 / 0.151 |
+| geo, 128 / 256, CG da p qᵀ | 0.060 / 0.061 | ~0.05 / 0.44 |
+| euclid, 128 / 256, entropico eps 0.005 (fuori budget) | 0.231 / 0.234 | 6.8 / 13.6 |
 
-L'entropico euclideo batte il CG sul pilota di +0,05 (soprattutto su FaceVerse e sulle colonne SR): il CG parte
-dall'accoppiamento prodotto e si ferma in minimi locali peggiori. Non e' stato eseguito sulle viste valutate (circa
-4.500 ore-core su CPU con POT); e' il primo candidato se si vuole un GW piu' forte (serve un solutore entropico a
-lotti su GPU, fuori da POT). Le geodetiche (metodo del calore) sono peggiori delle euclidee in ogni configurazione.
+La partenza W2 chiude il distacco dall'entropico (+0,05 sul CG da p qᵀ) a un costo 15-50 volte piu' basso. Il
+minimo delle due partenze non aggiunge nulla. Sulle viste valutate c'e' anche `euclid_256_cgw2` (non dichiarata) e il
+`euclid_256_cg` del giro 1, per isolare l'effetto della partenza.
+
+## Pilota dei percettivi (`percettivi/pilot_choice.json`, `percettivi/pilot_scores.csv`)
+
+Stessi 12 soggetti NON valutati x 6 topologie per vista, tutte le coppie di soggetti e topologie diversi (crop
+compreso), stesso punteggio; regola per metodo: il massimo, pari entro 0,01 -> ordine flat, smooth, depth.
+
+| metodo | flat | smooth | depth | dichiarata |
+|---|---|---|---|---|
+| LPIPS | 0.151 | 0.175 | **0.225** | depth |
+| DINOv2 | 0.062 | 0.080 | **0.143** | depth |
+| CLIP | 0.115 | **0.125** | 0.104 | smooth (flat a 0,010 03: appena fuori dal pari) |
+| DreamSim | 0.114 | **0.131** | 0.109 | smooth |
+
+Su HIFI3D da solo la profondita' e' la migliore per tutti e quattro i metodi; sulla media delle 4 viste e dei due modi
+CLIP e DreamSim preferiscono `smooth`. La regola vale cosi'.
 
 ## Controlli
 
 - Posa (`percettivi/posecheck_*.json`): angolo ICP mediano 2,1 (HIFI3D), 2,5 (FaceScape), 4,5 (FaceVerse con
-  espressioni), 4,0 (neutra), 3,6 gradi (FaMoS); massimo 13,0 gradi (FaceVerse con espressioni); naso a 1-3 mm dal piano
-  mediano, a meta' altezza. Nessuna mesh fuori quadro in nessuna vista e modo.
-- LPIPS in forma chiusa contro `lpips.LPIPS.forward` su 20 coppie per vista, modo e yaw: scarto massimo 5,3e-8.
-- Percorso `--spec` (dominio nuovo) provato su 3 soggetti valutati di HIFI3D con lo spec scritto a mano (frame di
-  `frames.json`, L e CS_ref di `params.json`, taglia ricalcolata, non dalla cache): GW FR identico (scarto 0), GW SR
-  scarto relativo 1,4e-7 (taglia ricalcolata contro cache 2,9e-8); percettivi scarto relativo <= 3e-3 (torch su CPU,
-  nodi e numero di thread diversi). Uscite della prova cancellate.
+  espressioni), 4,0 (neutra), 3,6 gradi (FaMoS); massimo 13,0 gradi; naso a 1-3 mm dal piano mediano. Nessuna mesh
+  fuori quadro in nessuna vista, modo e variante.
+- Renderer copiato (`gp_percettivi.render`): sulle original identico a `render_mesh` (scarto 0 su 4 mesh del pilota).
+  Triangoli degeneri: le up60k hanno schegge quasi collineari (HIFI3D pilota: 1.103 triangoli sotto 1e-4 mm², nessuno
+  fra 1e-4 e 1e-2 mm², area mediana 0,52 mm²); soglia area < 1e-3 x mediana, normale = quella per vertice. Pixel
+  "puntino scuro" sulle up60k da 76-126 a 24-86, pari alle original degli stessi soggetti (25-84). Frazione di
+  triangoli corretti sulle up60k valutate di HIFI3D: mediana 2,4%. La prima soglia (1e-6) ne prendeva solo un quarto:
+  job percettivi 1070850-1070859 annullati e rifatti.
+- LPIPS in forma chiusa contro `lpips.LPIPS.forward`: scarto massimo 5,3e-8.
+- Percorso `--spec` (giro 1): GW FR identico alla vista nota, SR 1,4e-7, percettivi <= 3e-3.
 - Valutazione: 148.500 / 148.500 righe per vista (49.500 col crop), 105 / 105 su FaMoS, nessuna distanza NaN.
 
 ## Job (12 ottobre 2026, solo CPU, partizione prioritized)
 
-venv 1070542, 1070561, 1070564 (gli ultimi due: correzioni dello sbatch e delle versioni di peft / transformers);
-posa 1070567-1070571; percettivi 1070576 (FaMoS), 1070582-1070584, 1070600 (HIFI3D, rilanciato: il 1070581 e' morto
-con un segmentation fault di torch su a256-t4-04 durante DINOv2, nessuna uscita scritta); GW: preparazione del pilota
-1070594-1070597, pilota 1070598 (38 min, 64 CPU), scelta 1070599, preparazione 1070613-1070617, distanze
-1070635-1070645 e 1070647 (circa 25 min per parte, 64 CPU), unione 1070637, 1070640, 1070643, 1070646, 1070648;
-valutazione 1070649.
+Giro 1: venv 1070542, 1070561, 1070564; posa 1070567-1070571; GW pilota 1070594-1070599, distanze `euclid_256_cg`
+1070613-1070648; valutazione 1070649. Giro 2: GW pilota W2 1070860 (90 s, 64 CPU), scelta 1070861; GW `euclid_128_cgw2`
+1070891, 1070896, 1070901, 1070906, 1070911 (circa 3 min per vista, 64 CPU), `euclid_256_cgw2` 1070893-1070913 (circa
+9 min per parte), unioni 1070862-1070866 (giro 1 nella cartella della variante) e 1070892-1070914; percettivi pilota
+1070929-1070932, scelta 1070933, valutati 1070934-1070938 (circa 50 min per vista, 32 CPU; tre varianti); valutazione
+1070939 (7 min, 64 CPU).

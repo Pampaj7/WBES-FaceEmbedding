@@ -59,7 +59,7 @@ CAM_K = 1.3                               # semilato del quadro = CAM_K x L_d (m
 FLIP = np.array([1.0, -1.0, -1.0])        # frame canonico (+y alto, volto verso +z) -> AXES di render_mesh
 EMBED = ("dinov2", "clip", "dreamsim")
 VARIANTS = ("flat", "smooth", "depth")    # colorazioni del render (``render``); la dichiarata si sceglie sul pilota
-DEGEN_REL = 1e-6                          # triangolo degenere: |normale di faccia| < DEGEN_REL x la mediana della mesh
+DEGEN_REL = 1e-3                          # triangolo degenere: area < DEGEN_REL x la mediana della mesh (le schegge delle up60k)
 N_LPIPS_CHECK = 20
 BATCH = 32
 _C: dict = {}

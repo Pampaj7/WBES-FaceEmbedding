@@ -1,0 +1,21 @@
+{
+ "label": "Gromov-Wasserstein (POT) [euclid_256_cg] (non dichiarata)",
+ "family": "geometrico senza corrispondenza",
+ "declared": false,
+ "method": "gw",
+ "variant": "euclid_256_cg",
+ "readings": {
+  "fr": {
+   "label": "Gromov-Wasserstein (POT) [euclid_256_cg] (non dichiarata), mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "Gromov-Wasserstein (POT) [euclid_256_cg] (non dichiarata), a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

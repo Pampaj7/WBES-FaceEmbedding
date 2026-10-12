@@ -333,7 +333,7 @@ def cost_rows() -> list[str]:
 
 
 def col_name(r) -> str:
-    return f"{LABEL[r.method]} [{r.variant}]" + (" **(dichiarata)**" if r.declared is True else "")
+    return f"{LABEL[r.method]} [{r.variant}]" + (" **(dichiarata)**" if bool(r.declared) else "")
 
 
 def write_results(P: pd.DataFrame) -> None:
