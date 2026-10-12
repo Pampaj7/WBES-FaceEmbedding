@@ -169,6 +169,9 @@ La congiunta ha in piu' i pool degli altri bersagli e FLAME 0-99: non e' lo stes
 - **Verdetto preregistrato: NON CONFERMATO** (EQ; anche la variante W). s1234 passa a k = 20, ma di poco: +0.060
   [+0.040, +0.079], 9 estrazioni su 10 >= +0.05 (minimo +0.050). s2345 non passa: +0.039 [+0.016, +0.064], 0 su 10
   (massimo +0.050). A k = 50 F vale in entrambi i semi (+0.090 / +0.066; W +0.103 / +0.081).
+  - **Come leggere k = 50.** 50 e' il k piu' piccolo della griglia per cui il criterio vale in entrambi i semi. La
+    soglia vera sta fra 20 e 50, valori non campionati. Il risultato vale per la media dei 4 bersagli, non per ognuno:
+    a k = 50 FaceVerse neutra s2345 vale +0.018 [-0.050, +0.088].
 - **Il guadagno dato dai soggetti del bersaglio e' reale in entrambi i semi gia' da k = 5.** Incremento su k = 0 (media
   dei 4): k = 5 +0.009 [+0.005, +0.013] / +0.009 [+0.005, +0.012]; k = 20 +0.037 [+0.029, +0.046] / +0.031 [+0.022,
   +0.041]. s2345 non passa per il livello di partenza: il suo LOGO vale +0.008, contro +0.023 per s1234.
@@ -191,6 +194,20 @@ La congiunta ha in piu' i pool degli altri bersagli e FLAME 0-99: non e' lo stes
   mostrato che a k = 0 estrapola peggio di 1e-5, e qui non c'e' una nuova CV con i dati del bersaglio. Gli embedding
   sono congelati. I bersagli sono campioni di 3DMM, non dati reali. c usa anche il blocco del bersaglio. Gli IC sono
   condizionati alle estrazioni e ai fit, e i soggetti di test sono 100 per bersaglio.
+  - **Dipendenza da lambda (POST HOC, dal critic di D5, RISERVE senza difetti nel codice).** Il critic ha rifittato
+    con lambda = 1e-5 a k = 0, 20, 50 (EQ, stessi r, stesse estrazioni, stesse righe e repliche); file in
+    `/home/create.aau.dk/ga41wf/.critic_tmp/d5lam/`, fuori dal repo; job 1070080 sul nodo i256-a10-10. Le sue teste
+    a 1e-6 coincidono con quelle salvate (scarto 0), e i numeri sotto sono ricalcolati dal coder col suo `ana.py` sul
+    suo `V.pkl` (job 1070085). Media dei 4, SR, s1234 / s2345, lambda 1e-5 contro 1e-6:
+    - k = 0: +0.033 / +0.020 contro +0.023 / +0.008;
+    - k = 20: +0.066 [+0.049, +0.083] / +0.047 [+0.028, +0.067] contro +0.060 / +0.039. s2345 resta sotto +0.05,
+      quindi il verdetto NON CONFERMATO regge anche a 1e-5;
+    - k = 50: nessuna differenza (+0.088 / +0.068 contro +0.090 / +0.066).
+  - **FaceVerse neutra s2345: con 1e-5 il deficit si dimezza circa.** k = 0 +0.008 contro -0.029; k = 20 +0.026
+    contro -0.014; k = 50 +0.049 [-0.012, +0.102] contro +0.018. L'IC continua a non escludere lo 0.
+  - **Avvertenza.** lambda = 1e-5 e' una scelta gia' informata dal test: viene dal LOGO del critic di D3, letto sui
+    bersagli. Per questo non sostituisce la configurazione preregistrata. Misura solo quanto conta lambda: a k <= 20
+    alza la media dei 4 di 0.006-0.012 (k = 0 +0.010 / +0.012, k = 20 +0.006 / +0.008), a k = 50 non la sposta.
 - **Riproducibilita'.** Valutazione rilanciata (job 1070043, stesso nodo) dopo due correzioni d'uscita: l'etichetta del
   seme di FLAME in `d5/controls.json` (diceva il seme di D1; i conteggi usati erano gia' quelli di `cross_half`, come
   conferma K0 = 0) e la "sd 0.000" (in realta' ~1e-17) nelle celle della media dei 4 a k = 0 e k = 200. `d5_delta.csv`,
