@@ -57,4 +57,14 @@ righe; `abar.py` e `abar.out`: contrasti contro la media dei due semi di A, Ā =
 
 ## Rumore all'epoca 90 contro 100 (punto 7)
 
-Esito in `epoch_noise/` (aggiunto quando i job finiscono).
+`epoch090_ema` (54.000 passi) di A e A' valutati come l'ultimo checkpoint (c propria: A 0.347, A' 0.333; job 1069967,
+1069968), stesse righe e repliche (`v3_work/stream/eval_ablation_epoch.py`, `epoch_noise/results.md`).
+- Righe senza crop, 3 famiglie x FR e SR x 2 semi: |e090 - e100| mediana 0.011, RMS 0.021, massimo 0.051.
+- **HIFI3D e FaceVerse: stabili** (|delta| <= 0.019).
+- **FaceScape: instabile.** A' sale di +0.043 (FR) e +0.051 (SR) fra e100 ed e090; A di +0.011. Il divario fra semi
+  A - A' su FaceScape SR passa da +0.041 a e100 a +0.001 a e090, su FR da +0.073 a +0.041. Sulle righe col crop A cambia
+  fino a -0.044 (FaceScape FR) e +0.028 (HIFI3D FR).
+- **Lettura.** L'ipotesi "con lr costante l'iterato finale oscilla di 0.03-0.07" vale su FaceScape (e sulle righe col
+  crop), non su HIFI3D e FaceVerse. Una parte della anomalia di A e A' su FaceScape (punto 4) e del sigma_run di 0.029
+  (punto 7) viene dal checkpoint scelto, non dal seme. Per il run principale serve una media dei pesi (SWA sugli ultimi
+  checkpoint o EMA piu' lunga) o un decadimento finale del lr. Limite: due checkpoint per seme, un confronto solo.
