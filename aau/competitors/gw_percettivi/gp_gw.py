@@ -28,7 +28,8 @@ configurazione (n, solutore, matrice) si sceglie sul pilota (``gp_eval.py pilot-
 vista, ``PILOT_TOPO_PAIRS`` coppie ordinate di topologie per coppia di soggetti, la loro GT, mai quella dei valutati)
 fra quelle con la mediana dei secondi per soluzione entro ``BUDGET_S`` (regola fissata PRIMA dei punteggi: le 1,19
 milioni di soluzioni della valutazione, 148.500 coppie x 4 viste + 105 di FaMoS x 2 modi, devono stare in ~330 ore-core),
-e si legge da ``gw/pilot_choice.json``. Griglia fissata dai tempi misurati prima del pilota (job 1070585, 1070589, un
+e si legge da ``gw/pilot_choice.json``. Intermedi (misure, distanze del pilota, parti) in ``aau/runs/gw_percettivi/``,
+fuori da ``competitors_new/`` (le cui sottocartelle con ``<vista>.npz`` sono plug-in di ``fm_eval.py``). Griglia fissata dai tempi misurati prima del pilota (job 1070585, 1070589, un
 thread, coppie del pilota di HIFI3D): CG a n = 512 da 3 a 6 s per soluzione, entropico da 2 a 18 s, CG a n = 256 da 0,2
 a 0,7 s: n = 512 e' fuori budget e non entra; l'entropico entra nel pilota come confronto descrittivo (fuori budget
 anche a n = 128). Invarianza: GW e' invariante alle isometrie, quindi
@@ -54,6 +55,7 @@ import numpy as np  # noqa: E402
 import gp_common as gc  # noqa: E402
 
 GW = gc.OUT / "gw"
+WORK = gc.AAU / "runs" / "gw_percettivi"             # intermedi (prep, pilota, parti): fuori dalle cartelle dei plug-in
 N_GRID = (128, 256)                                   # punti del sottocampionamento (pilota)
 N_MAX = max(N_GRID)
 SOLVERS = ("cg", "ent0.005")                          # entropico: epsilon sulle matrici / L_d
@@ -141,7 +143,7 @@ def _prep(task):
 
 
 def prep_path(vname: str) -> Path:
-    return GW / "prep" / f"{vname}.npz"
+    return WORK / "prep" / f"{vname}.npz"
 
 
 def run_prep(vname: str, spec: Path | None, workers: int, geo: bool) -> None:
@@ -288,7 +290,7 @@ def pilot_pairs(items: list) -> tuple[np.ndarray, np.ndarray]:
 def run_pilot(workers: int, configs: list) -> None:
     """Distanze del pilota (``pilot_pairs`` sui 12 soggetti NON valutati) in ogni configurazione."""
     for view in gc.PILOT_VIEWS:
-        out = GW / "pilot" / f"{view}.npz"
+        out = WORK / "pilot" / f"{view}.npz"
         if out.exists():
             print(f"[gp-gw] {out}: gia' presente, salto", flush=True)
             continue
@@ -308,7 +310,7 @@ def choice() -> dict:
 
 def run_view(vname: str, shard: int, nshards: int, workers: int) -> None:
     ch = choice()
-    out = GW / "parts" / f"{vname}_{shard}of{nshards}.npz"
+    out = WORK / "parts" / f"{vname}_{shard}of{nshards}.npz"
     if out.exists():
         print(f"[gp-gw] {out}: gia' presente, salto", flush=True)
         return
@@ -328,7 +330,7 @@ def run_merge(vname: str, spec: Path | None) -> None:
     v = gc.pilot_view(vname.removeprefix("pilot_")) if vname.startswith("pilot_") else gc.view(vname, spec)
     if [(s, t) for s, t, _ in v["items"]] != [(str(s), str(t)) for s, t in zip(P["subjects"], P["topologies"])]:
         raise SystemExit(f"{vname}: mesh della preparazione diverse dalla vista")
-    parts = sorted((GW / "parts").glob(f"{vname}_*of*.npz"))
+    parts = sorted((WORK / "parts").glob(f"{vname}_*of*.npz"))
     n = len(v["items"])
     D = {m: np.full((n, n), np.nan) for m in gc.MODES}
     secs, cfgs, seen = [], set(), 0

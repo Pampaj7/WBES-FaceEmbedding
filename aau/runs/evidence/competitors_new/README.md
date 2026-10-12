@@ -22,6 +22,12 @@ Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim` e vista `v` in `hi
   stessa cella, quindi per unirle alla matrice: `M[pos[(subject_a, topology_a)], pos[(subject_b, topology_b)]]` sulle
   chiavi di `zes.Index(blmm.subjects(v))` (come `blmm_eval.add_columns`).
 - `m/v.json`: configurazione, tempi, controlli (mesh fallite, mesh fuori quadro, controllo LPIPS Gram contro forward).
+- `m/fm_plugin.json`: etichetta, famiglia e letture (`fr` -> GT FR, `sr` -> GT SR) per `aau/full_matrix/fm_eval.py`, che
+  legge queste cartelle come plug-in (provato: 148.500 / 148.500 righe di all_cross finite per vista, 105 / 105 su FaMoS).
+  GW e' NaN sulle righe "stessa topologia" della matrice unificata (calcolate solo le coppie di all_cross, come
+  richiesto): `fm_eval.py` lo mette in un passo a parte. Aggiungerle costa circa 29.700 coppie per vista, ~9 ore-core.
+- Intermedi di GW (misure, distanze del pilota, parti) in `aau/runs/gw_percettivi/` (fuori da git e fuori dalle cartelle
+  dei plug-in).
 - Colonne nella valutazione: `<m>_fr` (render o matrici in mm: confronto con GT FR) e `<m>_sr` (mesh a CS_ref: con GT
   SR). `spearman.csv`: `domain, group, gt, kind, column, method, mode, point, ci_low, ci_high, n_boot, n_rows, seed`
   (`kind`: `rho` con GT FR e SR, `partial` dato l'oracolo, `q20` quintile basso: `fact_paired._rep`).

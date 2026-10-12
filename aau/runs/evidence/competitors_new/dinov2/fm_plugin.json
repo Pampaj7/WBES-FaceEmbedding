@@ -1,0 +1,18 @@
+{
+ "label": "DINOv2 ViT-S/14 su render",
+ "family": "percettivo su render",
+ "readings": {
+  "fr": {
+   "label": "DINOv2 ViT-S/14 su render, mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "DINOv2 ViT-S/14 su render, a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

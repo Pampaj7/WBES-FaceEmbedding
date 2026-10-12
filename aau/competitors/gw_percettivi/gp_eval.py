@@ -6,7 +6,7 @@
     v3_work/unified_gt/run.sh aau/competitors/gw_percettivi/gp_eval.py results                 (solo results.md)
     (gp.sbatch, passi pilot_eval e eval)
 
-``pilot-gw``: per ogni vista del pilota (``gp_common.PILOT_VIEWS``) le distanze di ``gw/pilot/<vista>.npz`` sulle coppie
+``pilot-gw``: per ogni vista del pilota (``gp_common.PILOT_VIEWS``) le distanze di ``gp_gw.WORK/pilot/<vista>.npz`` sulle coppie
 (``gp_gw.pilot_pairs``) dei 12 soggetti NON valutati (``gp_common.pilot_view``, controllato: nessuno fra i valutati) e la loro GT FR / SR
 (``datasets/CANONICAL_GT/eval/<set>_{fr,sr}.npz``: copre i 500 soggetti del pool, se ne leggono solo le righe del
 pilota). Punteggio di una configurazione = media sulle 4 viste di (rho(GW in mm, GT FR) + rho(GW a CS_ref, GT SR)) / 2,
@@ -38,9 +38,7 @@ import gp_common as gc
 import gp_gw
 
 GROUPS = ("senza crop", "all_cross", "righe col crop")
-LABEL = {"gw": "Gromov-Wasserstein (POT)", "dinov2": "DINOv2 ViT-S/14 su render", "clip": "CLIP ViT-B/32 su render",
-         "lpips": "LPIPS alex su render", "dreamsim": "DreamSim ensemble su render"}
-MODE_LABEL = {"fr": "mm (FR)", "sr": "a CS_ref (SR)"}
+LABEL, MODE_LABEL = gc.LABEL, gc.MODE_LABEL
 
 
 # ------------------------------------------------------------------------------------------ pilota
@@ -55,7 +53,7 @@ def pilot_gw() -> None:
     rows, cost = [], {}
     configs = None
     for view in gc.PILOT_VIEWS:
-        with np.load(gp_gw.GW / "pilot" / f"{view}.npz") as z:
+        with np.load(gp_gw.WORK / "pilot" / f"{view}.npz") as z:
             i, j, D, S = (np.asarray(z[k]) for k in ("pair_i", "pair_j", "D", "seconds"))
             subj, topo = np.asarray(z["subjects"]).astype(str), np.asarray(z["topologies"]).astype(str)
             cf = [str(c) for c in z["configs"]]

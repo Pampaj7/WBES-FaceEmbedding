@@ -52,6 +52,11 @@ PILOT_VIEWS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral")         
 PILOT_SUBJECTS = 12                       # primi soggetti NON valutati di blmm.template_subjects per vista
 MODES = ("fr", "sr")
 METHODS = ("gw", "dinov2", "clip", "lpips", "dreamsim")
+LABEL = {"gw": "Gromov-Wasserstein (POT)", "dinov2": "DINOv2 ViT-S/14 su render", "clip": "CLIP ViT-B/32 su render",
+         "lpips": "LPIPS alex su render", "dreamsim": "DreamSim ensemble su render"}
+MODE_LABEL = {"fr": "mm (FR)", "sr": "a CS_ref (SR)"}
+FAMILY = {"gw": "geometrico senza corrispondenza", "dinov2": "percettivo su render", "clip": "percettivo su render",
+          "lpips": "percettivo su render", "dreamsim": "percettivo su render"}
 
 
 # ------------------------------------------------------------------------------------------- viste
@@ -136,7 +141,7 @@ def out_npz(method: str, vname: str) -> Path:
 
 def write_view(method: str, v: dict, D: dict, extra: dict, info: dict) -> None:
     """``<metodo>/<vista>.npz`` (``subjects``, ``topologies``, ``D_fr``, ``D_sr`` simmetriche, NaN dove non
-    calcolate, + ``extra``), ``<metodo>/<vista>.json`` (``info``) e ``<metodo>/pairs_<vista>.csv`` (le coppie di
+    calcolate, + ``extra``), ``<metodo>/<vista>.json`` (``info``), ``<metodo>/fm_plugin.json`` e ``<metodo>/pairs_<vista>.csv`` (le coppie di
     ``pairs``: soggetto e topologia di a e b, d_fr, d_sr; fuori da git per la regola ``pairs_*.csv``)."""
     items = v["items"]
     subj = np.asarray([x for x, _, _ in items])
@@ -145,6 +150,7 @@ def write_view(method: str, v: dict, D: dict, extra: dict, info: dict) -> None:
                       paths=np.asarray([blmm.rel(p) for _, _, p in items]),
                       **{f"D_{m}": D[m] for m in MODES}, **extra)
     atomic_json(OUT / method / f"{v['name']}.json", info)
+    plugin_json(method)
     i, j = pairs(items)
     csv = OUT / method / f"pairs_{v['name']}.csv"
     tmp = csv.with_name(f".{csv.name}.{os.getpid()}.tmp")
@@ -153,6 +159,14 @@ def write_view(method: str, v: dict, D: dict, extra: dict, info: dict) -> None:
         for a, b, x, y in zip(i, j, D["fr"][i, j], D["sr"][i, j]):
             fh.write(f"{subj[a]},{topo[a]},{subj[b]},{topo[b]},{x:.9g},{y:.9g}\n")
     os.replace(tmp, csv)
+
+
+def plugin_json(method: str) -> None:
+    """``<metodo>/fm_plugin.json`` per ``aau/full_matrix/fm_eval.py``: etichetta, famiglia, letture ``fr`` -> GT FR e
+    ``sr`` -> GT SR."""
+    atomic_json(OUT / method / "fm_plugin.json", {
+        "label": LABEL[method], "family": FAMILY[method],
+        "readings": {m: {"label": f"{LABEL[method]}, {MODE_LABEL[m]}", "gt": [m]} for m in MODES}})
 
 
 def read_view(method: str, vname: str) -> dict:

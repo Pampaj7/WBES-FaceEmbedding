@@ -1,0 +1,18 @@
+{
+ "label": "LPIPS alex su render",
+ "family": "percettivo su render",
+ "readings": {
+  "fr": {
+   "label": "LPIPS alex su render, mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "LPIPS alex su render, a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

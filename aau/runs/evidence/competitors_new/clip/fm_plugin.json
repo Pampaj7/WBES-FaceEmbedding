@@ -1,0 +1,18 @@
+{
+ "label": "CLIP ViT-B/32 su render",
+ "family": "percettivo su render",
+ "readings": {
+  "fr": {
+   "label": "CLIP ViT-B/32 su render, mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "CLIP ViT-B/32 su render, a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}
