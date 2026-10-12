@@ -1,0 +1,166 @@
+{
+ "set": "bfm",
+ "expected": "none",
+ "score": {
+  "none": 3,
+  "x180": 0,
+  "y180": 0,
+  "z180": 0
+ },
+ "chosen": "none",
+ "subjects": {
+  "id0000": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.5028339625743967,
+     0.5325243466392642
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9827361971064347,
+     0.360276749645859
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.017263802893565227,
+     0.6397232503541409
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4971660374256032,
+     0.4674756533607357
+    ],
+    "convex": true
+   }
+  },
+  "id0009": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.4971025555389653,
+     0.49657957404663655
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9996887239455913,
+     0.48267146549006623
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.0003112760544086819,
+     0.5173285345099338
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.5028974444610347,
+     0.5034204259533634
+    ],
+    "convex": true
+   }
+  },
+  "id0013": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.5165830317942133,
+     0.5474719143312802
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.991561462410951,
+     0.35274143228700194
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.008438537589049014,
+     0.6472585677129981
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4834169682057866,
+     0.4525280856687198
+    ],
+    "convex": true
+   }
+  },
+  "id0016": {
+   "none": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.5023593068483929,
+     0.5627804372467582
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9834804877972921,
+     0.35463783097912305
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.016519512202707986,
+     0.6453621690208771
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4976406931516072,
+     0.4372195627532418
+    ],
+    "convex": true
+   }
+  }
+ },
+ "agrees": true
+}

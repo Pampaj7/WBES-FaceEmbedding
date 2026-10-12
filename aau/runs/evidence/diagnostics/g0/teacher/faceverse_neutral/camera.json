@@ -1,0 +1,17 @@
+{
+ "center": [
+  0.003430961267503001,
+  0.001543390841990152,
+  0.10800543665602004
+ ],
+ "scale": 2.0270435613995894,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "n_meshes": 600,
+ "base_rotation": "none",
+ "mode": "normals",
+ "view_dir": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/FACEVERSE_ZS/eval_view/npz"
+}

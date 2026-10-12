@@ -439,7 +439,45 @@ def readings(Dx: pd.DataFrame) -> dict:
 
 # ------------------------------------------------------------------------------------------------ markdown
 
-NOTES: list[str] = []          # note del coder, scritte DOPO i numeri (commento, non regole)
+NOTES = [               # note del coder, scritte DOPO i numeri (commento, non regole)
+    "- Verdetto preregistrato **NO**, e **SOTTO** in entrambi i semi: l'insegnante ordina le coppie peggio di d_P su "
+    "tutte le famiglie, con tutti gli IC sotto 0. Delta con SR (s1234 / s2345): FaceScape -0.399 / -0.405, HIFI3D -0.401 / "
+    "-0.393, FaceVerse neutra -0.167 / -0.206, FLAME -0.461 / -0.461, FaMoS TRAIN (reale) -0.444 / -0.433. Sta anche "
+    "sotto ICP mm (-0.129, -0.145, -0.217) e sotto B (da -0.216 a -0.506). E' l'esito atteso dal precedente dell'8 "
+    "ottobre (HIFI3D, GT maxabs: 0.242; qui con SR 0.220).",
+    "- **Non e' una pipeline rotta** (controllo di sanita' POST HOC, `g0_sanity.py`, `g0/sanity_posthoc.json`): sulle "
+    "stesse mesh l'insegnante riconosce le persone su ogni insieme, AUC stessa persona contro persone diverse da 0.969 "
+    "(FaceVerse neutra) a 0.9999 (FaMoS), rank-1 contro le original da 0.98 a 1.00, FLAME e FaMoS compresi. Le distanze "
+    "fra persone diverse stanno in una banda stretta e lontana da quelle della stessa persona (HIFI3D: mediana 0.595, IQR "
+    "0.544-0.643, contro 0.033 per la stessa persona; FaceScape 0.608, IQR 0.548-0.662): ArcFace separa le identita' ma "
+    "ordina male le persone diverse per somiglianza di forma, che e' cio' che lo Spearman con FR/SR misura. "
+    "Riconoscere non e' graduare (diario, 6 ottobre), ora con le GT FR/SR e su cinque famiglie.",
+    "- FR (descrittivo): da solo l'insegnante, cieco alla taglia, fa 0.13-0.34. La combinazione con la taglia del braccio "
+    "(c_T = 0.101 dai soli held-out) arriva a 0.61 su HIFI3D, 0.68 su FLAME, 0.63 su FaMoS, ma resta sotto d_F cal. in "
+    "ogni insieme e seme (da -0.116 a -0.315, IC sotto 0): quel FR viene in gran parte da S, non da d_T.",
+    "- Righe col crop (secondario): l'insegnante resta sotto d_P (da -0.105 a -0.324). L'unico delta positivo di G0 e' "
+    "insegnante - ICP mm sulle righe col crop di FaceScape, +0.077 [+0.021, +0.141]: e' ICP mm che crolla col crop, non "
+    "l'insegnante che migliora.",
+    "- Conseguenza (sez. 6, \"cosa cambierebbe\"): l'insegnante ArcFace-render non e' una leva per il benchmark FR/SR e "
+    "la distillazione verso di esso non ha appoggio; resta una baseline di riconoscimento. G0 non dice nulla su una "
+    "distillazione con obiettivo di riconoscimento, che e' un'altra domanda.",
+    "- Detector della calibrazione: fallisce su tutti i render noisy (come nel gate) e, oltre a noisy, su 497 render BFM "
+    "su 1.200, 120 FaceVerse, 6 FLAME: il crop di quegli insiemi e' calibrato su meno detection. Non ho verificato se un "
+    "altro crop cambi lo Spearman; con il riconoscimento intatto (BFM AUC 0.974) e margini da -0.17 a -0.46 non e' "
+    "plausibile che cambi la lettura.",
+    "- Costo: 0.71 s per mesh a un thread (render 0.28 s, ArcFace 0.43 s; up60k 1.06 s), su AMD EPYC 7302; una tantum "
+    "per insieme circa 130 s di calibrazione con 48 processi (detector su tutti i render ombreggiati) e 2-51 s di "
+    "camera. Per contesto, non rimisurati e da altri nodi: operatori dei bracci 4.1 s per mesh (campione di D4), "
+    "\"ArcFace migliore\" 0.57 s (`indomain_recog`).",
+    "- Deviazioni dal protocollo. (1) K3: le tabelle di scala non hanno il numero di vertici; ho confrontato per mesh "
+    "area grezza e maxabs (scarto relativo 0 su 2.900 mesh) e gli intervalli di vertici per etichetta contro `gen.json` "
+    "di D1 e D3 (uguali; per gli held-out non c'e' riferimento). (2) Il frame check usa il verdetto del detector piu' il "
+    "vertice piu' vicino alla camera nel terzo centrale del bbox; su HIFI3D x180 passa 2 soggetti su 4 (le altre "
+    "rotazioni 0); tutti gli 8 insiemi concordano con l'attesa. (3) Il costo e' misurato su un altro nodo (a256-t4-01) "
+    "rispetto al job dell'insegnante (i256-a10-09): |Z - teacher.npz| 4.2e-5. (4) K2 2.5e-4, entro 1e-3. (5) Aggiunto "
+    "dopo i numeri: il controllo di sanita'. (6) Restano 2 png di controllo per insieme in `g0/teacher/*/control`, fuori "
+    "da git; i render sono stati cancellati con /tmp.",
+]
 
 PILOT = [  # distill_pilot/summary.md (7 ottobre), riga di riferimento e insegnante; DESCRITTIVO, copiato com'e'
     "| dominio | studente, conv. BFM (riferimento) | studente, conv. ICT | insegnante, normal map 3 viste | "
@@ -576,7 +614,9 @@ def summary() -> None:
                                                 f"up60k accettate {v.get('n_up60k_accepted', 0)})" for k, v in C["K3"].items()) + ".",
            "- K4 embedding: " + ", ".join(f"{k} {v['n']}" for k, v in C["K4"].items()) + " mesh, norme entro "
            f"{max(v['max_abs_norm_minus_1'] for v in C['K4'].values()):.1e}.",
-           "- K5 (insegnante finto = d_P s1234, `g0_test.py`): vedi `g0/test/controls.json`.",
+           "- K5 (insegnante finto = d_P s1234, `g0_test.py`, `g0/test/controls.json`): " + (
+               lambda t: f"{t['K5']['pass']}, scarto {t['K5']['max_abs_diff']:.1e} su {len(t['K5']['cells'])} celle; "
+                         f"K1 del test {t['K1']['pass']}.")(json.loads((G0 / "test" / "controls.json").read_text())),
            f"- K6 c dei bracci ricalcolata come c_T: {C['c_T']['K6']['pass']} (" +
            ", ".join(f"{a} {C['c_T']['K6'][a]['c']:.4f} contro {C['c_T']['K6'][a]['c_median_csv']:.4f}" for a in ARMS) + ").",
            "- Frame check: " + ", ".join(f"{k} {v['chosen']} (attesa {v['expected']})" for k, v in C["frame_check"].items()) + ".",

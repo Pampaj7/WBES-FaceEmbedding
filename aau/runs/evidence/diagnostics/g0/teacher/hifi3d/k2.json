@@ -1,0 +1,7 @@
+{
+ "subjects_equal_gate": true,
+ "keys_in_gate": true,
+ "yaws_equal": true,
+ "max_abs_diff_E": 0.0002501439303159714,
+ "pass": true
+}

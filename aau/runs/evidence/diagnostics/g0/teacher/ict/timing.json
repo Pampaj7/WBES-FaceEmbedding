@@ -1,0 +1,53 @@
+{
+ "set": "ict",
+ "n_meshes": 500,
+ "workers": 48,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "host": "i256-a10-09.srv.aau.dk",
+ "camera_s": 2.8401572704315186,
+ "render_shaded_s": 4.423929452896118,
+ "calibration_s": 127.9301393032074,
+ "render_normals_s": 6.154991626739502,
+ "embed_s": 17.209490299224854,
+ "total_s": 158.80774760246277,
+ "K4": {
+  "n": 500,
+  "max_abs_norm_minus_1": 8.909993498562585e-08,
+  "finite": true
+ },
+ "detector": {
+  "original": {
+   "n": 300,
+   "n_failed": 0
+  },
+  "remesh": {
+   "n": 300,
+   "n_failed": 0
+  },
+  "down8k": {
+   "n": 300,
+   "n_failed": 0
+  },
+  "noisy": {
+   "n": 300,
+   "n_failed": 300
+  },
+  "up60k": {
+   "n": 300,
+   "n_failed": 0
+  },
+  "total": {
+   "n": 1500,
+   "n_failed": 300
+  }
+ },
+ "n_detected_by_yaw": {
+  "-030.00": 400,
+  "+000.00": 400,
+  "+030.00": 400
+ }
+}

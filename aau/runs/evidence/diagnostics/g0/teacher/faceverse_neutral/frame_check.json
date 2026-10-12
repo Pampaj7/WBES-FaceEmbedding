@@ -1,0 +1,166 @@
+{
+ "set": "faceverse_neutral",
+ "expected": "none",
+ "score": {
+  "none": 3,
+  "x180": 0,
+  "y180": 0,
+  "z180": 0
+ },
+ "chosen": "none",
+ "subjects": {
+  "id910001": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.5098302090547595,
+     0.5352238990672354
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.047009827245233775,
+     0.5374383777689077
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.9529901727547663,
+     0.46256162223109243
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": true,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.49016979094524044,
+     0.46477610093276456
+    ],
+    "convex": true
+   }
+  },
+  "id910004": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.503137215933755,
+     0.566702098630897
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9251736142853805,
+     0.5143234505963188
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.07482638571461955,
+     0.4856765494036812
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4968627840662449,
+     0.43329790136910307
+    ],
+    "convex": true
+   }
+  },
+  "id910018": {
+   "none": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.5378572727600398,
+     0.5269219655001667
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9811970513495255,
+     0.6912947067844557
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.01880294865047449,
+     0.3087052932155443
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4621427272399602,
+     0.4730780344998333
+    ],
+    "convex": true
+   }
+  },
+  "id910020": {
+   "none": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.5067740529477623,
+     0.5292718703951754
+    ],
+    "convex": true
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.922635989299991,
+     0.35518207244995603
+    ],
+    "convex": false
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.07736401070000902,
+     0.644817927550044
+    ],
+    "convex": false
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4932259470522377,
+     0.4707281296048246
+    ],
+    "convex": true
+   }
+  }
+ },
+ "agrees": true
+}
