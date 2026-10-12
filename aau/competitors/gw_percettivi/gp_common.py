@@ -47,6 +47,7 @@ for _p in (AAU / "baselines_mm", AAU / "baselines_param", REPO / "v2_work" / "ph
 import blmm  # noqa: E402
 
 OUT = AAU / "runs" / "evidence" / "competitors_new"
+WORK = AAU / "runs" / "gw_percettivi"      # intermedi e pilota (fuori da git e fuori dai plug-in di competitors_new)
 VIEWS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral", "famos")          # bp.VIEWS
 PILOT_VIEWS = ("hifi3d", "facescape", "faceverse", "faceverse_neutral")            # bp.PILOT_VIEWS
 PILOT_SUBJECTS = 12                       # primi soggetti NON valutati di blmm.template_subjects per vista
@@ -55,6 +56,8 @@ METHODS = ("gw", "dinov2", "clip", "lpips", "dreamsim")
 LABEL = {"gw": "Gromov-Wasserstein (POT)", "dinov2": "DINOv2 ViT-S/14 su render", "clip": "CLIP ViT-B/32 su render",
          "lpips": "LPIPS alex su render", "dreamsim": "DreamSim ensemble su render"}
 MODE_LABEL = {"fr": "mm (FR)", "sr": "a CS_ref (SR)"}
+VARIANT_LABEL = {"flat": "ombreggiato per faccia", "smooth": "ombreggiato con normali per vertice",
+                 "depth": "profondita'"}
 FAMILY = {"gw": "geometrico senza corrispondenza", "dinov2": "percettivo su render", "clip": "percettivo su render",
           "lpips": "percettivo su render", "dreamsim": "percettivo su render"}
 
@@ -117,8 +120,8 @@ def mm_mesh(v: dict, path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 def size_of(v: dict, path: Path, V: np.ndarray, F: np.ndarray) -> tuple[float, str]:
     """Centroid size robusta (mm) e la sua fonte (cache della vista o calcolata con ``blmm.mesh_scalars``)."""
     sc = v["scalars"]
-    if sc is not None and blmm.rel(path) in sc:
-        return float(sc[blmm.rel(path)]["cs"]), "cache"
+    if sc is not None and rel(path) in sc:
+        return float(sc[rel(path)]["cs"]), "cache"
     return float(blmm.mesh_scalars(V, F)["cs"]), "calcolata"
 
 
@@ -135,24 +138,37 @@ def pairs(items: list) -> tuple[np.ndarray, np.ndarray]:
 
 # ------------------------------------------------------------------------------------------- uscite
 
-def out_npz(method: str, vname: str) -> Path:
-    return OUT / method / f"{vname}.npz"
+def is_pilot(vname: str) -> bool:
+    return vname.startswith("pilot_")
 
 
-def write_view(method: str, v: dict, D: dict, extra: dict, info: dict) -> None:
-    """``<metodo>/<vista>.npz`` (``subjects``, ``topologies``, ``D_fr``, ``D_sr`` simmetriche, NaN dove non
-    calcolate, + ``extra``), ``<metodo>/<vista>.json`` (``info``), ``<metodo>/fm_plugin.json`` e ``<metodo>/pairs_<vista>.csv`` (le coppie di
-    ``pairs``: soggetto e topologia di a e b, d_fr, d_sr; fuori da git per la regola ``pairs_*.csv``)."""
+def col_dir(method: str, variant: str, vname: str) -> Path:
+    """Cartella di una variante: ``competitors_new/<metodo>/<variante>/`` (plug-in di ``fm_eval.py``) per le viste
+    valutate, ``WORK/pilota/<metodo>/<variante>/`` per quelle del pilota (mai dentro ``competitors_new``)."""
+    return (WORK / "pilota" if is_pilot(vname) else OUT) / method / variant
+
+
+def out_npz(method: str, variant: str, vname: str) -> Path:
+    return col_dir(method, variant, vname) / f"{vname}.npz"
+
+
+def write_view(method: str, variant: str, v: dict, D: dict, extra: dict, info: dict) -> None:
+    """``<vista>.npz`` (``subjects``, ``topologies``, ``D_fr``, ``D_sr`` simmetriche, NaN dove non calcolate, +
+    ``extra``), ``<vista>.json`` (``info``) e ``pairs_<vista>.csv`` (le coppie di ``pairs``: soggetto e topologia di a
+    e b, d_fr, d_sr; fuori da git per la regola ``pairs_*.csv``) nella cartella della variante; per le viste valutate
+    anche ``fm_plugin.json`` (``plugin_json``)."""
     items = v["items"]
+    d = col_dir(method, variant, v["name"])
     subj = np.asarray([x for x, _, _ in items])
     topo = np.asarray([t for _, t, _ in items])
-    blmm.atomic_savez(out_npz(method, v["name"]), subjects=subj, topologies=topo,
-                      paths=np.asarray([blmm.rel(p) for _, _, p in items]),
+    blmm.atomic_savez(d / f"{v['name']}.npz", subjects=subj, topologies=topo,
+                      paths=np.asarray([rel(p) for _, _, p in items]),
                       **{f"D_{m}": D[m] for m in MODES}, **extra)
-    atomic_json(OUT / method / f"{v['name']}.json", info)
-    plugin_json(method)
+    atomic_json(d / f"{v['name']}.json", info)
+    if not is_pilot(v["name"]):
+        plugin_json(method, variant)
     i, j = pairs(items)
-    csv = OUT / method / f"pairs_{v['name']}.csv"
+    csv = d / f"pairs_{v['name']}.csv"
     tmp = csv.with_name(f".{csv.name}.{os.getpid()}.tmp")
     with open(tmp, "w") as fh:
         fh.write("subject_a,topology_a,subject_b,topology_b,d_fr,d_sr\n")
@@ -161,17 +177,45 @@ def write_view(method: str, v: dict, D: dict, extra: dict, info: dict) -> None:
     os.replace(tmp, csv)
 
 
-def plugin_json(method: str) -> None:
-    """``<metodo>/fm_plugin.json`` per ``aau/full_matrix/fm_eval.py``: etichetta, famiglia, letture ``fr`` -> GT FR e
-    ``sr`` -> GT SR."""
-    atomic_json(OUT / method / "fm_plugin.json", {
-        "label": LABEL[method], "family": FAMILY[method],
-        "readings": {m: {"label": f"{LABEL[method]}, {MODE_LABEL[m]}", "gt": [m]} for m in MODES}})
+def declared(method: str, variant: str) -> bool | None:
+    """La variante e' quella dichiarata dalla regola del pilota? (None: scelta del pilota non ancora scritta)."""
+    p = OUT / "gw" / "pilot_choice.json" if method == "gw" else OUT / "percettivi" / "pilot_choice.json"
+    if not p.exists():
+        return None
+    ch = json.loads(p.read_text())
+    return variant == (ch["config"].replace("|", "_") if method == "gw" else ch["choice"][method])
 
 
-def read_view(method: str, vname: str) -> dict:
-    with np.load(out_npz(method, vname)) as z:
+def variant_label(method: str, variant: str) -> str:
+    return f"{LABEL[method]} [{VARIANT_LABEL.get(variant, variant)}]"
+
+
+def plugin_json(method: str, variant: str) -> None:
+    """``fm_plugin.json`` della variante per ``aau/full_matrix/fm_eval.py`` (che legge solo le cartelle marcate):
+    etichetta, famiglia, letture ``fr`` -> GT FR e ``sr`` -> GT SR, ``declared`` (la regola del pilota)."""
+    dec = declared(method, variant)
+    lab = variant_label(method, variant) + ("" if dec else " (non dichiarata)" if dec is False else " (scelta da fare)")
+    atomic_json(col_dir(method, variant, "") / "fm_plugin.json", {
+        "label": lab, "family": FAMILY[method], "declared": dec, "method": method, "variant": variant,
+        "readings": {m: {"label": f"{lab}, {MODE_LABEL[m]}", "gt": [m]} for m in MODES}})
+
+
+def variants(method: str, vname: str) -> list[str]:
+    root = (WORK / "pilota" if is_pilot(vname) else OUT) / method
+    return sorted(d.name for d in root.iterdir() if (d / f"{vname}.npz").exists()) if root.is_dir() else []
+
+
+def read_view(method: str, variant: str, vname: str) -> dict:
+    with np.load(out_npz(method, variant, vname)) as z:
         return {k: np.asarray(z[k]) for k in z.files}
+
+
+def rel(path: Path) -> str:
+    """Percorso relativo alla radice del repo se ci sta dentro, altrimenti assoluto (dominio nuovo fuori dal repo)."""
+    try:
+        return blmm.rel(path)
+    except ValueError:
+        return str(path)
 
 
 def atomic_json(path: Path, obj) -> None:

@@ -6,6 +6,22 @@ Codice: `aau/competitors/gw_percettivi/` (`gp_common.py`, `gp_gw.py`, `gp_percet
 venv e pesi fuori dal repo: `gp_env.sh`, `gp_setup.sbatch`). Definizioni complete nelle docstring dei moduli; qui il
 formato delle uscite, le scelte e i limiti. Numeri: `results.md` (generato) e `spearman.csv`.
 
+## Giro 2 (dopo il critic, 12 ottobre sera): regole scritte PRIMA di calcolare i piloti nuovi e i valutati
+
+Il critic (BLOCCANTE, nessun errore di calcolo) ha chiesto: GW con partenza W2 nel frame canonico; percettivi anche
+su render con normali per vertice e su render di profondita'; triangoli degeneri delle up60k; plug-in solo dichiarati.
+Le scelte si fanno sui 12 soggetti NON valutati per vista del pilota, con la loro GT, mai con quella dei valutati:
+
+- **GW**: griglia del pilota estesa con `cgw2` (CG da G0 = accoppiamento W2 nel frame canonico) e `cgmin` (minimo per
+  coppia fra la partenza p qᵀ e quella W2; costo = somma), per euclid / geo x n = 128 / 256. Regola invariata: fra le
+  configurazioni con mediana <= 1 s per soluzione, il punteggio massimo (media sulle 4 viste di
+  (rho(mm, GT FR) + rho(CS_ref, GT SR)) / 2 sulle coppie del pilota); entro 0,01 dal migliore la piu' economica.
+- **Percettivi**: tre varianti di render (`flat` = per faccia come il repo, con i degeneri corretti; `smooth` = normali
+  per vertice; `depth` = profondita' metrica, stessa camera). Per ogni metodo la variante dichiarata e' quella col
+  punteggio massimo sul pilota (stesso punteggio, tutte le coppie di soggetti e topologie diversi, crop compreso);
+  entro 0,01 dalla migliore vince la prima nell'ordine flat, smooth, depth.
+- Le varianti non dichiarate restano nelle uscite (`declared: false` in `fm_plugin.json`, etichetta "non dichiarata").
+
 ## Formato delle uscite
 
 Per metodo `m` in `gw`, `dinov2`, `clip`, `lpips`, `dreamsim` e vista `v` in `hifi3d`, `facescape`, `faceverse`

@@ -3,12 +3,16 @@
 
     gp_run.sh aau/competitors/gw_percettivi/gp_percettivi.py warm                            (pesi in $GP_WEIGHTS)
     gp_run.sh aau/competitors/gw_percettivi/gp_percettivi.py posecheck --view hifi3d --workers 32
+    GP_THREADS=32 gp_run.sh aau/competitors/gw_percettivi/gp_percettivi.py run --view pilot_hifi3d --workers 32
     GP_THREADS=32 gp_run.sh aau/competitors/gw_percettivi/gp_percettivi.py run --view hifi3d --workers 32
     (gp.sbatch; un dominio nuovo: ``--view <nome> --spec <json>``, vedi gp_common.py)
 
-Render (``render``): il renderer del repo (``v2_work/phase0/render_mesh.py``: numpy + PIL, ortografico, luce fissa,
-ombreggiatura di Lambert uniforme a due facce, nessuna texture, sfondo nero; lo stesso delle baseline percettive di
-``aau/baselines/perceptual_matrix.py``), 512 x 512, viste a yaw 0 e +-30 gradi (``common.VIEW_YAWS``) attorno al
+Render (``render``): copia del renderer del repo (``v2_work/phase0/render_mesh.py``: numpy + PIL, ortografico, luce
+fissa, a due facce, nessuna texture, sfondo nero; lo stesso delle baseline percettive di
+``aau/baselines/perceptual_matrix.py``) in tre varianti (``VARIANTS``): ``flat`` (Lambert per faccia, come il repo),
+``smooth`` (Lambert sulle normali per vertice: il render per faccia amplifica il rumore della topologia noisy) e
+``depth`` (profondita' verso la camera, in scala metrica); i triangoli degeneri delle up60k prendono la normale per
+vertice (``render_mesh`` li lasciava neri). 512 x 512, viste a yaw 0 e +-30 gradi (``common.VIEW_YAWS``) attorno al
 baricentro. La mesh entra in mm nel frame canonico (``gp_common.mm_mesh``: UNA trasformazione per dominio, centrata
 sul baricentro pesato per area, nessuna rigida per mesh e nessuna GT), portata nella convenzione del renderer con
 (x, -y, -z). Camera UNICA per dominio: semilato del quadro H = ``CAM_K`` x L_d mm (``blmm.params``), cioe' una scala in
@@ -23,9 +27,10 @@ ViT-B/16 + OpenCLIP ViT-B/32 con LoRA), LPIPS 0.1 AlexNet a 256. Distanze: DINOv
 gli embedding mediati sulle 3 viste e rinormalizzati L2 (la regola di ``perceptual_matrix.py``); LPIPS = media sulle 3
 viste della LPIPS fra i render della stessa vista. LPIPS su tutte le coppie in forma chiusa: con a = sqrt(w) f / sqrt(HW)
 (f feature normalizzate, w pesi lineari) LPIPS(x, y) = sum_l ||a_l(x) - a_l(y)||^2, quindi dalle Gram; controllo
-contro ``lpips.LPIPS.forward`` su ``N_LPIPS_CHECK`` coppie. Nessun iperparametro scelto sui dati: viste, risoluzione,
-modelli e regole sono quelli delle baseline percettive gia' nel repo; ``CAM_K`` e' fissato prima dei numeri e
-controllato solo sul taglio del quadro.
+contro ``lpips.LPIPS.forward`` su ``N_LPIPS_CHECK`` coppie. Viste, risoluzione, modelli e regole sono quelli delle
+baseline percettive gia' nel repo; ``CAM_K`` e' fissato prima dei numeri e controllato solo sul taglio del quadro. La
+variante dichiarata di ogni metodo si sceglie sul pilota dei soggetti NON valutati (``run --view pilot_<vista>``, poi
+``gp_eval.py pilot-perc``); le altre restano nelle uscite come varianti non dichiarate.
 
 ``posecheck`` (la posa e' gia' canonica?): per ogni mesh della vista, ICP rigido (punto-punto, 30 giri, 1024 campioni
 FPS) sulla original del primo soggetto NON valutato (``blmm.template_subjects``; FaMoS: la prima scansione di
@@ -53,6 +58,8 @@ LPIPS_SIZE = 256                          # perceptual_matrix.py --lpips-size
 CAM_K = 1.3                               # semilato del quadro = CAM_K x L_d (mm)
 FLIP = np.array([1.0, -1.0, -1.0])        # frame canonico (+y alto, volto verso +z) -> AXES di render_mesh
 EMBED = ("dinov2", "clip", "dreamsim")
+VARIANTS = ("flat", "smooth", "depth")    # colorazioni del render (``render``); la dichiarata si sceglie sul pilota
+DEGEN_REL = 1e-6                          # triangolo degenere: |normale di faccia| < DEGEN_REL x la mediana della mesh
 N_LPIPS_CHECK = 20
 BATCH = 32
 _C: dict = {}
@@ -60,33 +67,77 @@ _C: dict = {}
 
 # ------------------------------------------------------------------------------------------- render
 
-def render(Vc: np.ndarray, F: np.ndarray, yaw: float, H: float) -> np.ndarray:
-    """(SIZE, SIZE) uint8 della mesh centrata ``Vc`` (mm, frame canonico) a ``yaw``, quadro di semilato H mm."""
-    from render_mesh import FACE_SPAN, _yaw_rotate, render_mesh
+def render(Vc: np.ndarray, F: np.ndarray, yaw: float, H: float, variant: str = "flat") -> tuple[np.ndarray, int]:
+    """(SIZE, SIZE) uint8 della mesh centrata ``Vc`` (mm, frame canonico) a ``yaw``, quadro di semilato H mm, e il
+    numero di triangoli degeneri. Copia di ``render_mesh.render_mesh`` (painter sul baricentro, SSAA, Lanczos; stessi
+    assi, luce, ambiente e inquadratura, helper importati in sola lettura) con tre colorazioni (``VARIANTS``):
+    ``flat`` = Lambert per faccia; ``smooth`` = Lambert sulle normali per vertice (somma delle normali di faccia pesate
+    per area), media dei tre vertici per faccia; ``depth`` = profondita' del baricentro della faccia verso la camera,
+    grigio 30 + 225 (z + 0,6 H) / (1,2 H) in [1, 255] (sfondo 0). Triangoli degeneri (|normale| < ``DEGEN_REL`` x la
+    mediana: le up60k hanno triangoli di area quasi nulla, che in ``render_mesh`` danno normale nulla o a caso e
+    puntini scuri): normale = quella per vertice dei suoi tre vertici."""
+    from PIL import Image, ImageDraw
+    from render_mesh import AMBIENT, LIGHT_DIR, SSAA, _to_screen, _yaw_rotate
     V = Vc * FLIP
     if yaw:
         V = _yaw_rotate(V, yaw, np.zeros(3))
-    return render_mesh(V, F, size=SIZE, scale=2.0 * FACE_SPAN * H, center=np.zeros(3))[:, :, 0]
+    S = _to_screen(V)
+    tri = S[F]
+    fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    fl = np.linalg.norm(fn, axis=1)
+    deg = fl < DEGEN_REL * np.median(fl)
+    vn = np.zeros_like(S)
+    for k in range(3):
+        np.add.at(vn, F[:, k], fn)
+
+    def unit(n):
+        L = np.linalg.norm(n, axis=1, keepdims=True)
+        n = np.where(L > 0, n / np.maximum(L, 1e-300), np.array([0.0, 0.0, 1.0]))
+        return np.where(n[:, 2:3] < 0, -n, n)                     # a due facce: verso la camera
+
+    if variant == "depth":
+        z = tri[:, :, 2].mean(1)
+        gray = np.clip(np.round(30.0 + 225.0 * (z + 0.6 * H) / (1.2 * H)), 1, 255).astype(np.uint8)
+    elif variant == "smooth":
+        sh = AMBIENT + (1.0 - AMBIENT) * np.clip(unit(vn) @ LIGHT_DIR, 0.0, 1.0)
+        gray = np.round(255.0 * sh[F].mean(1)).astype(np.uint8)
+    elif variant == "flat":
+        n = unit(np.where(deg[:, None], vn[F].sum(1), fn))
+        gray = np.round(255.0 * (AMBIENT + (1.0 - AMBIENT) * np.clip(n @ LIGHT_DIR, 0.0, 1.0))).astype(np.uint8)
+    else:
+        raise ValueError(variant)
+    res = SIZE * SSAA
+    ppu = res / (2.0 * H)
+    px = tri[:, :, 0] * ppu + res / 2.0
+    py = res / 2.0 - tri[:, :, 1] * ppu
+    order = np.argsort(tri[:, :, 2].mean(1), kind="stable")
+    img = Image.new("L", (res, res), 0)
+    draw = ImageDraw.Draw(img)
+    for poly, g in zip(np.stack([px, py], axis=2)[order].reshape(-1, 6).tolist(), gray[order].tolist()):
+        draw.polygon(poly, fill=g)
+    return np.asarray(img.resize((SIZE, SIZE), Image.LANCZOS)), int(deg.sum())
 
 
 def _render(task):
-    """Render fr e sr delle 3 viste di una mesh: (immagini (2, 3, S, S), taglia, fonte, taglio, secondi)."""
+    """Render delle varianti x (fr, sr) x 3 viste di una mesh: (immagini (n_var, 2, 3, S, S), taglia, fonte, taglio,
+    triangoli degeneri, secondi)."""
     from render_mesh import _yaw_rotate
     k, path = task
     v, H = _C["view"], _C["H"]
     out = {"k": k, "fail": "", "img": None, "cs": np.nan, "src": "", "clip": np.zeros((2, len(YAWS)), bool),
-           "t": np.nan}
+           "t": np.nan, "deg": np.nan, "n_tri": 0}
     try:
         t0 = time.perf_counter()
         V, F, _ = gc.mm_mesh(v, path)
         cs, src = gc.size_of(v, path, V, F)
-        img = np.zeros((2, len(YAWS), SIZE, SIZE), np.uint8)
+        img = np.zeros((len(VARIANTS), 2, len(YAWS), SIZE, SIZE), np.uint8)
         for m, X in enumerate((V, V * (v["cs_ref"] / cs))):
             for y, yaw in enumerate(YAWS):
-                img[m, y] = render(X, F, yaw, H)
+                for q, var in enumerate(VARIANTS):
+                    img[q, m, y], nd = render(X, F, yaw, H, var)
                 R = _yaw_rotate(X * FLIP, yaw, np.zeros(3)) if yaw else X * FLIP
                 out["clip"][m, y] = bool(np.abs(R[:, :2]).max() > H)
-        out.update(img=img, cs=cs, src=src, t=time.perf_counter() - t0)
+        out.update(img=img, cs=cs, src=src, t=time.perf_counter() - t0, deg=nd, n_tri=len(F))
     except Exception as exc:  # noqa: BLE001  (la mesh resta NaN, contata)
         out["fail"] = f"{type(exc).__name__}: {exc}"
     return out
@@ -183,27 +234,31 @@ def camera(v: dict) -> float:
 
 
 def run_view(vname: str, spec: Path | None, workers: int, device: str) -> None:
+    """Render, embedding e LPIPS di una vista in ogni variante. ``pilot_<vista>``: i soggetti NON valutati del pilota
+    (``gp_common.pilot_view``), uscite in ``WORK/pilota`` (``gp_common.col_dir``)."""
     import torch
-    outs = {m: gc.out_npz(m, vname) for m in EMBED + ("lpips",)}
-    if all(p.exists() for p in outs.values()):
+    todo = [(m, q) for q in VARIANTS for m in EMBED + ("lpips",) if not gc.out_npz(m, q, vname).exists()]
+    if not todo:
         print(f"[gp-perc] {vname}: uscite gia' presenti, salto", flush=True)
         return
-    v = gc.view(vname, spec)
+    v = gc.pilot_view(vname.removeprefix("pilot_")) if gc.is_pilot(vname) else gc.view(vname, spec)
     _C.update(view=v, H=camera(v))
     n = len(v["items"])
+    topo = np.asarray([t for _, t, _ in v["items"]])
     t0 = time.time()
     with mp.get_context("fork").Pool(workers) as pool:
         res = pool.map(_render, list(enumerate(p for _, _, p in v["items"])), chunksize=1)
     t_render = time.time() - t0
     ok = np.asarray([not r["fail"] for r in res])
     fails = [f"{v['items'][r['k']][0]}|{v['items'][r['k']][1]}|{r['fail']}" for r in res if r["fail"]]
-    img = np.zeros((n, 2, len(YAWS), SIZE, SIZE), np.uint8)
+    img = np.zeros((n, len(VARIANTS), 2, len(YAWS), SIZE, SIZE), np.uint8)
     for r in res:
         if not r["fail"]:
             img[r["k"]] = r["img"]
     clipped = np.stack([r["clip"] for r in res])
     cs = np.asarray([r["cs"] for r in res])
     sec_render = np.asarray([r["t"] for r in res])
+    deg = np.asarray([r["deg"] / max(r["n_tri"], 1) for r in res])
     del res
     control_png(vname, img[0])
     torch.set_num_threads(int(os.environ.get("GP_THREADS", "1")))
@@ -211,64 +266,75 @@ def run_view(vname: str, spec: Path | None, workers: int, device: str) -> None:
             "cam_k": CAM_K, "L_mm": v["L"], "cs_ref_mm": v["cs_ref"], "device": device,
             "threads": torch.get_num_threads(), "workers_render": workers,
             "clipped_meshes": {m: int(clipped[:, k].any(1).sum()) for k, m in enumerate(gc.MODES)},
+            "degenerate_triangle_fraction_by_topology": {
+                t: {"median": float(np.nanmedian(deg[topo == t])), "max": float(np.nanmax(deg[topo == t]))}
+                for t in sorted(set(topo))},
             "render_s_per_mesh_median": float(np.nanmedian(sec_render)), "render_wall_s": t_render,
-            "render_note": "s per mesh = 6 render (fr, sr x 3 viste) + lettura + taglia, un processo", **gc.stamp()}
+            "render_note": f"s per mesh = {6 * len(VARIANTS)} render ({', '.join(VARIANTS)} x fr, sr x 3 viste) + "
+                           "lettura + taglia, un processo", **gc.stamp()}
     for name in EMBED:
-        if outs[name].exists():
+        if all(gc.out_npz(name, q, vname).exists() for q in VARIANTS):
             continue
         t1 = time.time()
         f = extractor(name, device)
         t_load = time.time() - t1
-        E = {}
-        t1 = time.time()
-        for k, mode in enumerate(gc.MODES):
-            flat = img[:, k].reshape(-1, SIZE, SIZE)
-            E[mode] = f(flat).reshape(n, len(YAWS), -1)
-        t_emb = time.time() - t1
-        D = {}
-        for mode in gc.MODES:
-            Z = E[mode].astype(np.float64).mean(1)
-            Z /= np.maximum(np.linalg.norm(Z, axis=1, keepdims=True), 1e-9)
-            M = np.clip(1.0 - Z @ Z.T, 0.0, None)
-            M[~ok] = M[:, ~ok] = np.nan
-            np.fill_diagonal(M, 0.0)
-            D[mode] = 0.5 * (M + M.T)
-        info = {**base, "method": name, "load_s": t_load, "embed_wall_s": t_emb,
-                "s_per_image": t_emb / (2 * n * len(YAWS)),
-                "s_per_mesh_total": t_emb / n + float(np.nanmedian(sec_render)),
-                "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"}
-        gc.write_view(name, v, D, {f"E_{m}": E[m].astype(np.float32) for m in gc.MODES} | {"cs": cs}, info)
-        print(f"[gp-perc] {vname} {name}: {n} mesh, {t_emb:.0f}s di embedding ({info['s_per_image'] * 1e3:.0f} ms per "
-              f"immagine), taglio fr/sr {base['clipped_meshes']}", flush=True)
-    if not outs["lpips"].exists():
-        model = lpips_model(device)
+        for q, var in enumerate(VARIANTS):
+            if gc.out_npz(name, var, vname).exists():
+                continue
+            E = {}
+            t1 = time.time()
+            for k, mode in enumerate(gc.MODES):
+                E[mode] = f(img[:, q, k].reshape(-1, SIZE, SIZE)).reshape(n, len(YAWS), -1)
+            t_emb = time.time() - t1
+            D = {}
+            for mode in gc.MODES:
+                Z = E[mode].astype(np.float64).mean(1)
+                Z /= np.maximum(np.linalg.norm(Z, axis=1, keepdims=True), 1e-9)
+                M = np.clip(1.0 - Z @ Z.T, 0.0, None)
+                M[~ok] = M[:, ~ok] = np.nan
+                np.fill_diagonal(M, 0.0)
+                D[mode] = 0.5 * (M + M.T)
+            info = {**base, "method": name, "variant": var, "load_s": t_load, "embed_wall_s": t_emb,
+                    "s_per_image": t_emb / (2 * n * len(YAWS)),
+                    "s_per_mesh_total": t_emb / n + float(np.nanmedian(sec_render)) / len(VARIANTS),
+                    "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"}
+            gc.write_view(name, var, v, D, {f"E_{m}": E[m].astype(np.float32) for m in gc.MODES} | {"cs": cs}, info)
+            print(f"[gp-perc] {vname} {name} {var}: {n} mesh, {t_emb:.0f}s di embedding ({info['s_per_image'] * 1e3:.0f}"
+                  f" ms per immagine), taglio fr/sr {base['clipped_meshes']}", flush=True)
+    model = None
+    for q, var in enumerate(VARIANTS):
+        if gc.out_npz("lpips", var, vname).exists():
+            continue
+        model = model or lpips_model(device)
         t1 = time.time()
         D, check = {}, {}
         for k, mode in enumerate(gc.MODES):
             per = []
             for y in range(len(YAWS)):
-                M = lpips_matrix(model, img[:, k, y], device)
-                check[f"{mode}|{YAWS[y]:+.0f}"] = lpips_check(model, img[:, k, y], M, device)
+                M = lpips_matrix(model, img[:, q, k, y], device)
+                check[f"{mode}|{YAWS[y]:+.0f}"] = lpips_check(model, img[:, q, k, y], M, device)
                 per.append(M)
             M = np.mean(per, axis=0)
             M[~ok] = M[:, ~ok] = np.nan
             np.fill_diagonal(M, 0.0)
             D[mode] = M
         t_l = time.time() - t1
-        info = {**base, "method": "lpips", "wall_s": t_l, "s_per_pair": t_l / (n * (n - 1) / 2),
+        info = {**base, "method": "lpips", "variant": var, "wall_s": t_l, "s_per_pair": t_l / (n * (n - 1) / 2),
                 "check_gram_vs_forward_max_abs": check,
                 "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"}
-        gc.write_view("lpips", v, D, {"cs": cs}, info)
-        print(f"[gp-perc] {vname} lpips: {t_l:.0f}s per tutte le coppie, controllo Gram-forward max "
+        gc.write_view("lpips", var, v, D, {"cs": cs}, info)
+        print(f"[gp-perc] {vname} lpips {var}: {t_l:.0f}s per tutte le coppie, controllo Gram-forward max "
               f"{max(check.values()):.2e}", flush=True)
 
 
 def control_png(vname: str, img: np.ndarray) -> None:
-    """Le 6 immagini della prima mesh (fr in alto, sr in basso) in ``percettivi/control_<vista>.png`` (fuori da git)."""
+    """Le immagini della prima mesh (righe: variante x modo, colonne: viste) in ``WORK/control_<vista>.png`` (fuori da
+    git)."""
     from PIL import Image
-    rows = [np.concatenate(list(img[m]), axis=1) for m in range(2)]
-    PERC.mkdir(parents=True, exist_ok=True)
-    Image.fromarray(np.concatenate(rows, axis=0)).resize((3 * SIZE // 2, SIZE)).save(PERC / f"control_{vname}.png")
+    rows = [np.concatenate(list(img[q, m]), axis=1) for q in range(img.shape[0]) for m in range(2)]
+    gc.WORK.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(np.concatenate(rows, axis=0)).resize((3 * SIZE // 2, len(rows) * SIZE // 2)).save(
+        gc.WORK / f"control_{vname}.png")
 
 
 # ----------------------------------------------------------------------------------------- posa

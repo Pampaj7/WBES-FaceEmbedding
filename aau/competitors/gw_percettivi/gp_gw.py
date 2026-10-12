@@ -22,7 +22,11 @@ matrici si dividono per L_d prima del solutore (scala dell'epsilon) e il risulta
 d = 0.5 sqrt(GW_2^2) L_d, GW_2^2 = min_T sum (C1_ik - C2_jl)^2 T_ij T_kl (perdita quadratica di POT).
 
 Solutori (``CONFIGS``): ``cg`` = ``ot.gromov.gromov_wasserstein`` (gradiente condizionale con EMD esatto: il GW
-"esatto", minimo locale dall'accoppiamento prodotto p q^T); ``ent<eps>`` = ``ot.gromov.entropic_gromov_wasserstein``
+"esatto", minimo locale dall'accoppiamento prodotto p q^T); ``cgw2`` = lo stesso CG da G0 = ``ot.emd(p, q,
+ot.dist(X_a, X_b))``, l'accoppiamento W2 fra i campioni nel frame canonico senza allineamento (la posa canonica che
+usano tutti gli altri metodi; aggiunto dopo il critic: dal prodotto il CG si ferma in minimi piu' alti di oltre il 10%
+nel 19-44% delle coppie del pilota); ``cgmin`` = il minimo dei due per coppia e per modo (stesso funzionale, il minimo
+locale piu' basso trovato; costo = somma); ``ent<eps>`` = ``ot.gromov.entropic_gromov_wasserstein``
 (PGD, Sinkhorn di POT coi suoi default), valore = perdita GW del piano entropico, senza il termine d'entropia. La
 configurazione (n, solutore, matrice) si sceglie sul pilota (``gp_eval.py pilot-gw``: 12 soggetti NON valutati per
 vista, ``PILOT_TOPO_PAIRS`` coppie ordinate di topologie per coppia di soggetti, la loro GT, mai quella dei valutati)
@@ -55,10 +59,13 @@ import numpy as np  # noqa: E402
 import gp_common as gc  # noqa: E402
 
 GW = gc.OUT / "gw"
-WORK = gc.AAU / "runs" / "gw_percettivi"             # intermedi (prep, pilota, parti): fuori dalle cartelle dei plug-in
+WORK = gc.WORK                                        # intermedi (prep, pilota, parti): fuori dalle cartelle dei plug-in
 N_GRID = (128, 256)                                   # punti del sottocampionamento (pilota)
 N_MAX = max(N_GRID)
-SOLVERS = ("cg", "ent0.005")                          # entropico: epsilon sulle matrici / L_d
+# cg: CG da p q^T; cgw2: CG da G0 = accoppiamento W2 nel frame canonico; cgmin: il minimo dei due (stesso funzionale);
+# ent<eps>: entropico, epsilon sulle matrici / L_d
+SOLVERS = ("cg", "cgw2", "cgmin", "ent0.005")
+COMPOSITE = {"cgmin": ("cg", "cgw2")}                 # solutori composti: minimo per coppia e per modo, secondi sommati
 METRICS = ("euclid", "geo")
 CONFIGS = [f"{m}|{n}|{s}" for m in METRICS for n in N_GRID for s in SOLVERS]
 CG_ITERS, CG_TOL = 200, 1e-7                          # iterazioni esterne e tolleranza relativa del CG
@@ -207,12 +214,35 @@ def matrix(P: dict, k: int, metric: str, n: int, mode: str) -> np.ndarray:
     return C * f
 
 
-def gw_value(C1: np.ndarray, C2: np.ndarray, p: np.ndarray, q: np.ndarray, solver: str) -> float:
-    """GW_2^2 (perdita quadratica) fra (C1, p) e (C2, q) col solutore."""
+def components(cfg: str) -> list[str]:
+    """Configurazioni da risolvere davvero per ``cfg`` (i composti si ricavano dai loro componenti)."""
+    metric, n, solver = cfg.split("|")
+    return [f"{metric}|{n}|{x}" for x in COMPOSITE.get(solver, (solver,))]
+
+
+def tag(cfg: str) -> str:
+    return cfg.replace("|", "_")
+
+
+def points(P: dict, k: int, n: int, mode: str) -> np.ndarray:
+    """Campioni (n, 3) in mm nel frame canonico / L_d, x CS_ref / CS_k in ``sr`` (la scala di ``matrix``)."""
+    f = 1.0 / float(P["L"])
+    if mode == "sr":
+        f *= float(P["cs_ref"]) / float(P["cs"][k])
+    return P["X"][k, :n].astype(np.float64) * f
+
+
+def gw_value(C1: np.ndarray, C2: np.ndarray, p: np.ndarray, q: np.ndarray, solver: str,
+             X1: np.ndarray | None = None, X2: np.ndarray | None = None) -> float:
+    """GW_2^2 (perdita quadratica) fra (C1, p) e (C2, q) col solutore; ``cgw2`` parte da G0 = ``ot.emd`` col costo
+    ``ot.dist(X1, X2)`` (euclideo al quadrato fra i campioni nel frame canonico: l'accoppiamento W2 senza allineamento,
+    la posa canonica che usano tutti gli altri metodi). Il valore resta un GW (stesso funzionale, minimo locale da una
+    partenza diversa)."""
     import ot
-    if solver == "cg":
+    if solver in ("cg", "cgw2"):
+        G0 = ot.emd(p, q, ot.dist(X1, X2)) if solver == "cgw2" else None
         _, log = ot.gromov.gromov_wasserstein(C1, C2, p, q, "square_loss", log=True, max_iter=CG_ITERS,
-                                              tol_rel=CG_TOL, tol_abs=0.0)
+                                              tol_rel=CG_TOL, tol_abs=0.0, G0=G0)
     else:
         _, log = ot.gromov.entropic_gromov_wasserstein(C1, C2, p, q, "square_loss", epsilon=float(solver[3:]),
                                                        max_iter=ENT_ITERS, tol=ENT_TOL, log=True)
@@ -236,7 +266,8 @@ def _pairs(task):
             for m, mode in enumerate(gc.MODES):
                 t0 = time.perf_counter()
                 try:
-                    g = gw_value(matrix(P, a, metric, n, mode), matrix(P, b, metric, n, mode), pa, pb, solver)
+                    g = gw_value(matrix(P, a, metric, n, mode), matrix(P, b, metric, n, mode), pa, pb, solver,
+                                 points(P, a, n, mode), points(P, b, n, mode))
                     out[r, c, m] = 0.5 * np.sqrt(max(g, 0.0)) * L
                 except Exception:  # noqa: BLE001  (la coppia resta NaN, contata)
                     pass
@@ -245,6 +276,8 @@ def _pairs(task):
 
 
 def solve_pairs(P: dict, i: np.ndarray, j: np.ndarray, configs: list, workers: int, block: int = 16):
+    if any(c not in components(c) for c in configs):
+        raise SystemExit(f"configurazioni composte non risolvibili direttamente: {configs}")
     _C.update(prep=P, configs=configs)
     blocks = [(i[s:s + block], j[s:s + block]) for s in range(0, len(i), block)]
     with mp.get_context("fork").Pool(workers) as pool:
@@ -263,13 +296,14 @@ def run_cost(workers: int) -> None:
     P = load_prep("pilot_hifi3d")
     i, j = gc.pairs(items_of(P))
     sel = np.random.default_rng(0).choice(len(i), COST_PAIRS, replace=False)
-    D, S = solve_pairs(P, i[sel], j[sel], CONFIGS, workers, block=1)
+    configs = [c for c in CONFIGS if components(c) == [c]]
+    D, S = solve_pairs(P, i[sel], j[sel], configs, workers, block=1)
     res = {cfg: {"s_per_solve_median": float(np.nanmedian(S[:, c])), "s_per_solve_max": float(np.nanmax(S[:, c])),
-                 "nan": int(np.isnan(D[:, c]).sum())} for c, cfg in enumerate(CONFIGS)}
+                 "nan": int(np.isnan(D[:, c]).sum())} for c, cfg in enumerate(configs)}
     res["prep_s_per_mesh_median"] = {k: float(v) for k, v in zip(P["stages"], np.nanmedian(P["t_stage"], axis=0))}
     res.update(n_pairs=COST_PAIRS, workers=workers, **gc.stamp())
     gc.atomic_json(GW / "cost_configs.json", res)
-    for cfg in CONFIGS:
+    for cfg in configs:
         print(f"[gp-gw] costo {cfg}: {res[cfg]['s_per_solve_median']:.3f} s per soluzione (max "
               f"{res[cfg]['s_per_solve_max']:.3f}), NaN {res[cfg]['nan']}", flush=True)
 
@@ -287,10 +321,11 @@ def pilot_pairs(items: list) -> tuple[np.ndarray, np.ndarray]:
     return i[keep], j[keep]
 
 
-def run_pilot(workers: int, configs: list) -> None:
-    """Distanze del pilota (``pilot_pairs`` sui 12 soggetti NON valutati) in ogni configurazione."""
+def run_pilot(workers: int, configs: list, name: str) -> None:
+    """Distanze del pilota (``pilot_pairs`` sui 12 soggetti NON valutati) nelle configurazioni ``configs`` (non
+    composte); uscita ``WORK/pilot/<vista>[__<name>].npz`` (``gp_eval.py pilot-gw`` unisce i file della vista)."""
     for view in gc.PILOT_VIEWS:
-        out = WORK / "pilot" / f"{view}.npz"
+        out = WORK / "pilot" / (f"{view}__{name}.npz" if name else f"{view}.npz")
         if out.exists():
             print(f"[gp-gw] {out}: gia' presente, salto", flush=True)
             continue
@@ -308,9 +343,9 @@ def choice() -> dict:
     return json.loads((GW / "pilot_choice.json").read_text())
 
 
-def run_view(vname: str, shard: int, nshards: int, workers: int) -> None:
-    ch = choice()
-    out = WORK / "parts" / f"{vname}_{shard}of{nshards}.npz"
+def run_view(vname: str, cfg: str, shard: int, nshards: int, workers: int) -> None:
+    """Parte ``shard`` di ``nshards`` delle coppie di ``gp_common.pairs`` nella configurazione ``cfg`` (non composta)."""
+    out = WORK / "parts" / f"{vname}__{tag(cfg)}_{shard}of{nshards}.npz"
     if out.exists():
         print(f"[gp-gw] {out}: gia' presente, salto", flush=True)
         return
@@ -318,37 +353,50 @@ def run_view(vname: str, shard: int, nshards: int, workers: int) -> None:
     P = load_prep(vname)
     i, j = gc.pairs(items_of(P))
     i, j = i[shard::nshards], j[shard::nshards]
-    D, S = solve_pairs(P, i, j, [ch["config"]], workers)
-    gc.blmm.atomic_savez(out, pair_i=i, pair_j=j, D=D[:, 0], seconds=S[:, 0], config=ch["config"], **gc.stamp())
-    print(f"[gp-gw] {vname} parte {shard}/{nshards}: {len(i)} coppie in {time.time() - t0:.0f}s ({workers} processi), "
-          f"s per soluzione mediana {np.nanmedian(S):.3f}, NaN {int(np.isnan(D).sum())}", flush=True)
+    D, S = solve_pairs(P, i, j, [cfg], workers)
+    gc.blmm.atomic_savez(out, pair_i=i, pair_j=j, D=D[:, 0], seconds=S[:, 0], config=cfg, **gc.stamp())
+    print(f"[gp-gw] {vname} {cfg} parte {shard}/{nshards}: {len(i)} coppie in {time.time() - t0:.0f}s ({workers} "
+          f"processi), s per soluzione mediana {np.nanmedian(S):.3f}, NaN {int(np.isnan(D).sum())}", flush=True)
 
 
-def run_merge(vname: str, spec: Path | None) -> None:
+def merged(vname: str, cfg: str, n: int, n_pairs: int) -> tuple[dict, np.ndarray]:
+    """Matrici (fr, sr) e secondi per coppia di ``cfg`` dalle parti dei suoi componenti (composto: minimo)."""
+    D, secs = None, None
+    for c in components(cfg):
+        parts = sorted((WORK / "parts").glob(f"{vname}__{tag(c)}_*of*.npz"))
+        Dc = {m: np.full((n, n), np.nan) for m in gc.MODES}
+        Sc = np.full((n, n, 2), np.nan)
+        seen = 0
+        for p in parts:
+            with np.load(p) as z:
+                i, j, d, sec = (np.asarray(z[k]) for k in ("pair_i", "pair_j", "D", "seconds"))
+                if str(z["config"]) != c:
+                    raise SystemExit(f"{p}: configurazione {z['config']}, attesa {c}")
+            for m, mode in enumerate(gc.MODES):
+                Dc[mode][i, j] = Dc[mode][j, i] = d[:, m]
+            Sc[i, j] = sec
+            seen += len(i)
+        if seen != n_pairs:
+            raise SystemExit(f"{vname} {c}: {len(parts)} parti, {seen} coppie su {n_pairs}")
+        D = Dc if D is None else {m: np.fmin(D[m], Dc[m]) for m in gc.MODES}
+        secs = Sc if secs is None else secs + Sc
+    return D, secs
+
+
+def run_merge(vname: str, spec: Path | None, cfg: str) -> None:
     ch = choice()
     P = load_prep(vname)
     v = gc.pilot_view(vname.removeprefix("pilot_")) if vname.startswith("pilot_") else gc.view(vname, spec)
     if [(s, t) for s, t, _ in v["items"]] != [(str(s), str(t)) for s, t in zip(P["subjects"], P["topologies"])]:
         raise SystemExit(f"{vname}: mesh della preparazione diverse dalla vista")
-    parts = sorted((WORK / "parts").glob(f"{vname}_*of*.npz"))
     n = len(v["items"])
-    D = {m: np.full((n, n), np.nan) for m in gc.MODES}
-    secs, cfgs, seen = [], set(), 0
-    for p in parts:
-        with np.load(p) as z:
-            i, j, d = np.asarray(z["pair_i"]), np.asarray(z["pair_j"]), np.asarray(z["D"])
-            secs.append(np.asarray(z["seconds"]))
-            cfgs.add(str(z["config"]))
-        for m, mode in enumerate(gc.MODES):
-            D[mode][i, j] = D[mode][j, i] = d[:, m]
-        seen += len(i)
     i, j = gc.pairs(v["items"])
-    if cfgs != {ch["config"]} or seen != len(i):
-        raise SystemExit(f"{vname}: parti {len(parts)} con configurazioni {cfgs}, {seen} coppie su {len(i)}")
+    D, S = merged(vname, cfg, n, len(i))
     for mode in gc.MODES:
         np.fill_diagonal(D[mode], 0.0)
-    S = np.concatenate(secs)
-    info = {"method": "gw", "config": ch["config"], "pilot_choice": ch, "n_meshes": n, "n_pairs": int(len(i)),
+    S = S[i, j]
+    info = {"method": "gw", "config": cfg, "components": components(cfg), "declared": cfg == ch["config"],
+            "pilot_choice": ch, "n_meshes": n, "n_pairs": int(len(i)),
             "n_pairs_nan": {m: int(np.isnan(D[m][i, j]).sum()) for m in gc.MODES},
             "failed_meshes": [str(x) for x in P["failed"]],
             "s_per_solve": {m: {"median": float(np.nanmedian(S[:, k])), "p95": float(np.nanpercentile(S[:, k], 95)),
@@ -357,8 +405,8 @@ def run_merge(vname: str, spec: Path | None) -> None:
             "area_dropped_max": float(np.nanmax(P["dropped"])),
             "cs_source": {str(k): int(c) for k, c in zip(*np.unique(P["cs_src"], return_counts=True))},
             "units": "mm (FR) e mm alla taglia di riferimento CS_ref (SR): 0.5 sqrt(GW_2^2)", **gc.stamp()}
-    gc.write_view("gw", v, D, {"cs": P["cs"]}, info)
-    print(f"[gp-gw] {vname}: {len(i)} coppie unite da {len(parts)} parti, NaN {info['n_pairs_nan']}", flush=True)
+    gc.write_view("gw", tag(cfg), v, D, {"cs": P["cs"]}, info)
+    print(f"[gp-gw] {vname} {cfg}: {len(i)} coppie unite, NaN {info['n_pairs_nan']}", flush=True)
 
 
 def main() -> None:
@@ -369,7 +417,11 @@ def main() -> None:
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--shard", type=int, default=0)
     p.add_argument("--nshards", type=int, default=1)
-    p.add_argument("--configs", default=",".join(CONFIGS), help="pilot: configurazioni (default: tutta la griglia)")
+    p.add_argument("--configs", default=",".join(c for c in CONFIGS if components(c) == [c]),
+                   help="pilot: configurazioni non composte (default: tutta la griglia)")
+    p.add_argument("--name", default="", help="pilot: suffisso del file del pilota (configurazioni aggiunte)")
+    p.add_argument("--config", default="", help="run / merge: configurazione (default: la scelta del pilota; run: "
+                                                "i suoi componenti uno dopo l'altro; merge: lei e i suoi componenti)")
     p.add_argument("--geo", choices=("auto", "yes", "no"), default="auto",
                    help="prep: geodetiche (auto: nel pilota sempre, altrove se la scelta e' geo)")
     a = p.parse_args()
@@ -380,11 +432,14 @@ def main() -> None:
     elif a.step == "cost":
         run_cost(a.workers)
     elif a.step == "pilot":
-        run_pilot(a.workers, a.configs.split(","))
+        run_pilot(a.workers, a.configs.split(","), a.name)
     elif a.step == "run":
-        run_view(a.view, a.shard, a.nshards, a.workers)
+        for c in components(a.config or choice()["config"]):
+            run_view(a.view, c, a.shard, a.nshards, a.workers)
     else:
-        run_merge(a.view, a.spec)
+        cfg = a.config or choice()["config"]
+        for c in dict.fromkeys(components(cfg) + [cfg]):
+            run_merge(a.view, a.spec, c)
 
 
 if __name__ == "__main__":
