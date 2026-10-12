@@ -1600,3 +1600,39 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
     vista": +0.090 / +0.066 su +0.119 / +0.101.
   - Il guadagno è monotono e già misurabile a k = 5.
   - Limite: (r, λ) fermi al bordo λ = 1e-6 di D3 e2, senza ritaratura coi dati del bersaglio.
+
+## 12 ottobre, G0 — l'insegnante ArcFace-render come metrica: preregistrato NO
+
+- **Domanda.** Prima di ogni training di distillazione: l'insegnante (ArcFace `buffalo_l` su render a normal map della
+  sola geometria, la configurazione del pilota) ordina le coppie come le GT FR/SR sulle famiglie mai viste, meglio di
+  d_P? Protocollo 0b4a426 (sha256 `eee7afef…`), codice c1013e7, risultati 8ba43e6;
+  `aau/runs/evidence/diagnostics/results_g0.md`. Solo CPU: insegnante job 1069973 (39 min, 48 CPU, 5.100 mesh in 8
+  insiemi), costo 1070018, statistiche 1070019, test 1069972.
+- **Disegno.** Righe, GT e semi della valutazione ufficiale e delle diagnostiche: FaceScape dev, HIFI3D, FaceVerse neutra
+  (nocrop_cross; righe col crop a parte), FLAME suddiviso di D1, FaMoS TRAIN (reale). Niente Ava-256 né FaMoS TEST. Regola:
+  PROMETTENTE se in entrambi i semi l'insegnante batte d_P con SR di almeno +0.05, con IC sopra 0, in 2 famiglie su 3
+  oppure su FaMoS TRAIN.
+- **Verdetto: NO**, e l'insegnante sta **sotto** d_P ovunque (IC sotto 0). Spearman con SR, insegnante contro d_P
+  s1234 / s2345:
+
+  | insieme | insegnante | d_P s1234 / s2345 | delta s1234 / s2345 |
+  |---|---|---|---|
+  | FaceScape | 0.348 | 0.747 / 0.753 | −0.399 / −0.405 |
+  | HIFI3D | 0.220 | 0.622 / 0.613 | −0.401 / −0.393 |
+  | FaceVerse neutra | 0.166 | 0.333 / 0.372 | −0.167 / −0.206 |
+  | FLAME suddiviso | 0.345 | 0.806 / 0.806 | −0.461 / −0.461 |
+  | FaMoS TRAIN | 0.395 | 0.839 / 0.828 | −0.444 / −0.433 |
+
+  - Sta sotto anche ICP mm (−0.13, −0.15, −0.22) e la variante B.
+  - FR, descrittivo: da solo 0.13-0.34 (è cieco alla taglia). Con la taglia del braccio (c_T = 0.101 dai soli
+    held-out) arriva a 0.61 su HIFI3D, ma resta sotto d_F cal. in ogni insieme (da −0.12 a −0.32).
+- **Non è una pipeline rotta** (controllo post hoc). Sulle stesse mesh riconosce le persone ovunque: AUC 0.969-0.9999,
+  rank-1 0.98-1.00, FLAME e FaMoS compresi. Ma le distanze fra persone diverse stanno in una banda stretta (HIFI3D IQR
+  0.54-0.64). ArcFace separa le identità e ordina male le persone diverse: riconoscere non è graduare, ora con le GT
+  FR/SR e su cinque famiglie. Era l'esito atteso dal precedente dell'8 ottobre (0.242 con la GT maxabs).
+- **Controlli.** Bracci, B e ICP riprodotti (scarto 3.3e-16); catena uguale al gate su HIFI3D (2.5e-4); mesh FLAME,
+  FaMoS e held-out rigenerate identiche (scarto 0); insegnante finto = d_P a scarto 0; frame check 8 su 8.
+- **Costo.** 0.71 s per mesh a un thread (render 0.28 s, ArcFace 0.43 s), più circa 130 s una tantum per insieme
+  per calibrare il crop.
+- **Per il paper.** La distillazione di ArcFace-render verso il benchmark FR/SR non ha appoggio e non si rilancia:
+  l'insegnante resta una baseline di riconoscimento. Licenza dei pesi insightface: solo ricerca non commerciale.
