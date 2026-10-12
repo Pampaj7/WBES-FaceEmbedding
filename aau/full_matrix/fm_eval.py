@@ -28,13 +28,19 @@ righe ripetute, Pearson). IC 95% percentile; delta appaiati = differenza replica
 Delta (``deltas.csv``): ``vs_nostro`` = braccio - concorrente (positivo = il nostro e' davanti) per ogni concorrente e
 riferimento: FR contro factorized s1234/s2345 d_F cal. e d_F non cal. e ctrlfr s1234/s2345; SR contro factorized
 s1234/s2345 d_P e ctrlfr; ``scala_allineamento`` (a - b, ``LADDER``); ``migliore_vs_migliore`` = miglior nostro - miglior
-concorrente fra le letture dichiarate (scelti sul punto: selezione post hoc, descrittiva).
+concorrente fra le letture dichiarate (scelti sul punto: selezione post hoc, descrittiva). Scala: passi principali
+e secondari (``LADDER``: 2b e 3 in mm confusi dalla taglia; con SR i passi 4 e 5 anche contro ICP cs e NICP cs) e il
+conteggio per famiglia sintetica nel verso "piu' allineamento = peggio". Sensibilita' ai fallimenti del NICP per coppia
+(HIFI3D, FaceScape): maschera senza il NICP e fallimento = distanza massima (``passo`` dedicato).
 
-Plug-in (concorrenti nuovi): ogni cartella ``aau/runs/evidence/competitors_new/<metodo>/`` (o ``--plugins``) con, per
+Plug-in (concorrenti nuovi): ogni cartella ``aau/runs/evidence/competitors_new/<metodo>/`` o ``<metodo>/<tag>/`` (o
+``--plugins``) MARCATA da ``fm_plugin.json`` (le cartelle senza, es. pilot/ o prep/, si ignorano e si elencano in
+controls.json; un file senza nessuna mesh del dominio e' un errore col nome del plug-in) con, per
 dominio, ``<dominio>.npz`` (``subjects``, ``topologies``, una o piu' matrici ``D`` / ``D_<lettura>`` (n, n) sulle mesh
 elencate; FaMoS: ``subjects`` = view_id, ``topologies`` = ``scan_gallery``) oppure ``<dominio>.csv`` (``subject_a``,
 ``topology_a``, ``subject_b``, ``topology_b`` e una colonna per lettura; la coppia mancante si cerca invertita), e
-facoltativo ``fm_plugin.json`` (``label``, ``family``, ``readings``: {lettura: {``label``, ``gt``: ["fr", "sr"]}}). Un
+``fm_plugin.json`` (obbligatorio, anche ``{}``; facoltativi ``label``, ``family``, ``readings``: {lettura: {``label``,
+``gt``: ["fr", "sr"]}}). Un
 plug-in finito su tutte le righe della maschera comune entra nello stesso passo; se ha buchi va in un passo a parte sulla
 maschera comune ristretta alle sue righe finite, con i bracci di riferimento sulle stesse righe (``n_righe`` lo dice).
 
@@ -120,24 +126,49 @@ METHODS.update({
     "est_cs": ("taglia stimata dalla mesh (non oracolo)", "riferimenti", BOTH, False),
     "oracle_size": ("taglia oracolo (S di FR)", "riferimenti", BOTH, False)})
 REFERENCES = ("est_cs", "oracle_size")
-# riferimenti dei delta vs_nostro per GT
+# riferimenti dei delta vs_nostro per GT (ctrlfr non e' una lettura dichiarata per SR: solo FR)
 REF = {"fr": ("factorized_s1234|form_cal", "factorized_s2345|form_cal", "factorized_s1234|form",
               "factorized_s2345|form", "ctrlfr_s1234|z", "ctrlfr_s2345|z"),
-       "sr": ("factorized_s1234|shape", "factorized_s2345|shape", "ctrlfr_s1234|z", "ctrlfr_s2345|z")}
-# scala dell'allineamento: (gt, a, b, passo); delta = a - b
+       "sr": ("factorized_s1234|shape", "factorized_s2345|shape")}
+
+
+def post_hoc(col: str, view: str = "") -> bool:
+    """Letture POST HOC: d_F calibrata (emendamento 4), varianti A e B dei fit e la composizione (emendamenti 1 e 2 dei
+    concorrenti parametrici), il template di FaMoS costruito qui; C3M e' preregistrato come descrittivo (le sue d_F
+    non calibrata e d_P non sono post hoc, la d_F calibrata si')."""
+    return ("|form_cal" in col or "_va_" in col or "_vb_" in col or
+            (view == "famos" and col == "mm_nicp_template"))
+
+
+# scala dell'allineamento: (gt, a, b, passo, ruolo, lato piu' allineato); delta = a - b. Ruolo: principale o secondario
+# (2b e 3 in mm sono confusi dalla taglia: il NICP su template in mm segue la taglia oracolo, il NICP per coppia in mm
+# no; con SR il riferimento corretto e' senza taglia, ICP mm e' secondario). Lato piu' allineato (per il conteggio): b
+# nei passi 1-3 (cs = taglia tolta per mesh; NICP = deformazione; NICP per coppia = deformazione specifica della
+# coppia), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 (ICP: allineamento esplicito; il braccio nessuno).
 LADDER = []
+_P1 = "1. togliere la taglia (normalizzazione per mesh alla cs_ref): ICP mm - ICP cs"
 for _g in GTS:
-    LADDER += [(_g, "mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", "1. togliere la scala per coppia (ICP mm - ICP cs)"),
-               (_g, "cs_rigid_icp_chamfer", "cs_nicp_p2tri", "2. deformazione non rigida per coppia (ICP cs - NICP cs)"),
-               (_g, "mm_rigid_icp_chamfer", "mm_nicp_p2tri", "2b. idem in mm (ICP mm - NICP mm)"),
-               (_g, "mm_nicp_template", "mm_nicp_p2tri", "3. per mesh contro per coppia (NICP template mm - NICP per coppia mm)"),
-               (_g, "cs_nicp_template", "cs_nicp_p2tri", "3b. idem in cs (NICP template cs - NICP per coppia cs)")]
-    _r = "fr" if _g == "fr" else "sr"
-    LADDER += [(_g, f"{m}_vb_{_r}", "mm_rigid_icp_chamfer", f"4. fit 3DMM vB per mesh, mesh {_r.upper()} - ICP mm")
-               for m in ("gnm", "flame2023")]
-    _a = "form" if _g == "fr" else "shape"
-    LADDER += [(_g, f"factorized_{s}|{_a}", "mm_rigid_icp_chamfer",
-                f"5. nostro ({'d_F non cal.' if _g == 'fr' else 'd_P'}) - ICP mm") for s in ("s1234", "s2345")]
+    LADDER += [(_g, "mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", _P1, "principale", "b"),
+               (_g, "cs_rigid_icp_chamfer", "cs_nicp_p2tri", "2. deformazione non rigida per coppia, cs: ICP cs - NICP cs",
+                "principale", "b"),
+               (_g, "mm_rigid_icp_chamfer", "mm_nicp_p2tri", "2b. idem in mm: ICP mm - NICP mm (confuso dalla taglia)",
+                "secondario", "b"),
+               (_g, "mm_nicp_template", "mm_nicp_p2tri",
+                "3. per mesh contro per coppia, mm: NICP template mm - NICP per coppia mm (confuso dalla taglia)",
+                "secondario", "b"),
+               (_g, "cs_nicp_template", "cs_nicp_p2tri",
+                "3b. per mesh contro per coppia, cs: NICP template cs - NICP per coppia cs", "principale", "b")]
+    _r, _a = ("fr", "form") if _g == "fr" else ("sr", "shape")
+    _refs = (("mm_rigid_icp_chamfer", "ICP mm", "principale"),) if _g == "fr" else \
+        (("cs_rigid_icp_chamfer", "ICP cs", "principale"), ("cs_nicp_p2tri", "NICP cs", "principale"),
+         ("mm_rigid_icp_chamfer", "ICP mm (riferimento con la taglia)", "secondario"))
+    for _b, _lb, _ru in _refs:
+        LADDER += [(_g, f"{m}_vb_{_r}", _b, f"4. fit 3DMM vB per mesh (mesh {_r.upper()}) - {_lb}", _ru, "a")
+                   for m in ("gnm", "flame2023")]
+        LADDER += [(_g, f"factorized_{s}|{_a}", _b,
+                    f"5. nostro ({'d_F non cal.' if _g == 'fr' else 'd_P'}) - {_lb}", _ru, "b") for s in ("s1234", "s2345")]
+NICP = ("mm_nicp_p2tri", "cs_nicp_p2tri")
+SYNTH = VIEWS[:4]                                     # famiglie sintetiche (crop e perturbazioni)
 # motivi dei non applicabili noti (colonna -> {vista: motivo}); il resto lo scopre il caricamento
 NA_REASON = {
     "factorizedc3m_e123": {"faceverse_neutral": "embedding di C3M e123 mai calcolato sulla vista neutra (store assente; "
@@ -344,21 +375,21 @@ def famos_extra(view: str, keys: list) -> dict:
 
 # ------------------------------------------------------------------------------------------- plug-in
 
-def plugin_dirs(roots: list) -> list:
-    """Cartelle dei plug-in: ``<radice>/<metodo>/`` e, se il metodo ha varianti, ``<radice>/<metodo>/<tag>/`` (una
-    cartella vale se contiene almeno un ``<dominio>.npz``, ``<dominio>.csv`` o ``pairs_<dominio>.csv``)."""
-    def has_data(d):
-        return any((d / f"{p}{v}.{e}").exists() for v in VIEWS for p, e in (("", "npz"), ("", "csv"), ("pairs_", "csv")))
-    out = []
+def plugin_dirs(roots: list) -> tuple[list, list]:
+    """Cartelle dei plug-in DICHIARATE: ``<radice>/<metodo>/`` o ``<radice>/<metodo>/<tag>/`` che contengono
+    ``fm_plugin.json`` (il file di marcatura). Le altre (pilot/, prep/, cartelle di lavoro) si ignorano e si elencano."""
+    out, ignored = [], []
     for r in roots:
         if not r.is_dir():
             continue
         for d in sorted(x for x in r.iterdir() if x.is_dir() and not x.name.startswith(".")):
-            if has_data(d):
-                out.append((d.name, d))
-            out += [(f"{d.name}/{t.name}", t) for t in sorted(x for x in d.iterdir()
-                                                            if x.is_dir() and not x.name.startswith(".")) if has_data(t)]
-    return out
+            subs = [t for t in sorted(d.iterdir()) if t.is_dir() and not t.name.startswith(".")]
+            for name, x in [(d.name, d)] + [(f"{d.name}/{t.name}", t) for t in subs]:
+                if (x / "fm_plugin.json").exists():
+                    out.append((name, x))
+                elif x is d or any(x.glob("*.npz")) or any(x.glob("*.csv")):
+                    ignored.append(name)
+    return out, ignored
 
 
 def reading_gts(r: str, info: dict) -> tuple:
@@ -386,18 +417,25 @@ def plugin_columns(view: str, keys: list, pdirs: list) -> tuple[dict, dict, list
         if (d / f"{view}.npz").exists():
             with np.load(d / f"{view}.npz", allow_pickle=True) as z:
                 kz = keys_of(z)
+                sel = [(i, pos[k]) for i, k in enumerate(kz) if k in pos]
+                if not sel:
+                    raise SystemExit(f"plug-in {name}: {d / f'{view}.npz'} non contiene nessuna mesh del dominio {view} "
+                                     f"(es. {kz[:2]} contro {keys[:2]})")
+                a = np.asarray([x for x, _ in sel], dtype=np.int64)
+                b = np.asarray([y for _, y in sel], dtype=np.int64)
                 for f in z.files:
                     if f == "D" or f.startswith("D_"):
                         M = np.full((len(keys), len(keys)), np.nan)
-                        sel = [(i, pos[k]) for i, k in enumerate(kz) if k in pos]
-                        a, b = np.asarray([x for x, _ in sel]), np.asarray([y for _, y in sel])
                         M[np.ix_(b, b)] = np.asarray(z[f], np.float64)[np.ix_(a, a)]
                         mats[f[2:] if f.startswith("D_") else "-"] = M
         elif csvp is not None:
             df = pd.read_csv(csvp, dtype={"subject_a": str, "subject_b": str, "topology_a": str, "topology_b": str})
             ia = df.apply(lambda r: pos.get((r.subject_a, r.topology_a), -1), axis=1).to_numpy()
             ib = df.apply(lambda r: pos.get((r.subject_b, r.topology_b), -1), axis=1).to_numpy()
+            ia, ib = ia.astype(np.int64), ib.astype(np.int64)
             ok = (ia >= 0) & (ib >= 0)
+            if not ok.any():
+                raise SystemExit(f"plug-in {name}: {csvp} non contiene nessuna coppia di mesh del dominio {view}")
             for c in df.columns:
                 if c in ("subject_a", "topology_a", "subject_b", "topology_b"):
                     continue
@@ -519,9 +557,9 @@ def records(view: str, V: np.ndarray, gkeys: list, groups: dict, methods: list, 
                 lo, hi = ci(x)
                 lab, fam, dec, ours = meta[m]
                 S.append({**base(g, gt), "metodo": lab, "colonna": m, "famiglia": fam, "nostro": ours,
-                          "dichiarata": gt in dec, "rho": x[0], "ic_lo": lo, "ic_hi": hi})
+                          "dichiarata": gt in dec, "post_hoc": post_hoc(m, view), "rho": x[0], "ic_lo": lo, "ic_hi": hi})
 
-            def delta(a, b, tipo, conf):
+            def delta(a, b, tipo, conf, ruolo="-", piu="-"):
                 if a not in mi or b not in mi:
                     return
                 xa, xb = A[:, ti, mi[a]], A[:, ti, mi[b]]
@@ -530,9 +568,11 @@ def records(view: str, V: np.ndarray, gkeys: list, groups: dict, methods: list, 
                     return
                 lo, hi = ci(d)
                 bb = d[1:][np.isfinite(d[1:])]
-                Dl.append({**base(g, gt), "tipo": tipo, "confronto": conf, "metodo_a": meta[a][0], "colonna_a": a,
-                           "metodo_b": meta[b][0], "colonna_b": b, "rho_a": xa[0], "rho_b": xb[0], "delta": d[0],
-                           "ic_lo": lo, "ic_hi": hi, "p_le0": float((bb <= 0).mean()) if len(bb) else np.nan})
+                Dl.append({**base(g, gt), "tipo": tipo, "confronto": conf, "ruolo": ruolo, "piu_allineato": piu,
+                           "metodo_a": meta[a][0], "colonna_a": a, "post_hoc_a": post_hoc(a, view),
+                           "metodo_b": meta[b][0], "colonna_b": b, "post_hoc_b": post_hoc(b, view), "rho_a": xa[0],
+                           "rho_b": xb[0], "delta": d[0], "ic_lo": lo, "ic_hi": hi,
+                           "p_le0": float((bb <= 0).mean()) if len(bb) else np.nan})
 
             comps = [m for m in methods if not meta[m][3] and gt in meta[m][2]]
             if g[0] in ("coppia_ordinata",):
@@ -540,9 +580,9 @@ def records(view: str, V: np.ndarray, gkeys: list, groups: dict, methods: list, 
             for r in REF[gt]:
                 for c in comps:
                     delta(r, c, "vs_nostro", f"{meta[r][0]} - {meta[c][0]}")
-            for lg, a, b, step in LADDER:
+            for lg, a, b, step, ruolo, piu in LADDER:
                 if lg == gt:
-                    delta(a, b, "scala_allineamento", step)
+                    delta(a, b, "scala_allineamento", step, ruolo, piu)
             ours = [m for m in methods if meta[m][3] and gt in meta[m][2] and np.isfinite(A[0, ti, mi[m]])]
             rivals = [m for m in comps if m not in REFERENCES and np.isfinite(A[0, ti, mi[m]])]
             if ours and rivals:
@@ -554,6 +594,20 @@ def records(view: str, V: np.ndarray, gkeys: list, groups: dict, methods: list, 
 
 
 # ----------------------------------------------------------------------------------------- controlli
+
+def size_confound(cols: dict, core: list, groups: dict) -> dict:
+    """Spearman (punto, righe della maschera) di ogni colonna con la taglia oracolo e con la taglia stimata: quanto una
+    distanza segue la taglia (confusione dei passi in mm della scala dell'allineamento)."""
+    from scipy.stats import rankdata
+    out = {}
+    for g in (("nocrop", "-"), ("crop", "crop"), ("all_cross", "-")):
+        if g not in groups:
+            continue
+        r = groups[g]
+        ref = {k: rankdata(cols[k][r]) for k in ("oracle_size", "est_cs") if k in cols}
+        out[g[0]] = {c: {k: round(fp._pearson(rankdata(cols[c][r]), v), 4) for k, v in ref.items()} for c in core}
+    return out
+
 
 def t1_control(view: str, my: dict, idx, n_boot: int, workers: int, sens: list) -> dict:
     """C1: le colonne di qui sulle righe, maschera e repliche della T1 (``bp_paired.frame`` con le colonne di
@@ -755,6 +809,30 @@ def run_view(view: str, n_boot: int, workers: int, pdirs: list, sens: list) -> t
     methods = core + pfull
     V = replicas({m: cols[m] for m in methods}, gt, sa, sb, counts, groups, methods, workers)
     S, Dl = records(view, V, list(groups), groups, methods, meta, seed, n_subj)
+    info["spearman_con_taglia"] = size_confound(cols, core, groups)
+    if view == "famos":
+        det = info.get("famos_arcface_detector") or {}
+        NA.append({"dominio": view, "metodo": label("arcface_normals"), "colonna": "arcface_normals",
+                   "insieme_righe": "nocrop", "motivo": "CAUTELA (calcolato, non escluso): sulle scansioni parziali il "
+                   f"detector trova il volto in {sum(det.values())}/45 render ({det}); il ritaglio a +30 gradi e' tarato su "
+                   f"{det.get('+030.00', '?')} render su 15, fuori dal regime validato in G0"})
+    else:                                                 # NICP: selezione delle righe per i suoi fallimenti
+        others = [c for c in core if c not in NICP]
+        m_nf = (gok & ~same & np.all([fin[c] for c in others], axis=0)) | (mask & same)
+        lost = m_nf & ~same & ~mask
+        ta, tb = groups_all
+        info["nicp_failures"] = {"rows_lost": int(lost.sum()), "by_topology": {
+            t: {"lost": int((lost & ((ta == t) | (tb == t))).sum()),
+                "rows_without_nicp_mask": int((m_nf & ~same & ((ta == t) | (tb == t))).sum())} for t in TOPOS}}
+        if lost.any():                                    # sensibilita': fallimento = distanza massima, righe tutte
+            filled = {c: (np.where(np.isfinite(cols[c]), cols[c], np.nanmax(cols[c][gok]) * (1 + 1e-9))
+                          if c in NICP else cols[c]) for c in methods}
+            g3 = groups_of(ta, tb, m_nf)
+            V3 = replicas(filled, gt, sa, sb, counts, g3, methods, workers)
+            s3, d3 = records(view, V3, list(g3), g3, methods, meta, seed, n_subj,
+                             tag="sensibilita': NICP fallito = distanza massima")
+            S += s3
+            Dl += d3
     for c in ppart:                                       # plug-in con buchi: passo a parte, righe proprie
         m2 = mask & np.isfinite(cols[c])
         g2 = {("nocrop", "-"): np.flatnonzero(m2)} if view == "famos" else groups_of(*groups_all, m2)
@@ -777,127 +855,252 @@ def f3(r, lo, hi, sign=False) -> str:
     return f"{f.format(r)} [{f.format(lo)}, {f.format(hi)}]"
 
 
+SETS_MD = [("nocrop", "-"), ("crop", "crop"), ("all_cross", "-")] + [("con_perturbazione", t) for t in NOCROP] + \
+    [("stessa_topologia", "tutte")]
+SENS = "sensibilita': NICP fallito = distanza massima"
+
+
+def sname(s: str, p: str) -> str:
+    return s if p in ("-", "crop") and s in ("nocrop", "crop", "all_cross") else f"{s} {p}"
+
+
+def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple) -> list:
+    B = Dl[(Dl["tipo"] == "migliore_vs_migliore") & (Dl["passo"] == "comune")]
+    md = ["| dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |",
+          "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for v in views:
+        for g in GTS:
+            for s, p in SETS_MD:
+                r = B[(B["dominio"] == v) & (B["gt"] == g) & (B["insieme_righe"] == s) & (B["perturbazione"] == p)]
+                if not len(r):
+                    continue
+                r = r.iloc[0]
+                x = S[(S["dominio"] == v) & (S["gt"] == g) & (S["insieme_righe"] == s) & (S["perturbazione"] == p) &
+                      (S["passo"] == "comune")]
+                ra, rb = (x[x["colonna"] == c].iloc[0] for c in (r.colonna_a, r.colonna_b))
+                md.append(f"| {v} | {g.upper()} | {sname(s, p)} | {int(r.n_righe)} | {r.metodo_a} | "
+                          f"{f3(ra.rho, ra.ic_lo, ra.ic_hi)} | {r.metodo_b} | {f3(rb.rho, rb.ic_lo, rb.ic_hi)} | "
+                          f"{f3(r.delta, r.ic_lo, r.ic_hi, True)} |")
+    return md + [""]
+
+
+def ladder_table(Dl: pd.DataFrame, views: tuple, ruolo: str, passo: str = "comune") -> list:
+    L = Dl[(Dl["tipo"] == "scala_allineamento") & (Dl["passo"] == passo) & (Dl["ruolo"] == ruolo)]
+    md = []
+    for g in GTS:
+        x = L[L["gt"] == g]
+        sets = [sp for sp in SETS_MD if len(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])])]
+        if x.empty:
+            continue
+        md += [f"GT {g.upper()}:", "", "| dominio | passo | " + " | ".join(sname(s, p) for s, p in sets) + " |",
+               "| --- | --- |" + " --- |" * len(sets)]
+        for v in views:
+            y = x[x["dominio"] == v]
+            for (st, a, b) in dict.fromkeys(zip(y["confronto"], y["colonna_a"], y["colonna_b"])):
+                cells = []
+                for s, p in sets:
+                    r = y[(y["confronto"] == st) & (y["colonna_a"] == a) & (y["colonna_b"] == b) &
+                          (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
+                    cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
+                who = st if not st.startswith(("4.", "5.")) else f"{st} [{label(a)}]"
+                md.append(f"| {v} | {who} | " + " | ".join(cells) + " |")
+        md.append("")
+    return md
+
+
+def count_table(Dl: pd.DataFrame) -> list:
+    """Per passo (riga di confronto) e GT, in nocrop, crop, all_cross: famiglie sintetiche con IC appaiato che esclude
+    lo 0 nel verso "piu' allineamento = peggio" / nel verso opposto / non risolte."""
+    L = Dl[(Dl["tipo"] == "scala_allineamento") & (Dl["passo"] == "comune") & Dl["dominio"].isin(SYNTH)]
+    sets = (("nocrop", "-"), ("crop", "crop"), ("all_cross", "-"))
+    md = ["| GT | passo | ruolo | " + " | ".join(f"{s}: peggio / meglio / n.r." for s, _ in sets) + " |",
+          "| --- | --- | --- |" + " --- |" * len(sets)]
+    for g in GTS:
+        x = L[L["gt"] == g]
+        for st, a, b, ru, piu in dict.fromkeys(zip(x["confronto"], x["colonna_a"], x["colonna_b"], x["ruolo"],
+                                                   x["piu_allineato"])):
+            cells = []
+            for s, p in sets:
+                y = x[(x["confronto"] == st) & (x["colonna_a"] == a) & (x["colonna_b"] == b) &
+                      (x["insieme_righe"] == s) & (x["perturbazione"] == p)]
+                worse = int(((y.ic_lo > 0) if piu == "b" else (y.ic_hi < 0)).sum())
+                better = int(((y.ic_hi < 0) if piu == "b" else (y.ic_lo > 0)).sum())
+                cells.append(f"{worse} / {better} / {len(y) - worse - better} (su {len(y)})")
+            who = st if not st.startswith(("4.", "5.")) else f"{st} [{label(a)}]"
+            md.append(f"| {g.upper()} | {who} | {ru} | " + " | ".join(cells) + " |")
+    return md + [""]
+
+
+def size_table(ctrl: dict, views: tuple) -> list:
+    cols = ("mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", "mm_nicp_p2tri", "cs_nicp_p2tri", "mm_nicp_template",
+            "cs_nicp_template", "gnm_vb_fr", "gnm_vb_sr", "factorized_s1234|form", "factorized_s1234|shape")
+    md = ["| dominio | " + " | ".join(label(c) for c in cols) + " |", "| --- |" + " --- |" * len(cols)]
+    for v in views:
+        t = ctrl["views"].get(v, {}).get("spearman_con_taglia", {}).get("nocrop", {})
+        md.append(f"| {v} | " + " | ".join(f"{t[c]['oracle_size']:+.2f} / {t[c]['est_cs']:+.2f}" if c in t else "-"
+                                           for c in cols) + " |")
+    return md + [""]
+
+
+def domain_tables(S: pd.DataFrame, Dl: pd.DataFrame, v: str) -> list:
+    x = S[(S["dominio"] == v) & (S["passo"] == "comune")]
+    if x.empty:
+        return []
+    vs = [(s, p) for s, p in SETS_MD if len(x[(x["insieme_righe"] == s) & (x["perturbazione"] == p)])]
+    nr = {sp: int(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])]["n_righe"].iloc[0]) for sp in vs}
+    md = [f"### {DOMAIN[v]}: Spearman per insieme di righe (seme {int(x['seme'].iloc[0])})", ""]
+    for g in GTS:
+        md += [f"GT {g.upper()} (grassetto = lettura dichiarata; * = post hoc):", "",
+               "| metodo | " + " | ".join(f"{sname(s, p)} ({nr[(s, p)]})" for s, p in vs) + " |",
+               "| --- |" + " --- |" * len(vs)]
+        for c in dict.fromkeys(x["colonna"]):
+            y = x[(x["colonna"] == c) & (x["gt"] == g)]
+            if y.empty:
+                continue
+            b0 = "**" if bool(y["dichiarata"].iloc[0]) else ""
+            ph = "*" if bool(y["post_hoc"].iloc[0]) else ""
+            cells = []
+            for s, p in vs:
+                r = y[(y["insieme_righe"] == s) & (y["perturbazione"] == p)]
+                cells.append(f3(r.iloc[0].rho, r.iloc[0].ic_lo, r.iloc[0].ic_hi) if len(r) else "-")
+            md.append(f"| {b0}{y['metodo'].iloc[0]}{ph}{b0} | " + " | ".join(cells) + " |")
+        md.append("")
+    for g, ref in (("fr", "factorized_s1234|form_cal"), ("fr", "factorized_s1234|form"), ("sr", "factorized_s1234|shape")):
+        y = Dl[(Dl["dominio"] == v) & (Dl["gt"] == g) & (Dl["tipo"] == "vs_nostro") & (Dl["colonna_a"] == ref) &
+               (Dl["passo"] == "comune")]
+        if y.empty:
+            continue
+        md += [f"Delta appaiati, {label(ref)} - concorrente, GT {g.upper()} (tutti i riferimenti in `deltas.csv`):", "",
+               "| concorrente | " + " | ".join(sname(s, p) for s, p in vs) + " |", "| --- |" + " --- |" * len(vs)]
+        for c in dict.fromkeys(y["colonna_b"]):
+            cells = []
+            for s, p in vs:
+                r = y[(y["colonna_b"] == c) & (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
+                cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
+            md.append(f"| {label(c)} | " + " | ".join(cells) + " |")
+        md.append("")
+    return md
+
+
+def nicp_section(S: pd.DataFrame, Dl: pd.DataFrame, ctrl: dict) -> list:
+    md = ["## Fallimenti del NICP per coppia: selezione delle righe", "",
+          "La maschera comune toglie le righe dove il NICP per coppia (mm o cs) fallisce (matrice singolare). La selezione "
+          "dipende dalla topologia, non dalla GT: le righe perse sono soprattutto quelle con up60k, che quindi pesa meno "
+          "negli insiemi nocrop e all_cross; e il NICP non e' penalizzato per i propri fallimenti. Righe perse per "
+          "topologia (righe con quella topologia su un lato, senza la maschera del NICP):", "",
+          "| dominio | righe perse | " + " | ".join(TOPOS) + " |", "| --- | --- |" + " --- |" * len(TOPOS)]
+    for v in SYNTH:
+        nf = ctrl["views"].get(v, {}).get("nicp_failures")
+        if nf:
+            md.append(f"| {v} | {nf['rows_lost']} | " + " | ".join(
+                f"{b['lost']} / {b['rows_without_nicp_mask']} ({b['lost'] / max(b['rows_without_nicp_mask'], 1):.1%})"
+                for b in (nf["by_topology"][t] for t in TOPOS)) + " |")
+    md += ["", f"Sensibilita' (`passo` = \"{SENS}\" in entrambi i CSV): stesse colonne, maschera senza il NICP (le righe "
+               "perse rientrano per tutti), NICP fallito = distanza massima della colonna sul dominio (il fallimento conta "
+               "come la coppia piu' lontana). Il NICP con e senza la sostituzione e i passi della scala che lo usano:", "",
+           "| dominio | GT | insieme | metodo / passo | maschera comune | fallimento = distanza massima |",
+           "| --- | --- | --- | --- | --- | --- |"]
+    for v in SYNTH:
+        for g in GTS:
+            for s, p in (("nocrop", "-"), ("crop", "crop")):
+                for c in NICP:
+                    a = [S[(S["dominio"] == v) & (S["gt"] == g) & (S["insieme_righe"] == s) & (S["perturbazione"] == p) &
+                           (S["colonna"] == c) & (S["passo"] == ps)] for ps in ("comune", SENS)]
+                    if len(a[1]):
+                        md.append(f"| {v} | {g.upper()} | {s} | {label(c)} | " + " | ".join(
+                            f"{f3(z.iloc[0].rho, z.iloc[0].ic_lo, z.iloc[0].ic_hi)} ({int(z.iloc[0].n_righe)})" if len(z)
+                            else "-" for z in a) + " |")
+                for st in ("2. ", "3b."):
+                    a = [Dl[(Dl["dominio"] == v) & (Dl["gt"] == g) & (Dl["insieme_righe"] == s) & (Dl["perturbazione"] == p)
+                            & (Dl["tipo"] == "scala_allineamento") & Dl["confronto"].str.startswith(st) &
+                            (Dl["passo"] == ps)] for ps in ("comune", SENS)]
+                    if len(a[1]):
+                        md.append(f"| {v} | {g.upper()} | {s} | {a[1].iloc[0].confronto} | " + " | ".join(
+                            f3(z.iloc[0].delta, z.iloc[0].ic_lo, z.iloc[0].ic_hi, True) if len(z) else "-" for z in a) + " |")
+    return md + [""]
+
+
 def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dict) -> None:
     md = ["# Matrice completa e confrontabile: Spearman con FR e SR, delta appaiati", "",
           "Codice `aau/full_matrix/` (`fm_eval.py`, definizioni nel docstring), numeri in questa cartella. Ogni metodo "
           "di un dominio e' valutato sulle STESSE righe (maschera comune: righe con tutte le colonne del dominio finite), "
           "con le STESSE 1000 repliche per soggetto (seme della T1 del dominio, lo stesso per tutti gli insiemi). IC 95% "
-          "percentile. Delta appaiati = differenza replica per replica. FaMoS TEST: 15 persone, 105 righe, solo "
-          "descrittivo (IC larghissimi), mai per selezione. Ava-256 non e' toccato.", "",
+          "percentile. Delta appaiati = differenza replica per replica. FaMoS TEST sta in una sezione descrittiva a "
+          "parte in fondo. Ava-256 non e' toccato.", "",
           "## File e colonne (nomi stabili)", "",
           "- `spearman.csv`: `metodo` (etichetta), `colonna` (id stabile), `famiglia`, `nostro`, `dichiarata` (lettura "
-          "dichiarata per quella GT), `dominio`, `gt` (fr, sr), `insieme_righe` (nocrop, crop, all_cross, "
-          "con_perturbazione, coppia_topologie, stessa_topologia, coppia_ordinata, media_20_ordinate_senza_crop, "
-          "media_5_stessa_topologia), `perturbazione` (`-`, una topologia, `a~b` coppia non ordinata, `a>b` ordinata, "
-          "`tutte`; `con_perturbazione` P = P contro le altre topologie SENZA crop, la scomposizione di nocrop; per P = "
-          "crop coincide con `crop`; `stessa_topologia` = soggetti diversi con la stessa topologia, crop - crop compresa), `rho`, `ic_lo`, `ic_hi`, `n_righe`, `n_soggetti`, `seme`, `passo` (`comune` o le righe proprie di un "
-          "plug-in con buchi).",
+          "dichiarata per quella GT), `post_hoc` (d_F calibrata, varianti A e B dei fit e composizione, template FaMoS "
+          "costruito qui), `dominio`, `gt` (fr, sr), `insieme_righe` (nocrop, crop, all_cross, con_perturbazione, "
+          "coppia_topologie, stessa_topologia, coppia_ordinata, media_20_ordinate_senza_crop, media_5_stessa_topologia), "
+          "`perturbazione` (`-`, una topologia, `a~b` coppia non ordinata, `a>b` ordinata, `tutte`; `con_perturbazione` "
+          "P = P contro le altre topologie SENZA crop, la scomposizione di nocrop; per P = crop coincide con `crop`; "
+          "`stessa_topologia` = soggetti diversi con la stessa topologia, crop - crop compresa), `rho`, `ic_lo`, `ic_hi`, "
+          "`n_righe`, `n_soggetti`, `seme`, `passo` (`comune`; la sensibilita' del NICP; le righe proprie di un plug-in "
+          "con buchi).",
           "- `deltas.csv`: le stesse chiavi + `tipo` (vs_nostro = braccio - concorrente; scala_allineamento = a - b; "
-          "migliore_vs_migliore), `confronto`, `metodo_a`, `colonna_a`, `metodo_b`, `colonna_b`, `rho_a`, `rho_b`, "
-          "`delta`, `ic_lo`, `ic_hi`, `p_le0` (frazione delle repliche con delta <= 0).",
-          "- `non_applicabili.csv`: `dominio`, `metodo`, `colonna`, `insieme_righe`, `motivo`.",
-          "- `controls.json`: controlli di riproduzione, maschera e righe tolte per colonna, plug-in.", "",
+          "migliore_vs_migliore), `confronto`, `ruolo` (scala: principale o secondario), `piu_allineato` (scala: a o b), "
+          "`metodo_a`, `colonna_a`, `post_hoc_a`, `metodo_b`, `colonna_b`, `post_hoc_b`, `rho_a`, `rho_b`, `delta`, "
+          "`ic_lo`, `ic_hi`, `p_le0` (frazione delle repliche con delta <= 0).",
+          "- `non_applicabili.csv`: `dominio`, `metodo`, `colonna`, `insieme_righe`, `motivo` (anche le CAUTELE su celle "
+          "calcolate).",
+          "- `controls.json`: controlli di riproduzione, maschera e righe tolte per colonna, fallimenti del NICP per "
+          "topologia, Spearman di ogni colonna con la taglia oracolo e stimata (`spearman_con_taglia`), plug-in.", "",
           "Letture dichiarate: nostri FR = d_F cal. (post hoc, emendamento 4), d_F non cal. (preregistrata), ctrlfr; SR = "
-          "d_P. Fit 3DMM: coefficienti (FR e SR), mesh FR con FR, mesh SR con SR, composizione di B con FR (k calibrato "
-          "solo per B: per preregistrato e vA la composizione non esiste). Geometrici, percettivi, spettrali, reti e "
-          "riferimenti: entrambe le GT. Tutte le letture sono comunque in `spearman.csv` (`dichiarata` = False).", ""]
+          "d_P (ctrlfr non e' un braccio per SR: e' in `spearman.csv` ma non e' un riferimento dei delta SR). Fit 3DMM: "
+          "coefficienti (FR e SR), mesh FR con FR, mesh SR con SR, composizione di B con FR (k calibrato solo per B: per "
+          "preregistrato e vA la composizione non esiste). Geometrici, percettivi, spettrali, reti e riferimenti: "
+          "entrambe le GT. Tutte le letture sono comunque in `spearman.csv` (`dichiarata` = False).", ""]
     md += ["## Come aggiungere un concorrente (plug-in)", "",
-           "Una cartella `aau/runs/evidence/competitors_new/<metodo>/` con, per dominio (`hifi3d`, `facescape`, "
-           "`faceverse`, `faceverse_neutral`, `famos`), `<dominio>.npz` (`subjects`, `topologies`, matrici `D` o "
-           "`D_<lettura>` (n, n) sulle mesh elencate; FaMoS: `subjects` = view_id, `topologies` = `scan_gallery`) oppure "
-           "`<dominio>.csv` (`subject_a`, `topology_a`, `subject_b`, `topology_b`, una colonna per lettura), e "
-           "facoltativo `fm_plugin.json` (`label`, `family`, `readings`: {lettura: {`label`, `gt`}}). Poi solo lo stadio "
-           "finale: `FM_STEP=eval sbatch --cpus-per-task=64 --mem=192G --time=02:00:00 aau/full_matrix/fm.sbatch`. Un "
-           "plug-in finito su tutta la maschera comune entra nello stesso passo e non cambia le righe degli altri; uno con "
-           "buchi va in un passo a parte (`passo` = righe proprie), con i bracci di riferimento sulle sue righe.", ""]
-    md += ["## Controlli", "", "```", json.dumps(ctrl, indent=1, default=str), "```", ""]
+           "Una cartella `aau/runs/evidence/competitors_new/<metodo>/` (o `<metodo>/<tag>/`) con, per dominio (`hifi3d`, "
+           "`facescape`, `faceverse`, `faceverse_neutral`, `famos`), `<dominio>.npz` (`subjects`, `topologies`, matrici "
+           "`D` o `D_<lettura>` (n, n) sulle mesh elencate; FaMoS: `subjects` = view_id, `topologies` = `scan_gallery`) "
+           "oppure `<dominio>.csv` / `pairs_<dominio>.csv` (`subject_a`, `topology_a`, `subject_b`, `topology_b`, una "
+           "colonna per lettura), e il file di marcatura OBBLIGATORIO `fm_plugin.json` (anche `{}`; le cartelle senza, es. "
+           "`pilot/` o `prep/`, si ignorano; facoltativi `label`, `family`, `readings`: {lettura: {`label`, "
+           "`gt`}}; senza, una lettura `fr` / `*_fr` e' dichiarata per FR, `sr` / `*_sr` per SR, le altre per entrambe). "
+           "Poi solo lo stadio finale: `FM_STEP=eval sbatch --cpus-per-task=64 --mem=192G --time=02:00:00 "
+           "aau/full_matrix/fm.sbatch`. Un plug-in finito su tutta la maschera comune entra nello stesso passo e non cambia "
+           "le righe degli altri; uno con buchi va in un passo a parte (`passo` = righe proprie), con i bracci di "
+           "riferimento sulle sue righe.", ""]
     if len(NA):
-        md += ["## Non applicabili", "", "| dominio | metodo | insieme | motivo |", "| --- | --- | --- | --- |"]
+        md += ["## Non applicabili e cautele", "", "| dominio | metodo | insieme | motivo |", "| --- | --- | --- | --- |"]
         md += [f"| {r.dominio} | {r.metodo} | {r.insieme_righe} | {r.motivo} |" for r in NA.itertuples()]
         md.append("")
-    # migliore contro migliore
-    B = Dl[Dl["tipo"] == "migliore_vs_migliore"]
-    sets = [("nocrop", "-"), ("crop", "crop"), ("all_cross", "-")] + [("con_perturbazione", t) for t in TOPOS[:-1]] + \
-        [("stessa_topologia", "tutte")]
-    md += ["## Miglior nostro contro miglior concorrente (letture dichiarate; scelti sul punto, post hoc)", "",
-           "| dominio | GT | insieme | perturbazione | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |",
-           "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
-    for v in VIEWS:
-        for g in GTS:
-            for s, p in sets:
-                r = B[(B["dominio"] == v) & (B["gt"] == g) & (B["insieme_righe"] == s) & (B["perturbazione"] == p)]
-                if not len(r):
-                    continue
-                r = r.iloc[0]
-                sa = S[(S["dominio"] == v) & (S["gt"] == g) & (S["insieme_righe"] == s) & (S["perturbazione"] == p) &
-                       (S["passo"] == "comune")]
-                ra, rb = (sa[sa["colonna"] == c].iloc[0] for c in (r.colonna_a, r.colonna_b))
-                md.append(f"| {v} | {g.upper()} | {s} | {p} | {int(r.n_righe)} | {r.metodo_a} | "
-                          f"{f3(ra.rho, ra.ic_lo, ra.ic_hi)} | {r.metodo_b} | {f3(rb.rho, rb.ic_lo, rb.ic_hi)} | "
-                          f"{f3(r.delta, r.ic_lo, r.ic_hi, True)} |")
-    md.append("")
-    # scala dell'allineamento
-    L = Dl[Dl["tipo"] == "scala_allineamento"]
+    md += ["## Miglior nostro contro miglior concorrente (famiglie sintetiche; letture dichiarate, scelti sul punto: "
+           "post hoc)", ""] + best_table(S, Dl, SYNTH)
     md += ["## Scala dell'allineamento", "",
-           "Delta appaiati a - b (stesse righe, stesse repliche), lungo i gradi di liberta' dell'allineamento. Passi 1, 2, 3 "
-           "fra baseline geometriche: la coppia confrontata ha la stessa normalizzazione (2: cs con cs, e 2b mm con mm; 3: "
-           "template mm contro NICP per coppia mm, 3b cs con cs) tranne il passo 1, che e' proprio mm contro cs. 4: fit B "
-           "con la mesh della GT (FR con FR, SR con SR). 5: nostro preregistrato (d_F non cal. con FR, d_P con SR).", ""]
-    for g in GTS:
-        steps = list(dict.fromkeys(L[L["gt"] == g]["confronto"]))
-        md += [f"### GT {g.upper()}", "", "| dominio | passo | " + " | ".join(f"{s}{'' if p in ('-',) else ' ' + p}"
-                                                                          for s, p in sets) + " |",
-               "| --- | --- |" + " --- |" * len(sets)]
-        for v in VIEWS:
-            for st in steps:
-                for (a, b) in sorted({(r.colonna_a, r.colonna_b) for r in L[(L["gt"] == g) & (L["confronto"] == st) &
-                                                                             (L["dominio"] == v)].itertuples()}):
-                    cells = []
-                    for s, p in sets:
-                        r = L[(L["dominio"] == v) & (L["gt"] == g) & (L["confronto"] == st) & (L["colonna_a"] == a) &
-                              (L["colonna_b"] == b) & (L["insieme_righe"] == s) & (L["perturbazione"] == p)]
-                        cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
-                    who = st if not st.startswith(("4.", "5.")) else f"{st} [{label(a)}]"
-                    md.append(f"| {v} | {who} | " + " | ".join(cells) + " |")
-        md.append("")
-    # tabelle per dominio
-    for v in VIEWS:
-        x = S[(S["dominio"] == v) & (S["passo"] == "comune")]
-        if x.empty:
-            continue
-        vs = [(s, p) for s, p in sets if len(x[(x["insieme_righe"] == s) & (x["perturbazione"] == p)])]
-        nr = {sp: int(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])]["n_righe"].iloc[0]) for sp in vs}
-        md += [f"## {DOMAIN[v]}: Spearman per insieme di righe (seme {int(x['seme'].iloc[0])})", ""]
-        for g in GTS:
-            md += [f"GT {g.upper()} (in grassetto le letture dichiarate):", "",
-                   "| metodo | " + " | ".join(f"{s}{'' if p == '-' else ' ' + p} ({nr[(s, p)]})" for s, p in vs) + " |",
-                   "| --- |" + " --- |" * len(vs)]
-            for c in dict.fromkeys(x["colonna"]):
-                y = x[(x["colonna"] == c) & (x["gt"] == g)]
-                dec = bool(y["dichiarata"].iloc[0])
-                cells = []
-                for s, p in vs:
-                    r = y[(y["insieme_righe"] == s) & (y["perturbazione"] == p)]
-                    cells.append(f3(r.iloc[0].rho, r.iloc[0].ic_lo, r.iloc[0].ic_hi) if len(r) else "-")
-                b0 = "**" if dec else ""
-                md.append(f"| {b0}{y['metodo'].iloc[0]}{b0} | " + " | ".join(cells) + " |")
-            md.append("")
-        # delta compatti: contro factorized s1234 (d_F cal. con FR, d_P con SR) su nocrop e crop
-        for g, ref in (("fr", "factorized_s1234|form_cal"), ("fr", "factorized_s1234|form"), ("sr", "factorized_s1234|shape")):
-            y = Dl[(Dl["dominio"] == v) & (Dl["gt"] == g) & (Dl["tipo"] == "vs_nostro") & (Dl["colonna_a"] == ref) &
-                   (Dl["passo"] == "comune")]
-            if y.empty:
-                continue
-            md += [f"Delta appaiati, {label(ref)} - concorrente, GT {g.upper()} (tutti i riferimenti in `deltas.csv`):", "",
-                   "| concorrente | " + " | ".join(f"{s}{'' if p == '-' else ' ' + p}" for s, p in vs) + " |",
-                   "| --- |" + " --- |" * len(vs)]
-            for c in dict.fromkeys(y["colonna_b"]):
-                cells = []
-                for s, p in vs:
-                    r = y[(y["colonna_b"] == c) & (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
-                    cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
-                md.append(f"| {label(c)} | " + " | ".join(cells) + " |")
-            md.append("")
+           "Delta appaiati a - b (stesse righe, stesse repliche) lungo i gradi di liberta' dell'allineamento. PRINCIPALI: "
+           "1 (togliere la taglia: la modalita' cs scala ogni mesh alla cs_ref del dominio, `blmm.work_coords`; non e' una "
+           "scala per coppia), 2 (ICP cs - NICP cs), 3b (NICP su template cs - NICP per coppia cs), 4 e 5 con FR contro "
+           "ICP mm, con SR contro ICP cs e NICP cs (con SR il riferimento corretto e' senza taglia). SECONDARI: 2b e 3 in "
+           "mm, CONFUSI DALLA TAGLIA (in mm il NICP su template segue la taglia, il NICP per coppia la assorbe: vedi la "
+           "tabella sotto), e 4 e 5 con SR contro ICP mm. 4: fit B con la mesh della GT (FR con FR, SR con SR); 5: nostro "
+           "preregistrato (d_F non cal. con FR, d_P con SR), entrambi i semi.", "",
+           "Spearman (punto, righe nocrop della maschera) di ogni colonna della scala con la taglia oracolo / la taglia "
+           "stimata (`est_cs`); tutte le colonne e gli insiemi crop e all_cross in `controls.json`, "
+           "`spearman_con_taglia`:", ""] + size_table(ctrl, VIEWS)
+    md += ["### Confronti principali", ""] + ladder_table(Dl, SYNTH, "principale")
+    md += ["### Confronti secondari (2b e 3 confusi dalla taglia; 4 e 5 con SR contro un riferimento con la taglia)", ""] + \
+        ladder_table(Dl, SYNTH, "secondario")
+    md += ["## Conteggio", "",
+           "Per ogni passo e GT, in nocrop, crop e all_cross: numero di famiglie sintetiche (HIFI3D, FaceScape, FaceVerse "
+           "con espressioni, FaceVerse neutra) con IC 95% appaiato che esclude lo 0 nel verso \"piu' allineamento = "
+           "peggio\" / nel verso opposto / non risolte. Lato piu' allineato: b nei passi 1-3 (cs: taglia tolta per mesh; "
+           "NICP: deformazione; NICP per coppia: deformazione specifica della coppia contro l'iscrizione su un template "
+           "comune), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 (ICP: allineamento esplicito; il braccio "
+           "non allinea). Le righe 4 e 5 contano ogni modello / seme a parte.", ""] + count_table(Dl)
+    md += nicp_section(S, Dl, ctrl)
+    md += ["## Tabelle per dominio (famiglie sintetiche)", ""]
+    for v in SYNTH:
+        md += domain_tables(S, Dl, v)
+    md += ["## FaMoS TEST (descrittivo)", "",
+           "**Non usare per scegliere il setting di Ava-256** ne' per nessuna selezione: 15 persone, 105 righe (blocco "
+           "scan gallery -> scan), IC larghissimi; nessuna crop, nessuna perturbazione. Cautele: ArcFace-render (ritaglio "
+           "tarato su pochi render, vedi le cautele sopra), NICP su template con un template costruito qui dalle persone "
+           "TRAIN (post hoc).", ""] + best_table(S, Dl, ("famos",))
+    md += ["Scala dell'allineamento, FaMoS (tutti i passi, principali e secondari):", ""] + \
+        ladder_table(Dl, ("famos",), "principale") + ladder_table(Dl, ("famos",), "secondario") + domain_tables(S, Dl, "famos")
+    md += ["## Controlli", "", "```", json.dumps({k: v for k, v in ctrl.items()}, indent=1, default=str), "```", ""]
     (OUT_W / "results.md").write_text("\n".join(md) + "\n")
 
 
@@ -931,7 +1134,7 @@ def main() -> None:
     fp.rows_for = rows_for
     sens = [c for c in bpe2.SENS if any((bp.out_dir(v, c.split("_vbs_")[0]) / "fit_e2_sens.npz").exists()
                                         for v in bpp.VIEW_ORDER)]
-    pdirs = plugin_dirs([Path(x) for x in a.plugins.split(",") if x])
+    pdirs, pignored = plugin_dirs([Path(x) for x in a.plugins.split(",") if x])
     S, Dl, NA, info = [], [], [], {}
     for view in a.views.split(","):
         s, d, n, info[view] = run_view(view, a.n_boot, a.workers, pdirs, sens)
@@ -943,7 +1146,8 @@ def main() -> None:
     S.to_csv(OUT_W / "spearman.csv", index=False)
     Dl.to_csv(OUT_W / "deltas.csv", index=False)
     NA.to_csv(OUT_W / "non_applicabili.csv", index=False)
-    ctrl = {"views": info, "points_vs_sources": point_controls(S), "plugins": [str(d) for _, d in pdirs]}
+    ctrl = {"views": info, "points_vs_sources": point_controls(S), "plugins": [str(d) for _, d in pdirs],
+            "plugin_dirs_ignored_without_fm_plugin_json": pignored}
     (OUT_W / "controls.json").write_text(json.dumps(ctrl, indent=1, default=str) + "\n")
     print(json.dumps(ctrl["points_vs_sources"], indent=1), flush=True)
     write_results(S, Dl, NA, ctrl)

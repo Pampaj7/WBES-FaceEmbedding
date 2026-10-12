@@ -28,3 +28,4 @@ famos,tutti,-,all_cross,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbaz
 famos,tutti,-,con_perturbazione,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
 famos,tutti,-,coppia_topologie,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
 famos,tutti,-,stessa_topologia,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,"ArcFace-render, normal map 3 viste (G0)",arcface_normals,nocrop,"CAUTELA (calcolato, non escluso): sulle scansioni parziali il detector trova il volto in 27/45 render ({'-030.00': 11, '+000.00': 11, '+030.00': 5}); il ritaglio a +30 gradi e' tarato su 5 render su 15, fuori dal regime validato in G0"
