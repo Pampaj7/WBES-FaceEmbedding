@@ -1636,3 +1636,41 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   per calibrare il crop.
 - **Per il paper.** La distillazione di ArcFace-render verso il benchmark FR/SR non ha appoggio e non si rilancia:
   l'insegnante resta una baseline di riconoscimento. Licenza dei pesi insightface: solo ricerca non commerciale.
+
+## 12 ottobre, ablazione 2×2 — FLAME 2023 × parzialità variabile: preregistrato e lettura corretta
+
+- **Disegno** (protocollo 27f4893, sha256 `e7df116b…`; emendamento 1 c7a4ef1, sha256 `df3a7943…`, scritto prima dei
+  numeri dopo il critic sul protocollo; codice d'analisi congelato 7a398c9; `aau/runs/evidence/stream/ablation_2x2/`).
+  - Stream, ricetta c3m, testa factorized, T 60.000 passi, 2 L40S per cella, lettura su `epoch100_ema`.
+  - Celle: A (bfm2019, ict, gnm), B (+ FLAME 2023 nativo, 1.787 v.), C (parzialità p = 0.5), D (entrambe), A' (A col
+    seme del trainer 2345), B' (B con FLAME suddiviso 1-a-4, `STREAM_FLAME_SUBDIV`, opt-in a shard invariati).
+  - Training 1068128-1068131, 1068228 (A'), 1068239 (B'); tutti a 60.000 passi, nessun crash.
+- **Verdetti preregistrati** (emendamento 1, `em1/results.md`):
+  - controllo FLAME superato (B − A su FLAME suddiviso SR +0.098 [+0.078, +0.120]; B' − A +0.111);
+  - **R_F: NO**; **R_F': NO**, con danno confermato su FaceVerse (FR −0.108, SR −0.081);
+  - **R_P1: non confermato** (solo HIFI3D FR +0.173 [+0.149, +0.202]); **R_P2: non costa**; **R_I:** nessuna;
+  - con le regole originali (`results.md`): R_F PARZIALE, R_P1 PARZIALE, R_P2 non costa.
+- **Critic sui risultati: RISERVE.** Calcolo e applicazione del protocollo corretti, letture da correggere
+  (`LETTURA_CORRETTA.md`, post hoc; analisi del critic in `critic_scratch_657e6a75/abl/`):
+  1. "lo stream batte C3F" è falso in generale. Media di A e A' meno la media dei semi di C3F:
+     - HIFI3D nocrop FR +0.045 [+0.018, +0.074];
+     - FaceScape nocrop SR −0.063 [−0.093, −0.030];
+     - FaceScape col crop FR +0.244, HIFI3D col crop FR −0.117;
+     - confronto non pulito (budget 5.7×, 2 GPU contro 1, dati freschi). **Misto.**
+  2. R_P1 viene dalla taglia: solo taglia C − A +0.241, solo forma d_P +0.060 / +0.089 contro A / A'. La parzialità
+     rende robusta al crop la stima della taglia; sulla forma l'effetto è piccolo.
+  3. "FaceScape in senso opposto" è un artefatto di A (0.639 contro A' 0.478 col crop). Contro la media dei semi:
+     FR +0.040 [+0.002, +0.075], SR +0.053 [+0.018, +0.089]. Inconclusivo, debolmente positivo.
+  4. A è un controllo anomalo su FaceScape nocrop SR (B, C, D, B' 0.771-0.783 contro A 0.708, A' 0.666); I = −0.068.
+     R_F: "FLAME non dà un guadagno specifico e coerente fra le famiglie", non "non trasferisce".
+  5. R_F' su FaceVerse: un seme di B', due celle della stessa famiglia; con sigma_run 0.029 la FR è al limite, la SR non
+     passa. Non confermato.
+  6. Costo della parzialità in distribuzione piccolo ma reale (ict, gnm da −0.013 a −0.031); c sale del 30% circa.
+  7. sigma_run dello stream circa 0.029, 2.6 volte C3F.
+- **Rumore del checkpoint finale** (post hoc, job 1069967 e 1069968, `epoch_noise/`): `epoch090_ema` contro
+  `epoch100_ema` di A e A'. Senza crop |delta| mediana 0.011, RMS 0.021, massimo 0.051.
+  - HIFI3D e FaceVerse stabili (≤ 0.019).
+  - FaceScape instabile: A' +0.043 FR, +0.051 SR; il divario fra semi su FaceScape SR passa da +0.041 a +0.001.
+  - Una parte dell'anomalia di A/A' e del sigma_run viene dal checkpoint, non dal seme. **Per il run principale: media
+    dei pesi (SWA o EMA più lunga) o decadimento finale del lr.**
+- **Commit:** f48414f (uscite), 6dfa953 (lettura corretta), 1113961 (rumore del checkpoint).
