@@ -25,9 +25,11 @@ tempi per mesh e per coppia.
 della mesh); FR = RMS pesato per area fra le a (mm), SR = lo stesso fra le z (d_P, adimensionale), con la formula di
 ``train_fr_sr.save_eval`` (``cgt._euclid``). Il dominio passato a ``factor`` e' ``famos``, per cui ``Canon.to_F`` e'
 l'identita': i punti trasferiti sono gia' in mm nel frame canonico. Controllo (``gt_check``, in ogni ``<vista>.json``):
-la stessa funzione sui punti nativi delle 15 persone FaMoS TEST ridà ``famos_test_{fr,sr}.npz``. Uscite in ``aau/runs/evidence/competitors_new/ulrssm/<tag>/``: ``<vista>.npz`` (``subjects``,
-``topologies``, ``paths``, matrici simmetriche ``D_pair_fr``, ``D_pair_sr``, ``D_tpl_fr``, ``D_tpl_sr``, NaN dove
-non calcolate, configurazioni ``U_tpl``), ``pairs_<vista>.csv`` (righe di ``pairs``, fuori da git) e
+la stessa funzione sui punti nativi delle 15 persone FaMoS TEST ridà ``famos_test_{fr,sr}.npz``. Uscite in
+``aau/runs/evidence/competitors_new/ulrssm/<tag>/``: ``<vista>.npz`` (``subjects``, ``topologies``, ``paths``, matrici
+simmetriche ``D_pair_fr``, ``D_pair_sr``, ``D_tpl_fr``, ``D_tpl_sr``, NaN dove non calcolate, configurazioni
+``U_tpl``), ``pairs_<vista>.csv`` (le coppie calcolate dalle parti, fuori da git), ``fm_plugin.json`` (marcatura e
+letture per ``aau/full_matrix/fm_eval.py``: dichiarata solo la variante di ``select``) e
 ``<vista>.json`` (tempi, controlli, mesh fallite).
 
 ``smoke``: (1) la mappa a blocchi di ``ulr_common.p2p`` contro il percorso di ULRSSM (``FMNetModel.validate_single``:
@@ -164,7 +166,7 @@ def run(a) -> None:
                    template_check=T["check_unified"])
         print(f"[ulr-eval] {v['name']}: template GNM ({len(T['V'])} vertici) mappato su {len(G)} mesh, "
               f"{np.nanmedian(tpl_s) * 1e3:.0f} ms/mesh", flush=True)
-    I, J = U.pairs(v["items"])
+    I, J = U.pairs(v["items"], a.pairs == "all_cross")
     sel = np.arange(len(I))[k_sh::n_sh]
     I, J = I[sel], J[sel]
     D = np.full((len(I), 4), np.nan)
@@ -181,8 +183,8 @@ def run(a) -> None:
             print(f"[ulr-eval] {v['name']} parte {k_sh}/{n_sh}: coppia {q}/{len(I)}, {el / 60:.1f} min, "
                   f"stima totale {el / (q + 1) * len(I) / 3600:.2f} h", flush=True)
     res.update(pair_i=I, pair_j=J, pair_d=D, pair_cols=np.asarray(["fr", "sr", "fr_b_to_a", "fr_a_to_b"]),
-               pair_s=pair_s, shard=np.asarray([k_sh, n_sh]), input_type=input_type, ckpt=str(a.ckpt),
-               t_prep_s=t_prep, t_feat_s=t_feat, t_pairs_s=time.time() - t2, gpu=torch.cuda.get_device_name(0),
+               pair_s=pair_s, pair_set=a.pairs, shard=np.asarray([k_sh, n_sh]), input_type=input_type,
+               ckpt=str(a.ckpt), t_prep_s=t_prep, t_feat_s=t_feat, t_pairs_s=time.time() - t2, gpu=torch.cuda.get_device_name(0),
                cs_ref=v["cs_ref"], job=os.environ.get("SLURM_JOB_ID", "none"))
     blmm.atomic_savez(out, **res)
     print(f"[ulr-eval] {v['name']} parte {k_sh}/{n_sh}: {len(I)} coppie in {(time.time() - t2) / 60:.1f} min "
@@ -248,7 +250,7 @@ def merge(a) -> None:
         raise SystemExit(f"{v['name']}: parti incomplete o miste {[p.name for p in parts]}")
     n = len(v["items"])
     D = {f"D_pair_{m}": np.full((n, n), np.nan) for m in U.MODES}
-    pair_s, info, Ut = [], {"parts": []}, None
+    pair_s, info, Ut, IJ = [], {"parts": []}, None, []
     for p in parts:
         with np.load(p) as z:
             if [str(x) for x in z["subjects"]] != [s for s, _, _ in v["items"]]:
@@ -257,6 +259,7 @@ def merge(a) -> None:
             for c, m in enumerate(U.MODES):
                 D[f"D_pair_{m}"][I, J] = D[f"D_pair_{m}"][J, I] = Dp[:, c]
             pair_s.append(z["pair_s"])
+            IJ.append(np.stack([I, J], 1))
             if "U_tpl" in z.files:
                 Ut, tpl_s = np.asarray(z["U_tpl"]), np.asarray(z["tpl_s"])
                 base = {k: np.asarray(z[k]) for k in ("subjects", "topologies", "paths", "n_vertices", "cs", "flipped",
@@ -266,7 +269,8 @@ def merge(a) -> None:
                             cs_ref=float(z["cs_ref"]))
             info["parts"].append({"part": p.name, "job": str(z["job"]), "n_pairs": int(len(I)),
                                   "t_prep_s": float(z["t_prep_s"]), "t_feat_s": float(z["t_feat_s"]),
-                                  "t_pairs_s": float(z["t_pairs_s"]), "nan_pairs": int(np.isnan(Dp[:, 0]).sum())})
+                                  "t_pairs_s": float(z["t_pairs_s"]), "nan_pairs": int(np.isnan(Dp[:, 0]).sum()),
+                                  "pair_set": str(z["pair_set"]) if "pair_set" in z.files else "all_cross"})
     if Ut is None:
         raise SystemExit(f"{v['name']}: manca la parte 0 (template)")
     FR, SR, diag = tpl_distances(Ut)
@@ -274,7 +278,8 @@ def merge(a) -> None:
     for M in D.values():
         np.fill_diagonal(M, 0.0)
     pair_s = np.concatenate(pair_s)
-    I, J = U.pairs(v["items"])
+    IJ = np.unique(np.concatenate(IJ), axis=0)                  # coppie calcolate dalle parti, in ordine (i, j)
+    I, J = IJ[:, 0], IJ[:, 1]
     info.update(view=v["name"], n_meshes=n, n_pairs=int(len(I)), template=diag, gt_check=gt_check(),
                 nan={k: int(np.isnan(M[I, J]).sum()) for k, M in D.items()}, failed=[str(x) for x in base["failed"]],
                 mesh_flipped=int(base["flipped"].sum()),
@@ -297,7 +302,22 @@ def merge(a) -> None:
             fh.write(f"{subj[i]},{topo[i]},{subj[j]},{topo[j]}," +
                      ",".join(f"{D[k][i, j]:.9g}" for k in ("D_pair_fr", "D_pair_sr", "D_tpl_fr", "D_tpl_sr")) + "\n")
     os.replace(tmp, csv)
+    write_plugin(a.tag)
     print(f"[ulr-eval] merge {v['name']}: {len(I)} coppie, NaN {info['nan']}, template {diag}", flush=True)
+
+
+def write_plugin(tag: str) -> None:
+    """``<tag>/fm_plugin.json`` per ``aau/full_matrix/fm_eval.py``: letture ``pair_*`` e ``tpl_*`` delle matrici
+    ``D_*`` dell'npz, ciascuna con la sua GT; dichiarata solo la variante scelta da ``select`` (zero-shot: controllo)."""
+    sel = U.OUT / "selection.json"
+    main = json.loads(sel.read_text())["main"] if sel.exists() else None
+    declared = tag == main
+    name = f"ULRSSM [{tag}]" + ("" if declared else " (non dichiarata)")
+    rd = {"pair_fr": ("per coppia, mm", "fr"), "pair_sr": ("per coppia, a CS_ref", "sr"),
+          "tpl_fr": ("via template, GT FR", "fr"), "tpl_sr": ("via template, GT SR (d_P)", "sr")}
+    U.atomic_json(U.OUT / tag / "fm_plugin.json", {
+        "label": name, "family": "corrispondenza densa imparata", "declared": declared, "method": "ulrssm",
+        "variant": tag, "readings": {r: {"label": f"{name} {lab} ({g.upper()})", "gt": [g]} for r, (lab, g) in rd.items()}})
 
 
 # ----------------------------------------------------------------------------------------------- smoke
@@ -371,6 +391,9 @@ def select(a) -> None:
            "val_err": err, "val_flip": {t: float(r["last_val"]["all"]["flip"]) for t, r in runs.items()},
            "main": best, "ckpt": str((U.RUNS / best / "final.pth").relative_to(U.REPO)), **U.stamp()}
     U.atomic_json(U.OUT / "selection.json", sel)
+    for t in ("faces_xyz", "faces_wks", "zeroshot_faust"):
+        if (U.OUT / t / "fm_plugin.json").exists():
+            write_plugin(t)
     print(f"[ulr-select] {json.dumps(sel)}", flush=True)
 
 
@@ -383,6 +406,8 @@ def main() -> None:
     p.add_argument("--tag", default="")
     p.add_argument("--cache", default="")
     p.add_argument("--shard", default="0/1")
+    p.add_argument("--pairs", choices=("subjects", "all_cross"), default="subjects",
+                   help="coppie di soggetti diversi (default, le righe della matrice) o solo topologie diverse")
     p.add_argument("--workers", type=int, default=8)
     a = p.parse_args()
     {"smoke": smoke, "run": run, "merge": merge, "select": select}[a.step](a)

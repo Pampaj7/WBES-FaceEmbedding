@@ -41,7 +41,7 @@ case "$STEP" in
                 --workers "$W" ${ULR_ARGS:-} ;;
     smoke)  aau/run.sh -u $D/ulr_eval.py smoke --ckpt "${ULR_CKPT:?}" --cache "$CACHE" ;;
     eval)   aau/run.sh -u $D/ulr_eval.py run --view "${ULR_VIEW:?}" --tag "${ULR_TAG:?}" --ckpt "${ULR_CKPT:?}" \
-                --cache "$CACHE" --workers "$W" --shard "${ULR_SHARD:-0/1}" "${SPEC[@]}" ;;
+                --cache "$CACHE" --workers "$W" --shard "${ULR_SHARD:-0/1}" "${SPEC[@]}" ${ULR_ARGS:-} ;;
     merge)  v3_work/unified_gt/run.sh -u $D/ulr_eval.py merge --view "${ULR_VIEW:?}" --tag "${ULR_TAG:?}" "${SPEC[@]}" ;;
     select) aau/run.sh -u $D/ulr_eval.py select ;;
     paired) UGT_THREADS=1 v3_work/unified_gt/run.sh -u $D/ulr_paired.py --tag "${ULR_TAG:?}" --workers "$W" ${ULR_ARGS:-} ;;

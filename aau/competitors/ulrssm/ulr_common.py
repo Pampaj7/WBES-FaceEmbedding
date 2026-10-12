@@ -41,8 +41,10 @@ scansioni di galleria) o un dominio nuovo SENZA modificare il codice con ``--spe
 (mesh ``<dir>/<soggetto>_GTready_<topologia>.npz`` con ``V``, ``F``; ``frame``: V_mm = u R V + t verso il frame
 canonico, +y in alto, volto verso +z: l'ingresso ``xyz`` di DiffusionNet NON e' invariante alla rotazione).
 
-Coppie (``pairs``): come ``gp_common.pairs``, tutte le i < j di soggetti diversi e topologie diverse (le 148.500 di
-all_cross per vista, crop compreso); con una sola topologia (FaMoS) tutte le coppie di soggetti diversi.
+Coppie (``pairs``): tutte le i < j di soggetti diversi (178.200 per vista, crop compreso: all_cross piu' le coppie
+con la stessa topologia, le righe della matrice unificata); ``--pairs all_cross`` solo topologie diverse (148.500,
+come ``gp_common.pairs``; cosi' sono state calcolate le parti zero-shot di HIFI3D, FaceScape e FaceVerse). FaMoS: le
+105 coppie delle 15 scansioni.
 """
 
 from __future__ import annotations
@@ -259,13 +261,15 @@ def size_of(v: dict, path: Path, V: np.ndarray, F: np.ndarray) -> tuple[float, s
     return float(blmm.mesh_scalars(V, F)["cs"]), "calcolata"
 
 
-def pairs(items: list) -> tuple[np.ndarray, np.ndarray]:
-    """Coppie i < j di soggetti diversi e topologie diverse (una sola topologia: soggetti diversi)."""
+def pairs(items: list, cross_topology_only: bool = False) -> tuple[np.ndarray, np.ndarray]:
+    """Coppie i < j di soggetti diversi (le 178.200 righe della matrice unificata per vista: all_cross piu' stessa
+    topologia); ``cross_topology_only``: solo topologie diverse (le 148.500 di all_cross, ``gp_common.pairs``). Con
+    una sola topologia (FaMoS) le due definizioni coincidono."""
     s = np.asarray([x for x, _, _ in items])
     t = np.asarray([y for _, y, _ in items])
     i, j = np.triu_indices(len(items), 1)
     keep = s[i] != s[j]
-    if len(set(t)) > 1:
+    if cross_topology_only and len(set(t)) > 1:
         keep &= t[i] != t[j]
     return i[keep], j[keep]
 

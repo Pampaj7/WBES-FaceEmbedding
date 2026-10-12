@@ -16,6 +16,7 @@ definizioni esatte). Pesi, mesh e npz NON sono in git.
 | `<tag>/pairs_<vista>.csv` | le distanze per coppia in formato lungo (sotto) | no (`pairs_*.csv`) |
 | `<tag>/parts/` | uscite grezze dei job GPU | no |
 | `smoke/` | controlli della mappa e tempi di prova | si' |
+| `<tag>/fm_plugin.json` | marcatura del plug-in per `aau/full_matrix/fm_eval.py`: letture `pair_fr`, `pair_sr`, `tpl_fr`, `tpl_sr` (matrici `D_*` dell'npz) con la loro GT; `declared` solo per la variante di `selection.json` | si' |
 
 `<tag>`: `faces_xyz`, `faces_wks` (ULRSSM riaddestrato sui generatori di training, ingresso xyz o WKS),
 `zeroshot_faust` (pesi pubblici FAUST, controllo).
@@ -26,10 +27,13 @@ Una riga per coppia NON ordinata di mesh, chiavi uguali alle righe di E12 / dell
 
     subject_a,topology_a,subject_b,topology_b,d_pair_fr,d_pair_sr,d_tpl_fr,d_tpl_sr
 
-- coppie: `ulr_common.pairs` (= `gw_percettivi/gp_common.pairs`): tutte le i < j, nell'ordine delle mesh della vista
-  (soggetti di `blmm.subjects` ordinati, topologie `crop, down8k, noisy, original, remesh, up60k`), con soggetti
-  diversi E topologie diverse: 148.500 per vista, crop compreso (= all_cross). FaMoS TEST: le 105 coppie delle 15
-  scansioni di galleria (`topology = scan_gallery`, soggetto = `view_id`).
+- coppie: `ulr_common.pairs`: tutte le i < j con soggetti diversi, nell'ordine delle mesh della vista (soggetti di
+  `blmm.subjects` ordinati, topologie `crop, down8k, noisy, original, remesh, up60k`): 178.200 per vista, crop
+  compreso (all_cross + stessa topologia, le righe della matrice unificata). Le parti zero-shot di HIFI3D, FaceScape e
+  FaceVerse con espressioni sono state calcolate solo su all_cross (`--pairs all_cross`, 148.500): li' le coppie con la
+  stessa topologia sono NaN nell'npz e assenti dal csv. FaMoS TEST: le 105 coppie delle 15 scansioni di galleria
+  (`topology = scan_gallery`, soggetto = `view_id`).
+- la variante (b) e' per mesh: nell'npz `D_tpl_*` e' piena (tutte le coppie, anche stesso soggetto).
 - le distanze sono simmetriche: la riga (a, b) di all_cross e la (b, a) leggono la stessa cella (cercare entrambi
   gli ordini, oppure usare le matrici dell'npz con `subjects`/`topologies` e l'`Index` di `zs_expr_summarize`).
 - `d_pair_fr` (mm): variante (a), mappa punto-a-punto di ULRSSM nei due versi, rigida pesata SENZA scala sui punti
