@@ -234,16 +234,38 @@ nessuna distanza di un metodo, nessuno Spearman; della GT dei 200 valutati solo 
 - **GT dei 56 di calibrazione** in `datasets/AVA256/calib_gt/` (sola lettura): la stessa procedura della GT della prova
   (`ava_gt.load`, `train_fr_sr.factor` su tutti i validi, `save_eval` sulle righe di calibrazione), funzioni importate e
   non modificate. Controlli: le GT `ava256_eval_*` e `ava256_all_*` ricalcolate hanno le impronte congelate (bit per bit);
-  la GT di calibrazione coincide col blocco di `ava256_all` (differenza relativa massima 6e-8); `verify_frozen()` passa
-  prima e dopo. 1540 coppie, FR 3,03-16,41 mm (mediana 7,07), SR 0,053-0,195.
+  la GT di calibrazione coincide col blocco di `ava256_all` (differenza relativa massima 6e-8): questo conferma solo
+  sottoinsieme e normalizzazione, non l'indipendenza delle righe (vengono dallo stesso calcolo sui 256); `verify_frozen()`
+  passa prima e dopo. 1540 coppie, FR 3,03-16,41 mm (mediana 7,07), SR 0,053-0,195.
+  - **Indipendenza dalla batch** (verificata a parte dal critic, 12 ottobre): la GT ricalcolata dai soli 56 differisce
+    di 3,2e-8 relativo su FR e SR. L'impronta si riproduce pero' solo con la procedura sui 256: le iterazioni dell'IRLS
+    della rigida robusta (`Canon.rigid_robust`) sono comuni alla batch, che si ferma quando convergono tutte le righe.
   - FR: `70faa95e243b0941fd7f8664a66713d2c8f7000790df298e8dbd4f543feb6372`
   - SR: `af7ed8769090cf08edfaa9bfa4681e155e0c6b3be43579972e587daab6c82d4e`
-  - Impronte in `calib_manifest.json`; **`ava_calib.verify_calib()`** (con `ava_freeze.verify_frozen()`) va chiamata
-    prima di leggere la GT di calibrazione.
+  - Impronte in `calib_manifest.json`; **`ava_calib.verify_calib()`** (con `ava_freeze.verify_frozen()` e
+    `verify_frozen_supp()`) va chiamata prima di leggere la GT di calibrazione.
 - **Viste di calibrazione** (`calib_view_check.json`): 56 x 6 = 336 mesh, le 6 topologie del protocollo, nessun id
   valutato, symlink, `content_sha256.txt`, `labels.json` e tabella di scala coerenti, nessuna GT nella vista. Contro la
   `eval_view`: 4 anelli di bordo in ogni topologia in entrambe; original e noisy con la stessa triangolazione in tutte le
   256 persone; vertici e triangoli per topologia con mediane uguali entro lo 0,05%; noisy = original spostata (RMS
   mediano 1,37 mm contro 1,35); crop mai identico alla original (vertici tenuti 92,6-94,5% contro 91,6-94,6%). Il lato
-  medio e' piu' lungo dell'1,8-2,1% in tutte le topologie (compatibile con la taglia dei soggetti: vertici e triangoli sono gli stessi). Triangoli di area
-  nulla solo in down8k (al massimo 8 contro 6) e up60k (109 contro 135), in entrambe le viste.
+  medio e' piu' lungo dell'1,8-2,1% in tutte le topologie (compatibile con la taglia dei soggetti: vertici e triangoli
+  sono gli stessi). Triangoli di area nulla solo in down8k (al massimo 8 contro 6) e up60k (109 contro 135), in
+  entrambe le viste.
+- **Impronte dei file (critic del 12 ottobre, RISERVE).** Le impronte del contenuto (`D_orig` e nomi) non coprivano
+  l'unita' nei json (`mm_per_unit`) ne' `ids.json`: un'unita' raddoppiata o righe invertite passavano la verifica.
+  Aggiunti gli sha256 dei byte dei file, calcolati dai file congelati cosi' come sono, senza rigenerare nulla (job
+  1070555):
+  - calibrazione: ogni file di `calib_gt/` (json, `ids.json`, `FROZEN_CALIB.json`, npz) in `calib_manifest.json`
+    (`ava_calib.py extend`); impronte del contenuto invariate. `FROZEN_CALIB.json` resta la copia del manifest
+    precedente;
+  - GT valutata: `freeze_manifest.json` e `FROZEN.json` non si toccano. Le impronte supplementari stanno in
+    `freeze_manifest_supp.json` (`ava_freeze.py supp`): 41 file, cioe' tutto `gt/` (sottocartelle comprese:
+    json con l'unita', `ids.json`, `split.json`, `frame.json`), i file in cima a `eval_view/` e `calib_view/`, e
+    `scale/`. **`ava_freeze.verify_frozen_supp()`** va chiamata insieme a `verify_frozen()`; lo stadio `verify` di
+    `ava_freeze.py` e di `ava_calib.py` le chiama;
+  - test negativi su copie dei dati (job 1070556): unita' raddoppiata nei json FR e SR (calibrazione, `gt/`,
+    `eval_view/gt_fr.json`), righe invertite in `ids.json` (calibrazione e valutati), `u` raddoppiata in `frame.json`,
+    file in piu': tutti rilevati. Le copie ripristinate passano.
+- `ava_calib.sbatch`: il default e' `verify` (solo lettura). `calib_gt/` esiste, quindi `dry` e `gt` si rifiutano;
+  `supp` ed `extend` sono una tantum.

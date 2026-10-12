@@ -4,6 +4,7 @@ valutazione).
 
     v3_work/unified_gt/run.sh aau/ava256/ava_freeze.py freeze      (ultimo passo di ava_build.sbatch)
     v3_work/unified_gt/run.sh aau/ava256/ava_freeze.py verify
+    v3_work/unified_gt/run.sh aau/ava256/ava_freeze.py supp        (una volta: impronte supplementari, 12 ottobre)
 
 ``freeze``: impronte del CONTENUTO (le npz hanno le date nello zip, i file cambiano a ogni scrittura): sha256 di ``V``
 float32 e ``F`` int32 di ogni mesh delle viste ``eval_view`` e ``calib_view`` (``ava_views.mesh_sha256``), sha256 di
@@ -16,6 +17,14 @@ rifiutano di scrivere: rigenerare richiede una decisione del PI (togliere a mano
 ``verify_frozen()``: la funzione che lo strumento di valutazione DEVE chiamare prima di leggere viste, GT o tabella di
 scala di Ava-256: ricalcola le impronte e le confronta con quelle in git; un solo scarto (mesh mancante, in piu' o
 diversa) -> RuntimeError.
+
+``supp`` / ``verify_frozen_supp()`` (critic del 12 ottobre: le impronte del contenuto non coprono l'unita' dei json delle
+GT ne' ``ids.json``): sha256 dei BYTE di ogni file di ``gt/`` (sottocartelle comprese: json con ``mm_per_unit``,
+``ids.json``, ``split.json``, ``frame.json`` con u, R, t, centroid size, diagnostici) e dei file in cima a ``eval_view/``,
+``calib_view/`` (json delle GT, etichette, manifest; ``npz/`` e' gia' coperta dalle mesh) e ``scale/``; i symlink per
+bersaglio. Calcolate dai file congelati cosi' come sono, senza rigenerarli, in ``aau/ava256/freeze_manifest_supp.json``:
+``freeze_manifest.json`` e ``FROZEN.json`` non si toccano. Lo strumento di valutazione chiama ``verify_frozen()`` E
+``verify_frozen_supp()``; un file mancante, in piu' o diverso -> RuntimeError.
 """
 
 from __future__ import annotations
@@ -23,6 +32,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import stat
 import sys
 import time
@@ -37,6 +47,8 @@ if str(THIS_DIR) not in sys.path:
 import ava_common as ac  # noqa: E402
 
 MANIFEST = ac.SUMMARY_DIR / "freeze_manifest.json"
+SUPP_MANIFEST = ac.SUMMARY_DIR / "freeze_manifest_supp.json"
+SUPP_DIRS = {"gt": True, "eval_view": False, "calib_view": False, "scale": False}   # cartella: ricorsiva
 VIEW_KINDS = ("eval_view", "calib_view")
 GT_FILES = ("ava256_eval_fr", "ava256_eval_sr", "ava256_all_fr", "ava256_all_sr")
 FROZEN_DIRS = ("raw", "corr", "neutral", "gt", "identities", "topo", "eval_view", "calib_view", "scale")
@@ -110,6 +122,57 @@ def verify_frozen(root: Path = ac.DATA_ROOT, manifest: Path = MANIFEST) -> dict:
     return cur
 
 
+def file_sha256(path: Path) -> str:
+    """sha256 dei byte di un file; un symlink vale il suo bersaglio (``symlink:<bersaglio>``)."""
+    if path.is_symlink():
+        return f"symlink:{os.readlink(path)}"
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def tree_sha256(root: Path, dirs: dict) -> dict:
+    """{percorso relativo a ``root``: ``file_sha256``} dei file delle cartelle (ricorsive se ``dirs[d]``), cartelle escluse."""
+    out = {}
+    for d, rec in dirs.items():
+        base = root / d
+        items = base.rglob("*") if rec else base.iterdir()
+        for p in items:
+            if p.is_symlink() or p.is_file():
+                out[str(p.relative_to(root))] = file_sha256(p)
+    return dict(sorted(out.items()))
+
+
+def tree_diff(ref: dict, cur: dict) -> list[str]:
+    return ([f"mancante {k}" for k in ref if k not in cur] + [f"in piu' {k}" for k in cur if k not in ref] +
+            [f"diverso {k}" for k in ref if k in cur and cur[k] != ref[k]])
+
+
+def verify_frozen_supp(root: Path = ac.DATA_ROOT, manifest: Path = SUPP_MANIFEST) -> dict:
+    """Impronte supplementari (byte dei json delle GT, ids.json, split, frame, manifest delle viste, scala): da chiamare
+    con ``verify_frozen()`` prima di qualunque valutazione. Uno scarto -> RuntimeError."""
+    ref = json.loads(Path(manifest).read_text())["files"]
+    cur = tree_sha256(root, SUPP_DIRS)
+    diff = tree_diff(ref, cur)
+    if diff:
+        raise RuntimeError(f"Ava-256: dati diversi dalle impronte supplementari ({manifest}): {diff}")
+    return cur
+
+
+def freeze_supp() -> None:
+    if SUPP_MANIFEST.exists():
+        raise SystemExit(f"{SUPP_MANIFEST} esiste gia': impronte supplementari registrate")
+    if not ac.FROZEN.exists():
+        raise SystemExit(f"{ac.FROZEN} mancante: i dati non sono congelati")
+    verify_frozen()                                  # i file sono quelli congelati l'11 ottobre
+    files = tree_sha256(ac.DATA_ROOT, SUPP_DIRS)
+    man = {"recorded_at": time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+           "rule": __doc__.split("``supp`` / ``verify_frozen_supp()``")[1].strip(),
+           "dirs": {d: ("ricorsiva" if r else "solo i file in cima") for d, r in SUPP_DIRS.items()},
+           "n_files": len(files), "files": files}
+    SUPP_MANIFEST.write_text(json.dumps(man, indent=1) + "\n")
+    verify_frozen_supp()
+    print(f"[ava-freeze] impronte supplementari: {len(files)} file in {SUPP_MANIFEST}", flush=True)
+
+
 def _readonly(path: Path) -> int:
     """Toglie la scrittura a un file o a una cartella e a tutto il suo contenuto (i symlink si saltano: il bersaglio sta
     in topo/). Ritorna il numero di voci toccate."""
@@ -145,12 +208,15 @@ def freeze() -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("stage", choices=("freeze", "verify"))
+    p.add_argument("stage", choices=("freeze", "verify", "supp"))
     a = p.parse_args()
     if a.stage == "freeze":
         freeze()
+    elif a.stage == "supp":
+        freeze_supp()
     else:
         print(json.dumps(verify_frozen(), indent=1))
+        print(f"[ava-freeze] supplementari: {len(verify_frozen_supp())} file uguali")
         print("[ava-freeze] impronte uguali a quelle congelate")
 
 

@@ -1,6 +1,6 @@
 {
   "frozen_at": "2026-10-12 17:46:22 CEST",
-  "rule": "la STESSA procedura di ``ava_gt.main`` per la GT della prova, con le stesse funzioni importate e non modificate:\n``ava_gt.load`` (neutre sulla regione unificata), frame di dominio u = 1, R = I, t = 0, ``train_fr_sr.factor`` su TUTTI i\nvalidi (la rigida robusta e' per identita' verso mu, quindi una riga non dipende dalle altre), poi ``train_fr_sr.save_eval``\nsul sottoinsieme: li' le righe di valutazione, qui quelle di calibrazione (ordine di ``split.json``). Controlli prima di\nscrivere:\n  - ``verify_frozen()`` prima e dopo (GT dei 200, viste e tabella di scala invariate);\n  - le GT ``ava256_eval_*`` e ``ava256_all_*`` ricalcolate in una cartella temporanea (poi cancellata, i numeri non si\n    leggono) devono avere le impronte congelate: stessa procedura, bit per bit;\n  - la GT di calibrazione in mm coincide col blocco di calibrazione di ``ava256_all`` (entro l'arrotondamento float32).\nUscite: ``datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz`` + json (formato di ``save_eval``),\n``ava256_calib_centroid_size.npz``, ``ids.json``; poi sola lettura (file e cartella). Impronte (``ava_gt.content_sha256``)\nin ``aau/ava256/calib_manifest.json`` (in git) e in ``datasets/AVA256/calib_gt/FROZEN_CALIB.json``. Con la cartella\npresente ``gt`` si rifiuta di riscrivere: rigenerare richiede una decisione del PI.",
+  "rule": "la STESSA procedura di ``ava_gt.main`` per la GT della prova, con le stesse funzioni importate e non modificate:\n``ava_gt.load`` (neutre sulla regione unificata), frame di dominio u = 1, R = I, t = 0, ``train_fr_sr.factor`` su TUTTI i\n256 validi, poi ``train_fr_sr.save_eval`` sul sottoinsieme: li' le righe di valutazione, qui quelle di calibrazione (ordine\ndi ``split.json``). La batch conta: le iterazioni dell'IRLS di ``Canon.rigid_robust`` sono comuni a tutta la batch (si\nferma quando convergono tutte), quindi le impronte si riproducono solo con la procedura sui 256; dai soli 56 le righe\ncambiano di circa 3e-8 relativo (controllo del critic del 12 ottobre). Controlli prima di scrivere:\n  - ``verify_frozen()`` prima e dopo (GT dei 200, viste e tabella di scala invariate);\n  - le GT ``ava256_eval_*`` e ``ava256_all_*`` ricalcolate in una cartella temporanea (poi cancellata, i numeri non si\n    leggono) devono avere le impronte congelate: stessa procedura, bit per bit;\n  - la GT di calibrazione in mm coincide col blocco di calibrazione di ``ava256_all`` (entro l'arrotondamento float32):\n    conferma solo il sottoinsieme (righe e ordine) e la normalizzazione (``D_orig`` x unita'), NON l'indipendenza delle\n    righe dalla batch (entrambe vengono dallo stesso ``F`` sui 256).\nUscite: ``datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz`` + json (formato di ``save_eval``),\n``ava256_calib_centroid_size.npz``, ``ids.json``; poi sola lettura (file e cartella). Impronte (``ava_gt.content_sha256``)\nin ``aau/ava256/calib_manifest.json`` (in git) e in ``datasets/AVA256/calib_gt/FROZEN_CALIB.json``. Con la cartella\npresente ``gt`` si rifiuta di riscrivere: rigenerare richiede una decisione del PI.",
   "files": "datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz (D_orig / massimo, json con l'unita'), ava256_calib_centroid_size.npz, ids.json",
   "split": {
     "n_calibration": 56,
@@ -44,6 +44,19 @@
   "fingerprints": {
     "ava256_calib_fr": "70faa95e243b0941fd7f8664a66713d2c8f7000790df298e8dbd4f543feb6372",
     "ava256_calib_sr": "af7ed8769090cf08edfaa9bfa4681e155e0c6b3be43579972e587daab6c82d4e",
-    "ava256_calib_centroid_size": "76ac2f567d66fffeeec5f1ac1a724741bc4bc0fd7be037ebdefc95af60a3cfbe"
+    "ava256_calib_centroid_size": "76ac2f567d66fffeeec5f1ac1a724741bc4bc0fd7be037ebdefc95af60a3cfbe",
+    "files": {
+      "FROZEN_CALIB.json": "d5fb8d7f526d71ce2b59317484045755760f1db28af57dc01c4d10ec50f0c505",
+      "ava256_calib_centroid_size.npz": "a67557573188591d081e428af380e4bce35e6540e7d94ad605644b141985991b",
+      "ava256_calib_fr.json": "71bef9421a40aa6f37300f02795523beea0694d4b0fc45b2878c73f32a2e43c0",
+      "ava256_calib_fr.npz": "731514e7a3fb096de65eb4de55d920152ee75f2606da5e644bba8d5aa6abe6c2",
+      "ava256_calib_sr.json": "85a37b05f150664f9a2770ba6d66709d307f163c450baa6e1cc30940d557f8c2",
+      "ava256_calib_sr.npz": "c313e09d793539fc01df5a41580ad0fcc0fce4aa29b15cfbe3542fce85f8d1db",
+      "ids.json": "23b2e1873b3c695d62425f1d7e95cc069d8e9e9fe07ec9fadde077c6610adab3"
+    }
+  },
+  "extended": {
+    "at": "2026-10-12 18:01:04 CEST",
+    "note": "critic del 12 ottobre (RISERVE): aggiunte le impronte dei byte di ogni file di calib_gt/ (unita' nei json, ids.json, FROZEN_CALIB.json), dai file congelati cosi' come sono; GT non rigenerata, impronte del contenuto invariate; corretta la regola (indipendenza delle righe); FROZEN_CALIB.json resta la copia del manifest precedente"
   }
 }

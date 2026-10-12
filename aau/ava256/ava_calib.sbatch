@@ -12,19 +12,24 @@
 # Ava-256, test CONFERMATIVO: GT dei 56 di calibrazione e controllo delle viste di calibrazione (ava_calib.py), su CPU.
 # Nessun metodo, nessuna distanza di un metodo, nessuno Spearman.
 #
-#   AVA_CALIB_STEPS="dry views" sbatch aau/ava256/ava_calib.sbatch    # controlli, nulla di scritto nei dati
-#   AVA_CALIB_STEPS="gt verify" sbatch aau/ava256/ava_calib.sbatch    # scrive e congela la GT di calibrazione
+#   sbatch aau/ava256/ava_calib.sbatch                                # default: solo verify (sola lettura)
+#   AVA_CALIB_STEPS="views verify" sbatch aau/ava256/ava_calib.sbatch # controllo delle viste e impronte
+#
+# Il default e' "verify": dal 12 ottobre calib_gt/ esiste e i passi dry e gt si rifiutano (GT congelata); supp ed extend
+# sono passi una tantum gia' eseguiti (si rifiutano se i manifest hanno gia' le impronte).
 #
 #   dry     ava_calib.py gt --dry-run   procedura contro le GT congelate, impronte della GT di calibrazione
 #   views   ava_calib.py views          calib_view completa e coerente con eval_view -> calib_view_check.json
 #   gt      ava_calib.py gt             datasets/AVA256/calib_gt, calib_manifest.json, sola lettura
-#   verify  ava_calib.py verify         verify_frozen() + verify_calib()
+#   supp    ava_freeze.py supp          impronte supplementari della GT valutata -> freeze_manifest_supp.json
+#   extend  ava_calib.py extend         impronte dei byte di ogni file di calib_gt/ in calib_manifest.json
+#   verify  ava_calib.py verify         verify_frozen() + verify_frozen_supp() + verify_calib()
 set -euo pipefail
 
 if [[ -z "${SLURM_JOB_GPUS:-}${SLURM_STEP_GPUS:-}${GPU_DEVICE_ORDINAL:-}" ]]; then
     export AAU_NV=""
 fi
-STEPS="${AVA_CALIB_STEPS:-dry views}"
+STEPS="${AVA_CALIB_STEPS:-verify}"
 UGT="v3_work/unified_gt/run.sh"
 export UGT_THREADS="${UGT_THREADS:-8}"
 echo "[ava256-calib] host=$(hostname) job=${SLURM_JOB_ID:-none} steps: $STEPS"
@@ -34,6 +39,8 @@ for step in $STEPS; do
         dry)    $UGT aau/ava256/ava_calib.py gt --dry-run ;;
         views)  $UGT aau/ava256/ava_calib.py views ;;
         gt)     $UGT aau/ava256/ava_calib.py gt ;;
+        supp)   $UGT aau/ava256/ava_freeze.py supp ;;
+        extend) $UGT aau/ava256/ava_calib.py extend ;;
         verify) $UGT aau/ava256/ava_calib.py verify ;;
         *) echo "passo sconosciuto: $step" >&2; exit 2 ;;
     esac

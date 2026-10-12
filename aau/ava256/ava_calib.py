@@ -4,28 +4,35 @@ qualsiasi valutazione).
 
     v3_work/unified_gt/run.sh aau/ava256/ava_calib.py gt [--dry-run]   (una volta sola: scrive e congela la GT)
     v3_work/unified_gt/run.sh aau/ava256/ava_calib.py views     (viste di calibrazione contro quelle valutate)
-    v3_work/unified_gt/run.sh aau/ava256/ava_calib.py verify    (verify_frozen() + verify_calib())
+    v3_work/unified_gt/run.sh aau/ava256/ava_calib.py verify    (verify_frozen() + verify_frozen_supp() + verify_calib())
+    v3_work/unified_gt/run.sh aau/ava256/ava_calib.py extend    (una volta: impronte dei file, dopo il critic del 12 ottobre)
 
 CONFERMATIVO: non valutare prima del protocollo confermativo (README). Nessun metodo, nessuna distanza di un metodo,
 nessuno Spearman. Della GT dei 200 valutati si calcolano SOLO le impronte; della GT di calibrazione n coppie e range.
 
 ``gt``: la STESSA procedura di ``ava_gt.main`` per la GT della prova, con le stesse funzioni importate e non modificate:
 ``ava_gt.load`` (neutre sulla regione unificata), frame di dominio u = 1, R = I, t = 0, ``train_fr_sr.factor`` su TUTTI i
-validi (la rigida robusta e' per identita' verso mu, quindi una riga non dipende dalle altre), poi ``train_fr_sr.save_eval``
-sul sottoinsieme: li' le righe di valutazione, qui quelle di calibrazione (ordine di ``split.json``). Controlli prima di
-scrivere:
+256 validi, poi ``train_fr_sr.save_eval`` sul sottoinsieme: li' le righe di valutazione, qui quelle di calibrazione (ordine
+di ``split.json``). La batch conta: le iterazioni dell'IRLS di ``Canon.rigid_robust`` sono comuni a tutta la batch (si
+ferma quando convergono tutte), quindi le impronte si riproducono solo con la procedura sui 256; dai soli 56 le righe
+cambiano di circa 3e-8 relativo (controllo del critic del 12 ottobre). Controlli prima di scrivere:
   - ``verify_frozen()`` prima e dopo (GT dei 200, viste e tabella di scala invariate);
   - le GT ``ava256_eval_*`` e ``ava256_all_*`` ricalcolate in una cartella temporanea (poi cancellata, i numeri non si
     leggono) devono avere le impronte congelate: stessa procedura, bit per bit;
-  - la GT di calibrazione in mm coincide col blocco di calibrazione di ``ava256_all`` (entro l'arrotondamento float32).
+  - la GT di calibrazione in mm coincide col blocco di calibrazione di ``ava256_all`` (entro l'arrotondamento float32):
+    conferma solo il sottoinsieme (righe e ordine) e la normalizzazione (``D_orig`` x unita'), NON l'indipendenza delle
+    righe dalla batch (entrambe vengono dallo stesso ``F`` sui 256).
 Uscite: ``datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz`` + json (formato di ``save_eval``),
 ``ava256_calib_centroid_size.npz``, ``ids.json``; poi sola lettura (file e cartella). Impronte (``ava_gt.content_sha256``)
 in ``aau/ava256/calib_manifest.json`` (in git) e in ``datasets/AVA256/calib_gt/FROZEN_CALIB.json``. Con la cartella
 presente ``gt`` si rifiuta di riscrivere: rigenerare richiede una decisione del PI.
 
-``verify_calib()``: la funzione che gli strumenti di calibrazione chiamano (insieme a ``ava_freeze.verify_frozen()``)
-prima di leggere la GT di calibrazione: ricalcola le impronte e le confronta con quelle in git; un solo scarto ->
-RuntimeError.
+``verify_calib()``: la funzione che gli strumenti di calibrazione chiamano (insieme a ``ava_freeze.verify_frozen()`` e
+``verify_frozen_supp()``) prima di leggere la GT di calibrazione: ricalcola le impronte e le confronta con quelle in git; un solo scarto ->
+RuntimeError. Impronte: contenuto delle GT (``D_orig`` e nomi, centroid size) e sha256 dei BYTE di OGNI file di
+``calib_gt/`` (json con ``mm_per_unit``, ``ids.json``, ``FROZEN_CALIB.json``); un file mancante, in piu' o diverso conta.
+``extend``: aggiunge le impronte dei file a ``calib_manifest.json`` dai file congelati cosi' come sono (la GT non si
+rigenera; ``FROZEN_CALIB.json`` resta la copia del manifest del 12 ottobre, senza queste impronte).
 
 ``views``: la vista ``calib_view`` contro la ``eval_view``, una mesh (o una coppia di topologie della stessa persona) per
 volta, nessuna distanza fra soggetti:
@@ -81,20 +88,29 @@ def size_sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def fingerprints(root: Path = CALIB_DIR) -> dict:
+def content_fingerprints(root: Path = CALIB_DIR) -> dict:
     return {f"{NAME}_fr": calib_sha256(root / f"{NAME}_fr.npz"), f"{NAME}_sr": calib_sha256(root / f"{NAME}_sr.npz"),
             f"{NAME}_centroid_size": size_sha256(root / f"{NAME}_centroid_size.npz")}
 
 
+def fingerprints(root: Path = CALIB_DIR) -> dict:
+    """Contenuto delle GT e byte di ogni file della cartella (``files``: percorsi relativi alla cartella)."""
+    return {**content_fingerprints(root), "files": af.tree_sha256(root, {".": True})}
+
+
 def verify_calib(root: Path = CALIB_DIR, manifest: Path = MANIFEST) -> dict:
-    """Controllo dell'impronta della GT di calibrazione, da chiamare (con ``ava_freeze.verify_frozen()``) prima di
-    leggerla. Ritorna le impronte; se una sola differisce da quelle in git solleva RuntimeError."""
+    """Controllo dell'impronta della GT di calibrazione, da chiamare (con ``ava_freeze.verify_frozen()`` e
+    ``verify_frozen_supp()``) prima di leggerla. Ritorna le impronte; se una sola differisce da quelle in git solleva RuntimeError."""
     ref = json.loads(Path(manifest).read_text())["fingerprints"]
     try:
         cur = fingerprints(root)
     except FileNotFoundError as e:
         raise RuntimeError(f"Ava-256: GT di calibrazione mancante ({e})") from e
-    diff = [k for k, v in ref.items() if cur.get(k) != v]
+    diff = [k for k, v in ref.items() if k != "files" and cur.get(k) != v]
+    if "files" not in ref:
+        diff.append("files: impronte dei file assenti dal manifest")
+    else:
+        diff += af.tree_diff(ref["files"], cur["files"])
     if diff:
         raise RuntimeError(f"Ava-256: GT di calibrazione diversa da quella congelata ({manifest}): {diff}")
     return cur
@@ -159,7 +175,8 @@ def stage_gt(dry_run: bool = False) -> None:
     C.save_json(work / "ids.json", {"note": f"righe di {NAME}_* (i {len(ic)} soggetti di calibrazione, ordine di "
                                             "split.json); MAI valutati, da nessun metodo", "calib": rows})
 
-    # controllo indipendente: blocco di calibrazione di ava256_all (GT congelata), in mm
+    # blocco di calibrazione di ava256_all (GT congelata), in mm: conferma sottoinsieme e normalizzazione, NON
+    # l'indipendenza delle righe dalla batch (stesso F sui 256; vedi la docstring)
     block = {}
     for k in ("fr", "sr"):
         with np.load(ac.GT_DIR / f"ava256_all_{k}.npz") as z:
@@ -177,11 +194,11 @@ def stage_gt(dry_run: bool = False) -> None:
 
     if dry_run:
         print(json.dumps({"dry_run": True, "frozen_gt_reproduced": {k: v == frozen["gt"][k] for k, v in repro.items()},
-                          "block_of_ava256_all": block, "fingerprints": fingerprints(work)}, indent=1), flush=True)
+                          "block_of_ava256_all": block, "fingerprints": content_fingerprints(work)}, indent=1), flush=True)
         shutil.rmtree(work.parent)
         return
     work.rename(CALIB_DIR)
-    fp = fingerprints()
+    fp = content_fingerprints()
     iu = np.triu_indices(len(ic), 1)
     man = {"frozen_at": time.strftime("%Y-%m-%d %H:%M:%S %Z"),
            "rule": __doc__.split("``verify_calib()``")[0].split("``gt``:")[1].strip(),
@@ -194,14 +211,35 @@ def stage_gt(dry_run: bool = False) -> None:
                            "fr_mm": q3(D["fr"][iu]), "sr_dP": q3(D["sr"][iu]),
                            "note": "solo la GT dei 56 di calibrazione; nessun metodo"},
            "fingerprints": fp}
-    C.save_json(MANIFEST, man)
-    C.save_json(CALIB_FROZEN, man)
+    C.save_json(CALIB_FROZEN, man)                   # il marcatore ha le impronte del contenuto
     n = af._readonly(CALIB_DIR)
+    man["fingerprints"] = fingerprints()              # in git anche i byte di ogni file, marcatore compreso
+    C.save_json(MANIFEST, man)
     verify_calib()
     af.verify_frozen()                                # dopo: niente e' cambiato nei dati congelati
     print(f"[ava-calib] GT di calibrazione: {len(ic)} soggetti, {n} voci in sola lettura ({time.time() - t0:.0f}s)",
           flush=True)
     print(json.dumps({k: man[k] for k in ("procedure_check", "descriptive", "fingerprints")}, indent=1), flush=True)
+
+
+def stage_extend() -> None:
+    """Impronte dei file aggiunte al manifest della GT di calibrazione gia' congelata (nessuna rigenerazione)."""
+    man = json.loads(MANIFEST.read_text())
+    if "files" in man["fingerprints"]:
+        raise SystemExit(f"{MANIFEST}: impronte dei file gia' presenti")
+    cur = fingerprints()
+    old = dict(man["fingerprints"])
+    if any(cur[k] != v for k, v in old.items()):
+        raise SystemExit(f"{CALIB_DIR}: contenuto diverso dal manifest, non estendo")
+    man["rule"] = __doc__.split("``verify_calib()``")[0].split("``gt``:")[1].strip()
+    man["fingerprints"] = cur
+    man["extended"] = {"at": time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+                       "note": "critic del 12 ottobre (RISERVE): aggiunte le impronte dei byte di ogni file di calib_gt/ "
+                               "(unita' nei json, ids.json, FROZEN_CALIB.json), dai file congelati cosi' come sono; GT "
+                               "non rigenerata, impronte del contenuto invariate; corretta la regola (indipendenza delle "
+                               "righe); FROZEN_CALIB.json resta la copia del manifest precedente"}
+    MANIFEST.write_text(json.dumps(man, indent=2) + "\n")
+    print(json.dumps(verify_calib(), indent=1), flush=True)
 
 
 # ------------------------------------------------------------------------------------------ viste di calibrazione
@@ -350,15 +388,18 @@ def stage_views() -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("stage", choices=("gt", "views", "verify"))
+    p.add_argument("stage", choices=("gt", "views", "verify", "extend"))
     p.add_argument("--dry-run", action="store_true", help="gt: controlli e impronte senza scrivere nulla")
     a = p.parse_args()
     if a.stage == "gt":
         stage_gt(a.dry_run)
     elif a.stage == "views":
         stage_views()
+    elif a.stage == "extend":
+        stage_extend()
     else:
         af.verify_frozen()
+        print(f"[ava-calib] supplementari: {len(af.verify_frozen_supp())} file uguali", flush=True)
         print(json.dumps(verify_calib(), indent=1))
         print("[ava-calib] impronte uguali a quelle congelate (dati del freeze e GT di calibrazione)")
 
