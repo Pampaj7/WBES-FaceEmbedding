@@ -1683,3 +1683,21 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   - Una parte dell'anomalia di A/A' e del sigma_run viene dal checkpoint, non dal seme. **Per il run principale: media
     dei pesi (SWA o EMA più lunga) o decadimento finale del lr.**
 - **Commit:** f48414f (uscite), 6dfa953 (lettura corretta), 1113961 (rumore del checkpoint).
+
+## 12 ottobre, sera — riscrittura CVPR "When Alignment Hurts": main di 8 pagine + supplementary
+
+- **Nuovi file** (la bozza `main_cvpr_draft.tex` resta invariata): `main_cvpr.tex` (corpo ~7 pagine prima dei
+  riferimenti), `supp_cvpr.tex` + `supp_legacy.tex` (risultati della versione precedente spostati, non tolti),
+  `refs_cvpr27.bib` (voci controllate su Crossref), `tables/*.tex` generate da `figs/scripts/make_tables.py` con la
+  fonte `file:riga` di ogni cella, figure da `figs/scripts/make_figures.py` e `make_teaser.py` (GNM Head, Apache-2.0),
+  schema TikZ `figs/fig_method.tex`. Compilazione: `containers/texbuild/scripts/compile_cvpr.sbatch`.
+- **Cornice:** (A) togliere piu' della posa (taglia per mesh, deformazione non rigida per coppia) abbassa l'ordinamento
+  per forma sotto l'ICP rigido in mm in tutte e 4 le famiglie (punti; delta appaiati in attesa della matrice
+  unificata); (B) la taglia conta dove varia; (C) encoder fattorizzato; adattamento few-shot (D5); Ava-256 in attesa.
+- **Correzioni rispetto alla bozza:** fit 3DMM con la lettura DICHIARATA per GT (non il massimo fra le letture);
+  dichiarato che HIFI3D, FaceScape e FaceVerse sono campioni dei rispettivi 3DMM, non scansioni (reale solo FaMoS);
+  aggiunto che il nostro d_F calibrato e' solo PARI alle composizioni post hoc taglia stimata + ICP / NICP cs
+  calibrate, e che la d_F preregistrata sta SOTTO di esse (factorized_paired.csv:10-11, 214-215); costi dal
+  riepilogo di results.md:173-181; tolte dal supp le figure con render BFM (licenza).
+- **In attesa:** matrice unificata (Tab. scala, colonna Delta; Fig. 3 in FALLBACK, Fig. 4 PLACEHOLDER), concorrenti
+  in corso (ULRSSM, Hybrid FM, Gromov-Wasserstein, feature su render: righe \todo{run}), Ava-256 (\todo{Ava}).

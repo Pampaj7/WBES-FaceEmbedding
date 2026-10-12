@@ -1,5 +1,18 @@
 # paper/: come si compila
 
+## `main_cvpr.tex` + `supp_cvpr.tex` (CVPR 2027, riscrittura del 12 ottobre 2026)
+
+- Main di 8 pagine di corpo e supplementary separato (`supp_legacy.tex` = risultati della versione precedente, inclusi
+  dal supp). I due documenti si citano con `xr-hyper` (prefissi `S-` e `M-`): si compila main, supp, main.
+- Sul cluster: `sbatch /home/create.aau.dk/ga41wf/containers/texbuild/scripts/compile_cvpr.sbatch` (PDF in `build/`,
+  log, testo per pagina e anteprime in `containers/texbuild/out/run_<job>/<doc>/`).
+- Tabelle generate: `python3 figs/scripts/make_tables.py` (dalla radice del repo, solo stdlib) scrive `tables/*.tex`
+  con la fonte `file:riga` di ogni cella. Figure: `sbatch figs/scripts/make_figs.sbatch` (tabelle, figure 3-6 con
+  matplotlib, teaser con GNM Head; solo CPU). Ogni PDF ha accanto `<nome>.sources.txt` con le fonti e lo stato
+  (DATI / FALLBACK / PLACEHOLDER). Le figure 3-4 e la colonna Delta della Tab. della scala leggono la matrice
+  unificata `aau/runs/evidence/full_matrix/` quando esiste (schema atteso in `figs/scripts/common.py`).
+- Bibliografia: `references.bib`, `refs_cvpr_add.bib`, `refs_cvpr27.bib` (voci nuove, controllate su Crossref).
+
 ## `main_cvpr_draft.tex` (bozza CVPR 2027, formato review a due colonne)
 
 - Kit autori: `cvpr_kit/` (kit ufficiale di CVPR 2026 come segnaposto; fonte, sha256 e licenza in

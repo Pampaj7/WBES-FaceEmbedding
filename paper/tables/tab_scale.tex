@@ -1,0 +1,32 @@
+% GENERATO da paper/figs/scripts/make_tables.py: non modificare a mano, rigenerare.
+% Ogni riga di tabella e' seguita da '% fonte:' con file:riga di ogni cella, nell'ordine.
+% Scala dell'allineamento, GT FR, punti senza crop. Delta contro ICP rigido in mm: matrice unificata (aau/runs/evidence/full_matrix/paired.csv), NON ANCORA DISPONIBILE.
+\begin{tabular}{lccccc}
+\toprule
+Distance & HIFI3D & FaceSc. & FaceV. & FaMoS & $\Delta$ HIFI3D \\
+\midrule
+\multicolumn{6}{l}{\emph{Pairwise}} \\
+Chamfer, centred, no alignment$^\dagger$ & 0.411 & 0.211 & 0.281 & 0.623 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_mm/spearman.csv:12, aau/runs/evidence/baselines_mm/spearman.csv:492, aau/runs/evidence/baselines_mm/spearman.csv:332, aau/runs/evidence/baselines_mm/spearman.csv:805, -
++ rigid ICP (pose) & 0.643 & 0.453 & 0.337 & 0.739 & ref. \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:122, aau/runs/evidence/baselines_param/spearman_e2.csv:397, aau/runs/evidence/baselines_param/spearman_e2.csv:672, aau/runs/evidence/baselines_param/spearman_e2.csv:1146, -
++ size normalization & 0.358 & 0.416 & 0.290 & 0.601 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:141, aau/runs/evidence/baselines_param/spearman_e2.csv:416, aau/runs/evidence/baselines_param/spearman_e2.csv:691, aau/runs/evidence/baselines_param/spearman_e2.csv:1161, -
++ non-rigid ICP$^\dagger$ & 0.495 & 0.374 & 0.201 & 0.719 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_mm/spearman.csv:14, aau/runs/evidence/baselines_mm/spearman.csv:494, aau/runs/evidence/baselines_mm/spearman.csv:334, aau/runs/evidence/baselines_mm/spearman.csv:808, -
++ size norm. + non-rigid ICP & 0.376 & 0.346 & 0.212 & 0.584 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:137, aau/runs/evidence/baselines_param/spearman_e2.csv:412, aau/runs/evidence/baselines_param/spearman_e2.csv:687, aau/runs/evidence/baselines_param/spearman_e2.csv:1157, -
+\midrule
+\multicolumn{6}{l}{\emph{Per mesh}} \\
+NICP to a template (mm) & 0.614 & 0.542 & 0.212 & -- & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:126, aau/runs/evidence/baselines_param/spearman_e2.csv:401, aau/runs/evidence/baselines_param/spearman_e2.csv:676, -, -
+FLAME fit (in the loop), identity mesh & 0.686 & 0.630 & 0.264 & 0.668 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:237, aau/runs/evidence/baselines_param/spearman_e2.csv:512, aau/runs/evidence/baselines_param/spearman_e2.csv:787, aau/runs/evidence/baselines_param/spearman_e2.csv:1253, -
+GNM fit (in the loop), identity mesh & 0.664 & 0.678 & 0.292 & 0.686 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:213, aau/runs/evidence/baselines_param/spearman_e2.csv:488, aau/runs/evidence/baselines_param/spearman_e2.csv:763, aau/runs/evidence/baselines_param/spearman_e2.csv:1229, -
+Ours, $d_F$ uncalibrated, seed 1 & 0.642 & 0.687 & 0.297 & 0.616 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:2, aau/runs/evidence/baselines_param/spearman_e2.csv:277, aau/runs/evidence/baselines_param/spearman_e2.csv:552, aau/runs/evidence/baselines_param/spearman_e2.csv:1026, -
+Ours, $d_F$ calibrated, seed 1 & 0.749 & 0.661 & 0.303 & 0.678 & \todo{matrice} \\
+% fonte: aau/runs/evidence/baselines_param/spearman_e2.csv:10, aau/runs/evidence/baselines_param/spearman_e2.csv:285, aau/runs/evidence/baselines_param/spearman_e2.csv:560, aau/runs/evidence/baselines_param/spearman_e2.csv:1034, -
+\bottomrule
+\end{tabular}

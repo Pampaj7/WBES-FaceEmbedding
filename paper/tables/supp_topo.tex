@@ -1,0 +1,35 @@
+% GENERATO da paper/figs/scripts/make_tables.py: non modificare a mano, rigenerare.
+% Ogni riga di tabella e' seguita da '% fonte:' con file:riga di ogni cella, nell'ordine.
+% Supplementary: media sulle 20 coppie ordinate di topologie diverse e sulle 5 coppie della stessa topologia, coppia peggiore e migliore (topo_pairs_e3.csv).
+\begin{tabular}{llcccc}
+\toprule
+Domain & Distance (GT) & Cross-topology mean & Same-topology mean & Worst cross pair & Best cross pair \\
+\midrule
+HIFI3D & Ours seed 1, $d_F$ cal.\ (FR) & \ci{0.749}{0.675}{0.811} & \ci{0.760}{0.685}{0.821} & 0.730 (remesh$\to$up60k) & 0.760 (up60k$\to$original) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:2, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:3, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:2, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:2
+HIFI3D & Ours seed 1, $d_P$ (SR) & \ci{0.623}{0.550}{0.688} & \ci{0.635}{0.561}{0.700} & 0.594 (down8k$\to$noisy) & 0.640 (original$\to$remesh) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:198, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:199, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:198, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:198
+HIFI3D & Ours seed 2, $d_F$ cal.\ (FR) & \ci{0.731}{0.655}{0.794} & \ci{0.745}{0.669}{0.808} & 0.693 (remesh$\to$up60k) & 0.748 (down8k$\to$original) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:58, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:59, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:58, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:58
+HIFI3D & Ours seed 2, $d_P$ (SR) & \ci{0.613}{0.529}{0.688} & \ci{0.620}{0.535}{0.695} & 0.594 (remesh$\to$noisy) & 0.627 (original$\to$up60k) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:254, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:255, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:254, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:254
+\midrule
+FaceScape & Ours seed 1, $d_F$ cal.\ (FR) & \ci{0.667}{0.598}{0.732} & \ci{0.706}{0.640}{0.769} & 0.628 (up60k$\to$noisy) & 0.706 (original$\to$up60k) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:338, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:339, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:338, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:338
+FaceScape & Ours seed 1, $d_P$ (SR) & \ci{0.762}{0.697}{0.818} & \ci{0.790}{0.727}{0.843} & 0.741 (down8k$\to$up60k) & 0.795 (up60k$\to$remesh) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:534, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:535, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:534, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:534
+FaceScape & Ours seed 2, $d_F$ cal.\ (FR) & \ci{0.673}{0.605}{0.735} & \ci{0.714}{0.648}{0.775} & 0.620 (noisy$\to$up60k) & 0.710 (original$\to$up60k) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:394, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:395, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:394, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:394
+FaceScape & Ours seed 2, $d_P$ (SR) & \ci{0.763}{0.699}{0.818} & \ci{0.783}{0.720}{0.837} & 0.715 (noisy$\to$original) & 0.796 (up60k$\to$remesh) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:590, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:591, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:590, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:590
+\midrule
+FaceVerse & Ours seed 1, $d_F$ cal.\ (FR) & \ci{0.304}{0.232}{0.369} & \ci{0.307}{0.232}{0.376} & 0.278 (down8k$\to$original) & 0.337 (remesh$\to$noisy) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:674, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:675, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:674, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:674
+FaceVerse & Ours seed 1, $d_P$ (SR) & \ci{0.287}{0.219}{0.355} & \ci{0.294}{0.222}{0.365} & 0.252 (noisy$\to$down8k) & 0.323 (remesh$\to$noisy) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:870, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:871, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:870, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:870
+FaceVerse & Ours seed 2, $d_F$ cal.\ (FR) & \ci{0.319}{0.259}{0.377} & \ci{0.321}{0.260}{0.381} & 0.279 (down8k$\to$up60k) & 0.350 (noisy$\to$remesh) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:730, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:731, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:730, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:730
+FaceVerse & Ours seed 2, $d_P$ (SR) & \ci{0.314}{0.249}{0.379} & \ci{0.316}{0.249}{0.384} & 0.287 (noisy$\to$up60k) & 0.343 (up60k$\to$noisy) \\
+% fonte: -, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:926, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:927, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:926, aau/runs/evidence/baselines_param/topo_pairs_e3.csv:926
+\bottomrule
+\end{tabular}

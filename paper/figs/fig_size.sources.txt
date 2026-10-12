@@ -1,0 +1,17 @@
+stato: DATI
+CV taglia hifi3d: aau/runs/evidence/baselines_param/controls_e2.json:62; rho FR-SR: aau/runs/evidence/baselines_param/controls_e2.json:63
+CV taglia famos: aau/runs/evidence/baselines_param/controls_e2.json:134; rho FR-SR: aau/runs/evidence/baselines_param/controls_e2.json:135
+CV taglia facescape: aau/runs/evidence/baselines_param/controls_e2.json:80; rho FR-SR: aau/runs/evidence/baselines_param/controls_e2.json:81
+CV taglia faceverse: aau/runs/evidence/baselines_param/controls_e2.json:98; rho FR-SR: aau/runs/evidence/baselines_param/controls_e2.json:99
+Size only (oracle) | hifi3d: aau/runs/evidence/baselines_param/spearman_e2.csv:134
+Size only (oracle) | famos: aau/runs/evidence/baselines_param/spearman_e2.csv:1154
+Size only (oracle) | facescape: aau/runs/evidence/baselines_param/spearman_e2.csv:409
+Size only (oracle) | faceverse: aau/runs/evidence/baselines_param/spearman_e2.csv:684
+Rigid ICP (mm) | hifi3d: aau/runs/evidence/baselines_param/spearman_e2.csv:122
+Rigid ICP (mm) | famos: aau/runs/evidence/baselines_param/spearman_e2.csv:1146
+Rigid ICP (mm) | facescape: aau/runs/evidence/baselines_param/spearman_e2.csv:397
+Rigid ICP (mm) | faceverse: aau/runs/evidence/baselines_param/spearman_e2.csv:672
+Ours $d_F$ cal. | hifi3d: aau/runs/evidence/baselines_param/spearman_e2.csv:10
+Ours $d_F$ cal. | famos: aau/runs/evidence/baselines_param/spearman_e2.csv:1034
+Ours $d_F$ cal. | facescape: aau/runs/evidence/baselines_param/spearman_e2.csv:285
+Ours $d_F$ cal. | faceverse: aau/runs/evidence/baselines_param/spearman_e2.csv:560

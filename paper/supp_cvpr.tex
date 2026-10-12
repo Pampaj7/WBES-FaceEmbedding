@@ -1,0 +1,265 @@
+% CVPR 2027, materiale supplementare (file separato). Riferimenti al main con prefisso M- (xr-hyper: compilare prima
+% main_cvpr.tex). Stesse regole del main: fonte "file:riga" per ogni numero (tabelle generate da
+% figs/scripts/make_tables.py), post hoc dichiarato, nessun risultato sfavorevole tolto. La sezione sec:legacy
+% (supp_legacy.tex) contiene i risultati della versione precedente, spostati qui dalla bozza.
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[review]{cvpr_kit/cvpr}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{placeins}
+\usepackage{adjustbox}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{TODO:} #1}}
+\newcommand{\ci}[3]{#1\,{\tiny[#2,\,#3]}}
+\newcommand{\pd}[3]{$#1$~[$#2$, $#3$]}
+\newif\ifshowcommits\showcommitsfalse
+\newcommand{\commit}[1]{\ifshowcommits\texttt{#1}\else\textit{anon.}\fi}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage{xr-hyper}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+\externaldocument[M-]{main_cvpr}
+
+\def\paperID{*****}
+\def\confName{CVPR}
+\def\confYear{2027}
+
+\title{When Alignment Hurts: Removing More Than Pose Erases Identity in 3D Face Comparison}
+\author{Anonymous Authors}
+
+\begin{document}
+\maketitlesupplementary
+
+\noindent Contents: complete results (Sec.~\ref{sec:tables}); alignment scale with intervals (Sec.~\ref{sec:scale}); results by discretization (Sec.~\ref{sec:topo}); boundary crops (Sec.~\ref{sec:crop}); comparison with 3DMM fits (Sec.~\ref{sec:fits}); diagnostics (Sec.~\ref{sec:diagnostics}); protocols and amendments (Sec.~\ref{sec:protocols}); training details (Sec.~\ref{sec:training}); data, licenses and release (Sec.~\ref{sec:data}); cost (Sec.~\ref{sec:cost}); results of the previous version (Sec.~\ref{sec:legacy}).
+
+% =================================================================================================================
+\section{Complete results without crop}
+\label{sec:tables}
+Tables~\ref{tab:full_fr} and~\ref{tab:full_sr} list every distance evaluated on the rows of the main table (Tab.~\ref{M-tab:main}), with all three readings of each 3DMM fit, the neutral view of FaceVerse, and the variants of our encoder that the main text does not discuss: a two-head and a dual-head variant, a run with ten times more training identities (one seed, two checkpoints), and a control model with a single embedding trained on FR (``Control''). The control is not a shape distance: with SR it loses against size-normalized registration on HIFI3D. The ``sensitivity'' fits use a wider prior weight, chosen post hoc. Rows ``\todo{run}'' are competitors still running.
+% fonte: aau/runs/evidence/baselines_param/results.md:78-81 (ctrlfr non e' un braccio per SR); conclusions.md:163-168 (sigma)
+
+\begin{table*}[p]
+  \centering
+  \scriptsize
+  \caption{All distances, FR, cross-discretization pairs without crop (spearman\_e2.csv; same rows and replicates within a domain except FaceVerse neutral, whose geometric baselines are in Sec.~\ref{sec:scale}).}
+  \label{tab:full_fr}
+  \begin{adjustbox}{max width=\textwidth, max totalheight=0.88\textheight}\input{tables/supp_full_fr}\end{adjustbox}
+\end{table*}
+
+\begin{table*}[p]
+  \centering
+  \scriptsize
+  \caption{All distances, SR, same rows as Tab.~\ref{tab:full_fr}.}
+  \label{tab:full_sr}
+  \begin{adjustbox}{max width=\textwidth, max totalheight=0.88\textheight}\input{tables/supp_full_sr}\end{adjustbox}
+\end{table*}
+
+% =================================================================================================================
+\FloatBarrier
+\section{Alignment scale, all normalizations}
+\label{sec:scale}
+Table~\ref{tab:scale_full} gives the geometric pipelines in three normalizations: millimetres (consistent with FR), each mesh scaled to a common centroid size (consistent with SR), and the legacy per-mesh maximum coordinate of the previous version. Rows are all 99{,}000 cross-discretization pairs without crop, without the common mask of the main table (pairwise non-rigid ICP fails on 776 HIFI3D and 10{,}275 FaceScape pairs, which are excluded). The uncentred Chamfer distance reads the absolute position of each mesh in the generator frame, which shares information between the discretizations of one identity and is not observable on real scans: it is a diagnostic, not a baseline. Paired differences between pipelines: \todo{matrice}.
+% fonte: aau/runs/evidence/baselines_mm/summary.md:34-37 (Chamfer non centrata: diagnostica; fallimenti NICP)
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{Geometric pipelines in three normalizations, FR and SR (baselines\_mm/spearman.csv).}
+  \label{tab:scale_full}
+  \resizebox{\textwidth}{!}{\input{tables/supp_scale_full}}
+\end{table*}
+
+% =================================================================================================================
+\FloatBarrier
+\section{Results by discretization}
+\label{sec:topo}
+Table~\ref{tab:topo} reports, for our encoder only, the mean Spearman correlation over the 20 ordered pairs of different discretizations without crop, over the 5 same-discretization pairs, and the worst and best cross pair. Comparable numbers for the other methods require the unified matrix (\todo{matrice}; Fig.~\ref{M-fig:perturbation}).
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{Our encoder by pair of discretizations (topo\_pairs\_e3.csv; 99{,}000 rows, bootstrap seeds of the crop analysis).}
+  \label{tab:topo}
+  \input{tables/supp_topo}
+\end{table*}
+
+% =================================================================================================================
+\FloatBarrier
+\section{Boundary crops}
+\label{sec:crop}
+Tables~\ref{tab:crop_fr} and~\ref{tab:crop_sr} compare no-crop rows, all cross-discretization rows and the rows that involve a crop (row sets and bootstrap seeds differ from the main table).
+% fonte: aau/runs/evidence/baselines_param/spearman_e3.csv (righe nelle tabelle generate)
+Counting declared paired differences against the 3DMM fits with the model in the loop (24 per domain and reference; in favour of ours / against / unresolved): on all pairs, HIFI3D FR 12 / 4 / 8 and SR 5 / 10 / 9, FaceScape FR and SR 0 / 24 / 0; on the crop rows, HIFI3D FR 6 / 14 / 4 and SR 4 / 10 / 10, FaceScape FR 0 / 24 / 0 and SR 0 / 19 / 5. On all pairs seed 1 stays above the identity meshes of both fits read under FR (\pd{+0.058}{+0.019}{+0.100} GNM, \pd{+0.039}{+0.004}{+0.075} FLAME), seed 2 is level with them; in shape, $d_P$ falls below the GNM coefficients (\pd{-0.108}{-0.193}{-0.022}, \pd{-0.124}{-0.216}{-0.032}).
+% fonte: aau/runs/evidence/baselines_param/results.md:140-148 (conteggi, delta SR) e :188-190 (delta FR su all_cross)
+
+\textbf{Diagnosis (post hoc).} On FaceScape the crop lowers the predicted log size by 0.061--0.070, about four times the between-subject standard deviation of log size (0.016--0.017), and the shape distance $d_P$ (before calibration) between a cropped mesh and the same subject (0.68--0.71) exceeds the median distance between different subjects (0.55); on HIFI3D the shift is smaller ($-0.024$ to $-0.034$) against a wider spread of log size (0.047). The reference and the fits are defined on a region that the crop does not touch; our embedding sees the whole mesh. The fragility predates this model: with the legacy reference, an earlier size-blind encoder trained on the same data for the same number of steps scored 0.716 [0.650, 0.773] on HIFI3D without crop and 0.598 [0.523, 0.662] on all pairs. A secondary ablation with variable partiality during training makes the size estimate robust to the crop on HIFI3D, with a small effect on shape (Sec.~\ref{sec:diagnostics}).
+% fonte: baselines_param/results.md:151-157 (diagnosi del crop); aau/runs/evidence/e1/summary.md:276 (C3F legacy a
+% 21.096 passi: HIFI3D nocrop 0.716, all_cross 0.598); ablazione: stream/ablation_2x2/LETTURA_CORRETTA.md:37-42.
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{Boundary crops, FR (spearman\_e3.csv). ``all'': all cross-discretization pairs; ``crop rows'': pairs that involve a crop.}
+  \label{tab:crop_fr}
+  \resizebox{\textwidth}{!}{\input{tables/supp_crop_fr}}
+\end{table*}
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{Boundary crops, SR.}
+  \label{tab:crop_sr}
+  \resizebox{\textwidth}{!}{\input{tables/supp_crop_sr}}
+\end{table*}
+
+% =================================================================================================================
+\FloatBarrier
+\section{Comparison with 3DMM fits}
+\label{sec:fits}
+\textbf{Protocol.} The fits (non-rigid ICP to the model template, then projection on the identity basis) were pre-registered before any of their numbers, but after our calibration, whose distance the protocol declares. Without crops, with the pre-registered fit, no fit is ahead of our model in any domain. Two post-hoc variants make the fits stronger: \emph{model in the loop} (correspondences re-estimated against the current model instance, hyperparameters chosen on non-evaluated subjects), which lowers the median surface error from 1.0--1.6\,mm to 0.29--0.56\,mm, and a size-plus-shape composition calibrated on synthetic held-out data like ours.
+% fonte: baselines_param/PROTOCOL.md (commit 451b30c, dopo factorized_protocol_emendamento_4); results.md:61-62
+
+\textbf{Counts.} With the model-in-the-loop fit, 21 of 240 declared paired differences fall below zero (fit ahead): all on FaceScape (form and shape) or, on HIFI3D shape, against the FR control, which is not a shape distance; plus one fragile cell on neutral FaceVerse. The prior weight $\sigma$ of this fit was chosen on non-evaluated subjects at the edge of its grid (2\,mm); a second post-hoc pilot on a wider grid chooses 8\,mm, again at the edge; with it 24 of 240 cells fall below zero, in the same areas, HIFI3D form stays ours in 23 of 24 cells, and on FaceScape the GNM identity mesh ranks shape at 0.873 [0.829, 0.908]. Removing the expression from the fit on neutral views (variant A) changes no sign.
+% fonte: aau/runs/evidence/baselines_param/conclusions.md:69 (21 / 240), :163-168 (sigma 8: 24 / 240, 23 / 0 / 1, 0.873);
+% results.md:66-72 (variante A)
+
+\textbf{Why FaceScape?} Size barely varies there (coefficient of variation 1.6\%), so FR orders pairs almost as SR does and whoever ranks shape best ranks form best. Why the fitted shape is so much better on FaceScape is not explained by surface error, which is comparably low on HIFI3D and FaceVerse.
+% fonte: baselines_param/conclusions.md, emendamento 1, "Perche' FaceScape"; controls_e2.json:80-81
+
+% =================================================================================================================
+\FloatBarrier
+\section{Diagnostics and ablations}
+\label{sec:diagnostics}
+Each diagnostic has a protocol written before its numbers (Sec.~\ref{sec:protocols}); verdicts are the pre-registered ones, readings after the numbers are marked post hoc.
+
+\textbf{D1--D2: what limits the learned metric?} (Preregistered readings: C1 yes, R1 yes, R2 no, R3 yes.) On held-out identities of its training generators our encoder ranks shape above a 3DMM fit by $+0.166$ [$+0.139$, $+0.196$] (seed 1, SR), and its shape ranking on an unseen generator (FLAME 2023, subdivided) is lower than on the training generators by $+0.108$ [$+0.079$, $+0.137$]; ten times more identities of the same generators do not close this gap. A linear probe trained on 50 FaceScape subjects per fold decodes a better shape distance from the frozen embedding: the information is there, but the probe uses target labels.
+% fonte: aau/runs/evidence/diagnostics/results.md:7-17
+
+\textbf{D3: does a linear metric head transfer across generators?} Pre-registered verdict \textbf{no} for both seeds (leave one generator out: 0 of 4 targets gain at least $+0.05$ with SR). Mean gain over the four targets: $+0.016$ [$+0.003$, $+0.029$] and $-0.001$ [$-0.012$, $+0.011$]. A post-hoc amendment (wider regularization grid, rescaled loss, joint head) does not change the verdict.
+% fonte: results_d3.md:7-13 (letture) e tabella "Delta medio sui 4 bersagli"; PROTOCOL_D3_emendamento_2.md (post hoc)
+
+\textbf{D4: canonical remeshing at test.} Pre-registered verdict \textbf{no}: remeshing every input isotropically at 2\,mm before embedding changes shape ranking by at most $+0.011$ (FaceScape, seed 2). A post-hoc reading after review: the residual gap between same-discretization and cross-discretization rows closes almost completely for discretizations that only change sampling (original, down8k, up60k), not for noisy and remeshed inputs; the threshold of the protocol was unreachable by construction for one seed.
+% fonte: results_d4.md:7-10 (verdetto, delta) e "Lettura corretta dopo il critic" punti 1-3
+
+\textbf{D5: few-shot adaptation.} Pre-registered verdict \textbf{not confirmed} (main text, Sec.~\ref{M-sec:fewshot}). Table~\ref{tab:d5} gives the gain per target and $k$.
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{D5: gain of the adapted head over $d_P$ with SR (pre-registered equal-weight variant), per target and number $k$ of labelled target identities; 95\% intervals conditional on the draws. FLAME has a pool of 100: its $k=200$ column uses $k=100$.}
+  \label{tab:d5}
+  \resizebox{\textwidth}{!}{\input{tables/supp_d5}}
+\end{table*}
+
+\textbf{G0: ArcFace on renders as a metric.} Pre-registered verdict \textbf{no}, and below $d_P$ in every family and seed (SR: FaceScape 0.348 against 0.747 and 0.753; HIFI3D 0.220 against 0.622 and 0.613; FaMoS training scans 0.395 against 0.839 and 0.828). A post-hoc sanity check shows that the same features \emph{recognize} identities on every set (AUC 0.969--0.9999) but do not grade differences between different people.
+% fonte: aau/runs/evidence/diagnostics/results_g0.md:7-13 e tabella SR (righe 26-30)
+
+\textbf{E1: variety of generators against number of identities} (previous version, legacy reference). Pre-registered outcome \textbf{not conclusive}: three generators beat two on HIFI3D ($+0.116$ [$+0.075$, $+0.158$] at 21{,}096 steps) but a non-inferiority condition on FaceVerse recognition fails ($-0.071$ [$-0.098$, $-0.046$]).
+% fonte: aau/runs/evidence/e1/summary.md:233-236
+
+\textbf{Ablation $2\times2$: FLAME as a fourth generator and variable partiality.} Pre-registered verdicts (amendment 1): FLAME gives no consistent gain across families (no harm overall; possible harm on FaceVerse, not confirmed); partiality helps only HIFI3D form on crop rows ($+0.173$ [$+0.149$, $+0.202$]), and post hoc we find that this gain comes from the size estimate ($+0.241$ [$+0.204$, $+0.281$] with size alone) more than from shape. The final checkpoint is noisy on FaceScape (up to 0.05 between epochs 90 and 100), so seed-to-seed differences of the streamed runs are about 2.6 times those of our main runs.
+% fonte: aau/runs/evidence/stream/ablation_2x2/LETTURA_CORRETTA.md:13-19 (verdetti), :37-42 (taglia), :58-70 e
+% epoch_noise/results.md (rumore del checkpoint)
+
+\textbf{Number of eigenvectors.} 64 against 128 was decided by a rule stated after the numbers were known (amendment marked post hoc in Tab.~\ref{tab:protocols}); we use 128.
+% fonte: aau/runs/evidence/trainer_v3/ablations/k_ablation/PROTOCOL_emendamento_1.md:1-8
+
+% =================================================================================================================
+\FloatBarrier
+\section{Protocols and amendments}
+\label{sec:protocols}
+Table~\ref{tab:protocols} lists every protocol and amendment behind the results, with the first 8 characters of the SHA-256 of the file as released (an asterisk marks a file whose current hash differs from the registered one), the date of the commit that introduced it, and whether it was written before or after the results it governs. Commit identifiers are withheld in the review version (``anon.''). Amendments written after the results are \textbf{post hoc}; in particular the calibration of $c$ (factorized amendment 4), the model-in-the-loop fits and their compositions (3DMM amendments 1--2), the crop diagnostics (3DMM amendment 3) and the calibrated compositions of registration with an estimated size (factorized amendment 5).
+
+\begin{table*}[t]
+  \centering
+  \scriptsize
+  \caption{Protocols and amendments (generated from the repository; \texttt{make\_tables.py}).}
+  \label{tab:protocols}
+  \input{tables/supp_protocols}
+\end{table*}
+
+% =================================================================================================================
+\FloatBarrier
+\section{Training details}
+\label{sec:training}
+The factorized model uses the encoder of the previous version (Sec.~\ref{sec:legacy_objective}: subject- and mesh-level stress and ranking losses and an identity-consistency term, here against the shape reference of the training identities) with these changes: input in millimetres in the canonical frame of the reference divided by 100\,mm, centred on the robust area-weighted barycentre, with no per-mesh scale; area-weighted pooling; a size head (512$\to$64$\to$1, SiLU) on the pooled features trained with a squared error against the log centroid size of the identity, with weight 0 on BFM identities (whose released meshes are size-normalized one by one); a log-uniform size augmentation in $[0.8, 1.25]$ applied to input and target; dropout 0; 21{,}096 steps; two seeds; EMA weights of the last checkpoint. Laplacian operators use 128 eigenvectors on meshes rescaled to unit area, with eigenvalues and gradients normalized by the largest eigenvalue, so only the coordinates carry scale.
+% fonte: aau/runs/evidence/trainer_v3/factorized.md:9-36; factorized_protocol_emendamento_1.md (BFM peso 0),
+% _emendamento_2.md (dropout 0)
+
+% =================================================================================================================
+\FloatBarrier
+\section{Data, licenses and release}
+\label{sec:data}
+\begin{table}[h]
+  \centering
+  \scriptsize
+  \caption{Redistribution terms as we read them (not legal advice; to be reviewed before publication).}
+  \label{tab:licenses}
+  \setlength{\tabcolsep}{2pt}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lcccc}
+    \toprule
+    Source & Meshes & Distances & Coefficients/seeds & Weights \\
+    \midrule
+    GNM Head (Apache-2.0) & yes & yes & yes & yes \\
+    ICT-FaceKit (MIT) & yes & yes & yes & yes \\
+    FLAME 2023 Open (CC~BY~4.0) & yes & yes & yes & yes \\
+    BFM & no & unclear & recipe only & no \\
+    FaMoS & no & no / unclear & no & no \\
+    FaceScape, HIFI3D, FaceVerse & no & unclear & recipe only & unclear \\
+    Ava-256 (CC~BY-NC~4.0) & non-commercial & non-commercial & -- & -- \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+% fonte: literature/LICENZE_RILASCIO_2026-10-09.md:5-15; Ava-256: aau/ava256/README.md, sezione Licenza
+We release code, subject splits, protocols and benchmark metadata; for the openly licensed generators (GNM Head, ICT-FaceKit, FLAME 2023 Open) also meshes, coefficients, seeds and distance matrices; for the others only recipes and seeds, and nothing for FaMoS. Weights trained on data that include BFM are released only with the licensor's written permission; otherwise we release a model trained on the open generators only. \todo{decisione sul rilascio dei pesi; coefficienti BFM di REMESH non conservati}. Real-person data (FaMoS, Ava-256) are used under their licenses; no renders of real people appear in the paper.
+
+% =================================================================================================================
+\FloatBarrier
+\section{Cost}
+\label{sec:cost}
+Enrolling a mesh costs a few seconds for our encoder and for the 3DMM fits, dominated by a geometric step on CPU (the Laplacian eigendecomposition for ours, non-rigid ICP for the fits); the network itself takes 6.5\,ms per mesh on one GPU. Comparing two enrolled meshes costs microseconds for both (Tab.~\ref{tab:cost}). The previous version claimed a much lower cost against pairwise pipelines, excluding preprocessing; that claim is withdrawn.
+% fonte: aau/runs/evidence/baselines_param/results.md:173-182 (costi misurati, emendamento 2)
+
+\begin{table}[h]
+  \centering
+  \scriptsize
+  \caption{Measured cost. Enrolment: median seconds per mesh on CPU, one thread per mesh with the node full (in brackets: one process on an idle node, fits on HIFI3D). Pair: microseconds per comparison.}
+  \label{tab:cost}
+  \begin{tabular}{lcc}
+    \toprule
+    Method & Enrolment (s) & Pair ($\mu$s) \\
+    \midrule
+    Ours (operators on CPU + network on GPU) & 4.8 (2.97) & 5--7 \\
+    GNM fit, model in the loop & 4.5--5.0 (2.9) & 4.6 \\
+    FLAME 2023 Open fit, model in the loop & 1.6--2.0 (1.0) & 4.6 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% fonte: results.md:173-181 (bracci 4.8 s, operatori 2.97 s con un processo; B GNM 4.5-5.0 s e 2.9 s; B FLAME 1.6-2.0 s
+% e 1.0 s; coppia: bracci 5-7 us, B coefficienti 4.6 us). La bozza riportava 4.82 / 5.76 / 2.15 s da tabelle per vista in
+% results.md: qui gli intervalli del riepilogo, che coprono le topologie senza crop.
+
+% =================================================================================================================
+\FloatBarrier
+\section{Results of the previous version}
+\label{sec:legacy}
+The previous version evaluated a size-blind encoder (v1) on REMESH, a benchmark of BFM identities in six discretizations, against a reference that normalizes each mesh by its maximum coordinate and therefore removes size. Under that reference rigid and non-rigid registration lowered the agreement with identity rankings and compressed inter-subject distances; under the form reference on held-out families a single rigid alignment helps instead (Sec.~\ref{M-sec:alignment}). Its fixed evaluation subset overlapped the training identities of the released checkpoint, and zero-shot transfer to FaceScape across discretizations failed (0.115 against 0.598 for Chamfer). We keep all of it here, unchanged in substance.
+
+\input{supp_legacy}
+
+{\small
+\bibliographystyle{cvpr_kit/ieeenat_fullname}
+\bibliography{references,refs_cvpr_add,refs_cvpr27}
+}
+
+\end{document}

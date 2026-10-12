@@ -1,0 +1,27 @@
+% Fig. 2: schema del metodo (TikZ, vettoriale). Incluso da main_cvpr.tex con \input{figs/fig_method}.
+% Nessun numero di risultato: solo le scelte di architettura dichiarate nel testo (Sect. sec:method).
+\begin{tikzpicture}[
+  font=\scriptsize, >=Stealth,
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=3pt, minimum height=0.75cm},
+  enc/.style={box, fill=violet!8, draw=violet!70!black},
+  dat/.style={box, fill=gray!8},
+  head/.style={box, fill=orange!10, draw=orange!70!black},
+  dist/.style={box, fill=blue!6, draw=blue!60!black}]
+  \node[dat] (m) {mesh $M=(V,F)$\\any topology\\(mm, $/100$\,mm)};
+  \node[enc, right=0.35cm of m] (op) {Laplacian\\eigenbasis\\($k{=}128$)};
+  \node[enc, right=0.3cm of op] (dn) {DiffusionNet\\4 blocks};
+  \node[enc, right=0.3cm of dn] (pool) {area-weighted\\pooling};
+  \node[head, above right=0.05cm and 0.45cm of pool] (s) {size head\\$s=\log \hat S$};
+  \node[head, below right=0.05cm and 0.45cm of pool] (u) {shape code\\$u\in\mathbb R^{256}$};
+  \draw[->] (m) -- (op); \draw[->] (op) -- (dn); \draw[->] (dn) -- (pool);
+  \draw[->] (pool.east) -- ++(0.15,0) |- (s.west);
+  \draw[->] (pool.east) -- ++(0.15,0) |- (u.west);
+  \node[dist, right=0.4cm of $(s.east)!0.5!(u.east)$] (d)
+    {$d_F(i,j)=\sqrt{(S_i-S_j)^2+S_iS_j\,(c\,d_P)^2}$\\[1pt] $d_P=\|u_i-u_j\|$};
+  \draw[->] (s.east) -- (d.west |- s.east);
+  \draw[->] (u.east) -- (d.west |- u.east);
+  \node[below=0.12cm of u, align=center, text=orange!50!black] (lu) {stress + ranking + identity\\vs.\ SR of the training identities};
+  \node[above=0.12cm of s, align=center, text=orange!50!black] (ls) {squared error vs.\ log centroid size};
+  \node[below=0.12cm of dn, align=center, text=gray!40!black, text width=3.2cm]
+    {each mesh embedded once,\\no correspondence, no alignment};
+\end{tikzpicture}
