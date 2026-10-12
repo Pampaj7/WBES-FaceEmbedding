@@ -1,0 +1,161 @@
+{
+ "method": "gw",
+ "config": "euclid|256|cg",
+ "pilot_choice": {
+  "config": "euclid|256|cg",
+  "score": 0.1832983781739661,
+  "best": 0.1832983781739661,
+  "best_config": "euclid|256|cg",
+  "tied": [
+   "euclid|256|cg"
+  ],
+  "in_budget": [
+   "euclid|128|cg",
+   "euclid|256|cg",
+   "geo|128|cg",
+   "geo|256|cg"
+  ],
+  "budget_s": 1.0,
+  "best_overall": "euclid|256|ent0.005",
+  "best_overall_score": 0.23410102057795865,
+  "scores": {
+   "euclid|128|cg": 0.1540097326774562,
+   "euclid|128|ent0.005": 0.23088958252772396,
+   "euclid|256|cg": 0.1832983781739661,
+   "euclid|256|ent0.005": 0.23410102057795865,
+   "geo|128|cg": 0.06017750204531225,
+   "geo|128|ent0.005": 0.04545350538344235,
+   "geo|256|cg": 0.06052508411989534,
+   "geo|256|ent0.005": 0.029033327174513845
+  },
+  "s_per_solve_median": {
+   "euclid|128|cg": 0.0561722693964839,
+   "euclid|128|ent0.005": 6.783696105470881,
+   "euclid|256|cg": 0.4602455603890121,
+   "euclid|256|ent0.005": 13.579514209413901,
+   "geo|128|cg": 0.053778365487232804,
+   "geo|128|ent0.005": 5.406163048231974,
+   "geo|256|cg": 0.4433017431292683,
+   "geo|256|ent0.005": 11.03935706638731
+  },
+  "nan_pairs": {
+   "euclid|128|cg": 0,
+   "euclid|128|ent0.005": 0,
+   "euclid|256|cg": 0,
+   "euclid|256|ent0.005": 0,
+   "geo|128|cg": 0,
+   "geo|128|ent0.005": 0,
+   "geo|256|cg": 0,
+   "geo|256|ent0.005": 1
+  },
+  "by_view": {
+   "hifi3d|euclid|128|cg|fr": 0.3455667363157761,
+   "hifi3d|euclid|128|cg|sr": 0.20909076544653168,
+   "hifi3d|euclid|128|ent0.005|fr": 0.36407004628782696,
+   "hifi3d|euclid|128|ent0.005|sr": 0.25648716149827133,
+   "hifi3d|euclid|256|cg|fr": 0.3364617673428774,
+   "hifi3d|euclid|256|cg|sr": 0.23291999524697327,
+   "hifi3d|euclid|256|ent0.005|fr": 0.35925665782546046,
+   "hifi3d|euclid|256|ent0.005|sr": 0.286838990696644,
+   "hifi3d|geo|128|cg|fr": 0.1761797581377174,
+   "hifi3d|geo|128|cg|sr": 0.0777644592752805,
+   "hifi3d|geo|128|ent0.005|fr": 0.23156329457220357,
+   "hifi3d|geo|128|ent0.005|sr": 0.17496916368946142,
+   "hifi3d|geo|256|cg|fr": 0.204672791454333,
+   "hifi3d|geo|256|cg|sr": 0.11235916690868071,
+   "hifi3d|geo|256|ent0.005|fr": 0.22070968917404626,
+   "hifi3d|geo|256|ent0.005|sr": 0.16012662639283598,
+   "facescape|euclid|128|cg|fr": 0.03432452707167258,
+   "facescape|euclid|128|cg|sr": 0.046450184299079766,
+   "facescape|euclid|128|ent0.005|fr": 0.04630059935288721,
+   "facescape|euclid|128|ent0.005|sr": 0.11600602470539062,
+   "facescape|euclid|256|cg|fr": 0.04149996619600993,
+   "facescape|euclid|256|cg|sr": 0.08707699185568665,
+   "facescape|euclid|256|ent0.005|fr": 0.04612434422248979,
+   "facescape|euclid|256|ent0.005|sr": 0.13797297990439625,
+   "facescape|geo|128|cg|fr": -0.005440717577794254,
+   "facescape|geo|128|cg|sr": -0.0277856936485733,
+   "facescape|geo|128|ent0.005|fr": 0.052771017955634845,
+   "facescape|geo|128|ent0.005|sr": 0.07509744085479313,
+   "facescape|geo|256|cg|fr": 0.03138616851623126,
+   "facescape|geo|256|cg|sr": -1.8553171620781775e-05,
+   "facescape|geo|256|ent0.005|fr": 0.052161082438601646,
+   "facescape|geo|256|ent0.005|sr": 0.05691765181287958,
+   "faceverse|euclid|128|cg|fr": 0.09518588742719458,
+   "faceverse|euclid|128|cg|sr": 0.11300504919572918,
+   "faceverse|euclid|128|ent0.005|fr": 0.2257677475871619,
+   "faceverse|euclid|128|ent0.005|sr": 0.28196878314618873,
+   "faceverse|euclid|256|cg|fr": 0.14712317223312057,
+   "faceverse|euclid|256|cg|sr": 0.18753313959640955,
+   "faceverse|euclid|256|ent0.005|fr": 0.2275697243808303,
+   "faceverse|euclid|256|ent0.005|sr": 0.2691624564349442,
+   "faceverse|geo|128|cg|fr": 0.06664647118152701,
+   "faceverse|geo|128|cg|sr": 0.10308026195183723,
+   "faceverse|geo|128|ent0.005|fr": -0.04207381788179398,
+   "faceverse|geo|128|ent0.005|sr": -0.08431757148652891,
+   "faceverse|geo|256|cg|fr": 0.06253810324075015,
+   "faceverse|geo|256|cg|sr": 0.07065047753193698,
+   "faceverse|geo|256|ent0.005|fr": -0.041248311917426006,
+   "faceverse|geo|256|ent0.005|sr": -0.10903658123135114,
+   "faceverse_neutral|euclid|128|cg|fr": 0.1905399129722025,
+   "faceverse_neutral|euclid|128|cg|sr": 0.19791479869146322,
+   "faceverse_neutral|euclid|128|ent0.005|fr": 0.2308350825860879,
+   "faceverse_neutral|euclid|128|ent0.005|sr": 0.32568121505797687,
+   "faceverse_neutral|euclid|256|cg|fr": 0.19456479164068585,
+   "faceverse_neutral|euclid|256|cg|sr": 0.23920720127996567,
+   "faceverse_neutral|euclid|256|ent0.005|fr": 0.24785529840170256,
+   "faceverse_neutral|euclid|256|ent0.005|sr": 0.29802771275720163,
+   "faceverse_neutral|geo|128|cg|fr": 0.039495064087739194,
+   "faceverse_neutral|geo|128|cg|sr": 0.05148041295476422,
+   "faceverse_neutral|geo|128|ent0.005|fr": 0.017340769434188358,
+   "faceverse_neutral|geo|128|ent0.005|sr": -0.06172225407041958,
+   "faceverse_neutral|geo|256|cg|fr": 0.012923443607100803,
+   "faceverse_neutral|geo|256|cg|sr": -0.010310925128249469,
+   "faceverse_neutral|geo|256|ent0.005|fr": 0.0029507160110458976,
+   "faceverse_neutral|geo|256|ent0.005|sr": -0.11031425528452143
+  },
+  "rule": "fra le configurazioni con mediana dei secondi per soluzione <= 1.0: massimo della media sulle 4 viste di (rho(fr, GT FR) + rho(sr, GT SR)) / 2 sulle coppie del pilota; entro 0.01 dal migliore la mediana dei secondi per soluzione piu' bassa",
+  "pilot_subjects": 12,
+  "views": [
+   "hifi3d",
+   "facescape",
+   "faceverse",
+   "faceverse_neutral"
+  ],
+  "host": "a256-t4-01.srv.aau.dk",
+  "job": "1070599",
+  "date": "2026-10-12 19:01:49"
+ },
+ "n_meshes": 600,
+ "n_pairs": 148500,
+ "n_pairs_nan": {
+  "fr": 0,
+  "sr": 0
+ },
+ "failed_meshes": [],
+ "s_per_solve": {
+  "fr": {
+   "median": 0.5988493978511542,
+   "p95": 1.3522489054827016,
+   "total_h": 28.24540187023593
+  },
+  "sr": {
+   "median": 0.5805373985785991,
+   "p95": 1.3004743756959212,
+   "total_h": 26.2445516674456
+  }
+ },
+ "prep_s_per_mesh_median": {
+  "lettura+taglia": 0.044815564295277,
+  "fps+pesi": 0.1435016265604645,
+  "geodetiche": 2.163613421609625
+ },
+ "area_dropped_max": 0.0,
+ "cs_source": {
+  "cache": 600
+ },
+ "units": "mm (FR) e mm alla taglia di riferimento CS_ref (SR): 0.5 sqrt(GW_2^2)",
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1070640",
+ "date": "2026-10-12 19:31:23"
+}

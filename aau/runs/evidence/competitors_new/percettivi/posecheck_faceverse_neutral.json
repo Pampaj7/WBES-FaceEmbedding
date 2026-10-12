@@ -1,0 +1,57 @@
+{
+ "view": "faceverse_neutral",
+ "reference": "id910002 original (NON valutato)",
+ "n_meshes": 600,
+ "failed": [],
+ "icp_angle_deg": {
+  "median": 4.030570285696934,
+  "p95": 6.175148505120665,
+  "max": 8.15748536732722
+ },
+ "icp_angle_deg_by_topology": {
+  "crop": {
+   "median": 3.6882933509339937,
+   "p95": 5.5876222577419705,
+   "max": 6.175000607506185
+  },
+  "down8k": {
+   "median": 4.143559704620438,
+   "p95": 6.179543192430143,
+   "max": 8.103407813487518
+  },
+  "noisy": {
+   "median": 4.067460120331457,
+   "p95": 6.107286240099274,
+   "max": 7.588291804294974
+  },
+  "original": {
+   "median": 4.123965486162426,
+   "p95": 6.360135211478457,
+   "max": 8.15748536732722
+  },
+  "remesh": {
+   "median": 4.343979035764386,
+   "p95": 6.385171955982497,
+   "max": 8.098577752176665
+  },
+  "up60k": {
+   "median": 4.169904727016149,
+   "p95": 6.073828010196779,
+   "max": 7.8605326343894015
+  }
+ },
+ "nose_x_mm_abs": {
+  "median": 2.619927835860582,
+  "p95": 9.098184382062804,
+  "max": 13.716448779548891
+ },
+ "nose_height_fraction": {
+  "median": 0.49548941267190694,
+  "p95": 0.5409649341021274,
+  "max": 0.5606549020305036
+ },
+ "definition": "angolo della rotazione dell'ICP rigido (30 giri, 1024 campioni FPS -> 4096 del riferimento) dalla posa del frame canonico; naso = vertice con z massima (x in mm dal baricentro, altezza come frazione dell'estensione in y dal basso)",
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070570",
+ "date": "2026-10-12 18:09:45"
+}

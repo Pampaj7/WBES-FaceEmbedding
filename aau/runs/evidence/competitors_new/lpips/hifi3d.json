@@ -1,0 +1,40 @@
+{
+ "view": "hifi3d",
+ "n_meshes": 600,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 119.12457268538166,
+ "cam_k": 1.3,
+ "L_mm": 91.63428668106282,
+ "cs_ref_mm": 66.65926974253658,
+ "device": "cpu",
+ "threads": 32,
+ "workers_render": 32,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "render_s_per_mesh_median": 3.632361019961536,
+ "render_wall_s": 79.06523203849792,
+ "render_note": "s per mesh = 6 render (fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1070600",
+ "date": "2026-10-12 18:22:59",
+ "method": "lpips",
+ "wall_s": 23.44299602508545,
+ "s_per_pair": 0.00013045629396263466,
+ "check_gram_vs_forward_max_abs": {
+  "fr|+0": 2.659454556575014e-08,
+  "fr|-30": 1.936743371233618e-08,
+  "fr|+30": 2.6315012169320084e-08,
+  "sr|+0": 2.1845698916500567e-08,
+  "sr|-30": 2.17846531369581e-08,
+  "sr|+30": 2.4421063005153343e-08
+ },
+ "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"
+}

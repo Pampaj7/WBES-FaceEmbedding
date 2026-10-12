@@ -1,0 +1,180 @@
+{
+ "hifi3d": {
+  "seed": 757683,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_mask_crop": 49500,
+  "nan_rows_by_column": {
+   "gw_fr": 0,
+   "gw_sr": 0,
+   "dinov2_fr": 0,
+   "dinov2_sr": 0,
+   "clip_fr": 0,
+   "clip_sr": 0,
+   "lpips_fr": 0,
+   "lpips_sr": 0,
+   "dreamsim_fr": 0,
+   "dreamsim_sr": 0
+  },
+  "methods": {
+   "gw": {
+    "meshes": 600
+   },
+   "dinov2": {
+    "meshes": 600
+   },
+   "clip": {
+    "meshes": 600
+   },
+   "lpips": {
+    "meshes": 600
+   },
+   "dreamsim": {
+    "meshes": 600
+   }
+  }
+ },
+ "facescape": {
+  "seed": 621096,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_mask_crop": 49500,
+  "nan_rows_by_column": {
+   "gw_fr": 0,
+   "gw_sr": 0,
+   "dinov2_fr": 0,
+   "dinov2_sr": 0,
+   "clip_fr": 0,
+   "clip_sr": 0,
+   "lpips_fr": 0,
+   "lpips_sr": 0,
+   "dreamsim_fr": 0,
+   "dreamsim_sr": 0
+  },
+  "methods": {
+   "gw": {
+    "meshes": 600
+   },
+   "dinov2": {
+    "meshes": 600
+   },
+   "clip": {
+    "meshes": 600
+   },
+   "lpips": {
+    "meshes": 600
+   },
+   "dreamsim": {
+    "meshes": 600
+   }
+  }
+ },
+ "faceverse": {
+  "seed": 566363,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_mask_crop": 49500,
+  "nan_rows_by_column": {
+   "gw_fr": 0,
+   "gw_sr": 0,
+   "dinov2_fr": 0,
+   "dinov2_sr": 0,
+   "clip_fr": 0,
+   "clip_sr": 0,
+   "lpips_fr": 0,
+   "lpips_sr": 0,
+   "dreamsim_fr": 0,
+   "dreamsim_sr": 0
+  },
+  "methods": {
+   "gw": {
+    "meshes": 600
+   },
+   "dinov2": {
+    "meshes": 600
+   },
+   "clip": {
+    "meshes": 600
+   },
+   "lpips": {
+    "meshes": 600
+   },
+   "dreamsim": {
+    "meshes": 600
+   }
+  }
+ },
+ "faceverse_neutral": {
+  "seed": 566363,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_mask_crop": 49500,
+  "nan_rows_by_column": {
+   "gw_fr": 0,
+   "gw_sr": 0,
+   "dinov2_fr": 0,
+   "dinov2_sr": 0,
+   "clip_fr": 0,
+   "clip_sr": 0,
+   "lpips_fr": 0,
+   "lpips_sr": 0,
+   "dreamsim_fr": 0,
+   "dreamsim_sr": 0
+  },
+  "methods": {
+   "gw": {
+    "meshes": 600
+   },
+   "dinov2": {
+    "meshes": 600
+   },
+   "clip": {
+    "meshes": 600
+   },
+   "lpips": {
+    "meshes": 600
+   },
+   "dreamsim": {
+    "meshes": 600
+   }
+  }
+ },
+ "famos": {
+  "seed": 1234,
+  "rows": 105,
+  "rows_mask": 105,
+  "methods": {
+   "gw": {
+    "meshes": 15
+   },
+   "dinov2": {
+    "meshes": 15
+   },
+   "clip": {
+    "meshes": 15
+   },
+   "lpips": {
+    "meshes": 15
+   },
+   "dreamsim": {
+    "meshes": 15
+   }
+  },
+  "nan_rows_by_column": {
+   "gw_fr": 0,
+   "gw_sr": 0,
+   "dinov2_fr": 0,
+   "dinov2_sr": 0,
+   "clip_fr": 0,
+   "clip_sr": 0,
+   "lpips_fr": 0,
+   "lpips_sr": 0,
+   "dreamsim_fr": 0,
+   "dreamsim_sr": 0
+  }
+ },
+ "wall_s": 200.2144901752472,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070649",
+ "date": "2026-10-12 20:01:24"
+}

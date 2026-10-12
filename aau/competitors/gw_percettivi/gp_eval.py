@@ -3,6 +3,7 @@
 
     v3_work/unified_gt/run.sh aau/competitors/gw_percettivi/gp_eval.py pilot-gw                (GT dei NON valutati)
     v3_work/unified_gt/run.sh aau/competitors/gw_percettivi/gp_eval.py spearman --workers 32   (LEGGE LE GT di test)
+    v3_work/unified_gt/run.sh aau/competitors/gw_percettivi/gp_eval.py results                 (solo results.md)
     (gp.sbatch, passi pilot_eval e eval)
 
 ``pilot-gw``: per ogni vista del pilota (``gp_common.PILOT_VIEWS``) le distanze di ``gw/pilot/<vista>.npz`` sulle coppie
@@ -221,9 +222,11 @@ def cost_rows() -> list[str]:
             j = json.loads(p.read_text())
             if m == "gw":
                 s = j["s_per_solve"]
+                prep = {k: x for k, x in j["prep_s_per_mesh_median"].items()
+                        if j["config"].startswith("geo") or k != "geodetiche"}
                 c = (f"{s['fr']['median']:.3f} s per soluzione FR, {s['sr']['median']:.3f} SR (mediana, un thread); "
                      f"{s['fr']['total_h'] + s['sr']['total_h']:.1f} h-core per {j['n_pairs']} coppie; "
-                     f"preparazione {sum(j['prep_s_per_mesh_median'].values()):.2f} s per mesh")
+                     f"preparazione {sum(prep.values()):.2f} s per mesh ({', '.join(prep)})")
             elif m == "lpips":
                 c = (f"{j['s_per_pair'] * 1e3:.2f} ms per coppia (Gram, {j['threads']} thread); render "
                      f"{j['render_s_per_mesh_median']:.2f} s per mesh (6 render)")
@@ -265,12 +268,14 @@ def write_results(P: pd.DataFrame) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("step", choices=("pilot-gw", "spearman"))
+    p.add_argument("step", choices=("pilot-gw", "spearman", "results"))
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--n-boot", type=int, default=1000)
     a = p.parse_args()
     if a.step == "pilot-gw":
         pilot_gw()
+    elif a.step == "results":
+        write_results(pd.read_csv(gc.OUT / "spearman.csv"))
     else:
         spearman(a.n_boot, a.workers)
 

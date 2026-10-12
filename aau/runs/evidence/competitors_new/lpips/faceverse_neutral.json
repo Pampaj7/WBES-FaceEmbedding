@@ -1,0 +1,40 @@
+{
+ "view": "faceverse_neutral",
+ "n_meshes": 600,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 110.2997643394149,
+ "cam_k": 1.3,
+ "L_mm": 84.8459725687807,
+ "cs_ref_mm": 64.20453072953245,
+ "device": "cpu",
+ "threads": 32,
+ "workers_render": 32,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "render_s_per_mesh_median": 5.747475299984217,
+ "render_wall_s": 131.08830332756042,
+ "render_note": "s per mesh = 6 render (fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1070584",
+ "date": "2026-10-12 18:14:21",
+ "method": "lpips",
+ "wall_s": 25.138611793518066,
+ "s_per_pair": 0.00013989210792163644,
+ "check_gram_vs_forward_max_abs": {
+  "fr|+0": 1.7577774347188324e-08,
+  "fr|-30": 3.788284419492527e-08,
+  "fr|+30": 3.047792651589276e-08,
+  "sr|+0": 4.9872118657035e-08,
+  "sr|-30": 1.329443471975722e-08,
+  "sr|+30": 4.311155166192293e-08
+ },
+ "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"
+}

@@ -1,0 +1,32 @@
+{
+ "view": "famos",
+ "reference": "id940079 (prima mesh della vista)",
+ "n_meshes": 15,
+ "failed": [],
+ "icp_angle_deg": {
+  "median": 3.5781240439667283,
+  "p95": 8.229095076998988,
+  "max": 8.772764386776837
+ },
+ "icp_angle_deg_by_topology": {
+  "scan_gallery": {
+   "median": 3.5781240439667283,
+   "p95": 8.229095076998988,
+   "max": 8.772764386776837
+  }
+ },
+ "nose_x_mm_abs": {
+  "median": 1.6016898103378616,
+  "p95": 2.660932450355874,
+  "max": 2.902480872634186
+ },
+ "nose_height_fraction": {
+  "median": 0.47348267589274584,
+  "p95": 0.5000709086952644,
+  "max": 0.5215157123082017
+ },
+ "definition": "angolo della rotazione dell'ICP rigido (30 giri, 1024 campioni FPS -> 4096 del riferimento) dalla posa del frame canonico; naso = vertice con z massima (x in mm dal baricentro, altezza come frazione dell'estensione in y dal basso)",
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070571",
+ "date": "2026-10-12 18:08:38"
+}

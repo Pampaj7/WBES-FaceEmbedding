@@ -1,0 +1,521 @@
+domain,group,gt,kind,column,method,mode,label,point,ci_low,ci_high,n_boot,n_rows,seed
+hifi3d,senza crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.43452438925177905,0.3509720646713471,0.5104228350416097,1000,99000,757683
+hifi3d,senza crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.09106842609310535,0.03241023088860002,0.1542965582698916,1000,99000,757683
+hifi3d,senza crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.08312806255812716,0.03748664660869794,0.12853130876854818,1000,99000,757683
+hifi3d,senza crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.16635737836768918,0.11603893710058216,0.21171941654808846,1000,99000,757683
+hifi3d,senza crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.15235028061288008,0.10711793953874367,0.19661971555289978,1000,99000,757683
+hifi3d,senza crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.2249151309078221,0.18589517144908327,0.2613441582485773,1000,99000,757683
+hifi3d,senza crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.18702975507433567,0.14682610131109078,0.22629925418900657,1000,99000,757683
+hifi3d,senza crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.19339383266322682,0.14116582239033434,0.24111768046688428,1000,99000,757683
+hifi3d,senza crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.06130781317936992,0.03522829707424758,0.08739320015146232,1000,99000,757683
+hifi3d,senza crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0743721018799967,0.051654664095273674,0.09583418989630563,1000,99000,757683
+hifi3d,senza crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.059048386550015604,0.03598275427521199,0.08051174605643409,1000,99000,757683
+hifi3d,senza crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.06702598113655042,0.036931267451197194,0.09484440122967956,1000,99000,757683
+hifi3d,senza crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.05531780699239185,0.02641770317376779,0.08253405462431418,1000,99000,757683
+hifi3d,senza crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.07350532062171777,0.045573993350773084,0.10028855574511937,1000,99000,757683
+hifi3d,senza crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.06646135432025237,0.039009134538128556,0.0917192654232733,1000,99000,757683
+hifi3d,senza crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.0740111119841394,0.041291254102634165,0.10374678620938205,1000,99000,757683
+hifi3d,senza crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.134634140053015,0.08597792139466226,0.18368464095182244,1000,99000,757683
+hifi3d,senza crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.14222855693924527,0.10266547471274501,0.17939500031986436,1000,99000,757683
+hifi3d,senza crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.11641453289096113,0.07993427968468025,0.15574960725854428,1000,99000,757683
+hifi3d,senza crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.12194310973499842,0.0699024411379965,0.1725071779065459,1000,99000,757683
+hifi3d,senza crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.10552385192617504,0.05995547373282881,0.15345499654219566,1000,99000,757683
+hifi3d,senza crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.15155707947241728,0.11348426943756258,0.18819146883909768,1000,99000,757683
+hifi3d,senza crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.12366296824570429,0.08730834162191703,0.16038154321809522,1000,99000,757683
+hifi3d,senza crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.12254045558037752,0.07209960902338963,0.17021569267970044,1000,99000,757683
+hifi3d,senza crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.35526074193499957,0.31549785399735064,0.3888302754401237,1000,99000,757683
+hifi3d,senza crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10754626637708774,0.0631895401511383,0.15567562317269384,1000,99000,757683
+hifi3d,senza crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.1179238147351672,0.08374573942790559,0.1526551666578383,1000,99000,757683
+hifi3d,senza crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.23200482061665664,0.18485696734759005,0.278505778145709,1000,99000,757683
+hifi3d,senza crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.17783952088239358,0.1354771249684191,0.22213240621575597,1000,99000,757683
+hifi3d,senza crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.25835935956110995,0.22739176876328873,0.289873576574753,1000,99000,757683
+hifi3d,senza crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.22063588433842707,0.18568089978553742,0.2562818689252486,1000,99000,757683
+hifi3d,senza crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.23864283466596756,0.19331884790033435,0.28122071429221107,1000,99000,757683
+hifi3d,senza crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.15291501856298592,0.10489873103336088,0.20055554226518563,1000,99000,757683
+hifi3d,senza crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.15912317174593948,0.11786382506211032,0.19892777231590164,1000,99000,757683
+hifi3d,senza crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.13679207500035598,0.09928658002087132,0.17625655937576998,1000,99000,757683
+hifi3d,senza crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.1444972912524827,0.09326903400415885,0.19531647730503907,1000,99000,757683
+hifi3d,senza crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11997859000188091,0.0735400606329845,0.16850832289273387,1000,99000,757683
+hifi3d,senza crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.16304948652000795,0.12462894363156965,0.1996342522132129,1000,99000,757683
+hifi3d,senza crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1378898721022964,0.10130537011435192,0.17558013255920268,1000,99000,757683
+hifi3d,senza crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.142248886105468,0.09341475616310145,0.1898686559922399,1000,99000,757683
+hifi3d,all_cross,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.34141422984372816,0.26960828347432103,0.40761575268051503,1000,148500,757683
+hifi3d,all_cross,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.0797667267047974,0.03255744657666813,0.12886711200401357,1000,148500,757683
+hifi3d,all_cross,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.06983686730607519,0.03546239856092958,0.10418851766975402,1000,148500,757683
+hifi3d,all_cross,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.10755943178452206,0.07086792141588652,0.14348633424533333,1000,148500,757683
+hifi3d,all_cross,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1256554175474794,0.08435871912169093,0.16664798722496896,1000,148500,757683
+hifi3d,all_cross,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.18264345309488325,0.14568225621123798,0.22022537958111024,1000,148500,757683
+hifi3d,all_cross,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.15345387779670128,0.11450784510401768,0.19453624817266324,1000,148500,757683
+hifi3d,all_cross,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.15144025135163042,0.1076518840546322,0.19621163874945174,1000,148500,757683
+hifi3d,all_cross,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.07906379550182907,0.04726133406868866,0.11003935298101658,1000,148500,757683
+hifi3d,all_cross,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.09477979168793106,0.06842315381812324,0.11981333727586166,1000,148500,757683
+hifi3d,all_cross,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.07714428629468036,0.05216772925128257,0.10152554619990845,1000,148500,757683
+hifi3d,all_cross,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.08863296195166864,0.05629651327467286,0.11894655881250349,1000,148500,757683
+hifi3d,all_cross,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.05840961303244536,0.026507016741083748,0.08927465837174067,1000,148500,757683
+hifi3d,all_cross,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.0816925770761434,0.051083176348360605,0.10971057370008924,1000,148500,757683
+hifi3d,all_cross,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.07129477582504133,0.04375541742793261,0.09884380194381505,1000,148500,757683
+hifi3d,all_cross,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.08007729269944538,0.04561996098830059,0.11198786466215215,1000,148500,757683
+hifi3d,all_cross,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.1533283044865624,0.09925946553007466,0.20947504970958838,1000,148500,757683
+hifi3d,all_cross,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.16872262036779573,0.1265847382664916,0.20930727615425415,1000,148500,757683
+hifi3d,all_cross,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.1389352631505326,0.09725289987538871,0.18051227170698517,1000,148500,757683
+hifi3d,all_cross,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.14416362980927006,0.08723004029318521,0.19910293103273483,1000,148500,757683
+hifi3d,all_cross,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.12090700576580211,0.07264842672733494,0.17176828722351697,1000,148500,757683
+hifi3d,all_cross,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.17294092325423008,0.13296144807400917,0.21167998255777995,1000,148500,757683
+hifi3d,all_cross,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.14390690073681947,0.10508880871666902,0.18364969884430377,1000,148500,757683
+hifi3d,all_cross,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.14479816046539606,0.09125070597978159,0.1963012224060811,1000,148500,757683
+hifi3d,all_cross,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.3178269771084512,0.2726157296565649,0.3574536685542047,1000,148500,757683
+hifi3d,all_cross,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.09920145033934162,0.05969900545182615,0.14229035992601052,1000,148500,757683
+hifi3d,all_cross,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10282730533068023,0.0723048787099373,0.13402071468195656,1000,148500,757683
+hifi3d,all_cross,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.15508878945658588,0.11883980560516516,0.19135480040503144,1000,148500,757683
+hifi3d,all_cross,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.10804782824501596,0.07932649671549333,0.13654695081561163,1000,148500,757683
+hifi3d,all_cross,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.15655252117090226,0.13286056614203853,0.17932983183395068,1000,148500,757683
+hifi3d,all_cross,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13521721627777764,0.11087432536846274,0.16039452493909967,1000,148500,757683
+hifi3d,all_cross,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.14009299836761965,0.11113223306838423,0.1699618865051215,1000,148500,757683
+hifi3d,all_cross,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.17181093943029568,0.11896409939762115,0.22354630169116096,1000,148500,757683
+hifi3d,all_cross,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.18621869686360482,0.14268479207770834,0.226779379073588,1000,148500,757683
+hifi3d,all_cross,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.15874011538077937,0.11785818003055282,0.20069577606984357,1000,148500,757683
+hifi3d,all_cross,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.17096304623704559,0.1151611129483654,0.2243286607988572,1000,148500,757683
+hifi3d,all_cross,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.13314300781771468,0.08243883430292531,0.18996661265693052,1000,148500,757683
+hifi3d,all_cross,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.18708596720003307,0.14659448491538518,0.22638323991915066,1000,148500,757683
+hifi3d,all_cross,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.15800596752728494,0.11784815808787605,0.19918882580895003,1000,148500,757683
+hifi3d,all_cross,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1664298728203139,0.1125284461349843,0.21725658680783094,1000,148500,757683
+hifi3d,righe col crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.18077825302708087,0.13848018133953308,0.2242510353607933,1000,49500,757683
+hifi3d,righe col crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.06461281888855763,0.03567384023645765,0.09431500971438582,1000,49500,757683
+hifi3d,righe col crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.05904005811257264,0.03547079506226112,0.08259927417373626,1000,49500,757683
+hifi3d,righe col crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07883888897701874,0.03386499594824975,0.11962125092883871,1000,49500,757683
+hifi3d,righe col crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.13723200054190057,0.0885944533739233,0.18453484806841958,1000,49500,757683
+hifi3d,righe col crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.20838810444243266,0.16424033460133272,0.2532139520721536,1000,49500,757683
+hifi3d,righe col crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.17648010756831492,0.13154038722161313,0.2227552437924968,1000,49500,757683
+hifi3d,righe col crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1748098854850143,0.12261221195382165,0.2317490060408278,1000,49500,757683
+hifi3d,righe col crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.1438362175340557,0.08335122994990969,0.20723390249612597,1000,49500,757683
+hifi3d,righe col crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.16933594188342802,0.12665000670640147,0.21407345330168293,1000,49500,757683
+hifi3d,righe col crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.1438840650234749,0.10342922037629455,0.18776308937494826,1000,49500,757683
+hifi3d,righe col crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.17114787557794203,0.11181042010282809,0.2273901735575006,1000,49500,757683
+hifi3d,righe col crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.08544821026029432,0.028988483310653356,0.14484102966993967,1000,49500,757683
+hifi3d,righe col crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.12327635679640798,0.07444167464608999,0.1735017792483181,1000,49500,757683
+hifi3d,righe col crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.10379384535520873,0.05589735553191585,0.15428962777364488,1000,49500,757683
+hifi3d,righe col crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.12087730548276751,0.05662818527333507,0.1818123658289144,1000,49500,757683
+hifi3d,righe col crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.21064556464777356,0.14032495589487295,0.2837348832297871,1000,49500,757683
+hifi3d,righe col crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.2419045059914292,0.1843158876319246,0.2950638417635152,1000,49500,757683
+hifi3d,righe col crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.2018183370884028,0.14427655670163086,0.2556868955457616,1000,49500,757683
+hifi3d,righe col crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.20731480618558096,0.12613561631615675,0.2826155821636355,1000,49500,757683
+hifi3d,righe col crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.1684817802855601,0.10609439437458917,0.2363958760272213,1000,49500,757683
+hifi3d,righe col crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.23667330949016047,0.18595912062125938,0.2870880035041411,1000,49500,757683
+hifi3d,righe col crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.20311082229215036,0.14992526206336873,0.25437913301501675,1000,49500,757683
+hifi3d,righe col crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.209032655898751,0.13122222343865997,0.28062004967369736,1000,49500,757683
+hifi3d,righe col crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.3355941205542738,0.28650216097452713,0.3789179321978381,1000,49500,757683
+hifi3d,righe col crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.14049764999046266,0.09800059540575394,0.18846528547589594,1000,49500,757683
+hifi3d,righe col crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.14643904347366773,0.10876505635279539,0.18210168190009116,1000,49500,757683
+hifi3d,righe col crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.21488949183089753,0.15244914130482143,0.2746527579821816,1000,49500,757683
+hifi3d,righe col crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1670778281117289,0.11787138954023699,0.21851363964879514,1000,49500,757683
+hifi3d,righe col crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.2491798450465467,0.21004185968065656,0.29142404572564207,1000,49500,757683
+hifi3d,righe col crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.2229564192150093,0.18189898953966738,0.27066427306676344,1000,49500,757683
+hifi3d,righe col crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.22414235935520938,0.1701100155665443,0.28398685996736767,1000,49500,757683
+hifi3d,righe col crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.23512989978590906,0.16267434353385407,0.3074842661730078,1000,49500,757683
+hifi3d,righe col crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.26934079978201125,0.21456659725256688,0.3219369862981114,1000,49500,757683
+hifi3d,righe col crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.22777934423337592,0.1721462388758006,0.2847449930485354,1000,49500,757683
+hifi3d,righe col crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.25455060028156695,0.17680382577307094,0.32718209749227317,1000,49500,757683
+hifi3d,righe col crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.18069651158083114,0.11043472004481414,0.2554133577673369,1000,49500,757683
+hifi3d,righe col crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.2666343629649752,0.2135540301472824,0.3170621603817667,1000,49500,757683
+hifi3d,righe col crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.22481333208862236,0.1700012872216682,0.2806936123073116,1000,49500,757683
+hifi3d,righe col crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.24621498607667613,0.1710059539913695,0.31572824527748594,1000,49500,757683
+facescape,senza crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.16330888992831968,0.13692400236619356,0.18793224866441327,1000,99000,621096
+facescape,senza crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.14110368208816462,0.11528171030592052,0.16688490163396003,1000,99000,621096
+facescape,senza crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.1291270193566675,0.10022417475792164,0.15759915074802736,1000,99000,621096
+facescape,senza crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.14772708608472226,0.11061304504201495,0.18147854724291454,1000,99000,621096
+facescape,senza crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1813563687898456,0.14560080007502182,0.21556255311207392,1000,99000,621096
+facescape,senza crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.19627295224782315,0.16485748964381455,0.22467969927573414,1000,99000,621096
+facescape,senza crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.18242696381234552,0.1504662313406728,0.21076104755398184,1000,99000,621096
+facescape,senza crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1823128520099842,0.1432138195271546,0.22172977366036087,1000,99000,621096
+facescape,senza crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.04868320163746846,0.02893989301033785,0.07029420707599862,1000,99000,621096
+facescape,senza crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.053822497438255026,0.034708891126967914,0.07478983706540936,1000,99000,621096
+facescape,senza crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.05054407744654713,0.031783932476566946,0.07110947360700234,1000,99000,621096
+facescape,senza crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.04819983360095245,0.02314886420311516,0.07592061464595865,1000,99000,621096
+facescape,senza crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.044568164710336776,0.02471513976041608,0.06690405040426015,1000,99000,621096
+facescape,senza crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04942943027274664,0.030414743901375153,0.07092720189265203,1000,99000,621096
+facescape,senza crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04620060253632432,0.02836261345447953,0.06640618443127493,1000,99000,621096
+facescape,senza crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04475691597057869,0.020946479864227513,0.07032791212577405,1000,99000,621096
+facescape,senza crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.10348703976965182,0.06306628420577952,0.14671998063283637,1000,99000,621096
+facescape,senza crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.1033960001745858,0.06392056495911695,0.14508609900595182,1000,99000,621096
+facescape,senza crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.0961836132432955,0.054532768332657945,0.13986407657477595,1000,99000,621096
+facescape,senza crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.10384997536410456,0.048540297614777586,0.1611058904301281,1000,99000,621096
+facescape,senza crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.0888833596585348,0.050466652519229174,0.13103140691623005,1000,99000,621096
+facescape,senza crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.09362657522055341,0.056335762992268036,0.13421035042725465,1000,99000,621096
+facescape,senza crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.08752778359877744,0.04564414867080279,0.1308257754846306,1000,99000,621096
+facescape,senza crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.0938513603684333,0.04124826761025066,0.1513137293430843,1000,99000,621096
+facescape,senza crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.17991685312611433,0.1423836373001102,0.2137524483930999,1000,99000,621096
+facescape,senza crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.17325880647340555,0.1370732864385838,0.20602925252823517,1000,99000,621096
+facescape,senza crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.1645078666729064,0.1250169583060598,0.19960439436231125,1000,99000,621096
+facescape,senza crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.15839148679426657,0.11051959853447872,0.20440764157418545,1000,99000,621096
+facescape,senza crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.16976749551710224,0.1316298017449276,0.20785119498014462,1000,99000,621096
+facescape,senza crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1798703661958775,0.14451754077551962,0.21143035062696214,1000,99000,621096
+facescape,senza crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.17067472643521697,0.1336560566611531,0.2016965264370717,1000,99000,621096
+facescape,senza crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.16266265963617424,0.11626985141925855,0.2041783426817697,1000,99000,621096
+facescape,senza crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.12188863758338325,0.09163207360196707,0.15438881708487703,1000,99000,621096
+facescape,senza crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.12635829878355195,0.09597918342426788,0.15817572317233367,1000,99000,621096
+facescape,senza crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.11983072461105714,0.08864290986083542,0.15453910243406024,1000,99000,621096
+facescape,senza crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.11134977916600919,0.07716767386943724,0.14636790752023235,1000,99000,621096
+facescape,senza crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11214971283657814,0.08172559521181265,0.1439421183406138,1000,99000,621096
+facescape,senza crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.12061926500339275,0.09062069240679371,0.15282495828532697,1000,99000,621096
+facescape,senza crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11551975999454321,0.08487117450491583,0.14897751790804611,1000,99000,621096
+facescape,senza crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11009808228196191,0.07518261516682491,0.14542024921085198,1000,99000,621096
+facescape,all_cross,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.08604766337096134,0.06858145886589888,0.10256296218533036,1000,148500,621096
+facescape,all_cross,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07470961865307543,0.05718789413492318,0.09293302367892162,1000,148500,621096
+facescape,all_cross,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.06892748111568588,0.04933896499374578,0.08865802740295341,1000,148500,621096
+facescape,all_cross,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07773355848806278,0.05272791580135786,0.10192143235106854,1000,148500,621096
+facescape,all_cross,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1512261198414197,0.11700986166182192,0.18382011563561113,1000,148500,621096
+facescape,all_cross,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.16320575701562248,0.13131454178192198,0.19132288417031534,1000,148500,621096
+facescape,all_cross,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1521606810186876,0.12003311369737159,0.18016757078973947,1000,148500,621096
+facescape,all_cross,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.14273055736256304,0.10799897793390337,0.17355712982508842,1000,148500,621096
+facescape,all_cross,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.058777675556605846,0.03440528075978705,0.08495636879055903,1000,148500,621096
+facescape,all_cross,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0673825439152749,0.04357991911401879,0.09225369134526189,1000,148500,621096
+facescape,all_cross,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.06369342020290926,0.041171218616870425,0.08929435674559542,1000,148500,621096
+facescape,all_cross,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.05927687612357375,0.02962767931654538,0.09317899519441672,1000,148500,621096
+facescape,all_cross,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.054351933023778845,0.030610578436586437,0.08046154124184426,1000,148500,621096
+facescape,all_cross,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.06205827442142597,0.038622530642602675,0.08754941453111006,1000,148500,621096
+facescape,all_cross,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.05875364844518055,0.03660615487310798,0.08375184030437607,1000,148500,621096
+facescape,all_cross,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.05569769636104639,0.026670656847633867,0.08944856421804241,1000,148500,621096
+facescape,all_cross,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.12330300807423017,0.07787627804571096,0.17011626953602596,1000,148500,621096
+facescape,all_cross,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.12626518466547482,0.08077621782176309,0.17324183656417133,1000,148500,621096
+facescape,all_cross,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.11699652730300536,0.070614739865258,0.1658670992120442,1000,148500,621096
+facescape,all_cross,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.11955331497815322,0.05867453477079582,0.18177124585933538,1000,148500,621096
+facescape,all_cross,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.10486850003605465,0.06084187286309216,0.15012685682431406,1000,148500,621096
+facescape,all_cross,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.11356066799413897,0.07142362945677076,0.15922584815588206,1000,148500,621096
+facescape,all_cross,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.10553476403470391,0.06017824112745083,0.15201025804499058,1000,148500,621096
+facescape,all_cross,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.10758581120210013,0.04954267210735574,0.1701385675509431,1000,148500,621096
+facescape,all_cross,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10535203418356431,0.07889927481025744,0.13034698757688024,1000,148500,621096
+facescape,all_cross,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10404346141950735,0.0784183947350455,0.12842760920445717,1000,148500,621096
+facescape,all_cross,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.09955612664230849,0.07129680165352606,0.12549966009974337,1000,148500,621096
+facescape,all_cross,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.09459297055787703,0.0639763887819093,0.1250666133254699,1000,148500,621096
+facescape,all_cross,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1411773578278525,0.1050835888737188,0.17621861815921958,1000,148500,621096
+facescape,all_cross,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.14776505667580683,0.11259921256776083,0.179164829338911,1000,148500,621096
+facescape,all_cross,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.14003724568484482,0.10490498085712278,0.17033854769312975,1000,148500,621096
+facescape,all_cross,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13001660027798234,0.0887131120893207,0.16719995315068248,1000,148500,621096
+facescape,all_cross,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.14443756025802462,0.10654679810225283,0.18445765473463982,1000,148500,621096
+facescape,all_cross,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.1540687805754402,0.11739006249590826,0.19336860520264007,1000,148500,621096
+facescape,all_cross,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.14694904744094314,0.10881236162985083,0.18862485333278592,1000,148500,621096
+facescape,all_cross,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.13992471734948267,0.09637391351055041,0.18363772181059163,1000,148500,621096
+facescape,all_cross,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.13849800206004748,0.10040070645996267,0.1770626697381468,1000,148500,621096
+facescape,all_cross,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.15185228269977993,0.11630313202081673,0.19164179097885742,1000,148500,621096
+facescape,all_cross,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1460440133367666,0.10751548041936818,0.18674828150543227,1000,148500,621096
+facescape,all_cross,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.14153861188227512,0.09704607047048823,0.1850462661078355,1000,148500,621096
+facescape,righe col crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07511988728729317,0.03431310757715972,0.11842102058147261,1000,49500,621096
+facescape,righe col crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.0681143713257315,0.027206042175744388,0.11129391229883978,1000,49500,621096
+facescape,righe col crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.067560155936713,0.01978634787890236,0.1153891129715263,1000,49500,621096
+facescape,righe col crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07733347173899932,0.016092266867488655,0.14059083231482128,1000,49500,621096
+facescape,righe col crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.19007142399983076,0.1481272014810343,0.23409569591536117,1000,49500,621096
+facescape,righe col crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.20728908519565836,0.16393910708323234,0.25008628918253406,1000,49500,621096
+facescape,righe col crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.19815803178028,0.15470703720252785,0.23804483402087293,1000,49500,621096
+facescape,righe col crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.18122663309758932,0.1319741716358283,0.22637569487456452,1000,49500,621096
+facescape,righe col crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.11365019300581758,0.06380843334853993,0.16610079621240612,1000,49500,621096
+facescape,righe col crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.13697638644399432,0.09088767912615067,0.186366533962477,1000,49500,621096
+facescape,righe col crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.1305977818958646,0.08626196926341496,0.17906561531397341,1000,49500,621096
+facescape,righe col crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.1200368618668624,0.058795996431162734,0.1852327905890848,1000,49500,621096
+facescape,righe col crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.1039970888121761,0.05526386078354063,0.15388466763622158,1000,49500,621096
+facescape,righe col crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.12289063376715455,0.07831158586953832,0.1715068612888015,1000,49500,621096
+facescape,righe col crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.1181304862968632,0.07196703126176623,0.16891729135256234,1000,49500,621096
+facescape,righe col crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.10877938527258654,0.047989286798160426,0.17845773217858135,1000,49500,621096
+facescape,righe col crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.17699459954512348,0.11065776532095865,0.24024945563854247,1000,49500,621096
+facescape,righe col crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.18765886280780025,0.12377241208455388,0.2545421992400703,1000,49500,621096
+facescape,righe col crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.1727411144847883,0.10872847602369591,0.24044342727265988,1000,49500,621096
+facescape,righe col crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.16479884671178738,0.08403021842427053,0.2515604606757055,1000,49500,621096
+facescape,righe col crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.1495312103760827,0.08492390547595216,0.2110720205749351,1000,49500,621096
+facescape,righe col crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.16898490317254347,0.10886054873499382,0.230575988334232,1000,49500,621096
+facescape,righe col crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.15474072167700487,0.09237650031604516,0.21938635167748097,1000,49500,621096
+facescape,righe col crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.14686671206157198,0.06340991993249688,0.23115627677746917,1000,49500,621096
+facescape,righe col crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.11910727013865248,0.07485259063924916,0.16616245559941692,1000,49500,621096
+facescape,righe col crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.12324176847593032,0.07654130467356446,0.1734234612116874,1000,49500,621096
+facescape,righe col crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.12484743786798001,0.0733241167791977,0.1789073285622746,1000,49500,621096
+facescape,righe col crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.1346639148027905,0.07302721005310586,0.2012365799850626,1000,49500,621096
+facescape,righe col crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.24074841890951434,0.1766796171218634,0.3023700627916707,1000,49500,621096
+facescape,righe col crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.24920468910516896,0.18578754663870403,0.309338745394067,1000,49500,621096
+facescape,righe col crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.2386638920835048,0.17731051365795086,0.2981913480390325,1000,49500,621096
+facescape,righe col crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.22226514611298484,0.14684048569645328,0.29084214898869876,1000,49500,621096
+facescape,righe col crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.20844332585338637,0.15001752046673156,0.26818922125217665,1000,49500,621096
+facescape,righe col crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.23255437770192877,0.17603480052068748,0.29329658390610697,1000,49500,621096
+facescape,righe col crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.22302228191265616,0.16483688482693853,0.2854794219507801,1000,49500,621096
+facescape,righe col crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.2190426312791406,0.14930560755150227,0.29073183466784236,1000,49500,621096
+facescape,righe col crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.2161406434512613,0.15439157694514336,0.27778953131661394,1000,49500,621096
+facescape,righe col crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.24350528690601855,0.1873733553905826,0.3043833678370519,1000,49500,621096
+facescape,righe col crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.2347148050665248,0.17290939299139063,0.298271230365013,1000,49500,621096
+facescape,righe col crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.23293541590262032,0.16156891421908776,0.30261384599687713,1000,49500,621096
+faceverse,senza crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.11240689200538818,0.06568799347184406,0.15752074836792856,1000,99000,566363
+faceverse,senza crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.0910207589424441,0.0507830491415343,0.13185856109648567,1000,99000,566363
+faceverse,senza crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.1012898920941963,0.060008535688752335,0.1414530942389147,1000,99000,566363
+faceverse,senza crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.10934649778248398,0.056722824320126486,0.16478239839721093,1000,99000,566363
+faceverse,senza crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.08835137109593169,0.05519262594865123,0.12751836784103188,1000,99000,566363
+faceverse,senza crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.0906283976192377,0.058384983245622586,0.12779528975761204,1000,99000,566363
+faceverse,senza crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09313486085202032,0.061781966520292525,0.13120142074355443,1000,99000,566363
+faceverse,senza crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09869728087662083,0.05780300314608882,0.14037938436153186,1000,99000,566363
+faceverse,senza crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.025820780210233114,0.008477463208745319,0.04272786669465962,1000,99000,566363
+faceverse,senza crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.022700261321765832,0.0046750256830062255,0.039514920112990466,1000,99000,566363
+faceverse,senza crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.023260587431294538,0.00604412779581276,0.040201910123779404,1000,99000,566363
+faceverse,senza crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.021985480444710975,-0.0018620592145049922,0.04554600877447005,1000,99000,566363
+faceverse,senza crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.02333190351791206,0.005950097222547946,0.039888946960071225,1000,99000,566363
+faceverse,senza crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.02173707272096208,0.0039694436025081905,0.038261012454807355,1000,99000,566363
+faceverse,senza crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.022053859335403585,0.004172458445114328,0.03860213230105744,1000,99000,566363
+faceverse,senza crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.02181729612888731,-0.0018794833918123475,0.045097751055003014,1000,99000,566363
+faceverse,senza crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.03383759630336997,0.007295669214139423,0.05872474541628975,1000,99000,566363
+faceverse,senza crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.030993955628594843,0.006032518184556523,0.05677801699679985,1000,99000,566363
+faceverse,senza crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.03256626108172684,0.006804253035940215,0.05722403805529114,1000,99000,566363
+faceverse,senza crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.03478153856688311,0.001476412267701145,0.06877104112568384,1000,99000,566363
+faceverse,senza crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.036429551473161376,0.011410365147886167,0.06085065928058276,1000,99000,566363
+faceverse,senza crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.034101367392699394,0.009714966697783002,0.05737946179827443,1000,99000,566363
+faceverse,senza crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.03503789670736662,0.010463981026849721,0.05835509713971627,1000,99000,566363
+faceverse,senza crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.03740521940337696,0.005740884643699794,0.07099527152131622,1000,99000,566363
+faceverse,senza crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.09037913528390616,0.06511030603459889,0.1163312932296069,1000,99000,566363
+faceverse,senza crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.08285201800682566,0.0574787571666881,0.10901914402785051,1000,99000,566363
+faceverse,senza crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.090594902927761,0.06341689955779752,0.1153185879214851,1000,99000,566363
+faceverse,senza crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.08776320179800544,0.05452308521006792,0.11863504596091944,1000,99000,566363
+faceverse,senza crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.0838451279886184,0.05926945510540973,0.10959597056396812,1000,99000,566363
+faceverse,senza crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.08670966260984253,0.060551170004163754,0.11429506829189715,1000,99000,566363
+faceverse,senza crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.08807219967978733,0.06191204898568221,0.11448640826472188,1000,99000,566363
+faceverse,senza crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.089738072781079,0.05998906740242129,0.12143762379500758,1000,99000,566363
+faceverse,senza crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.048291634694339385,0.02607935616852286,0.07057713814676332,1000,99000,566363
+faceverse,senza crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.04564776530610411,0.022799391080401382,0.06797036680103703,1000,99000,566363
+faceverse,senza crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.04707578038677131,0.0245489635350648,0.06885589737428024,1000,99000,566363
+faceverse,senza crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.04676245217740947,0.01706862674300852,0.07910595342007218,1000,99000,566363
+faceverse,senza crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.04912053867475482,0.027622165561879634,0.07115366598817888,1000,99000,566363
+faceverse,senza crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.0471925643854516,0.024082621403328498,0.06931056303144914,1000,99000,566363
+faceverse,senza crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.047919318246041585,0.025150362475834596,0.06957562534758292,1000,99000,566363
+faceverse,senza crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.04879815164756318,0.01865403904026388,0.0819013801011522,1000,99000,566363
+faceverse,all_cross,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.0924287672961561,0.05622350335896612,0.12878922828446523,1000,148500,566363
+faceverse,all_cross,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07514783993953207,0.04401902018553413,0.10824679567606299,1000,148500,566363
+faceverse,all_cross,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.08334594116891028,0.05093143368320922,0.11432411141540783,1000,148500,566363
+faceverse,all_cross,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.08676553610451247,0.04554634545763386,0.12923626060961965,1000,148500,566363
+faceverse,all_cross,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.08701676300528301,0.05916896445430963,0.11876570087326105,1000,148500,566363
+faceverse,all_cross,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.0886420291512602,0.060370622123629036,0.11812611484850846,1000,148500,566363
+faceverse,all_cross,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.0896822245011963,0.061775847041535374,0.12071051799656819,1000,148500,566363
+faceverse,all_cross,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09421997381293797,0.05890420436369797,0.13027965402762928,1000,148500,566363
+faceverse,all_cross,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.035075346202178025,0.018726352838845304,0.05126973047453074,1000,148500,566363
+faceverse,all_cross,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.03604376533897255,0.01957753789024521,0.05248789711544043,1000,148500,566363
+faceverse,all_cross,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.03471416420827933,0.018301634490661103,0.050439496438972324,1000,148500,566363
+faceverse,all_cross,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0342126248445794,0.010606725472291209,0.0579901776777863,1000,148500,566363
+faceverse,all_cross,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03326194289747265,0.016907882568604288,0.04850581648094634,1000,148500,566363
+faceverse,all_cross,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03495823963687299,0.01838316531971143,0.050926867800671766,1000,148500,566363
+faceverse,all_cross,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03359410508326123,0.017078343607100893,0.04861709963797424,1000,148500,566363
+faceverse,all_cross,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03427765591118137,0.009997010363144874,0.058090662561856916,1000,148500,566363
+faceverse,all_cross,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.04581776423896722,0.018633817324232412,0.0717910974710965,1000,148500,566363
+faceverse,all_cross,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.04670685736732065,0.01981488764798817,0.07406064519000706,1000,148500,566363
+faceverse,all_cross,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.04661771178933788,0.01977439401746253,0.07194320878541637,1000,148500,566363
+faceverse,all_cross,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.051973591324790666,0.018389032126524783,0.08741850508399049,1000,148500,566363
+faceverse,all_cross,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.04960321796445833,0.022857283143889698,0.07454257132931263,1000,148500,566363
+faceverse,all_cross,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.05105290049605158,0.024078609112922242,0.07637682850523494,1000,148500,566363
+faceverse,all_cross,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.05041368969583467,0.02473710349096162,0.07446034279691223,1000,148500,566363
+faceverse,all_cross,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.055642372561019574,0.021189291982833165,0.09040879468349693,1000,148500,566363
+faceverse,all_cross,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10036294461043287,0.0727936249426717,0.12729878165638672,1000,148500,566363
+faceverse,all_cross,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.09408374660477518,0.06696740477771546,0.12281804108336439,1000,148500,566363
+faceverse,all_cross,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10063085077516554,0.07217519460414701,0.12758590368667147,1000,148500,566363
+faceverse,all_cross,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.10333283833120964,0.06778830155046052,0.13750621821404088,1000,148500,566363
+faceverse,all_cross,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.09167257985627199,0.06695710260353854,0.11770510167277974,1000,148500,566363
+faceverse,all_cross,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.09496601766090641,0.06890223465190817,0.12340210991564246,1000,148500,566363
+faceverse,all_cross,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.09499433169975967,0.06777885749983562,0.1217955699076202,1000,148500,566363
+faceverse,all_cross,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.10111655986624464,0.06835348594240846,0.1328854139932597,1000,148500,566363
+faceverse,all_cross,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.06477533452759673,0.04037072179655703,0.088679966790655,1000,148500,566363
+faceverse,all_cross,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.06422656532422626,0.03789236155781263,0.08799743311179922,1000,148500,566363
+faceverse,all_cross,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.06451347845892336,0.03965941861735555,0.08813209178568679,1000,148500,566363
+faceverse,all_cross,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.06908292931771992,0.03690341533571641,0.10172871582439741,1000,148500,566363
+faceverse,all_cross,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.06484335411217655,0.041605966368933024,0.0873265812994353,1000,148500,566363
+faceverse,all_cross,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.06552180193698018,0.03929841712742117,0.08832347085653286,1000,148500,566363
+faceverse,all_cross,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.0649338649062604,0.04119780403683473,0.0877157247709319,1000,148500,566363
+faceverse,all_cross,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.06981492981386556,0.037488528286859994,0.10358537889306181,1000,148500,566363
+faceverse,righe col crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07117341947637004,0.04493772253586487,0.09783760074191394,1000,49500,566363
+faceverse,righe col crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.059851987379174715,0.035051195540030715,0.08644881094556352,1000,49500,566363
+faceverse,righe col crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.06533554653513708,0.040363548697974504,0.09085519929248041,1000,49500,566363
+faceverse,righe col crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.06506766756493458,0.029264252340012634,0.10378452858768535,1000,49500,566363
+faceverse,righe col crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09843478545127196,0.06585119449551152,0.13187860029943607,1000,49500,566363
+faceverse,righe col crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.0991124251974753,0.06640267134337911,0.13150515344984304,1000,49500,566363
+faceverse,righe col crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09666213914613153,0.06438311204430437,0.1276247334631465,1000,49500,566363
+faceverse,righe col crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.09848242044596386,0.05278683882585252,0.14576996932457945,1000,49500,566363
+faceverse,righe col crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0646712885504372,0.03625170881025343,0.09297907440524818,1000,49500,566363
+faceverse,righe col crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.07603178925681958,0.04699296891311094,0.10319400792128423,1000,49500,566363
+faceverse,righe col crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.07005356780171212,0.04366562258429269,0.09570131178192882,1000,49500,566363
+faceverse,righe col crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.07431493850221706,0.03525601650164516,0.11418789082619474,1000,49500,566363
+faceverse,righe col crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.06258787682287273,0.033830791477317,0.08959132521694194,1000,49500,566363
+faceverse,righe col crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.07307133610729831,0.0445894939581301,0.09942975454302676,1000,49500,566363
+faceverse,righe col crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.06742343645041644,0.04128574405203673,0.0927733830813967,1000,49500,566363
+faceverse,righe col crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.0732194993152603,0.03308026185863317,0.11255789160929233,1000,49500,566363
+faceverse,righe col crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.07520875989272875,0.03530980582380276,0.11519419333082435,1000,49500,566363
+faceverse,righe col crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.08449395597313979,0.0450679197233778,0.1267305473705175,1000,49500,566363
+faceverse,righe col crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.08088936829960398,0.041879850629800465,0.12023945902339972,1000,49500,566363
+faceverse,righe col crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.09391568507558844,0.04305030939147651,0.14165690782947216,1000,49500,566363
+faceverse,righe col crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.08086287396229119,0.039372710884402605,0.12037910499963511,1000,49500,566363
+faceverse,righe col crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.09109746932270626,0.04982600805646149,0.1323853316332143,1000,49500,566363
+faceverse,righe col crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.08731822717069007,0.04620850318640674,0.12500728860530755,1000,49500,566363
+faceverse,righe col crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.09979778139925236,0.047224534878112616,0.15095303311861388,1000,49500,566363
+faceverse,righe col crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.13052159102078414,0.0915173970863307,0.17166850109156667,1000,49500,566363
+faceverse,righe col crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.126869979157894,0.08698957926939883,0.16901372080223093,1000,49500,566363
+faceverse,righe col crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.13091565771430091,0.08930755961054551,0.17110852705350543,1000,49500,566363
+faceverse,righe col crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.14626766933341104,0.09240607182943208,0.19711272545185743,1000,49500,566363
+faceverse,righe col crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.12733585152726581,0.08707075327799974,0.16606260982215562,1000,49500,566363
+faceverse,righe col crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.132483618324708,0.09134911882558525,0.17276187696771428,1000,49500,566363
+faceverse,righe col crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.12873787446689552,0.08702585019459474,0.16954577795218534,1000,49500,566363
+faceverse,righe col crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1448281096103689,0.09238725083453668,0.19752213800737414,1000,49500,566363
+faceverse,righe col crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.10426122171341047,0.06549388205920549,0.13870597680671398,1000,49500,566363
+faceverse,righe col crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.10781452919319218,0.06586168465445041,0.1448358304881329,1000,49500,566363
+faceverse,righe col crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.105676228996607,0.06764418040324933,0.14076151447796834,1000,49500,566363
+faceverse,righe col crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.12354311869371964,0.07345551487666141,0.1685973202676517,1000,49500,566363
+faceverse,righe col crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.10284455412925496,0.06490931106766261,0.1368603374055504,1000,49500,566363
+faceverse,righe col crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.10884621293910003,0.06886966801945721,0.14436940223759726,1000,49500,566363
+faceverse,righe col crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.10526623113685216,0.06639594779126334,0.13884036449025308,1000,49500,566363
+faceverse,righe col crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.12148801231161405,0.071223575182473,0.16697203877310393,1000,49500,566363
+faceverse_neutral,senza crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.14113229073168146,0.092226385938272,0.18865819293948954,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.11662687930196923,0.07131836619138994,0.16072300293487157,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.1262230131521367,0.08050437052064748,0.16752881759828037,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.14238114549729677,0.0799201034382436,0.20383695110959618,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.11959975098065243,0.08341292178795134,0.15387569802659398,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.12075939991388905,0.08384175027467278,0.15615368866177645,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.12221096514171606,0.08700306305065422,0.1563047431436554,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.14144093505024097,0.09112713563717674,0.18795031267050735,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.036065584405069954,0.018457266355206996,0.052736637018319196,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.03802161482664635,0.020207911972161957,0.054875033006801056,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.03792824588615863,0.021522147670880152,0.05460655167343393,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.03910780600285561,0.017652256585754957,0.05948100446577999,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03316850079871282,0.017028764157140112,0.047864187485997446,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03506741144158353,0.019254177044240532,0.05036904329421928,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03439514620150408,0.018934637405195666,0.04909892054280055,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.03538090322399117,0.015290568855203532,0.05649589234701306,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.042798033285465484,0.016523541272252498,0.068915358212605,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.04939777630378198,0.020726553169328567,0.07620407791887295,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.04891240047166041,0.021466637235732597,0.07520766255248827,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.05793392131599801,0.02087856526285857,0.09831877341264422,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.04851094635188387,0.022678097427311177,0.07614771468082626,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.05485420288634175,0.02700485830406889,0.0837498476937313,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.054060333838122594,0.02651159369873121,0.08134719225297746,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.061044758783329836,0.024559643329187236,0.10008234723951814,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.13611751873531597,0.10490192024198429,0.16559037174456886,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.12642579639635385,0.09310958066069712,0.15712882353308688,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.13437073471116354,0.10193187209677664,0.1650915208314034,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.14261916088029955,0.09555812384463996,0.18460444786346586,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1282901814526181,0.10066397362229886,0.15732734793945602,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13010861793467937,0.09956046104227494,0.1598801653346304,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13158416907169956,0.1024497613633927,0.16091838472696984,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.14259203416630592,0.10328611530364237,0.1776780478932308,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.08165597064883061,0.052909609613845804,0.10865445821736297,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.08911120064005783,0.0599021452614557,0.11704126298781245,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.08692036468303883,0.05731155298054065,0.11317752788031507,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.09011552428551797,0.048559445816384855,0.13041700942854684,1000,99000,566363
+faceverse_neutral,senza crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.08284596285560179,0.0550197854067472,0.10875960526680044,1000,99000,566363
+faceverse_neutral,senza crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.09079143633935582,0.062105481734158384,0.11767890954912497,1000,99000,566363
+faceverse_neutral,senza crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.08756629111936644,0.05935022244736943,0.11343682267593183,1000,99000,566363
+faceverse_neutral,senza crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.09047101815535545,0.04963318165703482,0.13063925927490808,1000,99000,566363
+faceverse_neutral,all_cross,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.11288835226227337,0.07596303417685395,0.14912526829607492,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.09423447733215123,0.060134780447948594,0.12817759246181457,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.10080715030703231,0.06605174207415107,0.13321354314942696,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.11209359603036002,0.06613875820916112,0.15877575517988046,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.11145756715260817,0.07895855149997141,0.14137262529851413,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.1123466575360249,0.07910281414046234,0.14360856512512635,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.11249730311712595,0.08041274286234867,0.1429200516614648,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.13061378452656763,0.08683073428384186,0.17260466258477455,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.04656218152385731,0.02819220972463123,0.0643529624336384,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0519629594588454,0.033240859307876666,0.06939895855514942,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.04957909358082087,0.03119158669504718,0.06657161434386313,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.051930116098895536,0.028561249720506898,0.07305605779513737,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04396465087173228,0.02734810268460605,0.06055194574669009,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.0492233859775369,0.03208349889425578,0.06464013360372524,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04668881080333138,0.030115872425682765,0.06288183911348404,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.04752679299051968,0.02384734780261019,0.0690854105458345,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.05607777262486308,0.027974581268821932,0.08509305980928028,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.06597711441546593,0.03730875513633063,0.09486055848211934,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.0633906815642163,0.03478055566584005,0.0925094450804572,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.07462436716254256,0.03415714848111347,0.11762480360060551,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.06150884822402939,0.03109637439210134,0.09314027943060597,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.0710827063724055,0.04064571717566533,0.10167383897507415,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.06828747065206374,0.03792076832967046,0.09865377085550063,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.07839761111088375,0.03811518093512442,0.12277599100009727,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.1435399368391859,0.11027413271835516,0.17402933387963462,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.13426314623998037,0.09977557020780128,0.1657274724356771,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.14166848491215775,0.10736595954785708,0.1734462734237318,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.15527387755663247,0.10920405672382091,0.19632636356696295,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13289636987835457,0.10424641864431919,0.1615630151208949,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13473575058177603,0.10332312206280447,0.1645903631220289,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.13555284648330673,0.10606850856737064,0.16633959394828646,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.15012844874570108,0.10866434692026991,0.18652289412716025,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.09968620958498188,0.06659768522037175,0.1292098249762159,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.11085809047970245,0.0783905461152026,0.14056898719357552,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.10723868775914365,0.07417877386747589,0.1361785896858649,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.11312071302108964,0.06910701695801338,0.1579427743196787,1000,148500,566363
+faceverse_neutral,all_cross,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.10139337273707005,0.0678904400797632,0.13028285967013806,1000,148500,566363
+faceverse_neutral,all_cross,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11335056204551022,0.08026144642162517,0.14384836066189996,1000,148500,566363
+faceverse_neutral,all_cross,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1085215270109597,0.07419781660904262,0.13793545766206258,1000,148500,566363
+faceverse_neutral,all_cross,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.11364012320021358,0.06868086987242338,0.15844234307039587,1000,148500,566363
+faceverse_neutral,righe col crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.0852992921441222,0.059399284983594154,0.11080093500228652,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07430593207477634,0.05005414821434849,0.09853878210045858,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.07703797024876842,0.051963686439545353,0.10165357128816875,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.08513494339706161,0.04859221075055289,0.1257759574318396,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.120386692694264,0.08595246462640417,0.1524811155417963,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.12051956517696108,0.08677818762859266,0.1517591669716212,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.11769627631671847,0.08427323088474276,0.14765080991163462,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.13363194636839584,0.08311245288539047,0.1824469024938962,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.08204721388429594,0.04772891921101482,0.11611805980155405,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.0972098086552433,0.06407981104657885,0.12938559247367795,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.08826760146608831,0.05509958628293885,0.11889968208401684,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.09294776169948125,0.047960782247943645,0.1364902031828429,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.08150712733997653,0.05093782644440102,0.11242769555455435,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.09691398303725923,0.06693569908768905,0.12502050740413095,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.08884958842997032,0.05981658087405003,0.11843046292757778,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.08872931242867481,0.04388053474088014,0.12942923749905558,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.08960756126591204,0.046932902079815916,0.1325256653394275,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.10712605021877883,0.06722822859253184,0.14951346566956866,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.09978311601458946,0.05948461888785907,0.14197687678447932,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.11471218013248355,0.05512129719023001,0.17854448411896853,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.09519391616936353,0.051991606043382356,0.14143144405732802,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.11164507636350876,0.0696208289157739,0.15542422025090233,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.1046868158815302,0.0645727775083837,0.14887736108009025,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.12087929142832952,0.062089950064902956,0.18379720240490655,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.18023975202246534,0.1387046306337305,0.22187455790596075,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.1701248681597004,0.12617503790693058,0.21248400038276605,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.17758941697592517,0.13576508824910394,0.2201978215908623,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.20574352031847756,0.1480561199493866,0.2550584532735228,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1843069420291034,0.14376319333020987,0.2236657512049196,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.18604457998400475,0.14407179765362735,0.22574173694754915,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.1855537660249554,0.14439151395044647,0.2256282814187669,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.2094148811624002,0.15116511658737916,0.25791946831060425,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.14498956391370169,0.09826562181171952,0.18609942148542227,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.16351470962685172,0.11789874994593597,0.20320672647310856,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.15722634128714133,0.1121696475124325,0.1988195453895034,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.16895515669824612,0.10663556317211749,0.22899907156582724,1000,49500,566363
+faceverse_neutral,righe col crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1483881238310545,0.09898755660183206,0.1904161369425253,1000,49500,566363
+faceverse_neutral,righe col crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.1684851696657845,0.12124987768047743,0.20945781142355024,1000,49500,566363
+faceverse_neutral,righe col crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.16037355566698033,0.11361960387753109,0.2020391197045641,1000,49500,566363
+faceverse_neutral,righe col crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.17014318487714233,0.10646503902806932,0.2309771813517039,1000,49500,566363
+famos,senza crop,fr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.6931577856106158,0.3444415133569299,0.8790938835511405,1000,105,1234
+famos,senza crop,sr,rho,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.3938523740410533,-0.09770290565044731,0.7115938780741146,1000,105,1234
+famos,senza crop,fr,partial,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.3677072432986663,-0.0075914852284715475,0.6518239260192206,1000,105,1234
+famos,senza crop,fr,q20,gw_fr,gw,fr,"Gromov-Wasserstein (POT), mm (FR)",0.638961038961039,-0.1873150471575668,1.0,999,105,1234
+famos,senza crop,fr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.26926187020526643,-0.04913069009226433,0.5293698001349897,1000,105,1234
+famos,senza crop,sr,rho,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.33680281982168775,-0.01814430966573228,0.5762698079814852,1000,105,1234
+famos,senza crop,fr,partial,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.33099689931089793,-0.008104425459868041,0.5696492315446527,1000,105,1234
+famos,senza crop,fr,q20,gw_sr,gw,sr,"Gromov-Wasserstein (POT), a CS_ref (SR)",0.6493506493506493,-0.04130353932932497,1.0,999,105,1234
+famos,senza crop,fr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.329100145137881,-0.10153672006383781,0.6765869724166799,1000,105,1234
+famos,senza crop,sr,rho,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.4415405349367614,0.005439380945920568,0.7264917089699027,1000,105,1234
+famos,senza crop,fr,partial,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.33487198504092464,-0.06311485072051291,0.658756662356631,1000,105,1234
+famos,senza crop,fr,q20,dinov2_fr,dinov2,fr,"DINOv2 ViT-S/14 su render, mm (FR)",0.4077922077922078,-0.5783584194890924,0.9899931202221988,999,105,1234
+famos,senza crop,fr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.32028820236367406,-0.09035300646104086,0.6756489720983511,1000,105,1234
+famos,senza crop,sr,rho,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.4686813186813187,0.05357712134984537,0.7262679722019779,1000,105,1234
+famos,senza crop,fr,partial,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.37426081836872915,-0.003081626033463273,0.6852979120732672,1000,105,1234
+famos,senza crop,fr,q20,dinov2_sr,dinov2,sr,"DINOv2 ViT-S/14 su render, a CS_ref (SR)",0.37532467532467534,-0.7045945900485825,0.9430102657004831,999,105,1234
+famos,senza crop,fr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.4739373833713456,0.06444600185974077,0.7389270205326903,1000,105,1234
+famos,senza crop,sr,rho,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.6581484553182666,0.297515787067284,0.8387784045537271,1000,105,1234
+famos,senza crop,fr,partial,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.5504790720023223,0.17926375522033,0.76485577758936,1000,105,1234
+famos,senza crop,fr,q20,clip_fr,clip,fr,"CLIP ViT-B/32 su render, mm (FR)",0.7038961038961039,-0.14583886091504986,1.0,999,105,1234
+famos,senza crop,fr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.4893427327389592,0.08215495203457729,0.7639551984329465,1000,105,1234
+famos,senza crop,sr,rho,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.6526746838067593,0.3061416974646879,0.8306782958227602,1000,105,1234
+famos,senza crop,fr,partial,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.5380762499823547,0.19198512299499385,0.7674420189556089,1000,105,1234
+famos,senza crop,fr,q20,clip_sr,clip,sr,"CLIP ViT-B/32 su render, a CS_ref (SR)",0.7194805194805195,-0.13737915815213766,1.0,999,105,1234
+famos,senza crop,fr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.6763528923906282,0.28177860729949605,0.889652387485986,1000,105,1234
+famos,senza crop,sr,rho,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.4847190545303753,0.0016444574982281738,0.8052602411716738,1000,105,1234
+famos,senza crop,fr,partial,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.43481021580190937,0.05399502388475435,0.756241036385216,1000,105,1234
+famos,senza crop,fr,q20,lpips_fr,lpips,fr,"LPIPS alex su render, mm (FR)",0.5883116883116883,-0.39619345185706717,0.9773556509499799,999,105,1234
+famos,senza crop,fr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.38189923284262906,0.009010182828541517,0.7417961698982891,1000,105,1234
+famos,senza crop,sr,rho,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.4822102425876011,0.07244868881593426,0.7587124290783958,1000,105,1234
+famos,senza crop,fr,partial,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.4237513582785921,0.05003267344320931,0.7250527472491081,1000,105,1234
+famos,senza crop,fr,q20,lpips_sr,lpips,sr,"LPIPS alex su render, a CS_ref (SR)",0.5727272727272728,-0.4003296703296703,1.0,999,105,1234
+famos,senza crop,fr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.5455318266639021,0.1711890155783534,0.8035547947571167,1000,105,1234
+famos,senza crop,sr,rho,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.6718017831225378,0.3545903225288226,0.8334255916151105,1000,105,1234
+famos,senza crop,fr,partial,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.5916971141556716,0.2969351167424652,0.7869076697737674,1000,105,1234
+famos,senza crop,fr,q20,dreamsim_fr,dreamsim,fr,"DreamSim ensemble su render, mm (FR)",0.8688311688311688,0.21975338089352453,1.0,999,105,1234
+famos,senza crop,fr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.5230561890939249,0.13127033798745755,0.7866056852537937,1000,105,1234
+famos,senza crop,sr,rho,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.6728281152809454,0.3780367618213501,0.8260108730739661,1000,105,1234
+famos,senza crop,fr,partial,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.5938707033787377,0.301698558953535,0.7874670261250348,1000,105,1234
+famos,senza crop,fr,q20,dreamsim_sr,dreamsim,sr,"DreamSim ensemble su render, a CS_ref (SR)",0.8558441558441559,0.04943096867249482,1.0,999,105,1234

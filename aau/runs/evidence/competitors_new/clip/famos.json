@@ -1,0 +1,34 @@
+{
+ "view": "famos",
+ "n_meshes": 15,
+ "failed": [],
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "size": 512,
+ "camera_half_mm": 123.56212964795054,
+ "cam_k": 1.3,
+ "L_mm": 95.04779203688503,
+ "cs_ref_mm": 64.55107311330337,
+ "device": "cpu",
+ "threads": 16,
+ "workers_render": 16,
+ "clipped_meshes": {
+  "fr": 0,
+  "sr": 0
+ },
+ "render_s_per_mesh_median": 1.8167414870113134,
+ "render_wall_s": 2.531557083129883,
+ "render_note": "s per mesh = 6 render (fr, sr x 3 viste) + lettura + taglia, un processo",
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1070576",
+ "date": "2026-10-12 18:09:01",
+ "method": "clip",
+ "load_s": 46.567068099975586,
+ "embed_wall_s": 3.1313748359680176,
+ "s_per_image": 0.034793053732977974,
+ "s_per_mesh_total": 2.0254998094091814,
+ "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+}
