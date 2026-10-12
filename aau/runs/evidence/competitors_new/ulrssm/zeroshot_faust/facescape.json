@@ -1,0 +1,58 @@
+{
+ "parts": [
+  {
+   "part": "facescape_0of1.npz",
+   "job": "1070619",
+   "n_pairs": 148500,
+   "t_prep_s": 243.78283667564392,
+   "t_feat_s": 58.03169250488281,
+   "t_pairs_s": 2541.683257341385,
+   "nan_pairs": 0
+  }
+ ],
+ "input_type": "wks",
+ "ckpt": "/home/create.aau.dk/ga41wf/ext/ulrssm/checkpoints/faust.pth",
+ "gpu": "NVIDIA L40S",
+ "template_n": 9022,
+ "template_flipped": false,
+ "cs_ref": 72.95271629428808,
+ "view": "facescape",
+ "n_meshes": 600,
+ "n_pairs": 148500,
+ "template": {
+  "rigid_robust_converged": 570,
+  "n": 600,
+  "rigid_robust_iter_max": 100,
+  "centroid_size_mm_median": 60.780635670167165,
+  "rms_to_mu_mm_median": 76.85863658997235
+ },
+ "gt_check": {
+  "fr_max_abs": 3.5666553621638286e-07,
+  "fr_max_rel": 6.662263641735807e-08,
+  "sr_max_abs": 3.990414845778112e-09,
+  "sr_max_rel": 5.2124675302836564e-08
+ },
+ "nan": {
+  "D_pair_fr": 0,
+  "D_pair_sr": 0,
+  "D_tpl_fr": 0,
+  "D_tpl_sr": 0
+ },
+ "failed": [],
+ "mesh_flipped": 0,
+ "seconds": {
+  "prep_per_mesh_median": 10.185577382915653,
+  "feat_per_mesh_median": 0.03953662049025297,
+  "template_map_per_mesh_median": 0.0046618644846603274,
+  "pair_median": 0.012969599454663694,
+  "pair_mean": 0.017099567378853896,
+  "pairs_total_h": 0.7053571543777232
+ },
+ "vertices": {
+  "median": 12377.5,
+  "max": 32328
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070748",
+ "date": "2026-10-12 20:02:18"
+}

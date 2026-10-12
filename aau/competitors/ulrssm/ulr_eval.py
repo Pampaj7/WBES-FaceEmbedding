@@ -19,10 +19,13 @@ feature di DiffusionNet del checkpoint, poi
 Uscita ``<tag>/parts/<vista>_<k>of<n>.npz`` (fuori da git): distanze delle coppie della parte, configurazioni trasferite,
 tempi per mesh e per coppia.
 
-``merge``: unisce le parti; variante (b) con le funzioni della GT importate e NON modificate (``cgt.Canon``,
-``v3_work/canonical_gt/cgt.py``): ``rigid_robust`` (IRLS Tukey verso mu, una rigida per mesh), FR =
-``distances`` (RMS pesato per area, mm), SR = ``distances(shape_S(.))`` (taglia tolta: centroid size di mu attorno al
-centroide fisso). Uscite in ``aau/runs/evidence/competitors_new/ulrssm/<tag>/``: ``<vista>.npz`` (``subjects``,
+``merge``: unisce le parti; variante (b) con le funzioni della GT di valutazione importate e NON modificate
+(``train_fr_sr.factor``, ``v3_work/canonical_gt/train_fr_sr.py``, che usa ``cgt.Canon``): a_i = ``rigid_robust``
+(IRLS Tukey verso mu, una rigida per mesh), z_i = (a_i - c_i) / S_i (taglia tolta: centroide e centroid size pesati
+della mesh); FR = RMS pesato per area fra le a (mm), SR = lo stesso fra le z (d_P, adimensionale), con la formula di
+``train_fr_sr.save_eval`` (``cgt._euclid``). Il dominio passato a ``factor`` e' ``famos``, per cui ``Canon.to_F`` e'
+l'identita': i punti trasferiti sono gia' in mm nel frame canonico. Controllo (``gt_check``, in ogni ``<vista>.json``):
+la stessa funzione sui punti nativi delle 15 persone FaMoS TEST ridà ``famos_test_{fr,sr}.npz``. Uscite in ``aau/runs/evidence/competitors_new/ulrssm/<tag>/``: ``<vista>.npz`` (``subjects``,
 ``topologies``, ``paths``, matrici simmetriche ``D_pair_fr``, ``D_pair_sr``, ``D_tpl_fr``, ``D_tpl_sr``, NaN dove
 non calcolate, configurazioni ``U_tpl``), ``pairs_<vista>.csv`` (righe di ``pairs``, fuori da git) e
 ``<vista>.json`` (tempi, controlli, mesh fallite).
@@ -189,24 +192,49 @@ def run(a) -> None:
 # ----------------------------------------------------------------------------------------------- merge
 
 def tpl_distances(Ut: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
-    """(FR, SR, diagnostica) della variante (b): ``cgt.Canon`` della GT, importata e non modificata."""
-    sys.path.insert(0, str(U.REPO / "v3_work" / "canonical_gt"))
+    """(FR mm, SR d_P, diagnostica) della variante (b) dalle configurazioni (n, 1478, 3) in mm, frame canonico:
+    ``train_fr_sr.factor`` e la formula di ``save_eval``, importate e non modificate."""
+    for _p in (U.REPO / "v3_work" / "canonical_gt", U.REPO / "v3_work" / "unified_gt"):
+        sys.path.insert(0, str(_p))
     import cgt
+    import train_fr_sr as tfs
     cn = cgt.Canon()
     if Ut.shape[1] != len(cn.mu):
         raise SystemExit(f"punti trasferiti {Ut.shape[1]} contro i {len(cn.mu)} della regione unificata")
     ok = np.isfinite(Ut).all(axis=(1, 2))
     FR, SR = np.full((len(Ut), len(Ut)), np.nan), np.full((len(Ut), len(Ut)), np.nan)
-    rob = cn.rigid_robust(Ut[ok])
-    a = rob["a"]
-    FR[np.ix_(ok, ok)] = cn.distances(a)
-    SR[np.ix_(ok, ok)] = cn.distances(cn.shape_S(a))
-    diag = {"rigid_robust_converged": int(rob["converged"].sum()), "n": int(ok.sum()),
-            "rigid_robust_iter_max": int(rob["iterations"].max()),
-            "downweighted_area_median": float(np.median(rob["downweighted_area"])),
-            "centroid_size_mm_median": float(np.median(cn.centroid_size(a))),
+    f = tfs.factor(cn, "famos", np.asarray(Ut[ok], dtype=np.float64))     # to_F("famos") = identita' (gia' mm)
+    FR[np.ix_(ok, ok)] = cgt._euclid(f["A"].astype(np.float64), f["A"].astype(np.float64), cn.sp.A, True)
+    SR[np.ix_(ok, ok)] = cgt._euclid(f["Z"].astype(np.float64), f["Z"].astype(np.float64), cn.sp.A, True)
+    a = f["A"].astype(np.float64).reshape(int(ok.sum()), -1, 3) / np.sqrt(cn.sp.w)[None, :, None]
+    diag = {"rigid_robust_converged": int(f["conv"].sum()), "n": int(ok.sum()), "rigid_robust_iter_max": int(f["it"].max()),
+            "centroid_size_mm_median": float(np.median(f["S"])),
             "rms_to_mu_mm_median": float(np.median(np.sqrt(np.einsum("v,nv->n", cn.W, ((a - cn.mu) ** 2).sum(-1)))))}
     return FR, SR, diag
+
+
+def gt_check() -> dict:
+    """``tpl_distances`` sui punti nativi delle persone FaMoS TEST (``cgt.native_points``, ordine di
+    ``train_fr_sr.stage_eval``) contro ``famos_test_{fr,sr}.npz`` x l'unita' del json: scarto massimo."""
+    sys.path.insert(0, str(U.REPO / "v3_work" / "canonical_gt"))
+    import cgt
+    import famos_common as fc
+    cn = cgt.Canon()
+    nat = cgt.native_points("famos", cn)
+    te = np.flatnonzero(nat["split"] == "test")
+    te = te[np.argsort([fc.view_id(nat["ids"][i]) for i in te])]
+    ids = [fc.view_id(nat["ids"][i]) for i in te]
+    FR, SR, _ = tpl_distances(nat["P"][te])
+    out = {}
+    for g, M in (("fr", FR), ("sr", SR)):
+        p = cgt.OUT_DIR / "eval" / f"famos_test_{g}.npz"
+        unit = json.loads(p.with_suffix(".json").read_text())["mm_per_unit" if g == "fr" else "dP_per_unit"]
+        with np.load(p) as z:
+            pos = {str(s): k for k, s in enumerate(z["names"])}
+            ref = np.asarray(z["D_orig"], np.float64)[np.ix_([pos[s] for s in ids], [pos[s] for s in ids])] * unit
+        out[f"{g}_max_abs"] = float(np.abs(M - ref).max())
+        out[f"{g}_max_rel"] = float(np.abs(M - ref).max() / np.median(ref[np.triu_indices(len(ids), 1)]))
+    return out
 
 
 def merge(a) -> None:
@@ -247,7 +275,7 @@ def merge(a) -> None:
         np.fill_diagonal(M, 0.0)
     pair_s = np.concatenate(pair_s)
     I, J = U.pairs(v["items"])
-    info.update(view=v["name"], n_meshes=n, n_pairs=int(len(I)), template=diag,
+    info.update(view=v["name"], n_meshes=n, n_pairs=int(len(I)), template=diag, gt_check=gt_check(),
                 nan={k: int(np.isnan(M[I, J]).sum()) for k, M in D.items()}, failed=[str(x) for x in base["failed"]],
                 mesh_flipped=int(base["flipped"].sum()),
                 seconds={"prep_per_mesh_median": float(np.nanmedian(base["prep_s"])),

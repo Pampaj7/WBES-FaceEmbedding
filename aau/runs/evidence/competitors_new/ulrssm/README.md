@@ -36,9 +36,12 @@ Una riga per coppia NON ordinata di mesh, chiavi uguali alle righe di E12 / dell
   corrispondenti, RMS pesato per area (aree baricentriche della mesh d'arrivo), media dei due versi.
 - `d_pair_sr` (mm alla taglia di riferimento): lo stesso con ogni mesh moltiplicata per CS_ref / CS_i (centroid size
   robusta di `blmm.mesh_scalars`, CS_ref del dominio da `blmm.params`).
-- `d_tpl_fr` (mm), `d_tpl_sr` (mm alla taglia di mu): variante (b), ogni mesh mappata sul template fisso (media di GNM
-  Head, generatore di training), i suoi vertici trasferiti sui 1478 punti della regione unificata e passati alle
-  funzioni della GT importate senza modifiche (`cgt.Canon.rigid_robust` verso mu, `distances`, `shape_S`).
+- `d_tpl_fr` (mm), `d_tpl_sr` (d_P, adimensionale, come la GT SR): variante (b), ogni mesh mappata sul template
+  fisso (media di GNM Head, generatore di training), i suoi vertici trasferiti sui 1478 punti della regione unificata
+  e passati alla funzione della GT di valutazione importata senza modifiche (`train_fr_sr.factor`:
+  `cgt.Canon.rigid_robust` verso mu, poi a_i per FR e pre-forme z_i = (a_i - c_i) / S_i per SR; distanze con la
+  formula di `train_fr_sr.save_eval`). Controllo `gt_check` in `<vista>.json`: la stessa funzione sui punti nativi di
+  FaMoS TEST ridà `famos_test_{fr,sr}`.
 - `NaN`: mesh fallita in preparazione (elencata in `<vista>.json`).
 
 Rieseguire su un dominio nuovo (es. Ava-256, NON eseguito): `ULR_SPEC=<json>` nei passi `eval` e `merge` di
