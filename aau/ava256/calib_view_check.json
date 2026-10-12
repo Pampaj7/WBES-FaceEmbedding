@@ -1,0 +1,498 @@
+{
+ "definition": "la vista ``calib_view`` contro la ``eval_view``, una mesh (o una coppia di topologie della stessa persona) per\nvolta, nessuna distanza fra soggetti:\n  - split: ``ac.split()`` ricalcolato = ``split.json`` in git = ``datasets/AVA256/gt/split.json``; 56 + 200 disgiunti;\n  - completezza: 56 x 6 mesh (le 6 topologie del protocollo), nomi = id di calibrazione, nessun id valutato e viceversa;\n    symlink verso ``topo/ava<riga>_GTready_<topologia>.npz`` della persona giusta; ``content_sha256.txt`` e\n    ``labels.json`` coerenti; nessuna GT nella vista; tabella di scala con gli stessi nomi e aree positive;\n  - coerenza con le viste valutate, per topologia: vertici e triangoli, lato medio, anelli di bordo, triangoli degeneri,\n    vertici non usati; original e noisy con gli stessi triangoli in tutte le 256 persone; noisy = original spostata\n    (RMS mm); crop diverso dalla original (frazione di vertici tenuti).",
+ "verified_frozen": true,
+ "split": {
+  "n_calibration": 56,
+  "n_evaluation": 200,
+  "split_json_equals_rule": true
+ },
+ "views": {
+  "calib_view": {
+   "original": {
+    "n": 56,
+    "vertices": {
+     "min": 12225.0,
+     "median": 12225.0,
+     "max": 12225.0
+    },
+    "faces": {
+     "min": 24036.0,
+     "median": 24036.0,
+     "max": 24036.0
+    },
+    "mean_edge_mm": {
+     "min": 1.6159308715404086,
+     "median": 1.8859810117180533,
+     "max": 2.102467843330677
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 1
+   },
+   "remesh": {
+    "n": 56,
+    "vertices": {
+     "min": 8581.0,
+     "median": 8591.0,
+     "max": 8596.0
+    },
+    "faces": {
+     "min": 16824.0,
+     "median": 16824.0,
+     "max": 16825.0
+    },
+    "mean_edge_mm": {
+     "min": 1.9407723030577353,
+     "median": 2.278769609768606,
+     "max": 2.5486660203975373
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 56
+   },
+   "crop": {
+    "n": 56,
+    "vertices": {
+     "min": 11323.0,
+     "median": 11411.5,
+     "max": 11552.0
+    },
+    "faces": {
+     "min": 22192.0,
+     "median": 22373.5,
+     "max": 22665.0
+    },
+    "mean_edge_mm": {
+     "min": 1.4976010237564534,
+     "median": 1.755872995923051,
+     "max": 1.9660047814078727
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 56
+   },
+   "noisy": {
+    "n": 56,
+    "vertices": {
+     "min": 12225.0,
+     "median": 12225.0,
+     "max": 12225.0
+    },
+    "faces": {
+     "min": 24036.0,
+     "median": 24036.0,
+     "max": 24036.0
+    },
+    "mean_edge_mm": {
+     "min": 2.2990582823196277,
+     "median": 2.639375242968698,
+     "max": 2.999309781693209
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 1
+   },
+   "down8k": {
+    "n": 56,
+    "vertices": {
+     "min": 4259.0,
+     "median": 4266.0,
+     "max": 4272.0
+    },
+    "faces": {
+     "min": 8280.0,
+     "median": 8281.0,
+     "max": 8281.0
+    },
+    "mean_edge_mm": {
+     "min": 2.9922733550219363,
+     "median": 3.4988003393189855,
+     "max": 3.8978478453262566
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 2.0,
+     "max": 8.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 56
+   },
+   "up60k": {
+    "n": 56,
+    "vertices": {
+     "min": 31357.0,
+     "median": 31366.0,
+     "max": 31380.0
+    },
+    "faces": {
+     "min": 62108.0,
+     "median": 62108.0,
+     "max": 62109.0
+    },
+    "mean_edge_mm": {
+     "min": 1.0532401007043937,
+     "median": 1.2359741976704695,
+     "max": 1.3907009245242328
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 7.0,
+     "median": 41.5,
+     "max": 109.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 56
+   },
+   "noisy_vs_original": {
+    "same_F": 56,
+    "rms_mm": {
+     "min": 1.2205439771129305,
+     "median": 1.3717787584415564,
+     "max": 1.6325002667427828
+    }
+   },
+   "crop_vs_original": {
+    "identical": 0,
+    "kept_vertex_fraction": {
+     "min": 0.9262167689161555,
+     "median": 0.9334560327198365,
+     "max": 0.9449488752556238
+    }
+   }
+  },
+  "eval_view": {
+   "original": {
+    "n": 200,
+    "vertices": {
+     "min": 12225.0,
+     "median": 12225.0,
+     "max": 12225.0
+    },
+    "faces": {
+     "min": 24036.0,
+     "median": 24036.0,
+     "max": 24036.0
+    },
+    "mean_edge_mm": {
+     "min": 1.6736459857097634,
+     "median": 1.851016875882686,
+     "max": 2.257373709854231
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 1
+   },
+   "remesh": {
+    "n": 200,
+    "vertices": {
+     "min": 8582.0,
+     "median": 8591.0,
+     "max": 8598.0
+    },
+    "faces": {
+     "min": 16824.0,
+     "median": 16825.0,
+     "max": 16825.0
+    },
+    "mean_edge_mm": {
+     "min": 2.0061476105072638,
+     "median": 2.236541192767101,
+     "max": 2.731541973541974
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 200
+   },
+   "crop": {
+    "n": 200,
+    "vertices": {
+     "min": 11204.0,
+     "median": 11409.0,
+     "max": 11561.0
+    },
+    "faces": {
+     "min": 21946.0,
+     "median": 22363.5,
+     "max": 22688.0
+    },
+    "mean_edge_mm": {
+     "min": 1.5447824792117275,
+     "median": 1.7228902825643586,
+     "max": 2.0730608307715985
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 200
+   },
+   "noisy": {
+    "n": 200,
+    "vertices": {
+     "min": 12225.0,
+     "median": 12225.0,
+     "max": 12225.0
+    },
+    "faces": {
+     "min": 24036.0,
+     "median": 24036.0,
+     "max": 24036.0
+    },
+    "mean_edge_mm": {
+     "min": 2.339117089056307,
+     "median": 2.5909052065964584,
+     "max": 3.2995568200240575
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 1
+   },
+   "down8k": {
+    "n": 200,
+    "vertices": {
+     "min": 4259.0,
+     "median": 4266.0,
+     "max": 4274.0
+    },
+    "faces": {
+     "min": 8280.0,
+     "median": 8281.0,
+     "max": 8281.0
+    },
+    "mean_edge_mm": {
+     "min": 3.10772145767762,
+     "median": 3.428499645629781,
+     "max": 4.359567654456936
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 0.0,
+     "median": 2.0,
+     "max": 6.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 200
+   },
+   "up60k": {
+    "n": 200,
+    "vertices": {
+     "min": 31356.0,
+     "median": 31366.5,
+     "max": 31382.0
+    },
+    "faces": {
+     "min": 62108.0,
+     "median": 62109.0,
+     "max": 62109.0
+    },
+    "mean_edge_mm": {
+     "min": 1.0879772777884615,
+     "median": 1.2141834902126543,
+     "max": 1.5135000587314709
+    },
+    "boundary_loops": [
+     4
+    ],
+    "non_finite": 0,
+    "bad_index": 0,
+    "degenerate_faces": {
+     "min": 8.0,
+     "median": 37.0,
+     "max": 135.0
+    },
+    "unused_vertices": {
+     "min": 0.0,
+     "median": 0.0,
+     "max": 0.0
+    },
+    "distinct_F": 200
+   },
+   "noisy_vs_original": {
+    "same_F": 200,
+    "rms_mm": {
+     "min": 1.188478524967196,
+     "median": 1.3476321734718733,
+     "max": 1.7404648454186136
+    }
+   },
+   "crop_vs_original": {
+    "identical": 0,
+    "kept_vertex_fraction": {
+     "min": 0.9164826175869121,
+     "median": 0.9332515337423313,
+     "max": 0.9456850715746421
+    }
+   }
+  }
+ },
+ "calib_vs_eval": {
+  "original": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": 0.0,
+   "faces_median_rel_diff": 0.0,
+   "mean_edge_mm_median_rel_diff": 0.01888915022381643,
+   "same_F_all_256": true
+  },
+  "remesh": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": 0.0,
+   "faces_median_rel_diff": -5.943536404162675e-05,
+   "mean_edge_mm_median_rel_diff": 0.018881126418806904
+  },
+  "crop": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": 0.00021912525199407895,
+   "faces_median_rel_diff": 0.0004471571981130573,
+   "mean_edge_mm_median_rel_diff": 0.019143826912530137
+  },
+  "noisy": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": 0.0,
+   "faces_median_rel_diff": 0.0,
+   "mean_edge_mm_median_rel_diff": 0.01870776138348651,
+   "same_F_all_256": true
+  },
+  "down8k": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": 0.0,
+   "faces_median_rel_diff": 0.0,
+   "mean_edge_mm_median_rel_diff": 0.02050479829531704
+  },
+  "up60k": {
+   "loops_equal": true,
+   "vertices_median_rel_diff": -1.5940573541817216e-05,
+   "faces_median_rel_diff": -1.6100726142775912e-05,
+   "mean_edge_mm_median_rel_diff": 0.017946799337552166
+  }
+ },
+ "problems": [],
+ "ok": true,
+ "seconds": 184
+}

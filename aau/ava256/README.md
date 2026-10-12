@@ -225,3 +225,25 @@ ogni rigenerazione (la decimazione amplifica differenze di 1 ulp). Per questo GT
 per contenuto (modifica 7). Impronte in `freeze_manifest.json`.
 
 **Protocollo:** `PROTOCOL_CONFERMATIVO_bozza.md`, da completare dal PI prima di qualsiasi valutazione.
+
+## GT di calibrazione e controllo delle viste di calibrazione (12 ottobre 2026, PRIMA di qualsiasi valutazione)
+
+`ava_calib.py` (`ava_calib.sbatch`; job 1070512 controlli a secco e viste, 1070533 scrittura e verifica). Nessun metodo,
+nessuna distanza di un metodo, nessuno Spearman; della GT dei 200 valutati solo le impronte.
+
+- **GT dei 56 di calibrazione** in `datasets/AVA256/calib_gt/` (sola lettura): la stessa procedura della GT della prova
+  (`ava_gt.load`, `train_fr_sr.factor` su tutti i validi, `save_eval` sulle righe di calibrazione), funzioni importate e
+  non modificate. Controlli: le GT `ava256_eval_*` e `ava256_all_*` ricalcolate hanno le impronte congelate (bit per bit);
+  la GT di calibrazione coincide col blocco di `ava256_all` (differenza relativa massima 6e-8); `verify_frozen()` passa
+  prima e dopo. 1540 coppie, FR 3,03-16,41 mm (mediana 7,07), SR 0,053-0,195.
+  - FR: `70faa95e243b0941fd7f8664a66713d2c8f7000790df298e8dbd4f543feb6372`
+  - SR: `af7ed8769090cf08edfaa9bfa4681e155e0c6b3be43579972e587daab6c82d4e`
+  - Impronte in `calib_manifest.json`; **`ava_calib.verify_calib()`** (con `ava_freeze.verify_frozen()`) va chiamata
+    prima di leggere la GT di calibrazione.
+- **Viste di calibrazione** (`calib_view_check.json`): 56 x 6 = 336 mesh, le 6 topologie del protocollo, nessun id
+  valutato, symlink, `content_sha256.txt`, `labels.json` e tabella di scala coerenti, nessuna GT nella vista. Contro la
+  `eval_view`: 4 anelli di bordo in ogni topologia in entrambe; original e noisy con la stessa triangolazione in tutte le
+  256 persone; vertici e triangoli per topologia con mediane uguali entro lo 0,05%; noisy = original spostata (RMS
+  mediano 1,37 mm contro 1,35); crop mai identico alla original (vertici tenuti 92,6-94,5% contro 91,6-94,6%). Il lato
+  medio e' piu' lungo dell'1,8-2,1% in tutte le topologie (compatibile con la taglia dei soggetti: vertici e triangoli sono gli stessi). Triangoli di area
+  nulla solo in down8k (al massimo 8 contro 6) e up60k (109 contro 135), in entrambe le viste.

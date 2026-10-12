@@ -1,0 +1,49 @@
+{
+  "frozen_at": "2026-10-12 17:46:22 CEST",
+  "rule": "la STESSA procedura di ``ava_gt.main`` per la GT della prova, con le stesse funzioni importate e non modificate:\n``ava_gt.load`` (neutre sulla regione unificata), frame di dominio u = 1, R = I, t = 0, ``train_fr_sr.factor`` su TUTTI i\nvalidi (la rigida robusta e' per identita' verso mu, quindi una riga non dipende dalle altre), poi ``train_fr_sr.save_eval``\nsul sottoinsieme: li' le righe di valutazione, qui quelle di calibrazione (ordine di ``split.json``). Controlli prima di\nscrivere:\n  - ``verify_frozen()`` prima e dopo (GT dei 200, viste e tabella di scala invariate);\n  - le GT ``ava256_eval_*`` e ``ava256_all_*`` ricalcolate in una cartella temporanea (poi cancellata, i numeri non si\n    leggono) devono avere le impronte congelate: stessa procedura, bit per bit;\n  - la GT di calibrazione in mm coincide col blocco di calibrazione di ``ava256_all`` (entro l'arrotondamento float32).\nUscite: ``datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz`` + json (formato di ``save_eval``),\n``ava256_calib_centroid_size.npz``, ``ids.json``; poi sola lettura (file e cartella). Impronte (``ava_gt.content_sha256``)\nin ``aau/ava256/calib_manifest.json`` (in git) e in ``datasets/AVA256/calib_gt/FROZEN_CALIB.json``. Con la cartella\npresente ``gt`` si rifiuta di riscrivere: rigenerare richiede una decisione del PI.",
+  "files": "datasets/AVA256/calib_gt/ava256_calib_{fr,sr}.npz (D_orig / massimo, json con l'unita'), ava256_calib_centroid_size.npz, ids.json",
+  "split": {
+    "n_calibration": 56,
+    "n_evaluation": 200,
+    "salt": "ava256-confermativo-calibrazione-2026-10-11:"
+  },
+  "procedure_check": {
+    "frozen_gt_reproduced": {
+      "ava256_eval_fr": true,
+      "ava256_eval_sr": true,
+      "ava256_all_fr": true,
+      "ava256_all_sr": true
+    },
+    "block_of_ava256_all": {
+      "fr": {
+        "max_rel_diff": 5.8688043518600474e-08,
+        "inside_tol": true
+      },
+      "sr": {
+        "max_rel_diff": 5.973278958039235e-08,
+        "inside_tol": true
+      }
+    },
+    "tolerance": 1e-05
+  },
+  "descriptive": {
+    "n_subjects": 56,
+    "n_pairs": 1540,
+    "fr_mm": {
+      "min": 3.0302521181677755,
+      "median": 7.067219719258164,
+      "max": 16.4077265786206
+    },
+    "sr_dP": {
+      "min": 0.05283292447916033,
+      "median": 0.09941270381470912,
+      "max": 0.19516353897089192
+    },
+    "note": "solo la GT dei 56 di calibrazione; nessun metodo"
+  },
+  "fingerprints": {
+    "ava256_calib_fr": "70faa95e243b0941fd7f8664a66713d2c8f7000790df298e8dbd4f543feb6372",
+    "ava256_calib_sr": "af7ed8769090cf08edfaa9bfa4681e155e0c6b3be43579972e587daab6c82d4e",
+    "ava256_calib_centroid_size": "76ac2f567d66fffeeec5f1ac1a724741bc4bc0fd7be037ebdefc95af60a3cfbe"
+  }
+}
