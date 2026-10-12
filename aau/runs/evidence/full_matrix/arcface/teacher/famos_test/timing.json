@@ -1,0 +1,37 @@
+{
+ "set": "famos_test",
+ "n_meshes": 15,
+ "workers": 15,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "host": "a256-t4-03.srv.aau.dk",
+ "camera_s": 0.1287841796875,
+ "render_shaded_s": 0.7476556301116943,
+ "calibration_s": 128.20099306106567,
+ "render_normals_s": 0.6007287502288818,
+ "embed_s": 3.852579116821289,
+ "total_s": 133.70484399795532,
+ "K4": {
+  "n": 15,
+  "max_abs_norm_minus_1": 8.364339221245132e-08,
+  "finite": true
+ },
+ "detector": {
+  "original": {
+   "n": 45,
+   "n_failed": 18
+  },
+  "total": {
+   "n": 45,
+   "n_failed": 18
+  }
+ },
+ "n_detected_by_yaw": {
+  "-030.00": 11,
+  "+000.00": 11,
+  "+030.00": 5
+ }
+}

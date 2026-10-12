@@ -1,0 +1,11 @@
+{
+ "expected_first": "x180",
+ "chosen": "x180",
+ "score": {
+  "none": 0,
+  "x180": 4,
+  "y180": 0,
+  "z180": 0
+ },
+ "used": "x180"
+}
