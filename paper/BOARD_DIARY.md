@@ -1701,3 +1701,29 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   riepilogo di results.md:173-181; tolte dal supp le figure con render BFM (licenza).
 - **In attesa:** matrice unificata (Tab. scala, colonna Delta; Fig. 3 in FALLBACK, Fig. 4 PLACEHOLDER), concorrenti
   in corso (ULRSSM, Hybrid FM, Gromov-Wasserstein, feature su render: righe \todo{run}), Ava-256 (\todo{Ava}).
+
+## 12 ottobre, sera — decisioni del PI: cornice, concorrenti nuovi, Ava-256 calibrazione
+
+- **Cornice approvata dall'utente:** "When Alignment Hurts". Il setting favorevole si sceglie sulla matrice unificata,
+  usando solo domini sintetici e di sviluppo, e si preregistra PRIMA di Ava-256. I risultati sfavorevoli (crop, sola
+  forma su FaceScape, famiglie nuove) restano nei limiti o nel supplementary.
+- **Matrice unificata** (aau/full_matrix, in corso): stesse righe, maschera e bootstrap per tutti i metodi; crop per
+  tutti; scomposizione per perturbazione; "scala dell'allineamento" con delta appaiati (rigida mm → scala tolta →
+  NICP per coppia; per mesh contro per coppia; fit B e nostro contro ICP).
+- **Protocolli dei benchmark** (`literature/PROTOCOLLI_BENCHMARK_2026-10-12.md`, codice ufficiale letto):
+  - allineano con scala per coppia: NoW originale (e quindi DECA/EMOCA), Stirling/ESRC, H3DS (default di trimesh);
+  - REALY: gICP con scala + ICP rigidi per regione + nICP sul lato GT, solo per le corrispondenze;
+  - NoW metrical (MICA) e FaceScape non stimano la scala;
+  - prior art: MICA ha già mostrato che la scala ottimale favorisce i metodi non metrici. La nostra novità è la
+    misura dell'ordinamento delle identità, il non rigido, il per coppia contro per mesh, fra topologie diverse.
+- **Concorrenti nuovi** (shortlist da ricerca bibliografica; in corso):
+  - ULRSSM e Hybrid FM, riaddestrati sui soli dati di training del nostro encoder, letture per coppia e per mesh;
+  - Gromov-Wasserstein (POT);
+  - DINOv2, CLIP, LPIPS e DreamSim su render.
+  - Scartati, con motivo: riconoscimento 3D su punti e regressori da scansione a 3DMM (nessun peso pubblico
+    utilizzabile), DPDist (senza pesi), Shape My Face (codice non pubblicato).
+- **Ava-256:** GT dei 56 di calibrazione congelata (4083d66). Critic: RISERVE, risolte in 29464be (impronte dei byte
+  di tutti i file, manifest supplementare per la GT valutata; i manifest congelati sono intatti). Da fare alla
+  chiusura del protocollo: emendamento esplicito sull'uso dei 56 per H2 (la bozza lo vieta alle righe 120 e 167);
+  c tarata solo sul sintetico per H1; verify_frozen + verify_frozen_supp + verify_calib nello strumento di
+  valutazione.
