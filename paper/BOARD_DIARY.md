@@ -1560,3 +1560,43 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   Il tetto è chiudere il residuo sulle 5 etichette (d_P con SR, s1234 / s2345): FaceScape +0.042 / +0.029, HIFI3D
   +0.013 / +0.007, FaceVerse +0.014 / +0.008. La ridiscretizzazione canonica da sola non serve al paper: vale 0 e
   costa ×2.45.
+
+## 12 ottobre, D5 — adattamento few-shot della testa metrica: preregistrato NON CONFERMATO
+
+- **Domanda.** Quanti soggetti etichettati di un generatore nuovo servono alla testa lineare (i-e2) di D3, sugli
+  embedding congelati? Protocollo 484d638 (sha256 `3c2f7e7f…`), codice 5f9913b, risultati 34af962 (job 1069966 su
+  i256-a10-10, fit ed eval in 41 min; eval rilanciata nel job 1070043, numeri identici byte per byte);
+  `aau/runs/evidence/diagnostics/results_d5.md`.
+- **Disegno.** Per ogni bersaglio (FaceScape, HIFI3D, FaceVerse neutra, FLAME) le 7 sorgenti del LOGO di D3 e2 più k
+  soggetti del pool non valutato del bersaglio, con k in {0, 5, 10, 20, 50, 100, 200}; FLAME ha un pool di 100 soggetti.
+  - (r, λ) fissi alla scelta di D3 e2; 10 estrazioni annidate per k.
+  - Pesi: EQ (1/8 per blocco) come primaria, W (bersaglio 1/2) come variante.
+  - Bracci factorized s1234 e s2345; 784 fit.
+  - Test sui 100 soggetti valutati (per FLAME i soggetti 100-199), bootstrap per soggetto di test.
+- **Verdetto: NON CONFERMATO**, sia con EQ sia con W. Delta d_P con SR, media dei 4 bersagli a k = 20:
+  - s1234: +0.060 [+0.040, +0.079], passa; 9 estrazioni su 10 ≥ +0.05;
+  - s2345: +0.039 [+0.016, +0.064], non passa; 0 estrazioni su 10.
+  
+  Da k = 50 passano entrambi i semi (+0.090 / +0.066). FR non peggiora mai (minimo −0.011).
+- **Curva EQ** (s1234 / s2345):
+
+  | k | 0 | 5 | 10 | 20 | 50 | 100 | 200 |
+  |---|---|---|---|---|---|---|---|
+  | s1234 | +0.023 | +0.031 | +0.041 | +0.060 | +0.090 | +0.109 | +0.119 |
+  | s2345 | +0.008 | +0.017 | +0.025 | +0.039 | +0.066 | +0.087 | +0.101 |
+
+  - L'incremento su k = 0 ha IC sopra 0 da k = 5 (+0.009) e vale +0.037 / +0.031 a k = 20.
+  - k a metà guadagno: 20 per s1234 (al limite: +0.0597 contro una soglia di +0.0595), 50 per s2345.
+- **Altro.**
+  - A k = 200 la testa coincide con la congiunta di D3 e2 (entro 0.004): il guadagno della congiunta viene dal pool del
+    bersaglio stesso.
+  - W batte EQ, ma soprattutto a k grande: +0.007 / +0.008 a k = 20, +0.032 / +0.019 a k = 200.
+  - Per s2345 il deficit sta in FaceVerse neutra, che non ha mai l'IC sopra 0.
+  - La dispersione fra estrazioni (sd 0.003-0.009) è più piccola del rumore dei soggetti di test.
+  - Controlli: K0 (k = 0 = LOGO di D3 e2) e K1 a scarto 0.
+- **Per il paper.**
+  - Il few-shot a 10-20 identità non regge come tesi in entrambi i semi.
+  - Regge invece "qualche decina di identità etichettate (k = 50) recupera da metà a due terzi del guadagno della testa
+    vista": +0.090 / +0.066 su +0.119 / +0.101.
+  - Il guadagno è monotono e già misurabile a k = 5.
+  - Limite: (r, λ) fermi al bordo λ = 1e-6 di D3 e2, senza ritaratura coi dati del bersaglio.
