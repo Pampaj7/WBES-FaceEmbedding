@@ -1,0 +1,310 @@
+{
+ "K0": {
+  "cells": {
+   "factorized_s1234|facescape|sr": {
+    "d5": 0.03379051877028383,
+    "d3_e2": 0.03379051877028383,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|facescape|fr": {
+    "d5": 0.02755271720610053,
+    "d3_e2": 0.02755271720610053,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|hifi3d|sr": {
+    "d5": 0.023578237800063406,
+    "d3_e2": 0.023578237800063406,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|hifi3d|fr": {
+    "d5": -0.0009455501305117853,
+    "d3_e2": -0.0009455501305117853,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|faceverse|sr": {
+    "d5": 0.01550086367716802,
+    "d3_e2": 0.01550086367716802,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|faceverse|fr": {
+    "d5": 0.02723858114162714,
+    "d3_e2": 0.02723858114162714,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|flame2023_s1|sr": {
+    "d5": 0.018038374089195952,
+    "d3_e2": 0.018038374089195952,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s1234|flame2023_s1|fr": {
+    "d5": 0.002182656383119763,
+    "d3_e2": 0.002182656383119763,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|facescape|sr": {
+    "d5": 0.01637878646681401,
+    "d3_e2": 0.01637878646681401,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|facescape|fr": {
+    "d5": 0.016868592633066837,
+    "d3_e2": 0.016868592633066837,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|hifi3d|sr": {
+    "d5": 0.0269162758525735,
+    "d3_e2": 0.0269162758525735,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|hifi3d|fr": {
+    "d5": 0.003483502548427553,
+    "d3_e2": 0.003483502548427553,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|faceverse|sr": {
+    "d5": -0.028531989578104044,
+    "d3_e2": -0.028531989578104044,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|faceverse|fr": {
+    "d5": -0.024291607382530833,
+    "d3_e2": -0.024291607382530833,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|flame2023_s1|sr": {
+    "d5": 0.018870609123427085,
+    "d3_e2": 0.018870609123427085,
+    "max_abs_diff": 0.0
+   },
+   "factorized_s2345|flame2023_s1|fr": {
+    "d5": 0.008908216022425641,
+    "d3_e2": 0.008908216022425641,
+    "max_abs_diff": 0.0
+   }
+  },
+  "max_abs_diff": 0.0,
+  "pass": true
+ },
+ "K1": {
+  "cells": {
+   "factorized_s1234|facescape|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 88725,
+    "rows_equal": true
+   },
+   "factorized_s1234|facescape|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 88725,
+    "rows_equal": true
+   },
+   "factorized_s1234|hifi3d|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 98224,
+    "rows_equal": true
+   },
+   "factorized_s1234|hifi3d|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 98224,
+    "rows_equal": true
+   },
+   "factorized_s1234|faceverse|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s1234|faceverse|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s1234|flame2023_s1|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s1234|flame2023_s1|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s2345|facescape|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 88725,
+    "rows_equal": true
+   },
+   "factorized_s2345|facescape|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 88725,
+    "rows_equal": true
+   },
+   "factorized_s2345|hifi3d|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 98224,
+    "rows_equal": true
+   },
+   "factorized_s2345|hifi3d|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 98224,
+    "rows_equal": true
+   },
+   "factorized_s2345|faceverse|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s2345|faceverse|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s2345|flame2023_s1|sr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   },
+   "factorized_s2345|flame2023_s1|fr": {
+    "max_abs_diff": 0.0,
+    "rows": 99000,
+    "rows_equal": true
+   }
+  },
+  "max_abs_diff": 0.0,
+  "pass": true
+ },
+ "K6": {
+  "targets": {
+   "facescape": {
+    "n_pool": 200,
+    "n_test_or_evaluated": 100,
+    "ks": [
+     0,
+     5,
+     10,
+     20,
+     50,
+     100,
+     200
+    ]
+   },
+   "hifi3d": {
+    "n_pool": 200,
+    "n_test_or_evaluated": 100,
+    "ks": [
+     0,
+     5,
+     10,
+     20,
+     50,
+     100,
+     200
+    ]
+   },
+   "faceverse": {
+    "n_pool": 200,
+    "n_test_or_evaluated": 100,
+    "ks": [
+     0,
+     5,
+     10,
+     20,
+     50,
+     100,
+     200
+    ]
+   },
+   "flame2023_s1": {
+    "n_pool": 100,
+    "n_test_or_evaluated": 100,
+    "ks": [
+     0,
+     5,
+     10,
+     20,
+     50,
+     100
+    ]
+   }
+  },
+  "pass": true
+ },
+ "fits": {
+  "n": 784,
+  "success": 784,
+  "nit_min": 159,
+  "nit_max": 418,
+  "n_target_ok": true,
+  "seconds_median": 142.62956321239471,
+  "hosts": [
+   "i256-a10-10.srv.aau.dk"
+  ],
+  "host_e2": "i256-a10-10"
+ },
+ "config": {
+  "factorized_s1234|facescape": [
+   64,
+   1e-06
+  ],
+  "factorized_s1234|faceverse": [
+   64,
+   1e-06
+  ],
+  "factorized_s1234|famos": [
+   64,
+   1e-06
+  ],
+  "factorized_s1234|flame2023_s1": [
+   32,
+   1e-06
+  ],
+  "factorized_s1234|hifi3d": [
+   64,
+   1e-06
+  ],
+  "factorized_s2345|facescape": [
+   64,
+   1e-06
+  ],
+  "factorized_s2345|faceverse": [
+   32,
+   1e-06
+  ],
+  "factorized_s2345|famos": [
+   64,
+   1e-06
+  ],
+  "factorized_s2345|flame2023_s1": [
+   64,
+   1e-06
+  ],
+  "factorized_s2345|hifi3d": [
+   64,
+   1e-06
+  ]
+ },
+ "tests": {
+  "facescape": {
+   "rows": 88725,
+   "subjects": 100,
+   "seed": "796786"
+  },
+  "hifi3d": {
+   "rows": 98224,
+   "subjects": 100,
+   "seed": "990708"
+  },
+  "faceverse_neutral": {
+   "rows": 99000,
+   "subjects": 100,
+   "seed": "271049"
+  },
+  "flame2023_s1": {
+   "rows": 99000,
+   "subjects": 100,
+   "seed": "diag.boot_counts(100, 0, seed=20261124) (cross_half di D3 e2)"
+  }
+ },
+ "n_boot": 1000,
+ "seconds": 661.2851228713989,
+ "workers": 64,
+ "host_eval": "i256-a10-10.srv.aau.dk"
+}

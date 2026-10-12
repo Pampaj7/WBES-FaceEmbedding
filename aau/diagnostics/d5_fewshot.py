@@ -272,6 +272,7 @@ def test_sets(info: dict) -> dict:
             rs = E2.rowsets_e2(T)["cross_half"]
             sa, sb, gt, Z, ma, mb, cnt = rs
             subjects = T["subjects"][E2.N_HALF:]
+            T["seed"] = f"diag.boot_counts({E2.N_HALF}, 0, seed={E2.SEED_HALF}) (cross_half di D3 e2)"
         else:
             T = vd[TEST_OF[t]]
             sa, sb, gt, Z, ma, mb, cnt = T["sa"], T["sb"], T["gt"], T["Z"], T["ma"], T["mb"], T["counts"]
@@ -497,7 +498,7 @@ def fmt(x: float) -> str:
 
 def cell(rec: dict, sd: bool = True) -> str:
     s = f"{fmt(rec['delta'])} [{fmt(rec['ci_low'])}, {fmt(rec['ci_high'])}]"
-    return s + (f" sd {rec['draws_sd']:.3f}" if sd and rec["n_draws"] > 1 else "")
+    return s + (f" sd {rec['draws_sd']:.3f}" if sd and rec["draws_sd"] > 1e-12 else "")
 
 
 def joint_d3() -> dict:
