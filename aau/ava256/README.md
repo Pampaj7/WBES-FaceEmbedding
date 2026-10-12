@@ -224,7 +224,7 @@ la stessa impronta della precedente (`58a3ba2c...`). La mappa coincide entro 0,0
 ogni rigenerazione (la decimazione amplifica differenze di 1 ulp). Per questo GT, viste e tabella di scala sono congelate
 per contenuto (modifica 7). Impronte in `freeze_manifest.json`.
 
-**Protocollo:** `PROTOCOL_CONFERMATIVO_bozza.md`, da completare dal PI prima di qualsiasi valutazione.
+**Protocollo:** `PROTOCOL_CONFERMATIVO_bozza.md`, completata in `PROTOCOL_CONFERMATIVO_candidato.md` (12 ottobre, candidato NON congelato: nessuna valutazione prima del congelamento).
 
 ## GT di calibrazione e controllo delle viste di calibrazione (12 ottobre 2026, PRIMA di qualsiasi valutazione)
 
