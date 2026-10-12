@@ -1,0 +1,52 @@
+{
+ "freeze_commit": "7a398c9c32715aaf007463bb37463af81d23438a",
+ "head": "9c5d450c7d58f3d274dd7f7c4d63258bf76de3d0",
+ "status_porcelain": [
+  " M aau/runs/evidence/e9/fwd/env.json"
+ ],
+ "files": {
+  "v3_work/stream/eval_ablation.py": {
+   "frozen": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+   "working_tree": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+   "at_commit": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+   "equal": true
+  },
+  "v3_work/stream/eval_ablation_em1.py": {
+   "frozen": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+   "working_tree": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+   "at_commit": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+   "equal": true
+  },
+  "v3_work/trainer/tools/fact_paired.py": {
+   "frozen": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+   "working_tree": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+   "at_commit": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+   "equal": true
+  },
+  "aau/baselines_mm/blmm_eval.py": {
+   "frozen": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+   "working_tree": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+   "at_commit": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+   "equal": true
+  },
+  "aau/diagnostics/diag.py": {
+   "frozen": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+   "working_tree": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+   "at_commit": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+   "equal": true
+  },
+  "aau/diagnostics/d1_stats.py": {
+   "frozen": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+   "working_tree": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+   "at_commit": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+   "equal": true
+  },
+  "v3_work/stream/slurm/ablation_2x2_summary_em1.sbatch": {
+   "frozen": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+   "working_tree": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+   "at_commit": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+   "equal": true
+  }
+ },
+ "pass": true
+}

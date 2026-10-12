@@ -1,0 +1,82 @@
+{
+ "n_proc": 24,
+ "k_eig": 128,
+ "evecs_dtype": "fp32",
+ "alpha": 0.0,
+ "probs": {
+  "bfm2019": 0.25,
+  "flame2023": 0.25,
+  "gnm": 0.25,
+  "ict": 0.25
+ },
+ "views_per_group": 6,
+ "elapsed_s": 24769.44225168228,
+ "views": 196722,
+ "views_per_s_wall": 7.9421247358381315,
+ "views_steady": 196434,
+ "views_per_s_steady": 7.950672632284974,
+ "groups": 32784,
+ "shards_written": 16392,
+ "bytes_written": 1069483374980,
+ "mean_verts_per_view": 7563.1346926119095,
+ "bytes_per_view": 5436521.461656551,
+ "failures": 0,
+ "expr_fraction": 0.1599821067292931,
+ "expr_fraction_by_domain": {
+  "flame2023": 0.21303943000566755,
+  "gnm": 0.19579896490376839,
+  "bfm2019": 0.0,
+  "ict": 0.23161401776900295
+ },
+ "views_by_origin": {
+  "pure": 196710
+ },
+ "mm_aug": {},
+ "canonical_gt": true,
+ "expr_frac": {
+  "bfm2019": 0.0,
+  "ict": 0.2315,
+  "gnm": 0.1968,
+  "flame2023": 0.2142
+ },
+ "p_expr": 0.6,
+ "label_draw": "perm",
+ "last_failure": "",
+ "partial_fraction": 0.49991866695133236,
+ "partial_views": 98345,
+ "partial_fallback": 0,
+ "partial_mean_loss": 0.18576704540139313,
+ "partial_by_mode": {
+  "holes": 19559,
+  "band": 49191,
+  "plane": 29595
+ },
+ "cpu_s_per_view": {
+  "ident": 0.002924038033575469,
+  "mesh": 0.010070570990171685,
+  "gen": 0.4940673387381565,
+  "ops": 2.467073563438171,
+  "pack": 0.02997163959239103,
+  "write": 0.008084437890111595
+ },
+ "views_by_domain": {
+  "flame2023": 49404,
+  "gnm": 49464,
+  "bfm2019": 49218,
+  "ict": 48624
+ },
+ "views_by_label": {
+  "noisy": 32787,
+  "original": 32788,
+  "crop": 32786,
+  "up60k": 32787,
+  "down8k": 32787,
+  "remesh": 32787
+ },
+ "ring": {
+  "shards": 327,
+  "gib": 19.973199870437384,
+  "seq_min": 16069,
+  "seq_max": 16395
+ }
+}

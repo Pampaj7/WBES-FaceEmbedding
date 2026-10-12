@@ -1,0 +1,417 @@
+{
+ "freeze": {
+  "commit": "7a398c9c32715aaf007463bb37463af81d23438a",
+  "files": {
+   "v3_work/stream/eval_ablation.py": {
+    "sha256": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+    "frozen": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v3_work/stream/eval_ablation.py",
+    "equal": true
+   },
+   "v3_work/stream/eval_ablation_em1.py": {
+    "sha256": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+    "frozen": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v3_work/stream/eval_ablation_em1.py",
+    "equal": true
+   },
+   "v3_work/trainer/tools/fact_paired.py": {
+    "sha256": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+    "frozen": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/v3_work/trainer/tools/fact_paired.py",
+    "equal": true
+   },
+   "aau/baselines_mm/blmm_eval.py": {
+    "sha256": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+    "frozen": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/baselines_mm/blmm_eval.py",
+    "equal": true
+   },
+   "aau/diagnostics/diag.py": {
+    "sha256": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+    "frozen": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/diagnostics/diag.py",
+    "equal": true
+   },
+   "aau/diagnostics/d1_stats.py": {
+    "sha256": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+    "frozen": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+    "module_file": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/diagnostics/d1_stats.py",
+    "equal": true
+   },
+   "v3_work/stream/slurm/ablation_2x2_summary_em1.sbatch": {
+    "sha256": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+    "frozen": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+    "module_file": null,
+    "equal": true
+   }
+  },
+  "missing_from_freeze": [],
+  "pass": true
+ },
+ "code_state": {
+  "freeze_commit": "7a398c9c32715aaf007463bb37463af81d23438a",
+  "head": "9c5d450c7d58f3d274dd7f7c4d63258bf76de3d0",
+  "status_porcelain": [
+   " M aau/runs/evidence/e9/fwd/env.json"
+  ],
+  "files": {
+   "v3_work/stream/eval_ablation.py": {
+    "frozen": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+    "working_tree": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+    "at_commit": "61010ced9f502ceca2917ad79f0dd4c5ad304a621788f2deebd41d5c077b07c0",
+    "equal": true
+   },
+   "v3_work/stream/eval_ablation_em1.py": {
+    "frozen": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+    "working_tree": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+    "at_commit": "17a20092e192b54e939b2e3952f6314bcf6767e58543b3a8de483c60ff648baf",
+    "equal": true
+   },
+   "v3_work/trainer/tools/fact_paired.py": {
+    "frozen": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+    "working_tree": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+    "at_commit": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+    "equal": true
+   },
+   "aau/baselines_mm/blmm_eval.py": {
+    "frozen": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+    "working_tree": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+    "at_commit": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+    "equal": true
+   },
+   "aau/diagnostics/diag.py": {
+    "frozen": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+    "working_tree": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+    "at_commit": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+    "equal": true
+   },
+   "aau/diagnostics/d1_stats.py": {
+    "frozen": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+    "working_tree": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+    "at_commit": "8d4b1985fdf2cc680a0d2cd7416ba611bb4e7b49084f3b6bfaf1c349184eb45c",
+    "equal": true
+   },
+   "v3_work/stream/slurm/ablation_2x2_summary_em1.sbatch": {
+    "frozen": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+    "working_tree": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+    "at_commit": "34db55b33054e09e13c9ac9cce54e4682f4d55fe280a32efc08a0428c7dbfa71",
+    "equal": true
+   }
+  },
+  "pass": true
+ },
+ "families": {
+  "hifi3d": {
+   "rows_check": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "groups": {
+    "nocrop": {
+     "seed": 990708,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_down8k": {
+     "seed": 990708,
+     "n_rows": 39600,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_altre": {
+     "seed": 990708,
+     "n_rows": 59400,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "all_cross": {
+     "seed": 757683,
+     "n_rows": 148500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "crop": {
+     "seed": 757683,
+     "n_rows": 49500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_all": {
+     "seed": 757683,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    }
+   }
+  },
+  "facescape": {
+   "rows_check": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "groups": {
+    "nocrop": {
+     "seed": 796786,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_down8k": {
+     "seed": 796786,
+     "n_rows": 39600,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_altre": {
+     "seed": 796786,
+     "n_rows": 59400,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "all_cross": {
+     "seed": 621096,
+     "n_rows": 148500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "crop": {
+     "seed": 621096,
+     "n_rows": 49500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_all": {
+     "seed": 621096,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    }
+   }
+  },
+  "faceverse": {
+   "rows_check": {
+    "rows_nocrop": 99000,
+    "rows_fact_paired": 99000,
+    "keys_equal": true,
+    "max_abs_diff_gt": 0.0,
+    "pass": true
+   },
+   "groups": {
+    "nocrop": {
+     "seed": 271049,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_down8k": {
+     "seed": 271049,
+     "n_rows": 39600,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_altre": {
+     "seed": 271049,
+     "n_rows": 59400,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "all_cross": {
+     "seed": 566363,
+     "n_rows": 148500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "crop": {
+     "seed": 566363,
+     "n_rows": 49500,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    },
+    "nocrop_all": {
+     "seed": 566363,
+     "n_rows": 99000,
+     "n_rows_out": 0,
+     "n_subjects": 100
+    }
+   }
+  }
+ },
+ "d1": {
+  "bfm": {
+   "n_rows": 99000,
+   "n_rows_out": 0,
+   "n_subjects": 100,
+   "boot": "diag.boot_counts(100, 0)",
+   "cells": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ]
+  },
+  "ict": {
+   "n_rows": 99000,
+   "n_rows_out": 0,
+   "n_subjects": 100,
+   "boot": "diag.boot_counts(100, 1)",
+   "cells": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ]
+  },
+  "gnm": {
+   "n_rows": 99000,
+   "n_rows_out": 0,
+   "n_subjects": 100,
+   "boot": "diag.boot_counts(100, 2)",
+   "cells": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ]
+  },
+  "flame2023_s1": {
+   "n_rows": 398000,
+   "n_rows_out": 0,
+   "n_subjects": 200,
+   "boot": "diag.boot_counts(200, 3)",
+   "cells": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ]
+  },
+  "flame2023": {
+   "n_rows": 398000,
+   "n_rows_out": 0,
+   "n_subjects": 200,
+   "boot": "diag.boot_counts(200, 3)",
+   "cells": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ]
+  }
+ },
+ "missing_cells": {
+  "Ap": "checkpoint finale o valutazione assenti",
+  "Bp": "checkpoint finale o valutazione assenti"
+ },
+ "n_boot": 1000,
+ "epoch": 100,
+ "root": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2",
+ "cells": {
+  "A": {
+   "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__7cbc38e1/checkpoints/epoch100_ema.pth",
+   "sha256_checkpoint": "f44010ed9cfc9cd04710d509392ad6b742c0c94129e4eab967312c7b40d00881",
+   "c": 0.3349024909373438,
+   "c_ls": 0.33202299968294435,
+   "c_by_domain": {
+    "bfm": 0.36909731568862114,
+    "ict": 0.3045079449790161,
+    "gnm": 0.3261588489998451
+   },
+   "embeddings": {
+    "heldout": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/eval/calib/embeddings.npz",
+    "hifi3d": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/eval/form_hifi/data_328f2bfc1a/scale_v3factorizedabl2x2afulle100_embed/zs_zeroshot/embeddings.npz",
+    "facescape": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/eval/form_devfs/data_aca84a16c6/scale_v3factorizedabl2x2afulle100_embed/zs_zeroshot/embeddings.npz",
+    "faceverse": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/eval/form_fv_expr/data_736f96956a/scale_v3factorizedabl2x2afulle100_flip_embed/zs_zeroshot/embeddings.npz",
+    "flame": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/A/eval/flame/embeddings.npz"
+   },
+   "sha256_embeddings": {
+    "heldout": "3ccc01bf181a77a7ce10c1be0ab729d3da2b616959ce61990b336c97ac2423ae",
+    "hifi3d": "b31de9be2029b0bc43aa6bb19b7e1dcaa9ea6cb8a65d9b70c166db4b20798f4c",
+    "facescape": "87b6adc572410779251e0b123bf620c088a2ad1c15dfbb0c0580ea6450ef694d",
+    "faceverse": "fe4545f9db5e5c342b04741369d0a55177a363b4ab04d22e405364b0eb8ea563",
+    "flame": "50bf96ad0ec53f81bfe2d78941f27b6baa0b9906140f05006e7da209f19a0060"
+   }
+  },
+  "B": {
+   "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__37cb8e2d/checkpoints/epoch100_ema.pth",
+   "sha256_checkpoint": "c84b7759555f3a60b72d4eb7ed26aacfd84fb034d5a1ec0c096b323c6f3acd73",
+   "c": 0.35683233270178283,
+   "c_ls": 0.35174380557601975,
+   "c_by_domain": {
+    "bfm": 0.4006014045286874,
+    "ict": 0.3189875648050644,
+    "gnm": 0.3453074879219949
+   },
+   "embeddings": {
+    "heldout": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/eval/calib/embeddings.npz",
+    "hifi3d": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/eval/form_hifi/data_328f2bfc1a/scale_v3factorizedabl2x2bfulle100_embed/zs_zeroshot/embeddings.npz",
+    "facescape": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/eval/form_devfs/data_aca84a16c6/scale_v3factorizedabl2x2bfulle100_embed/zs_zeroshot/embeddings.npz",
+    "faceverse": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/eval/form_fv_expr/data_736f96956a/scale_v3factorizedabl2x2bfulle100_flip_embed/zs_zeroshot/embeddings.npz",
+    "flame": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/B/eval/flame/embeddings.npz"
+   },
+   "sha256_embeddings": {
+    "heldout": "2c045d4d96e8ab2802a96474bbb7a475ff06ddd82e53fe0a365814223476c43e",
+    "hifi3d": "98053f68ba3347c3aef683d8e9cceaaffb4869225d87f57d2cbbb67e409f9fd1",
+    "facescape": "920ca1be5515e01048be6a7168cdd7f3303644b9f50fef0e9cff4c44c9a2724a",
+    "faceverse": "e814fc8cbf317169af32f752369f0ff078d54da603a87c6c4b53ff574b19c0f0",
+    "flame": "f1586508b36f7f1324c41d0ea03f2b62cf6577f5ca69bcf397beee4daa374f29"
+   }
+  },
+  "C": {
+   "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__d2431aa1/checkpoints/epoch100_ema.pth",
+   "sha256_checkpoint": "ad5949663a15a39437de6d3db80bf2ca8749ea68abe7335802d7e61709691426",
+   "c": 0.4376236752701565,
+   "c_ls": 0.4220115016707216,
+   "c_by_domain": {
+    "bfm": 0.542995047901437,
+    "ict": 0.35044811017882876,
+    "gnm": 0.4315900542622035
+   },
+   "embeddings": {
+    "heldout": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/eval/calib/embeddings.npz",
+    "hifi3d": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/eval/form_hifi/data_328f2bfc1a/scale_v3factorizedabl2x2cfulle100_embed/zs_zeroshot/embeddings.npz",
+    "facescape": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/eval/form_devfs/data_aca84a16c6/scale_v3factorizedabl2x2cfulle100_embed/zs_zeroshot/embeddings.npz",
+    "faceverse": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/eval/form_fv_expr/data_736f96956a/scale_v3factorizedabl2x2cfulle100_flip_embed/zs_zeroshot/embeddings.npz",
+    "flame": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/C/eval/flame/embeddings.npz"
+   },
+   "sha256_embeddings": {
+    "heldout": "e688a6ec3b6c14c737ae1e9628b7ea34cbd5c7f67e6e2e7cf7878af555be5de7",
+    "hifi3d": "f7206edb62d75f115c60adeec4d8f9da611e163fe104f1e7ac521f586c87ffc7",
+    "facescape": "84a05610f9e0bfcf221135d99988b0f3dea629c9c5c4c9aa0a8a807943ab9777",
+    "faceverse": "2bd021909a1ef11fb94b8d27798a96672b1cd1bf3d79b527cc1282448b6e3647",
+    "flame": "78dacc575dda9735ff5c5627975e32123efc4abdc250f71e80604feb2b448579"
+   }
+  },
+  "D": {
+   "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__dafe10ce/checkpoints/epoch100_ema.pth",
+   "sha256_checkpoint": "ae40c19890b1dd680ec9584a0206734113842424bafb31e2b4d557ea610d9210",
+   "c": 0.4598343928178178,
+   "c_ls": 0.44364646211257697,
+   "c_by_domain": {
+    "bfm": 0.5951981471972386,
+    "ict": 0.37492691137398987,
+    "gnm": 0.4404167444902345
+   },
+   "embeddings": {
+    "heldout": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/eval/calib/embeddings.npz",
+    "hifi3d": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/eval/form_hifi/data_328f2bfc1a/scale_v3factorizedabl2x2dfulle100_embed/zs_zeroshot/embeddings.npz",
+    "facescape": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/eval/form_devfs/data_aca84a16c6/scale_v3factorizedabl2x2dfulle100_embed/zs_zeroshot/embeddings.npz",
+    "faceverse": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/eval/form_fv_expr/data_736f96956a/scale_v3factorizedabl2x2dfulle100_flip_embed/zs_zeroshot/embeddings.npz",
+    "flame": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/stream/ablation_2x2/D/eval/flame/embeddings.npz"
+   },
+   "sha256_embeddings": {
+    "heldout": "083672b6db367e13782b76aaba4ed90e23e4871bd632a2db8bf77fc9a7297a2e",
+    "hifi3d": "54300ba5878e1e17403fc8054bf36f8c2f474da5cae1fb03d733e00e058ff633",
+    "facescape": "5ea1d210309784d774c2ed1ee5683007e9b6deb136257aacd22b62ca64002c0b",
+    "faceverse": "c09bee73fb2fe42a5d34d61d4d5478617cb016dfc8e2226d4f1214af7a92a93a",
+    "flame": "f16250fa9c0905daae30cf81b9c21fb245c2733e8c10096d942fa05a2b7e42b0"
+   }
+  }
+ }
+}

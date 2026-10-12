@@ -1,0 +1,170 @@
+{
+ "R_F": {
+  "verdict": "PARZIALE",
+  "delta": 0.03,
+  "benefit": [
+   "facescape sr +0.037 [+0.016, +0.062]"
+  ],
+  "harm": [
+   "hifi3d sr -0.046 [-0.080, -0.017]"
+  ],
+  "cells": [
+   "hifi3d fr -0.025 [-0.052, -0.003]",
+   "hifi3d sr -0.046 [-0.080, -0.017]",
+   "facescape fr +0.019 [-0.012, +0.051]",
+   "facescape sr +0.037 [+0.016, +0.062]",
+   "faceverse fr -0.001 [-0.037, +0.042]",
+   "faceverse sr +0.005 [-0.040, +0.054]"
+  ]
+ },
+ "R_P1": {
+  "verdict": "PARZIALE",
+  "delta": 0.1,
+  "benefit": [
+   "hifi3d fr +0.173 [+0.149, +0.202]"
+  ],
+  "harm": [],
+  "cells": [
+   "hifi3d fr +0.173 [+0.149, +0.202]",
+   "hifi3d sr +0.042 [+0.008, +0.079]",
+   "facescape fr -0.042 [-0.078, -0.011]",
+   "facescape sr +0.003 [-0.025, +0.035]",
+   "faceverse fr -0.019 [-0.067, +0.035]",
+   "faceverse sr +0.004 [-0.050, +0.063]"
+  ]
+ },
+ "R_P2": {
+  "verdict": "non costa",
+  "delta": 0.03,
+  "harm": [],
+  "below_threshold": [],
+  "cells": [
+   "hifi3d fr +0.007 [-0.018, +0.036]",
+   "hifi3d sr +0.009 [-0.023, +0.045]",
+   "facescape fr +0.007 [-0.022, +0.036]",
+   "facescape sr +0.029 [+0.007, +0.052]",
+   "faceverse fr -0.019 [-0.072, +0.033]",
+   "faceverse sr -0.004 [-0.065, +0.058]"
+  ]
+ },
+ "R_P": "R_P1 PARZIALE, R_P2 non costa",
+ "R_I": {
+  "cells": [
+   {
+    "group": "nocrop",
+    "set": "facescape",
+    "gt": "sr",
+    "I": "facescape sr -0.068 [-0.101, -0.038]",
+    "delta_I": 0.06,
+    "simple": {
+     "B-A": "+0.071 [+0.044, +0.098] beneficio",
+     "D-C": "+0.003 [-0.024, +0.031] -",
+     "C-A": "+0.063 [+0.033, +0.094] beneficio",
+     "D-B": "-0.005 [-0.027, +0.017] -"
+    },
+    "delta_S": 0.04
+   }
+  ],
+  "note": "effetti principali da leggere per strato nelle celle elencate"
+ },
+ "training": {
+  "cells": {
+   "A": {
+    "steps": 60000,
+    "s_per_step_mean": 0.48462999999999995,
+    "s_per_step_last": 0.481,
+    "fresh_views_per_s": 6.384235780584535,
+    "reuse_steady": 18.907563025210084,
+    "reuse_cumulative": 19.191402251791196,
+    "identities_produced_last_segment": 31284,
+    "loss_last": 0.0091,
+    "gpu_util": 71.03209012545874,
+    "batches_by_domain": {
+     "ict": 20000,
+     "bfm2019": 20000,
+     "gnm": 20000
+    },
+    "partial_fraction": null,
+    "expr_fraction_by_domain": {
+     "gnm": 0.19598108747044918,
+     "bfm2019": 0.0,
+     "ict": 0.23188756575338046
+    }
+   },
+   "B": {
+    "steps": 60000,
+    "s_per_step_mean": 0.4542999999999999,
+    "s_per_step_last": 0.451,
+    "fresh_views_per_s": 7.300529707221872,
+    "reuse_steady": 17.24137931034483,
+    "reuse_cumulative": 17.89655789536479,
+    "identities_produced_last_segment": 33548,
+    "loss_last": 0.0102,
+    "gpu_util": 69.26647825690583,
+    "batches_by_domain": {
+     "gnm": 15000,
+     "ict": 15000,
+     "bfm2019": 15000,
+     "flame2023": 15000
+    },
+    "partial_fraction": null,
+    "expr_fraction_by_domain": {
+     "flame2023": 0.2130025324469769,
+     "gnm": 0.19593071538735318,
+     "bfm2019": 0.0,
+     "ict": 0.2315965102721827
+    }
+   },
+   "C": {
+    "steps": 60000,
+    "s_per_step_mean": 0.42635000000000006,
+    "s_per_step_last": 0.428,
+    "fresh_views_per_s": 6.178247192135819,
+    "reuse_steady": 22.727272727272727,
+    "reuse_cumulative": 22.498875056247186,
+    "identities_produced_last_segment": 26696,
+    "loss_last": 0.0133,
+    "gpu_util": 59.97075910147173,
+    "batches_by_domain": {
+     "ict": 20000,
+     "bfm2019": 20000,
+     "gnm": 20000
+    },
+    "partial_fraction": 0.49985640795125363,
+    "expr_fraction_by_domain": {
+     "gnm": 0.1963698199696869,
+     "bfm2019": 0.0,
+     "ict": 0.23183785014803007
+    }
+   },
+   "D": {
+    "steps": 60000,
+    "s_per_step_mean": 0.40703999999999996,
+    "s_per_step_last": 0.405,
+    "fresh_views_per_s": 7.950672632284974,
+    "reuse_steady": 18.828451882845187,
+    "reuse_cumulative": 18.317254854072537,
+    "identities_produced_last_segment": 32784,
+    "loss_last": 0.0147,
+    "gpu_util": 58.52329239825434,
+    "batches_by_domain": {
+     "gnm": 15000,
+     "ict": 15000,
+     "bfm2019": 15000,
+     "flame2023": 15000
+    },
+    "partial_fraction": 0.49991866695133236,
+    "expr_fraction_by_domain": {
+     "flame2023": 0.21303943000566755,
+     "gnm": 0.19579896490376839,
+     "bfm2019": 0.0,
+     "ict": 0.23161401776900295
+    }
+   }
+  },
+  "flags_20pct": [
+   "fresh_views_per_s D 7.95 contro C 6.18 (+29%)",
+   "reuse_steady C 22.73 contro A 18.91 (+20%)"
+  ]
+ }
+}
