@@ -1,0 +1,30 @@
+dominio,metodo,colonna,insieme_righe,motivo
+hifi3d,NICP per coppia in mm,mm_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+hifi3d,NICP per coppia cs,cs_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+facescape,"ArcFace-render, ombreggiato 3 viste (E12)",arcface_shaded,tutti,"render ombreggiato calcolato solo da E12 (HIFI3D, FaceVerse con espressioni)"
+facescape,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+facescape,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+facescape,NICP per coppia in mm,mm_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+facescape,NICP per coppia cs,cs_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse,NICP per coppia in mm,mm_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse,NICP per coppia cs,cs_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse_neutral,"C3M e123, d_F cal.",factorizedc3m_e123|form_cal,tutti,embedding di C3M e123 mai calcolato sulla vista neutra (store assente; bp_e3 e faceverse_neutral lo saltano)
+faceverse_neutral,"C3M e123, d_F non cal.",factorizedc3m_e123|form,tutti,embedding di C3M e123 mai calcolato sulla vista neutra (store assente; bp_e3 e faceverse_neutral lo saltano)
+faceverse_neutral,"C3M e123, d_P",factorizedc3m_e123|shape,tutti,embedding di C3M e123 mai calcolato sulla vista neutra (store assente; bp_e3 e faceverse_neutral lo saltano)
+faceverse_neutral,NICP su template cs,cs_nicp_template,tutti,template cs mai iscritto sulla neutra (faceverse_neutral/blmm ha solo mm)
+faceverse_neutral,"ArcFace-render, ombreggiato 3 viste (E12)",arcface_shaded,tutti,"render ombreggiato calcolato solo da E12 (HIFI3D, FaceVerse con espressioni)"
+faceverse_neutral,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse_neutral,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse_neutral,NICP per coppia in mm,mm_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse_neutral,NICP per coppia cs,cs_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+famos,NICP su template cs,cs_nicp_template,tutti,template cs non calcolato su FaMoS (qui solo mm)
+famos,"ArcFace-render, ombreggiato 3 viste (E12)",arcface_shaded,tutti,"render ombreggiato calcolato solo da E12 (HIFI3D, FaceVerse con espressioni)"
+famos,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+famos,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+famos,tutti,-,crop,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,all_cross,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,con_perturbazione,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,coppia_topologie,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,stessa_topologia,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
