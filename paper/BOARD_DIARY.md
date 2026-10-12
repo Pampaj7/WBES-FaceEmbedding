@@ -1674,3 +1674,12 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   - Una parte dell'anomalia di A/A' e del sigma_run viene dal checkpoint, non dal seme. **Per il run principale: media
     dei pesi (SWA o EMA più lunga) o decadimento finale del lr.**
 - **Commit:** f48414f (uscite), 6dfa953 (lettura corretta), 1113961 (rumore del checkpoint).
+- **Dopo il critic di D5 (RISERVE, nessun difetto nel codice)** è stata aggiunta a `results_d5.md` una nota POST HOC
+  sulla dipendenza da λ; i numeri sono ricalcolati dal coder sui file del critic, job 1070085.
+  - Con λ = 1e-5 la media dei 4 sale: a k = 0 +0.033 / +0.020 (contro +0.023 / +0.008), a k = 20 +0.066 / +0.047
+    (contro +0.060 / +0.039). A k = 50 non cambia.
+  - s2345 resta sotto +0.05 a k = 20, quindi NON CONFERMATO regge.
+  - FaceVerse s2345 dimezza circa il deficit: a k = 50 +0.049 contro +0.018.
+  - λ = 1e-5 è informato dal test, quindi questa è solo una misura di sensibilità.
+  - Formulazione: 50 è il k più piccolo della griglia che passa in entrambi i semi; la soglia vera sta fra 20 e 50, non
+    campionati; il risultato vale per la media, non per ogni bersaglio.
