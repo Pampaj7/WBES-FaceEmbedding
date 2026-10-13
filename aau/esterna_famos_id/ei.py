@@ -194,7 +194,9 @@ def maxdiff(x, y) -> dict:
     x, y = np.asarray(x, np.float64).ravel(), np.asarray(y, np.float64).ravel()
     ok = np.isfinite(x) & np.isfinite(y)
     d = np.abs(x[ok] - y[ok])
-    return {"n": int(ok.sum()), "nan": int((~ok).sum()), "max_abs": float(d.max()) if len(d) else None}
+    return {"n": int(ok.sum()), "nan": int((~ok).sum()), "max_abs": float(d.max()) if len(d) else None,
+            "median_abs": float(np.median(d)) if len(d) else None,
+            "p95_abs": float(np.percentile(d, 95)) if len(d) else None, "equal": int((d == 0).sum())}
 
 
 def scalars(s: str) -> dict:
@@ -706,6 +708,7 @@ def check_now(workers: int, n_pairs: int = 12) -> dict:
 
 def ulr_feats(v: dict, cache: Path, net, device, workers: int) -> tuple[dict, dict]:
     import ulr_eval as UE
+    cache.mkdir(parents=True, exist_ok=True)              # get_operators vuole la cartella esistente
     UE._P.update(view=v, cache=str(cache))
     with mp.get_context("fork").Pool(workers) as pool:
         res = pool.map(UE._prep, range(len(v["items"])), chunksize=1)
@@ -736,7 +739,9 @@ def ulrssm(s: str, workers: int) -> None:
             fr[q], sr[q] = U.pair_rms(G[a], G[b])[:2]
     # controllo: le 105 coppie delle 15 scansioni di galleria di FaMoS TEST contro il plug-in faces_xyz
     vf = U.view("famos")
-    Gf, _ = ulr_feats(vf, DATA / "check" / "ulr_cache", net, device, workers)
+    Gf, ff = ulr_feats(vf, DATA / "check" / "ulr_cache", net, device, workers)
+    if ff:
+        raise SystemExit(f"ulrssm: controllo, mesh di FaMoS TEST fallite: {ff}")
     i, j = U.pairs(vf["items"])
     got = np.asarray([U.pair_rms(Gf[a], Gf[b])[:2] for a, b in zip(i, j)])
     with np.load(U.OUT / "faces_xyz" / "famos.npz") as z:
