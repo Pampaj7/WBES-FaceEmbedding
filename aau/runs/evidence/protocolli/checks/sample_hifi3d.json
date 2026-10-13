@@ -1,0 +1,83 @@
+{
+ "view": "hifi3d",
+ "n_pairs": 64,
+ "now_opt": 4000,
+ "realy_cap_hi": 3000,
+ "seconds_per_ordered_pair": {
+  "now_original": 0.3430535492952913,
+  "now_metrical": 0.36573042324744165,
+  "realy": 3.7479382073506713,
+  "stirling": 0.02975622797384858
+ },
+ "seconds_mean": {
+  "now_original": 0.40348695481952745,
+  "now_metrical": 0.44510719341633376,
+  "realy": 3.5912026310761576,
+  "stirling": 0.035070585036010016
+ },
+ "now_opt_seconds_median": {
+  "now_original": 0.1653657725546509,
+  "now_metrical": 0.19381774170324206
+ },
+ "realy_cap_hi_seconds_median": 5.151800818508491,
+ "now_opt_vs_full": {
+  "now_original": {
+   "n": 64,
+   "spearman": 0.9993589743589743,
+   "rel_diff_median": 0.0011003171935335906,
+   "rel_diff_p95": 0.006500155963120776,
+   "rel_diff_max": 0.01341859458223575
+  },
+  "now_metrical": {
+   "n": 64,
+   "spearman": 0.9995879120879121,
+   "rel_diff_median": 0.0012855150414209878,
+   "rel_diff_p95": 0.006304959853210747,
+   "rel_diff_max": 0.014726782589139467
+  }
+ },
+ "realy_cap_vs_cap_hi": {
+  "n": 64,
+  "spearman": 0.989606227106227,
+  "rel_diff_median": 0.01258803647717847,
+  "rel_diff_p95": 0.06827591024195413,
+  "rel_diff_max": 0.08113550935582108
+ },
+ "now_iterations_median": {
+  "now_original": 8.0,
+  "now_metrical": 8.5
+ },
+ "now_fevals_median": {
+  "now_original": 9.0,
+  "now_metrical": 9.5
+ },
+ "now_scale": {
+  "median": 0.9878163687159962,
+  "p05": 0.9096145581475614,
+  "p95": 1.1194380955879317
+ },
+ "reflections": {
+  "now_original": 0,
+  "now_metrical": 0,
+  "stirling": 0
+ },
+ "realy_hit_cap": 0,
+ "realy_solves_median": 44.0,
+ "errors": {
+  "now_original": [],
+  "now_metrical": [],
+  "realy": [],
+  "stirling": []
+ },
+ "values_median": {
+  "now_original": 1.7768440467562203,
+  "now_metrical": 1.9980180716664064,
+  "realy": 1.9230049911550062,
+  "stirling": 2.6763539366490052
+ },
+ "wall_s": 60.40076470375061,
+ "workers": 64,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070965",
+ "date": "2026-10-12 22:35:56"
+}

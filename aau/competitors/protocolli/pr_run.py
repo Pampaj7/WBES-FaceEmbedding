@@ -13,7 +13,8 @@ soggetto diverso e topologia diversa (FaMoS: soggetto diverso) come riferimento:
 (``pr_metrics``). La superficie di A si costruisce una volta; i dati di B (ritagli, riferimento di REALY) sono
 calcolati prima nel processo padre e condivisi. Riferimento: mesh in mm (``pr_common.mm_mesh``), 7 landmark NoW =
 iBUG 36, 39, 42, 45, 33, 48, 54 dell'embedding FLAME di DECA/MICA, 85 keypoint di REALY (``pr_landmarks prep``).
-``--now-opt N``: le iterazioni dell'ICP di NoW (originale e metrical) su al piu' N punti del riferimento ritagliato,
+Ogni mesh A finita si salva (``<parte>.d/A<k>.npz``): una ripartenza della stessa parte salta le A gia' salvate
+(``--reverse``: dall'ultima, per un job di riserva). ``--now-opt N``: le iterazioni dell'ICP di NoW (originale e metrical) su al piu' N punti del riferimento ritagliato,
 estratti una volta per mesh (seme dal percorso); l'errore finale su tutti i punti (0 = tutti, come [N]). Uscita
 ``aau/runs/protocolli/parts/<vista>/<metodi>_<k>of<n>.npz``.
 
@@ -115,11 +116,18 @@ def one_pair(surf: pm.Surf, a: int, b: int, methods: tuple, D: dict) -> dict:
 
 def _task(a: int) -> dict:
     D, methods = _ST["D"], _ST["methods"]
+    if _ST.get("ckdir") is not None and (_ST["ckdir"] / f"A{a}.npz").exists():
+        return None                                  # salvata nel frattempo da un altro job della stessa parte
+    t0 = time.perf_counter()
     V, F = D["mesh"][a]
     surf = pm.Surf(V, F)
     bs = partners(D["items"], a)
     rows = [one_pair(surf, a, int(b), methods, D) for b in bs]
-    return {"a": a, "b": bs, "rows": rows}
+    r = {"a": a, "b": bs, "rows": rows}
+    if _ST.get("ckdir") is not None:                 # salvataggio per mesh A: un job fermato dal limite non perde tutto
+        blmm.atomic_savez(_ST["ckdir"] / f"A{a}.npz", task_s=time.perf_counter() - t0, job=pc.stamp()["job"],
+                          **pack([r]))
+    return r
 
 
 def pack(results: list) -> dict:
@@ -139,27 +147,52 @@ def pack(results: list) -> dict:
 
 # ------------------------------------------------------------------------------------------- run
 
-def run(vname: str, spec: Path | None, methods: tuple, shard: int, nshards: int, workers: int, now_opt: int) -> None:
+def run(vname: str, spec: Path | None, methods: tuple, shard: int, nshards: int, workers: int, now_opt: int,
+        reverse: bool = False, middle: bool = False) -> None:
+    """Le mesh A della parte; ogni A finita si salva in ``<parte>.d/A<k>.npz`` e una ripartenza della stessa parte
+    salta quelle gia' salvate (``--reverse``: dall'ultima, per un job di riserva che lavora dall'altro capo). Il file
+    della parte si scrive quando tutte le A della parte sono salvate."""
     t0 = time.time()
     D = load(vname, spec, now_opt)
-    _ST.update(D=D, methods=methods)
-    todo = [a for a in range(len(D["items"])) if a % nshards == shard]
+    tag = "+".join(methods)
+    path = pc.WORK / "parts" / D["view"]["name"] / f"{tag}_{shard}of{nshards}.npz"
+    ckdir = path.with_suffix(".d")
+    ckdir.mkdir(parents=True, exist_ok=True)
+    _ST.update(D=D, methods=methods, ckdir=ckdir)
+    mine = [a for a in range(len(D["items"])) if a % nshards == shard]
+    todo = [a for a in mine if not (ckdir / f"A{a}.npz").exists()]
+    if reverse:
+        todo = todo[::-1]
+    if middle:                                       # terzo job ausiliario: dal centro di quelle rimaste
+        todo = todo[len(todo) // 2:] + todo[:len(todo) // 2]
+    print(f"[pr-run] {vname} {shard}/{nshards}: {len(mine) - len(todo)} mesh A gia' salvate, {len(todo)} da fare",
+          flush=True)
     tl = time.time()
-    res = []
     with mp.get_context("fork").Pool(workers) as pool:
-        for k, r in enumerate(pool.imap_unordered(_task, todo, chunksize=1)):
-            res.append(r)
+        for k, _ in enumerate(pool.imap_unordered(_task, todo, chunksize=1)):
             if (k + 1) % max(1, len(todo) // 20) == 0:
                 print(f"[pr-run] {vname} {shard}/{nshards}: {k + 1}/{len(todo)} mesh A, {time.time() - tl:.0f}s",
                       flush=True)
-    out = pack(res)
-    tag = "+".join(methods)
-    path = pc.WORK / "parts" / D["view"]["name"] / f"{tag}_{shard}of{nshards}.npz"
+    done = [a for a in mine if (ckdir / f"A{a}.npz").exists()]
+    if len(done) < len(mine):
+        print(f"[pr-run] {vname} parte {shard}/{nshards} INCOMPLETA: {len(done)}/{len(mine)} mesh A", flush=True)
+        return
+    parts, task_s, jobs = [], 0.0, set()
+    for a in mine:
+        with np.load(ckdir / f"A{a}.npz") as z:
+            parts.append({k: z[k] for k in z.files if k not in ("task_s", "job")})
+            task_s += float(z["task_s"])
+            jobs.add(str(z["job"]))
+    keys = sorted({k for p in parts for k in p})
+    out = {}
+    for k in keys:
+        fill = "" if k.startswith("err:") else np.nan
+        out[k] = np.concatenate([p[k] if k in p else np.full(len(p["a"]), fill) for p in parts])
     blmm.atomic_savez(path, methods=np.asarray(methods), now_opt=now_opt, load_s=tl - t0, wall_s=time.time() - tl,
-                      workers=workers, job=pc.stamp()["job"], **out)
+                      workers=workers, job=",".join(sorted(jobs)), core_s=task_s, **out)
     nerr = {m: int((out.get(f"err:{m}", np.asarray([""])) != "").sum()) for m in methods}
     print(f"[pr-run] {vname} parte {shard}/{nshards}: {len(out['a'])} coppie ordinate, errori {nerr}, "
-          f"{time.time() - t0:.0f}s", flush=True)
+          f"{task_s / 3600:.1f} ore-core di calcolo, {time.time() - t0:.0f}s", flush=True)
 
 
 # ------------------------------------------------------------------------------------------- merge
@@ -194,6 +227,7 @@ def merge(vname: str, spec: Path | None) -> None:
                     if k.startswith(f"val:{m}|"):
                         diag.setdefault(k[len(f"val:{m}|"):], []).append((a, b, z[k]))
                 cost.append({"part": p.name, "wall_s": float(z["wall_s"]), "workers": int(z["workers"]),
+                             "core_s": float(z["core_s"]) if "core_s" in z.files else float(z["wall_s"]) * int(z["workers"]),
                              "now_opt": int(z["now_opt"]), "job": str(z["job"]), "pairs": int(len(a))})
                 e = z[f"err:{m}"]
                 errs += [str(x) for x in e[e != ""]]
@@ -226,7 +260,7 @@ def merge(vname: str, spec: Path | None) -> None:
                 info.setdefault("diagnostics", {})[key] = diag_s
         asym = np.abs(E[i, j] - E[j, i]) / np.maximum((E[i, j] + E[j, i]) / 2, 1e-12)
         info.update(ordered_missing=missing, errors=len(errs), error_examples=sorted(set(errs))[:10], cost=cost,
-                    core_hours_parts=float(sum(c["wall_s"] * c["workers"] for c in cost) / 3600),
+                    core_hours_parts=float(sum(c["core_s"] for c in cost) / 3600),
                     core_hours_note="ore-core delle parti che contengono il metodo (condivise con gli altri metodi della "
                                     "stessa parte); il costo del solo metodo: diagnostics.seconds",
                     asymmetry_relative={"median": float(np.nanmedian(asym)), "p95": float(np.nanpercentile(asym, 95))})
@@ -325,6 +359,8 @@ def main() -> None:
     p.add_argument("--nshards", type=int, default=1)
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--now-opt", type=int, default=0)
+    p.add_argument("--reverse", action="store_true", help="run: dalle ultime mesh A (job di riserva)")
+    p.add_argument("--middle", action="store_true", help="run: dal centro delle mesh A rimaste (job di riserva)")
     p.add_argument("--n", type=int, default=200)
     p.add_argument("--realy-cap-hi", type=int, default=3000)
     a = p.parse_args()
@@ -333,7 +369,7 @@ def main() -> None:
         ms = tuple(m for m in a.methods.split(",") if m)
         if set(ms) - set(pc.METHODS):
             raise SystemExit(f"metodi sconosciuti: {set(ms) - set(pc.METHODS)}")
-        run(vname, a.spec, ms, a.shard, a.nshards, a.workers, a.now_opt)
+        run(vname, a.spec, ms, a.shard, a.nshards, a.workers, a.now_opt, a.reverse, a.middle)
     elif a.step == "merge":
         merge(vname, a.spec)
     else:

@@ -1,0 +1,83 @@
+{
+ "view": "faceverse",
+ "n_pairs": 64,
+ "now_opt": 4000,
+ "realy_cap_hi": 3000,
+ "seconds_per_ordered_pair": {
+  "now_original": 1.641115935984999,
+  "now_metrical": 1.4694924757350236,
+  "realy": 4.999593139858916,
+  "stirling": 0.10068947053514421
+ },
+ "seconds_mean": {
+  "now_original": 2.173014979758591,
+  "now_metrical": 1.9089623046529596,
+  "realy": 4.855990564494277,
+  "stirling": 0.13754044807865284
+ },
+ "now_opt_seconds_median": {
+  "now_original": 0.4139473596587777,
+  "now_metrical": 0.39391295751556754
+ },
+ "realy_cap_hi_seconds_median": 8.70365418237634,
+ "now_opt_vs_full": {
+  "now_original": {
+   "n": 64,
+   "spearman": 0.9989468864468863,
+   "rel_diff_median": 0.0017261100490055582,
+   "rel_diff_p95": 0.005675241085429766,
+   "rel_diff_max": 0.01056723053464436
+  },
+  "now_metrical": {
+   "n": 64,
+   "spearman": 0.9994963369963369,
+   "rel_diff_median": 0.0016475867132668557,
+   "rel_diff_p95": 0.004624060684469303,
+   "rel_diff_max": 0.00795337019489347
+  }
+ },
+ "realy_cap_vs_cap_hi": {
+  "n": 64,
+  "spearman": 0.9936355311355312,
+  "rel_diff_median": 0.011122922592334314,
+  "rel_diff_p95": 0.046129035600152954,
+  "rel_diff_max": 0.08720157703906568
+ },
+ "now_iterations_median": {
+  "now_original": 9.0,
+  "now_metrical": 9.0
+ },
+ "now_fevals_median": {
+  "now_original": 10.0,
+  "now_metrical": 10.0
+ },
+ "now_scale": {
+  "median": 1.0214763091252566,
+  "p05": 0.9702227852956664,
+  "p95": 1.10511270417218
+ },
+ "reflections": {
+  "now_original": 0,
+  "now_metrical": 0,
+  "stirling": 0
+ },
+ "realy_hit_cap": 0,
+ "realy_solves_median": 61.0,
+ "errors": {
+  "now_original": [],
+  "now_metrical": [],
+  "realy": [],
+  "stirling": []
+ },
+ "values_median": {
+  "now_original": 2.685539551583765,
+  "now_metrical": 2.9037790751965797,
+  "realy": 4.24691480832334,
+  "stirling": 4.75595072885354
+ },
+ "wall_s": 105.95968580245972,
+ "workers": 64,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071144",
+ "date": "2026-10-13 05:06:31"
+}

@@ -1,0 +1,76 @@
+{
+ "hifi3d": {
+  "seed": 990708,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_nan_by_column": {
+   "now_original": 0,
+   "now_metrical": 0,
+   "realy": 0,
+   "stirling": 0,
+   "mm_rigid_icp_chamfer": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|shape": 0,
+   "factorized_s2345|shape": 0
+  }
+ },
+ "facescape": {
+  "seed": 796786,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_nan_by_column": {
+   "now_original": 0,
+   "now_metrical": 0,
+   "realy": 0,
+   "stirling": 0,
+   "mm_rigid_icp_chamfer": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|shape": 0,
+   "factorized_s2345|shape": 0
+  }
+ },
+ "faceverse": {
+  "seed": 271049,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_nan_by_column": {
+   "now_original": 0,
+   "now_metrical": 0,
+   "realy": 0,
+   "stirling": 0,
+   "mm_rigid_icp_chamfer": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|shape": 0,
+   "factorized_s2345|shape": 0
+  }
+ },
+ "faceverse_neutral": {
+  "seed": 271049,
+  "rows": 148500,
+  "rows_mask": 148500,
+  "rows_nan_by_column": {
+   "now_original": 0,
+   "now_metrical": 0,
+   "realy": 0,
+   "stirling": 0,
+   "mm_rigid_icp_chamfer": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|shape": 0,
+   "factorized_s2345|shape": 0
+  }
+ },
+ "famos": {
+  "seed": 1234,
+  "rows": 105,
+  "rows_mask": 105
+ },
+ "wall_s": 285.77830266952515,
+ "n_boot": 1000,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071144",
+ "date": "2026-10-13 05:11:20"
+}

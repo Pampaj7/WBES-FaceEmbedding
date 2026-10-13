@@ -1,0 +1,79 @@
+{
+ "method": "now_metrical",
+ "label": "NoW metrical / MICA (Procrustes senza scala + ICP rigido)",
+ "parts": [
+  "now_original+now_metrical+stirling_0of1.npz"
+ ],
+ "view": "hifi3d",
+ "pairs_unordered": 148500,
+ "symmetrization": "media dei due versi: (e(a, b) + e(b, a)) / 2",
+ "clones": {
+  "now_evaluation": "7bd149850a5cad431a488857f1dc774e1eb533c9",
+  "REALY": "3f13e9adcac8cbcfd4ac7db23e2c7c4f63174e8a",
+  "fg2018-competition": "3bbbdefb53001cd3736137af7c4f39686fb691b5"
+ },
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1071105",
+ "date": "2026-10-13 01:53:11",
+ "diagnostics": {
+  "fevals": {
+   "mean": 10.66626936026936,
+   "median": 10.0,
+   "p05": 6.0,
+   "p95": 18.0,
+   "max": 98.0
+  },
+  "iter": {
+   "mean": 9.665925925925926,
+   "median": 9.0,
+   "p05": 5.0,
+   "p95": 17.0,
+   "max": 97.0
+  },
+  "median": {
+   "mean": 1.6443815965349735,
+   "median": 1.5909409912235033,
+   "p05": 1.0233797696020754,
+   "p95": 2.4397964383094664,
+   "max": 5.467820816782121
+  },
+  "reflection": {
+   "fraction": 0.0,
+   "count": 0
+  },
+  "scale": {
+   "mean": 1.0,
+   "median": 1.0,
+   "p05": 1.0,
+   "p95": 1.0,
+   "max": 1.0
+  },
+  "seconds": {
+   "mean": 0.43007162403448573,
+   "median": 0.3417796951252967,
+   "p05": 0.1060400664107874,
+   "p95": 1.032853078912012,
+   "max": 9.727382546756417
+  }
+ },
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "cost": [
+  {
+   "part": "now_original+now_metrical+stirling_0of1.npz",
+   "wall_s": 2307.9985830783844,
+   "workers": 128,
+   "core_s": 295423.8186340332,
+   "now_opt": 0,
+   "job": "1070966",
+   "pairs": 297000
+  }
+ ],
+ "core_hours_parts": 82.062171842787,
+ "core_hours_note": "ore-core delle parti che contengono il metodo (condivise con gli altri metodi della stessa parte); il costo del solo metodo: diagnostics.seconds",
+ "asymmetry_relative": {
+  "median": 0.13720893856470393,
+  "p95": 0.41249359021531967
+ }
+}

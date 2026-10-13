@@ -1,0 +1,13 @@
+{
+ "label": "NoW metrical / MICA (Procrustes senza scala + ICP rigido)",
+ "family": "protocolli della comunita'",
+ "readings": {
+  "mm": {
+   "label": "NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

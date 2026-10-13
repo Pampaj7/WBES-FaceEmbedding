@@ -1,0 +1,126 @@
+{
+ "view": "facescape",
+ "meshes": 600,
+ "realy_cap": 1500,
+ "seconds": 15.239455223083496,
+ "lmk7_transfer_mm_by_topology": {
+  "crop": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "down8k": {
+   "median": 0.025252922846888966,
+   "max": 0.13402041674184595
+  },
+  "noisy": {
+   "median": 0.04106604120488925,
+   "max": 0.6126534743412954
+  },
+  "original": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "remesh": {
+   "median": 0.045018599028661496,
+   "max": 0.47761525477663597
+  },
+  "up60k": {
+   "median": 0.0,
+   "max": 9.448655958594227e-07
+  }
+ },
+ "lmk7_outside": {
+  "crop": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "down8k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "noisy": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 2,
+   "ch_l": 4
+  },
+  "original": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "remesh": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "up60k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  }
+ },
+ "realy85_outside": {
+  "crop": 977,
+  "down8k": 0,
+  "noisy": 1943,
+  "original": 0,
+  "remesh": 680,
+  "up60k": 0
+ },
+ "realy_region_vertices": {
+  "nose": {
+   "median_before": 2880.5,
+   "median_after": 1519.5,
+   "missing": 0
+  },
+  "mouth": {
+   "median_before": 1665.0,
+   "median_after": 1500.0,
+   "missing": 0
+  },
+  "forehead": {
+   "median_before": 4446.0,
+   "median_after": 1547.0,
+   "missing": 0
+  },
+  "cheek": {
+   "median_before": 1810.5,
+   "median_after": 1517.0,
+   "missing": 0
+  }
+ },
+ "realy_metrical_mm_per_unit": {
+  "median": 9.270175862278887,
+  "min": 8.803615458342072,
+  "max": 9.938014225479547
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070965",
+ "date": "2026-10-12 22:36:14"
+}

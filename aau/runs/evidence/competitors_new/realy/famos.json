@@ -1,0 +1,88 @@
+{
+ "method": "realy",
+ "label": "REALY (gICP con scala + rICP per regione + nICP)",
+ "parts": [
+  "now_original+now_metrical+stirling+realy_0of1.npz"
+ ],
+ "view": "famos",
+ "pairs_unordered": 105,
+ "symmetrization": "media dei due versi: (e(a, b) + e(b, a)) / 2",
+ "clones": {
+  "now_evaluation": "7bd149850a5cad431a488857f1dc774e1eb533c9",
+  "REALY": "3f13e9adcac8cbcfd4ac7db23e2c7c4f63174e8a",
+  "fg2018-competition": "3bbbdefb53001cd3736137af7c4f39686fb691b5"
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071033",
+ "date": "2026-10-12 22:40:39",
+ "diagnostics": {
+  "cheek": {
+   "mean": 1.4949190859713253,
+   "median": 1.3815222112700742,
+   "p05": 0.665976090232984,
+   "p95": 2.5223899265492618,
+   "max": 3.1770119911950885
+  },
+  "forehead": {
+   "mean": 1.8057101955722037,
+   "median": 1.7281651247251255,
+   "p05": 1.033275673639097,
+   "p95": 2.7643779825869714,
+   "max": 3.5259912128400615
+  },
+  "hit_cap": {
+   "mean": 0.0,
+   "median": 0.0,
+   "p05": 0.0,
+   "p95": 0.0,
+   "max": 0.0
+  },
+  "mouth": {
+   "mean": 1.6291930043985325,
+   "median": 1.2406721513762067,
+   "p05": 0.6607022021905785,
+   "p95": 3.5391022956800815,
+   "max": 6.039580109578972
+  },
+  "nose": {
+   "mean": 1.7294438980802724,
+   "median": 1.5219316568999508,
+   "p05": 0.7921224425724317,
+   "p95": 3.0441733346913997,
+   "max": 3.752008395908992
+  },
+  "seconds": {
+   "mean": 0.27451786391126615,
+   "median": 0.27168002258986235,
+   "p05": 0.20543964323587716,
+   "p95": 0.3472535952460021,
+   "max": 0.4008092968724668
+  },
+  "solves": {
+   "mean": 35.614285714285714,
+   "median": 35.0,
+   "p05": 26.0,
+   "p95": 46.0,
+   "max": 53.0
+  }
+ },
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "cost": [
+  {
+   "part": "now_original+now_metrical+stirling+realy_0of1.npz",
+   "wall_s": 28.92733407020569,
+   "workers": 64,
+   "now_opt": 0,
+   "job": "1071033",
+   "pairs": 210
+  }
+ ],
+ "core_hours_parts": 0.5142637168036567,
+ "core_hours_note": "ore-core delle parti che contengono il metodo (condivise con gli altri metodi della stessa parte); il costo del solo metodo: diagnostics.seconds",
+ "asymmetry_relative": {
+  "median": 0.13579981526214932,
+  "p95": 0.35926458683377943
+ }
+}

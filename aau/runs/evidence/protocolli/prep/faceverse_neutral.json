@@ -1,0 +1,126 @@
+{
+ "view": "faceverse_neutral",
+ "meshes": 600,
+ "realy_cap": 1500,
+ "seconds": 17.08676314353943,
+ "lmk7_transfer_mm_by_topology": {
+  "crop": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "down8k": {
+   "median": 0.007149202265371245,
+   "max": 0.07240152234303182
+  },
+  "noisy": {
+   "median": 0.15807301765684154,
+   "max": 1.0152357810028396
+  },
+  "original": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "remesh": {
+   "median": 0.067889672104164,
+   "max": 0.6503753896459645
+  },
+  "up60k": {
+   "median": 5.5195053981836636e-06,
+   "max": 0.0003941761520661372
+  }
+ },
+ "lmk7_outside": {
+  "crop": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "down8k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "noisy": {
+   "ex_r": 10,
+   "en_r": 12,
+   "en_l": 6,
+   "ex_l": 8,
+   "subnasale": 10,
+   "ch_r": 2,
+   "ch_l": 3
+  },
+  "original": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "remesh": {
+   "ex_r": 0,
+   "en_r": 6,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "up60k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  }
+ },
+ "realy85_outside": {
+  "crop": 465,
+  "down8k": 0,
+  "noisy": 644,
+  "original": 0,
+  "remesh": 263,
+  "up60k": 0
+ },
+ "realy_region_vertices": {
+  "nose": {
+   "median_before": 2039.0,
+   "median_after": 1515.0,
+   "missing": 0
+  },
+  "mouth": {
+   "median_before": 1794.0,
+   "median_after": 1510.5,
+   "missing": 0
+  },
+  "forehead": {
+   "median_before": 5142.5,
+   "median_after": 1586.5,
+   "missing": 0
+  },
+  "cheek": {
+   "median_before": 6423.0,
+   "median_after": 1677.0,
+   "missing": 0
+  }
+ },
+ "realy_metrical_mm_per_unit": {
+  "median": 9.434467924480698,
+  "min": 8.543502494330825,
+  "max": 10.488562101744359
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070965",
+ "date": "2026-10-12 22:36:52"
+}

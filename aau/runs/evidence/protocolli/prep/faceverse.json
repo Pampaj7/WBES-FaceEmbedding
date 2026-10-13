@@ -1,0 +1,127 @@
+{
+ "view": "faceverse",
+ "meshes": 600,
+ "realy_cap": 1500,
+ "seconds": 71.9071774482727,
+ "lmk7_transfer_mm_by_topology": {
+  "crop": {
+   "median": 1.1127710191207104e-06,
+   "max": 4.05928772817364e-06
+  },
+  "down8k": {
+   "median": 0.012156652752200705,
+   "max": 0.10844529960348238
+  },
+  "noisy": {
+   "median": 0.15463297828958217,
+   "max": 1.0464863090959096
+  },
+  "original": {
+   "median": 0.0,
+   "max": 0.0
+  },
+  "remesh": {
+   "median": 0.07768149003825123,
+   "max": 0.6235601211075779
+  },
+  "up60k": {
+   "median": 5.734423062262795e-06,
+   "max": 0.0002561436014249371
+  }
+ },
+ "lmk7_outside": {
+  "crop": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "down8k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "noisy": {
+   "ex_r": 9,
+   "en_r": 10,
+   "en_l": 7,
+   "ex_l": 6,
+   "subnasale": 12,
+   "ch_r": 2,
+   "ch_l": 2
+  },
+  "original": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "remesh": {
+   "ex_r": 0,
+   "en_r": 6,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  },
+  "up60k": {
+   "ex_r": 0,
+   "en_r": 0,
+   "en_l": 0,
+   "ex_l": 0,
+   "subnasale": 0,
+   "ch_r": 0,
+   "ch_l": 0
+  }
+ },
+ "realy85_outside": {
+  "crop": 509,
+  "down8k": 0,
+  "noisy": 599,
+  "original": 0,
+  "remesh": 242,
+  "up60k": 0
+ },
+ "realy_region_vertices": {
+  "nose": {
+   "median_before": 2039.0,
+   "median_after": 1513.5,
+   "missing": 0
+  },
+  "mouth": {
+   "median_before": 1779.5,
+   "median_after": 1504.5,
+   "missing": 0
+  },
+  "forehead": {
+   "median_before": 5100.0,
+   "median_after": 1584.0,
+   "missing": 0
+  },
+  "cheek": {
+   "median_before": 6667.5,
+   "median_after": 1644.0,
+   "missing": 0
+  }
+ },
+ "realy_metrical_mm_per_unit": {
+  "median": 9.43164798049989,
+  "min": 8.18692059900054,
+  "max": 11.073008425921133
+ },
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1071054",
+ "date": "2026-10-12 23:16:53",
+ "fv_expr_original_regenerated_vs_disk_max_mm": 4.82236822821606e-06
+}

@@ -1,0 +1,13 @@
+{
+ "label": "REALY (gICP con scala + rICP per regione + nICP)",
+ "family": "protocolli della comunita'",
+ "readings": {
+  "mm": {
+   "label": "REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

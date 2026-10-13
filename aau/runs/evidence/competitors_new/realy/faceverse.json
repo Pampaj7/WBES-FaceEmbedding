@@ -1,0 +1,99 @@
+{
+ "method": "realy",
+ "label": "REALY (gICP con scala + rICP per regione + nICP)",
+ "parts": [
+  "realy_0of2.npz",
+  "realy_1of2.npz"
+ ],
+ "view": "faceverse",
+ "pairs_unordered": 148500,
+ "symmetrization": "media dei due versi: (e(a, b) + e(b, a)) / 2",
+ "clones": {
+  "now_evaluation": "7bd149850a5cad431a488857f1dc774e1eb533c9",
+  "REALY": "3f13e9adcac8cbcfd4ac7db23e2c7c4f63174e8a",
+  "fg2018-competition": "3bbbdefb53001cd3736137af7c4f39686fb691b5"
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071141",
+ "date": "2026-10-13 04:16:17",
+ "diagnostics": {
+  "cheek": {
+   "mean": 2.915907670247982,
+   "median": 2.8244465901430598,
+   "p05": 1.8814781954875377,
+   "p95": 4.262833201724195,
+   "max": 15.920501301386452
+  },
+  "forehead": {
+   "mean": 4.261058818748775,
+   "median": 4.071965756091883,
+   "p05": 2.440176506236773,
+   "p95": 6.7598947786561006,
+   "max": 13.534587907181988
+  },
+  "hit_cap": {
+   "mean": 0.0,
+   "median": 0.0,
+   "p05": 0.0,
+   "p95": 0.0,
+   "max": 0.0
+  },
+  "mouth": {
+   "mean": 5.846564310570774,
+   "median": 5.23944411029332,
+   "p05": 2.736231027576156,
+   "p95": 10.93495960938355,
+   "max": 32.26937278077615
+  },
+  "nose": {
+   "mean": 4.2744853128818505,
+   "median": 4.005635940632505,
+   "p05": 2.299138847540844,
+   "p95": 7.160432957631584,
+   "max": 12.762921790044189
+  },
+  "seconds": {
+   "mean": 4.615844441802309,
+   "median": 4.085947481449693,
+   "p05": 2.0905528020579367,
+   "p95": 11.039535236335357,
+   "max": 17.752968281973153
+  },
+  "solves": {
+   "mean": 59.395457912457914,
+   "median": 59.0,
+   "p05": 47.0,
+   "p95": 74.0,
+   "max": 98.0
+  }
+ },
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "cost": [
+  {
+   "part": "realy_0of2.npz",
+   "wall_s": 8792.013763189316,
+   "workers": 64,
+   "core_s": 522208.2151791896,
+   "now_opt": 0,
+   "job": "1071074",
+   "pairs": 148500
+  },
+  {
+   "part": "realy_1of2.npz",
+   "wall_s": 9.9055814743042,
+   "workers": 2,
+   "core_s": 854604.9662113208,
+   "now_opt": 0,
+   "job": "1071075,1071119",
+   "pairs": 148500
+  }
+ ],
+ "core_hours_parts": 382.4481059418084,
+ "core_hours_note": "ore-core delle parti che contengono il metodo (condivise con gli altri metodi della stessa parte); il costo del solo metodo: diagnostics.seconds",
+ "asymmetry_relative": {
+  "median": 0.14942524882153588,
+  "p95": 0.4271091266717896
+ }
+}

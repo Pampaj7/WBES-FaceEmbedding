@@ -1,0 +1,13 @@
+{
+ "label": "Stirling/ESRC (Procrustes con scala, RMSE)",
+ "family": "protocolli della comunita'",
+ "readings": {
+  "mm": {
+   "label": "Stirling/ESRC (Procrustes con scala, RMSE), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

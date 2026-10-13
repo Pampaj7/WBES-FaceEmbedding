@@ -1,0 +1,58 @@
+{
+ "method": "stirling",
+ "label": "Stirling/ESRC (Procrustes con scala, RMSE)",
+ "parts": [
+  "now_original+now_metrical+stirling_0of1.npz"
+ ],
+ "view": "hifi3d",
+ "pairs_unordered": 148500,
+ "symmetrization": "media dei due versi: (e(a, b) + e(b, a)) / 2",
+ "clones": {
+  "now_evaluation": "7bd149850a5cad431a488857f1dc774e1eb533c9",
+  "REALY": "3f13e9adcac8cbcfd4ac7db23e2c7c4f63174e8a",
+  "fg2018-competition": "3bbbdefb53001cd3736137af7c4f39686fb691b5"
+ },
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1071105",
+ "date": "2026-10-13 01:53:12",
+ "diagnostics": {
+  "mean": {
+   "mean": 2.1640768595240543,
+   "median": 2.0985585189768683,
+   "p05": 1.3987993373133076,
+   "p95": 3.153857439597961,
+   "max": 5.951054972748634
+  },
+  "reflection": {
+   "fraction": 0.0,
+   "count": 0
+  },
+  "seconds": {
+   "mean": 0.03210399193689541,
+   "median": 0.02839290304109454,
+   "p05": 0.009333652374334634,
+   "p95": 0.07106587265152484,
+   "max": 0.10517464904114604
+  }
+ },
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "cost": [
+  {
+   "part": "now_original+now_metrical+stirling_0of1.npz",
+   "wall_s": 2307.9985830783844,
+   "workers": 128,
+   "core_s": 295423.8186340332,
+   "now_opt": 0,
+   "job": "1070966",
+   "pairs": 297000
+  }
+ ],
+ "core_hours_parts": 82.062171842787,
+ "core_hours_note": "ore-core delle parti che contengono il metodo (condivise con gli altri metodi della stessa parte); il costo del solo metodo: diagnostics.seconds",
+ "asymmetry_relative": {
+  "median": 0.09900255841306604,
+  "p95": 0.27660662944237335
+ }
+}

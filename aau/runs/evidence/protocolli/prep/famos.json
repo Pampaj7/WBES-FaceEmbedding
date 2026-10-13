@@ -1,0 +1,73 @@
+{
+ "view": "famos",
+ "meshes": 15,
+ "realy_cap": 1500,
+ "seconds": 11.42572808265686,
+ "lmk7_transfer_mm_by_topology": {
+  "scan_gallery": {
+   "median": 0.5588740684138512,
+   "max": 1.8559706742138211
+  }
+ },
+ "lmk7_outside": {
+  "scan_gallery": {
+   "ex_r": 10,
+   "en_r": 6,
+   "en_l": 7,
+   "ex_l": 9,
+   "subnasale": 0,
+   "ch_r": 11,
+   "ch_l": 12
+  }
+ },
+ "realy85_outside": {
+  "scan_gallery": 360
+ },
+ "realy_region_vertices": {
+  "nose": {
+   "median_before": 295.0,
+   "median_after": 295.0,
+   "missing": 0
+  },
+  "mouth": {
+   "median_before": 139.0,
+   "median_after": 139.0,
+   "missing": 0
+  },
+  "forehead": {
+   "median_before": 497.0,
+   "median_after": 497.0,
+   "missing": 0
+  },
+  "cheek": {
+   "median_before": 160.0,
+   "median_after": 160.0,
+   "missing": 0
+  }
+ },
+ "realy_metrical_mm_per_unit": {
+  "median": 9.812213628715833,
+  "min": 9.21475319326658,
+  "max": 10.644904414653938
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1070965",
+ "date": "2026-10-12 22:37:05",
+ "famos_similarity_scale_over_manifest": [
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0,
+  1.0
+ ]
+}

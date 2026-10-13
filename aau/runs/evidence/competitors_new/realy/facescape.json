@@ -1,0 +1,89 @@
+{
+ "method": "realy",
+ "label": "REALY (gICP con scala + rICP per regione + nICP)",
+ "parts": [
+  "realy_0of1.npz"
+ ],
+ "view": "facescape",
+ "pairs_unordered": 148500,
+ "symmetrization": "media dei due versi: (e(a, b) + e(b, a)) / 2",
+ "clones": {
+  "now_evaluation": "7bd149850a5cad431a488857f1dc774e1eb533c9",
+  "REALY": "3f13e9adcac8cbcfd4ac7db23e2c7c4f63174e8a",
+  "fg2018-competition": "3bbbdefb53001cd3736137af7c4f39686fb691b5"
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071116",
+ "date": "2026-10-13 02:34:20",
+ "diagnostics": {
+  "cheek": {
+   "mean": 1.5086493220910369,
+   "median": 1.421909281949803,
+   "p05": 0.9137357328962327,
+   "p95": 2.4113363088505126,
+   "max": 5.406986306431631
+  },
+  "forehead": {
+   "mean": 1.4501134809524425,
+   "median": 1.2966263159526223,
+   "p05": 0.7656594778394246,
+   "p95": 2.623778874900502,
+   "max": 4.985182584972136
+  },
+  "hit_cap": {
+   "mean": 0.0,
+   "median": 0.0,
+   "p05": 0.0,
+   "p95": 0.0,
+   "max": 0.0
+  },
+  "mouth": {
+   "mean": 1.055410226280738,
+   "median": 1.010255611519699,
+   "p05": 0.4815693698293673,
+   "p95": 1.7753276825239548,
+   "max": 3.3164491645570178
+  },
+  "nose": {
+   "mean": 1.3334387767002511,
+   "median": 1.2734778050144278,
+   "p05": 0.6267609225040488,
+   "p95": 2.229679257287304,
+   "max": 4.293734130355199
+  },
+  "seconds": {
+   "mean": 2.9379883327230556,
+   "median": 3.102638093288988,
+   "p05": 0.9169383221305907,
+   "p95": 4.589744656113908,
+   "max": 7.798365485854447
+  },
+  "solves": {
+   "mean": 42.782131313131316,
+   "median": 41.0,
+   "p05": 30.0,
+   "p95": 64.0,
+   "max": 86.0
+  }
+ },
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "cost": [
+  {
+   "part": "realy_0of1.npz",
+   "wall_s": 7782.086756467819,
+   "workers": 120,
+   "core_s": 933850.4107761383,
+   "now_opt": 0,
+   "job": "1071071",
+   "pairs": 297000
+  }
+ ],
+ "core_hours_parts": 259.40289188226063,
+ "core_hours_note": "ore-core delle parti che contengono il metodo (condivise con gli altri metodi della stessa parte); il costo del solo metodo: diagnostics.seconds",
+ "asymmetry_relative": {
+  "median": 0.11713530704446001,
+  "p95": 0.4685950201317564
+ }
+}
