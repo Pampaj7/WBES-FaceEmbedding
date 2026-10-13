@@ -724,7 +724,9 @@ def guard_check(worktree: Path) -> None:
     import tempfile
     wt = worktree.resolve()
     head = subprocess.run(["git", "-C", str(wt), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
-    prev = subprocess.run(["git", "-C", str(wt), "rev-parse", "HEAD~1"], capture_output=True, text=True).stdout.strip()
+    # un commit precedente in cui conf_common.py era diverso (HEAD~1 puo' essere un commit d'altro con gli stessi moduli)
+    prev = subprocess.run(["git", "-C", str(wt), "log", "-2", "--format=%H", "--", "aau/ava256/conf_common.py"],
+                          capture_output=True, text=True).stdout.split()[1]
     py = [sys.executable]
     spec_full = "aau/ava256/spec/hifi3d_full.json"
 
@@ -756,7 +758,7 @@ def guard_check(worktree: Path) -> None:
     case("verify: di nuovo pulito", True, verify, {"CONF_FROZEN_COMMIT": head})
     sha = ["aau/ava256/conf_run.py", "aau/ava256/conf_common.py", "sha"]
     case("conf_run: moduli uguali al commit", True, sha, {"CONF_FROZEN_COMMIT": head})
-    case("conf_run: moduli diversi dal commit (HEAD~1)", False, sha, {"CONF_FROZEN_COMMIT": prev})
+    case("conf_run: moduli diversi dal commit (precedente di conf_common.py)", False, sha, {"CONF_FROZEN_COMMIT": prev})
     import conf_common
     me = conf_common.short_host()
     case("host --role bp sul nodo sbagliato", False, ["aau/ava256/conf_common.py", "host", "--spec", spec_full,

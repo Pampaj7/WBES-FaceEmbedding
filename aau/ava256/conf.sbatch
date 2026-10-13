@@ -49,6 +49,10 @@ set -euo pipefail
 export AAU_NV=""
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
+CB=""                                                           # v7: bind del worktree (conf_worktree.sh)
+[[ -f "$WBES_ROOT/.conf_binds" ]] && CB="$(cat "$WBES_ROOT/.conf_binds")"
+export AAU_NV="$CB"
+NV="--nv $CB"
 SPEC="${CONF_SPEC:?CONF_SPEC: spec json}"
 W="${SLURM_CPUS_PER_TASK:-8}"
 NAME=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["name"])' "$SPEC")
@@ -63,8 +67,8 @@ BL=(aau/baselines/run_bl.sh -u)
 GP=(aau/competitors/gw_percettivi/gp_run.sh -u)
 ops() {  # <cartella delle mesh> <cartella degli operatori>: areanorm k_eig 128 in W-1 shard (d3.sbatch), conteggio
   local src="$1" out="$2" i N M pids=()
-  N=$(find "$src" -name "*.npz" | wc -l)
-  mkdir -p "$out"
+  # conteggi e cartelle dentro il container: nel worktree datasets/ e' un bind visibile solo li'
+  N=$("${REPOPY[@]}" -c 'import glob, os, sys; os.makedirs(sys.argv[2], exist_ok=True); print(len(glob.glob(sys.argv[1] + "/*.npz")))' "$src" "$out" | tail -1)
   for (( i = 0; i < W - 1; i++ )); do
     OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 "${REPOPY[@]}" $CR v2_work/potential/areanorm_operators.py \
       --input-dir "$src" --output-dir "$out" --k-eig 128 --shard "$i/$((W - 1))" \
@@ -74,8 +78,8 @@ ops() {  # <cartella delle mesh> <cartella degli operatori>: areanorm k_eig 128 
     wait "${pids[$i]}" || { echo "ERRORE: shard $i"; cat "/tmp/wbes_conf_ops_${SLURM_JOB_ID:-x}.$i.log"; return 1; }
   done
   rm -f /tmp/wbes_conf_ops_"${SLURM_JOB_ID:-x}".*.log
-  M=$(find "$out" -name "*.npz" ! -name ".*" | wc -l)
-  echo "[conf] $(date +%T) operatori $M / $N in $out, $(du -sh "$out" | cut -f1)"
+  M=$("${REPOPY[@]}" -c 'import glob, os, sys; print(len([p for p in glob.glob(sys.argv[1] + "/*.npz") if not os.path.basename(p).startswith(".")]))' "$out" | tail -1)
+  echo "[conf] $(date +%T) operatori $M / $N in $out"
   (( M == N )) || { echo "ERRORE: operatori incompleti"; return 1; }
 }
 DETDIR="$WORK/protocolli/noise/det"
@@ -112,9 +116,9 @@ for tok in $CONF_STEPS; do
                    while read -r IN OUT; do ops "$IN" "$OUT"; done < <(python3 -c 'import json, sys
 s = json.load(open(sys.argv[1])); r = s["embed"]["ops_root"]
 for k in s["embed"]["sets"]: print(f"{r}/{k}/in {r}/{k}/ops")' "$SPEC") ;;
-        embed)     AAU_NV=--nv "${REPOPY[@]}" $CR $A/conf_embed.py run --spec "$SPEC" ;;
+        embed)     AAU_NV="$NV" "${REPOPY[@]}" $CR $A/conf_embed.py run --spec "$SPEC" ;;
         desc-spectral) "${REPOPY[@]}" $CR $A/conf_desc.py spectral --spec "$SPEC" --workers "$W" ;;
-        desc-varifold) AAU_NV=--nv "${O3D[@]}" $CR $A/conf_desc.py varifold --spec "$SPEC" --device cuda \
+        desc-varifold) AAU_NV="$NV" "${O3D[@]}" $CR $A/conf_desc.py varifold --spec "$SPEC" --device cuda \
                            --shard "${arg:-0/1}" --workers "$W" ;;
         desc-icp-same) "${O3D[@]}" $CR $A/conf_desc.py icp-same --spec "$SPEC" --workers "$W" ;;
         desc-arcface)  ST="/tmp/wbes_conf_arc_${SLURM_JOB_ID:-x}"
@@ -125,7 +129,7 @@ for k in s["embed"]["sets"]: print(f"{r}/{k}/in {r}/{k}/ops")' "$SPEC") ;;
         desc-perc) GP_THREADS="$W" "${GP[@]}" $CR $A/conf_desc.py perc --spec "$SPEC" --workers "$W" ;;
         desc-eval) UGT_THREADS=1 "${RUN[@]}" $CR $A/conf_desc.py eval --spec "$SPEC" --workers "$W" ;;
         desc-ulr-run)  ST="/tmp/wbes_conf_ulr_${SLURM_JOB_ID:-x}"           # operatori di ULRSSM: /tmp (conta su --mem)
-                       AAU_NV=--nv "${REPOPY[@]}" $CR $A/conf_desc.py ulr-run --spec "$SPEC" --stage "$ST" \
+                       AAU_NV="$NV" "${REPOPY[@]}" $CR $A/conf_desc.py ulr-run --spec "$SPEC" --stage "$ST" \
                            --shard "${arg:-0/1}" --workers "$W"; rm -rf "$ST" ;;
         desc-ulr-merge) "${RUN[@]}" $CR $A/conf_desc.py ulr-merge --spec "$SPEC" ;;
         export-template) "${RUN[@]}" $CR $A/conf_collaudo.py export-template ;;
