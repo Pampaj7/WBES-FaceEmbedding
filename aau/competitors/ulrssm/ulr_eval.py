@@ -51,6 +51,7 @@ for _v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
 import argparse  # noqa: E402
 import json  # noqa: E402
 import multiprocessing as mp  # noqa: E402
+import re  # noqa: E402
 import sys  # noqa: E402
 import time  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -242,7 +243,8 @@ def gt_check() -> dict:
 def merge(a) -> None:
     v = U.view(a.view, a.spec)
     root = U.OUT / a.tag
-    parts = sorted((root / "parts").glob(f"{v['name']}_*of*.npz"))
+    pat = re.compile(re.escape(v["name"]) + r"_\d+of\d+\.npz")                # non faceverse_neutral_* per faceverse
+    parts = sorted(p for p in (root / "parts").glob(f"{v['name']}_*of*.npz") if pat.fullmatch(p.name))
     if not parts:
         raise SystemExit(f"{v['name']}: nessuna parte in {root / 'parts'}")
     ns = {int(p.stem.rsplit("of", 1)[1]) for p in parts}
