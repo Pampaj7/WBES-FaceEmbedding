@@ -1,0 +1,16 @@
+{
+ "rule": "errore di validazione medio minore (identita' di validazione dei generatori, original -> original e -> noisy), checkpoint finale; fissata prima di valutare le viste",
+ "val_err": {
+  "faces_xyz": 1.865706443786621,
+  "faces_wks": 1.9452518232477207
+ },
+ "val_flip": {
+  "faces_xyz": 5.828227100816244e-06,
+  "faces_wks": 0.0002838037326000631
+ },
+ "main": "faces_xyz",
+ "ckpt": "aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1071078",
+ "date": "2026-10-13 07:28:52"
+}

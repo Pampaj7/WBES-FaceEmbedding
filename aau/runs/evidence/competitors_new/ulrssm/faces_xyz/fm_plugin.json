@@ -1,0 +1,33 @@
+{
+ "label": "ULRSSM [faces_xyz]",
+ "family": "corrispondenza densa imparata",
+ "declared": true,
+ "method": "ulrssm",
+ "variant": "faces_xyz",
+ "readings": {
+  "pair_fr": {
+   "label": "ULRSSM [faces_xyz] per coppia, mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "pair_sr": {
+   "label": "ULRSSM [faces_xyz] per coppia, a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  },
+  "tpl_fr": {
+   "label": "ULRSSM [faces_xyz] via template, GT FR (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "tpl_sr": {
+   "label": "ULRSSM [faces_xyz] via template, GT SR (d_P) (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

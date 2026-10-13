@@ -1,0 +1,75 @@
+{
+ "domains": [
+  "bfm2019",
+  "ict",
+  "gnm"
+ ],
+ "seed": 20261012,
+ "n_train": 200,
+ "n_val": 10,
+ "recipe": {
+  "views": 6,
+  "expr_frac": {
+   "bfm2019": 0.0,
+   "ict": 0.2315,
+   "gnm": 0.1968
+  },
+  "labels": [
+   "original",
+   "remesh",
+   "down8k",
+   "noisy",
+   "crop",
+   "up60k"
+  ],
+  "label_draw": "perm",
+  "source": "v3_work/stream (sources.MMSource, producer.view_recipe, views.discretize), ricetta c3m di massive_node.sh"
+ },
+ "sources": {
+  "bfm2019": {
+   "name": "bfm2019",
+   "kind": "mm",
+   "n_id": 199,
+   "n_verts_work": 10101,
+   "n_faces_work": 19999,
+   "work_topology": "decimata",
+   "canonical": "corrispondenza /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/STREAM/maps/bfm2019.npz"
+  },
+  "ict": {
+   "name": "ict",
+   "kind": "mm",
+   "n_id": 100,
+   "n_verts_work": 9409,
+   "n_faces_work": 18460,
+   "work_topology": "patch",
+   "canonical": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json"
+  },
+  "gnm": {
+   "name": "gnm",
+   "kind": "mm",
+   "n_id": 170,
+   "n_verts_work": 9022,
+   "n_faces_work": 17720,
+   "work_topology": "patch",
+   "canonical": "json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/UNIFIED_GT/canonical_transforms.json"
+  }
+ },
+ "n_meshes": {
+  "train": 3600,
+  "val": 180
+ },
+ "vertices": {
+  "train": {
+   "median": 9022.0,
+   "max": 26017
+  },
+  "val": {
+   "median": 9022.0,
+   "max": 26012
+  }
+ },
+ "seconds": 79.83294630050659,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1070577",
+ "date": "2026-10-12 18:10:23"
+}

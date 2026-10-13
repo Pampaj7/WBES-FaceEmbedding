@@ -1,0 +1,64 @@
+{
+ "input_type": "wks",
+ "iters": 100000,
+ "iters_done": 100000,
+ "per_epoch": 6667,
+ "n_train": 3600,
+ "n_val": 180,
+ "n_val_pairs": 60,
+ "cfg": {
+  "out_channels": 256,
+  "wks_channels": 128,
+  "fmap_bidirectional": true,
+  "tau": 0.07,
+  "lr": 0.001,
+  "eta_min": 0.0001,
+  "epochs": 15,
+  "w_bij": 1.0,
+  "w_orth": 1.0,
+  "w_lap": 0.0,
+  "w_align": 1.0,
+  "clip": 1.0,
+  "val_freq": 4000,
+  "seed": 1234
+ },
+ "ulrssm_commit": "0625cbcbb7cd007893dd665b21ef55b275563472",
+ "data_manifest": "datasets/ULRSSM_FACES/manifest.json",
+ "segments": [
+  {
+   "start_iter": 0,
+   "t_prep_s": 919.9529888629913,
+   "host": "a768-l40s-01.srv.aau.dk",
+   "job": "1070608",
+   "date": "2026-10-12 18:59:06",
+   "gpu": "NVIDIA L40S",
+   "end_iter": 100000,
+   "seconds": 44970.60603570938,
+   "max_mem_gb": 21.837295532226562
+  }
+ ],
+ "last_val": {
+  "iter": 100000,
+  "bfm2019": {
+   "err": 1.7206787457689643,
+   "flip": 0.0,
+   "n": 20
+  },
+  "gnm": {
+   "err": 2.1899996418505907,
+   "flip": 0.0008099841128569096,
+   "n": 20
+  },
+  "ict": {
+   "err": 1.9250770821236074,
+   "flip": 4.1427084943279625e-05,
+   "n": 20
+  },
+  "all": {
+   "err": 1.9452518232477207,
+   "flip": 0.0002838037326000631,
+   "n": 60
+  }
+ },
+ "gpu_hours": 12.491835009919273
+}
