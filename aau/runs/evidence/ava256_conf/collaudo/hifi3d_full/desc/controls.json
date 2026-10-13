@@ -1,0 +1,223 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_full.json",
+ "boot_seed": 990708,
+ "n_boot": 1000,
+ "subjects": 100,
+ "rows": 178200,
+ "rows_cross": 148500,
+ "rows_same": 29700,
+ "rows_mask_confirmatory": 178200,
+ "rows_mask_masked": 177230,
+ "reading_confirmatory": {
+  "rows": {
+   "nocrop|-": 99000,
+   "crop|crop": 49500,
+   "all_cross|-": 148500,
+   "stessa_topologia|tutte": 29700,
+   "con_perturbazione|original": 39600,
+   "stessa_topologia|original": 4950,
+   "con_perturbazione|remesh": 39600,
+   "stessa_topologia|remesh": 4950,
+   "con_perturbazione|down8k": 39600,
+   "stessa_topologia|down8k": 4950,
+   "con_perturbazione|up60k": 39600,
+   "stessa_topologia|up60k": 4950,
+   "con_perturbazione|noisy": 39600,
+   "stessa_topologia|noisy": 4950,
+   "stessa_topologia|crop": 4950
+  },
+  "partial": {}
+ },
+ "reading_masked": {
+  "rows": {
+   "nocrop|-": 98224,
+   "crop|crop": 49306,
+   "all_cross|-": 147530,
+   "stessa_topologia|tutte": 29700,
+   "con_perturbazione|original": 39406,
+   "stessa_topologia|original": 4950,
+   "con_perturbazione|remesh": 39406,
+   "stessa_topologia|remesh": 4950,
+   "con_perturbazione|down8k": 39406,
+   "stessa_topologia|down8k": 4950,
+   "con_perturbazione|up60k": 38824,
+   "stessa_topologia|up60k": 4950,
+   "con_perturbazione|noisy": 39406,
+   "stessa_topologia|noisy": 4950,
+   "stessa_topologia|crop": 4950
+  },
+  "partial": {}
+ },
+ "columns": [
+  "arcface_normals",
+  "cs_nicp_p2tri",
+  "cs_nicp_template",
+  "cs_rigid_icp_chamfer",
+  "est_cs",
+  "factorized_s1234|form",
+  "factorized_s1234|form_cal",
+  "factorized_s1234|shape",
+  "factorized_s2345|form",
+  "factorized_s2345|form_cal",
+  "factorized_s2345|shape",
+  "factorizedc3m_e123|form",
+  "factorizedc3m_e123|form_cal",
+  "factorizedc3m_e123|shape",
+  "flame2023_vb_comp",
+  "flame2023_vb_fr",
+  "flame2023_vb_sr",
+  "gnm_vb_comp",
+  "gnm_vb_fr",
+  "gnm_vb_sr",
+  "hks",
+  "mm_nicp_p2tri",
+  "mm_nicp_template",
+  "mm_rigid_icp_chamfer",
+  "now_metrical",
+  "now_original",
+  "plugin:clip/smooth|fr",
+  "plugin:clip/smooth|sr",
+  "plugin:dinov2/depth|fr",
+  "plugin:dinov2/depth|sr",
+  "plugin:dreamsim/smooth|fr",
+  "plugin:dreamsim/smooth|sr",
+  "plugin:gw/euclid_128_cgw2|fr",
+  "plugin:gw/euclid_128_cgw2|sr",
+  "plugin:lpips/depth|fr",
+  "plugin:lpips/depth|sr",
+  "realy",
+  "shapedna_k50",
+  "stirling",
+  "varifold",
+  "wks"
+ ],
+ "rows_nonfinite_by_column": {
+  "factorized_s1234|form_cal": 0,
+  "factorized_s1234|form": 0,
+  "factorized_s1234|shape": 0,
+  "factorized_s2345|form_cal": 0,
+  "factorized_s2345|form": 0,
+  "factorized_s2345|shape": 0,
+  "mm_rigid_icp_chamfer": 0,
+  "mm_nicp_p2tri": 30670,
+  "mm_nicp_template": 0,
+  "cs_rigid_icp_chamfer": 0,
+  "cs_nicp_p2tri": 30670,
+  "cs_nicp_template": 0,
+  "now_original": 29700,
+  "now_metrical": 29700,
+  "realy": 29700,
+  "stirling": 29700,
+  "factorizedc3m_e123|form": 0,
+  "factorizedc3m_e123|shape": 0,
+  "factorizedc3m_e123|form_cal": 0,
+  "gnm_vb_fr": 0,
+  "gnm_vb_sr": 0,
+  "gnm_vb_comp": 0,
+  "flame2023_vb_fr": 0,
+  "flame2023_vb_sr": 0,
+  "flame2023_vb_comp": 0,
+  "varifold": 0,
+  "shapedna_k50": 0,
+  "hks": 0,
+  "wks": 0,
+  "est_cs": 0,
+  "arcface_normals": 0,
+  "plugin:gw/euclid_128_cgw2|fr": 29700,
+  "plugin:gw/euclid_128_cgw2|sr": 29700,
+  "plugin:lpips/depth|fr": 0,
+  "plugin:lpips/depth|sr": 0,
+  "plugin:dinov2/depth|fr": 0,
+  "plugin:dinov2/depth|sr": 0,
+  "plugin:clip/smooth|fr": 0,
+  "plugin:clip/smooth|sr": 0,
+  "plugin:dreamsim/smooth|fr": 0,
+  "plugin:dreamsim/smooth|sr": 0
+ },
+ "meshes_failed_by_column": {
+  "factorized_s1234|form_cal": 0,
+  "factorized_s1234|form": 0,
+  "factorized_s1234|shape": 0,
+  "factorized_s2345|form_cal": 0,
+  "factorized_s2345|form": 0,
+  "factorized_s2345|shape": 0,
+  "mm_nicp_template": 0,
+  "cs_nicp_template": 0,
+  "factorizedc3m_e123|form": 0,
+  "factorizedc3m_e123|shape": 0,
+  "factorizedc3m_e123|form_cal": 0,
+  "gnm_vb_fr": 0,
+  "gnm_vb_sr": 0,
+  "gnm_vb_comp": 0,
+  "flame2023_vb_fr": 0,
+  "flame2023_vb_sr": 0,
+  "flame2023_vb_comp": 0
+ },
+ "fallback": null,
+ "icp_same": {
+  "mm_rigid_icp_chamfer": {
+   "rows": 29700,
+   "nonfinite": 0
+  },
+  "cs_rigid_icp_chamfer": {
+   "rows": 29700,
+   "nonfinite": 0
+  }
+ },
+ "desc": {
+  "gnm_vb_nocrop_vs_saved_max_abs": {
+   "fr": 5.845428585615764e-10,
+   "sr": 7.487273856465748e-10
+  },
+  "flame2023_vb_nocrop_vs_saved_max_abs": {
+   "fr": 1.821182094019491e-11,
+   "sr": 1.9997031808216548e-11
+  },
+  "absent": {},
+  "plugin_dirs": [
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/gw/euclid_128_cgw2",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/lpips/depth",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/dinov2/depth",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/clip/smooth",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/dreamsim/smooth"
+  ]
+ },
+ "models": {
+  "s1234": {
+   "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizedfulle072_embed/zs_zeroshot/embeddings.npz",
+   "c": 0.4052667604991996,
+   "dp_per_unit": 0.24411710201003828,
+   "meshes_failed": 0
+  },
+  "s2345": {
+   "embeddings": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizeds2345fulle072_embed/zs_zeroshot/embeddings.npz",
+   "c": 0.40544514090039896,
+   "dp_per_unit": 0.24411710201003828,
+   "meshes_failed": 0
+  }
+ },
+ "geo_protocols": {
+  "blmm_root": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/baselines_mm/hifi3d",
+  "geo": [
+   "cs_nicp_p2tri",
+   "cs_nicp_template",
+   "cs_rigid_icp_chamfer",
+   "mm_nicp_p2tri",
+   "mm_nicp_template",
+   "mm_rigid_icp_chamfer"
+  ],
+  "protocols": {
+   "dirs": [
+    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/now_original",
+    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/now_metrical",
+    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/realy",
+    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/stirling"
+   ],
+   "missing": []
+  }
+ },
+ "seconds": 235.54649376869202,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071724",
+ "date": "2026-10-13 13:15:35"
+}

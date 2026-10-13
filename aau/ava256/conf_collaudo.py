@@ -24,6 +24,24 @@ Passi (ognuno scrive ``<evidence>/collaudo/<passo>.json`` con gli scarti misurat
   bp          ``bp_fit.py``, ``bp_fit_e1.py`` e ``bp_e2.py crop`` con ``--spec`` contro ``baselines_param/hifi3d``:
               regione, beta e matrici della variante B (``D_vb_*``) senza crop e col crop.
   head        ``conf_head.py block`` / ``fit`` (K0) dagli json di ``<evidence>/head``.
+  v4:
+  embed       ``conf_embed.py`` (operatori rifatti, embedding su L40S) contro gli embedding di sviluppo: ``form_hifi``
+              (600 mesh, factorized s1234 e s2345, C3M e123) e il pool NON valutato di D3 (200 x 5, i due semi): chiavi,
+              Z, d_F cal., d_F non cal., d_P su tutte le coppie; Spearman (punto e IC, nocrop / crop / all_cross, GT FR
+              e SR) di quelle distanze sulle righe e repliche di ``conf_eval`` col nuovo embedding contro lo stesso con
+              quello di sviluppo.
+  desc        ``conf_desc.py`` (calcolo) contro le colonne di sviluppo della matrice: spettrali contro
+              ``competitors_hifi3d/desc_spectral.npz``, Gram varifold contro gli shard di ``bp_varifold.py`` + le righe crop
+              di ``fm_varifold.py``, ICP + Chamfer di stessa topologia contro ``full_matrix/icp_same``, ArcFace contro
+              ``g0/teacher/hifi3d`` (Z, camera, ritaglio); GW e percettivi sul SOTTOCAMPIONE dichiarato
+              (``desc.subsample_subjects``: i primi 12 soggetti per id, 72 mesh) contro i plug-in di
+              ``competitors_new`` (varianti dichiarate), sulle stesse coppie.
+  desc-eval   ``conf_desc.py eval`` (hifi3d_full) contro ``full_matrix`` (mascherata = passo ``comune``, confermativa =
+              "NICP fallito = distanza massima"; Spearman con IC e righe, delta ``vs_nostro`` e ``scala_allineamento``,
+              in tutti i gruppi della lettura: nocrop, crop, all_cross, per perturbazione, stessa topologia) e contro
+              ``protocolli/spearman.csv`` (protocolli, anche per perturbazione); plug-in GW e percettivi: rho puntuale su
+              tutte le righe dei gruppi di ``competitors_new/spearman.csv`` (le loro righe: nessuna maschera; gli IC
+              hanno un altro seme).
 """
 
 from __future__ import annotations
@@ -47,7 +65,13 @@ SPEC_DET = THIS / "spec" / "hifi3d_det.json"
 EV = AAU / "runs" / "evidence"
 # tolleranze, fissate PRIMA di eseguire: 0 = uguale; "num" = stesso calcolo sugli stessi ingressi (solo l'ordine delle
 # righe cambia); "geom" = calcolo geometrico rifatto (il controllo di sviluppo di pr_noise.check: <= 1e-4 mm su REALY)
-TOL = {"exact": 0.0, "num": 1e-12, "geom_mm": 1e-4, "rel": 1e-9, "spearman_geom": 1e-4}
+TOL = {"exact": 0.0, "num": 1e-12, "geom_mm": 1e-4, "rel": 1e-9, "spearman_geom": 1e-4,
+       # v4 (embedding e descrittivi), fissate PRIMA di eseguire. embed_abs: Z = [s, u] e distanze d_F (mm), d_P
+       # ricalcolate (operatori rifatti su un'altra CPU, embedding su un'altra GPU: L40S contro A100 di sviluppo);
+       # desc_rel: autovalori / HKS / WKS e Gram varifold ricalcolati, relativo (fm_varifold.py misura 1,2e-5 fra due
+       # device); perc_abs: ArcFace e percettivi ricalcolati (1 - coseno, LPIPS); p_geom: p delle colonne ricalcolate,
+       # una replica su 1000; GW e ICP + Chamfer ricalcolati: geom_mm
+       "embed_abs": 1e-4, "desc_rel": 1e-4, "perc_abs": 1e-4, "p_geom": 1e-3}
 N_PAIRS, N_NICP = 1000, 100
 SENS = "sensibilita': NICP fallito = distanza massima"
 
@@ -353,13 +377,292 @@ def head_check() -> None:
     finish("head", rep)
 
 
+# ------------------------------------------------------------------------------------------ v4: embedding
+
+def _keys_Z(path: Path) -> tuple[list, np.ndarray, Path]:
+    with np.load(path, allow_pickle=True) as z:
+        if "subjects" in z.files:
+            keys = list(zip([str(x) for x in z["subjects"]], [str(x) for x in z["topologies"]]))
+        else:
+            keys = [tuple(Path(str(f)).name[:-4].split("_GTready_", 1)) for f in z["files"]]
+        return keys, np.asarray(z["Z"], np.float64), Path(str(z["checkpoint"]))
+
+
+def embed_check(workers: int) -> None:
+    import conf_embed as cem
+    import conf_eval as cev
+    sys.path.insert(0, str(AAU / "full_matrix"))
+    import fm_eval as fm
+    s = cc.load(SPEC_FULL)
+    arms = cem.arms_of(s)
+    rep = {"sets": {}}
+    ok = True
+    for name, st in s["embed"]["sets"].items():
+        for arm in st["arms"]:
+            ref = arms[arm]["embeddings"] if st["role"] == "eval" else s["head"]["embeddings"][arm]
+            kn, Zn, ckn = _keys_Z(cem.out_path(s, name, arm))
+            kr, Zr, ckr = _keys_Z(cc.rp(ref))
+            pos = {k: i for i, k in enumerate(kr)}
+            want = sorted((x, t) for x, t, _ in cem.items_of(s, name))
+            r = {"reference": ref, "meshes": len(kn), "keys_equal_staged": sorted(kn) == want,
+                 "keys_in_reference": all(k in pos for k in kn), "checkpoint_equal": ckn.resolve() == ckr.resolve()}
+            if r["keys_in_reference"]:
+                Zr = Zr[[pos[k] for k in kn]]
+                r["Z_max_abs"] = maxabs(Zn, Zr)
+                i, j = np.triu_indices(len(kn), 1)
+                c = float(arms[arm]["c"])
+                dn = fm.fp.distances(Zn, i, j, ckn, (c, c))
+                dr = fm.fp.distances(Zr, i, j, ckr, (c, c))
+                r["dist_max_abs"] = {k: maxabs(dn[k], dr[k]) for k in ("form_cal", "form", "shape")}
+                r["pairs"] = int(len(i))
+            r["pass"] = r["keys_equal_staged"] and r["keys_in_reference"] and r["checkpoint_equal"] and \
+                r["Z_max_abs"] <= TOL["embed_abs"] and max(r["dist_max_abs"].values()) <= TOL["embed_abs"]
+            ok &= r["pass"]
+            rep["sets"][f"{name}|{arm}"] = r
+            gj = cc.evidence(s) / "embed" / name / f"{arm}.json"
+            if gj.exists():
+                r["gpu"] = json.loads(gj.read_text()).get("gpu")
+    # Spearman delle distanze col nuovo embedding contro lo stesso con quello di sviluppo (righe e repliche di conf_eval)
+    be = fm.be
+    R = cev.build_rows(s, be.zes)
+    gt = cev.gt_columns(s, R, be.zsum)
+    X = {}
+    for name, st in s["embed"]["sets"].items():
+        if st["role"] != "eval":
+            continue
+        for arm in st["arms"]:
+            c = float(arms[arm]["c"])
+            for tag, path in (("new", cem.out_path(s, name, arm)), ("dev", cc.rp(arms[arm]["embeddings"]))):
+                Z, ck = cev.embeddings(path, R["idx"])
+                for k, d in fm.fp.distances(Z, R["ia"], R["ib"], ck, (c, c)).items():
+                    if k in ("form_cal", "form", "shape"):
+                        X[f"{tag}:{arm}|{k}"] = d
+    mask = np.isfinite(gt["fr"]) & np.isfinite(gt["sr"]) & np.all([np.isfinite(v) for v in X.values()], axis=0)
+    n = len(R["subjects"])
+    rng = np.random.default_rng(int(s["boot_seed"]))
+    counts = [np.ones(n, dtype=np.int64)] + [np.bincount(rng.integers(0, n, n), minlength=n) for _ in range(1000)]
+    meth = sorted(X)
+    V, nr = cev.reading(X, gt, R, mask, meth, counts, workers, fm)
+    mi = {m: k for k, m in enumerate(meth)}
+    sp = {}
+    for g in cev.GROUPS:
+        for ti, gtn in enumerate(("fr", "sr")):
+            for m in meth:
+                if not m.startswith("new:"):
+                    continue
+                a_, b_ = V[g][:, ti, mi[m]], V[g][:, ti, mi["dev:" + m[4:]]]
+                pa, pb = [a_[0], *np.percentile(a_[1:], [2.5, 97.5])], [b_[0], *np.percentile(b_[1:], [2.5, 97.5])]
+                sp[f"{g}|{gtn}|{m[4:]}"] = {"rho_new": pa[0], "rho_dev": pb[0], "max_abs": maxabs(pa, pb)}
+    rep["spearman"] = sp
+    rep["spearman_max_abs"] = max(v["max_abs"] for v in sp.values())
+    rep["rows_by_group"] = nr
+    rep["pass"] = bool(ok and rep["spearman_max_abs"] <= TOL["spearman_geom"])
+    finish("embed", rep)
+
+
+# ------------------------------------------------------------------------------------------ v4: descrittivi
+
+def desc_check() -> None:
+    import conf_desc as cd
+    sys.path.insert(0, str(AAU / "full_matrix"))
+    import bp_paired as bpp
+    import fm_compute as fcm
+    s, name = cd.setup(SPEC_FULL)
+    W = cd.desc_dir(s)
+    rep = {}
+
+    def rel(a, b):
+        a, b = np.asarray(a, np.float64), np.asarray(b, np.float64)
+        if (np.isfinite(a) != np.isfinite(b)).any():
+            return float("inf")
+        f = np.isfinite(b)
+        return float((np.abs(a[f] - b[f]) / np.maximum(np.abs(b[f]), 1e-300)).max())
+
+    with np.load(W / "spectral.npz") as a, np.load(fcm.HIFI_SPECTRAL) as b:     # spettrali
+        ka, kb = cd_keys(a), cd_keys(b)
+        o = [kb.index(k) for k in ka]
+        rep["spectral"] = {"meshes": len(ka), "keys_in_reference": all(k in kb for k in ka),
+                           "evals_rel": rel(a["evals"][:, 1:], np.asarray(b["evals"])[o][:, 1:]),
+                           "hks_rel": rel(a["hks"], np.asarray(b["hks"])[o]),
+                           "wks_rel": rel(a["wks"], np.asarray(b["wks"])[o]),
+                           "n_components_equal": bool(np.array_equal(a["n_components"], np.asarray(b["n_components"])[o]))}
+    Gn, kn = cd.varifold_gram(s)                                                # varifold
+    G5, k5 = bpp.varifold_gram("hifi3d")
+    with np.load(EV / "full_matrix" / "varifold" / "hifi3d.npz") as z:
+        G6, k6 = np.asarray(z["G"]), fm_keys(z)
+    if k6[:500] != k5:
+        raise SystemExit("varifold di sviluppo: chiavi senza crop diverse")
+    G6[:, :500, :500] = G5
+    o = [k6.index(k) for k in kn]
+    Gd = G6[:, o][:, :, o]
+    rep["varifold"] = {"meshes": len(kn), "G_rel": rel(Gn, Gd),
+                       "D_rel": rel(bpp.varifold_distances(Gn) + np.eye(len(kn)), bpp.varifold_distances(Gd) +
+                                    np.eye(len(kn)))}
+    rep["icp_same"] = {}                                                        # ICP, stessa topologia
+    for mode in ("mm", "cs"):
+        with np.load(W / f"icp_same_{mode}.npz") as a, np.load(EV / "full_matrix" / "icp_same" / f"hifi3d_{mode}.npz") as b:
+            same = list(a["subjects"]) == list(b["subjects"]) and np.array_equal(a["iu"], b["iu"])
+            tb = [str(t) for t in b["topologies"]]
+            o = [tb.index(str(t)) for t in a["topologies"]]
+            rep["icp_same"][mode] = {"keys_equal": bool(same), "pairs": int(a["values_rigid_icp_chamfer"].size),
+                                     "max_abs_mm": maxabs(a["values_rigid_icp_chamfer"],
+                                                          np.asarray(b["values_rigid_icp_chamfer"])[o]),
+                                     "failed": [int(a["n_failed"]), int(b["n_failed"])]}
+    ga = cd.arcface_path(s, name)                                               # ArcFace
+    gb = EV / "diagnostics" / "g0" / "teacher" / "hifi3d"
+    with np.load(ga) as a, np.load(gb / "teacher.npz") as b:
+        ka, kb = cd_keys(a), cd_keys(b)
+        o = [kb.index(k) for k in ka]
+        Za, Zb = np.asarray(a["Z"], np.float64), np.asarray(b["Z"], np.float64)[o]
+        rep["arcface"] = {"meshes": len(ka), "keys_equal": ka == kb, "Z_max_abs": maxabs(Za, Zb),
+                          "D_max_abs": maxabs(1 - Za @ Za.T, 1 - Zb @ Zb.T),
+                          "E_max_abs": maxabs(a["E"], np.asarray(b["E"])[o])}
+    ca = json.loads((ga.parent / "camera.json").read_text())
+    cb = json.loads((gb / "camera.json").read_text())
+    rep["arcface"]["camera_max_abs"] = max(maxabs(ca[k], cb[k]) for k in ("center", "scale"))
+    aa = json.loads((ga.parent / "arcface_align.json").read_text())
+    ab = json.loads((gb / "arcface_align.json").read_text())
+    rep["arcface"]["align_equal"] = aa == ab
+    rep["arcface"]["frame_note"] = json.loads((ga.parent / "frame_note.json").read_text())
+    rep["gp"] = {}                                                              # GW e percettivi, sottocampione
+    gpv = s["columns"]["desc_plugins"]["variants"]
+    for m, v in gpv.items():
+        with np.load(W / "gp" / m / v / f"{name}.npz") as a, \
+                np.load(EV / "competitors_new" / m / v / "hifi3d.npz") as b:
+            ka, kb = cd_keys(a), cd_keys(b)
+            o = np.asarray([kb.index(k) for k in ka])
+            r = {"meshes": len(ka)}
+            for d in ("fr", "sr"):
+                A, B = np.asarray(a[f"D_{d}"], np.float64), np.asarray(b[f"D_{d}"], np.float64)[np.ix_(o, o)]
+                f = np.isfinite(A) & ~np.eye(len(ka), dtype=bool)
+                r[f"pairs_{d}"] = int(f.sum() // 2)
+                r[f"max_abs_{d}"] = maxabs(A[f], B[f])
+            rep["gp"][f"{m}/{v}"] = r
+    gp_ok = all(max(r["max_abs_fr"], r["max_abs_sr"]) <= (TOL["geom_mm"] if k.startswith("gw/") else TOL["perc_abs"])
+                and r["pairs_fr"] > 0 for k, r in rep["gp"].items())
+    rep["pass"] = bool(rep["spectral"]["keys_in_reference"] and rep["spectral"]["n_components_equal"] and
+                       max(rep["spectral"][k] for k in ("evals_rel", "hks_rel", "wks_rel")) <= TOL["desc_rel"] and
+                       rep["varifold"]["G_rel"] <= TOL["desc_rel"] and
+                       all(v["keys_equal"] and v["max_abs_mm"] <= TOL["geom_mm"] for v in rep["icp_same"].values()) and
+                       rep["arcface"]["keys_equal"] and rep["arcface"]["D_max_abs"] <= TOL["perc_abs"] and
+                       rep["arcface"]["align_equal"] and gp_ok)
+    finish("desc", rep)
+
+
+def cd_keys(z) -> list:
+    return list(zip([str(x) for x in z["subjects"]], [str(t) for t in z["topologies"]]))
+
+
+fm_keys = cd_keys
+RECOMPUTED = ("varifold", "shapedna_k50", "hks", "wks", "arcface_normals", "est_cs")
+ICP = ("mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer")
+
+
+def desc_eval_check() -> None:
+    import conf_desc as cd
+    import conf_eval as cev
+    from scipy.stats import rankdata
+    sys.path.insert(0, str(AAU / "full_matrix"))
+    import fm_eval as fm
+    s = cc.load(SPEC_FULL)
+    d = cc.evidence(s) / "desc"
+    S, D = pd.read_csv(d / "spearman.csv"), pd.read_csv(d / "deltas.csv")
+    fmS, fmD = pd.read_csv(EV / "full_matrix" / "spearman.csv"), pd.read_csv(EV / "full_matrix" / "deltas.csv")
+    fmS, fmD = fmS[fmS["dominio"] == "hifi3d"], fmD[fmD["dominio"] == "hifi3d"]
+
+    def recomputed(cols, ins) -> pd.Series:
+        r = False
+        for c in cols:
+            r = r | c.isin(RECOMPUTED) | (c.isin(ICP) & (ins == "stessa_topologia"))
+        return r
+
+    rep, worst = {}, {"num": 0.0, "geom": 0.0, "p_geom": 0.0}
+    for mine, passo in ((cd.MASKED, "comune"), (cd.CONF, SENS)):
+        keys = ["insieme_righe", "perturbazione", "gt", "colonna"]
+        x = S[(S["passo"] == mine) & S["colonna"].isin(list(fm.METHODS))]
+        j = x.merge(fmS[fmS["passo"] == passo], on=keys, suffixes=("_m", "_t"))
+        g = recomputed([j["colonna"]], j["insieme_righe"])
+        dv = np.max(np.abs(j[["rho_m", "ic_lo_m", "ic_hi_m"]].to_numpy(float) -
+                           j[["rho_t", "ic_lo_t", "ic_hi_t"]].to_numpy(float)), axis=1)
+        rep[f"spearman {mine} vs full_matrix {passo}"] = {
+            "n": int(len(j)), "n_mine": int(len(x)), "n_geom": int(g.sum()),
+            "max_abs_num": float(dv[~g].max()) if (~g).any() else 0.0,
+            "max_abs_geom": float(dv[g].max()) if g.any() else 0.0,
+            "n_righe_max_abs": int(np.abs(j["n_righe_m"] - j["n_righe_t"]).max()) if len(j) else None,
+            "groups": sorted({f"{a}|{b}" for a, b in zip(j["insieme_righe"], j["perturbazione"])})}
+        keys = ["insieme_righe", "perturbazione", "gt", "tipo", "colonna_a", "colonna_b"]
+        x = D[(D["passo"] == mine) & D["tipo"].isin(["vs_nostro", "scala_allineamento"])]
+        y = fmD[(fmD["passo"] == passo) & fmD["tipo"].isin(["vs_nostro", "scala_allineamento"])].drop_duplicates(keys)
+        j = x.drop_duplicates(keys).merge(y, on=keys, suffixes=("_m", "_t"))
+        g = recomputed([j["colonna_a"], j["colonna_b"]], j["insieme_righe"])
+        dv = np.max(np.abs(j[["delta_m", "ic_lo_m", "ic_hi_m"]].to_numpy(float) -
+                           j[["delta_t", "ic_lo_t", "ic_hi_t"]].to_numpy(float)), axis=1)
+        dp = np.abs(j["p_le0_m"].to_numpy(float) - j["p_le0_t"].to_numpy(float))
+        rep[f"delta {mine} vs full_matrix {passo}"] = {
+            "n": int(len(j)), "n_mine": int(len(x)), "n_geom": int(g.sum()),
+            "max_abs_num": float(max(dv[~g].max(), dp[~g].max())) if (~g).any() else 0.0,
+            "max_abs_geom": float(dv[g].max()) if g.any() else 0.0,
+            "p_max_abs_geom": float(dp[g].max()) if g.any() else 0.0}
+    for k, v in rep.items():
+        worst["num"] = max(worst["num"], v["max_abs_num"])
+        worst["geom"] = max(worst["geom"], v["max_abs_geom"])
+        worst["p_geom"] = max(worst["p_geom"], v.get("p_max_abs_geom", 0.0))
+    pS = pd.read_csv(EV / "protocolli" / "spearman.csv")                       # protocolli, anche per perturbazione
+    pS = pS[(pS["dominio"] == "hifi3d") & (pS["kind"] == "rho")]
+    x = S[(S["passo"] == cd.CONF) & S["colonna"].isin(["now_original", "now_metrical", "realy", "stirling"])]
+    j = x.merge(pS, on=["insieme_righe", "perturbazione", "gt", "colonna"], suffixes=("_m", "_t"))
+    dv = np.max(np.abs(j[["rho_m", "ic_lo_m", "ic_hi_m"]].to_numpy(float) - j[["rho_t", "ic_lo_t", "ic_hi_t"]].to_numpy(
+        float)), axis=1)
+    rep["protocolli (confermativa) vs protocolli/spearman.csv"] = {
+        "n": int(len(j)), "max_abs_num": float(dv.max()) if len(j) else None,
+        "n_righe_max_abs": int(np.abs(j["n_righe_m"] - j["n_righe_t"]).max()) if len(j) else None,
+        "groups": sorted({f"{a}|{b}" for a, b in zip(j["insieme_righe"], j["perturbazione"])})}
+    worst["num"] = max(worst["num"], rep["protocolli (confermativa) vs protocolli/spearman.csv"]["max_abs_num"] or 0.0)
+    # plug-in GW e percettivi: rho puntuale su tutte le righe dei gruppi di competitors_new (nessuna maschera)
+    be = fm.be
+    R = cev.build_rows(s, be.zes)
+    gt = cev.gt_columns(s, R, be.zsum)
+    gp = s["columns"]["desc_plugins"]
+    dirs = [(f"{m}/{v}", cc.rp(gp["root"]) / m / v) for m, v in gp["variants"].items()]
+    P, _, _ = fm.plugin_columns(gp["view"], R["idx"].keys, dirs)
+    cS = pd.read_csv(EV / "competitors_new" / "spearman.csv")
+    cS = cS[(cS["domain"] == "hifi3d") & (cS["kind"] == "rho")]
+    crop = (R["ta"] == "crop") | (R["tb"] == "crop")
+    gsel = {"senza crop": ~crop, "righe col crop": crop, "all_cross": np.ones(len(crop), bool)}
+    gsel.update({f"con {t}": ~crop & ((R["ta"] == t) | (R["tb"] == t)) for t in cd.NOCROP})
+    pr, pmax = [], 0.0
+    for r in cS.itertuples():
+        col = f"plugin:{r.method}/{r.variant}|{r.mode}"
+        if col not in P or r.group not in gsel:
+            continue
+        rows = np.flatnonzero(gsel[r.group])
+        x = P[col][R["ia"][rows], R["ib"][rows]]
+        rho = fm.fp._pearson(rankdata(x), rankdata(gt[r.gt][rows]))
+        pr.append({"group": r.group, "gt": r.gt, "column": col, "rho_mine": rho, "rho_dev": r.point, "n": int(len(rows)),
+                   "n_dev": int(r.n_rows)})
+        pmax = max(pmax, abs(rho - r.point))
+    rep["plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv"] = {
+        "n": len(pr), "max_abs_num": pmax, "rows_equal": all(q["n"] == q["n_dev"] for q in pr)}
+    worst["num"] = max(worst["num"], pmax)
+    rep["worst"] = worst
+    nr = [v.get("n_righe_max_abs") for v in rep.values() if isinstance(v, dict) and v.get("n_righe_max_abs") is not None]
+    rep["n_righe_max_abs"] = max(nr) if nr else None
+    rep["pass"] = bool(worst["num"] <= TOL["num"] and worst["geom"] <= TOL["spearman_geom"] and
+                       worst["p_geom"] <= TOL["p_geom"] and rep["n_righe_max_abs"] == 0 and
+                       all(v["n"] > 0 for k, v in rep.items() if isinstance(v, dict) and "n" in v) and
+                       rep["plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv"]["rows_equal"])
+    finish("desc-eval", rep)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("step", choices=("export-template", "landmarks", "det", "eval-full", "eval-det", "blmm", "bp", "head"))
+    p.add_argument("step", choices=("export-template", "landmarks", "det", "eval-full", "eval-det", "blmm", "bp", "head",
+                                    "embed", "desc", "desc-eval"))
     p.add_argument("--workers", type=int, default=8)
     a = p.parse_args()
     {"export-template": export_template, "landmarks": landmarks, "det": det, "eval-full": eval_full,
-     "eval-det": eval_det, "blmm": lambda: blmm_check(a.workers), "bp": bp_check, "head": head_check}[a.step]()
+     "eval-det": eval_det, "blmm": lambda: blmm_check(a.workers), "bp": bp_check, "head": head_check,
+     "embed": lambda: embed_check(a.workers), "desc": desc_check, "desc-eval": desc_eval_check}[a.step]()
 
 
 if __name__ == "__main__":

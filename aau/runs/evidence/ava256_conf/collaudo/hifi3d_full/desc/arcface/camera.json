@@ -1,0 +1,17 @@
+{
+ "center": [
+  -0.011590396584029678,
+  0.04833183479163294,
+  0.23249779408379165
+ ],
+ "scale": 2.1001780975153967,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "n_meshes": 600,
+ "base_rotation": "x180",
+ "mode": "normals",
+ "view_dir": "/tmp/wbes_conf_arc_1071723/meshes/hifi3d_full"
+}

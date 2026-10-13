@@ -411,6 +411,25 @@
   "heads": {
    "factorized_s1234": "aau/runs/ava256_conf/head/factorized_s1234.npz",
    "factorized_s2345": "aau/runs/ava256_conf/head/factorized_s2345.npz"
+  },
+  "desc_models": {
+   "factorizedc3m_e123": {
+    "checkpoint": "aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth",
+    "checkpoint_sha256": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77",
+    "c": 0.25732677076342675,
+    "embeddings": "aau/runs/ava256_conf/embed/eval_view/factorizedc3m_e123/embeddings.npz"
+   }
+  },
+  "desc_plugins": {
+   "root": "aau/runs/ava256_conf/desc/gp",
+   "view": "ava256",
+   "variants": {
+    "gw": "euclid_128_cgw2",
+    "lpips": "depth",
+    "dinov2": "depth",
+    "clip": "smooth",
+    "dreamsim": "smooth"
+   }
   }
  },
  "head": {
@@ -489,5 +508,66 @@
  "out": {
   "work": "aau/runs/ava256_conf",
   "evidence": "aau/runs/evidence/ava256_conf"
+ },
+ "embed": {
+  "ops_root": "datasets/V3_OPS_CACHE/conf/ava256",
+  "sets": {
+   "eval_view": {
+    "role": "eval",
+    "dir": "datasets/AVA256/eval_view/npz",
+    "subjects": "subjects",
+    "labels": [
+     "crop",
+     "down8k",
+     "noisy",
+     "original",
+     "remesh",
+     "up60k"
+    ],
+    "scale_table": "datasets/AVA256/scale/eval_view.npz",
+    "arms": [
+     "factorized_s1234",
+     "factorized_s2345",
+     "factorizedc3m_e123"
+    ]
+   },
+   "calib_view": {
+    "role": "head",
+    "dir": "datasets/AVA256/calib_view/npz",
+    "subjects": "head",
+    "labels": [
+     "original",
+     "remesh",
+     "down8k",
+     "noisy",
+     "up60k"
+    ],
+    "scale_table": "datasets/AVA256/scale/calib_view.npz",
+    "arms": [
+     "factorized_s1234",
+     "factorized_s2345"
+    ]
+   }
+  }
+ },
+ "desc": {
+  "arcface": {
+   "rotation": "x180"
+  },
+  "gw": {
+   "config": "euclid|128|cgw2",
+   "pilot_choice": "aau/runs/evidence/competitors_new/gw/pilot_choice.json",
+   "pilot_choice_sha256": "0e2b902ace486b981d92b7077715d471d896f58672c4ff9dca5863e56bd71205"
+  },
+  "perc": {
+   "variants": {
+    "lpips": "depth",
+    "dinov2": "depth",
+    "clip": "smooth",
+    "dreamsim": "smooth"
+   },
+   "pilot_choice": "aau/runs/evidence/competitors_new/percettivi/pilot_choice.json",
+   "pilot_choice_sha256": "7ffbee31118237b7973483027f2f042a9c7d04d27b7602fc65bd79cb361d7cc3"
+  }
  }
 }

@@ -1,0 +1,45 @@
+{
+ "set": "eval_view",
+ "arm": "factorizedc3m_e123",
+ "meshes": 600,
+ "Z_shape": [
+  600,
+  257
+ ],
+ "checkpoint": "aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth",
+ "checkpoint_sha256": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77",
+ "scale_table": "aau/runs/evidence/trainer_v3/factorized/scale_tables/hifi3d_eval.npz",
+ "scale_table_sha256": "45ea8d4dcca78bb8dba1d0ce78082abc40455b9ea80640ad88c27a20af57b8a6",
+ "domain": "hifi3d",
+ "rotation_source": "e12/frames.json (uguale allo spec)",
+ "ops": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/V3_OPS_CACHE/conf/hifi3d_full/eval_view/ops",
+ "args": [
+  "--checkpoint_selector",
+  "best_by_clean",
+  "--subject_split",
+  "all",
+  "--eval_fraction",
+  "0.2",
+  "--max_subjects",
+  "0",
+  "--max_meshes_per_subject_eval",
+  "10",
+  "--preload_workers",
+  "8",
+  "--pair_mode",
+  "cross_topology",
+  "--seed",
+  "1234"
+ ],
+ "env": {
+  "WBES_V3_FACTORIZED_OUT": "full",
+  "WBES_EVAL_SCENARIOS": "clean"
+ },
+ "gpu": "NVIDIA L40S",
+ "torch": "2.5.0a0+e000cf0ad9.nv24.10",
+ "seconds": 53.95010447502136,
+ "npz": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ava256_collaudo/hifi3d_full/embed/eval_view/factorizedc3m_e123/embeddings.npz",
+ "host": "a768-l40s-01.srv.aau.dk",
+ "job": "1071703",
+ "date": "2026-10-13 11:41:49"
+}

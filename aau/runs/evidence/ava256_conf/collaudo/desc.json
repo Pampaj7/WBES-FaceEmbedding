@@ -1,0 +1,107 @@
+{
+ "spectral": {
+  "meshes": 600,
+  "keys_in_reference": true,
+  "evals_rel": 1.1889349629510502e-10,
+  "hks_rel": 7.931133809324952e-10,
+  "wks_rel": 6.461021464682594e-11,
+  "n_components_equal": true
+ },
+ "varifold": {
+  "meshes": 600,
+  "G_rel": 2.684445810926786e-07,
+  "D_rel": 0.008569136925521805
+ },
+ "icp_same": {
+  "mm": {
+   "keys_equal": true,
+   "pairs": 29700,
+   "max_abs_mm": 0.0,
+   "failed": [
+    0,
+    0
+   ]
+  },
+  "cs": {
+   "keys_equal": true,
+   "pairs": 29700,
+   "max_abs_mm": 6.52811138479592e-14,
+   "failed": [
+    0,
+    0
+   ]
+  }
+ },
+ "arcface": {
+  "meshes": 600,
+  "keys_equal": true,
+  "Z_max_abs": 0.0,
+  "D_max_abs": 0.0,
+  "E_max_abs": 0.0,
+  "camera_max_abs": 0.0,
+  "align_equal": true,
+  "frame_note": {
+   "expected": "x180",
+   "chosen": "x180",
+   "score": {
+    "none": 0,
+    "x180": 2,
+    "y180": 0,
+    "z180": 0
+   },
+   "used": "x180"
+  }
+ },
+ "gp": {
+  "gw/euclid_128_cgw2": {
+   "meshes": 72,
+   "pairs_fr": 1980,
+   "max_abs_fr": 0.0,
+   "pairs_sr": 1980,
+   "max_abs_sr": 8.788063174947069e-07
+  },
+  "lpips/depth": {
+   "meshes": 72,
+   "pairs_fr": 2556,
+   "max_abs_fr": 5.134781488891349e-16,
+   "pairs_sr": 2556,
+   "max_abs_sr": 1.7871760310872453e-05
+  },
+  "dinov2/depth": {
+   "meshes": 72,
+   "pairs_fr": 2556,
+   "max_abs_fr": 0.0,
+   "pairs_sr": 2556,
+   "max_abs_sr": 4.542664601925317e-05
+  },
+  "clip/smooth": {
+   "meshes": 72,
+   "pairs_fr": 2556,
+   "max_abs_fr": 2.691367098073272e-07,
+   "pairs_sr": 2556,
+   "max_abs_sr": 1.0030258687621085e-05
+  },
+  "dreamsim/smooth": {
+   "meshes": 72,
+   "pairs_fr": 2556,
+   "max_abs_fr": 0.0,
+   "pairs_sr": 2556,
+   "max_abs_sr": 6.992508651548768e-06
+  }
+ },
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071724",
+ "date": "2026-10-13 13:16:11"
+}

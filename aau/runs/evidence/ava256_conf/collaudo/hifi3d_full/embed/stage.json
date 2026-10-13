@@ -1,0 +1,35 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_full.json",
+ "sets": {
+  "eval_view": {
+   "meshes": 600,
+   "subjects": 100,
+   "labels": [
+    "crop",
+    "down8k",
+    "noisy",
+    "original",
+    "remesh",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/V3_OPS_CACHE/conf/hifi3d_full/eval_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/V3_OPS_CACHE/conf/hifi3d_full/eval_view/ops"
+  },
+  "calib_view": {
+   "meshes": 1000,
+   "subjects": 200,
+   "labels": [
+    "original",
+    "remesh",
+    "down8k",
+    "noisy",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/V3_OPS_CACHE/conf/hifi3d_full/calib_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/datasets/V3_OPS_CACHE/conf/hifi3d_full/calib_view/ops"
+  }
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071702",
+ "date": "2026-10-13 11:30:53"
+}

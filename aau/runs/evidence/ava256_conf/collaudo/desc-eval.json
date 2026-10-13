@@ -1,0 +1,109 @@
+{
+ "spearman mascherata (descrittiva) vs full_matrix comune": {
+  "n": 782,
+  "n_mine": 782,
+  "n_geom": 208,
+  "max_abs_num": 0.0,
+  "max_abs_geom": 4.818532118866514e-07,
+  "n_righe_max_abs": 0,
+  "groups": [
+   "all_cross|-",
+   "con_perturbazione|down8k",
+   "con_perturbazione|noisy",
+   "con_perturbazione|original",
+   "con_perturbazione|remesh",
+   "con_perturbazione|up60k",
+   "crop|crop",
+   "nocrop|-",
+   "stessa_topologia|crop",
+   "stessa_topologia|down8k",
+   "stessa_topologia|noisy",
+   "stessa_topologia|original",
+   "stessa_topologia|remesh",
+   "stessa_topologia|tutte",
+   "stessa_topologia|up60k"
+  ]
+ },
+ "delta mascherata (descrittiva) vs full_matrix comune": {
+  "n": 1602,
+  "n_mine": 2202,
+  "n_geom": 722,
+  "max_abs_num": 0.0,
+  "max_abs_geom": 5.696590670109525e-06,
+  "p_max_abs_geom": 0.0
+ },
+ "spearman confermativa (+inf) vs full_matrix sensibilita': NICP fallito = distanza massima": {
+  "n": 782,
+  "n_mine": 782,
+  "n_geom": 208,
+  "max_abs_num": 0.0,
+  "max_abs_geom": 4.818532118866514e-07,
+  "n_righe_max_abs": 0,
+  "groups": [
+   "all_cross|-",
+   "con_perturbazione|down8k",
+   "con_perturbazione|noisy",
+   "con_perturbazione|original",
+   "con_perturbazione|remesh",
+   "con_perturbazione|up60k",
+   "crop|crop",
+   "nocrop|-",
+   "stessa_topologia|crop",
+   "stessa_topologia|down8k",
+   "stessa_topologia|noisy",
+   "stessa_topologia|original",
+   "stessa_topologia|remesh",
+   "stessa_topologia|tutte",
+   "stessa_topologia|up60k"
+  ]
+ },
+ "delta confermativa (+inf) vs full_matrix sensibilita': NICP fallito = distanza massima": {
+  "n": 1602,
+  "n_mine": 2202,
+  "n_geom": 722,
+  "max_abs_num": 0.0,
+  "max_abs_geom": 5.696590670109525e-06,
+  "p_max_abs_geom": 0.0
+ },
+ "protocolli (confermativa) vs protocolli/spearman.csv": {
+  "n": 64,
+  "max_abs_num": 0.0,
+  "n_righe_max_abs": 0,
+  "groups": [
+   "all_cross|-",
+   "con_perturbazione|down8k",
+   "con_perturbazione|noisy",
+   "con_perturbazione|original",
+   "con_perturbazione|remesh",
+   "con_perturbazione|up60k",
+   "crop|crop",
+   "nocrop|-"
+  ]
+ },
+ "plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv": {
+  "n": 160,
+  "max_abs_num": 9.71445146547012e-17,
+  "rows_equal": true
+ },
+ "worst": {
+  "num": 9.71445146547012e-17,
+  "geom": 5.696590670109525e-06,
+  "p_geom": 0.0
+ },
+ "n_righe_max_abs": 0,
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071724",
+ "date": "2026-10-13 13:16:20"
+}

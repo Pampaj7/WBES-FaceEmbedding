@@ -10,10 +10,12 @@ Spec = un json per dominio (``aau/ava256/spec/``): lo stesso formato per Ava-256
 sviluppo, che passano dallo STESSO codice. Chiavi (oltre a quelle di ``pr_common.view`` e ``blmm.register_spec``):
 ``collaudo`` (true solo sui domini di sviluppo), ``freeze`` (true: verifiche della sez. 11 prima di leggere i dati),
 ``gt`` {fr, sr}, ``boot_seed``, ``pairs`` (sottocampione, solo collaudo), ``columns`` (sorgenti delle colonne del
-valutatore), ``head`` (blocco di R6), ``detector`` (pesi e versioni attese), ``out`` {work, evidence}.
+valutatore), ``head`` (blocco di R6), ``detector`` (pesi e versioni attese), ``out`` {work, evidence}; v4: ``embed``
+(insiemi e operatori dell'embedding, ``conf_embed.py``) e ``desc`` (descrittivi, ``conf_desc.py``).
 
 ``verify`` (sez. 11; un solo scarto -> RuntimeError): sha256 dei byte dei manifest in git, ``ava_freeze.verify_frozen()``,
-``verify_frozen_supp()``, ``ava_calib.verify_calib()``, sha256 dei checkpoint, dei pesi del rilevatore, di
+``verify_frozen_supp()``, ``ava_calib.verify_calib()``, sha256 dei checkpoint (semi e, v4, ``columns.desc_models``:
+C3M e123), dei pesi del rilevatore, di
 ``template.npz`` e ``corr/ava256.npz``, frame e soggetti dello spec contro ``frame.json`` e ``split.json``. ``versions``
 (nel venv di MICA): versioni di insightface e onnxruntime contro lo spec. Senza ``freeze`` (collaudi) solo i controlli
 che non toccano Ava-256.
@@ -43,7 +45,14 @@ SCRIPTS = ("aau/ava256/conf_common.py", "aau/ava256/conf_protocols.py", "aau/ava
            "aau/baselines_mm/blmm_template.py", "aau/baselines_param/bp.py", "aau/baselines_param/bp_fit.py",
            "aau/baselines_param/bp_fit_e1.py", "aau/baselines_param/bp_e2.py", "aau/full_matrix/fm_eval.py",
            "aau/diagnostics/d3_head.py", "aau/diagnostics/d3_e2.py", "aau/diagnostics/d3_stats.py",
-           "aau/diagnostics/diag.py", "v3_work/trainer/tools/fact_paired.py")
+           "aau/diagnostics/diag.py", "v3_work/trainer/tools/fact_paired.py",
+           # v4: embedding e descrittivi fuori da conf_eval (conf_embed.py, conf_desc.py) e cio' che importano
+           "aau/ava256/conf_embed.py", "aau/ava256/conf_desc.py", "aau/zs3dmm/zs_embed.py", "v3_work/trainer/eval_v3.py",
+           "v3_work/trainer/global_v3.py", "v2_work/potential/areanorm_operators.py", "aau/full_matrix/fm_compute.py",
+           "aau/competitors/comp_spectral.py", "aau/baselines_param/bp_paired.py", "aau/baselines_param/bp_paired_e2.py",
+           "aau/baselines_mm/blmm_eval.py", "aau/diagnostics/g0_teacher.py", "aau/competitors/gw_percettivi/gp_common.py",
+           "aau/competitors/gw_percettivi/gp_gw.py", "aau/competitors/gw_percettivi/gp_percettivi.py",
+           "aau/ava256/spec/hifi3d_full.json", "aau/ava256/spec/hifi3d_det.json")
 MANIFESTS = {"aau/ava256/freeze_manifest.json": "e485fb7c44f0638ef3111343ba8741a3febae80be35f8fcdae14ae0839d5f365",
              "aau/ava256/freeze_manifest_supp.json": "c6d2157a145fa29e7a8415dc60aa1bd98e9edfdf2bc38563356cc15f16f3b02e",
              "aau/ava256/calib_manifest.json": "d3657a186525dd32c7e152356047204a2bbfad86fd65a098d9895db91b1a3af7",
@@ -118,7 +127,8 @@ def verify(s: dict) -> dict:
         got = sha256(p) if p.exists() else "assente"
         rep.setdefault("detector_weights", {})[f] = got
         check(got == h, f"pesi del rilevatore {f}: {got}", err)
-    for arm, m in s.get("columns", {}).get("models", {}).items():            # checkpoint dei semi
+    arms = {**s.get("columns", {}).get("models", {}), **(s.get("columns", {}).get("desc_models") or {})}
+    for arm, m in arms.items():                                            # checkpoint dei semi e di C3M (sez. 9)
         if m.get("checkpoint_sha256"):
             p = rp(m["checkpoint"])
             got = sha256(p) if p.exists() else "assente"

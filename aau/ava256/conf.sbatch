@@ -22,11 +22,20 @@
 #   CONF_SPEC=$S CONF_STEPS="bp-fit bp-fit-e1 bp-crop" sbatch aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="head-fit" sbatch --nodelist=i256-a10-10 --cpus-per-task=4 --mem=64G aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="eval" sbatch aau/ava256/conf.sbatch                          (LEGGE LE GT)
+#   v4, embedding e descrittivi fuori da conf_eval (conf_embed.py, conf_desc.py):
+#   CONF_SPEC=$S CONF_STEPS="embed-stage" sbatch aau/ava256/conf.sbatch                   (link e operatori, CPU)
+#   CONF_SPEC=$S CONF_STEPS="embed desc-varifold" sbatch --gres=gpu:l40s:1 --cpus-per-task=16 --mem=96G aau/ava256/conf.sbatch
+#   CONF_SPEC=$S CONF_STEPS="desc-spectral desc-icp-same desc-arcface desc-gw-prep desc-perc" sbatch aau/ava256/conf.sbatch
+#   CONF_SPEC=$S CONF_STEPS="desc-gw-run:0/4" sbatch --time=24:00:00 aau/ava256/conf.sbatch   (4 job; poi desc-gw-merge)
+#   CONF_SPEC=$S CONF_STEPS="desc-eval" sbatch aau/ava256/conf.sbatch                     (LEGGE LE GT)
 # Passi: versions (venv di MICA), gate (gate-render, rilevatore, gate-compare: tolleranza 0, se fallisce il job si
 # ferma), define, prep, render, detect (venv di MICA), detprep, run[:k/n], merge (conf_protocols.py); blmm-scalars,
 # blmm-template, blmm-pairs:<modo>:<passo> (con --claim: piu' job svuotano la stessa coda); bp-fit, bp-fit-e1, bp-crop
 # (sigma 2, LOOP congelato); head-block, head-fit (conf_head.py; nodo i256-a10-10); eval (conf_eval.py);
-# export-template e collaudo:<passo> (conf_collaudo.py, solo HIFI3D). Il rilevatore gira come in pr_noise.sbatch
+# export-template e collaudo:<passo> (conf_collaudo.py, solo HIFI3D); v4: embed-stage (conf_embed.py stage, poi gli
+# operatori areanorm k_eig 128 in W-1 shard come d3.sbatch, controllo del conteggio), embed (GPU, AAU_NV=--nv), desc-spectral,
+# desc-varifold[:k/n] (GPU), desc-icp-same, desc-arcface (render su /tmp del job), desc-gw-prep, desc-gw-run[:k/n],
+# desc-gw-merge, desc-perc (venv di gw_percettivi), desc-eval (conf_desc.py). Il rilevatore gira come in pr_noise.sbatch
 # (onnxruntime su CPU, OMP_NUM_THREADS = core del job); gate e render dello stesso dominio nello stesso job, sullo stesso
 # nodo (a256-t4-04, quello di sviluppo, job 1071153).
 set -euo pipefail
@@ -41,6 +50,26 @@ A=aau/ava256
 RUN=(v3_work/unified_gt/run.sh -u)
 O3D=(aau/outlineB/run_o3d.sh -u)
 MICA=(aau/recon/run_recon.sh mica -u)
+REPOPY=(aau/run.sh -u)
+BL=(aau/baselines/run_bl.sh -u)
+GP=(aau/competitors/gw_percettivi/gp_run.sh -u)
+ops() {  # <cartella delle mesh> <cartella degli operatori>: areanorm k_eig 128 in W-1 shard (d3.sbatch), conteggio
+  local src="$1" out="$2" i N M pids=()
+  N=$(find "$src" -name "*.npz" | wc -l)
+  mkdir -p "$out"
+  for (( i = 0; i < W - 1; i++ )); do
+    OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 "${REPOPY[@]}" v2_work/potential/areanorm_operators.py \
+      --input-dir "$src" --output-dir "$out" --k-eig 128 --shard "$i/$((W - 1))" \
+      > "/tmp/wbes_conf_ops_${SLURM_JOB_ID:-x}.$i.log" 2>&1 & pids+=($!)
+  done
+  for i in "${!pids[@]}"; do
+    wait "${pids[$i]}" || { echo "ERRORE: shard $i"; cat "/tmp/wbes_conf_ops_${SLURM_JOB_ID:-x}.$i.log"; return 1; }
+  done
+  rm -f /tmp/wbes_conf_ops_"${SLURM_JOB_ID:-x}".*.log
+  M=$(find "$out" -name "*.npz" ! -name ".*" | wc -l)
+  echo "[conf] $(date +%T) operatori $M / $N in $out, $(du -sh "$out" | cut -f1)"
+  (( M == N )) || { echo "ERRORE: operatori incompleti"; return 1; }
+}
 DETDIR="$WORK/protocolli/noise/det"
 echo "[conf] host=$(hostname) job=${SLURM_JOB_ID:-none} spec=$SPEC vista=$NAME passi=${CONF_STEPS:?CONF_STEPS} cpu=$W $(date +%T)"
 "${RUN[@]}" $A/conf_common.py verify --spec "$SPEC"
@@ -68,6 +97,23 @@ for tok in $CONF_STEPS; do
         head-block|head-fit)
                    UGT_THREADS=1 "${RUN[@]}" $A/conf_head.py "${step#head-}" --spec "$SPEC" ;;
         eval)      UGT_THREADS=1 "${RUN[@]}" $A/conf_eval.py --spec "$SPEC" --workers "$W" ;;
+        embed-stage)
+                   "${REPOPY[@]}" $A/conf_embed.py stage --spec "$SPEC"
+                   while read -r IN OUT; do ops "$IN" "$OUT"; done < <(python3 -c 'import json, sys
+s = json.load(open(sys.argv[1])); r = s["embed"]["ops_root"]
+for k in s["embed"]["sets"]: print(f"{r}/{k}/in {r}/{k}/ops")' "$SPEC") ;;
+        embed)     AAU_NV=--nv "${REPOPY[@]}" $A/conf_embed.py run --spec "$SPEC" ;;
+        desc-spectral) "${REPOPY[@]}" $A/conf_desc.py spectral --spec "$SPEC" --workers "$W" ;;
+        desc-varifold) AAU_NV=--nv "${O3D[@]}" $A/conf_desc.py varifold --spec "$SPEC" --device cuda \
+                           --shard "${arg:-0/1}" --workers "$W" ;;
+        desc-icp-same) "${O3D[@]}" $A/conf_desc.py icp-same --spec "$SPEC" --workers "$W" ;;
+        desc-arcface)  ST="/tmp/wbes_conf_arc_${SLURM_JOB_ID:-x}"
+                       "${BL[@]}" $A/conf_desc.py arcface --spec "$SPEC" --stage "$ST" --workers "$W"; rm -rf "$ST" ;;
+        desc-gw-prep|desc-gw-merge)
+                   "${GP[@]}" $A/conf_desc.py "${step#desc-}" --spec "$SPEC" --workers "$W" ;;
+        desc-gw-run) "${GP[@]}" $A/conf_desc.py gw-run --spec "$SPEC" --shard "${arg:-0/1}" --workers "$W" ;;
+        desc-perc) GP_THREADS="$W" "${GP[@]}" $A/conf_desc.py perc --spec "$SPEC" --workers "$W" ;;
+        desc-eval) UGT_THREADS=1 "${RUN[@]}" $A/conf_desc.py eval --spec "$SPEC" --workers "$W" ;;
         export-template) "${RUN[@]}" $A/conf_collaudo.py export-template ;;
         collaudo)  if [[ "$arg" == blmm || "$arg" == bp ]]; then R=("${O3D[@]}"); else R=("${RUN[@]}"); fi
                    "${R[@]}" $A/conf_collaudo.py "$arg" --workers "$W" ;;
