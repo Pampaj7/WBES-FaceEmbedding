@@ -17,6 +17,8 @@
 #   RI_REVERSE=1 RI_STEPS="run:facescape@nicp" sbatch ri.sbatch        (riserva: dalle ultime parti, senza merge)
 #   RI_STEPS="nownode:hifi3d nownode:facescape" sbatch --exclude=<tutti tranne a256-t4-*, a256-a40-*> -c 12 ri.sbatch
 #                                                 (NoW di default sulla CPU della matrice, AMD EPYC 7302: controllo)
+#   RI_STEPS="nicpnode:hifi3d" sbatch --nodelist=a768-l40s-05 -c 16 ri.sbatch  (NICP di default sul nodo della
+#                                                 matrice per le sue coppie di topologie: ri.MATRIX_NICP_HOST)
 #   RI_STEPS="check:hifi3d check:facescape check:famos eval" sbatch ri.sbatch   (eval LEGGE LE GT di test)
 # ICP e NICP nel venv della matrice (run_o3d.sh, come blmm_pairs); NoW, merge, check ed eval in quello dei protocolli.
 set -euo pipefail
@@ -42,6 +44,7 @@ for tok in $RI_STEPS; do
         merge)   "${UG[@]}" $D/ri.py merge --view "$view" --method "$meth" ;;
         check)   "${UG[@]}" $D/ri.py check --view "$view" ;;
         nownode) "${UG[@]}" $D/ri.py check-now-node --view "$view" --workers "$W" ;;
+        nicpnode) "${O3[@]}" $D/ri.py check-nicp-node --view "$view" --workers "$W" ;;
         eval)    "${UG[@]}" $D/ri.py eval --workers "$W" ;;
         results) "${UG[@]}" $D/ri.py results ;;
         *) echo "passo sconosciuto: $step" >&2; exit 2 ;;

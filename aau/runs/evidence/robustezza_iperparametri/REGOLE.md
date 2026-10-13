@@ -150,6 +150,21 @@ matrice; solo il tipo di nodo a256-t4 riproduce il plug-in. Quindi:
   EPYC 7302 (a256-t4-04, job 1071153): la montano anche i nodi a256-a40, e su a256-a40-04 le 12 coppie peggiori per
   vista riproducono il plug-in con scarto 0,0 (prova di 2 core); il controllo gira su a256-t4 o a256-a40.
 
+## 4e. Emendamento 4 (il controllo ha fermato `eval` PRIMA di leggere qualunque GT; job 1075791)
+
+Controllo completo: ICP esatto (HIFI3D, FaceScape: 0; FaMoS 9e-14 mm), NoW esatto sulla CPU della matrice (HIFI3D,
+FaceScape: 0 su tutte le coppie; FaMoS 0), NICP FaceScape entro 1e-4 (8e-5 mm, NaN sulle stesse 828 coppie), NICP
+HIFI3D FUORI tolleranza (max 7,4e-4 mm, mediana 0, NaN sulle stesse 62 coppie): `eval` si e' fermato. Causa verificata:
+la matrice del NICP in mm di HIFI3D ha calcolato ogni coppia ordinata di topologie su un nodo diverso (log
+`wbes-blmm-n-hifi3d-mm-10660{39..44}`, `wbes-blmm-multi-10661{79,80}`); la griglia (i256-a10-06) coincide esattamente
+con le coppie calcolate su i256-a10-08/09/10 (0 su 2336), differisce su 16 delle 4732 di a768-l40s-05 (max 7,4e-4) e
+su tutte le 812 di a512-l4-06 (max 1,6e-4); le 8 peggiori di a768-l40s-05 ricalcolate su a768-l40s-05 danno 0,0.
+
+Regola, come per NoW: se il default della griglia supera la tolleranza, ogni nodo della matrice che ha coppie fuori
+tolleranza deve avere un controllo `check-nicp-node`: il NICP di default ricalcolato SU QUEL NODO per TUTTE le coppie
+che la matrice vi ha calcolato (`ri.MATRIX_NICP_HOST`, dai log) entro 1e-4 mm, NaN sulle stesse coppie; i valori
+ricalcolati non entrano nella valutazione, che usa la griglia calcolata tutta su i256-a10-06. Nessuna GT letta fin qui.
+
 ## 5. Fuori da questo giro
 
 Letture cs, SR, crop, NoW originale, REALY, Stirling; nessuna griglia sui semi di campionamento; nessun valore senza

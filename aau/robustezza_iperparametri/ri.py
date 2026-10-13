@@ -9,6 +9,7 @@ seme del nostro (factorized s1234 / s2345, d_F non cal. e cal.). Regole in
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py run --view hifi3d --method now --workers 64
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py merge --view hifi3d --method now
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check-now-node --view hifi3d --workers 12  (EPYC 7302)
+    aau/outlineB/run_o3d.sh      aau/robustezza_iperparametri/ri.py check-nicp-node --view hifi3d --workers 16 (nodi della matrice)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check --view hifi3d          (nessuna GT)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py eval --workers 64           (LEGGE LE GT di test)
     (ri.sbatch; ``--limit N``: pilota dei tempi su N coppie / mesh A, uscite in ``<WORK>/pilot``, mai valutate)
@@ -71,6 +72,7 @@ import argparse
 import itertools
 import json
 import multiprocessing as mp
+import os
 import sys
 import time
 from collections import Counter
@@ -663,6 +665,64 @@ def check_now_node(vname: str, workers: int) -> None:
     print(f"[ri] check-now-node {vname}: {json.dumps(out)}", flush=True)
 
 
+# NICP per coppia in mm della matrice, HIFI3D: il nodo che ha calcolato ogni coppia ordinata di topologie senza crop
+# (reclami per coppia di topologie; log aau/logs/wbes-blmm-n-hifi3d-mm-10660{39..44}.out e wbes-blmm-multi-10661{79,80}.out)
+_NC = ("original", "remesh", "down8k", "up60k", "noisy")
+MATRIX_NICP_HOST = {"hifi3d": {**{f"{a}>{b}": "a768-l40s-05" for a in ("down8k", "original", "up60k") for b in _NC if b != a},
+                               "noisy>down8k": "i256-a10-08", "remesh>down8k": "i256-a10-08",
+                               "noisy>original": "i256-a10-09", "remesh>noisy": "i256-a10-09",
+                               "noisy>remesh": "i256-a10-10", "remesh>original": "i256-a10-10",
+                               "noisy>up60k": "a512-l4-06", "remesh>up60k": "a512-l4-06"}}
+
+
+def nicp_hosts(vname: str, V: dict) -> np.ndarray:
+    """Nodo della matrice per ogni coppia della vista (``MATRIX_NICP_HOST``)."""
+    H = MATRIX_NICP_HOST[vname]
+    return np.asarray([H[f"{V['items'][a][1]}>{V['items'][b][1]}"] for a, b in zip(V["i"], V["j"])])
+
+
+def _nicp_default_task(r: int) -> float:
+    import facebench as fb
+    import run_facebench_remesh as rfr
+    V = _ST["V"]
+    a, b, seed = int(V["i"][r]), int(V["j"][r]), int(V["seed"][r])
+    Xs = rfr.sample_pts(V["coords"][a][0], blmm.N_POINTS, seed)
+    Ys = rfr.sample_pts(V["coords"][b][0], blmm.N_POINTS, seed + 1)
+    try:
+        Xn, _ = nicp(blmm.icp(Xs, Ys, "mm"), Ys, GRID["nicp"]["default"][0])
+        return float(np.mean(fb.p2tri_distance(Xn, Ys, fb.chamfer_correspondence(Xn, Ys)))) * V["unit"]
+    except Exception:  # noqa: BLE001  (come blmm.pair_metrics: NaN)
+        return np.nan
+
+
+def check_nicp_node(vname: str, workers: int) -> None:
+    """NICP di default ricalcolato su QUESTO nodo per le coppie che la matrice ha calcolato su questo nodo
+    (``MATRIX_NICP_HOST``) contro ``mm_nicp_p2tri``: il controllo del codice sulla CPU della matrice (REGOLE.md,
+    emendamento 4). I valori non entrano nella valutazione. Nessuna GT."""
+    import bp_paired as bpp
+    t0 = time.time()
+    host = os.uname().nodename.split(".")[0]
+    V = view_data(vname)
+    prm = blmm.params()
+    V["unit"] = blmm.unit(V["bview"], "mm", prm)
+    V["coords"] = [blmm.work_coords(V["bview"], "mm", p, prm) for _, _, p in V["items"]]
+    sel = np.flatnonzero(nicp_hosts(vname, V) == host)
+    if not len(sel):
+        raise SystemExit(f"{vname}: nessuna coppia della matrice calcolata su {host}")
+    _ST["V"] = V
+    with mp.get_context("fork").Pool(workers) as pool:
+        here = np.asarray(pool.map(_nicp_default_task, sel.tolist(), chunksize=4))
+    idx = bpp.be.zes.Index(blmm.subjects(vname))
+    pi = np.asarray([idx.pos[(s, t)] for s, t, _ in V["items"]])
+    ref = bpp.be.zes.facebench_distances(blmm.view_root(vname) / "mm", "nicp_p2tri", idx)[pi[V["i"][sel]], pi[V["j"][sel]]]
+    grid = load_dist(vname, "nicp", V)["default"][sel]
+    out = {"view": vname, "matrix_host": host, "pairs": int(len(sel)), "here_vs_matrix": maxdiff(here, ref),
+           "grid_vs_matrix": maxdiff(grid, ref), "tol": TOL["nicp_mm"], "seconds": time.time() - t0, **pc.stamp()}
+    out["ok"] = bool(out["here_vs_matrix"]["max_abs"] <= TOL["nicp_mm"] and out["here_vs_matrix"]["nan_same_pairs"])
+    pc.atomic_json(EVID / "controls" / f"check_nicp_node_{vname}_{host}.json", out)
+    print(f"[ri] check-nicp-node {vname} {host}: {json.dumps(out)}", flush=True)
+
+
 def check(vname: str) -> None:
     """Default contro la matrice (sintetiche) o contro esterna_famos_id (FaMoS). Nessuna GT. NoW sulle sintetiche: il
     controllo e' ``check_now_node`` sul tipo di nodo della matrice (il default della griglia si riporta)."""
@@ -689,6 +749,22 @@ def check(vname: str) -> None:
         for m, (M, tol, name) in refs.items():
             out["checks"][m] = {**maxdiff(load_dist(vname, m, V)["default"], M[pi[i], pi[j]]), "ref": name,
                                 "tol": TOL[tol]}
+        c = out["checks"]["nicp"]
+        if vname in MATRIX_NICP_HOST and not (c["max_abs"] <= c["tol"] and c["nan_same_pairs"]):
+            # griglia fuori tolleranza: ogni nodo della matrice con coppie fuori tolleranza deve avere il suo controllo
+            g, ref = load_dist(vname, "nicp", V)["default"], refs["nicp"][0][pi[i], pi[j]]
+            H = nicp_hosts(vname, V)
+            c["by_matrix_host"] = {}
+            for h in sorted(set(H)):
+                k = H == h
+                dh = maxdiff(g[k], ref[k])
+                need = bool(dh["max_abs"] is not None and dh["max_abs"] > c["tol"])
+                p = EVID / "controls" / f"check_nicp_node_{vname}_{h}.json"
+                node = json.loads(p.read_text()) if p.exists() else None
+                ok = (not need) or bool(node and node["ok"] and node["pairs"] == int(k.sum()))
+                c["by_matrix_host"][h] = {"grid_vs_matrix": dh, "node_check_needed": need, "ok": ok,
+                                          "node_check": node["here_vs_matrix"] if node else None}
+            c["ok"] = bool(c["nan_same_pairs"] and all(x["ok"] for x in c["by_matrix_host"].values()))
         p = EVID / "controls" / f"check_now_node_{vname}.json"
         node = json.loads(p.read_text()) if p.exists() else {"ok": False, "here_vs_matrix": None}
         out["checks"]["now"] = {"ref": "plugin now_metrical/lmk_det", "tol": TOL["now_mm"], "ok": bool(node["ok"]),
@@ -997,7 +1073,7 @@ def results() -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("step", choices=("run", "merge", "check", "check-now-node", "eval", "results"))
+    p.add_argument("step", choices=("run", "merge", "check", "check-now-node", "check-nicp-node", "eval", "results"))
     p.add_argument("--view", default="", choices=("",) + VIEWS)
     p.add_argument("--method", default="", choices=("",) + METHODS)
     p.add_argument("--workers", type=int, default=8)
@@ -1012,6 +1088,8 @@ def main() -> None:
         check(a.view)
     elif a.step == "check-now-node":
         check_now_node(a.view, a.workers)
+    elif a.step == "check-nicp-node":
+        check_nicp_node(a.view, a.workers)
     elif a.step == "eval":
         evaluate(a.workers)
     else:
