@@ -1,0 +1,27 @@
+{
+ "method": "now_original",
+ "cond": "s1",
+ "label": "NoW originale (Procrustes + ICP con scala), sigma 1 mm",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": 1.0,
+ "noise_seed": 20261013,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.5051792926467628,
+  "median": 0.4062638336326927
+ },
+ "core_hours_all_methods": 38.42043121414091,
+ "jobs": [
+  "1071154"
+ ],
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1071154",
+ "date": "2026-10-13 06:18:36"
+}

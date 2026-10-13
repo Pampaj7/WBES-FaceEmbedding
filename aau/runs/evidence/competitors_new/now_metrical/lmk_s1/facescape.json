@@ -1,0 +1,27 @@
+{
+ "method": "now_metrical",
+ "cond": "s1",
+ "label": "NoW metrical / MICA (Procrustes senza scala + ICP rigido), sigma 1 mm",
+ "view": "facescape",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": 1.0,
+ "noise_seed": 20261013,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.6753193158503098,
+  "median": 0.5202104258351028
+ },
+ "core_hours_all_methods": 38.461485182592746,
+ "jobs": [
+  "1071154"
+ ],
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1071154",
+ "date": "2026-10-13 06:57:15"
+}

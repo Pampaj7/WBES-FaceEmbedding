@@ -1,0 +1,27 @@
+{
+ "method": "now_original",
+ "cond": "det",
+ "label": "NoW originale (Procrustes + ICP con scala), rilevatore (insightface 1k3d68 su render)",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": null,
+ "noise_seed": null,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.43057370477035384,
+  "median": 0.3539748440962285
+ },
+ "core_hours_all_methods": 30.535757676462463,
+ "jobs": [
+  "1071153"
+ ],
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071153",
+ "date": "2026-10-13 06:14:18"
+}

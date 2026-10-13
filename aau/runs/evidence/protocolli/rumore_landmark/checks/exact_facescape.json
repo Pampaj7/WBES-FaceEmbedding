@@ -1,0 +1,29 @@
+{
+ "view": "facescape",
+ "n_pairs": 24,
+ "methods": {
+  "now_original": {
+   "max_abs_diff_mm": 0.0,
+   "median_value_mm": 1.385539380335222,
+   "seconds_per_unordered_pair": 0.7838710828218609
+  },
+  "now_metrical": {
+   "max_abs_diff_mm": 0.0,
+   "median_value_mm": 1.428154028958788,
+   "seconds_per_unordered_pair": 0.7273818959947675
+  },
+  "realy": {
+   "max_abs_diff_mm": 9.992007221626409e-15,
+   "median_value_mm": 1.2741898797437377,
+   "seconds_per_unordered_pair": 4.7939464130904526
+  },
+  "stirling": {
+   "max_abs_diff_mm": 0.0,
+   "median_value_mm": 1.8778458029267568,
+   "seconds_per_unordered_pair": 0.07065653707832098
+  }
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071153",
+ "date": "2026-10-13 05:44:02"
+}

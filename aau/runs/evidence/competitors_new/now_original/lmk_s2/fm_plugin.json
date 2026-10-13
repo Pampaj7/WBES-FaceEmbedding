@@ -1,0 +1,16 @@
+{
+ "label": "NoW originale (Procrustes + ICP con scala), sigma 2 mm (non dichiarata, sensibilita' ai landmark)",
+ "family": "protocolli della comunita' (sensibilita' ai landmark)",
+ "declared": false,
+ "method": "now_original",
+ "variant": "lmk_s2",
+ "readings": {
+  "mm": {
+   "label": "NoW originale (Procrustes + ICP con scala), sigma 2 mm (non dichiarata, sensibilita' ai landmark), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

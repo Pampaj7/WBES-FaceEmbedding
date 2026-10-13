@@ -1,0 +1,16 @@
+{
+ "label": "REALY (gICP con scala + rICP per regione + nICP), rilevatore (insightface 1k3d68 su render) (non dichiarata, sensibilita' ai landmark)",
+ "family": "protocolli della comunita' (sensibilita' ai landmark)",
+ "declared": false,
+ "method": "realy",
+ "variant": "lmk_det",
+ "readings": {
+  "mm": {
+   "label": "REALY (gICP con scala + rICP per regione + nICP), rilevatore (insightface 1k3d68 su render) (non dichiarata, sensibilita' ai landmark), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

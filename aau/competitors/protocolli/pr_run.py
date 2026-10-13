@@ -50,10 +50,11 @@ _ST: dict = {}
 
 # ------------------------------------------------------------------------------------------ dati
 
-def load(vname: str, spec: Path | None, now_opt: int) -> dict:
-    """Mesh in mm, landmark, ritagli e riferimenti di REALY di tutte le mesh della vista (processo padre)."""
+def load(vname: str, spec: Path | None, now_opt: int, prep: dict | None = None) -> dict:
+    """Mesh in mm, landmark, ritagli e riferimenti di REALY di tutte le mesh della vista (processo padre). ``prep``:
+    landmark e riferimenti di REALY al posto di quelli di ``pr_landmarks prep`` (landmark stimati, ``pr_noise.py``)."""
     v = pc.view(vname, spec)
-    pr = pc.read_prep(v["name"])
+    pr = pc.read_prep(v["name"]) if prep is None else prep
     keys = [(s, t) for s, t, _ in v["items"]]
     if list(zip(pr["subjects"].astype(str), pr["topologies"].astype(str))) != keys:
         raise SystemExit(f"{v['name']}: prep con mesh diverse dalla vista")

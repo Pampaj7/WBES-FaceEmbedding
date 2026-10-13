@@ -1,0 +1,27 @@
+{
+ "method": "now_original",
+ "cond": "s5",
+ "label": "NoW originale (Procrustes + ICP con scala), sigma 5 mm",
+ "view": "facescape",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": 5.0,
+ "noise_seed": 20261013,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.79528349105538,
+  "median": 0.610624369001016
+ },
+ "core_hours_all_methods": 47.44961697901573,
+ "jobs": [
+  "1071157"
+ ],
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1071157",
+ "date": "2026-10-13 07:13:21"
+}

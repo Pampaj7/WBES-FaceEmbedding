@@ -1,0 +1,27 @@
+{
+ "method": "stirling",
+ "cond": "det",
+ "label": "Stirling/ESRC (Procrustes con scala, RMSE), rilevatore (insightface 1k3d68 su render)",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": null,
+ "noise_seed": null,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.03390630915245944,
+  "median": 0.030353509122505784
+ },
+ "core_hours_all_methods": 30.535757676462463,
+ "jobs": [
+  "1071153"
+ ],
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071153",
+ "date": "2026-10-13 06:14:19"
+}

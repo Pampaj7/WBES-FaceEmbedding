@@ -1,0 +1,16 @@
+{
+ "label": "Stirling/ESRC (Procrustes con scala, RMSE), sigma 2 mm (non dichiarata, sensibilita' ai landmark)",
+ "family": "protocolli della comunita' (sensibilita' ai landmark)",
+ "declared": false,
+ "method": "stirling",
+ "variant": "lmk_s2",
+ "readings": {
+  "mm": {
+   "label": "Stirling/ESRC (Procrustes con scala, RMSE), sigma 2 mm (non dichiarata, sensibilita' ai landmark), mm (media dei due versi)",
+   "gt": [
+    "fr",
+    "sr"
+   ]
+  }
+ }
+}

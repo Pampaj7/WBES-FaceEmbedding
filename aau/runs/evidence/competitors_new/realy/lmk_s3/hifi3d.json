@@ -1,0 +1,27 @@
+{
+ "method": "realy",
+ "cond": "s3",
+ "label": "REALY (gICP con scala + rICP per regione + nICP), sigma 3 mm",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": 3.0,
+ "noise_seed": 20261013,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 5.097300489761797,
+  "median": 5.740509066497907
+ },
+ "core_hours_all_methods": 41.52254834709055,
+ "jobs": [
+  "1071156"
+ ],
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1071156",
+ "date": "2026-10-13 06:21:51"
+}

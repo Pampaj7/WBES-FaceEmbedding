@@ -53,7 +53,8 @@ matrice NON sono calcolate: NaN, passo a parte in `fm_eval`), `famos` (TEST, 15 
 - **Landmark oracolo (cautela principale)**: i landmark sono esatti per costruzione (corrispondenza del generatore,
   nessun rumore di rilevatore o annotatore). Nella comunita' vengono da annotazioni manuali (NoW, Stirling) o da un
   rilevatore; i protocolli basati su landmark (Procrustes di NoW, NoW metrical, Stirling, gICP di REALY) sono quindi
-  valutati nel loro caso MIGLIORE. Nessuna sensibilita' al rumore dei landmark calcolata qui.
+  valutati nel loro caso MIGLIORE. Sensibilita' ai landmark stimati (rumore per mesh, sigma 1-5 mm, e un rilevatore
+  reale su render, HIFI3D e FaceScape, 8% delle coppie): `rumore_landmark/results.md` (`pr_noise.py`).
 
 ## Regioni di REALY (approssimazione dichiarata)
 
@@ -129,7 +130,10 @@ NoW metrical con GT FR in tutti i domini (HIFI3D -0.281 [-0.371, -0.194]; FaceSc
 -0.021 non risolto), e lo supera con GT SR (HIFI3D +0.189): la scala per coppia toglie la taglia. Con GT SR REALY e'
 il migliore dei protocolli (HIFI3D 0.715, neutra 0.521) e sopra il nostro d_P su HIFI3D (+0.093) e sulla neutra
 (+0.188); NoW originale e' pari al nostro d_P senza crop e pari o sopra con il crop. **Cautela che condiziona tutto**: landmark
-oracolo (sopra); i protocolli basati su landmark sono qui nel loro caso migliore.
+oracolo (sopra); i protocolli basati su landmark sono qui nel loro caso migliore. Con landmark stimati
+(`rumore_landmark/`) NoW originale e metrical non cambiano (<= 0.031 di Spearman anche a sigma 5), REALY e Stirling si'
+(rilevatore reale: -0.05 / -0.20; con GT SR il vantaggio di REALY sul nostro d_P svanisce su HIFI3D e si rovescia su
+FaceScape).
 
 ## Costi e job (12-13 ottobre 2026, solo CPU, partizione prioritized)
 

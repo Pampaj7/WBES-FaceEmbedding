@@ -1,0 +1,27 @@
+{
+ "method": "realy",
+ "cond": "det",
+ "label": "REALY (gICP con scala + rICP per regione + nICP), rilevatore (insightface 1k3d68 su render)",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": null,
+ "noise_seed": null,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 3.6257545438332497,
+  "median": 4.000876072328538
+ },
+ "core_hours_all_methods": 30.535757676462463,
+ "jobs": [
+  "1071153"
+ ],
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1071153",
+ "date": "2026-10-13 06:14:19"
+}

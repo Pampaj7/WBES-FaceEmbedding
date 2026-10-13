@@ -1,0 +1,27 @@
+{
+ "method": "stirling",
+ "cond": "s3",
+ "label": "Stirling/ESRC (Procrustes con scala, RMSE), sigma 3 mm",
+ "view": "hifi3d",
+ "pairs_unordered": 11880,
+ "subsample": {
+  "frac": 0.08,
+  "seed": 20261013
+ },
+ "sigma_per_axis_mm": 3.0,
+ "noise_seed": 20261013,
+ "ordered_missing": 0,
+ "errors": 0,
+ "error_examples": [],
+ "seconds_per_ordered_pair": {
+  "mean": 0.04211506226124722,
+  "median": 0.037880375515669584
+ },
+ "core_hours_all_methods": 41.52254834709055,
+ "jobs": [
+  "1071156"
+ ],
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1071156",
+ "date": "2026-10-13 06:21:52"
+}
