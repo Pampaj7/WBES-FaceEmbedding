@@ -1,8 +1,20 @@
-# Ava-256: protocollo della prova confermativa (CANDIDATO v5, 13 ottobre 2026; NON congelato)
+# Ava-256: protocollo della prova confermativa (CANDIDATO v6, 13 ottobre 2026; NON congelato)
 
-> **CANDIDATO v5, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
+> **CANDIDATO v6, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
 > commit `53b03ac`) completata con le decisioni del PI del 12 ottobre (sez. 5-9, 11-13), piu' l'emendamento sull'uso
 > dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza, salvo le note della v2 nella sez. 2.
+>
+> **Modifiche della v6 rispetto al candidato v5** (sha256 `6b79aadee9e67c4c25d1a66d9f51388f06613f4e6d6b3b06e1d773b86d1cef91`,
+> commit `0dc907d`), con la regola della sez. 14:
+> 1. **ULRSSM entra come DESCRITTIVO** (sez. 9): variante dichiarata `faces_xyz` (selezione `selection.json`, fissata
+>    prima delle viste di valutazione), letture per coppia con GT FR (`pair_fr`) e via template con GT SR (`tpl_sr`);
+>    `pair_sr` e `tpl_fr` escono dallo stesso calcolo e si riportano come le altre letture. Codice
+>    `aau/competitors/ulrssm/` (`--spec`), chiamato da `conf_desc.py` (passi `desc-ulr-run`, `desc-ulr-merge`); sha256 di
+>    codice, checkpoint finale e `selection.json`, commit del clone `~/ext/ulrssm` (`0625cbc`) nella sez. 11.1.
+>    Vincolo GPU: L40S, la classe della valutazione di sviluppo. Collaudo su HIFI3D su un sottocampione dichiarato
+>    con la tolleranza fissata prima (sez. 11.2).
+> 2. **Hybrid FM escluso definitivamente**: non pronto (nessun codice, variante o commit), per la regola della sez. 14.
+> 3. Sez. 14: nessun campo **[in attesa]** resta aperto.
 >
 > **Modifiche della v5 rispetto al candidato v4** (sha256 `f0d60531173b3aa9a6eacf12b3357bc9b0e8421220aa7ce249c0e65a200c58d0`,
 > commit `638c591`), decisioni del PI del 13 ottobre:
@@ -379,7 +391,7 @@ aggancio dei landmark, blocco di R6), frame di `frame.json`, GT, seme 20261011, 
    `--nodelist=i256-a10-09`, quello di G0 e del collaudo), `desc-gw-prep`, `desc-gw-run:k/n` (le 597.000 coppie di
    all_cross x 2 modi, ripartibile; nel collaudo mediana 0,03 s per soluzione), `desc-gw-merge`, `desc-perc`;
    `desc-varifold[:k/n]` su una L40S (circa 720.000 prodotti interni; stima ~1,5 ore dai 1.367 s delle 600 x 600 del
-   collaudo);
+   collaudo); v6: `desc-ulr-run[:k/n]` su una L40S e `desc-ulr-merge` (ULRSSM);
 6. testa di R6: `head-fit` sul nodo `i256-a10-10` (`conf_head.py`: K0, poi un fit per seme, sez. 10);
 7. `eval` (`conf_eval.py`): righe, repliche, +inf, delta, Holm, non risolto, esiti; versione mascherata, sez. 9.2 e
    Spearman dei protocolli accanto; `desc-eval` (`conf_desc.py`, v4): descrittivi e gruppi descrittivi (sez. 9);
@@ -492,8 +504,8 @@ per tutti i descrittivi dei protocolli.
 | Gromov-Wasserstein (POT) | `gw/euclid_128_cgw2` (`true`); `euclid_256_cg`, `euclid_256_cgw2` (`false`) | `fr` (mm), `sr` (a cs_ref) | `aau/competitors/gw_percettivi/` e `gw/pilot_choice.json` (`5c9c3e3`) | fissato |
 | LPIPS alex, DINOv2 ViT-S/14, CLIP ViT-B/32, DreamSim su render | `lpips/depth`, `dinov2/depth`, `clip/smooth`, `dreamsim/smooth` (`true`); le altre 8 varianti di render (`false`) | `fr` (mm), `sr` (a cs_ref) | `aau/competitors/gw_percettivi/` e `percettivi/pilot_choice.json` (`5c9c3e3`) | fissato |
 | Protocolli: NoW metrical (anche contro d_F, sez. 9.2), REALY, Stirling; NoW originale e metrical con GT SR | `lmk_det` (rilevatore, sez. 9.1) **per deroga** (sotto): ha `declared: false`; landmark oracolo e rumore sintetico (`lmk_s*`) non si calcolano | `mm` con FR e SR | `aau/competitors/protocolli/` (`32c3839`, `f47a375`), catena `aau/ava256/conf_protocols.py` (sez. 11.1) | fissato |
-| ULRSSM | `ulrssm/faces_xyz` (`true` nel `fm_plugin.json`, NON ancora in git); `zeroshot_faust` (`false`) | per coppia (`pair_fr`, `pair_sr`) e via template (`tpl_fr`, `tpl_sr`) | `aau/competitors/ulrssm/` (`d727704`), codice esterno `0625cbcb` | **[in attesa]**: se variante dichiarata e pesi riaddestrati sono in git prima del congelamento entra, altrimenti **escluso** |
-| Hybrid FM | nessuna | per coppia e per mesh | nessun codice nel repo | **[in attesa]**: se pronto (codice, variante dichiarata, commit) prima del congelamento entra, altrimenti **escluso** |
+| ULRSSM (v6: entra) | `ulrssm/faces_xyz` (`true`, `selection.json` sha256 `94f6f065...`); `faces_wks`, `zeroshot_faust` (`false`: non si calcolano) | per coppia con GT FR (`pair_fr`) e via template con GT SR (`tpl_sr`); `pair_sr`, `tpl_fr` dallo stesso calcolo, riportate | `aau/competitors/ulrssm/` (`ulr_common.py`, `ulr_eval.py`; sha256 nella sez. 11.1), clone esterno `~/ext/ulrssm` al commit `0625cbcb`, checkpoint `aau/runs/competitors_ulrssm/faces_xyz/final.pth`; catena `conf_desc.py` | fissato (v6) |
+| Hybrid FM | - | - | nessun codice nel repo | **escluso** (v6): non pronto al congelamento (regola della sez. 14) |
 | Gruppi descrittivi (per perturbazione, stessa topologia) | - | come le regole | `aau/full_matrix/fm_eval.py` (`adc0df5`) | fissato |
 | Testa adattata di R6 con d_F (FR) | unica | FR | sez. 10 | fissato |
 
@@ -519,6 +531,13 @@ matrice le righe crop venivano da script a parte, qui un solo calcolo con le ste
   calcolano (regola della variante dichiarata, sopra). Vista di `gp_common` da uno spec generato (L_d e cs_ref di
   `blmm_scalars.py` sui 56); le scelte del pilota (`competitors_new/{gw,percettivi}/pilot_choice.json`) si controllano
   per sha256 contro lo spec e contro le varianti dichiarate.
+- **ULRSSM** (v6): `conf_desc.py ulr-run[:k/n]` su una L40S (`--gres=gpu:l40s:1`, la classe della valutazione di
+  sviluppo; controllato) e `ulr-merge`, con le funzioni di `ulr_eval.py` invariate (`run`: mesh preparate come in
+  training, feature del checkpoint, mappa per coppia sulle coppie di soggetti diversi, stessa topologia compresa, e
+  template GNM -> mesh; `merge`: variante via template con `train_fr_sr.factor`). Prima del calcolo: sha256 di
+  checkpoint e `selection.json` contro lo spec, variante = quella della selezione, clone `~/ext/ulrssm` al commit
+  `0625cbcbb7cd007893dd665b21ef55b275563472` e senza modifiche (`git status`). Coppie su Ava-256: 716.400 (1.200 mesh,
+  soggetti diversi), ripartibili; nel collaudo di sviluppo (HIFI3D, 178.200 coppie) 36 minuti su una L40S.
 - **Lettura** (`desc-eval`, legge le GT; `conf_common.verify` prima): righe di `conf_eval` (topologie diverse) + stessa
   topologia (19.900 x 6 = 119.400, sez. 5); gruppi `nocrop`, `crop`, `all_cross`, per perturbazione P senza crop
   (`con_perturbazione`) e di stessa topologia (tutte e per topologia), con le definizioni di `fm_eval.groups_of`;
@@ -751,23 +770,30 @@ riga di `conf_eval.py` e `conf_head.py`; le versioni del punto 6 sono `conf_comm
 ### 11.1 Codice della catena (v3)
 
 Commit del codice e degli esiti del collaudo (sez. 11.2): **`adaac1f`** (v3), **`fe32e8f`** (v4: embedding e
-descrittivi) e **`9675df8`** (v5: embedding su A100 con le tolleranze v5; R4 fuori dalla famiglia in `conf_eval.py`). sha256 dei byte di ogni script e degli spec (`conf_common.py sha`, `conf_common.SCRIPTS`, v4: due spec di
+descrittivi), **`9675df8`** (v5: embedding su A100 con le tolleranze v5; R4 fuori dalla famiglia in `conf_eval.py`) e
+**`2619dff`** (v6: ULRSSM; collaudi rifatti con `fm_eval.py` della matrice rigenerata, `46fe7a4`). sha256 dei byte di ogni script e degli spec (`conf_common.py sha`, `conf_common.SCRIPTS`, v4: due spec di
 collaudo compresi); lo strumento non si esegue su Ava-256 con file diversi da questi (regola sui bug, sez. 12). Nella
 v4 sono cambiati `conf_common.py` (sha256 di C3M in `verify`, lista degli script), `conf_collaudo.py` (passi `embed`,
 `desc`, `desc-eval`), `conf.sbatch` (passi `embed-stage`, `embed`, `desc-*`) e i due spec `ava256.json` e
 `hifi3d_full.json` (chiavi `embed`, `desc`, `columns.desc_models`, `columns.desc_plugins`). Nella v5 sono cambiati
 `conf_eval.py` (R4 in `DESC_RULES`, m = 9), `conf_embed.py` (controllo `embed.gpu`), `conf_collaudo.py` (tolleranze v5),
-`conf.sbatch` e i due spec (`embed.gpu` = `A100`). Nessuno script di sviluppo e' cambiato:
+`conf.sbatch` e i due spec (`embed.gpu` = `A100`). Nella v6: `conf_desc.py` (passi ULRSSM), `conf_common.py` (script di
+ULRSSM nella lista), `conf_collaudo.py` (passo `ulr`, tolleranza `ulr_rel`), `conf.sbatch`, i due spec (`desc.ulrssm`);
+`aau/full_matrix/fm_eval.py` e' stato aggiornato da un altro lavoro (matrice rigenerata con tutti i plug-in, `46fe7a4`):
+le funzioni importate dalla catena (`groups_of`, `records`, `plugin_columns`, `replicas`, `spectral_columns`,
+`geo_columns` e le minori) hanno AST identico a `9675df8`; cambiano costanti del modulo (es. `LADDER`, passo 1b sui
+plug-in dei protocolli coi landmark esatti, che la catena non ha), e tutti i collaudi sono stati rifatti con questa
+versione (sez. 11.2):
 
 | Script | sha256 | Stato |
 |---|---|---|
-| `aau/ava256/conf_common.py` | `7229230de2b86935165c33daf69ad2d689b82df09b4a21946363cbd4e1cc7b8b` | modificato (v4) |
+| `aau/ava256/conf_common.py` | `6921c2f9ec7c78ac762d3627d9d341ba18c4767f4871f01320875261d7f82e47` | modificato (v6) |
 | `aau/ava256/conf_protocols.py` | `7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79` | nuovo (v3) |
 | `aau/ava256/conf_head.py` | `9b74992f0264292d50bcb620824d60d0ccdf1eb258e19f07101af038fe3f140d` | nuovo (v3) |
 | `aau/ava256/conf_eval.py` | `da7c81e3a9905fda546bf70aba51521c8f0d54178588b6b15f44823efcf5312c` | modificato (v5) |
-| `aau/ava256/conf_collaudo.py` | `daa5f8b234ab7e20d672e53a58d6af7fb36f363150a7e7dd910e39eae77b5681` | modificato (v5) |
-| `aau/ava256/conf.sbatch` | `6b6f6198aad763565a625cc3ce887309878f58f4ab98ddbbc8a2204914cb53b1` | modificato (v5) |
-| `aau/ava256/spec/ava256.json` | `27e5b4cf8908e934c836434d84a001f99f74e8eb69e528544b919718c3b586da` | modificato (v5) |
+| `aau/ava256/conf_collaudo.py` | `3056eea043e6a426345cf7f56972199b577b3aa806c4b06a4037d72cd882db13` | modificato (v6) |
+| `aau/ava256/conf.sbatch` | `3dec48be72139818b764f95487d6d60cdcc48c935959924400389f68fc0cb2ac` | modificato (v6) |
+| `aau/ava256/spec/ava256.json` | `293c01d2b304613191c72f7bfc8384e92dbf5f9f196b7ba5f5d1f5099f3416ce` | modificato (v6) |
 | `aau/ava256/ava_freeze.py` | `520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca` | invariato, importato |
 | `aau/ava256/ava_calib.py` | `a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897` | invariato, importato |
 | `aau/competitors/protocolli/pr_common.py` | `deeb13ed5e755ff3f591518f26e08577d3172b873744504711ba858120df84ab` | modificato (v3: `--spec`) |
@@ -784,14 +810,14 @@ v4 sono cambiati `conf_common.py` (sha256 di C3M in `verify`, lista degli script
 | `aau/baselines_param/bp_fit.py` | `c9ecf86135d5a3eaf6ada8222f2e561582bc06d3acbe47ab901ad2d2a1e25a39` | modificato (v3: `--spec`) |
 | `aau/baselines_param/bp_fit_e1.py` | `a97d98a86d507f506999ba60aab844c03dc98c84bde8184e7afa68a04dde4fdf` | modificato (v3: `--spec`) |
 | `aau/baselines_param/bp_e2.py` | `0e43db2cc3e1d50ef199b2b4d9b7ea3ae5d60f47c6dc2237f65543a116bdca98` | modificato (v3: `--spec`) |
-| `aau/full_matrix/fm_eval.py` | `5e0a2f5d4502b064bd61251ef8a716e6db238b4f864244f07b914d07b2d68958` | invariato, importato |
+| `aau/full_matrix/fm_eval.py` | `c95f2480855c46b83cdc9bf97719f5db1792336f604b5e823f9c586fb6ab0ed6` | aggiornato (v6: matrice rigenerata, `46fe7a4`; funzioni usate dalla catena invariate), importato |
 | `aau/diagnostics/d3_head.py` | `a3161d56513fc5dba6b4cd10e8884ac1f5788f6eb6884bf020b0d7707410754d` | invariato, importato |
 | `aau/diagnostics/d3_e2.py` | `42b962a432fa9f219cbe754f44c41da11a3b2a3143cb4a5262ff68a4d9c23542` | invariato, importato |
 | `aau/diagnostics/d3_stats.py` | `573aef82d60feb7722dafa031c2ea268bf64f35dd20efe5b2124d8e322a6fcc9` | invariato, importato |
 | `aau/diagnostics/diag.py` | `399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d` | invariato, importato |
 | `v3_work/trainer/tools/fact_paired.py` | `cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a` | invariato, importato |
 | `aau/ava256/conf_embed.py` | `d306d294ebbaa253298fd230c937fbbd7159c3cce8d5c07117b8a3654edd8d9a` | modificato (v5) |
-| `aau/ava256/conf_desc.py` | `7687adb0d1a8b90d2e2060799f6730c52cc495d7ff3df30c1fdfe1d57b217f79` | nuovo (v4) |
+| `aau/ava256/conf_desc.py` | `f12c13a693b50616c4683adeffb82f9fa06c247672db8dea11103bb0edc364f8` | modificato (v6) |
 | `aau/zs3dmm/zs_embed.py` | `195b189111fe91cb6ea5b02826e5cede87815bbe7bf8e861d7d91cb5dd3d6cf8` | invariato, importato (v4) |
 | `v3_work/trainer/eval_v3.py` | `cf9f9d240bc0105ac94b29209037f5a626c537ed462d0ce3a76a448ac04a6613` | invariato, importato (v4) |
 | `v3_work/trainer/global_v3.py` | `408ac38d549784469c463215c27ed6253534f2b09e402fbbc50873f7306edfdb` | invariato, importato (v4) |
@@ -805,8 +831,18 @@ v4 sono cambiati `conf_common.py` (sha256 di C3M in `verify`, lista degli script
 | `aau/competitors/gw_percettivi/gp_common.py` | `3f58957396ec135dce1c85aca0d5954edf8814d4e3ad5a9c2d6f5a83630f018a` | invariato, importato (v4) |
 | `aau/competitors/gw_percettivi/gp_gw.py` | `d64f04401d25f176dc927894f960e81e936b523c0da581813e0fd90dce2895c4` | invariato, importato (v4) |
 | `aau/competitors/gw_percettivi/gp_percettivi.py` | `dad7542ae75a3babffc6f8166ae59dd4834394123ba90f8abb90d0b3a4933b24` | invariato, importato (v4) |
-| `aau/ava256/spec/hifi3d_full.json` | `a4f14912c00f92159d7bd2e4145c2ce6b2748907a0c7e9b57128efa426022e9b` | modificato (v5) |
+| `aau/ava256/spec/hifi3d_full.json` | `7f544be0d286b0fe742e1fd7cf6edcc546577287287cfcf76b8bc853a23f0a71` | modificato (v6) |
 | `aau/ava256/spec/hifi3d_det.json` | `5b12b58f255118c8748ed923edec9cb2e0c03108423be362b0deb47612c760ea` | nuovo (v3) |
+| `aau/competitors/ulrssm/ulr_common.py` | `16ac87192ef08ad8a37939b4140acc8338db0385d9bc963a7239240cb476295b` | invariato, importato (v6) |
+| `aau/competitors/ulrssm/ulr_eval.py` | `7544cca6ab53b8d1b967b03a110bb2813fa6352e58b6d8da470750e48b18e499` | invariato, importato (v6) |
+
+**ULRSSM (v6)**, fuori dal repo o non codice, controllati da `conf_desc.py` prima del calcolo:
+
+| Voce | Valore |
+|---|---|
+| clone `~/ext/ulrssm` (repo ufficiale, MIT) | commit `0625cbcbb7cd007893dd665b21ef55b275563472`, nessuna modifica (`git status`) |
+| `aau/runs/competitors_ulrssm/faces_xyz/final.pth` (checkpoint finale, sha256) | `c9c6b674195e7f770c447170eadd78746b3a4efb92e746d408a36ce6320aae6f` |
+| `aau/runs/evidence/competitors_new/ulrssm/selection.json` (sha256) | `94f6f065083490da4b2067fefb855036b135ea141484c7052ad25ee08d8137ae` |
 
 ### 11.2 Collaudo su HIFI3D (v3, stesso codice, nessun dato di Ava-256)
 
@@ -918,6 +954,26 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
   ipotesi per famiglia) restano solo un controllo del codice.
 - Cancellata dopo il collaudo la cache degli operatori di HIFI3D (`datasets/V3_OPS_CACHE/conf/hifi3d_full`, 16 GB).
 
+**Collaudo v6** (13 ottobre):
+- **ULRSSM**, tolleranza fissata PRIMA del collaudo (`conf_collaudo.TOL["ulr_rel"]`): per ognuna delle 4 letture, scarto
+  massimo / mediana delle distanze di sviluppo confrontate <= 1e-3 (la mappa punto-a-punto e' un argmax discreto su
+  feature calcolate con operatori rifatti); stesse mesh e coppie fallite. Sottocampione dichiarato: i primi 12 soggetti
+  per id (72 mesh, `desc.subsample_subjects`), stessa vista da spec di Ava-256, L40S (`a768-l40s-04`, job 1072196):
+
+  | Lettura | Coppie | Scarto massimo | Relativo alla mediana | Esito |
+  |---|---|---|---|---|
+  | `pair_fr` (mm) | 2.376 | 2,1e-3 mm | 3,5e-4 | passa |
+  | `pair_sr` (mm a CS_ref) | 2.376 | 2,8e-3 mm | 5,0e-4 | passa |
+  | `tpl_fr` (mm) | 2.556 | 1,8e-3 mm | 2,9e-4 | passa |
+  | `tpl_sr` (d_P) | 2.556 | 3,0e-5 | 3,2e-4 | passa |
+
+  L40S riproduce entro la tolleranza: il vincolo GPU resta L40S. Lettura (`desc-eval`, plug-in di sviluppo): 24 rho
+  puntuali delle 4 letture (nocrop, crop, all_cross; FR e SR) contro `ulrssm/faces_xyz/spearman.csv`, scarto 8e-17.
+- **Tutti i confronti rifatti** con `fm_eval.py` della matrice rigenerata (`46fe7a4`) e la nuova `full_matrix` (job
+  1072542, 1072543): `eval-full` ed `eval-det` 0; `embed` (A100) entro le tolleranze v5; `desc` invariato; `desc-eval`
+  782 Spearman e 2.190 delta (ora anche contro i plug-in) a 0 sugli stessi ingressi, <= 5,7e-6 sui ricalcolati, righe
+  uguali. La rilettura del job 1072197 aveva usato una copia di lavoro intermedia di `fm_eval.py` ed e' sostituita.
+
 - Non collaudati nella v4: GW e percettivi sulle 600 mesh (solo il sottocampione dichiarato); il varifold a piu' shard
   (`--shard k/n`, un solo shard nel collaudo); il ramo "ArcFace non applicabile" (su HIFI3D il frame check sceglie
   `x180`); i passi di `conf_desc.py eval` con descrittivi bucati (su HIFI3D nessun descrittivo ha buchi: passo
@@ -958,9 +1014,8 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
 ## 14. Campi in attesa e condizione di congelamento
 
 Il protocollo si congela solo quando sono fissati:
-1. ULRSSM: variante dichiarata (`faces_xyz`, `fm_plugin.json` con `declared: true`) e pesi riaddestrati in git
-   [in attesa; se non pronti al congelamento, ULRSSM e' escluso];
-2. Hybrid FM: codice, variante dichiarata e commit [in attesa; se non pronto al congelamento, e' escluso];
+1. ~~ULRSSM~~: **fissato nella v6**, entra come descrittivo (`faces_xyz`, sez. 9, 11.1, 11.2);
+2. ~~Hybrid FM~~: **escluso nella v6** (non pronto al congelamento);
 3. ~~embedding di Ava-256~~: **fissato nella v4** (`conf_embed.py`, sez. 7.1, 11.1, 11.2); collaudo su L40S **fuori
    tolleranza** e registrato (sez. 11.2); v5: su A100, collaudo rifatto con le tolleranze v5 (sez. 11.2);
 4. ~~descrittivi della sez. 9 fuori da `conf_eval.py`~~: **fissati nella v4** (`conf_desc.py`, sez. 9, 11.1, 11.2).
@@ -976,9 +1031,9 @@ soglia dei ripieghi (sez. 8, 9.1); versioni e sha256 della sez. 11.
 Fissati nella v4: embedding dei due semi e di C3M e123 (`conf_embed.py`), calcolo e lettura dei descrittivi e dei
 gruppi descrittivi (`conf_desc.py`), collaudati su HIFI3D con gli esiti della sez. 11.2 (descrittivi entro tolleranza,
 embedding fuori), sha256 nella sez. 11.1.
-Restano **[in attesa]** solo i punti 1 e 2 (ULRSSM, Hybrid FM), con la regola gia' scritta: se non sono pronti al
-congelamento sono esclusi.
+Fissati nella v6: ULRSSM come descrittivo (codice, pesi, selezione e commit del clone nella sez. 11.1, collaudo nella
+sez. 11.2); Hybrid FM escluso. **Nessun campo resta in attesa**: il testo e' pronto per il congelamento del PI.
 
 Poi il PI committa questo testo con il suo sha256 e la parola "congelato" nel titolo.
 
-**CANDIDATO v5, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
+**CANDIDATO v6, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
