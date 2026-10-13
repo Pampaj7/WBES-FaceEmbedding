@@ -1,0 +1,133 @@
+{
+ "name": "esterna_id_pilot",
+ "set": "pilot",
+ "dir": "datasets/FAMOS/esterna_id/pilot/npz",
+ "subjects": [
+  "id940079",
+  "id940080",
+  "id940081",
+  "id940082",
+  "id940083",
+  "id940084",
+  "id940085",
+  "id940086",
+  "id940087",
+  "id940088",
+  "id940089",
+  "id940090",
+  "id940091",
+  "id940092",
+  "id940093"
+ ],
+ "topologies": [
+  "cheeks_in",
+  "lips_back"
+ ],
+ "famos_subjects": [
+  "FaMoS_subject_079",
+  "FaMoS_subject_080",
+  "FaMoS_subject_081",
+  "FaMoS_subject_082",
+  "FaMoS_subject_083",
+  "FaMoS_subject_084",
+  "FaMoS_subject_085",
+  "FaMoS_subject_086",
+  "FaMoS_subject_087",
+  "FaMoS_subject_088",
+  "FaMoS_subject_089",
+  "FaMoS_subject_090",
+  "FaMoS_subject_091",
+  "FaMoS_subject_092",
+  "FaMoS_subject_093"
+ ],
+ "frames": {
+  "id940079": {
+   "cheeks_in": 42,
+   "lips_back": 255
+  },
+  "id940080": {
+   "cheeks_in": 64,
+   "lips_back": 13
+  },
+  "id940081": {
+   "cheeks_in": 67,
+   "lips_back": 168
+  },
+  "id940082": {
+   "cheeks_in": 4,
+   "lips_back": 14
+  },
+  "id940083": {
+   "cheeks_in": 203,
+   "lips_back": 365
+  },
+  "id940084": {
+   "cheeks_in": 86,
+   "lips_back": 3
+  },
+  "id940085": {
+   "cheeks_in": 18,
+   "lips_back": 53
+  },
+  "id940086": {
+   "cheeks_in": 61,
+   "lips_back": 217
+  },
+  "id940087": {
+   "cheeks_in": 49,
+   "lips_back": 48
+  },
+  "id940088": {
+   "cheeks_in": 185,
+   "lips_back": 202
+  },
+  "id940089": {
+   "cheeks_in": 152,
+   "lips_back": 1
+  },
+  "id940090": {
+   "cheeks_in": 49,
+   "lips_back": 135
+  },
+  "id940091": {
+   "cheeks_in": 5,
+   "lips_back": 6
+  },
+  "id940092": {
+   "cheeks_in": 160,
+   "lips_back": 136
+  },
+  "id940093": {
+   "cheeks_in": 40,
+   "lips_back": 250
+  }
+ },
+ "frame": {
+  "u": 1.0,
+  "R": [
+   [
+    1.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    1.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "t": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "L": 95.04779203688503,
+ "cs_ref": 64.55107311330337,
+ "note": "patch NoW in mm dalle scansioni grezze FaMoS TEST (aau/esterna_famos_id/ei.py); L e cs_ref = dominio famos della matrice (baselines_mm/params.json)"
+}
