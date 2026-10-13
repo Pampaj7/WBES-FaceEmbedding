@@ -1,0 +1,112 @@
+{
+ "variant": "faces_xyz",
+ "info": {
+  "parts": [
+   {
+    "part": "hifi3d_full_0of1.npz",
+    "job": "1072196",
+    "n_pairs": 2376,
+    "t_prep_s": 55.122050523757935,
+    "t_feat_s": 12.680440902709961,
+    "t_pairs_s": 32.63115739822388,
+    "nan_pairs": 0,
+    "pair_set": "subjects"
+   }
+  ],
+  "input_type": "xyz",
+  "ckpt": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+  "gpu": "NVIDIA L40S",
+  "template_n": 9022,
+  "template_flipped": false,
+  "cs_ref": 66.65926974253657,
+  "view": "hifi3d_full",
+  "n_meshes": 72,
+  "n_pairs": 2376,
+  "template": {
+   "rigid_robust_converged": 71,
+   "n": 72,
+   "rigid_robust_iter_max": 100,
+   "centroid_size_mm_median": 55.809181692316514,
+   "rms_to_mu_mm_median": 6.256872182612684
+  },
+  "gt_check": {
+   "fr_max_abs": 3.566653301589895e-07,
+   "fr_max_rel": 6.662259792727309e-08,
+   "sr_max_abs": 3.990414845778112e-09,
+   "sr_max_rel": 5.2124675302836564e-08
+  },
+  "nan": {
+   "D_pair_fr": 0,
+   "D_pair_sr": 0,
+   "D_tpl_fr": 0,
+   "D_tpl_sr": 0
+  },
+  "failed": [],
+  "mesh_flipped": 0,
+  "seconds": {
+   "prep_per_mesh_median": 7.245383557397872,
+   "feat_per_mesh_median": 0.02998315147124231,
+   "template_map_per_mesh_median": 0.0034865550696849823,
+   "pair_median": 0.009610566776245832,
+   "pair_mean": 0.013729650551149063,
+   "pairs_total_h": 0.009061569363758381
+  },
+  "vertices": {
+   "median": 9297.0,
+   "max": 24399
+  },
+  "host": "a768-l40s-04.srv.aau.dk",
+  "job": "1072196",
+  "date": "2026-10-13 14:54:31"
+ },
+ "meshes": 72,
+ "pair_fr": {
+  "pairs": 2376,
+  "nan_mismatch": 0,
+  "max_abs": 0.0021379516818105238,
+  "median_dev": 6.176258545130862,
+  "max_rel": 0.000346156441830954
+ },
+ "pair_sr": {
+  "pairs": 2376,
+  "nan_mismatch": 0,
+  "max_abs": 0.0028322723514824233,
+  "median_dev": 5.713481306285292,
+  "max_rel": 0.000495717444348106
+ },
+ "tpl_fr": {
+  "pairs": 2556,
+  "nan_mismatch": 0,
+  "max_abs": 0.0017598915289678274,
+  "median_dev": 5.978054635094853,
+  "max_rel": 0.00029439201151427807
+ },
+ "tpl_sr": {
+  "pairs": 2556,
+  "nan_mismatch": 0,
+  "max_abs": 3.0183077814785464e-05,
+  "median_dev": 0.09491162408859347,
+  "max_rel": 0.00031801244689071633
+ },
+ "gpu": "NVIDIA L40S",
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001,
+  "ulr_rel": 0.001
+ },
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1072542",
+ "date": "2026-10-13 15:09:23"
+}

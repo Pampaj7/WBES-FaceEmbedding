@@ -37,6 +37,9 @@ Passi (ognuno scrive ``<evidence>/collaudo/<passo>.json`` con gli scarti misurat
               ``g0/teacher/hifi3d`` (Z, camera, ritaglio); GW e percettivi sul SOTTOCAMPIONE dichiarato
               (``desc.subsample_subjects``: i primi 12 soggetti per id, 72 mesh) contro i plug-in di
               ``competitors_new`` (varianti dichiarate), sulle stesse coppie.
+  ulr         (v6) ``conf_desc.py ulr-run`` / ``ulr-merge`` (L40S, la classe della valutazione di sviluppo) sul
+              sottocampione dichiarato contro ``competitors_new/ulrssm/faces_xyz/hifi3d.npz``: le 4 letture sulle stesse
+              coppie, scarto massimo relativo alla mediana di sviluppo (``ulr_rel``), stesse mesh fallite.
   desc-eval   ``conf_desc.py eval`` (hifi3d_full) contro ``full_matrix`` (mascherata = passo ``comune``, confermativa =
               "NICP fallito = distanza massima"; Spearman con IC e righe, delta ``vs_nostro`` e ``scala_allineamento``,
               in tutti i gruppi della lettura: nocrop, crop, all_cross, per perturbazione, stessa topologia) e contro
@@ -78,7 +81,11 @@ TOL = {"exact": 0.0, "num": 1e-12, "geom_mm": 1e-4, "rel": 1e-9, "spearman_geom"
        # 5,2e-4 nel K7 di D3); l'esito della v4 su L40S resta registrato (collaudo/embed_l40s.json). Z: 1e-3 (~3,5 volte
        # 2,8e-4); d_F (cal. e non cal.): 0,1 mm (1e-3 su s = log S, S ~ 100 mm); d_P: 1e-3 (stessa scala di u);
        # Spearman e IC delle distanze: 1e-3
-       "embed_z_v5": 1e-3, "embed_dF_mm_v5": 0.1, "embed_dP_v5": 1e-3, "embed_spearman_v5": 1e-3}
+       "embed_z_v5": 1e-3, "embed_dF_mm_v5": 0.1, "embed_dP_v5": 1e-3, "embed_spearman_v5": 1e-3,
+       # v6, fissata PRIMA del collaudo di ULRSSM: scarto massimo / mediana delle distanze di sviluppo confrontate, per
+       # ognuna delle 4 letture (per coppia e via template, FR e SR); la mappa punto-a-punto e' un argmax discreto su
+       # feature calcolate con operatori rifatti (cache del job), quindi qualche vertice puo' cambiare immagine
+       "ulr_rel": 1e-3}
 N_PAIRS, N_NICP = 1000, 100
 SENS = "sensibilita': NICP fallito = distanza massima"
 
@@ -533,7 +540,7 @@ def desc_check() -> None:
     rep["arcface"]["align_equal"] = aa == ab
     rep["arcface"]["frame_note"] = json.loads((ga.parent / "frame_note.json").read_text())
     rep["gp"] = {}                                                              # GW e percettivi, sottocampione
-    gpv = s["columns"]["desc_plugins"]["variants"]
+    gpv = {m: v for m, v in s["columns"]["desc_plugins"]["variants"].items() if m != "ulrssm"}   # ULRSSM: passo ulr
     for m, v in gpv.items():
         with np.load(W / "gp" / m / v / f"{name}.npz") as a, \
                 np.load(EV / "competitors_new" / m / v / "hifi3d.npz") as b:
@@ -555,6 +562,28 @@ def desc_check() -> None:
                        rep["arcface"]["keys_equal"] and rep["arcface"]["D_max_abs"] <= TOL["perc_abs"] and
                        rep["arcface"]["align_equal"] and gp_ok)
     finish("desc", rep)
+
+
+def ulr_check() -> None:
+    import conf_desc as cd
+    s, name = cd.setup(SPEC_FULL)
+    v = s["desc"]["ulrssm"]["variant"]
+    pa = cd.desc_dir(s) / "gp" / "ulrssm" / v
+    rep = {"variant": v, "info": json.loads((pa / f"{name}.json").read_text())}
+    with np.load(pa / f"{name}.npz") as a, np.load(EV / "competitors_new" / "ulrssm" / v / "hifi3d.npz") as b:
+        ka, kb = cd_keys(a), cd_keys(b)
+        o = np.asarray([kb.index(k) for k in ka])
+        rep["meshes"] = len(ka)
+        for d in ("pair_fr", "pair_sr", "tpl_fr", "tpl_sr"):
+            A, B = np.asarray(a[f"D_{d}"], np.float64), np.asarray(b[f"D_{d}"], np.float64)[np.ix_(o, o)]
+            f = np.isfinite(A) & np.isfinite(B) & ~np.eye(len(ka), dtype=bool)
+            med = float(np.median(B[f]))
+            rep[d] = {"pairs": int(f.sum() // 2), "nan_mismatch": int((np.isfinite(A) != np.isfinite(B)).sum()),
+                      "max_abs": maxabs(A[f], B[f]), "median_dev": med, "max_rel": maxabs(A[f], B[f]) / med}
+    rep["gpu"] = rep["info"].get("gpu")
+    rep["pass"] = all(rep[d]["pairs"] > 0 and rep[d]["nan_mismatch"] == 0 and rep[d]["max_rel"] <= TOL["ulr_rel"]
+                      for d in ("pair_fr", "pair_sr", "tpl_fr", "tpl_sr"))
+    finish("ulr", rep)
 
 
 def cd_keys(z) -> list:
@@ -652,25 +681,45 @@ def desc_eval_check() -> None:
     rep["plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv"] = {
         "n": len(pr), "max_abs_num": pmax, "rows_equal": all(q["n"] == q["n_dev"] for q in pr)}
     worst["num"] = max(worst["num"], pmax)
+    # v6: ULRSSM, rho puntuale delle 4 letture su tutte le righe dei gruppi di ulrssm/<variante>/spearman.csv
+    v = gp["variants"].get("ulrssm")
+    if v:
+        lab = {"ULRSSM per coppia, FR (mm)": "pair_fr", "ULRSSM per coppia, SR (CS_ref)": "pair_sr",
+               "ULRSSM via template, FR (GT)": "tpl_fr", "ULRSSM via template, SR (GT)": "tpl_sr"}
+        uS = pd.read_csv(EV / "competitors_new" / "ulrssm" / v / "spearman.csv")
+        uS = uS[(uS["domain"] == "hifi3d") & (uS["kind"] == "rho") & (uS["arm"] == "baseline")]
+        usel = {"nocrop": ~crop, "crop": crop, "all_cross": np.ones(len(crop), bool)}
+        ur, umax = [], 0.0
+        for r in uS.itertuples():
+            col = f"plugin:ulrssm/{v}|{lab[r.distance]}"
+            rows = np.flatnonzero(usel[r.group])
+            rho = fm.fp._pearson(rankdata(P[col][R["ia"][rows], R["ib"][rows]]), rankdata(gt[r.gt][rows]))
+            ur.append({"group": r.group, "gt": r.gt, "column": col, "n": int(len(rows)), "n_dev": int(r.n_rows)})
+            umax = max(umax, abs(rho - r.arm_point))
+        rep["ULRSSM: rho puntuale vs ulrssm/spearman.csv"] = {"n": len(ur), "max_abs_num": umax,
+                                                              "rows_equal": all(q["n"] == q["n_dev"] for q in ur)}
+        worst["num"] = max(worst["num"], umax)
     rep["worst"] = worst
     nr = [v.get("n_righe_max_abs") for v in rep.values() if isinstance(v, dict) and v.get("n_righe_max_abs") is not None]
     rep["n_righe_max_abs"] = max(nr) if nr else None
     rep["pass"] = bool(worst["num"] <= TOL["num"] and worst["geom"] <= TOL["spearman_geom"] and
                        worst["p_geom"] <= TOL["p_geom"] and rep["n_righe_max_abs"] == 0 and
                        all(v["n"] > 0 for k, v in rep.items() if isinstance(v, dict) and "n" in v) and
-                       rep["plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv"]["rows_equal"])
+                       rep["plugin GW e percettivi: rho puntuale vs competitors_new/spearman.csv"]["rows_equal"] and
+                       rep.get("ULRSSM: rho puntuale vs ulrssm/spearman.csv", {"rows_equal": True})["rows_equal"])
     finish("desc-eval", rep)
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("step", choices=("export-template", "landmarks", "det", "eval-full", "eval-det", "blmm", "bp", "head",
-                                    "embed", "desc", "desc-eval"))
+                                    "embed", "desc", "desc-eval", "ulr"))
     p.add_argument("--workers", type=int, default=8)
     a = p.parse_args()
     {"export-template": export_template, "landmarks": landmarks, "det": det, "eval-full": eval_full,
      "eval-det": eval_det, "blmm": lambda: blmm_check(a.workers), "bp": bp_check, "head": head_check,
-     "embed": lambda: embed_check(a.workers), "desc": desc_check, "desc-eval": desc_eval_check}[a.step]()
+     "embed": lambda: embed_check(a.workers), "desc": desc_check, "desc-eval": desc_eval_check,
+     "ulr": ulr_check}[a.step]()
 
 
 if __name__ == "__main__":

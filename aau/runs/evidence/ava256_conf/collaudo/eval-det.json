@@ -46,9 +46,10 @@
   "embed_z_v5": 0.001,
   "embed_dF_mm_v5": 0.1,
   "embed_dP_v5": 0.001,
-  "embed_spearman_v5": 0.001
+  "embed_spearman_v5": 0.001,
+  "ulr_rel": 0.001
  },
- "host": "i256-a10-09.srv.aau.dk",
- "job": "1072070",
- "date": "2026-10-13 13:46:44"
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1072543",
+ "date": "2026-10-13 15:04:25"
 }

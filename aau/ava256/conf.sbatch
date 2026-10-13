@@ -29,6 +29,8 @@
 #   CONF_SPEC=$S CONF_STEPS="desc-varifold" sbatch --gres=gpu:l40s:1 --cpus-per-task=16 --mem=64G aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="desc-spectral desc-icp-same desc-arcface desc-gw-prep desc-perc" sbatch aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="desc-gw-run:0/4" sbatch --time=24:00:00 aau/ava256/conf.sbatch   (4 job; poi desc-gw-merge)
+#   CONF_SPEC=$S CONF_STEPS="desc-ulr-run:0/1" sbatch --gres=gpu:l40s:1 --mem=160G --time=06:00:00 aau/ava256/conf.sbatch
+#   CONF_SPEC=$S CONF_STEPS="desc-ulr-merge" sbatch aau/ava256/conf.sbatch               (v6: ULRSSM, poi desc-eval)
 #   CONF_SPEC=$S CONF_STEPS="desc-eval" sbatch aau/ava256/conf.sbatch                     (LEGGE LE GT)
 # Passi: versions (venv di MICA), gate (gate-render, rilevatore, gate-compare: tolleranza 0, se fallisce il job si
 # ferma), define, prep, render, detect (venv di MICA), detprep, run[:k/n], merge (conf_protocols.py); blmm-scalars,
@@ -116,6 +118,10 @@ for k in s["embed"]["sets"]: print(f"{r}/{k}/in {r}/{k}/ops")' "$SPEC") ;;
         desc-gw-run) "${GP[@]}" $A/conf_desc.py gw-run --spec "$SPEC" --shard "${arg:-0/1}" --workers "$W" ;;
         desc-perc) GP_THREADS="$W" "${GP[@]}" $A/conf_desc.py perc --spec "$SPEC" --workers "$W" ;;
         desc-eval) UGT_THREADS=1 "${RUN[@]}" $A/conf_desc.py eval --spec "$SPEC" --workers "$W" ;;
+        desc-ulr-run)  ST="/tmp/wbes_conf_ulr_${SLURM_JOB_ID:-x}"           # operatori di ULRSSM: /tmp (conta su --mem)
+                       AAU_NV=--nv "${REPOPY[@]}" $A/conf_desc.py ulr-run --spec "$SPEC" --stage "$ST" \
+                           --shard "${arg:-0/1}" --workers "$W"; rm -rf "$ST" ;;
+        desc-ulr-merge) "${RUN[@]}" $A/conf_desc.py ulr-merge --spec "$SPEC" ;;
         export-template) "${RUN[@]}" $A/conf_collaudo.py export-template ;;
         collaudo)  if [[ "$arg" == blmm || "$arg" == bp ]]; then R=("${O3D[@]}"); else R=("${RUN[@]}"); fi
                    "${R[@]}" $A/conf_collaudo.py "$arg" --workers "$W" ;;

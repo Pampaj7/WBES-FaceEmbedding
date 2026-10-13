@@ -99,9 +99,14 @@
   "embed_abs": 0.0001,
   "desc_rel": 0.0001,
   "perc_abs": 0.0001,
-  "p_geom": 0.001
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001,
+  "ulr_rel": 0.001
  },
  "host": "a256-t4-04.srv.aau.dk",
- "job": "1071724",
- "date": "2026-10-13 13:16:11"
+ "job": "1072542",
+ "date": "2026-10-13 15:09:10"
 }

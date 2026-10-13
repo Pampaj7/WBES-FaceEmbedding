@@ -8,6 +8,8 @@ lettura (PROTOCOL_CONFERMATIVO, sez. 5, 6, 9). Collaudati su HIFI3D con lo STESS
     aau/outlineB/run_o3d.sh aau/ava256/conf_desc.py icp-same --spec <json> --workers 64
     aau/baselines/run_bl.sh aau/ava256/conf_desc.py arcface --spec <json> --stage /tmp/<job> --workers 32
     aau/competitors/gw_percettivi/gp_run.sh aau/ava256/conf_desc.py gw-prep|gw-run|gw-merge|perc --spec <json>
+    AAU_NV=--nv aau/run.sh aau/ava256/conf_desc.py ulr-run --spec <json> --stage /tmp/<job> [--shard k/n]  (GPU, v6)
+    v3_work/unified_gt/run.sh aau/ava256/conf_desc.py ulr-merge --spec <json>                       (v6)
     v3_work/unified_gt/run.sh aau/ava256/conf_desc.py eval --spec <json> --workers 64     (LEGGE LE GT del dominio)
     (conf.sbatch, passi desc-*)
 
@@ -33,6 +35,15 @@ topologie (``blmm.register_spec``), crop compresa: nella matrice le righe crop v
   perc       render e feature percettive SOLO delle varianti dichiarate ``desc.perc.variants`` (sez. 9: le altre non si
              calcolano): ``gp_percettivi._render`` sulle sole colorazioni che servono, ``extractor``, LPIPS in forma
              chiusa (``lpips_matrix``, ``lpips_check``), uscite con ``gp_common.write_view``.
+  ulr-run[:k/n], ulr-merge (v6)   ULRSSM, variante dichiarata ``desc.ulrssm.variant`` (``faces_xyz``): ``ulr_eval.run``
+             (mesh preparate come in training, feature del checkpoint della selezione, per coppia sulle coppie di soggetti
+             diversi di ``ulr_common.pairs``, stessa topologia compresa, e template -> mesh) e ``ulr_eval.merge``
+             (variante via template con ``train_fr_sr.factor``), funzioni importate invariate; prima: sha256 di
+             checkpoint e ``selection.json`` contro lo spec, variante = quella della selezione, clone di ULRSSM
+             (``ulr_common.ULRSSM_DIR``) al commit dello spec e senza modifiche, GPU della classe ``desc.ulrssm.gpu``
+             (L40S, quella della valutazione di sviluppo). Vista da spec generato come per GW, uscite di ulr_common
+             ridirette in ``<work>/desc/gp/ulrssm`` (plug-in ``faces_xyz/<vista>.npz``: ``D_pair_fr``, ``D_pair_sr``,
+             ``D_tpl_fr``, ``D_tpl_sr``); operatori di ULRSSM nella cache ``--stage`` del job.
   GW e percettivi: vista di ``gp_common.view`` da uno spec generato (``<work>/desc/gp_spec.json``: dir, soggetti,
   topologie, frame, L_d e CS_ref di ``blmm.params`` della vista dello spec), cartelle di gp_common ridirette in
   ``<work>/desc/gp`` (plug-in ``<metodo>/<variante>/<vista>.npz``) e ``<work>/desc/gp_work``; le scelte del pilota
@@ -50,7 +61,8 @@ Lettura (``eval``; con ``freeze`` PRIMA ``conf_common.verify``):
   ``bp.mesh_distances``, composizione con il k di ``bp_paired_e2.k_values``), varifold
   (``bp_paired.varifold_distances``), spettrali (``fm_eval.spectral_columns``), taglia stimata (``est_cs``, cs di
   ``blmm.scalars_of``), ArcFace (``arcface_normals``, 1 - coseno), GW e percettivi (``fm_eval.plugin_columns`` sulle
-  cartelle ``columns.desc_plugins``: ``plugin:<metodo>/<variante>|fr`` e ``|sr``); sulle righe di stessa topologia ICP +
+  cartelle ``columns.desc_plugins``: ``plugin:<metodo>/<variante>|fr`` e ``|sr``; v6: ULRSSM ``|pair_fr``, ``|pair_sr``,
+  ``|tpl_fr``, ``|tpl_sr``, ognuna con la sua GT); sulle righe di stessa topologia ICP +
   Chamfer da ``icp_same``, il NICP per coppia e i protocolli non esistono (non applicabili su quei gruppi).
   letture (sez. 6), con le repliche di ``conf_eval`` (``default_rng(boot_seed)``, 1000, Spearman pesato c_a c_b di
   ``fm_eval.replicas``): ``confermativa (+inf)`` = righe con GT e colonne PER MESH della famiglia finite, metodi per
@@ -305,6 +317,19 @@ def step_arcface(spec: Path, stage: Path, workers: int) -> None:
 
 # ------------------------------------------------------------------------------------------ GW e percettivi
 
+def domain_spec(s: dict, name: str, path: Path) -> Path:
+    """Spec di dominio di ``gp_common.view`` / ``ulr_common.view`` (dir, soggetti, topologie, frame, L_d e CS_ref di
+    ``blmm.params`` della vista dello spec; ``desc.subsample_subjects`` solo nei collaudi)."""
+    import blmm
+    prm = blmm.params()["domains"][name]
+    sub = s["desc"].get("subsample_subjects")
+    gs = {"name": name, "dir": s["dir"], "subjects": sorted(sub or s["subjects"]), "topologies": s["topologies"],
+          "frame": s["frame"], "L": float(prm["L"]), "cs_ref": float(prm["cs_ref"]),
+          "note": "generato da conf_desc.py" + (": SOTTOCAMPIONE di collaudo" if sub else "")}
+    cc.atomic_json(path, gs)
+    return path
+
+
 def gp_setup(spec: Path):
     """(spec, vista, spec di gp_common, moduli gc, gp_gw, gp_percettivi) con le cartelle ridirette."""
     import blmm
@@ -328,14 +353,7 @@ def gp_setup(spec: Path):
     ch = json.loads((gc.OUT / "percettivi" / "pilot_choice.json").read_text())["choice"]
     if ch != s["desc"]["perc"]["variants"]:
         raise SystemExit(f"varianti percettive dello spec {s['desc']['perc']['variants']} diverse dal pilota {ch}")
-    prm = blmm.params()["domains"][name]
-    sub = s["desc"].get("subsample_subjects")
-    gs = {"name": name, "dir": s["dir"], "subjects": sorted(sub or s["subjects"]), "topologies": s["topologies"],
-          "frame": s["frame"], "L": float(prm["L"]), "cs_ref": float(prm["cs_ref"]),
-          "note": "generato da conf_desc.py (gp_setup)" + (": SOTTOCAMPIONE di collaudo" if sub else "")}
-    p = D / "gp_spec.json"
-    cc.atomic_json(p, gs)
-    return s, name, p, gc, gp_gw, gpp
+    return s, name, domain_spec(s, name, D / "gp_spec.json"), gc, gp_gw, gpp
 
 
 def step_gw(spec: Path, what: str, shard: str, workers: int) -> None:
@@ -431,6 +449,52 @@ def step_perc(spec: Path, workers: int, device: str) -> None:
         rep[f"{m}/{var}"] = {k: info[k] for k in info if k not in base or k in ("failed", "clipped_meshes")}
         print(f"[conf-desc] percettivi {name} {m} {var}: {n} mesh in {time.time() - t1:.0f}s", flush=True)
     cc.atomic_json(ev_dir(s) / "perc.json", {"base": base, "variants": rep})
+
+
+# ------------------------------------------------------------------------------------------ ULRSSM (v6)
+
+def ulr_setup(spec: Path):
+    """(spec, vista, spec di ulr_common, modulo ulr_eval, checkpoint) con i controlli di ``desc.ulrssm`` e le uscite di
+    ulr_common ridirette in ``<work>/desc/gp/ulrssm``."""
+    import subprocess
+    sys.path.insert(0, str(AAU / "competitors" / "ulrssm"))
+    import ulr_common as U
+    import ulr_eval as ue
+    s, name = setup(spec)
+    u = s["desc"]["ulrssm"]
+    for key in ("checkpoint", "selection"):
+        got = cc.sha256(cc.rp(u[key]))
+        if got != u[f"{key}_sha256"]:
+            raise SystemExit(f"ULRSSM {key}: sha256 {got} diverso dallo spec")
+    sel = json.loads(cc.rp(u["selection"]).read_text())
+    if sel["main"] != u["variant"] or cc.rp(sel["ckpt"]).resolve() != cc.rp(u["checkpoint"]).resolve():
+        raise SystemExit(f"ULRSSM: selezione {sel['main']} / {sel['ckpt']} diversa dallo spec")
+    git = ["git", "-C", str(U.ULRSSM_DIR)]
+    head = subprocess.run(git + ["rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    dirty = subprocess.run(git + ["status", "--porcelain"], capture_output=True, text=True).stdout.strip()
+    if head != u["commit"] or head != U.ULRSSM_COMMIT or dirty:
+        raise SystemExit(f"clone di ULRSSM {U.ULRSSM_DIR}: commit {head}, atteso {u['commit']}, modifiche {dirty[:200]!r}")
+    U.OUT = desc_dir(s) / "gp" / "ulrssm"
+    U.OUT.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(cc.rp(u["selection"]), U.OUT / "selection.json")
+    return s, name, domain_spec(s, name, desc_dir(s) / "ulr_spec.json"), ue, cc.rp(u["checkpoint"])
+
+
+def step_ulr(spec: Path, what: str, shard: str, workers: int, stage: Path | None) -> None:
+    s, name, us, ue, ck = ulr_setup(spec)
+    u = s["desc"]["ulrssm"]
+    a = argparse.Namespace(view=name, spec=us, shard=shard, tag=u["variant"], ckpt=str(ck), cache=str(stage or ""),
+                           workers=workers, pairs="subjects")
+    if what == "run":
+        import torch
+        if not torch.cuda.is_available() or u["gpu"] not in torch.cuda.get_device_name():
+            raise SystemExit(f"ULRSSM: GPU richiesta {u['gpu']}")
+        os.makedirs(a.cache, exist_ok=True)
+        ue.run(a)
+    else:
+        ue.merge(a)
+        cc.atomic_json(ev_dir(s) / "ulrssm.json",
+                       json.loads((ue.U.OUT / u["variant"] / f"{name}.json").read_text()))
 
 
 # ------------------------------------------------------------------------------------------ lettura: colonne
@@ -743,7 +807,7 @@ def write_results(out: Path, S, ctrl: dict) -> None:
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("step", choices=("spectral", "varifold", "icp-same", "arcface", "gw-prep", "gw-run", "gw-merge", "perc",
-                                    "eval"))
+                                    "ulr-run", "ulr-merge", "eval"))
     p.add_argument("--spec", type=Path, required=True)
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--shard", default="0/1")
@@ -763,6 +827,8 @@ def main() -> None:
         step_gw(a.spec, a.step[3:], a.shard, a.workers)
     elif a.step == "perc":
         step_perc(a.spec, a.workers, a.device)
+    elif a.step.startswith("ulr-"):
+        step_ulr(a.spec, a.step[4:], a.shard, a.workers, a.stage)
     else:
         step_eval(a.spec, a.workers, a.n_boot)
 

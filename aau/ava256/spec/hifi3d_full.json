@@ -301,7 +301,8 @@
     "lpips": "depth",
     "dinov2": "depth",
     "clip": "smooth",
-    "dreamsim": "smooth"
+    "dreamsim": "smooth",
+    "ulrssm": "faces_xyz"
    }
   }
  },
@@ -601,6 +602,15 @@
    "id900048",
    "id900056",
    "id900062"
-  ]
+  ],
+  "ulrssm": {
+   "variant": "faces_xyz",
+   "checkpoint": "aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+   "checkpoint_sha256": "c9c6b674195e7f770c447170eadd78746b3a4efb92e746d408a36ce6320aae6f",
+   "selection": "aau/runs/evidence/competitors_new/ulrssm/selection.json",
+   "selection_sha256": "94f6f065083490da4b2067fefb855036b135ea141484c7052ad25ee08d8137ae",
+   "commit": "0625cbcbb7cd007893dd665b21ef55b275563472",
+   "gpu": "L40S"
+  }
  }
 }

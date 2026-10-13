@@ -52,7 +52,9 @@ SCRIPTS = ("aau/ava256/conf_common.py", "aau/ava256/conf_protocols.py", "aau/ava
            "aau/competitors/comp_spectral.py", "aau/baselines_param/bp_paired.py", "aau/baselines_param/bp_paired_e2.py",
            "aau/baselines_mm/blmm_eval.py", "aau/diagnostics/g0_teacher.py", "aau/competitors/gw_percettivi/gp_common.py",
            "aau/competitors/gw_percettivi/gp_gw.py", "aau/competitors/gw_percettivi/gp_percettivi.py",
-           "aau/ava256/spec/hifi3d_full.json", "aau/ava256/spec/hifi3d_det.json")
+           "aau/ava256/spec/hifi3d_full.json", "aau/ava256/spec/hifi3d_det.json",
+           # v6: ULRSSM (descrittivo); codice di terzi fuori dal repo al commit ulr_common.ULRSSM_COMMIT
+           "aau/competitors/ulrssm/ulr_common.py", "aau/competitors/ulrssm/ulr_eval.py")
 MANIFESTS = {"aau/ava256/freeze_manifest.json": "e485fb7c44f0638ef3111343ba8741a3febae80be35f8fcdae14ae0839d5f365",
              "aau/ava256/freeze_manifest_supp.json": "c6d2157a145fa29e7a8415dc60aa1bd98e9edfdf2bc38563356cc15f16f3b02e",
              "aau/ava256/calib_manifest.json": "d3657a186525dd32c7e152356047204a2bbfad86fd65a098d9895db91b1a3af7",

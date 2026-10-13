@@ -85,6 +85,10 @@
   "plugin:gw/euclid_128_cgw2|sr",
   "plugin:lpips/depth|fr",
   "plugin:lpips/depth|sr",
+  "plugin:ulrssm/faces_xyz|pair_fr",
+  "plugin:ulrssm/faces_xyz|pair_sr",
+  "plugin:ulrssm/faces_xyz|tpl_fr",
+  "plugin:ulrssm/faces_xyz|tpl_sr",
   "realy",
   "shapedna_k50",
   "stirling",
@@ -132,7 +136,11 @@
   "plugin:clip/smooth|fr": 0,
   "plugin:clip/smooth|sr": 0,
   "plugin:dreamsim/smooth|fr": 0,
-  "plugin:dreamsim/smooth|sr": 0
+  "plugin:dreamsim/smooth|sr": 0,
+  "plugin:ulrssm/faces_xyz|pair_fr": 0,
+  "plugin:ulrssm/faces_xyz|pair_sr": 0,
+  "plugin:ulrssm/faces_xyz|tpl_fr": 0,
+  "plugin:ulrssm/faces_xyz|tpl_sr": 0
  },
  "meshes_failed_by_column": {
   "factorized_s1234|form_cal": 0,
@@ -179,7 +187,8 @@
    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/lpips/depth",
    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/dinov2/depth",
    "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/clip/smooth",
-   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/dreamsim/smooth"
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/dreamsim/smooth",
+   "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/competitors_new/ulrssm/faces_xyz"
   ]
  },
  "models": {
@@ -216,8 +225,8 @@
    "missing": []
   }
  },
- "seconds": 235.54649376869202,
+ "seconds": 227.03585863113403,
  "host": "a256-t4-04.srv.aau.dk",
- "job": "1071724",
- "date": "2026-10-13 13:15:35"
+ "job": "1072542",
+ "date": "2026-10-13 15:08:30"
 }
