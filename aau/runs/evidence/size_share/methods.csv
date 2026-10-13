@@ -1,0 +1,61 @@
+dominio,chiave,metodo,tipo,punto,ic_lo,ic_hi,n_righe,seme,fonte
+hifi3d,oracle_size,taglia oracolo,rho,0.7365647428152851,0.6567438099369327,0.8024300807615412,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:51
+hifi3d,mm_rigid_icp_chamfer,ICP mm,rho,0.6429776647796447,0.5719320780084148,0.7024319491290736,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:16
+hifi3d,cs_rigid_icp_chamfer,ICP cs,rho,0.35835873649941047,0.27550053141808495,0.43788690722210266,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:17
+hifi3d,factorized_s1234|form,d_F non cal. s1234,rho,0.6423440057123969,0.5702603933372002,0.7059013663754163,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:3
+hifi3d,factorized_s1234|form_cal,d_F cal. s1234,rho,0.7485436246975689,0.67298135412304,0.8061102491647224,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:2
+hifi3d,factorized_s2345|form,d_F non cal. s2345,rho,0.6311748595255926,0.5599888293452091,0.6965542352897011,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:6
+hifi3d,factorized_s2345|form_cal,d_F cal. s2345,rho,0.7308892506427799,0.6570232266374808,0.7920489993986967,98224,990708,aau/runs/evidence/full_matrix/spearman.csv:5
+hifi3d,now_original,NoW originale,rho,0.4162583736569044,0.3369033454825164,0.49549376859272154,99000,990708,aau/runs/evidence/protocolli/spearman.csv:2
+hifi3d,now_metrical,NoW metrical,rho,0.6971044079840689,0.6283192921734526,0.7534973262725035,99000,990708,aau/runs/evidence/protocolli/spearman.csv:6
+hifi3d,ulrssm_pair_fr,ULRSSM per coppia,rho,0.6908495192143222,0.609300999137577,0.7565509279214353,99000,990708,aau/runs/evidence/competitors_new/ulrssm/faces_xyz/spearman.csv:26
+hifi3d,d_icp,ICP mm - ICP cs,delta,0.2846189282802342,0.18712458170007196,0.3830226880926597,98224,990708,aau/runs/evidence/full_matrix/deltas.csv:182
+hifi3d,d_now,NoW metrical - NoW originale,delta,0.28084603432716454,0.19371299762750768,0.3714035751444626,99000,990708,aau/runs/evidence/protocolli/deltas.csv:2
+facescape,oracle_size,taglia oracolo,rho,0.4643108518712482,0.3448101681969742,0.5711321338287968,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12584
+facescape,mm_rigid_icp_chamfer,ICP mm,rho,0.4531815083809102,0.3885658380876035,0.5138755202255519,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12552
+facescape,cs_rigid_icp_chamfer,ICP cs,rho,0.41553752100186075,0.34374690440642325,0.4852940516382844,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12553
+facescape,factorized_s1234|form,d_F non cal. s1234,rho,0.687448773613815,0.6116635927522761,0.7582300095561957,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12539
+facescape,factorized_s1234|form_cal,d_F cal. s1234,rho,0.6606634892118366,0.5863205638598726,0.7271404245672117,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12538
+facescape,factorized_s2345|form,d_F non cal. s2345,rho,0.6981610352097881,0.6189073378205522,0.7703482102021555,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12542
+facescape,factorized_s2345|form_cal,d_F cal. s2345,rho,0.668701131663825,0.5966797726344848,0.7330104599162678,88724,796786,aau/runs/evidence/full_matrix/spearman.csv:12541
+facescape,now_original,NoW originale,rho,0.6241506408718936,0.5370265142639018,0.7013963133355607,99000,796786,aau/runs/evidence/protocolli/spearman.csv:290
+facescape,now_metrical,NoW metrical,rho,0.6771895821714542,0.6113173212616743,0.7327872192694243,99000,796786,aau/runs/evidence/protocolli/spearman.csv:294
+facescape,ulrssm_pair_fr,ULRSSM per coppia,rho,0.2721497346671278,0.23853891804340777,0.30212178179846244,99000,796786,aau/runs/evidence/competitors_new/ulrssm/faces_xyz/spearman.csv:146
+facescape,d_icp,ICP mm - ICP cs,delta,0.03764398737904945,0.01786594970313771,0.0576325457437226,88724,796786,aau/runs/evidence/full_matrix/deltas.csv:17140
+facescape,d_now,NoW metrical - NoW originale,delta,0.05303894129956055,0.017951988276618574,0.09160365524149089,99000,796786,aau/runs/evidence/protocolli/deltas.csv:210
+faceverse,oracle_size,taglia oracolo,rho,0.20906440808141166,0.11433081225902636,0.30686438896978835,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24365
+faceverse,mm_rigid_icp_chamfer,ICP mm,rho,0.3372126997976188,0.26193657222881483,0.4097946340395965,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24332
+faceverse,cs_rigid_icp_chamfer,ICP cs,rho,0.2896393472058602,0.21805014231603875,0.3580043557372006,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24333
+faceverse,factorized_s1234|form,d_F non cal. s1234,rho,0.29685244712900005,0.22947640190013657,0.36164132597827836,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24319
+faceverse,factorized_s1234|form_cal,d_F cal. s1234,rho,0.3026711374695419,0.2290974856058398,0.37379177734610664,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24318
+faceverse,factorized_s2345|form,d_F non cal. s2345,rho,0.31700342704141277,0.2432353355389274,0.3825035949323118,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24322
+faceverse,factorized_s2345|form_cal,d_F cal. s2345,rho,0.318025643833329,0.24871437560112974,0.37944319249864594,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:24321
+faceverse,now_original,NoW originale,rho,0.3000931838396455,0.23100170617890672,0.3661361890692706,99000,271049,aau/runs/evidence/protocolli/spearman.csv:578
+faceverse,now_metrical,NoW metrical,rho,0.33768135566906166,0.263632853060444,0.4077790059415973,99000,271049,aau/runs/evidence/protocolli/spearman.csv:582
+faceverse,ulrssm_pair_fr,ULRSSM per coppia,rho,0.15898998935761383,0.12473679626663106,0.19060276122688433,99000,271049,aau/runs/evidence/competitors_new/ulrssm/faces_xyz/spearman.csv:266
+faceverse,d_icp,ICP mm - ICP cs,delta,0.0475733525917586,-0.0035693584794046725,0.1024619296048603,99000,271049,aau/runs/evidence/full_matrix/deltas.csv:32538
+faceverse,d_now,NoW metrical - NoW originale,delta,0.03758817182941615,-0.00020819302060216398,0.07774067313150658,99000,271049,aau/runs/evidence/protocolli/deltas.csv:418
+faceverse_neutral,oracle_size,taglia oracolo,rho,0.20906440808141166,0.11433081225902636,0.30686438896978835,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30376
+faceverse_neutral,mm_rigid_icp_chamfer,ICP mm,rho,0.40878646105869293,0.3262567469339619,0.48090744003612607,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30345
+faceverse_neutral,cs_rigid_icp_chamfer,ICP cs,rho,0.3739070477645092,0.29339674628548945,0.44909469587976036,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30346
+faceverse_neutral,factorized_s1234|form,d_F non cal. s1234,rho,0.3368942683187283,0.2563490332161738,0.408927906633592,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30335
+faceverse_neutral,factorized_s1234|form_cal,d_F cal. s1234,rho,0.34058545635557613,0.2630887117859821,0.41643998362378043,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30334
+faceverse_neutral,factorized_s2345|form,d_F non cal. s2345,rho,0.3733024279812152,0.2930557467354769,0.4507770608423337,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30338
+faceverse_neutral,factorized_s2345|form_cal,d_F cal. s2345,rho,0.3704242308981419,0.29757284634425446,0.43981752541062274,99000,271049,aau/runs/evidence/full_matrix/spearman.csv:30337
+faceverse_neutral,now_original,NoW originale,rho,0.3864038164937509,0.30925231750229076,0.45962998645385256,99000,271049,aau/runs/evidence/protocolli/spearman.csv:866
+faceverse_neutral,now_metrical,NoW metrical,rho,0.40732021000340507,0.32587040824311114,0.4809169686310055,99000,271049,aau/runs/evidence/protocolli/spearman.csv:870
+faceverse_neutral,ulrssm_pair_fr,ULRSSM per coppia,rho,0.19506067532496665,0.15319525151815225,0.2328745701239644,99000,271049,aau/runs/evidence/competitors_new/ulrssm/faces_xyz/spearman.csv:386
+faceverse_neutral,d_icp,ICP mm - ICP cs,delta,0.0348794132941837,-0.017549435432907996,0.08964254918271813,99000,271049,aau/runs/evidence/full_matrix/deltas.csv:40486
+faceverse_neutral,d_now,NoW metrical - NoW originale,delta,0.020916393509654185,-0.01884131462013362,0.060162563691011486,99000,271049,aau/runs/evidence/protocolli/deltas.csv:626
+famos,oracle_size,taglia oracolo,rho,0.787155297532656,0.5463992831640379,0.899997836221495,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35765
+famos,mm_rigid_icp_chamfer,ICP mm,rho,0.7394982376114452,0.3622321302001225,0.9136612593459879,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35734
+famos,cs_rigid_icp_chamfer,ICP cs,rho,0.6011922040223927,0.25363861476627186,0.8146977395651418,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35735
+famos,factorized_s1234|form,d_F non cal. s1234,rho,0.6162969106365332,0.22182864760183596,0.8244315699894831,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35721
+famos,factorized_s1234|form_cal,d_F cal. s1234,rho,0.6778975741239892,0.23743742271744242,0.8966302313936327,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35720
+famos,factorized_s2345|form,d_F non cal. s2345,rho,0.6124403897988804,0.1912730074932256,0.8311083966989712,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35724
+famos,factorized_s2345|form_cal,d_F cal. s2345,rho,0.6541986315571221,0.21403644844479483,0.8959419037831694,105,1234,aau/runs/evidence/full_matrix/spearman.csv:35723
+famos,now_original,NoW originale,rho,0.608988181629691,0.26499240450175293,0.8113027993149013,105,1234,aau/runs/evidence/protocolli/spearman.csv:1154
+famos,now_metrical,NoW metrical,rho,0.7845635496578893,0.4880568819243814,0.9250635805397427,105,1234,aau/runs/evidence/protocolli/spearman.csv:1158
+famos,ulrssm_pair_fr,ULRSSM per coppia,rho,0.7742898610823139,0.5320881554313018,0.9135467156810168,105,1234,aau/runs/evidence/competitors_new/ulrssm/faces_xyz/spearman.csv:506
+famos,d_icp,ICP mm - ICP cs,delta,0.13830603358905247,-0.12508897560532314,0.4175974938553642,105,1234,aau/runs/evidence/full_matrix/deltas.csv:47868
+famos,d_now,NoW metrical - NoW originale,delta,0.1755753680281983,-0.055452082490922136,0.432864400763333,105,1234,aau/runs/evidence/protocolli/deltas.csv:834
