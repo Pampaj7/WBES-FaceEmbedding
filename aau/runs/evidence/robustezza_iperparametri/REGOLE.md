@@ -144,9 +144,11 @@ matrice; solo il tipo di nodo a256-t4 riproduce il plug-in. Quindi:
 - la griglia di NoW sulle sintetiche resta quella calcolata per intero su a768-l40s-01 (job 1074638: tutte le 7
   configurazioni sulla stessa piattaforma, come l'ICP), e si valuta quella;
 - il controllo di riproduzione di NoW sulle sintetiche diventa `check-now-node`: il default ricalcolato su TUTTE le
-  coppie della vista su un nodo a256-t4 deve riprodurre il plug-in entro 1e-4 mm (NaN sulle stesse coppie); i valori
-  ricalcolati non entrano nella valutazione. Si riportano anche lo scarto fra il default della griglia e il plug-in e il
-  numero di coppie sopra la tolleranza (89 e 18 nel controllo anticipato).
+  coppie della vista su un nodo con la CPU della matrice deve riprodurre il plug-in entro 1e-4 mm (NaN sulle stesse
+  coppie); i valori ricalcolati non entrano nella valutazione. Si riportano anche lo scarto fra il default della griglia
+  e il plug-in e il numero di coppie sopra la tolleranza (89 e 18 nel controllo anticipato). CPU della matrice = AMD
+  EPYC 7302 (a256-t4-04, job 1071153): la montano anche i nodi a256-a40, e su a256-a40-04 le 12 coppie peggiori per
+  vista riproducono il plug-in con scarto 0,0 (prova di 2 core); il controllo gira su a256-t4 o a256-a40.
 
 ## 5. Fuori da questo giro
 

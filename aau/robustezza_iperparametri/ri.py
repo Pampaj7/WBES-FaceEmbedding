@@ -8,7 +8,7 @@ seme del nostro (factorized s1234 / s2345, d_F non cal. e cal.). Regole in
     aau/outlineB/run_o3d.sh      aau/robustezza_iperparametri/ri.py run --view hifi3d --method nicp --workers 64
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py run --view hifi3d --method now --workers 64
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py merge --view hifi3d --method now
-    v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check-now-node --view hifi3d --workers 12  (a256-t4)
+    v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check-now-node --view hifi3d --workers 12  (EPYC 7302)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check --view hifi3d          (nessuna GT)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py eval --workers 64           (LEGGE LE GT di test)
     (ri.sbatch; ``--limit N``: pilota dei tempi su N coppie / mesh A, uscite in ``<WORK>/pilot``, mai valutate)
@@ -632,7 +632,8 @@ def now_matrix_ref(vname: str, V: dict) -> np.ndarray:
 
 def check_now_node(vname: str, workers: int) -> None:
     """NoW metrical di default ricalcolato su QUESTO nodo per tutte le coppie della vista (media dei due versi) contro il
-    plug-in della matrice: il controllo del codice sul tipo di nodo della matrice (a256-t4; REGOLE.md, emendamento 3).
+    plug-in della matrice: il controllo del codice sulla CPU della matrice (AMD EPYC 7302: a256-t4, a256-a40; REGOLE.md,
+    emendamento 3).
     I valori non entrano nella valutazione. Nessuna GT."""
     import pr_metrics as pm
     import pr_run as prr

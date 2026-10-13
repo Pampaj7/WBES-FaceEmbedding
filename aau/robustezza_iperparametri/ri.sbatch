@@ -14,8 +14,8 @@
 #   RI_STEPS="run:hifi3d@icp merge:hifi3d@icp" sbatch ri.sbatch
 #   RI_STEPS="run:famos@now merge:famos@now" sbatch ri.sbatch
 #   RI_LIMIT=64 RI_STEPS="run:hifi3d@nicp" sbatch ri.sbatch            (pilota dei tempi, <WORK>/pilot)
-#   RI_STEPS="nownode:hifi3d nownode:facescape" sbatch --exclude=<tutti tranne a256-t4-0[1-4]> -c 12 ri.sbatch
-#                                                 (NoW di default sul tipo di nodo della matrice: controllo)
+#   RI_STEPS="nownode:hifi3d nownode:facescape" sbatch --exclude=<tutti tranne a256-t4-*, a256-a40-*> -c 12 ri.sbatch
+#                                                 (NoW di default sulla CPU della matrice, AMD EPYC 7302: controllo)
 #   RI_STEPS="check:hifi3d check:facescape check:famos eval" sbatch ri.sbatch   (eval LEGGE LE GT di test)
 # ICP e NICP nel venv della matrice (run_o3d.sh, come blmm_pairs); NoW, merge, check ed eval in quello dei protocolli.
 set -euo pipefail
