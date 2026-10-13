@@ -74,16 +74,19 @@ def chamfer_set(T: torch.Tensor, w: torch.Tensor, off: np.ndarray, subj: np.ndar
                 rows: int = 8192, cols: int = 262144, log=None) -> np.ndarray:
     """Chamfer di TUTTE le coppie di mesh di soggetti diversi di un insieme (token concatenati ``T`` (N, d), pesi ``w``
     (N) a somma 1 per mesh, ``off`` (M + 1) inizi delle mesh, ``subj`` (M) soggetti, mesh dello stesso soggetto
-    contigue e soggetti ordinati). Per la mesh A, le mesh B dei soggetti successivi (fino a ``stop[A]`` escluso, se
+    contigue). Per la mesh A, le mesh B dei soggetti successivi (fino a ``stop[A]`` escluso, se
     dato: es. il generatore degli held-out) sono una fetta contigua di ``T``: un prodotto a blocchi (``rows`` righe di
     A x ``cols`` colonne, mesh intere) da' entrambi i versi. Uscita (M, M), NaN dove non calcolata, diagonale 0."""
     M = len(off) - 1
     out = np.full((M, M), np.nan)
     np.fill_diagonal(out, 0.0)
     sq = (T * T).sum(1)
+    cut = np.flatnonzero(subj[1:] != subj[:-1]) + 1                # fine dei blocchi dello stesso soggetto
+    if len(set(subj[np.r_[0, cut]])) != len(cut) + 1:
+        raise SystemExit("chamfer_set: mesh dello stesso soggetto non contigue")
     t0 = time.time()
     for k in range(M):
-        nxt = int(np.searchsorted(subj, subj[k], side="right"))   # prima mesh del soggetto successivo (ordinati)
+        nxt = int(cut[np.searchsorted(cut, k, side="right")]) if k < (cut[-1] if len(cut) else 0) else M
         end = M if stop is None else int(stop[k])
         if nxt >= end:
             continue

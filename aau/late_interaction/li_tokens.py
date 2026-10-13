@@ -89,7 +89,7 @@ def stage() -> None:
 
 def heldout_set() -> dict:
     """Sottoinsieme degli held-out della calibrazione di c (``fact_calib``): ``HELDOUT_SUBJECTS`` soggetti per
-    generatore (``rng(HELDOUT_SEED)``), tutte le etichette; mesh in ordine di nome (soggetto per soggetto)."""
+    generatore (``rng(HELDOUT_SEED)``), tutte le etichette; mesh per generatore, poi soggetto (blocchi contigui)."""
     p = lc.WORK / "heldout.json"
     if p.exists():
         return json.loads(p.read_text())
@@ -99,7 +99,7 @@ def heldout_set() -> dict:
     held = fact_calib.heldout_subjects()
     pick = {d: sorted(np.random.default_rng(lc.HELDOUT_SEED).choice(held[d], lc.HELDOUT_SUBJECTS, replace=False).tolist())
             for d in fact_calib.DOMS}
-    names = sorted(f"{s}_GTready_{t}.npz" for d in pick for s in pick[d] for t in lc.HELDOUT_LABELS)
+    names = [f"{s}_GTready_{t}.npz" for d in fact_calib.DOMS for s in pick[d] for t in sorted(lc.HELDOUT_LABELS)]
     have = {p.name for p in (lc.HELDOUT_OPS / "ops").glob("*.npz")}
     if set(names) - have:
         raise SystemExit(f"held-out: {len(set(names) - have)} mesh senza operatori")

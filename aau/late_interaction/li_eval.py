@@ -414,6 +414,26 @@ def write_results(S: pd.DataFrame, Dl: pd.DataFrame) -> None:
                                  if len(r) else "-")
                 L.append(f"| {s} | miglior concorrente della matrice | " + " | ".join(cells) + " |")
             L.append("")
+    L += ["## Lettura della domanda (regola di REGOLE.md, sez. 6: variante dichiarata, nocrop, entrambi i semi)", "",
+          "| dominio | GT | contro il vettore (s1234; s2345) | contro il protocollo (s1234; s2345) | lettura |",
+          "|---|---|---|---|---|"]
+    for view in lc.VIEWS:
+        for g, vec, prot in (("fr", "form_cal", "plugin:now_metrical|mm"), ("sr", "shape", "plugin:realy|mm")):
+            y = Dl[(Dl["dominio"] == view) & (Dl["gt"] == g) & (Dl["insieme_righe"] == "nocrop") & Dl["declared"] &
+                   (Dl["lettura"] == g)]
+            if y.empty:
+                continue
+            rv = [y[(y["seme_modello"] == s) & (y["colonna_b"] == f"factorized_{s}|{vec}")].iloc[0] for s in lc.SEEDS]
+            rp = [y[(y["seme_modello"] == s) & (y["colonna_b"] == prot)].iloc[0] for s in lc.SEEDS]
+            if not all(r.ic_lo > 0 for r in rv):
+                verdict = "nessun recupero"
+            elif all(r.ic_hi >= 0 for r in rp):
+                verdict = "il dettaglio si recupera rispetto al protocollo"
+            else:
+                verdict = "il pooling perde dettaglio che i token conservano; distacco dal protocollo non colmato"
+            L.append(f"| {view} | {g.upper()} | " + "; ".join(f3(r.delta, r.ic_lo, r.ic_hi, True) for r in rv) + " | " +
+                     "; ".join(f3(r.delta, r.ic_lo, r.ic_hi, True) for r in rp) + f" ({rp[0].metodo_b}) | {verdict} |")
+    L.append("")
     cost = lc.OUT / "costo" / "costo.json"
     if cost.exists():
         c = json.loads(cost.read_text())
