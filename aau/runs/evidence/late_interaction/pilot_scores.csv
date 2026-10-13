@@ -1,0 +1,57 @@
+seed,view,variant,reading,gt,n_pairs,rho,rule
+s1234,hifi3d,chamfer,fr,fr,1650,0.6434145889631774,True
+s1234,hifi3d,chamfer,sr,sr,1650,0.22657046921067628,True
+s1234,hifi3d,chamfer,fr,sr,1650,0.09700111842152533,False
+s1234,hifi3d,chamfer,sr,fr,1650,0.570308061869057,False
+s1234,hifi3d,chamfer_sub,fr,fr,1650,0.6350857241858329,True
+s1234,hifi3d,chamfer_sub,sr,sr,1650,0.23182653725228297,True
+s1234,hifi3d,chamfer_sub,fr,sr,1650,0.07552199806637597,False
+s1234,hifi3d,chamfer_sub,sr,fr,1650,0.5791024614298667,False
+s1234,hifi3d,sinkhorn,fr,fr,1650,0.6453547402386569,True
+s1234,hifi3d,sinkhorn,sr,sr,1650,0.4604572149512478,True
+s1234,hifi3d,sinkhorn,fr,sr,1650,0.08592499730078274,False
+s1234,hifi3d,sinkhorn,sr,fr,1650,0.623353512939125,False
+s1234,hifi3d,_vettore (d_F cal. / d_P),fr,fr,1650,0.7863790519321678,False
+s1234,hifi3d,_vettore (d_F cal. / d_P),sr,sr,1650,0.8337364961593856,False
+s1234,facescape,chamfer,fr,fr,1650,0.4579287666352001,True
+s1234,facescape,chamfer,sr,sr,1650,0.5793162601159314,True
+s1234,facescape,chamfer,fr,sr,1650,0.5533183131739655,False
+s1234,facescape,chamfer,sr,fr,1650,0.5091896231745073,False
+s1234,facescape,chamfer_sub,fr,fr,1650,0.4263554228424817,True
+s1234,facescape,chamfer_sub,sr,sr,1650,0.5950176730236115,True
+s1234,facescape,chamfer_sub,fr,sr,1650,0.5260363050824852,False
+s1234,facescape,chamfer_sub,sr,fr,1650,0.5263892966650695,False
+s1234,facescape,sinkhorn,fr,fr,1650,0.42714482823785804,True
+s1234,facescape,sinkhorn,sr,sr,1650,0.6624023301277915,True
+s1234,facescape,sinkhorn,fr,sr,1650,0.5246817791988881,False
+s1234,facescape,sinkhorn,sr,fr,1650,0.6068159407840706,False
+s1234,facescape,_vettore (d_F cal. / d_P),fr,fr,1650,0.5831355154944247,False
+s1234,facescape,_vettore (d_F cal. / d_P),sr,sr,1650,0.7038518240341173,False
+s2345,hifi3d,chamfer,fr,fr,1650,0.6236335017213755,True
+s2345,hifi3d,chamfer,sr,sr,1650,0.18543576231073094,True
+s2345,hifi3d,chamfer,fr,sr,1650,0.07763340202260226,False
+s2345,hifi3d,chamfer,sr,fr,1650,0.5706919777851771,False
+s2345,hifi3d,chamfer_sub,fr,fr,1650,0.6167104584823915,True
+s2345,hifi3d,chamfer_sub,sr,sr,1650,0.19139500828638636,True
+s2345,hifi3d,chamfer_sub,fr,sr,1650,0.057444420817727056,False
+s2345,hifi3d,chamfer_sub,sr,fr,1650,0.5846424589355349,False
+s2345,hifi3d,sinkhorn,fr,fr,1650,0.6262936623176231,True
+s2345,hifi3d,sinkhorn,sr,sr,1650,0.40624338511975167,True
+s2345,hifi3d,sinkhorn,fr,sr,1650,0.06708125800032211,False
+s2345,hifi3d,sinkhorn,sr,fr,1650,0.6210695872690264,False
+s2345,hifi3d,_vettore (d_F cal. / d_P),fr,fr,1650,0.7490147760309867,False
+s2345,hifi3d,_vettore (d_F cal. / d_P),sr,sr,1650,0.7594257234202331,False
+s2345,facescape,chamfer,fr,fr,1650,0.52531716404754,True
+s2345,facescape,chamfer,sr,sr,1650,0.6394018394286298,True
+s2345,facescape,chamfer,fr,sr,1650,0.6190951053079369,False
+s2345,facescape,chamfer,sr,fr,1650,0.5646419625454285,False
+s2345,facescape,chamfer_sub,fr,fr,1650,0.5067221552397083,True
+s2345,facescape,chamfer_sub,sr,sr,1650,0.6846659801194661,True
+s2345,facescape,chamfer_sub,fr,sr,1650,0.6019273580191677,False
+s2345,facescape,chamfer_sub,sr,fr,1650,0.6091782793430915,False
+s2345,facescape,sinkhorn,fr,fr,1650,0.4623858113461622,True
+s2345,facescape,sinkhorn,sr,sr,1650,0.6824714210979007,True
+s2345,facescape,sinkhorn,fr,sr,1650,0.5373839325009014,False
+s2345,facescape,sinkhorn,sr,fr,1650,0.6370443098372429,False
+s2345,facescape,_vettore (d_F cal. / d_P),fr,fr,1650,0.6901556838386281,False
+s2345,facescape,_vettore (d_F cal. / d_P),sr,sr,1650,0.7674149548584213,False
