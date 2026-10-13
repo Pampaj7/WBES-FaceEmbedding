@@ -823,3 +823,74 @@ resta da misurare.
 
 Il secondario su A100 è quindi limitato dai dati. Per confrontarlo serve un controllo appaiato sullo stesso hardware:
 stessa configurazione 8 × 5 con `STREAM_PARTIAL=0`.
+
+## 23. Modello da rilasciare: training massivo autorizzato (13 ottobre)
+
+L'utente ha autorizzato il training massivo il 13 ottobre 2026. Lo scopo è un modello da RILASCIARE, addestrato su tutto ciò che è disponibile e consentito. È separato dai modelli del paper:
+- i checkpoint factorized s1234/s2345 al passo 21096, congelati per Ava-256, non si toccano;
+- il run ha una directory nuova: `aau/runs/massive_release/`;
+- nessun numero di questo modello entra nelle affermazioni del paper (§9, "Modello di rilascio").
+
+Codice in `aau/massive/` e nei flag opt-in di `v3_work/stream`. A opzione spenta il comportamento è identico: shard identici byte per byte e run dir invariata (`aau/massive/test_release.py`).
+
+### 23.1 Decisioni del PI
+
+1. **Architettura:** encoder fattorizzato taglia + forma (§22.2-22.3), cioè la ricetta dei bracci factorized: loss di forma v2 su u con GT-SR × kappa, MSE su log S, loss d'identità della ricetta v1; `--area robust --area-robust smooth`, `--input-norm global`, `--scale-aug 0.8,1.25`, EMA 0.999.
+   - Capacità: invariata (larghezza 128, 4 blocchi, 0,72 M parametri). §14.7 vieta di scegliere la taglia a calcolo piccolo, e una prova S contro M non è mai stata fatta.
+   - k_eig: 128 (§22.4).
+2. **Dati** (preset `release` di `sources.SOURCE_PRESETS`, 8 domini, batch a dominio singolo con passi uguali fra i domini):
+   - generatori BFM 2019, ICT, GNM e FLAME 2023 Open. FLAME 2020 mai: FaMoS usa il template di FLAME 2023 Open, con la stessa topologia e la stessa maschera;
+   - i 3DMM finora di test e sviluppo, cioè HIFI3D (`hifi3d`), FaceVerse v2 con espressioni (`faceverse`) e FaceScape bilineare con espressioni (`facescape`). La libreria li campiona solo con `purpose="release"`; senza `--release` restano vietati;
+   - FaMoS TRAIN, espressioni reali, meno le persone held-out;
+   - **quota d'espressioni 0,5 in ogni dominio** (deviazione (g) della §22.7, per la debolezza su FaMoS e FaceVerse);
+   - le 6 discretizzazioni senza reinserimento, crop compreso.
+
+   Restano come nella ricetta c3m: nessuna rotazione a ogni uso, niente mm_aug, nessuna maschera di taglia (le taglie di BFM 2019 sono vere).
+   - Le unità di HIFI3D e FaceVerse (u di E12) sono stimate dalla distanza interpupillare (63 mm). Le stesse unità definiscono la GT di valutazione di quei domini.
+   - Per HIFI3D la regione unificata esce di 16 punti dalla patch `mask_face`. I bersagli si calcolano sul modello intero (`sources._full_unified`), controllati contro la patch sui punti interni.
+3. **Esclusioni assolute:**
+   - Ava-256: nessuna sorgente;
+   - FaMoS TEST, 15 persone: `FamosSource` lo vieta.
+
+   **Held-out di monitoraggio, dichiarato** (`aau/massive/heldout.json`):
+   - 32 identità per ognuno dei 7 3DMM, col seme riservato SeedSequence([20261013, dominio, i]). I flussi sono indipendenti da quelli dei produttori e i coefficienti continui, quindi nessuna identità di training coincide;
+   - 6 persone FaMoS TRAIN (007, 019, 028, 032, 042, 055), tolte dal training (`--famos-exclude`);
+   - per ogni identità 6 viste: 6 discretizzazioni, 3 con espressione;
+   - in tutto 1.380 viste.
+
+   Serve solo alla sorveglianza: mai selezione del checkpoint, mai numeri del paper.
+4. **Licenze:** vedi `aau/massive/LICENZE.md`. Addestrare per ricerca è consentito per tutte le fonti, con FaceScape condizionato all'accordo firmato da chi ne ha titolo. **I pesi di questo run NON sono redistribuibili** senza i permessi di Basilea, MPI e NJU e un parere su HIFI3D++ e FaceVerse. La decisione di rilasciarli resta all'utente; non è stato pubblicato nulla.
+5. **Risorse:**
+   - 8 L40S (`--gres` l40s), QoS normal, mai `unprivileged`. Le altre 4 GPU restano agli esperimenti in corso;
+   - un nodo, 16 CPU per GPU: 64 ai rank e 64 ai produttori;
+   - `--mem-per-gpu=40G`: lo smoke a 2 GPU ha misurato al più 45 GiB col solo anello da 20 GiB;
+   - anello in /tmp da 10 GiB per GPU;
+   - `--requeue`, checkpoint di ripresa ogni 20 minuti e su SIGTERM, ripresa provata (23.3);
+   - held-out su CephFS: 8,5 GB, fuori da git.
+6. **Passi e lr:**
+   - T = 450.000 passi: 8 rank × 5 identità × 6 viste, 40 identità per passo, 18 M usi d'identità, 10 volte il C3M;
+   - stima di 60 ore a 0,48 s/passo, la misura della cella A a 2 L40S (§22.8), dentro le 60-72 ore della §10;
+   - `--time 3-12:00:00`; oltre quel limite si continua con lo stesso `STREAM_OUT`;
+   - lr 1e-4 costante, poi 1e-5 dal 90% dei passi (decadimento finale, raccomandato dal rumore del checkpoint del 12 ottobre);
+   - checkpoint ogni 8.000 passi; checkpoint finale = l'ultimo EMA (§9).
+
+### 23.2 Monitoraggio
+
+Vedi `aau/massive/MONITOR.md`. In sintesi:
+- `steps.jsonl` del rank 0, una riga ogni 10 passi: loss, lr, s/passo, termini;
+- `monitor/heldout.jsonl` su ogni checkpoint EMA: Spearman FR e SR, rank-1, errore di taglia per dominio;
+- `aau/massive/status.py` con gli allarmi NaN, loss esplosa, FERMO, held-out in calo, nodo, disco.
+
+### 23.3 Smoke e ripresa (13 ottobre, prima del lancio lungo)
+
+- **Codice e ripresa su 2 A10** (job 1074653, `aau/runs/massive_release/smoke_a10/`):
+  - 600 passi con la riga di lancio del run (preset release, held-out, lr a gradini);
+  - `scontrol requeue` al passo 250; checkpoint su SIGTERM al passo 251; ripartito su un altro nodo dal passo 251;
+  - passi 1-600 in `steps_loss.csv` senza buchi né doppioni, due righe di partenza nel jsonl, lr 1e-5 dopo il passo 540, nessuna loss non finita;
+  - held-out valutato su 6 checkpoint più la passata finale, circa 40 s per checkpoint su A10 (il primo 350 s, a cache fredda);
+  - nessun allarme da `status.py`.
+- **Invarianza dei default** (`aau/runs/massive_release/checks/test_release.json`):
+  - producer.make_group con la ricetta c3m su validated e con la ricetta max con FaMoS: codice di HEAD e codice nuovo danno shard identici byte per byte;
+  - run dir della riga di lancio di smoke_validated_1067645 invariata;
+  - divieti attivi;
+  - 8 domini release: viste e GT finite, regen.check_shard passa.

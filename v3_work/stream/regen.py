@@ -12,7 +12,8 @@ il fotogramma), discretizzazione e seme del rumore; ``views.discretize`` da' la 
 parametri espliciti nello header (``prov.mm_aug``: ``v3_work/mm_aug.assemble`` li ricostruisce senza generatore). Gli operatori NON si rigenerano bit per bit (eigsh), la mesh si'.
 Con ``partial`` nella ricetta (producer.py --partial-p) la parte tolta si rigenera da ``partial_aug.apply`` col seme
 del rumore della vista; ``--shard`` confronta anche i parametri realizzati (``partial`` dei metadati). Con ``subdiv``
-nella ricetta (producer.py --subdiv) le sorgenti suddividono le viste come il produttore.
+nella ricetta (producer.py --subdiv) le sorgenti suddividono le viste come il produttore. Con ``release`` (producer.py
+--release) le sorgenti sono quelle del modello da rilasciare (sources.build_sources(release=True), FaMoS su FLAME 2023).
 Le mesh sono nel frame canonico della libreria (mm a scala s_d); x ``mm_factor`` (targets.py) nei mm veri.
 
 Con ``--shard`` si VERIFICA contro le viste dello shard: facce identiche e vertici serviti (centro e maxabs)
@@ -34,6 +35,13 @@ import sources as S  # noqa: E402
 
 
 _AUG: dict = {}
+
+
+def release_kw(recipe: dict) -> dict:
+    """Argomenti di sources.build_sources per una ricetta del modello da rilasciare (vuoti altrimenti)."""
+    if not recipe.get("release"):
+        return {}
+    return {"release": True, "famos_exclude": list(recipe.get("famos_exclude") or [])}
 
 
 def aug_library(recipe: dict):
@@ -105,7 +113,7 @@ def check_shard(path: Path, groups=None, srcs: dict | None = None) -> list[dict]
         d = hg["domain"]
         if d not in srcs:
             sub = {k: v for k, v in (rec.get("subdiv") or {}).items() if k == d}
-            srcs[d] = S.build_sources([d], v_max=rec["v_max"], v_work=rec["v_work"], subdiv=sub)[d]
+            srcs[d] = S.build_sources([d], v_max=rec["v_max"], v_work=rec["v_work"], subdiv=sub, **release_kw(rec))[d]
         ident, views = regenerate(srcs[d], hg["prov"]["seed"], rec, d)
         by_vi = {v["vi"]: v for v in views}
         row = {"key": hg["key"], "domain": d, "seed": hg["prov"]["seed"], "license": hg["prov"]["license"],
@@ -148,7 +156,7 @@ def main() -> None:
         return
     rec = json.loads(a.recipe.read_text())
     sub = {k: v for k, v in (rec.get("subdiv") or {}).items() if k == a.domain}
-    src = S.build_sources([a.domain], v_max=rec["v_max"], v_work=rec["v_work"], subdiv=sub)[a.domain]
+    src = S.build_sources([a.domain], v_max=rec["v_max"], v_work=rec["v_work"], subdiv=sub, **release_kw(rec))[a.domain]
     seed = [int(x) for x in a.seed.split(",")]
     ident, views = regenerate(src, seed, rec, a.domain)
     if a.out:

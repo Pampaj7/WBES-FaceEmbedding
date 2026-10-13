@@ -24,6 +24,9 @@ Flag v3 (default = v2):
   --lr-constant                    lr costante senza scheduler (alternativo a --lr-steps / --plateau-patience)
   --resume auto|none|<file>        ripresa da checkpoints/last.pth (scritto a ogni epoca)
   --max-hours H                    si ferma pulito (last.pth e checkpoint finale) oltre H ore
+Log jsonl per passo (variabile d'ambiente, non flag: l'hash della run dir non cambia): ``WBES_STEP_JSONL=<file>``
+(``1`` = <run_dir>/steps.jsonl), una riga del rank 0 ogni ``WBES_STEP_JSONL_EVERY`` passi (10) e a ogni loss non finita:
+passo, epoca, loss (ultima e media della finestra), loss non finite, lr, s/passo, termini (step_jsonl).
 DDP: lanciato con torchrun (``--nproc-per-node N``, elastico con ``--max-restarts``), ogni rank tiene in RAM
 solo il suo shard di soggetti (stratificato per dominio), fa ``--steps-per-epoch`` batch per epoca dal suo
 shard; DistributedDataParallel media i gradienti. Un passo = un batch per rank.
@@ -660,6 +663,42 @@ def epoch_plans(args, data: Data, epoch: int, S: int, steps: int, B: int, drawcf
 
 
 STEP_LOG: list = []   # (passo, epoca, loss) del rank 0, scritti in steps_loss.csv a ogni checkpoint e fine epoca
+STEP_JSONL: dict = {}  # WBES_STEP_JSONL: file, finestra corrente (rank 0; vuoto = spento)
+
+
+def step_jsonl_open(run_dir: Path, world: int) -> None:
+    """Rank 0, con WBES_STEP_JSONL: apre il jsonl (in coda: le ripartenze aggiungono) e scrive la riga di partenza.
+    Dopo una ripresa i passi fra l'ultimo checkpoint e l'interruzione ricompaiono: vale l'ultima riga del passo."""
+    path = os.environ.get("WBES_STEP_JSONL", "")
+    if not path:
+        return
+    path = run_dir / "steps.jsonl" if path == "1" else Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    STEP_JSONL.update(path=path, every=max(1, int(os.environ.get("WBES_STEP_JSONL_EVERY", "10"))), t=time.time(),
+                      n=0, sum=0.0, bad=0)
+    with open(path, "a") as fh:
+        fh.write(json.dumps({"event": "start", "step": STATE["steps"], "t": time.time(), "world": world,
+                             "segment": os.environ.get("STREAM_SEGMENT", ""), "job": os.environ.get("SLURM_JOB_ID", ""),
+                             "run_dir": str(run_dir)}) + "\n")
+
+
+def step_jsonl(n: int, epoch: int, li: float, terms: dict, lr: float, sigma: float, meshes: int) -> None:
+    """Una riga ogni ``every`` passi (medie della finestra) e subito a ogni loss non finita."""
+    w = STEP_JSONL
+    finite = math.isfinite(li)
+    w["n"] += 1
+    w["sum"] += li if finite else 0.0
+    w["bad"] += 0 if finite else 1
+    if n % w["every"] and finite:
+        return
+    now = time.time()
+    row = {"step": n, "epoch": epoch, "t": now, "loss": li if finite else str(li),
+           "loss_mean": w["sum"] / max(w["n"] - w["bad"], 1), "nonfinite": w["bad"], "lr": lr,
+           "s_per_step": (now - w["t"]) / w["n"], "sigma": sigma, "meshes": meshes,
+           "terms": {k: (float(v) if math.isfinite(float(v)) else str(float(v))) for k, v in terms.items()}}
+    with open(w["path"], "a") as fh:
+        fh.write(json.dumps(row) + "\n")
+    w.update(t=now, n=0, sum=0.0, bad=0)
 
 
 def train_epoch(args, plans, embedder, net, model, optimizer, ema, data: Data, lr_steps, epoch: int, ddp: bool,
@@ -723,6 +762,8 @@ def train_epoch(args, plans, embedder, net, model, optimizer, ema, data: Data, l
         n_new += 1
         n_meshes += len(plan.entries)
         STEP_LOG.append((n, epoch, li))
+        if STEP_JSONL and data.rank == 0:
+            step_jsonl(n, epoch, li, terms, float(optimizer.param_groups[0]["lr"]), float(plan.sigma), len(plan.entries))
         if args.log_every and n % args.log_every == 0:
             dt = time.time() - t0
             log0(f"[v3] passo {n}: loss={li:.4f} " + " ".join(f"{k}={v:.4f}" for k, v in terms.items())
@@ -918,6 +959,8 @@ def run(args: argparse.Namespace) -> None:
              f"world {world} (il checkpoint era a world {pack.get('world_size')})")
     if data.blocks is not None:
         data.switch_block(data.block_of_epoch(start_epoch, epochs))
+    if rank == 0:
+        step_jsonl_open(run_dir, world)        # dopo l'eventuale ripresa: la riga di partenza ha il passo ripreso
     barrier()
 
     # eval online (solo rank 0), dopo il primo blocco come in v2

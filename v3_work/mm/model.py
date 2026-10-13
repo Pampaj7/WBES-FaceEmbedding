@@ -24,7 +24,9 @@ Ruoli
 ``"train"``): con ``purpose="train"`` un modello ``dev`` o ``test`` solleva ``RoleError``
 (``assert_trainable``, un'eccezione vera: un ``assert`` sparirebbe con ``python -O``). Chi genera
 un set di valutazione lo dice esplicitamente con ``purpose="eval"``. ``mesh`` non e' protetta: non
-campiona niente.
+campiona niente. ``purpose="release"``: il SOLO modello da rilasciare (decisione del PI del 13 ottobre 2026,
+PLAN_MASSIVE sez. 23), addestrato anche sui modelli dev e test; mai nei run del paper (lo chiede solo
+``v3_work/stream/sources.py`` con ``release=True``).
 """
 
 from __future__ import annotations
@@ -41,7 +43,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CANONICAL_JSON = REPO_ROOT / "datasets" / "UNIFIED_GT" / "canonical_transforms.json"
 
 ROLES = ("train", "dev", "test")
-PURPOSES = ("train", "eval")
+PURPOSES = ("train", "eval", "release")
 
 # Code pesanti (PLAN_MASSIVE sez. 2, punto 1): per COEFFICIENTE, 80% N(0,1) e 20% N(0,2^2),
 # troncata a 3.5 sigma per rifiuto (la sigma del modo, cioe' |z| <= 3.5 in unita' standard).

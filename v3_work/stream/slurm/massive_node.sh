@@ -33,6 +33,13 @@
 #   STREAM_PARTIAL p (STREAM_PARTIAL_AREA lo,hi): parzialita' variabile per vista, producer.py --partial-p (partial_aug.py).
 # Opt-in della cella B' dell'ablazione 2x2 (emendamento 1), spento di default: STREAM_FLAME_SUBDIV n, le viste di
 #   flame2023 suddivise 1-a-4 n volte coi punti medi (producer.py --subdiv flame2023=n, come gli insiemi FLAME di D1).
+# Modello da rilasciare (PLAN_MASSIVE sez. 23, aau/massive/), spento di default: STREAM_RELEASE=1 = producer.py --release
+#   (anche HIFI3D, FaceVerse, FaceScape; FaMoS su FLAME 2023 Open) e --famos-exclude con le persone held-out di
+#   $STREAM_HELDOUT/heldout.json (obbligatorio). STREAM_HELDOUT (directory di aau/massive/heldout.py make): sul
+#   nodo 0 heldout.py watch valuta ogni epoch*_ema.pth nuovo sulla GPU 0 -> $STREAM_OUT/monitor/heldout.jsonl, e a fine
+#   run una passata finale. STREAM_LR_STEPS ("passo:lr,..."): --lr-steps al posto di --lr-constant (decadimento finale).
+# Log jsonl per passo del rank 0 (train_v3.step_jsonl, WBES_STEP_JSONL), con STREAM_RELEASE=1 o STREAM_STEP_JSONL=1:
+#   $STREAM_OUT/steps.jsonl, ogni STREAM_STEP_JSONL_EVERY passi (10) e a ogni loss non finita; non cambia la run dir.
 # Ripresa, anche del run principale:
 #   STREAM_PREEMPTIBLE (default 1; 0 = trainer in primo piano, come prima): WBES_PREEMPT_SAVE=1 al trainer (su SIGTERM
 #   salva last.pth al passo in corso ed esce: train_stream.py). Prelazione, scontrol requeue e scancel mandano SIGTERM
@@ -81,6 +88,9 @@ LD="${STREAM_LABEL_DRAW:-$D_LD}"           # perm (senza reinserimento, C3M) | r
 PART="${STREAM_PARTIAL:-}"                 # probabilita' per vista della parzialita' (vuoto = spenta)
 PAREA="${STREAM_PARTIAL_AREA:-}"           # lo,hi della frazione d'area tolta (vuoto = default di partial_aug)
 FSUB="${STREAM_FLAME_SUBDIV:-}"            # suddivisioni 1-a-4 delle viste di flame2023 (vuoto = nessuna)
+REL="${STREAM_RELEASE:-0}"                 # 1 = modello da rilasciare (producer.py --release)
+HOUT="${STREAM_HELDOUT:-}"                 # held-out del monitoraggio (heldout.py make; vuoto = nessun sorvegliante)
+LRS="${STREAM_LR_STEPS:-}"                 # --lr-steps (vuoto = --lr-constant, la ricetta C3M)
 CPR="${STREAM_TRAIN_CPUS_PER_RANK:-8}"     # ottimo misurato il 10 ottobre: groups 8 / 12 / 16 CPU = 108 / 112 / 110 mesh/s
 RGB=$(( ${STREAM_RING_GB_PER_GPU:-10} * G ))
 SEED="${STREAM_SEED:-1234}"
@@ -102,6 +112,16 @@ log "dati: ricetta $RCP, quota d'espressioni $EF, mm_aug ${MMAUG:-no}, rotazione
     "discretizzazioni $LD"
 [[ -n "$PART" ]] && log "parzialita' variabile: p=$PART per vista, area ${PAREA:-default} (producer.py --partial-p)"
 [[ -n "$FSUB" ]] && log "viste di flame2023 suddivise 1-a-4 $FSUB volte (producer.py --subdiv)"
+FEXCL=""
+if [[ "$REL" == 1 ]]; then
+  # sempre, qualunque siano le fonti (senza FaMoS l'esclusione non agisce): l'held-out e' obbligatorio
+  [[ -f "$HOUT/heldout.json" ]] || { log "ERRORE: STREAM_RELEASE=1 senza \$STREAM_HELDOUT/heldout.json"; exit 2; }
+  FEXCL=$(python3 -c "import json, sys; print(','.join(json.load(open(sys.argv[1]))['famos_heldout_persons']))" \
+          "$HOUT/heldout.json")
+  [[ -n "$FEXCL" ]] || { log "ERRORE: nessuna persona FaMoS held-out in $HOUT/heldout.json"; exit 2; }
+  log "MODELLO DA RILASCIARE: producer.py --release (HIFI3D, FaceVerse, FaceScape ammessi; FaMoS su FLAME 2023)," \
+      "persone FaMoS held-out fuori dal training: ${FEXCL:-nessuna}"
+fi
 log "ricetta: batch ${IDS} identita' x <= ${MPI} viste per rank (produttori: ${VIEWS} viste per identita'), batch" \
     "$BDOM, lr costante, maschera di taglia: ${SMASK:-nessuna}, forward ${STREAM_FORWARD:-groups}"
 
@@ -142,7 +162,7 @@ AAU_NV= "$AAU_DIR/run.sh" "$CODE/v3_work/stream/producer.py" --ring "$RING" --ri
     --evecs-dtype fp32 --sources "$SOURCES" --provenance --canonical-gt --expr-frac "$EF" --seed "$PSEED" \
     --views "$VIEWS" --label-draw "$LD" \
     ${MMAUG:+--mm-aug "$MMAUG"} ${PART:+--partial-p "$PART"} ${PAREA:+--partial-area "$PAREA"} \
-    ${FSUB:+--subdiv "flame2023=$FSUB"} \
+    ${FSUB:+--subdiv "flame2023=$FSUB"} $([[ "$REL" == 1 ]] && echo --release) ${FEXCL:+--famos-exclude "$FEXCL"} \
     --cpus "$PROD_CPUS" --stats-every 60 --summary "$E/producers.json" > "$E/producers.log" 2>&1 &
 nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used --format=csv,noheader -l 5 >> "$E/gpu.csv" 2>/dev/null &
 (
@@ -185,7 +205,8 @@ EP=$(( (T + S - 1) / S ))
 CMD=("$CODE/v3_work/stream/train_stream.py" --stream "$RING" --stream-reuse "$R" --stream-rot "$ROT" --stream-sources "$SOURCES" --stream-log-views
   --stream-wait-s 1800 --total-steps "$T" --steps-per-epoch "$S" --epochs "$EP"
   --data_dir datasets/REMESH/npz_data_topo_500_withops_areanorm --no-cache
-  "${RECIPE_V1[@]}" --batch_subjects "$IDS" --max_meshes_per_subject_train "$MPI" --lr-constant
+  "${RECIPE_V1[@]}" --batch_subjects "$IDS" --max_meshes_per_subject_train "$MPI"
+  $([[ -n "$LRS" ]] && echo --lr-steps "$LRS" || echo --lr-constant)
   --stream-batch-domains "$BDOM" --stream-log-batches "${STREAM_LOG_BATCHES:-200}"
   --forward "${STREAM_FORWARD:-groups}" --fast-data --ema-decay 0.999 --train-threads "$CPR"
   --eval_every "${STREAM_EVAL_EVERY:-$(( EP > 10 ? EP / 10 : 1 ))}"
@@ -203,6 +224,19 @@ if [[ "${STREAM_EXPECT_RESUME:-0}" == 1 ]]; then
   log "$(grep -m1 '^\[resume\]' "$E/resume_check.log")"
 fi
 export WBES_STACK_DUMP_S="${WBES_STACK_DUMP_S:-0}"
+if [[ "$REL" == 1 || "${STREAM_STEP_JSONL:-0}" == 1 ]]; then
+  export WBES_STEP_JSONL="$STREAM_OUT/steps.jsonl" WBES_STEP_JSONL_EVERY="${STREAM_STEP_JSONL_EVERY:-10}"
+fi
+WATCH=()
+if [[ -n "$HOUT" && "$NODE" == 0 ]]; then
+  # sorvegliante dell'held-out: GPU 0 del nodo, 2 thread, sulle CPU dei produttori; mai la selezione del checkpoint
+  WATCH=("$CODE/aau/massive/heldout.py" watch --heldout "$HOUT" --runs "$STREAM_OUT/runs"
+         --out "$STREAM_OUT/monitor/heldout.jsonl" --device cuda:0)
+  OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 taskset -c "$PROD_CPUS" "$AAU_DIR/run.sh" "${WATCH[@]}" \
+    >> "$E/heldout_watch.log" 2>&1 &
+  WPID=$!
+  log "sorvegliante dell'held-out $HOUT (pid $WPID) -> $STREAM_OUT/monitor/heldout.jsonl"
+fi
 export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
 [[ -n "${STREAM_NCCL_IB_HCA:-}" ]] && export NCCL_IB_HCA="$STREAM_NCCL_IB_HCA"
 # Ripresa dopo un crash: un torchrun NUOVO per tentativo (--max-restarts 0, rendezvous e porta nuovi), che riparte
@@ -251,5 +285,12 @@ while :; do
 done
 kill %1 2>/dev/null || true
 wait %1 2>/dev/null || true
+if [[ ${#WATCH[@]} -gt 0 ]]; then
+  kill "$WPID" 2>/dev/null || true
+  if [[ "$rc" == 0 ]]; then      # fine run: i checkpoint finali, in primo piano
+    OMP_NUM_THREADS=4 "$AAU_DIR/run.sh" "${WATCH[@]}" --once >> "$E/heldout_watch.log" 2>&1 || true
+    log "held-out: passata finale fatta ($STREAM_OUT/monitor/heldout.jsonl)"
+  fi
+fi
 [[ "$NODE" == 0 ]] && python3 "$CODE/v3_work/stream/summarize_run.py" "$E" | tee -a "$E/node.log" || true
 exit "$rc"

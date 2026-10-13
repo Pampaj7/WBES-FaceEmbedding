@@ -1,0 +1,83 @@
+{
+ "purpose": "monitoraggio del modello da rilasciare (PLAN_MASSIVE sez. 23): mai selezione, mai paper",
+ "seed": 20261013,
+ "seed_rule": "SeedSequence([seed, indice del dominio in domains, identita'])",
+ "domains": [
+  "bfm2019",
+  "ict",
+  "gnm",
+  "flame2023",
+  "hifi3d",
+  "faceverse",
+  "facescape",
+  "famos"
+ ],
+ "ids_per_mm": 32,
+ "famos_heldout_persons": [
+  "FaMoS_subject_007",
+  "FaMoS_subject_019",
+  "FaMoS_subject_028",
+  "FaMoS_subject_032",
+  "FaMoS_subject_042",
+  "FaMoS_subject_055"
+ ],
+ "famos_rule": "rng(20261013).choice sulle persone TRAIN ordinate di aau/famos/split.json, TOLTE dal training",
+ "views_per_id": 6,
+ "expr_frac": 0.5,
+ "k_eig": 128,
+ "views_by_domain": {
+  "bfm2019": 192,
+  "ict": 192,
+  "gnm": 192,
+  "flame2023": 192,
+  "hifi3d": 192,
+  "faceverse": 192,
+  "facescape": 192,
+  "famos": 36
+ },
+ "failures": [],
+ "recipe": {
+  "views": 6,
+  "p_expr": 0.6,
+  "expr_frac": 0.5,
+  "labels": [
+   "original",
+   "remesh",
+   "down8k",
+   "noisy",
+   "crop",
+   "up60k"
+  ],
+  "label_p": [
+   0.19047619047619047,
+   0.19047619047619047,
+   0.19047619047619047,
+   0.19047619047619047,
+   0.19047619047619047,
+   0.047619047619047616
+  ],
+  "label_draw": "perm",
+  "v_max": 12000,
+  "v_work": 10000,
+  "code": "",
+  "mm_aug_probs": {},
+  "mm_aug_config": null,
+  "release": true,
+  "famos_exclude": []
+ },
+ "mm_factor": {
+  "bfm2019": 1.0071822523056297,
+  "ict": 1.0366906729677323,
+  "gnm": 1.0146315574868023,
+  "flame2023": 1.0,
+  "hifi3d": 1.0031504801628428,
+  "faceverse": 0.9758687529068807,
+  "facescape": 0.9970473778995369,
+  "famos": 1.0
+ },
+ "excluded_always": [
+  "Ava-256 (nessuna sorgente)",
+  "FaMoS TEST (FamosSource lo vieta)"
+ ],
+ "seconds": 322.04033064842224
+}

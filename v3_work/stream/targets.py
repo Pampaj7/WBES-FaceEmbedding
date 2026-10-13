@@ -15,6 +15,8 @@ Frame per dominio dello stream (``u_d`` e' l'unica parte che conta: la rigida ro
   bfm2019          assente da E12: u = ``frame.mm_per_unit`` della libreria (mm, dichiarata, la regola di E12),
                    R_d e t_d = rigida della media mappata verso la media FLAME (come ``gt.py::frames``);
   famos            catture reali gia' in mm: nessuna trasformazione (``Canon.to_F``), poi la rigida robusta;
+  hifi3d, faceverse, facescape  le loro voci di E12 (solo modello da rilasciare, sources.RELEASE_ONLY): u dichiarata
+                   per FaceScape (mm), stimata dalla distanza interpupillare (63 mm) per HIFI3D e FaceVerse;
   bfm              BFM REMESH di E12 (solo per i controlli contro i file: non e' un dominio dello stream).
 
 Fattore delle aree (``mm_factor``): le viste dello stream sono nel frame canonico della libreria, la similarita'
@@ -88,7 +90,7 @@ class CanonTargets:
 
     def describe(self) -> dict:
         return {d: {"u": float(f["u"]), "unit_source": f.get("unit_source", "")} for d, f in self.cn.frames.items()
-                if d in ("ict", "gnm", "flame2020", "flame2023", "bfm2019", "bfm")}
+                if d in ("ict", "gnm", "flame2020", "flame2023", "bfm2019", "bfm", "hifi3d", "faceverse", "facescape")}
 
 
 # --- scala della GT nel trainer ------------------------------------------------------------------------------

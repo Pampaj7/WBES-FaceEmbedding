@@ -31,6 +31,10 @@ nessuna estrazione dal generatore del gruppo). Spenta (p = 0, default) l'anello 
 Suddivisione (ablazione 2x2, emendamento 1): ``--subdiv flame2023=1``, le viste di quei 3DMM suddivise 1-a-4 coi punti
 medi prima della discretizzazione (sources.MMSource.upsample, come gli insiemi FLAME di D1); nessuna estrazione in piu',
 ``subdiv`` nella ricetta (regen.py la rispetta). Vuota (default) anello e ricetta sono quelli di prima.
+Modello da rilasciare (PLAN_MASSIVE sez. 23): ``--release`` ammette i 3DMM di test e sviluppo (sources.RELEASE_ONLY:
+HIFI3D, FaceVerse, FaceScape) e mette FaMoS sul template di FLAME 2023 Open; ``--famos-exclude`` toglie le persone
+held-out del monitoraggio (aau/massive/heldout.json). ``release`` e ``famos_exclude`` nella ricetta (regen.py li
+rispetta); senza ``--release`` anello e ricetta sono quelli di prima.
 
 Statistiche: ``<ring>/stats/w<NNN>.json`` per processo (viste, gruppi, byte, secondi per fase, fallimenti) e,
 dal padre, una riga ogni ``--stats-every`` s con viste/s nell'intervallo, shard e GiB nell'anello;
@@ -121,6 +125,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--subdiv", default="",
                    help="suddivisioni 1-a-4 delle viste per dominio, es. 'flame2023=1' (sources.MMSource.upsample; "
                         "vuoto = nessuna, il default)")
+    p.add_argument("--release", action="store_true",
+                   help="modello da rilasciare: anche HIFI3D, FaceVerse, FaceScape (sources.RELEASE_ONLY), FaMoS su FLAME 2023")
+    p.add_argument("--famos-exclude", default="", help="persone FaMoS TRAIN fuori dal training (held-out), separate da "
+                                                       "virgola; solo con --release")
     p.add_argument("--seed", type=int, default=20261009)
     p.add_argument("--duration", type=float, default=0.0, help="secondi (0 = finche' non viene fermato)")
     p.add_argument("--stats-every", type=float, default=30.0)
@@ -352,6 +360,9 @@ def recipe(cfg, acfg=None) -> dict:
         out["partial"] = dict(cfg.partial)
     if getattr(cfg, "subdiv", None):
         out["subdiv"] = dict(cfg.subdiv)
+    if getattr(cfg, "release", False):
+        out["release"] = True
+        out["famos_exclude"] = list(cfg.famos_exclude_list)
     return out
 
 
@@ -548,6 +559,11 @@ def main() -> None:
     cfg.subdiv = {k: int(v) for k, v in parse_weights(cfg.subdiv, domains).items()} if cfg.subdiv else {}
     if cfg.subdiv and cfg.mm_aug_probs:
         raise SystemExit("--subdiv con --mm-aug: i gruppi dei moltiplicatori non passano da MMSource.view_mesh")
+    cfg.famos_exclude_list = sorted(x for x in cfg.famos_exclude.split(",") if x)
+    if cfg.famos_exclude_list and not cfg.release:
+        raise SystemExit("--famos-exclude solo con --release")
+    if cfg.release and cfg.mm_aug_probs:
+        raise SystemExit("--release con --mm-aug: non previsto (i moltiplicatori costruiscono le fonti senza release)")
     # codice congelato di massive.sbatch (slurm/code_snapshot.py): la versione e' quella della copia, non del repo vivo
     cfg.code_version = os.environ.get("WBES_CODE_VERSION", "")
     if cfg.provenance and not cfg.code_version:
@@ -563,7 +579,10 @@ def main() -> None:
             cfg.code_version = ""
     t_load = time.time()
     uni = S.Unified()
-    srcs = S.build_sources(domains, uni, v_max=cfg.v_max, v_work=cfg.v_work, **({"subdiv": cfg.subdiv} if cfg.subdiv else {}))
+    srcs = S.build_sources(domains, uni, v_max=cfg.v_max, v_work=cfg.v_work, **({"subdiv": cfg.subdiv} if cfg.subdiv else {}),
+                           **({"release": True, "famos_exclude": cfg.famos_exclude_list} if cfg.release else {}))
+    if cfg.release:
+        print(f"[producer] modello da rilasciare: fonti {domains}, FaMoS senza {cfg.famos_exclude_list}", flush=True)
     if cfg.subdiv:
         print(f"[producer] suddivisione 1-a-4 delle viste: {cfg.subdiv}", flush=True)
     tg = None

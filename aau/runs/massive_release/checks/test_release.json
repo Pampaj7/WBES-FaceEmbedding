@@ -1,0 +1,617 @@
+{
+ "base": "90462616cab7e1c90bb013861acb6ea5c9f68b14",
+ "t": 1791909193.0015054,
+ "invariance": {
+  "validated_c3m": {
+   "recipe_equal": true,
+   "n_arrays": 348,
+   "same_array_keys": true,
+   "fields_differing": [],
+   "groups_meta_equal": true,
+   "views_meta_equal": true,
+   "views": 36,
+   "shard_head_equal": true,
+   "shard_bytes": [
+    268654160,
+    268654160
+   ],
+   "shard_data_equal": true,
+   "pass": true
+  },
+  "max_famos": {
+   "recipe_equal": true,
+   "n_arrays": 347,
+   "same_array_keys": true,
+   "fields_differing": [],
+   "groups_meta_equal": true,
+   "views_meta_equal": true,
+   "views": 36,
+   "shard_head_equal": true,
+   "shard_bytes": [
+    158572732,
+    158572732
+   ],
+   "shard_data_equal": true,
+   "pass": true
+  }
+ },
+ "run_dir": {
+  "base": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "now": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "now_jsonl": "v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__78085a52",
+  "pass": true
+ },
+ "guards": {
+  "hifi3d_sources": true,
+  "hifi3d_library": true,
+  "faceverse_sources": true,
+  "faceverse_library": true,
+  "facescape_sources": true,
+  "facescape_library": true,
+  "famos_exclude_without_release": true,
+  "pass": true
+ },
+ "release": {
+  "domains": [
+   "bfm2019",
+   "ict",
+   "gnm",
+   "flame2023",
+   "hifi3d",
+   "faceverse",
+   "facescape",
+   "famos"
+  ],
+  "load_s": 7.750514030456543,
+  "mm_factor": {
+   "bfm2019": 1.0071822523056297,
+   "ict": 1.0366906729677323,
+   "gnm": 1.0146315574868023,
+   "flame2023": 1.0,
+   "hifi3d": 1.0031504801628428,
+   "faceverse": 0.9758687529068807,
+   "facescape": 0.9970473778995369,
+   "famos": 1.0
+  },
+  "famos": {
+   "name": "famos",
+   "kind": "famos",
+   "n_id": 77,
+   "n_verts_work": 1787,
+   "n_faces_work": 3408,
+   "persons": 77,
+   "template": "flame2023",
+   "excluded": [
+    "FaMoS_subject_001",
+    "FaMoS_subject_002",
+    "FaMoS_subject_003"
+   ]
+  },
+  "recipe_release": true,
+  "recipe_famos_exclude": [
+   "FaMoS_subject_001",
+   "FaMoS_subject_002",
+   "FaMoS_subject_003"
+  ],
+  "by_domain": {
+   "bfm2019": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       26005,
+       3504,
+       9268,
+       10101,
+       7097,
+       10101
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 57.69281199905782,
+      "person": null,
+      "seconds": 8.4
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       10101,
+       9117,
+       26009,
+       7096,
+       10101,
+       3508
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 56.244295907539865,
+      "person": null,
+      "seconds": 8.1
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "ict": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       9409,
+       24121,
+       6605,
+       8716,
+       9409,
+       3278
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 57.44930932071215,
+      "person": null,
+      "seconds": 7.4
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       6599,
+       3278,
+       9409,
+       9409,
+       8607,
+       24124
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 59.01171605478662,
+      "person": null,
+      "seconds": 7.5
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "gnm": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       6346,
+       8475,
+       23164,
+       3170,
+       9022,
+       9022
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 57.843602291328914,
+      "person": null,
+      "seconds": 7.5
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       9022,
+       6352,
+       3175,
+       23166,
+       9022,
+       8436
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 60.15249488401835,
+      "person": null,
+      "seconds": 7.5
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "flame2023": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       4521,
+       1787,
+       1787,
+       1257,
+       629,
+       1676
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 55.86550632393105,
+      "person": null,
+      "seconds": 1.8
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       1676,
+       1258,
+       630,
+       4525,
+       1787,
+       1787
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 59.50102503289511,
+      "person": null,
+      "seconds": 1.8
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "hifi3d": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       3313,
+       9056,
+       6687,
+       9518,
+       9518,
+       24394
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 59.40901791754451,
+      "person": null,
+      "seconds": 8.1
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       3314,
+       9518,
+       9063,
+       24399,
+       9518,
+       6682
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 54.98846988548945,
+      "person": null,
+      "seconds": 8.2
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "faceverse": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       7145,
+       10152,
+       3541,
+       10152,
+       26060,
+       9159
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 55.967402930443086,
+      "person": null,
+      "seconds": 8.4
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       10152,
+       3546,
+       7143,
+       26052,
+       10152,
+       9540
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 53.75922288784382,
+      "person": null,
+      "seconds": 8.5
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "facescape": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       10172,
+       9733,
+       26115,
+       3561,
+       10172,
+       7140
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 55.323668607813204,
+      "person": null,
+      "seconds": 8.8
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       10172,
+       3551,
+       9754,
+       10172,
+       7136,
+       26114
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 58.49510212400627,
+      "person": null,
+      "seconds": 8.8
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   },
+   "famos": {
+    "groups": [
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       1679,
+       4525,
+       1787,
+       1256,
+       633,
+       1787
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 56.91988099263363,
+      "person": "FaMoS_subject_038",
+      "seconds": 1.8
+     },
+     {
+      "views": 6,
+      "labels": [
+       "crop",
+       "down8k",
+       "noisy",
+       "original",
+       "remesh",
+       "up60k"
+      ],
+      "expr": 3,
+      "verts": [
+       1259,
+       631,
+       4523,
+       1787,
+       1787,
+       1648
+      ],
+      "finite": true,
+      "gt_finite": true,
+      "S_mm": 56.34890621698169,
+      "person": "FaMoS_subject_024",
+      "seconds": 1.8
+     }
+    ],
+    "failures": 0,
+    "last_failure": ""
+   }
+  },
+  "famos_excluded_absent": true,
+  "famos_template_2023": true,
+  "regen": [
+   {
+    "key": "bfm2019/t-0-0",
+    "pass": true
+   },
+   {
+    "key": "bfm2019/t-0-1",
+    "pass": true
+   },
+   {
+    "key": "ict/t-1-0",
+    "pass": true
+   },
+   {
+    "key": "ict/t-1-1",
+    "pass": true
+   },
+   {
+    "key": "gnm/t-2-0",
+    "pass": true
+   },
+   {
+    "key": "gnm/t-2-1",
+    "pass": true
+   },
+   {
+    "key": "flame2023/t-3-0",
+    "pass": true
+   },
+   {
+    "key": "flame2023/t-3-1",
+    "pass": true
+   },
+   {
+    "key": "hifi3d/t-4-0",
+    "pass": true
+   },
+   {
+    "key": "hifi3d/t-4-1",
+    "pass": true
+   },
+   {
+    "key": "faceverse/t-5-0",
+    "pass": true
+   },
+   {
+    "key": "faceverse/t-5-1",
+    "pass": true
+   },
+   {
+    "key": "facescape/t-6-0",
+    "pass": true
+   },
+   {
+    "key": "facescape/t-6-1",
+    "pass": true
+   },
+   {
+    "key": "famos/FaMoS_subject_038",
+    "pass": true
+   },
+   {
+    "key": "famos/FaMoS_subject_024",
+    "pass": true
+   }
+  ],
+  "pass": true
+ },
+ "pass": true
+}
