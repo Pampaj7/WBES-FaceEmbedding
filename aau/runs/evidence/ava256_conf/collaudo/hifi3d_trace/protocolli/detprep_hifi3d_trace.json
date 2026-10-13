@@ -1,0 +1,54 @@
+{
+ "view": "hifi3d_trace",
+ "cond": "det",
+ "meshes": 18,
+ "det_fallback": {
+  "crop": 0,
+  "down8k": 0,
+  "noisy": 0,
+  "original": 0,
+  "remesh": 0,
+  "up60k": 0
+ },
+ "det_fallback_total": 0,
+ "det_fallback_fraction": 0.0,
+ "fallback_max_fraction": 0.02,
+ "det_score": {
+  "mean": 0.8657510711087121,
+  "median": 0.8869193494319916,
+  "p95": 0.8975039541721344,
+  "max": 0.8992365598678589
+ },
+ "rays_missed_ibug68": 171,
+ "rays_missed_lmk7": {
+  "ex_r": 13,
+  "en_r": 0,
+  "en_l": 10,
+  "ex_l": 0,
+  "subnasale": 0,
+  "ch_r": 5,
+  "ch_l": 0
+ },
+ "shift_lmk7_mm_from_map": null,
+ "shift_lmk7_mm_from_map_note": "distanza dai landmark della mappa FLAME (oracolo sui domini di sviluppo, solo indicativa su Ava-256); None se REALY non applicabile",
+ "render": {
+  "img": 640,
+  "fill": 0.45,
+  "cam_dist_x_extent": 4.0,
+  "light": [
+   0.0,
+   0.4,
+   1.0
+  ],
+  "ambient": 0.25,
+  "albedo": [
+   0.88,
+   0.71,
+   0.61
+  ]
+ },
+ "seconds": 12.355947256088257,
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073353",
+ "date": "2026-10-13 16:16:24"
+}

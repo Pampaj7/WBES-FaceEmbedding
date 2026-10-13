@@ -1,0 +1,24 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/v2_work/potential/areanorm_operators.py",
+ "argv": [
+  "--input-dir",
+  "datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/in",
+  "--output-dir",
+  "datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops",
+  "--k-eig",
+  "128",
+  "--shard",
+  "40/63"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_run.py": "a16baf761e2b04ef45bfbc8fbe34e078b42087b57b75eef11b273cac2d0eb478",
+  "v2_work/potential/areanorm_operators.py": "511d0a52758b91c4948cfbdb7c53ad68854b4e1cec5351f23c779ee15c96008f",
+  "v2_work/potential/potential_operators.py": "caddf7bc244e3f6b2c28145017e8ed2f7e82e351e55372d62834400a92110c87"
+ },
+ "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+ "mismatch": [],
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073353",
+ "date": "2026-10-13 16:59:17"
+}

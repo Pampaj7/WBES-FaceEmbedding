@@ -1,0 +1,35 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_trace.json",
+ "sets": {
+  "eval_view": {
+   "meshes": 18,
+   "subjects": 3,
+   "labels": [
+    "crop",
+    "down8k",
+    "noisy",
+    "original",
+    "remesh",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/ops"
+  },
+  "calib_view": {
+   "meshes": 15,
+   "subjects": 3,
+   "labels": [
+    "original",
+    "remesh",
+    "down8k",
+    "noisy",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops"
+  }
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073353",
+ "date": "2026-10-13 16:58:18"
+}

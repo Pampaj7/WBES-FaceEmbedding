@@ -1,0 +1,128 @@
+{
+ "set": "hifi3d_trace",
+ "expected": "x180",
+ "score": {
+  "none": 0,
+  "x180": 1,
+  "y180": 0,
+  "z180": 0
+ },
+ "chosen": "x180",
+ "subjects": {
+  "id900001": {
+   "none": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.9855417168846318,
+     0.6534689991644015
+    ],
+    "convex": false
+   },
+   "x180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.51966938337327,
+     0.4636118458168039
+    ],
+    "convex": true
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4803306166267301,
+     0.5363881541831961
+    ],
+    "convex": true
+   },
+   "z180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.01445828311536814,
+     0.3465310008355986
+    ],
+    "convex": false
+   }
+  },
+  "id900004": {
+   "none": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.956681403377951,
+     0.5202204534945758
+    ],
+    "convex": false
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.5237133920184066,
+     0.4662740921216433
+    ],
+    "convex": true
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.47628660798159345,
+     0.5337259078783567
+    ],
+    "convex": true
+   },
+   "z180": {
+    "face": true,
+    "upright": true,
+    "tip_bbox_xy": [
+     0.04331859662204903,
+     0.4797795465054241
+    ],
+    "convex": false
+   }
+  },
+  "id900018": {
+   "none": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.981219738027713,
+     0.6029735653475701
+    ],
+    "convex": false
+   },
+   "x180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.5073517461702411,
+     0.4785933445283751
+    ],
+    "convex": true
+   },
+   "y180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.4926482538297588,
+     0.5214066554716249
+    ],
+    "convex": true
+   },
+   "z180": {
+    "face": false,
+    "upright": false,
+    "tip_bbox_xy": [
+     0.018780261972287045,
+     0.3970264346524298
+    ],
+    "convex": false
+   }
+  }
+ },
+ "agrees": true
+}

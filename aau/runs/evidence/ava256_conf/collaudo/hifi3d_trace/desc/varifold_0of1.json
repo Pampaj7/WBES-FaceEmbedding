@@ -1,0 +1,9 @@
+{
+ "meshes": 18,
+ "rows": 18,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "seconds": 3.2965588569641113,
+ "host": "nv-ai-04.srv.aau.dk",
+ "job": "1073354",
+ "date": "2026-10-13 17:14:29"
+}

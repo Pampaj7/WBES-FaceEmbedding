@@ -1,0 +1,26 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/ava256/conf_protocols.py",
+ "argv": [
+  "prep",
+  "--spec",
+  "aau/ava256/spec/hifi3d_trace.json",
+  "--workers",
+  "64"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_protocols.py": "7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79",
+  "aau/ava256/conf_run.py": "a16baf761e2b04ef45bfbc8fbe34e078b42087b57b75eef11b273cac2d0eb478",
+  "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
+  "aau/competitors/protocolli/pr_common.py": "deeb13ed5e755ff3f591518f26e08577d3172b873744504711ba858120df84ab",
+  "aau/competitors/protocolli/pr_landmarks.py": "da5096451e981325c9c7049d09098b5f21523e6117f33a5e46a7491d84b62301",
+  "aau/competitors/protocolli/pr_metrics.py": "75293276c3a07f7b70b324859527a32f19f43623e64f7d1fd68ab6eb59981eda",
+  "aau/competitors/protocolli/pr_noise.py": "6f16ac05c8cc71298508988062de5ddac85d14ad2d3caad2d127247010fac4c0",
+  "aau/competitors/protocolli/pr_run.py": "dffbae45ada9f2a26628f4e0b4761ea6563fa3b26c9a3ad485993f9530377238"
+ },
+ "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+ "mismatch": [],
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073353",
+ "date": "2026-10-13 16:13:09"
+}

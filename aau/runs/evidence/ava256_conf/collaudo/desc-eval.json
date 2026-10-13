@@ -25,8 +25,8 @@
   ]
  },
  "delta mascherata (descrittiva) vs full_matrix comune": {
-  "n": 2190,
-  "n_mine": 2382,
+  "n": 2100,
+  "n_mine": 2292,
   "n_geom": 722,
   "max_abs_num": 0.0,
   "max_abs_geom": 5.696590670109525e-06,
@@ -58,8 +58,8 @@
   ]
  },
  "delta confermativa (+inf) vs full_matrix sensibilita': NICP fallito = distanza massima": {
-  "n": 2190,
-  "n_mine": 2382,
+  "n": 2100,
+  "n_mine": 2292,
   "n_geom": 722,
   "max_abs_num": 0.0,
   "max_abs_geom": 5.696590670109525e-06,
@@ -113,7 +113,7 @@
   "embed_spearman_v5": 0.001,
   "ulr_rel": 0.001
  },
- "host": "a256-t4-04.srv.aau.dk",
- "job": "1072542",
- "date": "2026-10-13 15:09:20"
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1074450",
+ "date": "2026-10-13 17:31:35"
 }

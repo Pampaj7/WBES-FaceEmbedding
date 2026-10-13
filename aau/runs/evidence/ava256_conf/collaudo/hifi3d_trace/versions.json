@@ -1,0 +1,9 @@
+{
+ "versions": {
+  "insightface": "0.7.3",
+  "onnxruntime": "1.23.2"
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073353",
+ "date": "2026-10-13 16:12:48"
+}

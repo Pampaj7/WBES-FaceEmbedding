@@ -1,0 +1,30 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/ava256/conf_desc.py",
+ "argv": [
+  "ulr-merge",
+  "--spec",
+  "aau/ava256/spec/hifi3d_trace.json"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_desc.py": "db67652481f34d75b586d3b7fab894e6ea6af3fe9732491f4c10fba2031560ab",
+  "aau/ava256/conf_run.py": "a16baf761e2b04ef45bfbc8fbe34e078b42087b57b75eef11b273cac2d0eb478",
+  "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
+  "aau/baselines_param/bp.py": "1b678c51f0169c69ded1523323484058fadf0f2d2ba4ce8cc369863cc4138389",
+  "aau/competitors/ulrssm/ulr_common.py": "16ac87192ef08ad8a37939b4140acc8338db0385d9bc963a7239240cb476295b",
+  "aau/competitors/ulrssm/ulr_eval.py": "7544cca6ab53b8d1b967b03a110bb2813fa6352e58b6d8da470750e48b18e499",
+  "aau/evidence/e1_factorial/e1_calib_ugt.py": "cc53db872a1ecc47f751e58677fd489d5684525bbe9598dbf6c19e11cd17aa72",
+  "aau/famos/famos_common.py": "6c7b95c2ed19e4f9259f828b120a7fadfa8017727b66d4525505531ca3c88430",
+  "v3_work/canonical_gt/cgt.py": "2739f59aaf7954055efcbb39df104c9c4f99ca89af898a63026a7aeec5d3b20e",
+  "v3_work/canonical_gt/train_fr_sr.py": "7b488063e3f07bedc3678ccf86f8d36d8d186a29cffb89cd084e4e476531c811",
+  "v3_work/unified_gt/domains.py": "1447b777f48d6df428ddc031336628e7a377fe40399c571325ebb7d8b54b7383",
+  "v3_work/unified_gt/shapes.py": "3db8dca67eab92510c5a197a9db0a938b6d955effc56df87f5a4c44e11f63aa4",
+  "v3_work/unified_gt/train_gt.py": "c8290adcc639fdf5596f1476f1ce30c65576b807b86906c65b78a2db0d153850",
+  "v3_work/unified_gt/ugt.py": "2cfbad40a815c8fc81ce4b46b4a13686d0e7f0024e1a86fe335431f946bbb340"
+ },
+ "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+ "mismatch": [],
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073355",
+ "date": "2026-10-13 17:16:36"
+}

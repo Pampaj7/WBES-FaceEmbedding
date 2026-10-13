@@ -1,0 +1,143 @@
+{
+ "worktree": "/home/create.aau.dk/ga41wf/wt_conf_2cea824_guard",
+ "head": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+ "prev": "2619dffde069562dd59b9f83c9f293bebf8ac3f0",
+ "node": "i256-a10-07",
+ "cases": [
+  {
+   "case": "verify: worktree pulito al suo commit",
+   "expect_ok": true,
+   "exit": 0,
+   "tail": [
+    "[conf] verify hifi3d_full: OK {\"spec\": \"aau/ava256/spec/hifi3d_full.json\", \"freeze\": false, \"code\": {\"checked\": true, \"repo\": \"/home/create.aau.dk/ga41wf/wt_conf_2cea824_guard\", \"head\": \"2cea824ddc7602e5f32321fb718ed746d88fd9ff\", \"frozen_commit\": \"2cea824ddc7602e5f32321fb718ed746d88fd9ff\", \"dirty\": []}, \"detector_weights\": {\"det_10g.onnx\": \"5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91\", \"1k3d68.onnx\": \"df5c"
+   ],
+   "pass": true
+  },
+  {
+   "case": "verify: commit diverso",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "RuntimeError: HEAD 2cea824ddc7602e5f32321fb718ed746d88fd9ff diverso dal commit congelato 2619dffde069562dd59b9f83c9f293bebf8ac3f0"
+   ],
+   "pass": true
+  },
+  {
+   "case": "verify: Ava-256 senza CONF_FROZEN_COMMIT (prima di leggere dati)",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "RuntimeError: CONF_FROZEN_COMMIT assente: su Ava-256 si gira dal worktree del commit congelato"
+   ],
+   "pass": true
+  },
+  {
+   "case": "verify: file tracciato modificato",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "RuntimeError: file tracciati modificati nel repo da cui si gira: ['M aau/ava256/conf_eval.py']"
+   ],
+   "pass": true
+  },
+  {
+   "case": "verify: di nuovo pulito",
+   "expect_ok": true,
+   "exit": 0,
+   "tail": [
+    "[conf] verify hifi3d_full: OK {\"spec\": \"aau/ava256/spec/hifi3d_full.json\", \"freeze\": false, \"code\": {\"checked\": true, \"repo\": \"/home/create.aau.dk/ga41wf/wt_conf_2cea824_guard\", \"head\": \"2cea824ddc7602e5f32321fb718ed746d88fd9ff\", \"frozen_commit\": \"2cea824ddc7602e5f32321fb718ed746d88fd9ff\", \"dirty\": []}, \"detector_weights\": {\"det_10g.onnx\": \"5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91\", \"1k3d68.onnx\": \"df5c"
+   ],
+   "pass": true
+  },
+  {
+   "case": "conf_run: moduli uguali al commit",
+   "expect_ok": true,
+   "exit": 0,
+   "tail": [
+    "}"
+   ],
+   "pass": true
+  },
+  {
+   "case": "conf_run: moduli diversi dal commit (precedente di conf_common.py)",
+   "expect_ok": false,
+   "exit": 3,
+   "tail": [
+    "[conf-run] moduli diversi dal commit congelato: ['aau/ava256/conf_common.py: diverso dal commit 2619dffde069562dd59b9f83c9f293bebf8ac3f0', 'aau/ava256/conf_run.py: non tracciato nel commit 2619dffde069562dd59b9f83c9f293bebf8ac3f0']"
+   ],
+   "pass": true
+  },
+  {
+   "case": "host --role bp sul nodo sbagliato",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "bp: nodo i256-a10-07, obbligato i256-a10-08"
+   ],
+   "pass": true
+  },
+  {
+   "case": "host --role bp sul nodo giusto (spec copia)",
+   "expect_ok": true,
+   "exit": 0,
+   "tail": [
+    "[conf] nodo i256-a10-07 = i256-a10-07 (bp)"
+   ],
+   "pass": true
+  },
+  {
+   "case": "conf_head.py fit sul nodo sbagliato",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "testa di R6: nodo i256-a10-07, obbligato i256-a10-10"
+   ],
+   "pass": true
+  },
+  {
+   "case": "conf_desc.py arcface sul nodo sbagliato",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "ArcFace: nodo i256-a10-07, obbligato i256-a10-09"
+   ],
+   "pass": true
+  },
+  {
+   "case": "guard_overwrite con freeze su un file esistente",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [],
+   "pass": true
+  },
+  {
+   "case": "check_host di R6 con la testa di un altro nodo",
+   "expect_ok": false,
+   "exit": 1,
+   "tail": [
+    "testa di R6 calcolata su altro-nodo.srv, obbligato i256-a10-10"
+   ],
+   "pass": true
+  }
+ ],
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001,
+  "ulr_rel": 0.001
+ },
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1073352",
+ "date": "2026-10-13 16:12:56"
+}

@@ -1,0 +1,17 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/ava256/conf_common.py",
+ "argv": [
+  "verify",
+  "--spec",
+  "aau/ava256/spec/hifi3d_full.json"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_run.py": "a16baf761e2b04ef45bfbc8fbe34e078b42087b57b75eef11b273cac2d0eb478"
+ },
+ "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+ "mismatch": [],
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1074450",
+ "date": "2026-10-13 17:24:32"
+}

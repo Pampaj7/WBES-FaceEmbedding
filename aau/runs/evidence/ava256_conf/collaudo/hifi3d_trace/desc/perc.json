@@ -1,0 +1,114 @@
+{
+ "base": {
+  "view": "hifi3d_trace",
+  "n_meshes": 12,
+  "failed": [],
+  "yaws": [
+   0.0,
+   -30.0,
+   30.0
+  ],
+  "size": 512,
+  "camera_half_mm": 115.77011019196178,
+  "cam_k": 1.3,
+  "L_mm": 89.05393091689368,
+  "cs_ref_mm": 64.81851401706197,
+  "device": "cpu",
+  "threads": 64,
+  "workers_render": 64,
+  "rendered_variants": [
+   "depth",
+   "smooth"
+  ],
+  "clipped_meshes": {
+   "fr": 0,
+   "sr": 0
+  },
+  "degenerate_triangle_fraction_by_topology": {
+   "crop": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "down8k": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "noisy": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "original": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "remesh": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "up60k": {
+    "median": 0.02420332922363526,
+    "max": 0.02506317577364431
+   }
+  },
+  "render_s_per_mesh_median": 158.88405630597845,
+  "render_wall_s": 196.3996822834015,
+  "spec": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_trace/desc/gp_spec.json",
+  "host": "a512-l4-06.srv.aau.dk",
+  "job": "1073353",
+  "date": "2026-10-13 17:10:38"
+ },
+ "variants": {
+  "lpips/depth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 0,
+    "sr": 0
+   },
+   "method": "lpips",
+   "variant": "depth",
+   "wall_s": 13.548417091369629,
+   "check_gram_vs_forward_max_abs": {
+    "fr|+0": 2.1222054169545146e-08,
+    "fr|-30": 1.910995517384606e-08,
+    "fr|+30": 1.2589318088007673e-08,
+    "sr|+0": 1.0954687296171883e-08,
+    "sr|-30": 1.3490296879581365e-08,
+    "sr|+30": 1.3690649447450909e-08
+   },
+   "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"
+  },
+  "dinov2/depth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 0,
+    "sr": 0
+   },
+   "method": "dinov2",
+   "variant": "depth",
+   "embed_wall_s": 9.68310546875,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  },
+  "clip/smooth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 0,
+    "sr": 0
+   },
+   "method": "clip",
+   "variant": "smooth",
+   "embed_wall_s": 56.72021985054016,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  },
+  "dreamsim/smooth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 0,
+    "sr": 0
+   },
+   "method": "dreamsim",
+   "variant": "smooth",
+   "embed_wall_s": 71.99257516860962,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  }
+ }
+}

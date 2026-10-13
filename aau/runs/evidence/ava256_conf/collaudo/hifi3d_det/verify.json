@@ -1,6 +1,13 @@
 {
  "spec": "aau/ava256/spec/hifi3d_det.json",
  "freeze": false,
+ "code": {
+  "checked": true,
+  "repo": "/home/create.aau.dk/ga41wf/wt_conf_2cea824",
+  "head": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+  "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+  "dirty": []
+ },
  "detector_weights": {
   "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
   "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
@@ -10,7 +17,10 @@
   "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0"
  },
  "errors": [],
- "host": "i256-a10-06.srv.aau.dk",
- "job": "1072543",
- "date": "2026-10-13 15:02:07"
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a"
+ },
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1074451",
+ "date": "2026-10-13 17:24:39"
 }

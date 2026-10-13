@@ -1,0 +1,59 @@
+{
+ "parts": [
+  {
+   "part": "hifi3d_trace_0of1.npz",
+   "job": "1073354",
+   "n_pairs": 36,
+   "t_prep_s": 30.852391242980957,
+   "t_feat_s": 3.2662954330444336,
+   "t_pairs_s": 5.252997636795044,
+   "nan_pairs": 0,
+   "pair_set": "subjects"
+  }
+ ],
+ "input_type": "xyz",
+ "ckpt": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+ "gpu": "NVIDIA A100-SXM4-40GB",
+ "template_n": 9022,
+ "template_flipped": false,
+ "cs_ref": 64.81851401706197,
+ "view": "hifi3d_trace",
+ "n_meshes": 12,
+ "n_pairs": 36,
+ "template": {
+  "rigid_robust_converged": 12,
+  "n": 12,
+  "rigid_robust_iter_max": 81,
+  "centroid_size_mm_median": 55.75970936468381,
+  "rms_to_mu_mm_median": 6.887624791547199
+ },
+ "gt_check": {
+  "fr_max_abs": 3.5666553621638286e-07,
+  "fr_max_rel": 6.662263641735807e-08,
+  "sr_max_abs": 3.990414845778112e-09,
+  "sr_max_rel": 5.2124675302836564e-08
+ },
+ "nan": {
+  "D_pair_fr": 0,
+  "D_pair_sr": 0,
+  "D_tpl_fr": 0,
+  "D_tpl_sr": 0
+ },
+ "failed": [],
+ "mesh_flipped": 0,
+ "seconds": {
+  "prep_per_mesh_median": 19.280891210539266,
+  "feat_per_mesh_median": 0.043644946767017245,
+  "template_map_per_mesh_median": 0.003587056417018175,
+  "pair_median": 0.008757948409765959,
+  "pair_mean": 0.1459110600537517,
+  "pairs_total_h": 0.001459110600537517
+ },
+ "vertices": {
+  "median": 9289.0,
+  "max": 24397
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073355",
+ "date": "2026-10-13 17:16:36"
+}

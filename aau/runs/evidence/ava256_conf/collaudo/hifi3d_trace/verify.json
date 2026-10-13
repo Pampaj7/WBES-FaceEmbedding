@@ -1,0 +1,27 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_trace.json",
+ "freeze": false,
+ "code": {
+  "checked": true,
+  "repo": "/home/create.aau.dk/ga41wf/wt_conf_2cea824",
+  "head": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+  "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+  "dirty": []
+ },
+ "detector_weights": {
+  "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+  "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
+ },
+ "checkpoints": {
+  "factorized_s1234": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+  "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0",
+  "factorizedc3m_e123": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77"
+ },
+ "errors": [],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a"
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1073355",
+ "date": "2026-10-13 17:15:58"
+}

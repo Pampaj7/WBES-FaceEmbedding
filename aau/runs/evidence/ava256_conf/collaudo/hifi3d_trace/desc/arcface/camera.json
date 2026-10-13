@@ -1,0 +1,17 @@
+{
+ "center": [
+  -0.016988634720064705,
+  0.05320914062090457,
+  0.23145727913802647
+ ],
+ "scale": 1.8919385798205113,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "n_meshes": 18,
+ "base_rotation": "x180",
+ "mode": "normals",
+ "view_dir": "/tmp/wbes_conf_arc_1073353/meshes/hifi3d_trace"
+}

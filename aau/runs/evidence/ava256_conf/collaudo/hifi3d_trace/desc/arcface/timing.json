@@ -1,0 +1,57 @@
+{
+ "set": "hifi3d_trace",
+ "n_meshes": 18,
+ "workers": 64,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "host": "a512-l4-06.srv.aau.dk",
+ "camera_s": 0.3594841957092285,
+ "render_shaded_s": 1.5650057792663574,
+ "calibration_s": 221.2392406463623,
+ "render_normals_s": 2.0306291580200195,
+ "embed_s": 15.516833543777466,
+ "total_s": 241.06152176856995,
+ "K4": {
+  "n": 18,
+  "max_abs_norm_minus_1": 9.239010645423207e-08,
+  "finite": true
+ },
+ "detector": {
+  "crop": {
+   "n": 9,
+   "n_failed": 4
+  },
+  "down8k": {
+   "n": 9,
+   "n_failed": 4
+  },
+  "noisy": {
+   "n": 9,
+   "n_failed": 9
+  },
+  "original": {
+   "n": 9,
+   "n_failed": 3
+  },
+  "remesh": {
+   "n": 9,
+   "n_failed": 6
+  },
+  "up60k": {
+   "n": 9,
+   "n_failed": 3
+  },
+  "total": {
+   "n": 54,
+   "n_failed": 29
+  }
+ },
+ "n_detected_by_yaw": {
+  "-030.00": 11,
+  "+000.00": 6,
+  "+030.00": 8
+ }
+}
