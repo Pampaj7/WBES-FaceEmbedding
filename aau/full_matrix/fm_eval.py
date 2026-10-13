@@ -953,6 +953,17 @@ def sname(s: str, p: str) -> str:
     return s if p in ("-", "crop") and s in ("nocrop", "crop", "all_cross") else f"{s} {p}"
 
 
+EXACT_LMK = ("now_original", "now_metrical", "realy", "stirling")   # protocolli coi landmark oracolo nel passo comune
+
+
+def rival_label(r) -> str:
+    """Miglior concorrente di una riga di deltas.csv: ``(landmark esatti)`` per i protocolli coi landmark oracolo,
+    ``*`` se post hoc (vB, composizioni)."""
+    c = str(r.colonna_b)
+    lmk = " (landmark esatti)" if c.startswith("plugin:") and plugin_name(c) in EXACT_LMK else ""
+    return f"{r.metodo_b}{lmk}{'*' if bool(r.post_hoc_b) else ''}"
+
+
 def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple, sets=SETS_MD) -> list:
     B = Dl[(Dl["tipo"] == "migliore_vs_migliore") & (Dl["passo"] == "comune")]
     md = ["| dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |",
@@ -968,7 +979,7 @@ def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple, sets=SETS_MD) ->
                       (S["passo"] == "comune")]
                 ra, rb = (x[x["colonna"] == c].iloc[0] for c in (r.colonna_a, r.colonna_b))
                 md.append(f"| {v} | {g.upper()} | {sname(s, p)} | {int(r.n_righe)} | {r.metodo_a} | "
-                          f"{f3(ra.rho, ra.ic_lo, ra.ic_hi)} | {r.metodo_b} | {f3(rb.rho, rb.ic_lo, rb.ic_hi)} | "
+                          f"{f3(ra.rho, ra.ic_lo, ra.ic_hi)} | {rival_label(r)} | {f3(rb.rho, rb.ic_lo, rb.ic_hi)} | "
                           f"{f3(r.delta, r.ic_lo, r.ic_hi, True)} |")
     return md + [""]
 
@@ -992,7 +1003,7 @@ def ours_vs_best(Dl: pd.DataFrame, views: tuple, sets) -> list:
                     r = y[y["colonna_a"] == ref]
                     if len(r):
                         r = r.iloc[0]
-                        md.append(f"| {v} | {g.upper()} | {sname(s, p)} | {r.metodo_b} | {r.metodo_a} | {r.rho_a:.3f} | "
+                        md.append(f"| {v} | {g.upper()} | {sname(s, p)} | {rival_label(r)} | {r.metodo_a} | {r.rho_a:.3f} | "
                                   f"{r.rho_b:.3f} | {f3(r.delta, r.ic_lo, r.ic_hi, True)} |")
     return md + [""]
 
@@ -1286,6 +1297,11 @@ def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dic
         md.append("")
     md += ["## Miglior nostro contro miglior concorrente (famiglie sintetiche, senza crop; letture dichiarate di "
            "varianti dichiarate, scelti sul punto: post hoc)", ""] + best_table(S, Dl, SYNTH)
+    lmk_note = ("Miglior concorrente: * = lettura post hoc (vB, composizione); \"(landmark esatti)\" = protocollo coi "
+                "landmark oracolo (NoW originale, NoW metrical, REALY, Stirling). Le "
+                "letture col rilevatore (`lmk_det`) sono nel passo `righe proprie` (sottocampione HIFI3D e FaceScape), "
+                "nella sezione \"Protocolli: landmark esatti e landmark rilevati\"")
+    md += [lmk_note + ".", ""]
     md += ["Ogni lettura nostra di riferimento contro il miglior concorrente della riga sopra (nocrop; delta "
            "`vs_nostro`, stesse righe e repliche; gli altri insiemi in `deltas.csv`):", ""] + \
         ours_vs_best(Dl, SYNTH, (("nocrop", "-"),))
@@ -1300,9 +1316,11 @@ def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dic
         "tabella sotto), e 4 e 5 con SR contro ICP mm. 4: fit B con la mesh della GT (FR con FR, SR con SR); 5: nostro "
         "preregistrato (d_F non cal. con FR, d_P con SR), entrambi i semi.", ""]
     md += ["## Scala dell'allineamento (senza crop)", ""] + ladder_intro + [
-           "Spearman (punto, righe nocrop della maschera) di ogni colonna della scala con la taglia oracolo / la taglia "
-           "stimata (`est_cs`); tutte le colonne e gli insiemi crop e all_cross in `controls.json`, "
-           "`spearman_con_taglia`:", ""] + size_table(ctrl, VIEWS)
+           "Spearman (punto, righe nocrop della maschera) con la taglia oracolo / la taglia stimata (`est_cs`) delle "
+           "colonne interne della scala (passi 4 e 5: un modello e un seme); tutte le colonne interne e gli insiemi crop "
+           "e all_cross in `controls.json`, `spearman_con_taglia`. Le colonne NoW del passo 1b sono plug-in: "
+           "`spearman_con_taglia` copre solo le colonne interne, la loro correlazione con la taglia non e' misurata "
+           "qui:", ""] + size_table(ctrl, VIEWS)
     md += ["### Confronti principali", ""] + ladder_table(Dl, SYNTH, "principale")
     md += ["### Confronti secondari (2b e 3 confusi dalla taglia; 4 e 5 con SR contro un riferimento con la taglia)", ""] + \
         ladder_table(Dl, SYNTH, "secondario")
@@ -1335,7 +1353,7 @@ def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dic
            "crop contro una topologia diversa), `all_cross` (topologie diverse, crop compresa), `stessa_topologia crop` "
            "(crop - crop) e `stessa_topologia tutte`. Stesse righe della maschera, stesse repliche, stesse colonne delle "
            "sezioni principali.", "", "### Miglior nostro contro miglior concorrente (crop)", ""] + \
-        best_table(S, Dl, SYNTH, SETS_CROP)
+        best_table(S, Dl, SYNTH, SETS_CROP) + [lmk_note + " (crop: \"Protocolli, landmark esatti e rilevati (crop)\").", ""]
     md += ["Ogni lettura nostra di riferimento contro il miglior concorrente (crop, all_cross):", ""] + \
         ours_vs_best(Dl, SYNTH, COUNT_CROP)
     md += ["### Scala dell'allineamento (crop): confronti principali", ""] + \

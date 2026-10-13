@@ -212,105 +212,107 @@ Una sola maschera per dominio: le righe con GT dove tutte le colonne interne son
 
 | dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| hifi3d | FR | nocrop | 98224 | ctrlfr s1234 | 0.757 [0.685, 0.817] | FLAME 2023 Open vB, composizione S_B + k d_P | 0.712 [0.627, 0.781] | +0.046 [+0.006, +0.083] |
-| hifi3d | FR | con_perturbazione original | 39406 | ctrlfr s1234 | 0.767 [0.696, 0.828] | FLAME 2023 Open vB, composizione S_B + k d_P | 0.715 [0.631, 0.784] | +0.052 [+0.012, +0.089] |
+| hifi3d | FR | nocrop | 98224 | ctrlfr s1234 | 0.757 [0.685, 0.817] | FLAME 2023 Open vB, composizione S_B + k d_P* | 0.712 [0.627, 0.781] | +0.046 [+0.006, +0.083] |
+| hifi3d | FR | con_perturbazione original | 39406 | ctrlfr s1234 | 0.767 [0.696, 0.828] | FLAME 2023 Open vB, composizione S_B + k d_P* | 0.715 [0.631, 0.784] | +0.052 [+0.012, +0.089] |
 | hifi3d | FR | con_perturbazione remesh | 39406 | ctrlfr s1234 | 0.747 [0.673, 0.805] | ULRSSM [faces_xyz] per coppia, mm (FR) | 0.710 [0.631, 0.775] | +0.036 [+0.003, +0.074] |
-| hifi3d | FR | con_perturbazione down8k | 39406 | ctrlfr s1234 | 0.766 [0.693, 0.827] | FLAME 2023 Open vB, composizione S_B + k d_P | 0.713 [0.627, 0.783] | +0.053 [+0.014, +0.092] |
-| hifi3d | FR | con_perturbazione up60k | 38824 | ctrlfr s1234 | 0.755 [0.680, 0.815] | FLAME 2023 Open vB, composizione S_B + k d_P | 0.715 [0.632, 0.784] | +0.039 [+0.001, +0.077] |
-| hifi3d | FR | con_perturbazione noisy | 39406 | ctrlfr s1234 | 0.753 [0.683, 0.814] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.719 [0.651, 0.775] | +0.034 [-0.006, +0.074] |
+| hifi3d | FR | con_perturbazione down8k | 39406 | ctrlfr s1234 | 0.766 [0.693, 0.827] | FLAME 2023 Open vB, composizione S_B + k d_P* | 0.713 [0.627, 0.783] | +0.053 [+0.014, +0.092] |
+| hifi3d | FR | con_perturbazione up60k | 38824 | ctrlfr s1234 | 0.755 [0.680, 0.815] | FLAME 2023 Open vB, composizione S_B + k d_P* | 0.715 [0.632, 0.784] | +0.039 [+0.001, +0.077] |
+| hifi3d | FR | con_perturbazione noisy | 39406 | ctrlfr s1234 | 0.753 [0.683, 0.814] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.719 [0.651, 0.775] | +0.034 [-0.006, +0.074] |
 | hifi3d | FR | stessa_topologia senza_crop | 24750 | ctrlfr s1234 | 0.779 [0.707, 0.840] | ULRSSM [faces_xyz] per coppia, mm (FR) | 0.780 [0.710, 0.837] | -0.001 [-0.036, +0.036] |
-| hifi3d | SR | nocrop | 98224 | factorized s1234, d_P | 0.622 [0.550, 0.685] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.715 [0.645, 0.771] | -0.093 [-0.182, -0.013] |
-| hifi3d | SR | con_perturbazione original | 39406 | factorized s1234, d_P | 0.629 [0.558, 0.692] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.720 [0.652, 0.775] | -0.091 [-0.178, -0.012] |
-| hifi3d | SR | con_perturbazione remesh | 39406 | factorized s1234, d_P | 0.626 [0.553, 0.690] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.718 [0.650, 0.775] | -0.092 [-0.182, -0.013] |
-| hifi3d | SR | con_perturbazione down8k | 39406 | factorized s1234, d_P | 0.625 [0.555, 0.688] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.715 [0.646, 0.772] | -0.090 [-0.177, -0.011] |
-| hifi3d | SR | con_perturbazione up60k | 38824 | factorized s1234, d_P | 0.626 [0.554, 0.690] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.722 [0.653, 0.779] | -0.096 [-0.182, -0.017] |
-| hifi3d | SR | con_perturbazione noisy | 39406 | factorized s1234, d_P | 0.604 [0.533, 0.668] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.717 [0.648, 0.774] | -0.112 [-0.206, -0.031] |
-| hifi3d | SR | stessa_topologia senza_crop | 24750 | factorized s1234, d_P | 0.634 [0.562, 0.699] | GNM (visto) vB, coefficienti | 0.673 [0.607, 0.733] | -0.039 [-0.121, +0.045] |
-| facescape | FR | nocrop | 88724 | C3M e205, d_F cal. | 0.711 [0.651, 0.763] | GNM (visto) vB, composizione S_B + k d_P | 0.800 [0.741, 0.847] | -0.089 [-0.147, -0.037] |
-| facescape | FR | con_perturbazione original | 37031 | C3M e205, d_F cal. | 0.725 [0.665, 0.777] | GNM (visto) vB, composizione S_B + k d_P | 0.800 [0.741, 0.847] | -0.075 [-0.132, -0.023] |
-| facescape | FR | con_perturbazione remesh | 37031 | C3M e205, d_F cal. | 0.729 [0.670, 0.780] | GNM (visto) vB, composizione S_B + k d_P | 0.801 [0.743, 0.849] | -0.072 [-0.129, -0.022] |
-| facescape | FR | con_perturbazione down8k | 37031 | factorized s2345, d_F non cal. | 0.704 [0.623, 0.779] | GNM (visto) vB, composizione S_B + k d_P | 0.794 [0.732, 0.842] | -0.090 [-0.158, -0.034] |
-| facescape | FR | con_perturbazione up60k | 29324 | C3M e205, d_F cal. | 0.742 [0.684, 0.792] | GNM (visto) vB, composizione S_B + k d_P | 0.803 [0.742, 0.852] | -0.061 [-0.118, -0.011] |
-| facescape | FR | con_perturbazione noisy | 37031 | C3M e205, d_F cal. | 0.694 [0.633, 0.749] | GNM (visto) vB, composizione S_B + k d_P | 0.801 [0.742, 0.850] | -0.107 [-0.168, -0.052] |
-| facescape | FR | stessa_topologia senza_crop | 24750 | C3M e205, d_F cal. | 0.759 [0.701, 0.809] | GNM (visto) vB, composizione S_B + k d_P | 0.807 [0.749, 0.855] | -0.048 [-0.106, +0.003] |
-| facescape | SR | nocrop | 88724 | C3M e205, d_P | 0.756 [0.695, 0.807] | GNM (visto) vB, mesh d'identita' SR | 0.854 [0.803, 0.894] | -0.098 [-0.147, -0.051] |
-| facescape | SR | con_perturbazione original | 37031 | C3M e205, d_P | 0.760 [0.701, 0.810] | GNM (visto) vB, mesh d'identita' SR | 0.853 [0.803, 0.892] | -0.093 [-0.141, -0.044] |
-| facescape | SR | con_perturbazione remesh | 37031 | C3M e205, d_P | 0.768 [0.711, 0.815] | GNM (visto) vB, mesh d'identita' SR | 0.855 [0.806, 0.895] | -0.088 [-0.135, -0.042] |
-| facescape | SR | con_perturbazione down8k | 37031 | factorized s2345, d_P | 0.761 [0.694, 0.821] | GNM (visto) vB, mesh d'identita' SR | 0.853 [0.802, 0.893] | -0.091 [-0.139, -0.047] |
-| facescape | SR | con_perturbazione up60k | 29324 | C3M e205, d_P | 0.776 [0.718, 0.824] | GNM (visto) vB, mesh d'identita' SR | 0.856 [0.805, 0.896] | -0.080 [-0.127, -0.036] |
-| facescape | SR | con_perturbazione noisy | 37031 | C3M e205, d_P | 0.759 [0.698, 0.809] | GNM (visto) vB, mesh d'identita' SR | 0.854 [0.803, 0.894] | -0.094 [-0.148, -0.044] |
-| facescape | SR | stessa_topologia senza_crop | 24750 | C3M e205, d_P | 0.794 [0.739, 0.842] | GNM (visto) vB, mesh d'identita' SR | 0.854 [0.805, 0.894] | -0.060 [-0.107, -0.013] |
-| faceverse | FR | nocrop | 99000 | factorized s2345, d_F cal. | 0.318 [0.249, 0.379] | GNM (visto) vB, composizione S_B + k d_P | 0.338 [0.255, 0.407] | -0.020 [-0.084, +0.053] |
-| faceverse | FR | con_perturbazione original | 39600 | C3M e205, d_F non cal. | 0.322 [0.247, 0.392] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.352 [0.273, 0.423] | -0.031 [-0.102, +0.046] |
-| faceverse | FR | con_perturbazione remesh | 39600 | factorized s2345, d_F cal. | 0.322 [0.254, 0.385] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.341 [0.268, 0.410] | -0.019 [-0.081, +0.053] |
-| faceverse | FR | con_perturbazione down8k | 39600 | factorized s2345, d_F non cal. | 0.306 [0.230, 0.373] | GNM (visto) vB, composizione S_B + k d_P | 0.341 [0.257, 0.411] | -0.035 [-0.104, +0.041] |
+| hifi3d | SR | nocrop | 98224 | factorized s1234, d_P | 0.622 [0.550, 0.685] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.715 [0.645, 0.771] | -0.093 [-0.182, -0.013] |
+| hifi3d | SR | con_perturbazione original | 39406 | factorized s1234, d_P | 0.629 [0.558, 0.692] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.720 [0.652, 0.775] | -0.091 [-0.178, -0.012] |
+| hifi3d | SR | con_perturbazione remesh | 39406 | factorized s1234, d_P | 0.626 [0.553, 0.690] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.718 [0.650, 0.775] | -0.092 [-0.182, -0.013] |
+| hifi3d | SR | con_perturbazione down8k | 39406 | factorized s1234, d_P | 0.625 [0.555, 0.688] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.715 [0.646, 0.772] | -0.090 [-0.177, -0.011] |
+| hifi3d | SR | con_perturbazione up60k | 38824 | factorized s1234, d_P | 0.626 [0.554, 0.690] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.722 [0.653, 0.779] | -0.096 [-0.182, -0.017] |
+| hifi3d | SR | con_perturbazione noisy | 39406 | factorized s1234, d_P | 0.604 [0.533, 0.668] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.717 [0.648, 0.774] | -0.112 [-0.206, -0.031] |
+| hifi3d | SR | stessa_topologia senza_crop | 24750 | factorized s1234, d_P | 0.634 [0.562, 0.699] | GNM (visto) vB, coefficienti* | 0.673 [0.607, 0.733] | -0.039 [-0.121, +0.045] |
+| facescape | FR | nocrop | 88724 | C3M e205, d_F cal. | 0.711 [0.651, 0.763] | GNM (visto) vB, composizione S_B + k d_P* | 0.800 [0.741, 0.847] | -0.089 [-0.147, -0.037] |
+| facescape | FR | con_perturbazione original | 37031 | C3M e205, d_F cal. | 0.725 [0.665, 0.777] | GNM (visto) vB, composizione S_B + k d_P* | 0.800 [0.741, 0.847] | -0.075 [-0.132, -0.023] |
+| facescape | FR | con_perturbazione remesh | 37031 | C3M e205, d_F cal. | 0.729 [0.670, 0.780] | GNM (visto) vB, composizione S_B + k d_P* | 0.801 [0.743, 0.849] | -0.072 [-0.129, -0.022] |
+| facescape | FR | con_perturbazione down8k | 37031 | factorized s2345, d_F non cal. | 0.704 [0.623, 0.779] | GNM (visto) vB, composizione S_B + k d_P* | 0.794 [0.732, 0.842] | -0.090 [-0.158, -0.034] |
+| facescape | FR | con_perturbazione up60k | 29324 | C3M e205, d_F cal. | 0.742 [0.684, 0.792] | GNM (visto) vB, composizione S_B + k d_P* | 0.803 [0.742, 0.852] | -0.061 [-0.118, -0.011] |
+| facescape | FR | con_perturbazione noisy | 37031 | C3M e205, d_F cal. | 0.694 [0.633, 0.749] | GNM (visto) vB, composizione S_B + k d_P* | 0.801 [0.742, 0.850] | -0.107 [-0.168, -0.052] |
+| facescape | FR | stessa_topologia senza_crop | 24750 | C3M e205, d_F cal. | 0.759 [0.701, 0.809] | GNM (visto) vB, composizione S_B + k d_P* | 0.807 [0.749, 0.855] | -0.048 [-0.106, +0.003] |
+| facescape | SR | nocrop | 88724 | C3M e205, d_P | 0.756 [0.695, 0.807] | GNM (visto) vB, mesh d'identita' SR* | 0.854 [0.803, 0.894] | -0.098 [-0.147, -0.051] |
+| facescape | SR | con_perturbazione original | 37031 | C3M e205, d_P | 0.760 [0.701, 0.810] | GNM (visto) vB, mesh d'identita' SR* | 0.853 [0.803, 0.892] | -0.093 [-0.141, -0.044] |
+| facescape | SR | con_perturbazione remesh | 37031 | C3M e205, d_P | 0.768 [0.711, 0.815] | GNM (visto) vB, mesh d'identita' SR* | 0.855 [0.806, 0.895] | -0.088 [-0.135, -0.042] |
+| facescape | SR | con_perturbazione down8k | 37031 | factorized s2345, d_P | 0.761 [0.694, 0.821] | GNM (visto) vB, mesh d'identita' SR* | 0.853 [0.802, 0.893] | -0.091 [-0.139, -0.047] |
+| facescape | SR | con_perturbazione up60k | 29324 | C3M e205, d_P | 0.776 [0.718, 0.824] | GNM (visto) vB, mesh d'identita' SR* | 0.856 [0.805, 0.896] | -0.080 [-0.127, -0.036] |
+| facescape | SR | con_perturbazione noisy | 37031 | C3M e205, d_P | 0.759 [0.698, 0.809] | GNM (visto) vB, mesh d'identita' SR* | 0.854 [0.803, 0.894] | -0.094 [-0.148, -0.044] |
+| facescape | SR | stessa_topologia senza_crop | 24750 | C3M e205, d_P | 0.794 [0.739, 0.842] | GNM (visto) vB, mesh d'identita' SR* | 0.854 [0.805, 0.894] | -0.060 [-0.107, -0.013] |
+| faceverse | FR | nocrop | 99000 | factorized s2345, d_F cal. | 0.318 [0.249, 0.379] | GNM (visto) vB, composizione S_B + k d_P* | 0.338 [0.255, 0.407] | -0.020 [-0.084, +0.053] |
+| faceverse | FR | con_perturbazione original | 39600 | C3M e205, d_F non cal. | 0.322 [0.247, 0.392] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.352 [0.273, 0.423] | -0.031 [-0.102, +0.046] |
+| faceverse | FR | con_perturbazione remesh | 39600 | factorized s2345, d_F cal. | 0.322 [0.254, 0.385] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.341 [0.268, 0.410] | -0.019 [-0.081, +0.053] |
+| faceverse | FR | con_perturbazione down8k | 39600 | factorized s2345, d_F non cal. | 0.306 [0.230, 0.373] | GNM (visto) vB, composizione S_B + k d_P* | 0.341 [0.257, 0.411] | -0.035 [-0.104, +0.041] |
 | faceverse | FR | con_perturbazione up60k | 39600 | factorized s2345, d_F cal. | 0.321 [0.251, 0.383] | ICP + Chamfer in mm (per coppia) | 0.335 [0.255, 0.411] | -0.014 [-0.085, +0.056] |
-| faceverse | FR | con_perturbazione noisy | 39600 | factorized s2345, d_F non cal. | 0.330 [0.253, 0.400] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.356 [0.275, 0.434] | -0.027 [-0.102, +0.045] |
+| faceverse | FR | con_perturbazione noisy | 39600 | factorized s2345, d_F non cal. | 0.330 [0.253, 0.400] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.356 [0.275, 0.434] | -0.027 [-0.102, +0.045] |
 | faceverse | FR | stessa_topologia senza_crop | 24750 | C3M e205, d_F cal. | 0.333 [0.260, 0.402] | ICP + Chamfer in mm (per coppia) | 0.339 [0.263, 0.410] | -0.006 [-0.070, +0.061] |
-| faceverse | SR | nocrop | 99000 | C3M e205, d_P | 0.314 [0.242, 0.382] | GNM (visto) vB, mesh d'identita' SR | 0.327 [0.239, 0.402] | -0.013 [-0.089, +0.063] |
-| faceverse | SR | con_perturbazione original | 39600 | C3M e205, d_P | 0.330 [0.254, 0.403] | GNM (visto) vB, mesh d'identita' SR | 0.325 [0.237, 0.400] | +0.005 [-0.072, +0.086] |
-| faceverse | SR | con_perturbazione remesh | 39600 | C3M e205, d_P | 0.327 [0.247, 0.400] | GNM (visto) vB, mesh d'identita' SR | 0.325 [0.235, 0.401] | +0.002 [-0.082, +0.088] |
-| faceverse | SR | con_perturbazione down8k | 39600 | factorized s2345, d_P | 0.303 [0.225, 0.372] | GNM (visto) vB, mesh d'identita' SR | 0.338 [0.250, 0.412] | -0.035 [-0.115, +0.045] |
-| faceverse | SR | con_perturbazione up60k | 39600 | C3M e123, d_P | 0.313 [0.235, 0.388] | GNM (visto) vB, mesh d'identita' SR | 0.322 [0.233, 0.397] | -0.008 [-0.091, +0.068] |
-| faceverse | SR | con_perturbazione noisy | 39600 | factorized s2345, d_P | 0.320 [0.240, 0.389] | GNM (visto) vB, mesh d'identita' SR | 0.329 [0.240, 0.404] | -0.009 [-0.082, +0.066] |
-| faceverse | SR | stessa_topologia senza_crop | 24750 | C3M e205, d_P | 0.336 [0.260, 0.405] | GNM (visto) vB, mesh d'identita' SR | 0.324 [0.236, 0.400] | +0.011 [-0.068, +0.090] |
-| faceverse_neutral | FR | nocrop | 99000 | factorized s2345, d_F non cal. | 0.373 [0.293, 0.451] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.479 [0.393, 0.557] | -0.106 [-0.209, -0.005] |
-| faceverse_neutral | FR | con_perturbazione original | 39600 | factorized s2345, d_F non cal. | 0.375 [0.294, 0.453] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.480 [0.394, 0.559] | -0.105 [-0.208, -0.003] |
-| faceverse_neutral | FR | con_perturbazione remesh | 39600 | factorized s2345, d_F non cal. | 0.378 [0.297, 0.454] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.480 [0.392, 0.558] | -0.102 [-0.206, +0.002] |
-| faceverse_neutral | FR | con_perturbazione down8k | 39600 | factorized s2345, d_F non cal. | 0.373 [0.292, 0.450] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.477 [0.392, 0.555] | -0.105 [-0.206, -0.004] |
-| faceverse_neutral | FR | con_perturbazione up60k | 39600 | factorized s2345, d_F non cal. | 0.374 [0.293, 0.452] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.481 [0.394, 0.559] | -0.107 [-0.209, -0.005] |
-| faceverse_neutral | FR | con_perturbazione noisy | 39600 | factorized s2345, d_F non cal. | 0.367 [0.289, 0.444] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.488 [0.402, 0.565] | -0.121 [-0.225, -0.018] |
+| faceverse | SR | nocrop | 99000 | C3M e205, d_P | 0.314 [0.242, 0.382] | GNM (visto) vB, mesh d'identita' SR* | 0.327 [0.239, 0.402] | -0.013 [-0.089, +0.063] |
+| faceverse | SR | con_perturbazione original | 39600 | C3M e205, d_P | 0.330 [0.254, 0.403] | GNM (visto) vB, mesh d'identita' SR* | 0.325 [0.237, 0.400] | +0.005 [-0.072, +0.086] |
+| faceverse | SR | con_perturbazione remesh | 39600 | C3M e205, d_P | 0.327 [0.247, 0.400] | GNM (visto) vB, mesh d'identita' SR* | 0.325 [0.235, 0.401] | +0.002 [-0.082, +0.088] |
+| faceverse | SR | con_perturbazione down8k | 39600 | factorized s2345, d_P | 0.303 [0.225, 0.372] | GNM (visto) vB, mesh d'identita' SR* | 0.338 [0.250, 0.412] | -0.035 [-0.115, +0.045] |
+| faceverse | SR | con_perturbazione up60k | 39600 | C3M e123, d_P | 0.313 [0.235, 0.388] | GNM (visto) vB, mesh d'identita' SR* | 0.322 [0.233, 0.397] | -0.008 [-0.091, +0.068] |
+| faceverse | SR | con_perturbazione noisy | 39600 | factorized s2345, d_P | 0.320 [0.240, 0.389] | GNM (visto) vB, mesh d'identita' SR* | 0.329 [0.240, 0.404] | -0.009 [-0.082, +0.066] |
+| faceverse | SR | stessa_topologia senza_crop | 24750 | C3M e205, d_P | 0.336 [0.260, 0.405] | GNM (visto) vB, mesh d'identita' SR* | 0.324 [0.236, 0.400] | +0.011 [-0.068, +0.090] |
+| faceverse_neutral | FR | nocrop | 99000 | factorized s2345, d_F non cal. | 0.373 [0.293, 0.451] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.479 [0.393, 0.557] | -0.106 [-0.209, -0.005] |
+| faceverse_neutral | FR | con_perturbazione original | 39600 | factorized s2345, d_F non cal. | 0.375 [0.294, 0.453] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.480 [0.394, 0.559] | -0.105 [-0.208, -0.003] |
+| faceverse_neutral | FR | con_perturbazione remesh | 39600 | factorized s2345, d_F non cal. | 0.378 [0.297, 0.454] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.480 [0.392, 0.558] | -0.102 [-0.206, +0.002] |
+| faceverse_neutral | FR | con_perturbazione down8k | 39600 | factorized s2345, d_F non cal. | 0.373 [0.292, 0.450] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.477 [0.392, 0.555] | -0.105 [-0.206, -0.004] |
+| faceverse_neutral | FR | con_perturbazione up60k | 39600 | factorized s2345, d_F non cal. | 0.374 [0.293, 0.452] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.481 [0.394, 0.559] | -0.107 [-0.209, -0.005] |
+| faceverse_neutral | FR | con_perturbazione noisy | 39600 | factorized s2345, d_F non cal. | 0.367 [0.289, 0.444] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.488 [0.402, 0.565] | -0.121 [-0.225, -0.018] |
 | faceverse_neutral | FR | stessa_topologia senza_crop | 24750 | C3M e205, d_F cal. | 0.399 [0.317, 0.474] | ULRSSM [faces_xyz] via template, GT FR (FR) | 0.417 [0.334, 0.495] | -0.018 [-0.100, +0.066] |
-| faceverse_neutral | SR | nocrop | 99000 | C3M e205, d_P | 0.382 [0.304, 0.452] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.521 [0.447, 0.590] | -0.139 [-0.225, -0.053] |
-| faceverse_neutral | SR | con_perturbazione original | 39600 | C3M e205, d_P | 0.398 [0.321, 0.469] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.523 [0.448, 0.590] | -0.125 [-0.213, -0.039] |
-| faceverse_neutral | SR | con_perturbazione remesh | 39600 | C3M e205, d_P | 0.393 [0.313, 0.464] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.523 [0.449, 0.591] | -0.130 [-0.218, -0.041] |
-| faceverse_neutral | SR | con_perturbazione down8k | 39600 | C3M e205, d_P | 0.387 [0.307, 0.459] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.520 [0.446, 0.588] | -0.133 [-0.220, -0.047] |
-| faceverse_neutral | SR | con_perturbazione up60k | 39600 | C3M e205, d_P | 0.389 [0.310, 0.463] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.523 [0.449, 0.591] | -0.134 [-0.222, -0.046] |
-| faceverse_neutral | SR | con_perturbazione noisy | 39600 | factorized s2345, d_P | 0.365 [0.286, 0.437] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.530 [0.454, 0.599] | -0.165 [-0.256, -0.074] |
+| faceverse_neutral | SR | nocrop | 99000 | C3M e205, d_P | 0.382 [0.304, 0.452] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.521 [0.447, 0.590] | -0.139 [-0.225, -0.053] |
+| faceverse_neutral | SR | con_perturbazione original | 39600 | C3M e205, d_P | 0.398 [0.321, 0.469] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.523 [0.448, 0.590] | -0.125 [-0.213, -0.039] |
+| faceverse_neutral | SR | con_perturbazione remesh | 39600 | C3M e205, d_P | 0.393 [0.313, 0.464] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.523 [0.449, 0.591] | -0.130 [-0.218, -0.041] |
+| faceverse_neutral | SR | con_perturbazione down8k | 39600 | C3M e205, d_P | 0.387 [0.307, 0.459] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.520 [0.446, 0.588] | -0.133 [-0.220, -0.047] |
+| faceverse_neutral | SR | con_perturbazione up60k | 39600 | C3M e205, d_P | 0.389 [0.310, 0.463] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.523 [0.449, 0.591] | -0.134 [-0.222, -0.046] |
+| faceverse_neutral | SR | con_perturbazione noisy | 39600 | factorized s2345, d_P | 0.365 [0.286, 0.437] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.530 [0.454, 0.599] | -0.165 [-0.256, -0.074] |
 | faceverse_neutral | SR | stessa_topologia senza_crop | 24750 | C3M e205, d_P | 0.417 [0.336, 0.491] | ULRSSM [faces_xyz] via template, GT SR (d_P) (SR) | 0.411 [0.333, 0.483] | +0.005 [-0.070, +0.079] |
+
+Miglior concorrente: * = lettura post hoc (vB, composizione); "(landmark esatti)" = protocollo coi landmark oracolo (NoW originale, NoW metrical, REALY, Stirling). Le letture col rilevatore (`lmk_det`) sono nel passo `righe proprie` (sottocampione HIFI3D e FaceScape), nella sezione "Protocolli: landmark esatti e landmark rilevati".
 
 Ogni lettura nostra di riferimento contro il miglior concorrente della riga sopra (nocrop; delta `vs_nostro`, stesse righe e repliche; gli altri insiemi in `deltas.csv`):
 
 | dominio | GT | insieme | miglior concorrente | lettura nostra | rho nostro | rho concorrente | delta [IC] |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | factorized s1234, d_F cal. | 0.749 | 0.712 | +0.037 [-0.002, +0.075] |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | factorized s2345, d_F cal. | 0.731 | 0.712 | +0.019 [-0.019, +0.057] |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | factorized s1234, d_F non cal. | 0.642 | 0.712 | -0.069 [-0.127, -0.012] |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | factorized s2345, d_F non cal. | 0.631 | 0.712 | -0.080 [-0.143, -0.019] |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | ctrlfr s1234 | 0.757 | 0.712 | +0.046 [+0.006, +0.083] |
-| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P | ctrlfr s2345 | 0.746 | 0.712 | +0.034 [-0.003, +0.071] |
-| hifi3d | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.622 | 0.715 | -0.093 [-0.182, -0.013] |
-| hifi3d | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.613 | 0.715 | -0.102 [-0.193, -0.014] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F cal. | 0.661 | 0.800 | -0.139 [-0.194, -0.090] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F cal. | 0.669 | 0.800 | -0.131 [-0.184, -0.086] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F non cal. | 0.687 | 0.800 | -0.112 [-0.175, -0.058] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F non cal. | 0.698 | 0.800 | -0.101 [-0.169, -0.046] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s1234 | 0.661 | 0.800 | -0.138 [-0.203, -0.082] |
-| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s2345 | 0.653 | 0.800 | -0.147 [-0.208, -0.092] |
-| facescape | SR | nocrop | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_P | 0.747 | 0.854 | -0.107 [-0.155, -0.065] |
-| facescape | SR | nocrop | GNM (visto) vB, mesh d'identita' SR | factorized s2345, d_P | 0.753 | 0.854 | -0.101 [-0.148, -0.058] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F cal. | 0.303 | 0.338 | -0.036 [-0.105, +0.045] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F cal. | 0.318 | 0.338 | -0.020 [-0.084, +0.053] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F non cal. | 0.297 | 0.338 | -0.041 [-0.115, +0.034] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F non cal. | 0.317 | 0.338 | -0.021 [-0.090, +0.051] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s1234 | 0.282 | 0.338 | -0.056 [-0.134, +0.022] |
-| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s2345 | 0.258 | 0.338 | -0.080 [-0.159, +0.001] |
-| faceverse | SR | nocrop | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_P | 0.286 | 0.327 | -0.041 [-0.112, +0.033] |
-| faceverse | SR | nocrop | GNM (visto) vB, mesh d'identita' SR | factorized s2345, d_P | 0.313 | 0.327 | -0.014 [-0.085, +0.058] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F cal. | 0.341 | 0.479 | -0.138 [-0.242, -0.033] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F cal. | 0.370 | 0.479 | -0.109 [-0.204, -0.006] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.337 | 0.479 | -0.142 [-0.236, -0.037] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.373 | 0.479 | -0.106 [-0.209, -0.005] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s1234 | 0.327 | 0.479 | -0.152 [-0.248, -0.052] |
-| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s2345 | 0.299 | 0.479 | -0.180 [-0.286, -0.076] |
-| faceverse_neutral | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.333 | 0.521 | -0.188 [-0.274, -0.096] |
-| faceverse_neutral | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.372 | 0.521 | -0.149 [-0.240, -0.058] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | factorized s1234, d_F cal. | 0.749 | 0.712 | +0.037 [-0.002, +0.075] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | factorized s2345, d_F cal. | 0.731 | 0.712 | +0.019 [-0.019, +0.057] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | factorized s1234, d_F non cal. | 0.642 | 0.712 | -0.069 [-0.127, -0.012] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | factorized s2345, d_F non cal. | 0.631 | 0.712 | -0.080 [-0.143, -0.019] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | ctrlfr s1234 | 0.757 | 0.712 | +0.046 [+0.006, +0.083] |
+| hifi3d | FR | nocrop | FLAME 2023 Open vB, composizione S_B + k d_P* | ctrlfr s2345 | 0.746 | 0.712 | +0.034 [-0.003, +0.071] |
+| hifi3d | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.622 | 0.715 | -0.093 [-0.182, -0.013] |
+| hifi3d | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.613 | 0.715 | -0.102 [-0.193, -0.014] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F cal. | 0.661 | 0.800 | -0.139 [-0.194, -0.090] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F cal. | 0.669 | 0.800 | -0.131 [-0.184, -0.086] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F non cal. | 0.687 | 0.800 | -0.112 [-0.175, -0.058] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F non cal. | 0.698 | 0.800 | -0.101 [-0.169, -0.046] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s1234 | 0.661 | 0.800 | -0.138 [-0.203, -0.082] |
+| facescape | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s2345 | 0.653 | 0.800 | -0.147 [-0.208, -0.092] |
+| facescape | SR | nocrop | GNM (visto) vB, mesh d'identita' SR* | factorized s1234, d_P | 0.747 | 0.854 | -0.107 [-0.155, -0.065] |
+| facescape | SR | nocrop | GNM (visto) vB, mesh d'identita' SR* | factorized s2345, d_P | 0.753 | 0.854 | -0.101 [-0.148, -0.058] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F cal. | 0.303 | 0.338 | -0.036 [-0.105, +0.045] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F cal. | 0.318 | 0.338 | -0.020 [-0.084, +0.053] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F non cal. | 0.297 | 0.338 | -0.041 [-0.115, +0.034] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F non cal. | 0.317 | 0.338 | -0.021 [-0.090, +0.051] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s1234 | 0.282 | 0.338 | -0.056 [-0.134, +0.022] |
+| faceverse | FR | nocrop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s2345 | 0.258 | 0.338 | -0.080 [-0.159, +0.001] |
+| faceverse | SR | nocrop | GNM (visto) vB, mesh d'identita' SR* | factorized s1234, d_P | 0.286 | 0.327 | -0.041 [-0.112, +0.033] |
+| faceverse | SR | nocrop | GNM (visto) vB, mesh d'identita' SR* | factorized s2345, d_P | 0.313 | 0.327 | -0.014 [-0.085, +0.058] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.341 | 0.479 | -0.138 [-0.242, -0.033] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.370 | 0.479 | -0.109 [-0.204, -0.006] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.337 | 0.479 | -0.142 [-0.236, -0.037] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.373 | 0.479 | -0.106 [-0.209, -0.005] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.327 | 0.479 | -0.152 [-0.248, -0.052] |
+| faceverse_neutral | FR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.299 | 0.479 | -0.180 [-0.286, -0.076] |
+| faceverse_neutral | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.333 | 0.521 | -0.188 [-0.274, -0.096] |
+| faceverse_neutral | SR | nocrop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.372 | 0.521 | -0.149 [-0.240, -0.058] |
 
 ## Scala dell'allineamento (senza crop)
 
 Delta appaiati a - b (stesse righe, stesse repliche) lungo i gradi di liberta' dell'allineamento. PRINCIPALI: 1 (togliere la taglia: la modalita' cs scala ogni mesh alla cs_ref del dominio, `blmm.work_coords`; non e' una scala per coppia), 1b (togliere la taglia PER COPPIA: NoW originale, Procrustes + ICP con scala stimata per coppia, - NoW metrical, la stessa catena senza scala; landmark esatti; lato piu' allineato a), 2 (ICP cs - NICP cs), 3b (NICP su template cs - NICP per coppia cs), 4 e 5 con FR contro ICP mm, con SR contro ICP cs e NICP cs (con SR il riferimento corretto e' senza taglia). SECONDARI: 2b e 3 in mm, CONFUSI DALLA TAGLIA (in mm il NICP su template segue la taglia, il NICP per coppia la assorbe: vedi la tabella sotto), e 4 e 5 con SR contro ICP mm. 4: fit B con la mesh della GT (FR con FR, SR con SR); 5: nostro preregistrato (d_F non cal. con FR, d_P con SR), entrambi i semi.
 
-Spearman (punto, righe nocrop della maschera) di ogni colonna della scala con la taglia oracolo / la taglia stimata (`est_cs`); tutte le colonne e gli insiemi crop e all_cross in `controls.json`, `spearman_con_taglia`:
+Spearman (punto, righe nocrop della maschera) con la taglia oracolo / la taglia stimata (`est_cs`) delle colonne interne della scala (passi 4 e 5: un modello e un seme); tutte le colonne interne e gli insiemi crop e all_cross in `controls.json`, `spearman_con_taglia`. Le colonne NoW del passo 1b sono plug-in: `spearman_con_taglia` copre solo le colonne interne, la loro correlazione con la taglia non e' misurata qui:
 
 | dominio | ICP + Chamfer in mm (per coppia) | ICP + Chamfer cs (per coppia, scala tolta) | NICP per coppia in mm | NICP per coppia cs | NICP su template in mm | NICP su template cs | GNM (visto) vB, mesh d'identita' FR | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_F non cal. | factorized s1234, d_P |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -1768,107 +1770,109 @@ Fuori dalla tesi principale (decisione del PI): qui, completi, tutti gli insiemi
 
 | dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| hifi3d | FR | crop | 49306 | factorized s1234, d_F cal. | 0.663 [0.589, 0.721] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.703 [0.636, 0.758] | -0.040 [-0.076, -0.006] |
-| hifi3d | FR | all_cross | 147530 | factorized s1234, d_F cal. | 0.709 [0.634, 0.767] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.699 [0.631, 0.755] | +0.010 [-0.023, +0.046] |
+| hifi3d | FR | crop | 49306 | factorized s1234, d_F cal. | 0.663 [0.589, 0.721] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.703 [0.636, 0.758] | -0.040 [-0.076, -0.006] |
+| hifi3d | FR | all_cross | 147530 | factorized s1234, d_F cal. | 0.709 [0.634, 0.767] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.699 [0.631, 0.755] | +0.010 [-0.023, +0.046] |
 | hifi3d | FR | stessa_topologia crop | 4950 | ctrlfr s2345 | 0.789 [0.723, 0.842] | ULRSSM [faces_xyz] per coppia, mm (FR) | 0.840 [0.783, 0.885] | -0.051 [-0.089, -0.016] |
 | hifi3d | FR | stessa_topologia tutte | 29700 | ctrlfr s1234 | 0.780 [0.710, 0.839] | ULRSSM [faces_xyz] per coppia, mm (FR) | 0.788 [0.719, 0.844] | -0.008 [-0.042, +0.028] |
-| hifi3d | SR | crop | 49306 | factorized s1234, d_P | 0.550 [0.472, 0.623] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.721 [0.653, 0.776] | -0.171 [-0.261, -0.090] |
-| hifi3d | SR | all_cross | 147530 | factorized s1234, d_P | 0.557 [0.485, 0.624] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.716 [0.647, 0.771] | -0.159 [-0.245, -0.081] |
+| hifi3d | SR | crop | 49306 | factorized s1234, d_P | 0.550 [0.472, 0.623] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.721 [0.653, 0.776] | -0.171 [-0.261, -0.090] |
+| hifi3d | SR | all_cross | 147530 | factorized s1234, d_P | 0.557 [0.485, 0.624] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.716 [0.647, 0.771] | -0.159 [-0.245, -0.081] |
 | hifi3d | SR | stessa_topologia crop | 4950 | factorized s1234, d_P | 0.666 [0.601, 0.727] | ULRSSM [faces_xyz] per coppia, a CS_ref (SR) | 0.760 [0.707, 0.811] | -0.094 [-0.153, -0.033] |
 | hifi3d | SR | stessa_topologia tutte | 29700 | factorized s1234, d_P | 0.631 [0.560, 0.695] | ULRSSM [faces_xyz] per coppia, a CS_ref (SR) | 0.680 [0.613, 0.742] | -0.049 [-0.110, +0.010] |
-| facescape | FR | crop | 46931 | C3M e123, d_F non cal. | 0.539 [0.460, 0.617] | GNM (visto) vB, composizione S_B + k d_P | 0.761 [0.700, 0.812] | -0.222 [-0.282, -0.163] |
-| facescape | FR | all_cross | 135655 | C3M e205, d_F non cal. | 0.469 [0.403, 0.533] | GNM (visto) vB, composizione S_B + k d_P | 0.783 [0.724, 0.831] | -0.313 [-0.371, -0.259] |
-| facescape | FR | stessa_topologia crop | 4950 | ctrlfr s1234 | 0.730 [0.675, 0.782] | GNM (visto) vB, composizione S_B + k d_P | 0.851 [0.804, 0.889] | -0.121 [-0.177, -0.066] |
-| facescape | FR | stessa_topologia tutte | 29700 | C3M e205, d_F cal. | 0.728 [0.669, 0.776] | GNM (visto) vB, composizione S_B + k d_P | 0.814 [0.759, 0.859] | -0.086 [-0.142, -0.037] |
-| facescape | SR | crop | 46931 | C3M e123, d_P | 0.576 [0.506, 0.644] | GNM (visto) vB, mesh d'identita' SR | 0.830 [0.778, 0.873] | -0.255 [-0.315, -0.195] |
-| facescape | SR | all_cross | 135655 | C3M e205, d_P | 0.499 [0.435, 0.557] | GNM (visto) vB, mesh d'identita' SR | 0.839 [0.786, 0.881] | -0.340 [-0.390, -0.291] |
-| facescape | SR | stessa_topologia crop | 4950 | C3M e205, d_P | 0.746 [0.673, 0.808] | GNM (visto) vB, mesh d'identita' SR | 0.872 [0.828, 0.910] | -0.126 [-0.194, -0.064] |
-| facescape | SR | stessa_topologia tutte | 29700 | C3M e205, d_P | 0.756 [0.699, 0.805] | GNM (visto) vB, mesh d'identita' SR | 0.855 [0.807, 0.895] | -0.099 [-0.146, -0.056] |
-| faceverse | FR | crop | 49500 | C3M e205, d_F non cal. | 0.297 [0.227, 0.365] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.341 [0.266, 0.409] | -0.044 [-0.115, +0.028] |
-| faceverse | FR | all_cross | 148500 | C3M e205, d_F non cal. | 0.302 [0.233, 0.370] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | 0.337 [0.266, 0.406] | -0.035 [-0.103, +0.035] |
+| facescape | FR | crop | 46931 | C3M e123, d_F non cal. | 0.539 [0.460, 0.617] | GNM (visto) vB, composizione S_B + k d_P* | 0.761 [0.700, 0.812] | -0.222 [-0.282, -0.163] |
+| facescape | FR | all_cross | 135655 | C3M e205, d_F non cal. | 0.469 [0.403, 0.533] | GNM (visto) vB, composizione S_B + k d_P* | 0.783 [0.724, 0.831] | -0.313 [-0.371, -0.259] |
+| facescape | FR | stessa_topologia crop | 4950 | ctrlfr s1234 | 0.730 [0.675, 0.782] | GNM (visto) vB, composizione S_B + k d_P* | 0.851 [0.804, 0.889] | -0.121 [-0.177, -0.066] |
+| facescape | FR | stessa_topologia tutte | 29700 | C3M e205, d_F cal. | 0.728 [0.669, 0.776] | GNM (visto) vB, composizione S_B + k d_P* | 0.814 [0.759, 0.859] | -0.086 [-0.142, -0.037] |
+| facescape | SR | crop | 46931 | C3M e123, d_P | 0.576 [0.506, 0.644] | GNM (visto) vB, mesh d'identita' SR* | 0.830 [0.778, 0.873] | -0.255 [-0.315, -0.195] |
+| facescape | SR | all_cross | 135655 | C3M e205, d_P | 0.499 [0.435, 0.557] | GNM (visto) vB, mesh d'identita' SR* | 0.839 [0.786, 0.881] | -0.340 [-0.390, -0.291] |
+| facescape | SR | stessa_topologia crop | 4950 | C3M e205, d_P | 0.746 [0.673, 0.808] | GNM (visto) vB, mesh d'identita' SR* | 0.872 [0.828, 0.910] | -0.126 [-0.194, -0.064] |
+| facescape | SR | stessa_topologia tutte | 29700 | C3M e205, d_P | 0.756 [0.699, 0.805] | GNM (visto) vB, mesh d'identita' SR* | 0.855 [0.807, 0.895] | -0.099 [-0.146, -0.056] |
+| faceverse | FR | crop | 49500 | C3M e205, d_F non cal. | 0.297 [0.227, 0.365] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.341 [0.266, 0.409] | -0.044 [-0.115, +0.028] |
+| faceverse | FR | all_cross | 148500 | C3M e205, d_F non cal. | 0.302 [0.233, 0.370] | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | 0.337 [0.266, 0.406] | -0.035 [-0.103, +0.035] |
 | faceverse | FR | stessa_topologia crop | 4950 | ctrlfr s1234 | 0.316 [0.217, 0.404] | ULRSSM [faces_xyz] per coppia, mm (FR) | 0.383 [0.289, 0.464] | -0.066 [-0.153, +0.024] |
 | faceverse | FR | stessa_topologia tutte | 29700 | C3M e205, d_F cal. | 0.326 [0.253, 0.395] | ICP + Chamfer in mm (per coppia) | 0.343 [0.269, 0.413] | -0.017 [-0.077, +0.046] |
-| faceverse | SR | crop | 49500 | C3M e205, d_P | 0.308 [0.241, 0.376] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.332 [0.270, 0.390] | -0.023 [-0.097, +0.055] |
-| faceverse | SR | all_cross | 148500 | C3M e205, d_P | 0.312 [0.244, 0.378] | GNM (visto) vB, mesh d'identita' SR | 0.323 [0.238, 0.397] | -0.011 [-0.084, +0.064] |
+| faceverse | SR | crop | 49500 | C3M e205, d_P | 0.308 [0.241, 0.376] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.332 [0.270, 0.390] | -0.023 [-0.097, +0.055] |
+| faceverse | SR | all_cross | 148500 | C3M e205, d_P | 0.312 [0.244, 0.378] | GNM (visto) vB, mesh d'identita' SR* | 0.323 [0.238, 0.397] | -0.011 [-0.084, +0.064] |
 | faceverse | SR | stessa_topologia crop | 4950 | C3M e205, d_P | 0.332 [0.251, 0.421] | ULRSSM [faces_xyz] per coppia, a CS_ref (SR) | 0.379 [0.298, 0.460] | -0.047 [-0.141, +0.053] |
-| faceverse | SR | stessa_topologia tutte | 29700 | C3M e205, d_P | 0.334 [0.263, 0.403] | GNM (visto) vB, mesh d'identita' SR | 0.322 [0.236, 0.395] | +0.012 [-0.063, +0.087] |
-| faceverse_neutral | FR | crop | 49500 | C3M e205, d_F non cal. | 0.345 [0.262, 0.420] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.481 [0.394, 0.559] | -0.135 [-0.225, -0.039] |
-| faceverse_neutral | FR | all_cross | 148500 | C3M e205, d_F non cal. | 0.353 [0.269, 0.429] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.479 [0.393, 0.557] | -0.126 [-0.220, -0.029] |
+| faceverse | SR | stessa_topologia tutte | 29700 | C3M e205, d_P | 0.334 [0.263, 0.403] | GNM (visto) vB, mesh d'identita' SR* | 0.322 [0.236, 0.395] | +0.012 [-0.063, +0.087] |
+| faceverse_neutral | FR | crop | 49500 | C3M e205, d_F non cal. | 0.345 [0.262, 0.420] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.481 [0.394, 0.559] | -0.135 [-0.225, -0.039] |
+| faceverse_neutral | FR | all_cross | 148500 | C3M e205, d_F non cal. | 0.353 [0.269, 0.429] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.479 [0.393, 0.557] | -0.126 [-0.220, -0.029] |
 | faceverse_neutral | FR | stessa_topologia crop | 4950 | ctrlfr s1234 | 0.386 [0.304, 0.464] | ICP + Chamfer in mm (per coppia) | 0.444 [0.363, 0.515] | -0.058 [-0.143, +0.022] |
 | faceverse_neutral | FR | stessa_topologia tutte | 29700 | C3M e205, d_F cal. | 0.395 [0.312, 0.470] | ICP + Chamfer in mm (per coppia) | 0.419 [0.337, 0.492] | -0.024 [-0.095, +0.050] |
-| faceverse_neutral | SR | crop | 49500 | C3M e205, d_P | 0.372 [0.294, 0.442] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.523 [0.448, 0.591] | -0.151 [-0.235, -0.063] |
-| faceverse_neutral | SR | all_cross | 148500 | C3M e205, d_P | 0.378 [0.304, 0.448] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | 0.521 [0.447, 0.589] | -0.143 [-0.229, -0.057] |
+| faceverse_neutral | SR | crop | 49500 | C3M e205, d_P | 0.372 [0.294, 0.442] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.523 [0.448, 0.591] | -0.151 [-0.235, -0.063] |
+| faceverse_neutral | SR | all_cross | 148500 | C3M e205, d_P | 0.378 [0.304, 0.448] | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | 0.521 [0.447, 0.589] | -0.143 [-0.229, -0.057] |
 | faceverse_neutral | SR | stessa_topologia crop | 4950 | C3M e205, d_P | 0.419 [0.338, 0.498] | ULRSSM [faces_xyz] via template, GT SR (d_P) (SR) | 0.469 [0.384, 0.553] | -0.050 [-0.140, +0.032] |
 | faceverse_neutral | SR | stessa_topologia tutte | 29700 | C3M e205, d_P | 0.417 [0.339, 0.490] | ULRSSM [faces_xyz] via template, GT SR (d_P) (SR) | 0.419 [0.340, 0.491] | -0.002 [-0.073, +0.069] |
+
+Miglior concorrente: * = lettura post hoc (vB, composizione); "(landmark esatti)" = protocollo coi landmark oracolo (NoW originale, NoW metrical, REALY, Stirling). Le letture col rilevatore (`lmk_det`) sono nel passo `righe proprie` (sottocampione HIFI3D e FaceScape), nella sezione "Protocolli: landmark esatti e landmark rilevati" (crop: "Protocolli, landmark esatti e rilevati (crop)").
 
 Ogni lettura nostra di riferimento contro il miglior concorrente (crop, all_cross):
 
 | dominio | GT | insieme | miglior concorrente | lettura nostra | rho nostro | rho concorrente | delta [IC] |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F cal. | 0.663 | 0.703 | -0.040 [-0.076, -0.006] |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F cal. | 0.552 | 0.703 | -0.151 [-0.190, -0.113] |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.563 | 0.703 | -0.140 [-0.201, -0.084] |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.516 | 0.703 | -0.187 [-0.247, -0.127] |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s1234 | 0.236 | 0.703 | -0.467 [-0.516, -0.412] |
-| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s2345 | 0.279 | 0.703 | -0.424 [-0.470, -0.377] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F cal. | 0.709 | 0.699 | +0.010 [-0.023, +0.046] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F cal. | 0.661 | 0.699 | -0.038 [-0.073, -0.004] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.584 | 0.699 | -0.115 [-0.166, -0.068] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.561 | 0.699 | -0.137 [-0.191, -0.084] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s1234 | 0.515 | 0.699 | -0.183 [-0.224, -0.147] |
-| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s2345 | 0.529 | 0.699 | -0.170 [-0.211, -0.129] |
-| hifi3d | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.550 | 0.721 | -0.171 [-0.261, -0.090] |
-| hifi3d | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.514 | 0.721 | -0.207 [-0.302, -0.112] |
-| hifi3d | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.557 | 0.716 | -0.159 [-0.245, -0.081] |
-| hifi3d | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.540 | 0.716 | -0.176 [-0.265, -0.089] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F cal. | 0.355 | 0.761 | -0.406 [-0.469, -0.343] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F cal. | 0.282 | 0.761 | -0.479 [-0.540, -0.418] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F non cal. | 0.487 | 0.761 | -0.274 [-0.338, -0.210] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F non cal. | 0.467 | 0.761 | -0.294 [-0.362, -0.232] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s1234 | 0.266 | 0.761 | -0.495 [-0.550, -0.438] |
-| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s2345 | 0.236 | 0.761 | -0.525 [-0.583, -0.464] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F cal. | 0.365 | 0.783 | -0.418 [-0.461, -0.374] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F cal. | 0.345 | 0.783 | -0.438 [-0.477, -0.397] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | factorized s1234, d_F non cal. | 0.438 | 0.783 | -0.345 [-0.398, -0.291] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | factorized s2345, d_F non cal. | 0.415 | 0.783 | -0.368 [-0.418, -0.321] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s1234 | 0.325 | 0.783 | -0.458 [-0.500, -0.413] |
-| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P | ctrlfr s2345 | 0.315 | 0.783 | -0.468 [-0.508, -0.422] |
-| facescape | SR | crop | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_P | 0.516 | 0.830 | -0.315 [-0.378, -0.253] |
-| facescape | SR | crop | GNM (visto) vB, mesh d'identita' SR | factorized s2345, d_P | 0.474 | 0.830 | -0.357 [-0.423, -0.293] |
-| facescape | SR | all_cross | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_P | 0.482 | 0.839 | -0.357 [-0.406, -0.312] |
-| facescape | SR | all_cross | GNM (visto) vB, mesh d'identita' SR | factorized s2345, d_P | 0.456 | 0.839 | -0.383 [-0.427, -0.341] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F cal. | 0.252 | 0.341 | -0.088 [-0.153, -0.015] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F cal. | 0.234 | 0.341 | -0.107 [-0.174, -0.038] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.265 | 0.341 | -0.076 [-0.145, -0.002] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.256 | 0.341 | -0.085 [-0.156, -0.013] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s1234 | 0.256 | 0.341 | -0.085 [-0.152, -0.021] |
-| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s2345 | 0.239 | 0.341 | -0.102 [-0.176, -0.031] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F cal. | 0.284 | 0.337 | -0.053 [-0.117, +0.018] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F cal. | 0.288 | 0.337 | -0.050 [-0.109, +0.016] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.286 | 0.337 | -0.052 [-0.119, +0.017] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.296 | 0.337 | -0.042 [-0.109, +0.026] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s1234 | 0.273 | 0.337 | -0.065 [-0.130, -0.008] |
-| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) | ctrlfr s2345 | 0.251 | 0.337 | -0.086 [-0.158, -0.016] |
-| faceverse | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.251 | 0.332 | -0.080 [-0.163, +0.000] |
-| faceverse | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.257 | 0.332 | -0.075 [-0.152, +0.003] |
-| faceverse | SR | all_cross | GNM (visto) vB, mesh d'identita' SR | factorized s1234, d_P | 0.273 | 0.323 | -0.050 [-0.119, +0.028] |
-| faceverse | SR | all_cross | GNM (visto) vB, mesh d'identita' SR | factorized s2345, d_P | 0.293 | 0.323 | -0.031 [-0.103, +0.040] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F cal. | 0.282 | 0.481 | -0.198 [-0.304, -0.092] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F cal. | 0.272 | 0.481 | -0.208 [-0.309, -0.101] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.306 | 0.481 | -0.175 [-0.273, -0.074] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.310 | 0.481 | -0.170 [-0.275, -0.066] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s1234 | 0.296 | 0.481 | -0.185 [-0.279, -0.094] |
-| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s2345 | 0.269 | 0.481 | -0.211 [-0.309, -0.113] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F cal. | 0.319 | 0.479 | -0.160 [-0.259, -0.055] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F cal. | 0.335 | 0.479 | -0.144 [-0.241, -0.044] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_F non cal. | 0.326 | 0.479 | -0.153 [-0.245, -0.055] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_F non cal. | 0.352 | 0.479 | -0.128 [-0.229, -0.027] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s1234 | 0.316 | 0.479 | -0.163 [-0.259, -0.069] |
-| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | ctrlfr s2345 | 0.289 | 0.479 | -0.190 [-0.293, -0.091] |
-| faceverse_neutral | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.304 | 0.523 | -0.219 [-0.306, -0.132] |
-| faceverse_neutral | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.316 | 0.523 | -0.207 [-0.301, -0.109] |
-| faceverse_neutral | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s1234, d_P | 0.323 | 0.521 | -0.198 [-0.282, -0.109] |
-| faceverse_neutral | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) | factorized s2345, d_P | 0.352 | 0.521 | -0.169 [-0.262, -0.078] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.663 | 0.703 | -0.040 [-0.076, -0.006] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.552 | 0.703 | -0.151 [-0.190, -0.113] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.563 | 0.703 | -0.140 [-0.201, -0.084] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.516 | 0.703 | -0.187 [-0.247, -0.127] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.236 | 0.703 | -0.467 [-0.516, -0.412] |
+| hifi3d | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.279 | 0.703 | -0.424 [-0.470, -0.377] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.709 | 0.699 | +0.010 [-0.023, +0.046] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.661 | 0.699 | -0.038 [-0.073, -0.004] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.584 | 0.699 | -0.115 [-0.166, -0.068] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.561 | 0.699 | -0.137 [-0.191, -0.084] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.515 | 0.699 | -0.183 [-0.224, -0.147] |
+| hifi3d | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.529 | 0.699 | -0.170 [-0.211, -0.129] |
+| hifi3d | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.550 | 0.721 | -0.171 [-0.261, -0.090] |
+| hifi3d | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.514 | 0.721 | -0.207 [-0.302, -0.112] |
+| hifi3d | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.557 | 0.716 | -0.159 [-0.245, -0.081] |
+| hifi3d | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.540 | 0.716 | -0.176 [-0.265, -0.089] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F cal. | 0.355 | 0.761 | -0.406 [-0.469, -0.343] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F cal. | 0.282 | 0.761 | -0.479 [-0.540, -0.418] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F non cal. | 0.487 | 0.761 | -0.274 [-0.338, -0.210] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F non cal. | 0.467 | 0.761 | -0.294 [-0.362, -0.232] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s1234 | 0.266 | 0.761 | -0.495 [-0.550, -0.438] |
+| facescape | FR | crop | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s2345 | 0.236 | 0.761 | -0.525 [-0.583, -0.464] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F cal. | 0.365 | 0.783 | -0.418 [-0.461, -0.374] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F cal. | 0.345 | 0.783 | -0.438 [-0.477, -0.397] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | factorized s1234, d_F non cal. | 0.438 | 0.783 | -0.345 [-0.398, -0.291] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | factorized s2345, d_F non cal. | 0.415 | 0.783 | -0.368 [-0.418, -0.321] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s1234 | 0.325 | 0.783 | -0.458 [-0.500, -0.413] |
+| facescape | FR | all_cross | GNM (visto) vB, composizione S_B + k d_P* | ctrlfr s2345 | 0.315 | 0.783 | -0.468 [-0.508, -0.422] |
+| facescape | SR | crop | GNM (visto) vB, mesh d'identita' SR* | factorized s1234, d_P | 0.516 | 0.830 | -0.315 [-0.378, -0.253] |
+| facescape | SR | crop | GNM (visto) vB, mesh d'identita' SR* | factorized s2345, d_P | 0.474 | 0.830 | -0.357 [-0.423, -0.293] |
+| facescape | SR | all_cross | GNM (visto) vB, mesh d'identita' SR* | factorized s1234, d_P | 0.482 | 0.839 | -0.357 [-0.406, -0.312] |
+| facescape | SR | all_cross | GNM (visto) vB, mesh d'identita' SR* | factorized s2345, d_P | 0.456 | 0.839 | -0.383 [-0.427, -0.341] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.252 | 0.341 | -0.088 [-0.153, -0.015] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.234 | 0.341 | -0.107 [-0.174, -0.038] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.265 | 0.341 | -0.076 [-0.145, -0.002] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.256 | 0.341 | -0.085 [-0.156, -0.013] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.256 | 0.341 | -0.085 [-0.152, -0.021] |
+| faceverse | FR | crop | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.239 | 0.341 | -0.102 [-0.176, -0.031] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.284 | 0.337 | -0.053 [-0.117, +0.018] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.288 | 0.337 | -0.050 [-0.109, +0.016] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.286 | 0.337 | -0.052 [-0.119, +0.017] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.296 | 0.337 | -0.042 [-0.109, +0.026] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.273 | 0.337 | -0.065 [-0.130, -0.008] |
+| faceverse | FR | all_cross | NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.251 | 0.337 | -0.086 [-0.158, -0.016] |
+| faceverse | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.251 | 0.332 | -0.080 [-0.163, +0.000] |
+| faceverse | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.257 | 0.332 | -0.075 [-0.152, +0.003] |
+| faceverse | SR | all_cross | GNM (visto) vB, mesh d'identita' SR* | factorized s1234, d_P | 0.273 | 0.323 | -0.050 [-0.119, +0.028] |
+| faceverse | SR | all_cross | GNM (visto) vB, mesh d'identita' SR* | factorized s2345, d_P | 0.293 | 0.323 | -0.031 [-0.103, +0.040] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.282 | 0.481 | -0.198 [-0.304, -0.092] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.272 | 0.481 | -0.208 [-0.309, -0.101] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.306 | 0.481 | -0.175 [-0.273, -0.074] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.310 | 0.481 | -0.170 [-0.275, -0.066] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.296 | 0.481 | -0.185 [-0.279, -0.094] |
+| faceverse_neutral | FR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.269 | 0.481 | -0.211 [-0.309, -0.113] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F cal. | 0.319 | 0.479 | -0.160 [-0.259, -0.055] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F cal. | 0.335 | 0.479 | -0.144 [-0.241, -0.044] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_F non cal. | 0.326 | 0.479 | -0.153 [-0.245, -0.055] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_F non cal. | 0.352 | 0.479 | -0.128 [-0.229, -0.027] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s1234 | 0.316 | 0.479 | -0.163 [-0.259, -0.069] |
+| faceverse_neutral | FR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | ctrlfr s2345 | 0.289 | 0.479 | -0.190 [-0.293, -0.091] |
+| faceverse_neutral | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.304 | 0.523 | -0.219 [-0.306, -0.132] |
+| faceverse_neutral | SR | crop | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.316 | 0.523 | -0.207 [-0.301, -0.109] |
+| faceverse_neutral | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s1234, d_P | 0.323 | 0.521 | -0.198 [-0.282, -0.109] |
+| faceverse_neutral | SR | all_cross | REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi) (landmark esatti) | factorized s2345, d_P | 0.352 | 0.521 | -0.169 [-0.262, -0.078] |
 
 ### Scala dell'allineamento (crop): confronti principali
 
@@ -3236,7 +3240,7 @@ Delta appaiati, factorized s1234, d_P - concorrente, GT SR (tutti i riferimenti 
 | dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | famos | FR | nocrop | 105 | ctrlfr s1234 | 0.831 [0.575, 0.949] | Gromov-Wasserstein (POT) [euclid_128_cgw2], mm (FR) | 0.787 [0.505, 0.920] | +0.044 [-0.084, +0.239] |
-| famos | SR | nocrop | 105 | C3M e205, d_P | 0.756 [0.512, 0.889] | FLAME 2023 Open vB, mesh d'identita' SR | 0.791 [0.626, 0.889] | -0.035 [-0.235, +0.116] |
+| famos | SR | nocrop | 105 | C3M e205, d_P | 0.756 [0.512, 0.889] | FLAME 2023 Open vB, mesh d'identita' SR* | 0.791 [0.626, 0.889] | -0.035 [-0.235, +0.116] |
 
 Scala dell'allineamento, FaMoS (tutti i passi, principali e secondari):
 
