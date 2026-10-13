@@ -6,7 +6,7 @@ Progetto in `paper/PLAN_MASSIVE.md`, sezione 23. Licenze in `aau/massive/LICENZE
 
 | cosa | job | GPU | stato al 13 ottobre |
 |---|---|---|---|
-| run principale | **1075583** (`wbes-massive-release`) | 3 A100, nv-ai-04, `aicentre-a100`, QoS unprivileged (prelazionabile, `--requeue`) | RUNNING dal 2026-10-13 19:16:18 |
+| run principale | **1075583** (`wbes-massive-release`) | 3 A100, nv-ai-04, `aicentre-a100`, QoS unprivileged (prelazionabile, `--requeue`) | RUNNING dal 2026-10-13 19:16:18; 0,63-0,70 s/passo, fine stimata 16 ottobre fra le 05:00 e le 12:00 |
 | primo lancio su 4 A100, annullato | 1075219 | 4 A100 | cancellato dopo 20 min (Ava-256 vuole una A100 libera) |
 | run L40S, sostituito | 1075178 | 2 × 4 L40S | cancellato (PLAN_MASSIVE 23.4) |
 | smoke e ripresa (codice) | 1074653 | 2 A10 | COMPLETED, 600/600 passi, ripresa provata |

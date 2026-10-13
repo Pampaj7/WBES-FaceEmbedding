@@ -922,3 +922,8 @@ Vedi `aau/massive/MONITOR.md`. In sintesi:
   - **Rischio:** le CPU di nv-ai-04 sono lente per i produttori (§22.12), quindi il riuso sarà molto più alto che sulle L40S (stima del critic: 35-40). Se il s/passo a regime resta sopra 0,9 s il run supera le 72 ore e si torna dal PI.
 - **Directory:** `aau/runs/massive_release/main_a100`. Lancio: `aau/massive/launch.sh a100 3 330000 3-12:00:00`.
 - **Job:** 1075583 su nv-ai-04, partito il 2026-10-13 19:16:18.
+- **Misurato nei primi 300 passi** (job 1075583):
+  - 0,63-0,70 s/passo dopo il passo 40, quindi T = 330.000 vale circa 58-64 ore;
+  - 4,8 viste fresche/s, contro circa 136 viste/s consumate: riuso stimato circa 28;
+  - GPU al 23-86%, 13,5 GB.
+
