@@ -1,18 +1,33 @@
-# Ava-256: protocollo della prova confermativa (CANDIDATO, 12 ottobre 2026; NON congelato)
+# Ava-256: protocollo della prova confermativa (CANDIDATO v2, 13 ottobre 2026; NON congelato)
 
-> **CANDIDATO, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
+> **CANDIDATO v2, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
 > commit `53b03ac`) completata con le decisioni del PI del 12 ottobre (sez. 5-9, 11-13), piu' l'emendamento sull'uso
-> dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza.
+> dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza, salvo le note della v2 nella sez. 2.
+>
+> **Modifiche della v2 rispetto al candidato v1** (sha256 `7df532d7...`, commit `0972896`), decisioni del PI del 13
+> ottobre:
+> 1. R7 confermativa: NoW metrical - NoW originale > 0, GT FR, `nocrop_cross`, una volta sola; famiglia di Holm da
+>    m = 9 a **m = 10**, soglie ricalcolate (sez. 6, 8).
+> 2. Landmark su Ava-256 per NoW, NoW metrical, REALY, Stirling: rilevatore insightface `1k3d68` su render frontale,
+>    pipeline di `pr_noise.py` / `pr_noise_detect.py` (`f47a375`), parametri congelati (sez. 9.1).
+> 3. REALY: keypoint oltre il 68 e regioni dall'oracolo FLAME (mappa di `datasets/AVA256/corr/`), con la condizione di
+>    non applicabilita' (sez. 9.1); definizione dei landmark sulle original dei 56 (sez. 10).
+> 4. NoW metrical contro d_F: descrittivo, delta e IC bilaterale sempre riportati; limite atteso (sez. 9.2).
+> 5. Righe fallite dei metodi per coppia = +inf (rango massimo) nella lettura confermativa; maschera = descrittiva (sez. 6).
+> 6. Nota su `split.json:526` (sez. 2); elenco dei descrittivi con la variante dichiarata (sez. 9); campi in attesa
+>    aggiornati (sez. 14).
+>
 > Diventa vincolante solo quando:
 > - tutti i campi **[in attesa]** e **[PI, in attesa ...]** sono fissati (elenco nella sez. 14);
 > - il PI ne committa il testo con il suo sha256.
 >
 > Solo dopo si estendono gli strumenti ad Ava-256 e si lancia una valutazione.
 >
-> **Stato al 12 ottobre** (come nella bozza): su Ava-256 esistono solo dati, GT (200 valutati, 56 di calibrazione) e
-> controlli delle viste. Nessun modello, embedding, baseline o metrica di prestazione e' stato calcolato su Ava-256.
-> Per scrivere questo candidato si sono lette solo le impronte di `freeze_manifest.json`, `freeze_manifest_supp.json`,
-> `calib_manifest.json` e la regola e i conteggi di `split.json`; nessun file di GT.
+> **Stato al 13 ottobre** (come nella bozza): su Ava-256 esistono solo dati, GT (200 valutati, 56 di calibrazione) e
+> controlli delle viste. Nessun modello, embedding, baseline, rilevatore o metrica di prestazione e' stato calcolato su
+> Ava-256. Per scrivere questo candidato si sono lette solo le impronte di `freeze_manifest.json`,
+> `freeze_manifest_supp.json`, `calib_manifest.json`, la regola e i conteggi di `split.json` e i numeri aggregati di
+> `corr_summary.json` (v2: copertura della mappa FLAME); nessun file di GT.
 >
 > **Revisione dell'11 ottobre** (dalla bozza). Il critic ha dato RISERVE sui dati; le correzioni del PI sono state
 > applicate PRIMA di qualsiasi valutazione (README, sezione "Modifiche"):
@@ -44,10 +59,15 @@
 - **Split fisso** (`ava_common.split`, `split.json`): i 256 sid in ordine di
   sha256(`ava256-confermativo-calibrazione-2026-10-11:` + sid); la regola dipende solo dagli id.
   - **i primi 56 sono di calibrazione**: template del NICP, regione del fit B, L_d e cs_ref (sez. 7). Non si valutano
-    mai, con nessun metodo. **Uso esteso alla sola testa adattata di R6 dall'emendamento della sez. 10;**
+    mai, con nessun metodo. **Uso esteso alla testa adattata di R6 e, per la sola geometria delle original, alla
+    definizione dei landmark dei protocolli, dall'emendamento della sez. 10;**
   - **gli altri 200 sono i valutati**: 19.900 coppie di soggetti.
+  - **Nota (v2).** Il campo `use` di `split.json:526` ("SOLO template del NICP, regione del fit B, L_d e cs_ref; mai
+    valutati, da nessun metodo") va letto insieme all'emendamento della sez. 10: testa adattata di R6 e definizione dei
+    landmark dei protocolli. `split.json` non si modifica (le sue impronte sono nella sez. 11).
 - I 5 soggetti segnalati dai controlli di qualita' (4 fra i valutati) restano. Nessuna esclusione dopo i numeri; un
-  metodo che fallisce su una mesh produce righe mancanti, contate e riportate (maschera comune, come `fact_paired.py`).
+  metodo che fallisce su una mesh produce righe mancanti, contate e riportate (maschera comune, come `fact_paired.py`;
+  v2: le righe fallite dei metodi per coppia valgono +inf nella lettura confermativa, sez. 6).
 
 ## 3. Regione e GT (congelate)
 
@@ -122,29 +142,46 @@ della coppia di soggetti.
 - **Delta appaiati** a - b sulle stesse righe e repliche. **p = P(delta <= 0)** = frazione delle 1000 repliche con
   delta <= 0 (`p_le0` di fm_eval).
   - Risoluzione 1/1000: il p minimo diverso da 0 e' 0,001; p = 0 si riporta come "< 0,001".
-- **Confronti multipli: Holm**, per seme del modello, sulla famiglia {R1, R2a, R2b, R3a, R3b, R4, R5a, R5b, R6}: m = 9
-  ipotesi, livello unilaterale 0,025.
+- **Confronti multipli: Holm**, per seme del modello, sulla famiglia {R1, R2a, R2b, R3a, R3b, R4, R5a, R5b, R6, R7}:
+  **m = 10** ipotesi (v1: 9; v2 aggiunge R7), livello unilaterale 0,025.
   - Procedura: p ordinati p(1) <= ... <= p(m); si rifiuta H(i) finche' p(i) <= 0,025 / (m - i + 1); la prima che
-    non passa ferma la procedura.
-  - La soglia piu' severa e' 0,025 / 9 = 0,0028: con la risoluzione di 1/1000 basta p <= 0,002 (al massimo 2 repliche su
-    1000 con delta <= 0). Con R7 la famiglia cresce (sez. 8); con m = 11 la soglia minima e' 0,0023, ancora sopra 0,001.
-  - **R3 non dipende dal seme** e si calcola una volta sola: lo stesso p entra in entrambe le famiglie.
+    non passa ferma la procedura. A parita' di p l'ordine fra le ipotesi non cambia l'esito.
+  - In interi, per evitare l'arrotondamento: con k(i) = numero di repliche su 1000 con delta <= 0, si rifiuta H(i) se
+    **k(i) (m - i + 1) <= 25**. Soglie per m = 10:
+
+    | i | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+    |---|---|---|---|---|---|---|---|---|---|---|
+    | 0,025 / (m - i + 1) | 0,0025 | 0,0028 | 0,0031 | 0,0036 | 0,0042 | 0,0050 | 0,0063 | 0,0083 | 0,0125 | 0,025 |
+    | p massimo (k / 1000) | 0,002 | 0,002 | 0,003 | 0,003 | 0,004 | 0,005 | 0,006 | 0,008 | 0,012 | 0,025 |
+
+  - La soglia piu' severa e' 0,025 / 10 = 0,0025: con la risoluzione di 1/1000 basta p <= 0,002 (al massimo 2 repliche
+    su 1000 con delta <= 0), ancora sopra 0,001.
+  - **R3a, R3b e R7 non dipendono dal seme** e si calcolano una volta sola: lo stesso p entra in entrambe le famiglie.
 - **Esito per confronto:**
-  - confermato: in **entrambi** i semi Holm rifiuta e il delta puntuale e' > 0 (R3: in entrambe le famiglie);
+  - confermato: in **entrambi** i semi Holm rifiuta e il delta puntuale e' > 0;
+  - **R3a, R3b, R7**: la regola "confermata in entrambi i semi" **non si applica** (nessun seme del modello entra nel
+    confronto: un solo delta, un solo p). Sono confermate se Holm le rifiuta in **entrambe** le famiglie (le soglie
+    possono differire, perche' gli altri p dipendono dal seme) e il delta puntuale e' > 0;
   - non risolto: secondo la regola della sez. 8, che prevale;
   - non confermato: tutti gli altri casi.
 - GT FR per d_F e le distanze in mm; GT SR per d_P e le distanze a taglia normalizzata (cs). L'altra GT si riporta senza
   leggerla.
+- **Righe fallite dei metodi per coppia (v2, decisione del PI).** Nella lettura confermativa una distanza non finita di
+  un metodo per coppia della famiglia (ICP + Chamfer in mm e cs, NICP per coppia in mm e cs, NoW originale, NoW metrical)
+  vale **+inf**: rango massimo, a pari merito fra le righe fallite (ranghi medi di `rankdata`). La riga resta.
+  - E' la "sensibilita' NICP fallito = distanza massima" di fm_eval (`fm_eval.py:827-833`, valore
+    nanmax x (1 + 1e-9)), che da' gli stessi ranghi, estesa a tutti i metodi per coppia della famiglia.
+  - Le righe fallite contano comunque per la regola "non risolto" (sez. 8).
 - **Maschera comune** (come fm_eval): le regole si leggono sulle righe del gruppo dove sono finite tutte le colonne
-  della famiglia confermativa:
+  **per mesh** della famiglia confermativa:
   - d_F cal., d_P e testa adattata dei due semi;
-  - ICP + Chamfer in mm e cs;
-  - NICP su template in mm;
-  - NICP per coppia in mm e cs.
+  - NICP su template in mm.
 
-  I descrittivi stanno su questa maschera; se hanno buchi, in un passo a parte sulle loro righe finite, con i
-  riferimenti sulle stesse righe (regola dei plug-in di fm_eval). Sensibilita' descrittiva: NICP fallito = distanza
-  massima (`passo` dedicato di fm_eval).
+  Le colonne per coppia (ICP + Chamfer in mm e cs, NICP per coppia in mm e cs, NoW originale e metrical) non tolgono
+  righe: +inf, sopra. I descrittivi stanno su questa maschera; se hanno buchi, in un passo a parte sulle loro righe
+  finite, con i riferimenti sulle stesse righe (regola dei plug-in di fm_eval).
+- **Versione mascherata (descrittiva)**: le stesse regole sulla maschera di v1, cioe' le righe dove sono finite TUTTE le
+  colonne della famiglia (per mesh e per coppia). Si riporta accanto, non si legge.
 
 ## 7. Metodi e loro calibrazione (tutto fissato prima dei numeri; nessuna scelta su Ava-256)
 
@@ -205,15 +242,21 @@ della coppia di soggetti.
        `FAIL_RMS_MM` 5,0.
    - **sigma = 2,0 confermato dal PI**: nessuna nuova taratura, nessuna sensibilita' a sigma 4/8 dell'emendamento 2.
 4. **Testa adattata (R6)**: sez. 10.
+5. **NoW originale e NoW metrical (R7, v2)**: i port di `aau/competitors/protocolli/` (`pr_metrics.py`, `pr_run.py`,
+   commit `f47a375`; port invariati da `32c3839`) con i landmark del rilevatore (sez. 9.1), distanza = media dei due
+   versi, ICP di NoW su tutti i punti del riferimento ritagliato (`--now-opt` 0, come nella matrice). Nessun parametro
+   scelto su Ava-256.
 
 **Esecuzione** (dopo il commit del protocollo congelato):
-1. verifiche della sez. 11 (`verify_frozen()`, `verify_frozen_supp()`, `verify_calib()`, manifest e checkpoint);
+1. verifiche della sez. 11 (`verify_frozen()`, `verify_frozen_supp()`, `verify_calib()`, manifest, checkpoint e pesi
+   del rilevatore);
 2. estensione degli strumenti con la vista `ava256`: `eval_view` per i valutati, `calib_view` per template, regione,
-   L_d e cs_ref sui 56 e per gli ingressi della testa di R6;
-3. embedding e distanze dei metodi sulle 1.200 mesh; embedding delle 280 mesh senza crop dei 56 per R6;
+   L_d e cs_ref sui 56, per gli ingressi della testa di R6 e per la definizione dei landmark dei protocolli (sez. 10);
+3. embedding e distanze dei metodi sulle 1.200 mesh; embedding delle 280 mesh senza crop dei 56 per R6; render,
+   rilevatore e landmark delle 1.200 mesh, poi le distanze dei protocolli sulle 597.000 coppie di `all_cross`;
 4. fit della testa di R6 (un fit per seme, sez. 10);
 5. righe, repliche, delta, Holm;
-6. si riporta tutto, comprese le righe mancanti.
+6. si riporta tutto, comprese le righe mancanti e fallite.
 
 ## 8. Regole di lettura
 
@@ -231,7 +274,7 @@ di Spearman con IC 95% e p = P(delta <= 0), Holm sulla famiglia.
 | **R5a** | d_P | ICP + Chamfer cs | SR | `nocrop_cross` | s1234, s2345 |
 | **R5b** | d_P | NICP per coppia cs | SR | `nocrop_cross` | s1234, s2345 |
 | **R6** (adattamento few-shot, ex H2) | testa adattata sui 56 (sez. 10) | d_P dello stesso seme | SR | `nocrop_cross` | s1234, s2345 |
-| **R7** (segnaposto) | **[PI, in attesa di `aau/competitors/protocolli`]** NoW originale | NoW metrical, e simili | FR | `nocrop_cross` | [PI] |
+| **R7** (scala per coppia nei protocolli: NoW originale - NoW metrical < 0) | NoW metrical (Procrustes senza scala + ICP rigido), landmark del rilevatore | NoW originale (Procrustes + ICP con scala), stessi landmark | FR | `nocrop_cross` | nessuno (una volta) |
 
 **Evidenze di sviluppo** (solo famiglie sintetiche e dev; FaMoS TEST non usato). Righe della matrice: `nocrop` di
 `aau/runs/evidence/full_matrix/results.md` (commit `adc0df5`) per s1234 e per la scala, `deltas.csv` della stessa
@@ -246,8 +289,12 @@ cartella per s2345. Ordine: HIFI3D, FaceScape, FaceVerse con espressioni, FaceVe
 - **R5a**: +0.041 [-0.005, +0.091] / +0.033 [-0.027, +0.088]; +0.269 [+0.217, +0.317] / +0.275 [+0.222, +0.328]; -0.020 [-0.093, +0.055] / +0.007 [-0.065, +0.078]; -0.063 [-0.140, +0.017] / -0.025 [-0.096, +0.051] (results.md:187-188, 198-199, 209-210, 219-220); conteggio 1 / 0 / 3 per seme (results.md:292-293).
 - **R5b**: +0.027 [-0.029, +0.083] / +0.018 [-0.046, +0.082]; +0.349 [+0.291, +0.401] / +0.355 [+0.290, +0.412]; +0.051 [-0.027, +0.124] / +0.078 [-0.005, +0.152]; +0.010 [-0.068, +0.095] / +0.049 [-0.041, +0.133] (results.md:191-192, 202-203, 213-214, 223-224); conteggio 1 / 0 / 3 per seme (results.md:296-297).
 - **R6** (D5, EQ, d_P con SR, media dei 4 bersagli sintetici, k = 50): +0.090 [+0.069, +0.109] / +0.066 [+0.043, +0.091] (`aau/runs/evidence/diagnostics/results_d5.md:26, 36`). k = 50 e' il primo k della griglia con F in entrambi i semi (results_d5.md:171-174); per bersaglio non sempre: FaceVerse neutra s2345 +0.018 [-0.050, +0.088] (results_d5.md:34).
-- **R7**: [PI, in attesa dei risultati di sviluppo di `aau/competitors/protocolli`]. Entra nella famiglia di Holm solo se
-  completata prima del congelamento; altrimenti e' descrittiva.
+- **R7** (riportata come NoW originale - NoW metrical, cioe' -delta; landmark oracolo, matrice completa,
+  `aau/runs/evidence/protocolli/results.md`, commit `c960859`): -0.281 [-0.371, -0.194]; -0.053 [-0.092, -0.018];
+  -0.038 [-0.078, +0.000]; -0.021 [-0.060, +0.019] (results.md:93, 106, 119, 132). IC sotto 0 in 2 famiglie su 4, la
+  neutra non risolta. Col rilevatore (sottocampione 8%, `rumore_landmark/results.md`, commit `f47a375`) gli Spearman
+  restano quasi uguali: HIFI3D 0.413 contro 0.685, FaceScape 0.616 contro 0.678 (rumore_landmark/results.md:24-25,
+  36-37; delta appaiato non calcolato). R7 non usa i semi del modello: sez. 6.
 
 **Non risolto** (decisione del PI). Le regole che coinvolgono un metodo sono "non risolte" in un gruppo se, in quel
 gruppo:
@@ -255,8 +302,9 @@ gruppo:
   e `all_cross`);
 - oppure piu' del 5% di righe mancanti (distanza non finita, contata prima della maschera comune).
 
-Per i metodi per coppia (ICP, NICP per coppia) il fallimento e' della riga, non della mesh: conta solo la soglia sulle
-righe. Le regole non risolte si riportano comunque, con delta, IC e p.
+Per i metodi per coppia (ICP, NICP per coppia, NoW originale e metrical) il fallimento e' della riga, non della mesh:
+conta solo la soglia sulle righe, contate prima del +inf della sez. 6. Per i protocolli un ripiego del rilevatore (sez.
+9.1) non e' un fallimento: la riga ha una distanza finita. Le regole non risolte si riportano comunque, con delta, IC e p.
 
 Accanto a ogni regola, senza leggerli, si riportano gli stessi confronti sui domini di sviluppo, gia' noti (sopra).
 
@@ -265,21 +313,101 @@ Accanto a ogni regola, senza leggerli, si riportano gli stessi confronti sui dom
 Ogni descrittivo si calcola con il codice al commit indicato. Il protocollo si congela solo quando non resta nessun
 **[in attesa]**.
 
-| Descrittivo | Letture | Codice (commit) | Stato |
-|---|---|---|---|
-| Fit B GNM Head e FLAME 2023 Open | FR (mesh FR), SR (mesh SR), composizione forma B + taglia B | `aau/baselines_param/bp.py` (`26a6d5d`), emendamenti 1-2; sez. 7.3, sigma = 2,0 | fissato |
-| d_F non calibrata, dei due semi | FR | quella del modello (sez. 7.1) | fissato |
-| Composizioni delle baseline con k | FR | `aau/baselines_mm` (`6c8a747`), `factorized_protocol_emendamento_5.md` | fissato |
-| Taglia stimata (`est_cs`) | FR | `blmm.mesh_scalars` (`6c8a747`) | fissato |
-| C3M e123 (d_F cal., d_F non cal., d_P), se disponibile | FR, SR | checkpoint `aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_*_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth`, sha256 `4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77`, c 0.25732677076342675 (`factorized_calibration.csv:8`) | fissato |
-| ArcFace-render, normal map 3 viste (G0) | FR, SR | `aau/full_matrix/fm_arcface.py` (`c7e5299`) | fissato |
-| ULRSSM | per coppia (`pair_fr`, `pair_sr`) e per mesh via template (`tpl_fr`, `tpl_sr`) | `aau/competitors/ulrssm/` (`d727704`), codice esterno `0625cbcb` | **[in attesa]**: variante dichiarata (`selection.json`, ingresso xyz / WKS) e pesi riaddestrati non ancora in git |
-| Hybrid FM | per coppia e per mesh | nessun codice nel repo | **[in attesa]** |
-| Gromov-Wasserstein | FR, SR | `aau/competitors/gw_percettivi/` (`649a509`, regole del giro 2) | **[in attesa]**: configurazione dal pilota del giro 2 (`gw/pilot_choice.json` in modifica, non committata) |
-| LPIPS, DINOv2, CLIP, DreamSim | FR, SR, nella variante di render dichiarata per metodo | `aau/competitors/gw_percettivi/` (`649a509`) | **[in attesa]**: varianti dichiarate dal pilota del giro 2 non ancora in git |
-| Protocolli NoW, NoW metrical, REALY, Stirling | FR | `aau/competitors/protocolli/` (non in git) | **[in attesa]** |
-| Gruppi descrittivi (per perturbazione, stessa topologia) e sensibilita' NICP fallito = distanza massima | come le regole | `aau/full_matrix/fm_eval.py` (`adc0df5`) | fissato |
-| Testa adattata di R6 con d_F (FR) | FR | sez. 10 | fissato |
+**Variante dichiarata.** Per i concorrenti nuovi e' quella con `declared: true` nel `fm_plugin.json` della cartella
+`aau/runs/evidence/competitors_new/<metodo>/<variante>/`, scelta sui domini di sviluppo (piloti sui NON valutati) prima
+di questo candidato. **Su Ava-256 si calcola SOLO la variante dichiarata**; le varianti con `declared: false` non si
+calcolano. Per i metodi della matrice senza `fm_plugin.json` la variante e' unica ("unica" nella tabella).
+
+| Descrittivo | Variante dichiarata (`declared`) | Letture | Codice (commit) | Stato |
+|---|---|---|---|---|
+| Fit B GNM Head e FLAME 2023 Open | variante B (`<modello>_vb_fr`, `_vb_sr`, `_vb_comp` di fm_eval); preregistrata e vA non si calcolano | FR (mesh FR), SR (mesh SR), composizione forma B + taglia B | `aau/baselines_param/bp.py` (`26a6d5d`), emendamenti 1-2; sez. 7.3, sigma = 2,0 | fissato |
+| d_F non calibrata, dei due semi | unica | FR | quella del modello (sez. 7.1) | fissato |
+| Composizioni delle baseline con k | unica | FR | `aau/baselines_mm` (`6c8a747`), `factorized_protocol_emendamento_5.md` | fissato |
+| NICP su template cs | unica | SR | `aau/baselines_mm` (`6c8a747`), template dei 56 (sez. 7.2) | fissato |
+| Versione mascherata delle regole (righe fallite tolte) | - | come le regole | `aau/full_matrix/fm_eval.py` (`adc0df5`), maschera comune | fissato |
+| Varifold in mm (massa unitaria) | unica | FR, SR | `aau/baselines_param/bp_varifold.py` (`451b30c`), `aau/full_matrix/fm_varifold.py` (`c7e5299`) | fissato |
+| ShapeDNA k = 50, HKS e WKS globali | unica (parametri di `competitors_hifi3d`) | FR, SR | `aau/full_matrix/fm_compute.py spectral` (`c7e5299`), `aau/competitors/comp_spectral.py` (`e6ea65e`) | fissato |
+| Taglia stimata (`est_cs`) | unica | FR | `blmm.mesh_scalars` (`6c8a747`) | fissato |
+| C3M e123 (d_F cal., d_F non cal., d_P), se disponibile | unica | FR, SR | checkpoint `aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_*_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth`, sha256 `4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77`, c 0.25732677076342675 (`factorized_calibration.csv:8`) | fissato |
+| ArcFace-render, normal map 3 viste (G0) | unica (G0) | FR, SR | `aau/full_matrix/fm_arcface.py` (`c7e5299`) | fissato |
+| Gromov-Wasserstein (POT) | `gw/euclid_128_cgw2` (`true`); `euclid_256_cg`, `euclid_256_cgw2` (`false`) | `fr` (mm), `sr` (a cs_ref) | `aau/competitors/gw_percettivi/` e `gw/pilot_choice.json` (`5c9c3e3`) | fissato |
+| LPIPS alex, DINOv2 ViT-S/14, CLIP ViT-B/32, DreamSim su render | `lpips/depth`, `dinov2/depth`, `clip/smooth`, `dreamsim/smooth` (`true`); le altre 8 varianti di render (`false`) | `fr` (mm), `sr` (a cs_ref) | `aau/competitors/gw_percettivi/` e `percettivi/pilot_choice.json` (`5c9c3e3`) | fissato |
+| Protocolli: NoW metrical (anche contro d_F, sez. 9.2), REALY, Stirling; NoW originale e metrical con GT SR | rilevatore (sez. 9.1); landmark oracolo e rumore sintetico (`lmk_s*`) non si calcolano | `mm` con FR e SR | `aau/competitors/protocolli/` (`32c3839`, `f47a375`) | fissato |
+| ULRSSM | `ulrssm/faces_xyz` (`true` nel `fm_plugin.json`, NON ancora in git); `zeroshot_faust` (`false`) | per coppia (`pair_fr`, `pair_sr`) e via template (`tpl_fr`, `tpl_sr`) | `aau/competitors/ulrssm/` (`d727704`), codice esterno `0625cbcb` | **[in attesa]**: se variante dichiarata e pesi riaddestrati sono in git prima del congelamento entra, altrimenti **escluso** |
+| Hybrid FM | nessuna | per coppia e per mesh | nessun codice nel repo | **[in attesa]**: se pronto (codice, variante dichiarata, commit) prima del congelamento entra, altrimenti **escluso** |
+| Gruppi descrittivi (per perturbazione, stessa topologia) | - | come le regole | `aau/full_matrix/fm_eval.py` (`adc0df5`) | fissato |
+| Testa adattata di R6 con d_F (FR) | unica | FR | sez. 10 | fissato |
+
+Non si calcolano su Ava-256 (come nella matrice, dove esistono solo su alcuni domini): ctrlfr, C3M e205, ArcFace
+ombreggiato (E12), OpenShape, Uni3D, coefficienti dei fit.
+
+### 9.1 Landmark dei protocolli su Ava-256 (v2, decisione del PI)
+
+Su dati reali non esistono landmark esatti. NoW originale, NoW metrical, REALY e Stirling usano i landmark del
+**rilevatore**: la condizione `det` di `aau/competitors/protocolli/pr_noise.py` e `pr_noise_detect.py` (commit
+`f47a375`), la stessa pipeline e gli stessi parametri, senza nessuna scelta su Ava-256.
+- **Render** (`pr_noise.render_mesh`): una immagine per mesh, per tutte le 1.200 mesh di `eval_view` (6 topologie,
+  crop compreso), mesh in mm nel frame di lavoro (`blmm.to_mm`: u = 1, R e t di `frame.json`, sez. 7.2).
+  - Camera prospettica sull'asse +z, centrata sul riquadro xy della mesh, a `CAM_DIST` = 4,0 volte l'estensione.
+  - **Frazione del volto nel render `FILL` = 0,45** (estensione xy / lato dell'immagine), immagine `IMG` = 640 x 640.
+    Scelta su 8 render di sviluppo **sul solo punteggio del detector**, senza landmark ne' GT: a 0,75 il detector non
+    trovava volti (punteggio 0,07-0,31), a 0,45 circa 0,88 (`pr_noise.py:80-81`). Non si ritara su Ava-256.
+  - Raycasting di open3d, normali per vertice interpolate, Lambert con luce `LIGHT` (0; 0,4; 1) + ambiente `AMB` 0,25,
+    colore uniforme `ALBEDO` (0,88; 0,71; 0,61), sfondo nero.
+- **Rilevatore** (`pr_noise_detect.py`): insightface 0.7.3 (venv di MICA, onnxruntime su CPU), pacchetto `buffalo_l`.
+  - Detector `det_10g` (SCRFD) a 640 x 640; fra i volti trovati **il riquadro di area massima** (il suo punteggio
+    `det_score` si registra); `1k3d68` sul suo riquadro, come `FaceAnalysis.get`.
+  - Nessun volto: `1k3d68` sul riquadro dei pixel colpiti dal render (ripiego, contato e riportato per topologia).
+  - Pesi (sha256): `det_10g.onnx` `5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91`,
+    `1k3d68.onnx` `df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc`
+    (`~/.insightface/models/buffalo_l/`; sez. 11).
+- **Retroproiezione** (`pr_noise._prep_task`, ramo `det`): ogni punto 2D col raggio della camera sul primo punto
+  colpito della mesh; raggio che non colpisce: il pixel colpito piu' vicino (contati e riportati).
+- **Uso**: i 7 landmark di NoW e Stirling = iBUG 36, 39, 42, 45, 33, 48, 54 del rilevatore; da questi i ritagli di NoW
+  (cerchio 1,4) e Stirling (1,2) e il riferimento di REALY (`pr_run.load` con `prep`, `pr_landmarks.realy_reference`).
+- **REALY**: dei suoi 85 keypoint, i primi 68 (stessi indici iBUG) vengono dal rilevatore. I 17 oltre il 68 (REALY ne
+  usa 4: 70, 71, 76, 77) e le etichette di regione per vertice restano dall'**oracolo FLAME**, come nella condizione
+  `det` di sviluppo (rumore_landmark/results.md, "Limiti dichiarati": REALY resta ottimistico), e solo dove esiste la
+  corrispondenza:
+  - la mappa regione FLAME -> template di Ava-256 esiste (`datasets/AVA256/corr/ava256.npz`, `ava_corr.py` con
+    `correspond.py`): copertura della regione FLAME 1671/1671, residuo sui landmark tenuti fuori 0,65 mm
+    (`corr_summary.json`);
+  - i 17 keypoint oltre il 68 cadono su triangoli FLAME dentro la regione (trasferimento baricentrico; la condizione
+    dipende solo dalla regione FLAME: vero in HIFI3D, FaceScape, FaceVerse, `landmarks/<dominio>.json`,
+    `transfer_realy85_nonbary` solo sotto il 68);
+  - etichetta di regione solo entro `COVER_MM` = 3 mm dalla regione FLAME deformata; oltre, nessuna regione;
+  - definizione per Ava-256 con `pr_landmarks.py define --spec` (`32c3839`): template `datasets/AVA256/template.npz`,
+    mappa `datasets/AVA256/corr/ava256.npz`, aggancio sulla media delle original dei **56 di calibrazione** (sola
+    geometria, sez. 10). Frame della spec = u, R, t di `frame.json` (sez. 7.2), non l'identita'.
+  - **Non applicabilita'**: se la mappa manca o se `define` fallisce il controllo del frame (mediana media -> template
+    > `FRAME_MAX_MM` = 2 mm), la corrispondenza su Ava-256 non esiste e **REALY e' non applicabile**: si riporta come
+    tale, con il motivo, senza ripieghi. Una regione vuota in un singolo riferimento resta come su sviluppo (errore NaN
+    della regione, `pr_metrics.realy_pair`). NoW e Stirling non dipendono dall'oracolo: usano solo i 7 landmark del
+    rilevatore.
+- **Coppie**: tutte le 597.000 coppie non ordinate di `all_cross` (nessun sottocampione: `FRAC` di `pr_noise.py` non si
+  usa), i due versi, distanza = media.
+- **Controlli prima di Ava-256**: lo strumento esteso importa le funzioni di `pr_noise.py` / `pr_noise_detect.py`
+  invariate (render, camera, raggi, retroproiezione) e le costanti di sopra; sui landmark `det` di HIFI3D gia' calcolati
+  (job 1071153) riproduce i 2D del rilevatore su 24 mesh. Scarti riportati.
+- **Limite dichiarato**: i landmark del rilevatore hanno su sviluppo un errore medio di 2,90 mm (FaceScape) e 3,54 mm
+  (HIFI3D) sui 7 di NoW, 5,7-6,5 mm su `noisy` (rumore_landmark/results.md:13, 18, 203-204). NoW originale e metrical
+  ne dipendono poco (<= 0,031 di Spearman anche a sigma 5), REALY e Stirling molto (col rilevatore REALY -0,06 / -0,20,
+  Stirling -0,05 / -0,12; rumore_landmark/results.md:214-216).
+
+### 9.2 NoW metrical contro la nostra d_F (v2, decisione del PI): solo descrittivo
+
+- Delta = NoW metrical - d_F (positivo = NoW metrical davanti), GT FR, per d_F cal. e d_F non cal., per seme, nei
+  gruppi `nocrop_cross`, `crop` e `all_cross`, sulle righe e repliche della sez. 6.
+- Si riportano **sempre** il delta puntuale e l'**IC 95% bilaterale** (percentile, 2,5-97,5), **qualunque sia il segno**.
+  Nessun test, nessuna famiglia, nessuna lettura confermativa.
+- **Limite atteso** (sviluppo, landmark del rilevatore, d_F non cal. s1234, sottocampione 8%,
+  rumore_landmark/results.md:120, 124, 132):
+  - senza crop **pari**: HIFI3D +0.041 [-0.011, +0.094] (con landmark esatti sulla matrice completa +0.055 [+0.009,
+    +0.105], protocolli/results.md:100);
+  - col crop **NoW metrical sopra**: HIFI3D +0.133 [+0.069, +0.203], FaceScape +0.170 [+0.083, +0.260].
+
+  Su Ava-256 ci si aspetta quindi che NoW metrical stia alla pari o sopra la nostra d_F con GT FR, soprattutto col crop.
+  Si scrive qui, prima dei numeri, perche' il risultato non si legga come una sorpresa ne' si ometta.
 
 ## 10. Emendamento sull'uso dei 56 di calibrazione (12 ottobre 2026, PRIMA di qualunque valutazione)
 
@@ -292,7 +420,14 @@ etichettati di Ava-256, cioe' tutti i 56 di calibrazione.
 - Restano invariati: template, regione, L_d e cs_ref (sez. 7).
 - Nessun altro metodo usa la GT dei 56.
 - I 56 non entrano in nessuna riga di valutazione.
-- `split.json` non si modifica: il suo campo `use` va letto con questo emendamento.
+- `split.json` non si modifica: il suo campo `use` (`split.json:526`) va letto con questo emendamento.
+
+**Aggiunta della v2: landmark dei protocolli.** Le original dei 56 (`calib_view`, **sola geometria, nessuna GT**)
+servono anche come superficie di aggancio di `pr_landmarks.py define --spec` (sez. 9.1): indici dei 68 iBUG e degli 85
+keypoint di REALY ed etichette di regione sulla topologia original comune di Ava-256. E' l'analogo dei "100 soggetti NON
+valutati" dei domini di sviluppo (`blmm.template_subjects`) e dello stesso tipo d'uso del template del NICP. Sui
+valutati si usano solo i 17 keypoint di REALY oltre il 68 e le etichette di regione (sez. 9.1); i 7 landmark di NoW e
+Stirling vengono dal rilevatore.
 
 **Motivazione.** D5 (sviluppo, bersagli sintetici) da' il primo k con il criterio in entrambi i semi a k = 50
 (results_d5.md:171-174, sez. 8, R6).
@@ -379,12 +514,15 @@ valutazione. Codice: `aau/ava256/ava_freeze.py`, `aau/ava256/ava_calib.py` (comm
    - SR `af7ed8769090cf08edfaa9bfa4681e155e0c6b3be43579972e587daab6c82d4e`;
    - centroid size `76ac2f567d66fffeeec5f1ac1a724741bc4bc0fd7be037ebdefc95af60a3cfbe`.
 5. **Checkpoint**: sha256 dei due `epoch072_ema.pth` (sez. 7.1) e, se si calcola, di C3M e123 (sez. 9).
+6. **Rilevatore** (v2): sha256 di `det_10g.onnx` e `1k3d68.onnx` di `buffalo_l` (sez. 9.1) prima del primo render.
 
 ## 12. Vincoli
 
 - Una sola valutazione per metodo. Nessuna scelta fatta su Ava-256: iperparametri, checkpoint, c, k, soggetti,
   regione, viste, split. Tutto si riporta, comprese righe mancanti e fallimenti.
-- I 56 di calibrazione non entrano in nessuna riga di valutazione. La loro GT entra solo nella testa di R6 (sez. 10).
+- I 56 di calibrazione non entrano in nessuna riga di valutazione. La loro GT entra solo nella testa di R6, la geometria
+  delle loro original anche nella definizione dei landmark dei protocolli (sez. 10).
+- Nessun parametro del render o del rilevatore si ritara su Ava-256 (sez. 9.1).
 - Gli strumenti esistenti si estendono ad Ava-256 solo dopo il commit del protocollo congelato. Fino ad allora la vista
   porta `CONFERMATIVO_NON_VALUTARE.txt` e i dati sono in sola lettura.
 - Figure: solo forme medie o aggregate, salvo conferma scritta di Meta per render di singole persone (README,
@@ -392,12 +530,12 @@ valutazione. Codice: `aau/ava256/ava_freeze.py`, `aau/ava256/ava_calib.py` (comm
 
 ## 13. Cosa NON e' confermativo
 
-- Tutto cio' che non e' R1-R6 (e R7, se completata prima del congelamento):
-  - i descrittivi della sez. 9;
+- Tutto cio' che non e' R1-R7:
+  - i descrittivi della sez. 9, compreso NoW metrical contro la d_F (sez. 9.2);
   - i gruppi descrittivi;
-  - l'altra GT di ogni distanza;
+  - l'altra GT di ogni distanza (anche NoW originale e metrical con GT SR);
   - la d_F della testa di R6;
-  - la sensibilita' ai fallimenti del NICP;
+  - la versione mascherata delle regole (righe fallite tolte invece che +inf, sez. 6);
   - i confronti sui domini di sviluppo riportati accanto.
 - Una regola non confermata in un seme non si "recupera" con l'altro seme, con un altro gruppo o con un descrittivo.
 - **FaMoS TEST resta descrittivo nel paper.** Non motiva nessuna scelta di questo protocollo e non entra in nessuna
@@ -406,13 +544,14 @@ valutazione. Codice: `aau/ava256/ava_freeze.py`, `aau/ava256/ava_calib.py` (comm
 ## 14. Campi in attesa e condizione di congelamento
 
 Il protocollo si congela solo quando sono fissati:
-1. R7: confronti, GT, semi e appartenenza alla famiglia di Holm [PI, in attesa di `aau/competitors/protocolli`];
-2. ULRSSM: variante dichiarata e commit dei pesi riaddestrati [in attesa];
-3. Hybrid FM: codice e commit [in attesa];
-4. Gromov-Wasserstein: configurazione del pilota del giro 2 committata [in attesa];
-5. LPIPS, DINOv2, CLIP, DreamSim: varianti dichiarate del giro 2 committate [in attesa];
-6. protocolli NoW, NoW metrical, REALY, Stirling: codice in git e commit [in attesa].
+1. ULRSSM: variante dichiarata (`faces_xyz`, `fm_plugin.json` con `declared: true`) e pesi riaddestrati in git
+   [in attesa; se non pronti al congelamento, ULRSSM e' escluso];
+2. Hybrid FM: codice, variante dichiarata e commit [in attesa; se non pronto al congelamento, e' escluso].
+
+Fissati nella v2 (non piu' in attesa): R7 e la famiglia di Holm (m = 10); Gromov-Wasserstein e percettivi (varianti
+dichiarate in `5c9c3e3`); protocolli NoW, NoW metrical, REALY, Stirling (codice in `32c3839`, risultati di sviluppo in
+`c960859`, pipeline del rilevatore in `f47a375`).
 
 Poi il PI committa questo testo con il suo sha256 e la parola "congelato" nel titolo.
 
-**CANDIDATO, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
+**CANDIDATO v2, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
