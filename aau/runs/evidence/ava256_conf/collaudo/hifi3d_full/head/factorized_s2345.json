@@ -1,0 +1,22 @@
+{
+ "arm": "factorized_s2345",
+ "K0": {
+  "c": 0.41843835339738,
+  "alpha_over_alpha0": 0.03076603181101636,
+  "nit": 257,
+  "success": true,
+  "reference": {
+   "c": 0.41843835339738,
+   "alpha_over_alpha0": 0.03076603181101636,
+   "nit": 257
+  },
+  "rel_c": 0.0,
+  "rel_alpha": 0.0,
+  "pass": true
+ },
+ "r": 64,
+ "lambda": 1e-06,
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1071286",
+ "date": "2026-10-13 10:10:48"
+}

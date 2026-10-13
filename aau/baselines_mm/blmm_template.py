@@ -9,7 +9,8 @@ seme per mesh ``ir_template.mesh_seed``), con le coordinate del modo e, in ``mm`
 con la rigida invece della similarita'. Scrive ``<OUT_ROOT>/<vista>/<modo>/template.npz``: ``R`` (600, 4096, 3)
 float32 in mm (``maxabs``: unita' maxabs), ``subjects``, ``topologies``, ``seeds``, ``seconds``, ``failed``, ``T``,
 ``template_subjects``, ``n_template_vertices``, ``unit_mm``. FaMoS escluso: le patch non hanno una topologia comune
-da cui fare il template.
+da cui fare il template. ``--spec <json>``: dominio nuovo (``blmm.register_spec``): template = media delle original di
+TUTTI i soggetti del template dello spec (Ava-256: i 56 di calibrazione), uscite in ``<work>/blmm/<modo>``.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from __future__ import annotations
 import argparse
 import multiprocessing as mp
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -41,9 +43,11 @@ def main() -> None:
     p.add_argument("--modes", default=",".join(blmm.MODES))
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--overwrite", action="store_true")
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (blmm.register_spec); ignora --views")
     a = p.parse_args()
+    views = [blmm.register_spec(a.spec)] if a.spec else a.views.split(",")
     prm = blmm.params()
-    for view in a.views.split(","):
+    for view in views:
         subjects = blmm.subjects(view)
         keys = [(s, t) for s in subjects for t in blmm.TOPOLOGIES]
         for mode in a.modes.split(","):

@@ -8,6 +8,9 @@
   - ``<OUT_ROOT>/params.json``: per dominio ``L`` = mediana di ``maxabs`` e ``cs_ref`` = mediana di ``cs`` sulle
     original dei 100 soggetti valutati della vista neutra (FaMoS: le 30 mesh di galleria). Una costante per
     dominio: unita' di lavoro dei modi ``mm`` e ``cs`` (``blmm.py``). Non si sovrascrive con valori diversi.
+  - ``--spec <json>`` (dominio nuovo, ``blmm.register_spec``): original di riferimento = quelle del template dello spec
+    (``"ref": "template"``, Ava-256: i 56 di calibrazione) o dei valutati (``"evaluated"``); ``params.json`` nella
+    cartella della vista (``blmm.params_json``), non in quello comune.
 """
 
 from __future__ import annotations
@@ -37,8 +40,9 @@ def view_paths(view: str) -> tuple[list[Path], list[Path]]:
         return paths, [d["dir"] / f"{r['name']}.npz" for r in rows if r["role"] == "gallery"]
     subj = blmm.subjects(view)
     paths = [blmm.mesh_path(view, s, t) for s in subj for t in blmm.TOPOLOGIES]
-    ref = [blmm.mesh_path(view, s, "original", template=True) for s in subj]
     tpl = [blmm.mesh_path(view, s, "original", template=True) for s in blmm.template_subjects(view)]
+    spec = blmm.spec_of(view)
+    ref = tpl if spec and spec["ref"] == "template" else [blmm.mesh_path(view, s, "original", template=True) for s in subj]
     return list(dict.fromkeys(paths + ref + tpl)), ref
 
 
@@ -46,12 +50,18 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--views", default=",".join(blmm.VIEWS))
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (blmm.register_spec); ignora --views")
     a = p.parse_args()
+    views = [blmm.register_spec(a.spec)] if a.spec else a.views.split(",")
     prm = {"definition": "L = mediana di max|V_mm - centro dei vertici|, cs_ref = mediana della centroid size robusta "
                          "(blmm.mesh_scalars), mm, sulle original dei 100 soggetti valutati della vista neutra (FaMoS: "
                          "galleria)", "frames": str(blmm.FRAMES_JSON), "smooth_k": blmm.SMOOTH_K, "domains": {}}
+    if a.spec:
+        prm.update(definition="L = mediana di max|V_mm - centro dei vertici|, cs_ref = mediana della centroid size "
+                              f"robusta (blmm.mesh_scalars), mm, sulle original di riferimento dello spec (ref = "
+                              f"{blmm.spec_of(views[0])['ref']})", frames=f"spec {a.spec}")
     with mp.get_context("fork").Pool(a.workers) as pool:
-        for view in a.views.split(","):
+        for view in views:
             paths, ref = view_paths(view)
             res = pool.map(_one, [(view, str(q)) for q in paths], chunksize=2)
             arr = {k: np.asarray([r[k] for r in res]) for k in res[0]}
@@ -72,12 +82,14 @@ def main() -> None:
                                        "cs_ref": float(np.median([r["cs"] for r in rr])), "n_ref": len(rr),
                                        "ref_dir": blmm.rel(ref[0].parent)}
                 print(f"[blmm-scalars] {dom}: {prm['domains'][dom]}", flush=True)
-    old = json.loads(blmm.PARAMS_JSON.read_text()) if blmm.PARAMS_JSON.exists() else None
+    out = blmm.params_json(views[0]) if a.spec else blmm.PARAMS_JSON
+    old = json.loads(out.read_text()) if out.exists() else None
     if old and any(old["domains"].get(d) not in (None, v) for d, v in prm["domains"].items()):
-        raise SystemExit(f"{blmm.PARAMS_JSON}: L o cs_ref diversi da quelli gia' usati: non sovrascrivo")
+        raise SystemExit(f"{out}: L o cs_ref diversi da quelli gia' usati: non sovrascrivo")
     if old:
         prm["domains"] = {**old["domains"], **prm["domains"]}
-    blmm.PARAMS_JSON.write_text(json.dumps(prm, indent=1) + "\n")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(prm, indent=1) + "\n")
 
 
 if __name__ == "__main__":

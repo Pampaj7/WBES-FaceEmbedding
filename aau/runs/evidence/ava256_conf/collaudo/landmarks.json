@@ -1,0 +1,33 @@
+{
+ "indices_equal": {
+  "lmk7": true,
+  "ibug68": true,
+  "realy85": true
+ },
+ "labels_equal": true,
+ "frame_check_mm": [
+  {
+   "median": 0.2871229038753472,
+   "p95": 0.7347384143807664
+  },
+  {
+   "median": 0.2871229038753472,
+   "p95": 0.7347384143807664
+  }
+ ],
+ "prep_keys_equal": true,
+ "prep_L68_max_abs_mm": 0.0,
+ "prep_K85_max_abs_mm": 0.0,
+ "prep_labels_equal": true,
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071672",
+ "date": "2026-10-13 10:49:43"
+}

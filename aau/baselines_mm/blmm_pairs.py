@@ -18,6 +18,9 @@ FaMoS: ogni patch di ``test_view`` contro le 30 di galleria (15 scansioni, 15 re
 ``--check N``: solo le prime N coppie i < j di ogni coppia di topologie dello shard, confrontate con le matrici
 pubblicate (``blmm.VIEWS[vista]["fb_root"]``): il controllo di riproduzione del modo ``maxabs``. Scrive
 ``<OUT_ROOT>/<vista>/<modo>/check_<passo>_<k>of<n>.json`` e nient'altro.
+
+``--spec <json>``: dominio nuovo (``blmm.register_spec``, es. Ava-256), ``view`` = il nome dello spec; stesse coppie,
+semi e formato delle viste a 6 topologie, uscite in ``<work>/blmm/<modo>`` dello spec.
 """
 
 from __future__ import annotations
@@ -187,8 +190,14 @@ def famos(a, prm) -> None:
 
 
 def main() -> None:
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--spec", type=Path, default=None)
+    spec = pre.parse_known_args()[0].spec
+    if spec:                                             # dominio nuovo: la vista dello spec entra fra le scelte
+        blmm.register_spec(spec)
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("view", choices=list(blmm.VIEWS))
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (blmm.register_spec): view = il suo nome")
     p.add_argument("mode", choices=blmm.MODES)
     p.add_argument("step", choices=list(blmm.METRICS))
     p.add_argument("--shard", default="0/1")

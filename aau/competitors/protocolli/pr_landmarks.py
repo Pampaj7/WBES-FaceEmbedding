@@ -447,6 +447,7 @@ def main() -> None:
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--realy-cap", type=int, default=REALY_CAP)
     a = p.parse_args()
+    pc.use_roots(a.spec)
     if a.step == "define":
         define(a.domain or json.loads(a.spec.read_text())["name"], a.spec)
     else:

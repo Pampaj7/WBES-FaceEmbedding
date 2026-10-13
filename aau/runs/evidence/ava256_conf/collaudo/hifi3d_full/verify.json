@@ -1,0 +1,16 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_full.json",
+ "freeze": false,
+ "detector_weights": {
+  "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+  "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
+ },
+ "checkpoints": {
+  "factorized_s1234": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+  "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0"
+ },
+ "errors": [],
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1071673",
+ "date": "2026-10-13 10:53:21"
+}

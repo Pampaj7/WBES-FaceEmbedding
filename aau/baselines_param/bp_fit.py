@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import multiprocessing as mp
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -54,9 +55,11 @@ def main() -> None:
     p.add_argument("--models", default=",".join(bp.MODELS))
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--overwrite", action="store_true")
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (bp.register_spec); ignora --views")
     a = p.parse_args()
+    views = [bp.register_spec(a.spec)] if a.spec else a.views.split(",")
     prm = blmm.params()
-    for view in a.views.split(","):
+    for view in views:
         items = bp.meshes(view)
         for name in a.models.split(","):
             root = bp.out_dir(view, name)

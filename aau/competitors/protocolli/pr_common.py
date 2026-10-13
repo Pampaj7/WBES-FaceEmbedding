@@ -18,7 +18,9 @@ modificare il codice con ``--spec <json>``:
                    di soggetti NON valutati>", "snap_subjects": [...]}}
 
 (mesh ``<dir>/<soggetto>_GTready_<topologia>.npz`` con ``V``, ``F``; ``frame``: V_mm = u R V + t; ``landmarks``: gli
-ingressi di ``pr_landmarks.py define``, che scrive la definizione dei landmark del dominio).
+ingressi di ``pr_landmarks.py define``, che scrive la definizione dei landmark del dominio). Con ``"out": {"work",
+"evidence"}`` (``use_roots``) intermedi, plug-in, evidenza e definizione dei landmark del dominio vanno in
+``<work>/protocolli`` e ``<evidence>/protocolli``, separati da quelli dei domini di sviluppo.
 
 Mesh in mm (``mm_mesh``): solo i vertici referenziati, NON centrate (i protocolli stimano la traslazione; l'origine e'
 quella del frame canonico, la media FLAME). Le coordinate native restano disponibili per gli indici dei landmark.
@@ -130,6 +132,22 @@ def pairs(items: list) -> tuple[np.ndarray, np.ndarray]:
     if len(set(t)) > 1:
         keep &= t[i] != t[j]
     return i[keep], j[keep]
+
+
+def use_roots(spec: Path | None) -> None:
+    """Cartelle di uscita di un dominio da spec con ``out`` (vedi sopra); senza spec o senza ``out`` non cambia nulla.
+    Da chiamare prima di ogni lettura o scrittura (i moduli leggono ``pc.WORK`` ecc. al momento dell'uso)."""
+    global WORK, PLUGIN_ROOT, EVID, DEFS, DEFS_NPZ
+    if spec is None:
+        return
+    out = json.loads(Path(spec).read_text()).get("out")
+    if not out:
+        return
+    rp = lambda p: Path(p) if Path(p).is_absolute() else REPO / p  # noqa: E731
+    WORK = rp(out["work"]) / "protocolli"
+    PLUGIN_ROOT = WORK / "plugin"
+    EVID = rp(out["evidence"]) / "protocolli"
+    DEFS, DEFS_NPZ = EVID / "landmarks", WORK / "defs"
 
 
 # ------------------------------------------------------------------------------------------- landmark

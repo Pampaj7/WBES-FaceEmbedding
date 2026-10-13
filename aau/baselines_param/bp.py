@@ -39,6 +39,9 @@ Varifold (``varifold_measure``): il kernel di ``v2_work/phase0/measure_distances
 misura in mm (``blmm.to_mm``) centrata sul baricentro pesato per area, nessuna rotazione ne' scala per mesh, aree
 divise per l'area totale (massa unitaria), quantizzata su una griglia di lato ``VARIFOLD_CELL_MM``
 (``geometric_matrix.quantize_measure``, deterministica).
+
+Dominio nuovo (es. Ava-256): ``register_spec(<json>)`` (``--spec`` di bp_fit.py, bp_fit_e1.py, bp_e2.py crop), vedi
+``blmm.register_spec``; nessuna altra modifica: regione, iscrizione, regressione e varianti sono quelle di sopra.
 """
 
 from __future__ import annotations
@@ -608,7 +611,22 @@ def meshes(view: str) -> list[tuple[str, str, Path]]:
 
 
 def out_dir(view: str, name: str | None = None) -> Path:
-    return OUT_ROOT / view / name if name else OUT_ROOT / view
+    root = blmm.VIEWS.get(view, {}).get("bp_out", OUT_ROOT)          # vista da spec: <work>/baselines_param
+    return root / view / name if name else root / view
+
+
+def register_spec(path) -> str:
+    """Dominio nuovo da spec (``blmm.register_spec``, es. Ava-256): la vista entra in ``VIEWS``, in ``NEUTRAL_VIEWS``
+    se lo spec la dichiara neutra (``"neutral": true``: espressione non libera, come HIFI3D e FaceScape) e in
+    ``CROP_VIEWS`` (ha la crop); regione dalla media delle original del template dello spec (``references``), uscite
+    in ``<work>/baselines_param/<vista>``. Ritorna il nome della vista."""
+    global VIEWS, NEUTRAL_VIEWS, CROP_VIEWS
+    name = blmm.register_spec(path)
+    VIEWS = tuple(dict.fromkeys(VIEWS + (name,)))
+    if blmm.spec_of(name)["neutral"]:
+        NEUTRAL_VIEWS = tuple(dict.fromkeys(NEUTRAL_VIEWS + (name,)))
+    CROP_VIEWS = tuple(dict.fromkeys(CROP_VIEWS + (name,)))
+    return name
 
 
 def atomic_json(path: Path, obj) -> None:

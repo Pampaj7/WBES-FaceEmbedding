@@ -365,6 +365,7 @@ def main() -> None:
     p.add_argument("--n", type=int, default=200)
     p.add_argument("--realy-cap-hi", type=int, default=3000)
     a = p.parse_args()
+    pc.use_roots(a.spec)
     vname = a.view or __import__("json").loads(a.spec.read_text())["name"]
     if a.step == "run":
         ms = tuple(m for m in a.methods.split(",") if m)

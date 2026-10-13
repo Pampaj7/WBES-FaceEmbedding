@@ -34,6 +34,11 @@ ritorno nel frame del template con Procrustes di SIMILARITA' (``maxabs``, quello
 
 Per mesh (``mesh_scalars``): centroid size pesata per area, sqrt(area), altezza (estensione in y nel frame
 canonico, +y alto), mm: le baseline banali NON oracolo |log x_a - log x_b|.
+
+Dominio nuovo (es. Ava-256) senza modificare il codice: ``register_spec(<json>)`` (``--spec`` di blmm_scalars.py,
+blmm_pairs.py, blmm_template.py e degli script di ``aau/baselines_param``) aggiunge una voce a ``VIEWS`` con soggetti,
+frame e soggetti del template dichiarati nello spec (formato di ``aau/competitors/protocolli/pr_common.py`` piu'
+``template``, ``ref``, ``out``; vedi ``register_spec``). Le viste note non cambiano.
 """
 
 from __future__ import annotations
@@ -103,8 +108,46 @@ def view_root(view: str) -> Path:
     return VIEWS[view].get("out", OUT_ROOT / view)
 
 
+def repo_path(p) -> Path:
+    """Percorso di uno spec: assoluto, o relativo alla radice del repo."""
+    return Path(p) if Path(p).is_absolute() else REPO_ROOT / p
+
+
+def register_spec(path) -> str:
+    """Voce di ``VIEWS`` per un dominio dichiarato in uno spec json; ritorna il nome della vista. Chiavi usate qui:
+
+        {"name", "dir", "subjects": [...], "topologies": [...], "frame": {"u", "R", "t"},
+         "template": {"dir", "subjects": [...]},   soggetti NON valutati: template del NICP (tutti, nessuna estrazione),
+                                                   regione del fit B (``bp.references``)
+         "ref": "template" | "evaluated",          original su cui ``blmm_scalars.py`` stima L_d e cs_ref
+         "out": {"work": ...}}                     uscite in <work>/blmm (``params.json`` del dominio compreso)
+
+    Dominio del frame e dei parametri = ``name``; nessuna GT (``gt`` None). ``frame``: V_mm = u R V + t, come
+    ``frames.json``."""
+    s = json.loads(Path(path).read_text())
+    if s.get("topologies") and sorted(s["topologies"]) != sorted(TOPOLOGIES):
+        raise SystemExit(f"{path}: topologie {s['topologies']} diverse da {TOPOLOGIES}")
+    if set(s["subjects"]) & set(s["template"]["subjects"]):
+        raise SystemExit(f"{path}: soggetti del template fra i valutati")
+    work = repo_path(s["out"]["work"])
+    VIEWS[s["name"]] = {"dir": repo_path(s["dir"]), "domain": s["name"], "gt": None,
+                        "template_dir": repo_path(s["template"]["dir"]), "fb_root": None, "template_ref": None,
+                        "out": work / "blmm", "bp_out": work / "baselines_param",
+                        "spec": {"path": str(path), "subjects": sorted(s["subjects"]),
+                                 "template_subjects": sorted(s["template"]["subjects"]), "frame": s["frame"],
+                                 "ref": s.get("ref", "evaluated"), "neutral": bool(s.get("neutral", False))}}
+    return s["name"]
+
+
+def spec_of(view: str) -> dict | None:
+    return VIEWS.get(view, {}).get("spec")
+
+
 def subjects(view: str) -> list[str]:
-    """I 100 soggetti valutati (``zs_stage.select_subjects``, seme 1234), gli stessi di tutti i summary."""
+    """I 100 soggetti valutati (``zs_stage.select_subjects``, seme 1234), gli stessi di tutti i summary; vista da
+    spec: i soggetti dello spec, ordinati."""
+    if spec_of(view):
+        return list(spec_of(view)["subjects"])
     from zs_stage import select_subjects
     return select_subjects(VIEWS[view]["dir"], 1234)
 
@@ -129,6 +172,9 @@ _FAMOS_SCALE: dict = {}
 
 def to_mm(view: str, V: np.ndarray, name: str | None = None) -> np.ndarray:
     """V nativa -> mm nel frame canonico, UNA trasformazione per dominio (FaMoS: la scala della patch T7)."""
+    if spec_of(view):
+        f = spec_of(view)["frame"]
+        return float(f["u"]) * V @ np.asarray(f["R"], dtype=np.float64).T + np.asarray(f["t"], dtype=np.float64)
     dom = VIEWS[view]["domain"]
     if dom == "famos":
         if not _FAMOS_SCALE:
@@ -175,8 +221,18 @@ def mesh_scalars(Vmm: np.ndarray, F: np.ndarray) -> dict:
 
 
 def params() -> dict:
-    """L_d e CS_ref per dominio (``blmm_scalars.py``)."""
-    return json.loads(PARAMS_JSON.read_text())
+    """L_d e CS_ref per dominio (``blmm_scalars.py``); le viste da spec dal ``params.json`` della loro cartella."""
+    prm = json.loads(PARAMS_JSON.read_text())
+    for v in VIEWS.values():
+        p = v["out"] / "params.json" if "spec" in v else None
+        if p is not None and p.exists():
+            prm["domains"].update(json.loads(p.read_text())["domains"])
+    return prm
+
+
+def params_json(view: str) -> Path:
+    """Dove ``blmm_scalars.py`` scrive L_d e CS_ref della vista."""
+    return view_root(view) / "params.json" if spec_of(view) else PARAMS_JSON
 
 
 _SCAL: dict = {}
@@ -274,7 +330,10 @@ def pair_metrics(X: tuple, Y: tuple, seed: int, mode: str, step: str) -> dict:
 # ---------------------------------------------------------------------------------------- NICP su template
 
 def template_subjects(view: str) -> list[str]:
-    """100 soggetti NON valutati del pool della vista neutra, ``rng(1234)`` (``comp_template.build_template``)."""
+    """100 soggetti NON valutati del pool della vista neutra, ``rng(1234)`` (``comp_template.build_template``); vista da
+    spec: tutti i soggetti del template dello spec (Ava-256: i 56 di calibrazione), nessuna estrazione."""
+    if spec_of(view):
+        return list(spec_of(view)["template_subjects"])
     tdir = VIEWS[view]["template_dir"]
     pool = sorted({p.name.split("_GTready_")[0] for p in tdir.glob("id*_GTready_original.npz")})
     others = sorted(set(pool) - set(subjects(view)))

@@ -1,0 +1,54 @@
+{
+ "gnm": {
+  "region_equal": true,
+  "fit.npz": {
+   "keys_equal": true,
+   "beta": 1.6964496835081277e-08,
+   "D_fr": 5.302930761175162e-09,
+   "D_sr": 3.382388924499935e-09
+  },
+  "fit_e1.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.00877762243781155,
+   "D_vb_fr": 0.0003602374040118095,
+   "D_vb_sr": 0.000401180468549589
+  },
+  "fit_e2_crop.npz": {
+   "keys_equal": true,
+   "vb_beta": 1.8022640435821913e-05
+  },
+  "dev_rerun_vb_beta_max_abs": 3.1882215506540135e-06
+ },
+ "flame2023": {
+  "region_equal": true,
+  "fit.npz": {
+   "keys_equal": true,
+   "beta": 1.591077347651293e-08,
+   "D_fr": 2.0189108163037872e-09,
+   "D_sr": 2.1697237340134734e-09
+  },
+  "fit_e1.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.01381632461197213,
+   "D_vb_fr": 0.0013475485257000153,
+   "D_vb_sr": 0.001632595837739892
+  },
+  "fit_e2_crop.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.003541665699772656
+  },
+  "dev_rerun_vb_beta_max_abs": 0.00878683684610291
+ },
+ "pass": false,
+ "note": "beta: coefficienti a +1 sigma (adimensionali); D_*: mm. La tolleranza geom_mm si applica a entrambi, come scritta prima di eseguire; dev_rerun_vb_beta_max_abs e' solo il riferimento",
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071672",
+ "date": "2026-10-13 10:52:16"
+}

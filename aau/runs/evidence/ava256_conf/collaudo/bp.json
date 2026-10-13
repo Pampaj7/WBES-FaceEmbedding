@@ -1,0 +1,54 @@
+{
+ "gnm": {
+  "region_equal": true,
+  "fit.npz": {
+   "keys_equal": true,
+   "beta": 0.0,
+   "D_fr": 0.0,
+   "D_sr": 0.0
+  },
+  "fit_e1.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.0,
+   "D_vb_fr": 0.0,
+   "D_vb_sr": 0.0
+  },
+  "fit_e2_crop.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.0
+  },
+  "dev_rerun_vb_beta_max_abs": 3.1882215506540135e-06
+ },
+ "flame2023": {
+  "region_equal": true,
+  "fit.npz": {
+   "keys_equal": true,
+   "beta": 0.0,
+   "D_fr": 0.0,
+   "D_sr": 0.0
+  },
+  "fit_e1.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.0,
+   "D_vb_fr": 0.0,
+   "D_vb_sr": 0.0
+  },
+  "fit_e2_crop.npz": {
+   "keys_equal": true,
+   "vb_beta": 0.0
+  },
+  "dev_rerun_vb_beta_max_abs": 0.00878683684610291
+ },
+ "pass": true,
+ "note": "beta: coefficienti a +1 sigma (adimensionali); D_*: mm. La tolleranza geom_mm si applica a entrambi, come scritta prima di eseguire; dev_rerun_vb_beta_max_abs e' solo il riferimento",
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001
+ },
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1071673",
+ "date": "2026-10-13 11:02:52"
+}

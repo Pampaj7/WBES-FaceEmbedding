@@ -347,7 +347,10 @@ def main() -> None:
     p.add_argument("--in-dir", type=Path)
     p.add_argument("--table", type=Path)
     p.add_argument("--serial", type=int, default=0, help="time: solo le prime N mesh, uscita time_e2_serial.npz")
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (bp.register_spec): --views = la sua vista")
     a = p.parse_args()
+    if a.spec:
+        a.views = bp.register_spec(a.spec)
     models = a.models.split(",")
     if a.step == "heldout":
         run_heldout(a.in_dir, a.table, models, a.workers)

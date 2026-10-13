@@ -26,6 +26,7 @@ import argparse
 import json
 import multiprocessing as mp
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -280,12 +281,14 @@ def main() -> None:
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--pilot", action="store_true")
     p.add_argument("--overwrite", action="store_true")
+    p.add_argument("--spec", type=Path, default=None, help="dominio nuovo (bp.register_spec); ignora --views")
     a = p.parse_args()
+    views = [bp.register_spec(a.spec)] if a.spec else a.views.split(",")
     for name in a.models.split(","):
         if a.pilot:
             run_pilot(name, a.workers)
             continue
-        for view in a.views.split(","):
+        for view in views:
             run_view(view, name, a.workers, a.overwrite)
 
 

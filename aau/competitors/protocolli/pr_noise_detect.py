@@ -10,7 +10,8 @@ Per ogni render: detector ``det_10g`` (SCRFD) a 640 x 640, volto col riquadro pi
 (come ``FaceAnalysis.get``). Se il detector non trova volti: ``1k3d68`` sul riquadro dei pixel colpiti dal render
 (``cams.npz``, ``box``; contato in ``fallback``). Uscita ``aau/runs/protocolli/noise/det/<vista>/lmk2d.npz``: ``P``
 (n, 68, 3; x, y in pixel, centro del pixel = coordinata intera; z del modello, non usata), ``det_score`` (0 nel
-ripiego), ``fallback``, ``n_faces``.
+ripiego), ``fallback``, ``n_faces``. ``--dir <cartella>`` al posto di ``--view``: render e uscita in quella cartella
+(dominio da spec, ``aau/ava256/conf_protocols.py``); il calcolo non cambia.
 """
 
 from __future__ import annotations
@@ -26,13 +27,17 @@ ROOT = Path(__file__).resolve().parents[2] / "runs" / "protocolli" / "noise" / "
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--view", required=True)
+    p.add_argument("--view", default="")
+    p.add_argument("--dir", type=Path, default=None, help="cartella con cams.npz e i png (al posto di --view)")
     a = p.parse_args()
+    if not a.view and a.dir is None:
+        p.error("serve --view o --dir")
     import cv2
     from insightface.app import FaceAnalysis
     from insightface.app.common import Face
     t0 = time.time()
-    d = ROOT / a.view
+    d = a.dir if a.dir is not None else ROOT / a.view
+    tag = a.view or d.name
     with np.load(d / "cams.npz") as z:
         box, n, img_size = z["box"], len(z["box"]), int(z["img"])
     app = FaceAnalysis(name="buffalo_l", root=str(Path.home() / ".insightface"),
@@ -54,11 +59,11 @@ def main() -> None:
             fb[k] = True
         P[k] = np.asarray(f.landmark_3d_68, np.float64)
         if (k + 1) % 100 == 0:
-            print(f"[pr-noise-det] {a.view}: {k + 1}/{n}, ripieghi {int(fb.sum())}, {time.time() - t0:.0f}s", flush=True)
+            print(f"[pr-noise-det] {tag}: {k + 1}/{n}, ripieghi {int(fb.sum())}, {time.time() - t0:.0f}s", flush=True)
     tmp = d / ".lmk2d.tmp.npz"
     np.savez(tmp, P=P, det_score=score, fallback=fb, n_faces=nf)
     tmp.replace(d / "lmk2d.npz")
-    print(f"[pr-noise-det] {a.view}: {n} render, detector senza volto {int(fb.sum())}, {time.time() - t0:.0f}s",
+    print(f"[pr-noise-det] {tag}: {n} render, detector senza volto {int(fb.sum())}, {time.time() - t0:.0f}s",
           flush=True)
 
 

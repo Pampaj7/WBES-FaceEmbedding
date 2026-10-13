@@ -1,0 +1,36 @@
+{
+ "spec": "aau/ava256/spec/hifi3d_full.json",
+ "arms": {
+  "factorized_s1234": {
+   "subjects": 200,
+   "meshes": 1000,
+   "pairs": 398000,
+   "p": 256,
+   "compare_source": "hifi3d",
+   "equal": {
+    "X": true,
+    "subj": true,
+    "lab": true,
+    "G": true
+   },
+   "X_max_abs_diff": 0.0
+  },
+  "factorized_s2345": {
+   "subjects": 200,
+   "meshes": 1000,
+   "pairs": 398000,
+   "p": 256,
+   "compare_source": "hifi3d",
+   "equal": {
+    "X": true,
+    "subj": true,
+    "lab": true,
+    "G": true
+   },
+   "X_max_abs_diff": 0.0
+  }
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071672",
+ "date": "2026-10-13 10:49:34"
+}

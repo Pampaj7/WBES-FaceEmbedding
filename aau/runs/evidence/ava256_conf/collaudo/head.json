@@ -1,0 +1,73 @@
+{
+ "block": {
+  "factorized_s1234": {
+   "subjects": 200,
+   "meshes": 1000,
+   "pairs": 398000,
+   "p": 256,
+   "compare_source": "hifi3d",
+   "equal": {
+    "X": true,
+    "subj": true,
+    "lab": true,
+    "G": true
+   },
+   "X_max_abs_diff": 0.0
+  },
+  "factorized_s2345": {
+   "subjects": 200,
+   "meshes": 1000,
+   "pairs": 398000,
+   "p": 256,
+   "compare_source": "hifi3d",
+   "equal": {
+    "X": true,
+    "subj": true,
+    "lab": true,
+    "G": true
+   },
+   "X_max_abs_diff": 0.0
+  }
+ },
+ "K0": {
+  "factorized_s1234": {
+   "c": 0.4159334121204845,
+   "alpha_over_alpha0": 0.039576109301365126,
+   "nit": 257,
+   "success": true,
+   "reference": {
+    "c": 0.4159334121204845,
+    "alpha_over_alpha0": 0.039576109301365126,
+    "nit": 257
+   },
+   "rel_c": 0.0,
+   "rel_alpha": 0.0,
+   "pass": true
+  },
+  "factorized_s2345": {
+   "c": 0.41843835339738,
+   "alpha_over_alpha0": 0.03076603181101636,
+   "nit": 257,
+   "success": true,
+   "reference": {
+    "c": 0.41843835339738,
+    "alpha_over_alpha0": 0.03076603181101636,
+    "nit": 257
+   },
+   "rel_c": 0.0,
+   "rel_alpha": 0.0,
+   "pass": true
+  }
+ },
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071672",
+ "date": "2026-10-13 10:52:17"
+}

@@ -1,0 +1,41 @@
+{
+ "cams_paths_equal": true,
+ "cams_max_abs": 0.0,
+ "pixels_different": 0,
+ "points2d_max_abs_px": 0.0,
+ "fallback_equal": true,
+ "fallback": 1,
+ "detprep_L68_max_abs_mm": 0.0,
+ "detprep_K85_max_abs_mm": 0.0,
+ "D_mm_max_abs": {
+  "now_original": 0.0,
+  "now_metrical": 0.0,
+  "realy": 0.0,
+  "stirling": 0.0
+ },
+ "pairs_compared": {
+  "now_original": 11880,
+  "now_metrical": 11880,
+  "realy": 11880,
+  "stirling": 11880
+ },
+ "detprep_summary": {
+  "crop": 0,
+  "down8k": 0,
+  "noisy": 1,
+  "original": 0,
+  "remesh": 0,
+  "up60k": 0
+ },
+ "pass": true,
+ "tolerances": {
+  "exact": 0.0,
+  "num": 1e-12,
+  "geom_mm": 0.0001,
+  "rel": 1e-09,
+  "spearman_geom": 0.0001
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071672",
+ "date": "2026-10-13 10:50:24"
+}
