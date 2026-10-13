@@ -1,0 +1,12 @@
+{
+ "method": "factorized_s2345",
+ "set": "eval",
+ "n_meshes": 150,
+ "n_pairs": 11175,
+ "c": 0.40544514090039896,
+ "checkpoint": "aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized_s2345/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed2345__4de9be29/checkpoints/epoch072_ema.pth",
+ "calibration": "aau/runs/evidence/trainer_v3/factorized_calibration.csv",
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1072921",
+ "date": "2026-10-13 16:39:13"
+}

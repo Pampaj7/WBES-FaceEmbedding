@@ -1,0 +1,30 @@
+{
+ "method": "now_original",
+ "set": "eval",
+ "n_meshes": 150,
+ "n_pairs": 11175,
+ "errors": {
+  "ordered_failed": 0,
+  "first": [],
+  "reflections": 4
+ },
+ "checks": {
+  "now_original_famos_galleria": {
+   "n": 12,
+   "nan": 0,
+   "max_abs": 1.3493930417496358e-09
+  },
+  "now_metrical_famos_galleria": {
+   "n": 12,
+   "nan": 0,
+   "max_abs": 8.739254742096136e-08
+  }
+ },
+ "tol_mm": 0.0001,
+ "ok": true,
+ "landmarks": "rilevatore sulla patch (lmk.npz)",
+ "seconds_total": 93.76401090621948,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1072584",
+ "date": "2026-10-13 15:44:10"
+}

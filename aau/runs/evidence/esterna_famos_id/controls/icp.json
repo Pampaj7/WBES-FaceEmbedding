@@ -1,0 +1,37 @@
+{
+ "method": "icp",
+ "set": "eval",
+ "n_meshes": 150,
+ "n_pairs": 11175,
+ "errors": {
+  "mm": {
+   "n": 0,
+   "first": [],
+   "s_per_pair_median": 0.08231115341186523
+  },
+  "cs": {
+   "n": 0,
+   "first": [],
+   "s_per_pair_median": 0.07099676132202148
+  }
+ },
+ "checks": {
+  "famos_galleria_mm": {
+   "n": 180,
+   "nan": 0,
+   "max_abs": 3.863576125695545e-14
+  },
+  "famos_galleria_cs": {
+   "n": 180,
+   "nan": 0,
+   "max_abs": 0.0
+  }
+ },
+ "tol_mm": 1e-06,
+ "ok": true,
+ "L_mm": 95.04779203688503,
+ "cs_ref_mm": 64.55107311330337,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1072584",
+ "date": "2026-10-13 15:42:29"
+}

@@ -1,0 +1,16 @@
+{
+ "backproject_vs_pr_noise_hifi3d_mm": {
+  "n": 1632,
+  "nan": 0,
+  "max_abs": 0.0
+ },
+ "render_px_diversi": 0,
+ "tol": {
+  "backproject_mm": 1e-09,
+  "render_px": 0
+ },
+ "ok": true,
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1072561",
+ "date": "2026-10-13 15:39:06"
+}

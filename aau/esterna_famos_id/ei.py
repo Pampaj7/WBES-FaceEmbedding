@@ -111,9 +111,11 @@ COMPETITORS = [("icp|mm", "ICP + Chamfer in mm", "ICP", False), ("icp|cs", "ICP 
                ("now_original|mm", "NoW originale (rilevatore)", "NoW", False),
                ("ulrssm|pair_fr", "ULRSSM faces_xyz per coppia, mm", "ULRSSM", False),
                ("ulrssm|pair_sr", "ULRSSM faces_xyz per coppia, cs", "ULRSSM", False),
-               ("gw|fr", f"GW {GW_CFG}, mm", "GW", False), ("gw|sr", f"GW {GW_CFG}, cs", "GW", False)]
+               ("gw|fr", f"GW {GW_CFG.replace('|', '_')}, mm", "GW", False),
+               ("gw|sr", f"GW {GW_CFG.replace('|', '_')}, cs", "GW", False)]
 COLUMNS = OURS + COMPETITORS
 METRICS = ("rank1", "mAP", "AUC", "EER")
+MARK = "<!-- da qui in giu': scritto a mano, conservato da ei.py eval -->"
 _ST: dict = {}
 
 
@@ -953,7 +955,9 @@ def write_results(mrows: list, drows: list, summary: dict, ctrl: dict) -> None:
         L.append(f"- `{k}`: `{json.dumps(keep)}`")
     L += ["", "File: `metrics.csv` (una riga per metodo e metrica), `deltas.csv` (tutti i delta appaiati), "
           "`summary.json`, `selection.json`, `prep_eval.json`, `prep_pilot.json`, `controls/`.", ""]
-    (EVID / "results.md").write_text("\n".join(L))
+    out = EVID / "results.md"
+    tail = out.read_text().split(MARK, 1)[1] if out.exists() and MARK in out.read_text() else "\n"
+    out.write_text("\n".join(L) + "\n" + MARK + tail)
 
 
 # ------------------------------------------------------------------------------------------ main

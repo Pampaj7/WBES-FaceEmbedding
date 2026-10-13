@@ -1,0 +1,28 @@
+{
+ "method": "gw",
+ "set": "eval",
+ "n_meshes": 150,
+ "n_pairs": 11175,
+ "config": "euclid|128|cgw2",
+ "nan": 0,
+ "s_per_solve_median": 0.026349039981141686,
+ "cs_vs_scalars_max_abs": 3.1434889535830735e-07,
+ "checks": {
+  "fr_famos_galleria": {
+   "n": 12,
+   "nan": 0,
+   "max_abs": 0.0
+  },
+  "sr_famos_galleria": {
+   "n": 12,
+   "nan": 0,
+   "max_abs": 0.0
+  }
+ },
+ "tol_mm": 1e-05,
+ "ok": true,
+ "seconds": 54.73147130012512,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1072584",
+ "date": "2026-10-13 15:45:07"
+}
