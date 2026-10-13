@@ -2,7 +2,7 @@
  "name": "hifi3d_trace",
  "collaudo": true,
  "freeze": false,
- "note": "COLLAUDO v7, tracciamento delle importazioni: TUTTI i passi della catena di Ava-256 dallo STESSO codice su 3 soggetti di HIFI3D (dominio di sviluppo), nodi e GPU dei passi tutti su quelli del job di tracciamento; serve solo a ricavare l'elenco dei moduli della sez. 11.1. Nessun dato di Ava-256.",
+ "note": "COLLAUDO v7, tracciamento delle importazioni: TUTTI i passi della catena di Ava-256 dallo STESSO codice su 3 soggetti di HIFI3D (dominio di sviluppo), nodi e GPU dei passi tutti su quelli del job di tracciamento (a512-l4-06, A100); passo gate escluso (controllo a tolleranza 0 col nodo di sviluppo, stessi moduli di render e detect); serve solo a ricavare l'elenco dei moduli della sez. 11.1. Nessun dato di Ava-256.",
  "dir": "datasets/HIFI3D/eval_view/npz",
  "subjects": [
   "id900001",
@@ -137,7 +137,7 @@
   "gt_sr": "datasets/CANONICAL_GT/eval/hifi3d_sr.npz",
   "r": 64,
   "lambda": 1e-06,
-  "node": "a256-t4-04",
+  "node": "a512-l4-06",
   "fit_block": true
  },
  "embed": {
@@ -185,7 +185,7 @@
  "desc": {
   "arcface": {
    "rotation": "x180",
-   "node": "a256-t4-04"
+   "node": "a512-l4-06"
   },
   "gw": {
    "config": "euclid|128|cgw2",
@@ -221,7 +221,7 @@
   }
  },
  "nodes": {
-  "bp": "a256-t4-04"
+  "bp": "a512-l4-06"
  },
  "landmarks": {
   "template": "aau/runs/ava256_collaudo/hifi3d_det/hifi3d_template.npz",
