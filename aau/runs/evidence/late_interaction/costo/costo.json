@@ -1,0 +1,98 @@
+{
+ "variante_dichiarata": "sinkhorn",
+ "eps": 1.0563148498535158,
+ "n_sub": 1000,
+ "gpu": "NVIDIA L40S",
+ "per_coppia": {
+  "chamfer": {
+   "n": 150,
+   "median": 0.002951446920633316,
+   "p25": 0.0014936706284061074,
+   "p75": 0.010797286755405366
+  },
+  "chamfer_sub": {
+   "n": 150,
+   "median": 0.0002395820338279009,
+   "p25": 0.00023233855608850718,
+   "p75": 0.00026416953187435865
+  },
+  "sinkhorn": {
+   "n": 150,
+   "median": 0.043582165613770485,
+   "p25": 0.039525611558929086,
+   "p75": 0.047615547897294164
+  }
+ },
+ "per_mesh": {
+  "forward_e_token": {
+   "n": 60,
+   "median": 0.04404171044006944,
+   "p25": 0.0213432110613212,
+   "p75": 0.10938596818596125
+  },
+  "sottocampione": {
+   "n": 60,
+   "median": 0.08661701949313283,
+   "p25": 0.05838874611072242,
+   "p75": 0.14278511819429696
+  }
+ },
+ "byte_per_mesh": {
+  "token": {
+   "n": 183,
+   "median": 9746432.0,
+   "p25": 3392512.0,
+   "p75": 24977408.0
+  },
+  "vettore": {
+   "n": 183,
+   "median": 1028.0,
+   "p25": 1028.0,
+   "p75": 1028.0
+  },
+  "sottocampione": 1024000
+ },
+ "host": "a768-l40s-04.srv.aau.dk",
+ "job": "1074616",
+ "date": "2026-10-13 18:28:58",
+ "cc": {
+  "icp_per_coppia": {
+   "n": 150,
+   "median": 0.04165198281407356,
+   "p25": 0.0372902195667848,
+   "p75": 0.045358895673416555
+  },
+  "vettore_per_coppia_N1000": 7.199442957540055e-07,
+  "vettore_per_coppia_N10000": 7.615812859757922e-07,
+  "vettore_chiamata_1_coppia": 0.001761243212968111,
+  "env_icp": {
+   "host": "a768-l40s-04.srv.aau.dk",
+   "job": "1074616",
+   "cpu": "AMD EPYC 9354 32-Core Processor",
+   "cores_job": 16,
+   "python": "3.10.12",
+   "threads": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+   },
+   "date": "2026-10-13 18:24:45",
+   "torch": "2.5.0a0+e000cf0ad9.nv24.10",
+   "torch_threads": 1
+  }
+ },
+ "md": [
+  "Nodo `a768-l40s-04.srv.aau.dk`, job 1074616, GPU NVIDIA L40S; CPU AMD EPYC 9354 32-Core Processor a un thread per l'ICP e i vettori. Campione di `cc.py sample` (HIFI3D, 3 tipi di coppie, 150 coppie); mediana [p25, p75] fra le coppie della mediana di 3 giri.",
+  "",
+  "| metodo | dispositivo | per coppia |",
+  "|---|---|---|",
+  "| interazione tardiva, chamfer | GPU, coppia isolata | 2.95 ms [1.49 ms, 10.80 ms] |",
+  "| interazione tardiva, chamfer_sub | GPU, coppia isolata | 239.58 us [232.34 us, 264.17 us] |",
+  "| interazione tardiva, sinkhorn **(dichiarata)** | GPU, coppia isolata | 43.58 ms [39.53 ms, 47.62 ms] |",
+  "| vettori [s, u] (d_F e d_P), a blocchi di tutte le coppie di N mesh | CPU 1 thread | N = 1000: 0.72 us, N = 10000: 0.76 us |",
+  "| vettori, una chiamata di `fact_paired.distances` per una coppia (rilegge il checkpoint) | CPU 1 thread | 1.76 ms |",
+  "| ICP + Chamfer in mm | CPU 1 thread | 41.65 ms [37.29 ms, 45.36 ms] |",
+  "",
+  "Per mesh (una volta, GPU): forward coi token 44.04 ms, sottocampione FPS + Voronoi 86.62 ms. Memoria per mesh: token 9.3 MiB (mediana, float32) contro 1028 byte del vettore; sottocampione 0.98 MiB."
+ ]
+}

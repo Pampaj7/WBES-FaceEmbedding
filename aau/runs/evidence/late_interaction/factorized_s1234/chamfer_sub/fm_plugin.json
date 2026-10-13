@@ -1,0 +1,27 @@
+{
+ "label": "interazione tardiva, Chamfer sul sottocampione [factorized s1234] (non dichiarata)",
+ "family": "interazione tardiva (feature per vertice del nostro encoder)",
+ "declared": false,
+ "method": "late_interaction",
+ "variant": "chamfer_sub",
+ "seed": "s1234",
+ "c_prime": 0.07698858427223913,
+ "post_hoc": {
+  "fr": true,
+  "sr": false
+ },
+ "readings": {
+  "fr": {
+   "label": "interazione tardiva, Chamfer sul sottocampione [factorized s1234] (non dichiarata), ricomposta con S e c' (FR, post hoc)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "interazione tardiva, Chamfer sul sottocampione [factorized s1234] (non dichiarata), d_LI (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

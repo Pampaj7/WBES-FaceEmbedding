@@ -1,0 +1,225 @@
+{
+ "tf32_check_rel": 2.6955011821245855e-07,
+ "gpu": "NVIDIA L40S",
+ "checkpoint": "aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__1f5d4a90/checkpoints/epoch072_ema.pth",
+ "sha256": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+ "n_sub": 1000,
+ "eps_rel": 0.05,
+ "sk_tol": 1e-05,
+ "sk_max_iter": 3000,
+ "host": "a768-l40s-04.srv.aau.dk",
+ "job": "1073985",
+ "date": "2026-10-13 17:09:30",
+ "s0": 21.126296997070312,
+ "eps": 1.0563148498535158,
+ "sets": {
+  "pilot_hifi3d": {
+   "meshes": 60,
+   "pairs": 1650,
+   "seconds": {
+    "chamfer": 8.904663801193237,
+    "chamfer_sub": 0.16888205520808697,
+    "sinkhorn": 12.812431933823973
+   },
+   "s_per_pair_batched": {
+    "chamfer": 0.005396765940117114,
+    "chamfer_sub": 0.00010235276073217392,
+    "sinkhorn": 0.00776511026292362
+   },
+   "sinkhorn_not_converged": 0,
+   "sinkhorn_log_fallback": 0,
+   "sinkhorn_iter_median": 500.0,
+   "sinkhorn_iter_max": 710,
+   "nan": {
+    "chamfer": 0,
+    "chamfer_sub": 0,
+    "sinkhorn": 0
+   },
+   "embed_seconds": 25.461199045181274,
+   "check_Z_vs_matrice": null,
+   "checks": {
+    "chamfer_vs_float64_rel_max": 5.135140961259451e-06,
+    "chamfer_pair_vs_set_rel_max": 1.911021608483841e-15,
+    "n_chamfer": 4,
+    "sinkhorn_vs_pot_rel_max": 7.779255243797882e-06,
+    "n_pot": 2
+   },
+   "timing_isolated": {
+    "chamfer": {
+     "median_s": 0.003233387367799878,
+     "p25_s": 0.001519970246590674,
+     "p75_s": 0.007783296052366495,
+     "n": 100
+    },
+    "chamfer_sub": {
+     "median_s": 0.0003615613095462322,
+     "p25_s": 0.0003530640387907624,
+     "p75_s": 0.0003799116238951683,
+     "n": 100
+    },
+    "sinkhorn": {
+     "median_s": 0.041663738898932934,
+     "p25_s": 0.03746109863277525,
+     "p75_s": 0.044930392410606146,
+     "n": 100
+    }
+   }
+  },
+  "pilot_facescape": {
+   "meshes": 60,
+   "pairs": 1650,
+   "seconds": {
+    "chamfer": 15.436212062835693,
+    "chamfer_sub": 0.16850569704547524,
+    "sinkhorn": 10.659850000403821
+   },
+   "s_per_pair_batched": {
+    "chamfer": 0.009355280038082238,
+    "chamfer_sub": 0.0001021246648760456,
+    "sinkhorn": 0.006460515151759892
+   },
+   "sinkhorn_not_converged": 0,
+   "sinkhorn_log_fallback": 0,
+   "sinkhorn_iter_median": 420.0,
+   "sinkhorn_iter_max": 560,
+   "nan": {
+    "chamfer": 0,
+    "chamfer_sub": 0,
+    "sinkhorn": 0
+   },
+   "embed_seconds": 32.4039044380188,
+   "check_Z_vs_matrice": null,
+   "checks": {
+    "chamfer_vs_float64_rel_max": 5.272036933743098e-06,
+    "chamfer_pair_vs_set_rel_max": 2.8779317088599866e-15,
+    "n_chamfer": 4,
+    "sinkhorn_vs_pot_rel_max": 3.226481582459445e-06,
+    "n_pot": 2
+   },
+   "timing_isolated": {
+    "chamfer": {
+     "median_s": 0.006135916104540229,
+     "p25_s": 0.0027908890042454004,
+     "p75_s": 0.012890412006527185,
+     "n": 100
+    },
+    "chamfer_sub": {
+     "median_s": 0.0003676661290228367,
+     "p25_s": 0.00035673927050083876,
+     "p75_s": 0.00039237341843545437,
+     "n": 100
+    },
+    "sinkhorn": {
+     "median_s": 0.03566450998187065,
+     "p25_s": 0.032221229281276464,
+     "p75_s": 0.038151257555000484,
+     "n": 100
+    }
+   }
+  },
+  "heldout": {
+   "meshes": 180,
+   "pairs": 3960,
+   "seconds": {
+    "chamfer": 70.66602087020874,
+    "chamfer_sub": 0.4036077228374779,
+    "sinkhorn": 25.618103920016438
+   },
+   "s_per_pair_batched": {
+    "chamfer": 0.017844954765204226,
+    "chamfer_sub": 0.00010192114213067625,
+    "sinkhorn": 0.006469218161620312
+   },
+   "sinkhorn_not_converged": 0,
+   "sinkhorn_log_fallback": 0,
+   "sinkhorn_iter_median": 400.0,
+   "sinkhorn_iter_max": 690,
+   "nan": {
+    "chamfer": 0,
+    "chamfer_sub": 0,
+    "sinkhorn": 0
+   },
+   "embed_seconds": 96.88747358322144,
+   "check_Z_vs_matrice": null,
+   "checks": {
+    "chamfer_vs_float64_rel_max": 5.285000716475862e-06,
+    "chamfer_pair_vs_set_rel_max": 5.322471430223716e-15,
+    "n_chamfer": 4,
+    "sinkhorn_vs_pot_rel_max": null,
+    "n_pot": 0
+   }
+  },
+  "hifi3d": {
+   "meshes": 500,
+   "pairs": 123750,
+   "seconds": {
+    "chamfer": 670.4734275341034,
+    "chamfer_sub": 12.726338380016387,
+    "sinkhorn": 983.14865541365
+   },
+   "s_per_pair_batched": {
+    "chamfer": 0.005417967091184674,
+    "chamfer_sub": 0.00010283909802033444,
+    "sinkhorn": 0.007944635599302223
+   },
+   "sinkhorn_not_converged": 0,
+   "sinkhorn_log_fallback": 0,
+   "sinkhorn_iter_median": 540.0,
+   "sinkhorn_iter_max": 770,
+   "nan": {
+    "chamfer": 0,
+    "chamfer_sub": 0,
+    "sinkhorn": 0
+   },
+   "embed_seconds": 216.65635132789612,
+   "check_Z_vs_matrice": {
+    "max_abs": 0.0006217062473297119,
+    "max_abs_s": 0.00011920928955078125,
+    "max_rel_u": 0.0005118679390056939
+   },
+   "checks": {
+    "chamfer_vs_float64_rel_max": 1.9229101314315517e-06,
+    "chamfer_pair_vs_set_rel_max": 1.4698685990095769e-15,
+    "n_chamfer": 4,
+    "sinkhorn_vs_pot_rel_max": null,
+    "n_pot": 0
+   }
+  },
+  "facescape": {
+   "meshes": 500,
+   "pairs": 123750,
+   "seconds": {
+    "chamfer": 1164.868572473526,
+    "chamfer_sub": 12.720564510673285,
+    "sinkhorn": 790.5577288572676
+   },
+   "s_per_pair_batched": {
+    "chamfer": 0.009413079373523443,
+    "chamfer_sub": 0.00010279244049028917,
+    "sinkhorn": 0.006388345283695092
+   },
+   "sinkhorn_not_converged": 0,
+   "sinkhorn_log_fallback": 0,
+   "sinkhorn_iter_median": 430.0,
+   "sinkhorn_iter_max": 580,
+   "nan": {
+    "chamfer": 0,
+    "chamfer_sub": 0,
+    "sinkhorn": 0
+   },
+   "embed_seconds": 265.18574380874634,
+   "check_Z_vs_matrice": {
+    "max_abs": 0.0005777180194854736,
+    "max_abs_s": 0.00013256072998046875,
+    "max_rel_u": 0.00047846065104467433
+   },
+   "checks": {
+    "chamfer_vs_float64_rel_max": 6.096292313368078e-06,
+    "chamfer_pair_vs_set_rel_max": 1.982956130468471e-15,
+    "n_chamfer": 4,
+    "sinkhorn_vs_pot_rel_max": null,
+    "n_pot": 0
+   }
+  }
+ }
+}

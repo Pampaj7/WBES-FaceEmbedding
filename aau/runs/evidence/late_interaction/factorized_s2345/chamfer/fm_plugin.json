@@ -1,0 +1,27 @@
+{
+ "label": "interazione tardiva, Chamfer su tutti i vertici [factorized s2345] (non dichiarata)",
+ "family": "interazione tardiva (feature per vertice del nostro encoder)",
+ "declared": false,
+ "method": "late_interaction",
+ "variant": "chamfer",
+ "seed": "s2345",
+ "c_prime": 0.10807367151157772,
+ "post_hoc": {
+  "fr": true,
+  "sr": false
+ },
+ "readings": {
+  "fr": {
+   "label": "interazione tardiva, Chamfer su tutti i vertici [factorized s2345] (non dichiarata), ricomposta con S e c' (FR, post hoc)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "interazione tardiva, Chamfer su tutti i vertici [factorized s2345] (non dichiarata), d_LI (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

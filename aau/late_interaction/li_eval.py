@@ -281,6 +281,8 @@ def step_eval(n_boot: int, workers: int) -> None:
             for ti, gtn in enumerate(fm.GTS):
                 for m in methods:
                     x = V[:, gi, ti, mi[m]]
+                    if not np.isfinite(x[0]):                         # es. protocolli senza stessa topologia
+                        continue
                     lo, hi = fm.ci(x)
                     li_m = m.startswith("plugin:factorized_")
                     seed, var, mode = (m.split("/")[0].split("_")[-1], m.split("/")[1].split("|")[0],
@@ -309,6 +311,8 @@ def step_eval(n_boot: int, workers: int) -> None:
                                            [(o, "vs_concorrente") for o in OTHERS] + \
                                            ([(bc, "vs_miglior_concorrente")] if bc else []):
                                 d = V[:, gi, ti, mi[a]] - V[:, gi, ti, mi[b]]
+                                if not np.isfinite(d[0]):
+                                    continue
                                 lo, hi = fm.ci(d)
                                 bb = d[1:][np.isfinite(d[1:])]
                                 drows.append({"dominio": view, "gt": gtn, "insieme_righe": g[0], "perturbazione": g[1],

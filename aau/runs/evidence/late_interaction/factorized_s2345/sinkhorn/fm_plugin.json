@@ -1,0 +1,27 @@
+{
+ "label": "interazione tardiva, OT entropico sul sottocampione [factorized s2345]",
+ "family": "interazione tardiva (feature per vertice del nostro encoder)",
+ "declared": true,
+ "method": "late_interaction",
+ "variant": "sinkhorn",
+ "seed": "s2345",
+ "c_prime": 0.027379390993079986,
+ "post_hoc": {
+  "fr": true,
+  "sr": false
+ },
+ "readings": {
+  "fr": {
+   "label": "interazione tardiva, OT entropico sul sottocampione [factorized s2345], ricomposta con S e c' (FR, post hoc)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "sr": {
+   "label": "interazione tardiva, OT entropico sul sottocampione [factorized s2345], d_LI (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}

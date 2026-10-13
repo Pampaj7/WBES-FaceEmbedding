@@ -1,0 +1,1576 @@
+{
+"view": "hifi3d",
+"seed": 20261013,
+"n_pairs_per_type": 50,
+"n_mesh_per_topology": 20,
+"source": "pr_noise.subsample (sottocampione della condizione det)",
+"pairs": [
+[
+13,
+507,
+"original-down8k"
+],
+[
+15,
+409,
+"original-down8k"
+],
+[
+15,
+589,
+"original-down8k"
+],
+[
+21,
+289,
+"original-down8k"
+],
+[
+21,
+367,
+"original-down8k"
+],
+[
+21,
+451,
+"original-down8k"
+],
+[
+21,
+589,
+"original-down8k"
+],
+[
+27,
+283,
+"original-down8k"
+],
+[
+27,
+577,
+"original-down8k"
+],
+[
+39,
+175,
+"original-down8k"
+],
+[
+39,
+589,
+"original-down8k"
+],
+[
+51,
+211,
+"original-down8k"
+],
+[
+51,
+337,
+"original-down8k"
+],
+[
+69,
+259,
+"original-down8k"
+],
+[
+79,
+597,
+"original-down8k"
+],
+[
+87,
+571,
+"original-down8k"
+],
+[
+93,
+361,
+"original-down8k"
+],
+[
+93,
+535,
+"original-down8k"
+],
+[
+99,
+517,
+"original-down8k"
+],
+[
+105,
+319,
+"original-down8k"
+],
+[
+105,
+583,
+"original-down8k"
+],
+[
+115,
+213,
+"original-down8k"
+],
+[
+121,
+513,
+"original-down8k"
+],
+[
+123,
+553,
+"original-down8k"
+],
+[
+123,
+589,
+"original-down8k"
+],
+[
+145,
+171,
+"original-down8k"
+],
+[
+159,
+337,
+"original-down8k"
+],
+[
+163,
+213,
+"original-down8k"
+],
+[
+217,
+429,
+"original-down8k"
+],
+[
+219,
+589,
+"original-down8k"
+],
+[
+229,
+531,
+"original-down8k"
+],
+[
+255,
+361,
+"original-down8k"
+],
+[
+259,
+543,
+"original-down8k"
+],
+[
+289,
+387,
+"original-down8k"
+],
+[
+291,
+373,
+"original-down8k"
+],
+[
+307,
+429,
+"original-down8k"
+],
+[
+321,
+421,
+"original-down8k"
+],
+[
+325,
+471,
+"original-down8k"
+],
+[
+327,
+529,
+"original-down8k"
+],
+[
+337,
+567,
+"original-down8k"
+],
+[
+343,
+381,
+"original-down8k"
+],
+[
+345,
+487,
+"original-down8k"
+],
+[
+355,
+405,
+"original-down8k"
+],
+[
+357,
+391,
+"original-down8k"
+],
+[
+361,
+561,
+"original-down8k"
+],
+[
+367,
+393,
+"original-down8k"
+],
+[
+451,
+501,
+"original-down8k"
+],
+[
+481,
+519,
+"original-down8k"
+],
+[
+489,
+589,
+"original-down8k"
+],
+[
+553,
+567,
+"original-down8k"
+],
+[
+5,
+99,
+"original-up60k"
+],
+[
+11,
+237,
+"original-up60k"
+],
+[
+11,
+315,
+"original-up60k"
+],
+[
+15,
+35,
+"original-up60k"
+],
+[
+17,
+273,
+"original-up60k"
+],
+[
+21,
+47,
+"original-up60k"
+],
+[
+23,
+165,
+"original-up60k"
+],
+[
+23,
+285,
+"original-up60k"
+],
+[
+27,
+143,
+"original-up60k"
+],
+[
+27,
+179,
+"original-up60k"
+],
+[
+33,
+431,
+"original-up60k"
+],
+[
+35,
+129,
+"original-up60k"
+],
+[
+41,
+339,
+"original-up60k"
+],
+[
+41,
+423,
+"original-up60k"
+],
+[
+57,
+227,
+"original-up60k"
+],
+[
+57,
+443,
+"original-up60k"
+],
+[
+77,
+519,
+"original-up60k"
+],
+[
+83,
+555,
+"original-up60k"
+],
+[
+89,
+351,
+"original-up60k"
+],
+[
+89,
+447,
+"original-up60k"
+],
+[
+99,
+239,
+"original-up60k"
+],
+[
+107,
+483,
+"original-up60k"
+],
+[
+113,
+405,
+"original-up60k"
+],
+[
+119,
+123,
+"original-up60k"
+],
+[
+125,
+327,
+"original-up60k"
+],
+[
+143,
+159,
+"original-up60k"
+],
+[
+147,
+479,
+"original-up60k"
+],
+[
+147,
+533,
+"original-up60k"
+],
+[
+161,
+357,
+"original-up60k"
+],
+[
+173,
+465,
+"original-up60k"
+],
+[
+203,
+249,
+"original-up60k"
+],
+[
+213,
+299,
+"original-up60k"
+],
+[
+219,
+593,
+"original-up60k"
+],
+[
+225,
+299,
+"original-up60k"
+],
+[
+255,
+383,
+"original-up60k"
+],
+[
+257,
+561,
+"original-up60k"
+],
+[
+273,
+323,
+"original-up60k"
+],
+[
+299,
+429,
+"original-up60k"
+],
+[
+299,
+465,
+"original-up60k"
+],
+[
+299,
+567,
+"original-up60k"
+],
+[
+305,
+417,
+"original-up60k"
+],
+[
+309,
+479,
+"original-up60k"
+],
+[
+321,
+569,
+"original-up60k"
+],
+[
+335,
+417,
+"original-up60k"
+],
+[
+351,
+389,
+"original-up60k"
+],
+[
+375,
+401,
+"original-up60k"
+],
+[
+383,
+561,
+"original-up60k"
+],
+[
+383,
+567,
+"original-up60k"
+],
+[
+471,
+569,
+"original-up60k"
+],
+[
+521,
+543,
+"original-up60k"
+],
+[
+1,
+425,
+"down8k-up60k"
+],
+[
+1,
+557,
+"down8k-up60k"
+],
+[
+7,
+53,
+"down8k-up60k"
+],
+[
+11,
+151,
+"down8k-up60k"
+],
+[
+11,
+265,
+"down8k-up60k"
+],
+[
+19,
+197,
+"down8k-up60k"
+],
+[
+19,
+467,
+"down8k-up60k"
+],
+[
+29,
+499,
+"down8k-up60k"
+],
+[
+31,
+41,
+"down8k-up60k"
+],
+[
+31,
+473,
+"down8k-up60k"
+],
+[
+43,
+335,
+"down8k-up60k"
+],
+[
+47,
+259,
+"down8k-up60k"
+],
+[
+53,
+589,
+"down8k-up60k"
+],
+[
+61,
+137,
+"down8k-up60k"
+],
+[
+65,
+397,
+"down8k-up60k"
+],
+[
+71,
+535,
+"down8k-up60k"
+],
+[
+77,
+307,
+"down8k-up60k"
+],
+[
+83,
+109,
+"down8k-up60k"
+],
+[
+83,
+481,
+"down8k-up60k"
+],
+[
+91,
+353,
+"down8k-up60k"
+],
+[
+95,
+517,
+"down8k-up60k"
+],
+[
+97,
+569,
+"down8k-up60k"
+],
+[
+131,
+547,
+"down8k-up60k"
+],
+[
+133,
+299,
+"down8k-up60k"
+],
+[
+143,
+307,
+"down8k-up60k"
+],
+[
+143,
+529,
+"down8k-up60k"
+],
+[
+151,
+317,
+"down8k-up60k"
+],
+[
+173,
+367,
+"down8k-up60k"
+],
+[
+181,
+209,
+"down8k-up60k"
+],
+[
+193,
+347,
+"down8k-up60k"
+],
+[
+203,
+307,
+"down8k-up60k"
+],
+[
+215,
+379,
+"down8k-up60k"
+],
+[
+221,
+259,
+"down8k-up60k"
+],
+[
+221,
+361,
+"down8k-up60k"
+],
+[
+235,
+341,
+"down8k-up60k"
+],
+[
+245,
+361,
+"down8k-up60k"
+],
+[
+247,
+257,
+"down8k-up60k"
+],
+[
+265,
+587,
+"down8k-up60k"
+],
+[
+281,
+415,
+"down8k-up60k"
+],
+[
+289,
+371,
+"down8k-up60k"
+],
+[
+293,
+589,
+"down8k-up60k"
+],
+[
+317,
+403,
+"down8k-up60k"
+],
+[
+325,
+359,
+"down8k-up60k"
+],
+[
+325,
+431,
+"down8k-up60k"
+],
+[
+337,
+509,
+"down8k-up60k"
+],
+[
+347,
+511,
+"down8k-up60k"
+],
+[
+353,
+547,
+"down8k-up60k"
+],
+[
+365,
+421,
+"down8k-up60k"
+],
+[
+433,
+599,
+"down8k-up60k"
+],
+[
+451,
+545,
+"down8k-up60k"
+]
+],
+"meshes": [
+1,
+5,
+7,
+11,
+13,
+15,
+17,
+19,
+21,
+23,
+27,
+29,
+31,
+33,
+35,
+39,
+41,
+43,
+47,
+51,
+53,
+57,
+61,
+65,
+69,
+71,
+77,
+79,
+83,
+87,
+89,
+91,
+93,
+95,
+97,
+99,
+105,
+107,
+109,
+113,
+115,
+119,
+121,
+123,
+125,
+129,
+131,
+133,
+137,
+143,
+145,
+147,
+151,
+159,
+161,
+163,
+165,
+171,
+173,
+175,
+179,
+181,
+193,
+197,
+203,
+209,
+211,
+213,
+215,
+217,
+219,
+221,
+225,
+227,
+229,
+235,
+237,
+239,
+245,
+247,
+249,
+255,
+257,
+259,
+265,
+273,
+281,
+283,
+285,
+289,
+291,
+293,
+299,
+305,
+307,
+309,
+315,
+317,
+319,
+321,
+323,
+325,
+327,
+335,
+337,
+339,
+341,
+343,
+345,
+347,
+351,
+353,
+355,
+357,
+359,
+361,
+365,
+367,
+371,
+373,
+375,
+379,
+381,
+383,
+387,
+389,
+391,
+393,
+397,
+401,
+403,
+405,
+409,
+415,
+417,
+421,
+423,
+425,
+429,
+431,
+433,
+443,
+447,
+451,
+465,
+467,
+471,
+473,
+479,
+481,
+483,
+487,
+489,
+499,
+501,
+507,
+509,
+511,
+513,
+517,
+519,
+521,
+529,
+531,
+533,
+535,
+543,
+545,
+547,
+553,
+555,
+557,
+561,
+567,
+569,
+571,
+577,
+583,
+587,
+589,
+593,
+597,
+599
+],
+"timed": [
+57,
+123,
+147,
+159,
+213,
+237,
+285,
+321,
+327,
+339,
+351,
+357,
+375,
+387,
+393,
+405,
+417,
+447,
+489,
+561,
+7,
+19,
+91,
+121,
+145,
+163,
+265,
+283,
+361,
+367,
+373,
+379,
+391,
+415,
+421,
+451,
+511,
+529,
+535,
+547,
+17,
+23,
+35,
+65,
+107,
+119,
+125,
+131,
+137,
+227,
+257,
+293,
+317,
+353,
+371,
+425,
+431,
+545,
+593,
+599
+],
+"subj": {
+"1": "id900001",
+"5": "id900001",
+"7": "id900004",
+"11": "id900004",
+"13": "id900018",
+"15": "id900018",
+"17": "id900018",
+"19": "id900020",
+"21": "id900020",
+"23": "id900020",
+"27": "id900026",
+"29": "id900026",
+"31": "id900027",
+"33": "id900027",
+"35": "id900027",
+"39": "id900041",
+"41": "id900041",
+"43": "id900042",
+"47": "id900042",
+"51": "id900045",
+"53": "id900045",
+"57": "id900048",
+"61": "id900056",
+"65": "id900056",
+"69": "id900062",
+"71": "id900062",
+"77": "id900069",
+"79": "id900071",
+"83": "id900071",
+"87": "id900072",
+"89": "id900072",
+"91": "id900075",
+"93": "id900075",
+"95": "id900075",
+"97": "id900080",
+"99": "id900080",
+"105": "id900081",
+"107": "id900081",
+"109": "id900086",
+"113": "id900086",
+"115": "id900088",
+"119": "id900088",
+"121": "id900097",
+"123": "id900097",
+"125": "id900097",
+"129": "id900100",
+"131": "id900100",
+"133": "id900106",
+"137": "id900106",
+"143": "id900107",
+"145": "id900110",
+"147": "id900110",
+"151": "id900113",
+"159": "id900115",
+"161": "id900115",
+"163": "id900130",
+"165": "id900130",
+"171": "id900132",
+"173": "id900132",
+"175": "id900136",
+"179": "id900136",
+"181": "id900153",
+"193": "id900169",
+"197": "id900169",
+"203": "id900182",
+"209": "id900183",
+"211": "id900186",
+"213": "id900186",
+"215": "id900186",
+"217": "id900197",
+"219": "id900197",
+"221": "id900197",
+"225": "id900199",
+"227": "id900199",
+"229": "id900206",
+"235": "id900207",
+"237": "id900207",
+"239": "id900207",
+"245": "id900208",
+"247": "id900212",
+"249": "id900212",
+"255": "id900220",
+"257": "id900220",
+"259": "id900222",
+"265": "id900224",
+"273": "id900233",
+"281": "id900239",
+"283": "id900242",
+"285": "id900242",
+"289": "id900246",
+"291": "id900246",
+"293": "id900246",
+"299": "id900258",
+"305": "id900273",
+"307": "id900275",
+"309": "id900275",
+"315": "id900285",
+"317": "id900285",
+"319": "id900290",
+"321": "id900290",
+"323": "id900290",
+"325": "id900296",
+"327": "id900296",
+"335": "id900299",
+"337": "id900303",
+"339": "id900303",
+"341": "id900303",
+"343": "id900319",
+"345": "id900319",
+"347": "id900319",
+"351": "id900321",
+"353": "id900321",
+"355": "id900326",
+"357": "id900326",
+"359": "id900326",
+"361": "id900328",
+"365": "id900328",
+"367": "id900330",
+"371": "id900330",
+"373": "id900342",
+"375": "id900342",
+"379": "id900346",
+"381": "id900346",
+"383": "id900346",
+"387": "id900363",
+"389": "id900363",
+"391": "id900367",
+"393": "id900367",
+"397": "id900368",
+"401": "id900368",
+"403": "id900369",
+"405": "id900369",
+"409": "id900372",
+"415": "id900373",
+"417": "id900373",
+"421": "id900374",
+"423": "id900374",
+"425": "id900374",
+"429": "id900378",
+"431": "id900378",
+"433": "id900381",
+"443": "id900382",
+"447": "id900392",
+"451": "id900396",
+"465": "id900399",
+"467": "id900399",
+"471": "id900401",
+"473": "id900401",
+"479": "id900402",
+"481": "id900404",
+"483": "id900404",
+"487": "id900411",
+"489": "id900411",
+"499": "id900418",
+"501": "id900418",
+"507": "id900421",
+"509": "id900421",
+"511": "id900422",
+"513": "id900422",
+"517": "id900431",
+"519": "id900431",
+"521": "id900431",
+"529": "id900441",
+"531": "id900441",
+"533": "id900441",
+"535": "id900447",
+"543": "id900460",
+"545": "id900460",
+"547": "id900462",
+"553": "id900465",
+"555": "id900465",
+"557": "id900465",
+"561": "id900466",
+"567": "id900468",
+"569": "id900468",
+"571": "id900470",
+"577": "id900476",
+"583": "id900486",
+"587": "id900486",
+"589": "id900491",
+"593": "id900491",
+"597": "id900498",
+"599": "id900498"
+},
+"topo": {
+"1": "down8k",
+"5": "up60k",
+"7": "down8k",
+"11": "up60k",
+"13": "down8k",
+"15": "original",
+"17": "up60k",
+"19": "down8k",
+"21": "original",
+"23": "up60k",
+"27": "original",
+"29": "up60k",
+"31": "down8k",
+"33": "original",
+"35": "up60k",
+"39": "original",
+"41": "up60k",
+"43": "down8k",
+"47": "up60k",
+"51": "original",
+"53": "up60k",
+"57": "original",
+"61": "down8k",
+"65": "up60k",
+"69": "original",
+"71": "up60k",
+"77": "up60k",
+"79": "down8k",
+"83": "up60k",
+"87": "original",
+"89": "up60k",
+"91": "down8k",
+"93": "original",
+"95": "up60k",
+"97": "down8k",
+"99": "original",
+"105": "original",
+"107": "up60k",
+"109": "down8k",
+"113": "up60k",
+"115": "down8k",
+"119": "up60k",
+"121": "down8k",
+"123": "original",
+"125": "up60k",
+"129": "original",
+"131": "up60k",
+"133": "down8k",
+"137": "up60k",
+"143": "up60k",
+"145": "down8k",
+"147": "original",
+"151": "down8k",
+"159": "original",
+"161": "up60k",
+"163": "down8k",
+"165": "original",
+"171": "original",
+"173": "up60k",
+"175": "down8k",
+"179": "up60k",
+"181": "down8k",
+"193": "down8k",
+"197": "up60k",
+"203": "up60k",
+"209": "up60k",
+"211": "down8k",
+"213": "original",
+"215": "up60k",
+"217": "down8k",
+"219": "original",
+"221": "up60k",
+"225": "original",
+"227": "up60k",
+"229": "down8k",
+"235": "down8k",
+"237": "original",
+"239": "up60k",
+"245": "up60k",
+"247": "down8k",
+"249": "original",
+"255": "original",
+"257": "up60k",
+"259": "down8k",
+"265": "down8k",
+"273": "original",
+"281": "up60k",
+"283": "down8k",
+"285": "original",
+"289": "down8k",
+"291": "original",
+"293": "up60k",
+"299": "up60k",
+"305": "up60k",
+"307": "down8k",
+"309": "original",
+"315": "original",
+"317": "up60k",
+"319": "down8k",
+"321": "original",
+"323": "up60k",
+"325": "down8k",
+"327": "original",
+"335": "up60k",
+"337": "down8k",
+"339": "original",
+"341": "up60k",
+"343": "down8k",
+"345": "original",
+"347": "up60k",
+"351": "original",
+"353": "up60k",
+"355": "down8k",
+"357": "original",
+"359": "up60k",
+"361": "down8k",
+"365": "up60k",
+"367": "down8k",
+"371": "up60k",
+"373": "down8k",
+"375": "original",
+"379": "down8k",
+"381": "original",
+"383": "up60k",
+"387": "original",
+"389": "up60k",
+"391": "down8k",
+"393": "original",
+"397": "down8k",
+"401": "up60k",
+"403": "down8k",
+"405": "original",
+"409": "down8k",
+"415": "down8k",
+"417": "original",
+"421": "down8k",
+"423": "original",
+"425": "up60k",
+"429": "original",
+"431": "up60k",
+"433": "down8k",
+"443": "up60k",
+"447": "original",
+"451": "down8k",
+"465": "original",
+"467": "up60k",
+"471": "original",
+"473": "up60k",
+"479": "up60k",
+"481": "down8k",
+"483": "original",
+"487": "down8k",
+"489": "original",
+"499": "down8k",
+"501": "original",
+"507": "original",
+"509": "up60k",
+"511": "down8k",
+"513": "original",
+"517": "down8k",
+"519": "original",
+"521": "up60k",
+"529": "down8k",
+"531": "original",
+"533": "up60k",
+"535": "down8k",
+"543": "original",
+"545": "up60k",
+"547": "down8k",
+"553": "down8k",
+"555": "original",
+"557": "up60k",
+"561": "original",
+"567": "original",
+"569": "up60k",
+"571": "down8k",
+"577": "down8k",
+"583": "down8k",
+"587": "up60k",
+"589": "down8k",
+"593": "up60k",
+"597": "original",
+"599": "up60k"
+},
+"path": {
+"1": "datasets/HIFI3D/eval_view/npz/id900001_GTready_down8k.npz",
+"5": "datasets/HIFI3D/eval_view/npz/id900001_GTready_up60k.npz",
+"7": "datasets/HIFI3D/eval_view/npz/id900004_GTready_down8k.npz",
+"11": "datasets/HIFI3D/eval_view/npz/id900004_GTready_up60k.npz",
+"13": "datasets/HIFI3D/eval_view/npz/id900018_GTready_down8k.npz",
+"15": "datasets/HIFI3D/eval_view/npz/id900018_GTready_original.npz",
+"17": "datasets/HIFI3D/eval_view/npz/id900018_GTready_up60k.npz",
+"19": "datasets/HIFI3D/eval_view/npz/id900020_GTready_down8k.npz",
+"21": "datasets/HIFI3D/eval_view/npz/id900020_GTready_original.npz",
+"23": "datasets/HIFI3D/eval_view/npz/id900020_GTready_up60k.npz",
+"27": "datasets/HIFI3D/eval_view/npz/id900026_GTready_original.npz",
+"29": "datasets/HIFI3D/eval_view/npz/id900026_GTready_up60k.npz",
+"31": "datasets/HIFI3D/eval_view/npz/id900027_GTready_down8k.npz",
+"33": "datasets/HIFI3D/eval_view/npz/id900027_GTready_original.npz",
+"35": "datasets/HIFI3D/eval_view/npz/id900027_GTready_up60k.npz",
+"39": "datasets/HIFI3D/eval_view/npz/id900041_GTready_original.npz",
+"41": "datasets/HIFI3D/eval_view/npz/id900041_GTready_up60k.npz",
+"43": "datasets/HIFI3D/eval_view/npz/id900042_GTready_down8k.npz",
+"47": "datasets/HIFI3D/eval_view/npz/id900042_GTready_up60k.npz",
+"51": "datasets/HIFI3D/eval_view/npz/id900045_GTready_original.npz",
+"53": "datasets/HIFI3D/eval_view/npz/id900045_GTready_up60k.npz",
+"57": "datasets/HIFI3D/eval_view/npz/id900048_GTready_original.npz",
+"61": "datasets/HIFI3D/eval_view/npz/id900056_GTready_down8k.npz",
+"65": "datasets/HIFI3D/eval_view/npz/id900056_GTready_up60k.npz",
+"69": "datasets/HIFI3D/eval_view/npz/id900062_GTready_original.npz",
+"71": "datasets/HIFI3D/eval_view/npz/id900062_GTready_up60k.npz",
+"77": "datasets/HIFI3D/eval_view/npz/id900069_GTready_up60k.npz",
+"79": "datasets/HIFI3D/eval_view/npz/id900071_GTready_down8k.npz",
+"83": "datasets/HIFI3D/eval_view/npz/id900071_GTready_up60k.npz",
+"87": "datasets/HIFI3D/eval_view/npz/id900072_GTready_original.npz",
+"89": "datasets/HIFI3D/eval_view/npz/id900072_GTready_up60k.npz",
+"91": "datasets/HIFI3D/eval_view/npz/id900075_GTready_down8k.npz",
+"93": "datasets/HIFI3D/eval_view/npz/id900075_GTready_original.npz",
+"95": "datasets/HIFI3D/eval_view/npz/id900075_GTready_up60k.npz",
+"97": "datasets/HIFI3D/eval_view/npz/id900080_GTready_down8k.npz",
+"99": "datasets/HIFI3D/eval_view/npz/id900080_GTready_original.npz",
+"105": "datasets/HIFI3D/eval_view/npz/id900081_GTready_original.npz",
+"107": "datasets/HIFI3D/eval_view/npz/id900081_GTready_up60k.npz",
+"109": "datasets/HIFI3D/eval_view/npz/id900086_GTready_down8k.npz",
+"113": "datasets/HIFI3D/eval_view/npz/id900086_GTready_up60k.npz",
+"115": "datasets/HIFI3D/eval_view/npz/id900088_GTready_down8k.npz",
+"119": "datasets/HIFI3D/eval_view/npz/id900088_GTready_up60k.npz",
+"121": "datasets/HIFI3D/eval_view/npz/id900097_GTready_down8k.npz",
+"123": "datasets/HIFI3D/eval_view/npz/id900097_GTready_original.npz",
+"125": "datasets/HIFI3D/eval_view/npz/id900097_GTready_up60k.npz",
+"129": "datasets/HIFI3D/eval_view/npz/id900100_GTready_original.npz",
+"131": "datasets/HIFI3D/eval_view/npz/id900100_GTready_up60k.npz",
+"133": "datasets/HIFI3D/eval_view/npz/id900106_GTready_down8k.npz",
+"137": "datasets/HIFI3D/eval_view/npz/id900106_GTready_up60k.npz",
+"143": "datasets/HIFI3D/eval_view/npz/id900107_GTready_up60k.npz",
+"145": "datasets/HIFI3D/eval_view/npz/id900110_GTready_down8k.npz",
+"147": "datasets/HIFI3D/eval_view/npz/id900110_GTready_original.npz",
+"151": "datasets/HIFI3D/eval_view/npz/id900113_GTready_down8k.npz",
+"159": "datasets/HIFI3D/eval_view/npz/id900115_GTready_original.npz",
+"161": "datasets/HIFI3D/eval_view/npz/id900115_GTready_up60k.npz",
+"163": "datasets/HIFI3D/eval_view/npz/id900130_GTready_down8k.npz",
+"165": "datasets/HIFI3D/eval_view/npz/id900130_GTready_original.npz",
+"171": "datasets/HIFI3D/eval_view/npz/id900132_GTready_original.npz",
+"173": "datasets/HIFI3D/eval_view/npz/id900132_GTready_up60k.npz",
+"175": "datasets/HIFI3D/eval_view/npz/id900136_GTready_down8k.npz",
+"179": "datasets/HIFI3D/eval_view/npz/id900136_GTready_up60k.npz",
+"181": "datasets/HIFI3D/eval_view/npz/id900153_GTready_down8k.npz",
+"193": "datasets/HIFI3D/eval_view/npz/id900169_GTready_down8k.npz",
+"197": "datasets/HIFI3D/eval_view/npz/id900169_GTready_up60k.npz",
+"203": "datasets/HIFI3D/eval_view/npz/id900182_GTready_up60k.npz",
+"209": "datasets/HIFI3D/eval_view/npz/id900183_GTready_up60k.npz",
+"211": "datasets/HIFI3D/eval_view/npz/id900186_GTready_down8k.npz",
+"213": "datasets/HIFI3D/eval_view/npz/id900186_GTready_original.npz",
+"215": "datasets/HIFI3D/eval_view/npz/id900186_GTready_up60k.npz",
+"217": "datasets/HIFI3D/eval_view/npz/id900197_GTready_down8k.npz",
+"219": "datasets/HIFI3D/eval_view/npz/id900197_GTready_original.npz",
+"221": "datasets/HIFI3D/eval_view/npz/id900197_GTready_up60k.npz",
+"225": "datasets/HIFI3D/eval_view/npz/id900199_GTready_original.npz",
+"227": "datasets/HIFI3D/eval_view/npz/id900199_GTready_up60k.npz",
+"229": "datasets/HIFI3D/eval_view/npz/id900206_GTready_down8k.npz",
+"235": "datasets/HIFI3D/eval_view/npz/id900207_GTready_down8k.npz",
+"237": "datasets/HIFI3D/eval_view/npz/id900207_GTready_original.npz",
+"239": "datasets/HIFI3D/eval_view/npz/id900207_GTready_up60k.npz",
+"245": "datasets/HIFI3D/eval_view/npz/id900208_GTready_up60k.npz",
+"247": "datasets/HIFI3D/eval_view/npz/id900212_GTready_down8k.npz",
+"249": "datasets/HIFI3D/eval_view/npz/id900212_GTready_original.npz",
+"255": "datasets/HIFI3D/eval_view/npz/id900220_GTready_original.npz",
+"257": "datasets/HIFI3D/eval_view/npz/id900220_GTready_up60k.npz",
+"259": "datasets/HIFI3D/eval_view/npz/id900222_GTready_down8k.npz",
+"265": "datasets/HIFI3D/eval_view/npz/id900224_GTready_down8k.npz",
+"273": "datasets/HIFI3D/eval_view/npz/id900233_GTready_original.npz",
+"281": "datasets/HIFI3D/eval_view/npz/id900239_GTready_up60k.npz",
+"283": "datasets/HIFI3D/eval_view/npz/id900242_GTready_down8k.npz",
+"285": "datasets/HIFI3D/eval_view/npz/id900242_GTready_original.npz",
+"289": "datasets/HIFI3D/eval_view/npz/id900246_GTready_down8k.npz",
+"291": "datasets/HIFI3D/eval_view/npz/id900246_GTready_original.npz",
+"293": "datasets/HIFI3D/eval_view/npz/id900246_GTready_up60k.npz",
+"299": "datasets/HIFI3D/eval_view/npz/id900258_GTready_up60k.npz",
+"305": "datasets/HIFI3D/eval_view/npz/id900273_GTready_up60k.npz",
+"307": "datasets/HIFI3D/eval_view/npz/id900275_GTready_down8k.npz",
+"309": "datasets/HIFI3D/eval_view/npz/id900275_GTready_original.npz",
+"315": "datasets/HIFI3D/eval_view/npz/id900285_GTready_original.npz",
+"317": "datasets/HIFI3D/eval_view/npz/id900285_GTready_up60k.npz",
+"319": "datasets/HIFI3D/eval_view/npz/id900290_GTready_down8k.npz",
+"321": "datasets/HIFI3D/eval_view/npz/id900290_GTready_original.npz",
+"323": "datasets/HIFI3D/eval_view/npz/id900290_GTready_up60k.npz",
+"325": "datasets/HIFI3D/eval_view/npz/id900296_GTready_down8k.npz",
+"327": "datasets/HIFI3D/eval_view/npz/id900296_GTready_original.npz",
+"335": "datasets/HIFI3D/eval_view/npz/id900299_GTready_up60k.npz",
+"337": "datasets/HIFI3D/eval_view/npz/id900303_GTready_down8k.npz",
+"339": "datasets/HIFI3D/eval_view/npz/id900303_GTready_original.npz",
+"341": "datasets/HIFI3D/eval_view/npz/id900303_GTready_up60k.npz",
+"343": "datasets/HIFI3D/eval_view/npz/id900319_GTready_down8k.npz",
+"345": "datasets/HIFI3D/eval_view/npz/id900319_GTready_original.npz",
+"347": "datasets/HIFI3D/eval_view/npz/id900319_GTready_up60k.npz",
+"351": "datasets/HIFI3D/eval_view/npz/id900321_GTready_original.npz",
+"353": "datasets/HIFI3D/eval_view/npz/id900321_GTready_up60k.npz",
+"355": "datasets/HIFI3D/eval_view/npz/id900326_GTready_down8k.npz",
+"357": "datasets/HIFI3D/eval_view/npz/id900326_GTready_original.npz",
+"359": "datasets/HIFI3D/eval_view/npz/id900326_GTready_up60k.npz",
+"361": "datasets/HIFI3D/eval_view/npz/id900328_GTready_down8k.npz",
+"365": "datasets/HIFI3D/eval_view/npz/id900328_GTready_up60k.npz",
+"367": "datasets/HIFI3D/eval_view/npz/id900330_GTready_down8k.npz",
+"371": "datasets/HIFI3D/eval_view/npz/id900330_GTready_up60k.npz",
+"373": "datasets/HIFI3D/eval_view/npz/id900342_GTready_down8k.npz",
+"375": "datasets/HIFI3D/eval_view/npz/id900342_GTready_original.npz",
+"379": "datasets/HIFI3D/eval_view/npz/id900346_GTready_down8k.npz",
+"381": "datasets/HIFI3D/eval_view/npz/id900346_GTready_original.npz",
+"383": "datasets/HIFI3D/eval_view/npz/id900346_GTready_up60k.npz",
+"387": "datasets/HIFI3D/eval_view/npz/id900363_GTready_original.npz",
+"389": "datasets/HIFI3D/eval_view/npz/id900363_GTready_up60k.npz",
+"391": "datasets/HIFI3D/eval_view/npz/id900367_GTready_down8k.npz",
+"393": "datasets/HIFI3D/eval_view/npz/id900367_GTready_original.npz",
+"397": "datasets/HIFI3D/eval_view/npz/id900368_GTready_down8k.npz",
+"401": "datasets/HIFI3D/eval_view/npz/id900368_GTready_up60k.npz",
+"403": "datasets/HIFI3D/eval_view/npz/id900369_GTready_down8k.npz",
+"405": "datasets/HIFI3D/eval_view/npz/id900369_GTready_original.npz",
+"409": "datasets/HIFI3D/eval_view/npz/id900372_GTready_down8k.npz",
+"415": "datasets/HIFI3D/eval_view/npz/id900373_GTready_down8k.npz",
+"417": "datasets/HIFI3D/eval_view/npz/id900373_GTready_original.npz",
+"421": "datasets/HIFI3D/eval_view/npz/id900374_GTready_down8k.npz",
+"423": "datasets/HIFI3D/eval_view/npz/id900374_GTready_original.npz",
+"425": "datasets/HIFI3D/eval_view/npz/id900374_GTready_up60k.npz",
+"429": "datasets/HIFI3D/eval_view/npz/id900378_GTready_original.npz",
+"431": "datasets/HIFI3D/eval_view/npz/id900378_GTready_up60k.npz",
+"433": "datasets/HIFI3D/eval_view/npz/id900381_GTready_down8k.npz",
+"443": "datasets/HIFI3D/eval_view/npz/id900382_GTready_up60k.npz",
+"447": "datasets/HIFI3D/eval_view/npz/id900392_GTready_original.npz",
+"451": "datasets/HIFI3D/eval_view/npz/id900396_GTready_down8k.npz",
+"465": "datasets/HIFI3D/eval_view/npz/id900399_GTready_original.npz",
+"467": "datasets/HIFI3D/eval_view/npz/id900399_GTready_up60k.npz",
+"471": "datasets/HIFI3D/eval_view/npz/id900401_GTready_original.npz",
+"473": "datasets/HIFI3D/eval_view/npz/id900401_GTready_up60k.npz",
+"479": "datasets/HIFI3D/eval_view/npz/id900402_GTready_up60k.npz",
+"481": "datasets/HIFI3D/eval_view/npz/id900404_GTready_down8k.npz",
+"483": "datasets/HIFI3D/eval_view/npz/id900404_GTready_original.npz",
+"487": "datasets/HIFI3D/eval_view/npz/id900411_GTready_down8k.npz",
+"489": "datasets/HIFI3D/eval_view/npz/id900411_GTready_original.npz",
+"499": "datasets/HIFI3D/eval_view/npz/id900418_GTready_down8k.npz",
+"501": "datasets/HIFI3D/eval_view/npz/id900418_GTready_original.npz",
+"507": "datasets/HIFI3D/eval_view/npz/id900421_GTready_original.npz",
+"509": "datasets/HIFI3D/eval_view/npz/id900421_GTready_up60k.npz",
+"511": "datasets/HIFI3D/eval_view/npz/id900422_GTready_down8k.npz",
+"513": "datasets/HIFI3D/eval_view/npz/id900422_GTready_original.npz",
+"517": "datasets/HIFI3D/eval_view/npz/id900431_GTready_down8k.npz",
+"519": "datasets/HIFI3D/eval_view/npz/id900431_GTready_original.npz",
+"521": "datasets/HIFI3D/eval_view/npz/id900431_GTready_up60k.npz",
+"529": "datasets/HIFI3D/eval_view/npz/id900441_GTready_down8k.npz",
+"531": "datasets/HIFI3D/eval_view/npz/id900441_GTready_original.npz",
+"533": "datasets/HIFI3D/eval_view/npz/id900441_GTready_up60k.npz",
+"535": "datasets/HIFI3D/eval_view/npz/id900447_GTready_down8k.npz",
+"543": "datasets/HIFI3D/eval_view/npz/id900460_GTready_original.npz",
+"545": "datasets/HIFI3D/eval_view/npz/id900460_GTready_up60k.npz",
+"547": "datasets/HIFI3D/eval_view/npz/id900462_GTready_down8k.npz",
+"553": "datasets/HIFI3D/eval_view/npz/id900465_GTready_down8k.npz",
+"555": "datasets/HIFI3D/eval_view/npz/id900465_GTready_original.npz",
+"557": "datasets/HIFI3D/eval_view/npz/id900465_GTready_up60k.npz",
+"561": "datasets/HIFI3D/eval_view/npz/id900466_GTready_original.npz",
+"567": "datasets/HIFI3D/eval_view/npz/id900468_GTready_original.npz",
+"569": "datasets/HIFI3D/eval_view/npz/id900468_GTready_up60k.npz",
+"571": "datasets/HIFI3D/eval_view/npz/id900470_GTready_down8k.npz",
+"577": "datasets/HIFI3D/eval_view/npz/id900476_GTready_down8k.npz",
+"583": "datasets/HIFI3D/eval_view/npz/id900486_GTready_down8k.npz",
+"587": "datasets/HIFI3D/eval_view/npz/id900486_GTready_up60k.npz",
+"589": "datasets/HIFI3D/eval_view/npz/id900491_GTready_down8k.npz",
+"593": "datasets/HIFI3D/eval_view/npz/id900491_GTready_up60k.npz",
+"597": "datasets/HIFI3D/eval_view/npz/id900498_GTready_original.npz",
+"599": "datasets/HIFI3D/eval_view/npz/id900498_GTready_up60k.npz"
+},
+"env": {
+"host": "a768-l40s-04.srv.aau.dk",
+"job": "1074616",
+"cpu": "AMD EPYC 9354 32-Core Processor",
+"cores_job": 16,
+"python": "3.10.12",
+"threads": {
+"OMP_NUM_THREADS": "1",
+"MKL_NUM_THREADS": "1",
+"OPENBLAS_NUM_THREADS": "1"
+},
+"date": "2026-10-13 18:24:13",
+"torch": "2.5.0a0+e000cf0ad9.nv24.10",
+"torch_threads": 1
+}
+}
