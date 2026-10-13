@@ -31,7 +31,10 @@ DOMS = [("hifi3d", "HIFI3D"), ("facescape", "FaceScape"), ("faceverse", "FaceVer
 PAIRS = [("d_icp", "rigid ICP: mm $-$ size-normalized", "#1f77b4", "o", -1),
          ("d_now", "NoW: metrical $-$ original (scaled)", "#d95f02", "s", 1)]
 # FaceVerse e la neutra hanno la stessa GT (stessa x): piccolo scarto orizzontale per leggerle
-NUDGE = {"faceverse": -0.12, "faceverse_neutral": 0.12}
+NUDGE = {"faceverse": -0.5, "faceverse_neutral": 0.5}
+# etichette (testo, scarto in punti): FaceVerse e la neutra in una sola, stessa x
+LABEL = {"hifi3d": ("HIFI3D", (4, 4)), "facescape": ("FaceScape", (4, 7)),
+         "faceverse": ("FaceVerse\n(expr. / neutral)", (-4, -16)), "famos": ("FaMoS", (4, -8))}
 
 
 def main() -> None:
@@ -39,7 +42,7 @@ def main() -> None:
     fig, ax = plt.subplots(figsize=(COL_W, 1.9))
     src = []
     for key, label, color, marker, side in PAIRS:
-        for d, name in DOMS:
+        for d, _ in DOMS:
             i, g = find(gt, dominio=d, grandezza="quota_taglia")
             j, m = find(met, dominio=d, chiave=key)
             x = 100 * float(g["punto"]) + NUDGE.get(d, 0.0) + 0.05 * side
@@ -50,12 +53,12 @@ def main() -> None:
                         color=color, mfc="white" if d == "famos" else color, capsize=0,
                         label=label if d == "hifi3d" else None)
             src.append(f"{label} | {d}: quota taglia {rel(GT)}:{i}; delta {rel(MET)}:{j} (origine {m['fonte']})")
-            if key == "d_icp":
-                ax.annotate(name, (x, y), xytext=(3, -7 if d in ("faceverse", "famos") else 3),
-                            textcoords="offset points", fontsize=5.5)
+            if key == "d_icp" and d in LABEL:
+                ax.annotate(LABEL[d][0], (x0, y), xytext=LABEL[d][1], textcoords="offset points", fontsize=5.5,
+                            va="center", linespacing=0.9)
     ax.axhline(0, color="k", lw=0.5)
     ax.set_xlabel("size term share of FR$^2$, mean$[(S_i-S_j)^2]$ / mean[FR$^2$] (%)")
-    ax.set_ylabel(r"$\Delta\rho$ with FR, keeps size $-$ removes it")
+    ax.set_ylabel("$\\Delta\\rho$ with FR\n(keeps size $-$ removes it)")
     ax.set_xlim(left=0)
     ax.legend(frameon=False, loc="upper left", fontsize=5.5, handletextpad=0.3)
     ax.text(0.99, 0.02, "open markers: FaMoS (15 subjects, descriptive)", transform=ax.transAxes, ha="right",
