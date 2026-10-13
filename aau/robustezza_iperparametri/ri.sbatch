@@ -14,6 +14,8 @@
 #   RI_STEPS="run:hifi3d@icp merge:hifi3d@icp" sbatch ri.sbatch
 #   RI_STEPS="run:famos@now merge:famos@now" sbatch ri.sbatch
 #   RI_LIMIT=64 RI_STEPS="run:hifi3d@nicp" sbatch ri.sbatch            (pilota dei tempi, <WORK>/pilot)
+#   RI_STEPS="nownode:hifi3d nownode:facescape" sbatch --exclude=<tutti tranne a256-t4-0[1-4]> -c 12 ri.sbatch
+#                                                 (NoW di default sul tipo di nodo della matrice: controllo)
 #   RI_STEPS="check:hifi3d check:facescape check:famos eval" sbatch ri.sbatch   (eval LEGGE LE GT di test)
 # ICP e NICP nel venv della matrice (run_o3d.sh, come blmm_pairs); NoW, merge, check ed eval in quello dei protocolli.
 set -euo pipefail
@@ -37,6 +39,7 @@ for tok in $RI_STEPS; do
             "${R[@]}" $D/ri.py run --view "$view" --method "$meth" --workers "$W" --limit "${RI_LIMIT:-0}" ;;
         merge)   "${UG[@]}" $D/ri.py merge --view "$view" --method "$meth" ;;
         check)   "${UG[@]}" $D/ri.py check --view "$view" ;;
+        nownode) "${UG[@]}" $D/ri.py check-now-node --view "$view" --workers "$W" ;;
         eval)    "${UG[@]}" $D/ri.py eval --workers "$W" ;;
         results) "${UG[@]}" $D/ri.py results ;;
         *) echo "passo sconosciuto: $step" >&2; exit 2 ;;

@@ -135,6 +135,19 @@ Pilota su 32 coppie / 32 mesh A di HIFI3D (job 1074555; tempi e iterazioni solta
 - Osservazione: su queste parti `cap10` coincide col default su tutte le coppie finite (il primo stadio converge in 2
   iterazioni).
 
+## 4d. Emendamento 3 (sostituisce il ricalcolo di NoW dell'emendamento 2; PRIMA di ogni valutazione, nessuna GT)
+
+I nodi a256-t4 sono in coda fino a notte (stima 02:07 per 24 core, job 1075318 e 1075337 annullati prima di partire).
+Prova su i256-a10-08 (Xeon 6517P): le 12 coppie peggiori danno gli stessi valori di a768-l40s-01, non quelli della
+matrice; solo il tipo di nodo a256-t4 riproduce il plug-in. Quindi:
+
+- la griglia di NoW sulle sintetiche resta quella calcolata per intero su a768-l40s-01 (job 1074638: tutte le 7
+  configurazioni sulla stessa piattaforma, come l'ICP), e si valuta quella;
+- il controllo di riproduzione di NoW sulle sintetiche diventa `check-now-node`: il default ricalcolato su TUTTE le
+  coppie della vista su un nodo a256-t4 deve riprodurre il plug-in entro 1e-4 mm (NaN sulle stesse coppie); i valori
+  ricalcolati non entrano nella valutazione. Si riportano anche lo scarto fra il default della griglia e il plug-in e il
+  numero di coppie sopra la tolleranza (89 e 18 nel controllo anticipato).
+
 ## 5. Fuori da questo giro
 
 Letture cs, SR, crop, NoW originale, REALY, Stirling; nessuna griglia sui semi di campionamento; nessun valore senza

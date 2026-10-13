@@ -8,6 +8,7 @@ seme del nostro (factorized s1234 / s2345, d_F non cal. e cal.). Regole in
     aau/outlineB/run_o3d.sh      aau/robustezza_iperparametri/ri.py run --view hifi3d --method nicp --workers 64
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py run --view hifi3d --method now --workers 64
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py merge --view hifi3d --method now
+    v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check-now-node --view hifi3d --workers 12  (a256-t4)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py check --view hifi3d          (nessuna GT)
     v3_work/unified_gt/run.sh    aau/robustezza_iperparametri/ri.py eval --workers 64           (LEGGE LE GT di test)
     (ri.sbatch; ``--limit N``: pilota dei tempi su N coppie / mesh A, uscite in ``<WORK>/pilot``, mai valutate)
@@ -612,8 +613,56 @@ def maxdiff(x, y) -> dict:
             "equal": int((d == 0).sum())}
 
 
+def _now_default_task(a: int) -> tuple:
+    import pr_metrics as pm
+    V = _ST["V"]
+    Va, Fa = V["mesh"][a]
+    surf = pm.Surf(Va, Fa)
+    return a, [now_cfg(surf, V["L68"][a], V["L68"][b], V["crop"][b], {})[0] for b in _ST["partners"][a]]
+
+
+def now_matrix_ref(vname: str, V: dict) -> np.ndarray:
+    """Plug-in ``now_metrical/lmk_det`` della matrice sulle coppie della vista."""
+    import bp_paired as bpp
+    import pr_eval as pe
+    idx = bpp.be.zes.Index(blmm.subjects(vname))
+    pi = np.asarray([idx.pos[(s, t)] for s, t, _ in V["items"]])
+    return pe.plugin_matrix("now_metrical/lmk_det", vname, list(idx.keys))[pi[V["i"]], pi[V["j"]]]
+
+
+def check_now_node(vname: str, workers: int) -> None:
+    """NoW metrical di default ricalcolato su QUESTO nodo per tutte le coppie della vista (media dei due versi) contro il
+    plug-in della matrice: il controllo del codice sul tipo di nodo della matrice (a256-t4; REGOLE.md, emendamento 3).
+    I valori non entrano nella valutazione. Nessuna GT."""
+    import pr_metrics as pm
+    import pr_run as prr
+    t0 = time.time()
+    V = view_data(vname)
+    _ST["dogleg_orig"] = pm.dogleg
+    pm.dogleg = _dogleg
+    V["mesh"] = [pc.mm_mesh(V["pview"], p)[:2] for _, _, p in V["items"]]
+    V["crop"] = [pm.crop(Vm, V["L68"][k][LMK7], prr.NOW_R) for k, (Vm, _) in enumerate(V["mesh"])]
+    P = partners_of(V["i"], V["j"], len(V["items"]))
+    _ST.update(V=V, partners=P)
+    E = {}
+    with mp.get_context("fork").Pool(workers) as pool:
+        for a, vals in pool.imap_unordered(_now_default_task, [a for a in range(len(P)) if len(P[a])]):
+            E.update({(a, int(b)): x for b, x in zip(P[a], vals)})
+    here = np.asarray([(E[(a, b)] + E[(b, a)]) / 2 for a, b in zip(V["i"], V["j"])])
+    ref = now_matrix_ref(vname, V)
+    grid = load_dist(vname, "now", V)["default"]
+    out = {"view": vname, "here_vs_matrix": maxdiff(here, ref), "grid_vs_matrix": maxdiff(grid, ref),
+           "grid_vs_matrix_over_tol": int((np.abs(grid - ref) > TOL["now_mm"]).sum()), "tol": TOL["now_mm"],
+           "grid_host": json.loads((EVID / "controls" / f"run_{vname}_now.json").read_text())["host"],
+           "seconds": time.time() - t0, **pc.stamp()}
+    out["ok"] = bool(out["here_vs_matrix"]["max_abs"] <= TOL["now_mm"] and out["here_vs_matrix"]["nan_same_pairs"])
+    pc.atomic_json(EVID / "controls" / f"check_now_node_{vname}.json", out)
+    print(f"[ri] check-now-node {vname}: {json.dumps(out)}", flush=True)
+
+
 def check(vname: str) -> None:
-    """Default contro la matrice (sintetiche) o contro esterna_famos_id (FaMoS). Nessuna GT."""
+    """Default contro la matrice (sintetiche) o contro esterna_famos_id (FaMoS). Nessuna GT. NoW sulle sintetiche: il
+    controllo e' ``check_now_node`` sul tipo di nodo della matrice (il default della griglia si riporta)."""
     V = view_data(vname)
     i, j = V["i"], V["j"]
     out = {"view": vname, "pairs": int(len(i)), "checks": {}}
@@ -629,19 +678,21 @@ def check(vname: str) -> None:
         out["checks"]["nicp"] = {"ref": "nessuno (il NICP per coppia non e' fra i metodi di esterna_famos_id)"}
     else:
         import bp_paired as bpp
-        import pr_eval as pe
         idx = bpp.be.zes.Index(blmm.subjects(vname))
-        keys = list(idx.keys)
         pi = np.asarray([idx.pos[(s, t)] for s, t, _ in V["items"]])
         root = blmm.view_root(vname) / "mm"
         refs = {"icp": (bpp.be.zes.facebench_distances(root, "rigid_icp_chamfer", idx), "icp_mm", "mm_rigid_icp_chamfer"),
-                "nicp": (bpp.be.zes.facebench_distances(root, "nicp_p2tri", idx), "nicp_mm", "mm_nicp_p2tri"),
-                "now": (pe.plugin_matrix("now_metrical/lmk_det", vname, keys), "now_mm", "plugin now_metrical/lmk_det")}
+                "nicp": (bpp.be.zes.facebench_distances(root, "nicp_p2tri", idx), "nicp_mm", "mm_nicp_p2tri")}
         for m, (M, tol, name) in refs.items():
             out["checks"][m] = {**maxdiff(load_dist(vname, m, V)["default"], M[pi[i], pi[j]]), "ref": name,
                                 "tol": TOL[tol]}
+        p = EVID / "controls" / f"check_now_node_{vname}.json"
+        node = json.loads(p.read_text()) if p.exists() else {"ok": False, "here_vs_matrix": None}
+        out["checks"]["now"] = {"ref": "plugin now_metrical/lmk_det", "tol": TOL["now_mm"], "ok": bool(node["ok"]),
+                                "default_on_matrix_node": node["here_vs_matrix"], "node": node.get("host"),
+                                "grid_vs_matrix": maxdiff(load_dist(vname, "now", V)["default"], now_matrix_ref(vname, V))}
     for c in out["checks"].values():
-        if "tol" in c:
+        if "tol" in c and "ok" not in c:
             c["ok"] = bool(c["max_abs"] is not None and c["max_abs"] <= c["tol"] and c["nan_same_pairs"])
     out["ok"] = all(c.get("ok", True) for c in out["checks"].values())
     out.update(pc.stamp())
@@ -943,7 +994,7 @@ def results() -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("step", choices=("run", "merge", "check", "eval", "results"))
+    p.add_argument("step", choices=("run", "merge", "check", "check-now-node", "eval", "results"))
     p.add_argument("--view", default="", choices=("",) + VIEWS)
     p.add_argument("--method", default="", choices=("",) + METHODS)
     p.add_argument("--workers", type=int, default=8)
@@ -955,6 +1006,8 @@ def main() -> None:
         merge(a.view, a.method)
     elif a.step == "check":
         check(a.view)
+    elif a.step == "check-now-node":
+        check_now_node(a.view, a.workers)
     elif a.step == "eval":
         evaluate(a.workers)
     else:
