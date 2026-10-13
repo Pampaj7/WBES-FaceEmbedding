@@ -1,8 +1,20 @@
-# Ava-256: protocollo della prova confermativa (CANDIDATO v7, 13 ottobre 2026; NON congelato)
+# Ava-256: protocollo della prova confermativa (CANDIDATO v8, 13 ottobre 2026; NON congelato)
 
-> **CANDIDATO v7, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
+> **CANDIDATO v8, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
 > commit `53b03ac`) completata con le decisioni del PI del 12 ottobre (sez. 5-9, 11-13), piu' l'emendamento sull'uso
 > dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza, salvo le note della v2 nella sez. 2.
+>
+> **Modifiche della v8 rispetto al candidato v7** (sha256 `8156154b5bc2d1b9847cbb5b2502ee305ac727ccd44e41d925d7196d0a2f8048`,
+> commit `a4fa951`): RISERVE del critic mirato sulla v7.
+> 1. **Clone diffusion-net** (sez. 11.10, 11.1): `conf_common.verify` controlla commit (`b1019b0`) e albero pulito del
+>    clone, come per ULRSSM; `loaded_modules` registra i file importati del clone (`diffusion-net/<percorso>`, sha256
+>    nella sez. 11.1) e da' ERRORE per ogni modulo sotto il repo o il worktree che risolve fuori, salvo i cloni elencati
+>    (`conf_common.EXTERNAL_CLONES`) e le librerie installate dei venv (`site-packages`).
+> 2. **Nodo del fit B nelle uscite**: `bp_fit.py`, `bp_fit_e1.py` e `bp_e2.py crop` scrivono `host`; il lettore del fit
+>    B (`conf_desc.py`, `fit_hosts`; `conf_eval.py` non legge il fit B) lo confronta con `nodes.bp`, come per R6.
+> 3. **Ripresa di `conf_head`** dopo un'interruzione fra i bracci (sez. 12): braccio con npz intero e sha256 registrato
+>    -> si salta; altrimenti fermo.
+> Collaudo (`guard` con i casi nuovi, tracciamento rifatto, collaudi numerici rifatti dal worktree): sez. 11.2.
 >
 > **Modifiche della v7 rispetto al candidato v6** (sha256 `8c8e88092e32d7ddbcdb5694696fe301ee8bcc3885d418e92e88a218a032e1c0`,
 > commit `cc839e6`): terzo giro autorizzato dall'utente dopo il BLOCCANTE del critic finale sulla v6; corretti SOLO i
@@ -808,7 +820,12 @@ valutazione. Codice: `aau/ava256/ava_freeze.py`, `aau/ava256/ava_calib.py` (comm
    `<evidenza>/modules/*.json`, `conf/controls.json` e `conf/modules.json` (accanto a `rules.csv`), `desc/controls.json`,
    `embed/*/*.json`, `head/*.json`.
 
-Le verifiche 1-9 sono `conf_common.verify` (con `freeze` nello spec), primo passo di ogni job di `conf.sbatch` e prima
+10. **Cloni esterni (v8)**: `diffusion-net` (link nel worktree, importato da `PYTHONPATH`, `aau/env.sh:25`) al commit
+    `b1019b049597711d10259ce28250f7dfc4335a2b` con albero pulito (`conf_common.external_clones`, in ogni `verify`);
+    ULRSSM (`~/ext/ulrssm`, `0625cbcb`) e' controllato da `conf_desc.py` prima del calcolo (sez. 9). Ogni modulo che
+    sta sotto il repo o il worktree ma risolve fuori e non e' in un clone elencato ferma il passo (`conf_run.py`).
+
+Le verifiche 1-10 sono `conf_common.verify` (con `freeze` nello spec), primo passo di ogni job di `conf.sbatch` e prima
 riga di `conf_eval.py` e `conf_head.py`; le versioni del punto 6 sono `conf_common.versions` (venv di MICA).
 
 ### 11.1 Codice della catena (v3)
@@ -816,7 +833,20 @@ riga di `conf_eval.py` e `conf_head.py`; le versioni del punto 6 sono `conf_comm
 Commit del codice e degli esiti del collaudo (sez. 11.2): **`adaac1f`** (v3), **`fe32e8f`** (v4: embedding e
 descrittivi), **`9675df8`** (v5: embedding su A100 con le tolleranze v5; R4 fuori dalla famiglia in `conf_eval.py`) e
 **`2619dff`** (v6: ULRSSM; collaudi rifatti con `fm_eval.py` della matrice rigenerata, `46fe7a4`) e **`2cea824`** (v7:
-codice congelato a runtime, nodi, ULRSSM; collaudi della sez. 11.2 rifatti da un worktree a quel commit).
+codice congelato a runtime, nodi, ULRSSM; collaudi della sez. 11.2 rifatti da un worktree a quel commit) e
+**`8a6e184`** (v8: clone diffusion-net, nodo del fit B nelle uscite, ripresa della testa; tracciamento e collaudi rifatti
+da un worktree a quel commit).
+
+**v8.** Il tracciamento rifatto al commit `8a6e184` (job 1074574, 1074990, 1074991, 1074992) registra 131 moduli: i
+127 della v7 piu' 4 file del clone diffusion-net (`diffusion-net/src/diffusion_net/{__init__,geometry,layers,utils}.py`,
+commit `b1019b0`), tutti uguali al commit o al clone, nessuno scarto. **Due file cambiati dopo il tracciamento** da un
+altro lavoro (`771fee8`, modello da rilasciare): `v3_work/mm/model.py` (solo la costante `PURPOSES`, con `release`) e
+`v3_work/stream/sources.py` (`MMSource` con un parametro `purpose`, default `train`; `build_sources`, `FamosSource`,
+costanti). Sui percorsi della catena (fit B: `load_model` del modello; ULRSSM: `MMSource("gnm")` senza espressione,
+`purpose` di default) il codice eseguito e' lo stesso; in tabella c'e' lo sha attuale. **Condizione per il
+congelamento**: `git diff 8a6e184 <commit da congelare> -- <file della tabella>` deve toccare solo questi due file;
+altrimenti si rifanno il tracciamento e i collaudi dal worktree del commit da congelare. Su Ava-256 `conf_run.py`
+confronta comunque ogni modulo importato col commit congelato.
 
 **v7: elenco ricavato dalle importazioni effettive.** I moduli sono quelli registrati da `conf_run.py` in un collaudo
 completo della catena (spec `aau/ava256/spec/hifi3d_trace.json`: tutti i passi di Ava-256 dallo stesso codice su 3
@@ -842,30 +872,30 @@ versione (sez. 11.2):
 
 | File | sha256 | Origine; stato |
 |---|---|---|
-| `aau/ava256/conf_common.py` | `6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a` | importato (tracciamento); modificato (v7) |
-| `aau/ava256/conf_desc.py` | `db67652481f34d75b586d3b7fab894e6ea6af3fe9732491f4c10fba2031560ab` | importato (tracciamento); modificato (v7) |
-| `aau/ava256/conf_embed.py` | `3173402793193dd244ddca0771b5baeae8788e64a15ab1095d50807898f922e2` | importato (tracciamento); modificato (v7) |
-| `aau/ava256/conf_eval.py` | `fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1` | importato (tracciamento); modificato (v7) |
-| `aau/ava256/conf_head.py` | `0b46f151bbb36f0db02b18e0633517c447fe1548af06a707b6ea62c16a5d3cd3` | importato (tracciamento); modificato (v7) |
+| `aau/ava256/conf_common.py` | `c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d` | importato (tracciamento); modificato (v8) |
+| `aau/ava256/conf_desc.py` | `5e310928d277cdeff484a7f7a8b704b538adb660711c89295b2bf05efc2a51ef` | importato (tracciamento); modificato (v8) |
+| `aau/ava256/conf_embed.py` | `3173402793193dd244ddca0771b5baeae8788e64a15ab1095d50807898f922e2` | importato (tracciamento); invariato |
+| `aau/ava256/conf_eval.py` | `fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1` | importato (tracciamento); invariato |
+| `aau/ava256/conf_head.py` | `4937a7e3ae44d5eabf7e438d7558c22d3218f05467a0e11a4277509e667facfb` | importato (tracciamento); modificato (v8) |
 | `aau/ava256/conf_protocols.py` | `7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79` | importato (tracciamento); invariato |
-| `aau/ava256/conf_run.py` | `a16baf761e2b04ef45bfbc8fbe34e078b42087b57b75eef11b273cac2d0eb478` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/baselines/arcface_fixed.py` | `834e8e21ac8e213eff70695875e7f7e12bfdb08d013a3b592a935670f23d21a3` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/baselines/common.py` | `725ebe31c86746ade6921547cd4536f823c3f9ecea54828f9cba94c9d4dc8c78` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/baselines/geometric_kernel.py` | `8b1c81fe831d1a9fca8af5f96adf5f0f2ebebca629e7c3bedc511a95104550bd` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/baselines/geometric_matrix.py` | `6fffb91758430e518246562ff7016746eb5a09168e43749d1047d704e1ea4955` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/baselines_mm/blmm.py` | `9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446` | importato (tracciamento); modificato (v7) |
+| `aau/ava256/conf_run.py` | `53d416b7c9a328a71a6efa25748f233f6a46fbbc8a1db4181f8176f7d707184c` | importato (tracciamento); modificato (v8) |
+| `aau/baselines/arcface_fixed.py` | `834e8e21ac8e213eff70695875e7f7e12bfdb08d013a3b592a935670f23d21a3` | importato (tracciamento); invariato |
+| `aau/baselines/common.py` | `725ebe31c86746ade6921547cd4536f823c3f9ecea54828f9cba94c9d4dc8c78` | importato (tracciamento); invariato |
+| `aau/baselines/geometric_kernel.py` | `8b1c81fe831d1a9fca8af5f96adf5f0f2ebebca629e7c3bedc511a95104550bd` | importato (tracciamento); invariato |
+| `aau/baselines/geometric_matrix.py` | `6fffb91758430e518246562ff7016746eb5a09168e43749d1047d704e1ea4955` | importato (tracciamento); invariato |
+| `aau/baselines_mm/blmm.py` | `9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446` | importato (tracciamento); invariato |
 | `aau/baselines_mm/blmm_eval.py` | `7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8` | importato (tracciamento); invariato |
 | `aau/baselines_mm/blmm_pairs.py` | `34bde06d2b454090891700591d0b78a0ea1960bdff67a14c423d06db90c26788` | importato (tracciamento); invariato |
 | `aau/baselines_mm/blmm_scalars.py` | `b34b8cfbf3bdf562bf698f274d5a8ebd2ffcb786d7bc7e088fb59536f41ae37d` | importato (tracciamento); invariato |
 | `aau/baselines_mm/blmm_template.py` | `870a422674597ddb2a9adebceed13dd0fb791728ef94a806ba3a385aaed19496` | importato (tracciamento); invariato |
-| `aau/baselines_param/bp.py` | `1b678c51f0169c69ded1523323484058fadf0f2d2ba4ce8cc369863cc4138389` | importato (tracciamento); invariato |
-| `aau/baselines_param/bp_e2.py` | `0e43db2cc3e1d50ef199b2b4d9b7ea3ae5d60f47c6dc2237f65543a116bdca98` | importato (tracciamento); invariato |
-| `aau/baselines_param/bp_fit.py` | `c9ecf86135d5a3eaf6ada8222f2e561582bc06d3acbe47ab901ad2d2a1e25a39` | importato (tracciamento); invariato |
-| `aau/baselines_param/bp_fit_e1.py` | `a97d98a86d507f506999ba60aab844c03dc98c84bde8184e7afa68a04dde4fdf` | importato (tracciamento); invariato |
+| `aau/baselines_param/bp.py` | `0f8dd0571593c512a002463736a1e6cca244395cc78d7f6694793f13d572177c` | importato (tracciamento); modificato (v8) |
+| `aau/baselines_param/bp_e2.py` | `3d4ce9d209e95637e9d4c8368bc76da551fb64f81fc1a7715a7070c80a2c67e8` | importato (tracciamento); modificato (v8) |
+| `aau/baselines_param/bp_fit.py` | `33f99c2582f88f8215ca9ee654109410a3cc2f91c245f72e0f5c9fb17af95588` | importato (tracciamento); modificato (v8) |
+| `aau/baselines_param/bp_fit_e1.py` | `d0cf991687cafeb65e6e8fc629120608bdb97b6cd0de93529007345945db7755` | importato (tracciamento); modificato (v8) |
 | `aau/baselines_param/bp_paired.py` | `a0bffb67b4de77a7e17933c9ab7a1dd6ec79c3943944998a0f31b4c0fbcb4432` | importato (tracciamento); invariato |
 | `aau/baselines_param/bp_paired_e2.py` | `be9c190fa0c22ff7aa09fab8fb5c1c1be9ba4dda17f9cc370e59742579d2b8b4` | importato (tracciamento); invariato |
 | `aau/competitors/comp_spectral.py` | `a485eebe9081c295ce4d91cf5e2300a287c0aa99741170188d8d6aaba81a68b1` | importato (tracciamento); invariato |
-| `aau/competitors/comp_summarize.py` | `3296bfe723d697e0aa996e9e99187e461eceb741ff866aec27717f22ee5d3e4a` | importato (tracciamento); nuovo nella tabella (v7) |
+| `aau/competitors/comp_summarize.py` | `3296bfe723d697e0aa996e9e99187e461eceb741ff866aec27717f22ee5d3e4a` | importato (tracciamento); invariato |
 | `aau/competitors/gw_percettivi/gp_common.py` | `3f58957396ec135dce1c85aca0d5954edf8814d4e3ad5a9c2d6f5a83630f018a` | importato (tracciamento); invariato |
 | `aau/competitors/gw_percettivi/gp_gw.py` | `d64f04401d25f176dc927894f960e81e936b523c0da581813e0fd90dce2895c4` | importato (tracciamento); invariato |
 | `aau/competitors/gw_percettivi/gp_percettivi.py` | `dad7542ae75a3babffc6f8166ae59dd4834394123ba90f8abb90d0b3a4933b24` | importato (tracciamento); invariato |
@@ -879,105 +909,109 @@ versione (sez. 11.2):
 | `aau/competitors/ulrssm/ulr_eval.py` | `7544cca6ab53b8d1b967b03a110bb2813fa6352e58b6d8da470750e48b18e499` | importato (tracciamento); invariato |
 | `aau/diagnostics/d3_e2.py` | `42b962a432fa9f219cbe754f44c41da11a3b2a3143cb4a5262ff68a4d9c23542` | importato (tracciamento); invariato |
 | `aau/diagnostics/d3_head.py` | `a3161d56513fc5dba6b4cd10e8884ac1f5788f6eb6884bf020b0d7707410754d` | importato (tracciamento); invariato |
-| `aau/diagnostics/d3_pools.py` | `9dc12cb1297e0bc2dabd5cf82fe1f9725853f41e33a8f10acbd595f55337303b` | importato (tracciamento); nuovo nella tabella (v7) |
+| `aau/diagnostics/d3_pools.py` | `9dc12cb1297e0bc2dabd5cf82fe1f9725853f41e33a8f10acbd595f55337303b` | importato (tracciamento); invariato |
 | `aau/diagnostics/d3_stats.py` | `573aef82d60feb7722dafa031c2ea268bf64f35dd20efe5b2124d8e322a6fcc9` | importato (tracciamento); invariato |
 | `aau/diagnostics/diag.py` | `399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d` | importato (tracciamento); invariato |
 | `aau/diagnostics/g0_teacher.py` | `d50e76ca6452cd38b92d9a0f547da2e7edcb9a678900d02bfb42b5b029144832` | importato (tracciamento); invariato |
-| `aau/distill/teacher_labels.py` | `6b338d5de7d50987ddd08ab5ad3c8a91df0ba6957be64d4c3506f11a8499844d` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/evidence/e1_factorial/e1_calib_ugt.py` | `cc53db872a1ecc47f751e58677fd489d5684525bbe9598dbf6c19e11cd17aa72` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/famos/famos_common.py` | `6c7b95c2ed19e4f9259f828b120a7fadfa8017727b66d4525505531ca3c88430` | importato (tracciamento); nuovo nella tabella (v7) |
+| `aau/distill/teacher_labels.py` | `6b338d5de7d50987ddd08ab5ad3c8a91df0ba6957be64d4c3506f11a8499844d` | importato (tracciamento); invariato |
+| `aau/evidence/e1_factorial/e1_calib_ugt.py` | `cc53db872a1ecc47f751e58677fd489d5684525bbe9598dbf6c19e11cd17aa72` | importato (tracciamento); invariato |
+| `aau/famos/famos_common.py` | `6c7b95c2ed19e4f9259f828b120a7fadfa8017727b66d4525505531ca3c88430` | importato (tracciamento); invariato |
 | `aau/full_matrix/fm_compute.py` | `b0dad61c47ceb9328df018a77893410b9dbc0e5f4e24e87fb167f959f441c0af` | importato (tracciamento); invariato |
-| `aau/full_matrix/fm_eval.py` | `9101b3f9585dc337fd3d67cc5a8bb08146b4d32bd0409c50f52f2ccd21981770` | importato (tracciamento); modificato (v7) |
-| `aau/ict/ict_summarize.py` | `9d1d7cf783361e9568ddc621a698b239f3ecffc093ccc52d2b9a848d50ba7776` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/indomain/ir_simicp.py` | `c853ffbdec5469cff5a677facce6c1a443cda00e1906bb82c556932a85197ffa` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/indomain/ir_template.py` | `4f9060820f9f4da48ac1bbbeacb5d3d64bd8e6ee06201fca6de561a76f110416` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/multiface/ws3a_common.py` | `f85f284010088abf803cf408eaee611a9a5ba3d5e1c8fb3b8958b22b4c733568` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/multiface/ws3a_perceptual.py` | `99632c31a6b80f654a93c5ce329da069cde6ce36c42e3eabf5904e054e53767f` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/multiface/ws3a_render.py` | `ea499a94184913b8d7d76648b6f9d4b0e870e56e1eff8907e520834a96b338b6` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/dev_fs_summarize.py` | `3fbd8e9f419180ced32fcf1762a88e4d5c7829e4e71fff7910c4220bbb25fef1` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/gnm_model.py` | `3e678f7a4c1cb80f85c76bb8d6444b4e5da10b541deeafa11f32cd7e685b187b` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/hifi_model.py` | `a6e71c53d65eee56d5941c75b7f62a71b287fe04ac28229f9629fa38fe5a5802` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_arcface_render.py` | `9c59232044085fd4f8e2fae3ee71cdee2ab6f0b335781bd81409348bf90b9857` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_arcface_summarize.py` | `6d1b90749696c660a94306e10d31b8c4159cfd2edf1668a31e30041c5e60a191` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_arcface_vs_scale.py` | `0a9a680b6d348ef89b5cd57b64668e5316035123ced6662ec7350fa364b8bf78` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_expr_summarize.py` | `b543d01b4c8c4c720459cf94b45c65ef13f929884e167cb5974ada4a445325ac` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_stage.py` | `6cac25ee537ee9169e5b64fc03c1ee8795d616604d6226b56c8d53524ecfc21c` | importato (tracciamento); nuovo nella tabella (v7) |
-| `aau/zs3dmm/zs_summarize.py` | `f19456ad9abea0ba2095cd43a14c341bb9db67e5fd33931ddf060bff344517cd` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/__init__.py` | `cde107bb77aebf02d40f890d76d6b096e0b33392c89e8bd8ac1ff639595669e8` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/config.py` | `520fd812731a9ba49379ba5d4d67b4e369e506f35811cfb939fa6fdd1ec0f592` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/corrector/topology_consistency.py` | `d84476f2764659b5827568cc6f4e746c02b946fc8006c04799027ffeea27c976` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/corrector/topology_utils.py` | `5217023cd53f7d2b04422a5c490d2f16661ebf69b3302f755ee89c3612bf2fd7` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/correspondences/chamfer.py` | `2cbe0ab0a70e8f497941e1fd52af8ce254a655c025f37aed1f27bdc860abbea1` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/correspondences/identity.py` | `67187265334856b131a31b1555836880fef4cf56cb3dcfc0bf0970901433591c` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/distances/landmarks.py` | `d3333cb9002940d7e6377302746a71554539371fb9713b3803031c9c897e344a` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/distances/p2p.py` | `d8717476b9658d39ffd87a7b905701b754196c490a2b2de8696927517d7753da` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/distances/p2tri.py` | `9ee6da144e1b9914c6aae39410720c87c3dce2d5a448ebc62d998fec57ccb9b2` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/mesh_croppers/point_based_cropper.py` | `c0d2cfeb768e5116c7d8ac1a85adc5a2eaeb47788d5844d3de3d725305e584d0` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/nonrigid_aligners/landmark_elastic.py` | `e38207afbbba21ae9676381eccf58eaa7d3cfc46f2cd93a258ce716340a704bc` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/nonrigid_aligners/nonrigid_icp.py` | `1ee2d391a9da17970dde2d48373ebdd2d63c61454db2379ff6e33ea463351682` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/rigid_aligners/icp.py` | `1b0a429633d496a11d444a45bb243ac9e6c077d37f35694c19d37ad9bc242454` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/rigid_aligners/landmark_based.py` | `fd2a9141415489cfcd58e7cbd7dc5a7cfc129e8905324a3e482914574f81ae25` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/utils/pipeline.py` | `985212baaed7763c51fcf261b16e95d565a26e9b2eeea8e802c024e1287b4bfb` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/utils/utils.py` | `a981a9e871cd671a530abfda330888c9567535b1d3cd5f8b3c09d919b7b4c373` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/utils/warnings.py` | `6deeb01f2c9d6de66fdfc5e84e6c73a78105bba0d2bf1a22fc3911279237edd5` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/visualization/correlation.py` | `e8c24f75ef28418e6a1183f51962eda4f964b8b4632f8c5202c6610de04f4544` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/visualization/heatmap_plain.py` | `9101f316176f9a42125162a5c988941f2cc9558e902f9f9695ae2e8829a39acc` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/visualization/results_table.py` | `79a253b07e7688356c947c670dce8e21aa94074fc30ec8dc9ac1c2809fb59a0e` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/facebench/visualization/space_heatmap.py` | `f1c10d95d3d3cb33aad8ebb5d96e8f751d27c2295e9b7729645436ad3b5cc398` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/latentVSpipeline/mesh_npz_utils.py` | `abaf9cba9a129d4d4526e98c5a4b7b67dfe4479a73dd079bf07826e9cd4063d8` | importato (tracciamento); nuovo nella tabella (v7) |
-| `faceBench/latentVSpipeline/run_facebench_remesh.py` | `c9bca1ae48703b12892064167e0103817b98edf4752bb934b46175626848eaca` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/autoencoder/dataset_gtready.py` | `fd271dcf8a649f5a2c99c88bf9da50ebab443b8028d4ebb6c7ac258622480638` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py` | `7dfb5dce2b75634b2b0a8c7eacfd2069b24de1d079757145f3d12269bb938ad4` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/autoencoder/latent_loss.py` | `78568fd16956449fb0839b564b2d55ab82b934de24b8689f5d336fbeed67dc71` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/autoencoder/path_setup.py` | `7c67b6b36edc3e5e3ee8d8e102a59b580e2b38d9f704aa5f397e783117677811` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/intrinsic_utils.py` | `c1b9254dbd84cc40dac6f141fceb62a7a56644b85bb79d0da7c34a014c630c34` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_rankings.py` | `51a87d6e78c3ea63eb69d35b3e547558b17d1bf87c3ec377df6bffc045a9fcc3` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_topology_breakdown.py` | `71047c56f613bd1257b60758f0f81f32ac40b4fabd297adc97394f3a8c8fab75` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/__init__.py` | `9c7ced11ac713b9a9642ae563e3ad74d4e697c82f241b7881e0fd055b393cad5` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/data_utils.py` | `02fb657182568536d834ee7fef2cea862aca38582debc00d5200a14063d56b61` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/eval_utils.py` | `a26133f7160934be1e8e2a65dfd9b255912632b2f9a107dd9983298e2eaeb4db` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/model_helpers.py` | `497e9c6796e27259c1921ab6ed018a2dba09a4f29bddfe9ed31100db31943c53` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/noise.py` | `7a788155cfd6de5855a7c65d8becec3d61b5eddc19d9872162e25e5d0b70e646` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/paths.py` | `a84e2757c2e91a60cea795e70fbebe445e78accc1c13c809067bf17b0d78da7a` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/posthoc_runner.py` | `31bb97966774610d79e5b829681bcc1f87aa098ae1f33a35d408a05c07a96c31` | importato (tracciamento); nuovo nella tabella (v7) |
-| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py` | `7623c0b35a65279e99cfcad04a2e6ffd5969a789afaeb0bd4e00364e644de6a8` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v2_work/genflame/flame_model.py` | `226e5d98a00884aa4f47ed930a76f6524d32c2b13dcaef96a1afdfe22de35486` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v2_work/genict/mesh_ops.py` | `c5efce43e2c6c2993d946ad18606ee4ecdb590697f4315bbbb91e6881d02c572` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v2_work/phase0/measure_distances.py` | `8f448fa335a15e32cd157034bb14232985d966053d8caced6c967167ee5c994f` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v2_work/phase0/perceptual_embed.py` | `d91b048631b4c77a919e1471842b0d6dc5db77471e4b74f5f5211e592b36dd4e` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v2_work/phase0/render_mesh.py` | `be1c643a67be190193d3453a610bba4375097aa86f7c68ebbc50202d34272fce` | importato (tracciamento); nuovo nella tabella (v7) |
+| `aau/full_matrix/fm_eval.py` | `9101b3f9585dc337fd3d67cc5a8bb08146b4d32bd0409c50f52f2ccd21981770` | importato (tracciamento); invariato |
+| `aau/ict/ict_summarize.py` | `9d1d7cf783361e9568ddc621a698b239f3ecffc093ccc52d2b9a848d50ba7776` | importato (tracciamento); invariato |
+| `aau/indomain/ir_simicp.py` | `c853ffbdec5469cff5a677facce6c1a443cda00e1906bb82c556932a85197ffa` | importato (tracciamento); invariato |
+| `aau/indomain/ir_template.py` | `4f9060820f9f4da48ac1bbbeacb5d3d64bd8e6ee06201fca6de561a76f110416` | importato (tracciamento); invariato |
+| `aau/multiface/ws3a_common.py` | `f85f284010088abf803cf408eaee611a9a5ba3d5e1c8fb3b8958b22b4c733568` | importato (tracciamento); invariato |
+| `aau/multiface/ws3a_perceptual.py` | `99632c31a6b80f654a93c5ce329da069cde6ce36c42e3eabf5904e054e53767f` | importato (tracciamento); invariato |
+| `aau/multiface/ws3a_render.py` | `ea499a94184913b8d7d76648b6f9d4b0e870e56e1eff8907e520834a96b338b6` | importato (tracciamento); invariato |
+| `aau/zs3dmm/dev_fs_summarize.py` | `3fbd8e9f419180ced32fcf1762a88e4d5c7829e4e71fff7910c4220bbb25fef1` | importato (tracciamento); invariato |
+| `aau/zs3dmm/gnm_model.py` | `3e678f7a4c1cb80f85c76bb8d6444b4e5da10b541deeafa11f32cd7e685b187b` | importato (tracciamento); invariato |
+| `aau/zs3dmm/hifi_model.py` | `a6e71c53d65eee56d5941c75b7f62a71b287fe04ac28229f9629fa38fe5a5802` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_arcface_render.py` | `9c59232044085fd4f8e2fae3ee71cdee2ab6f0b335781bd81409348bf90b9857` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_arcface_summarize.py` | `6d1b90749696c660a94306e10d31b8c4159cfd2edf1668a31e30041c5e60a191` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_arcface_vs_scale.py` | `0a9a680b6d348ef89b5cd57b64668e5316035123ced6662ec7350fa364b8bf78` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_expr_summarize.py` | `b543d01b4c8c4c720459cf94b45c65ef13f929884e167cb5974ada4a445325ac` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_stage.py` | `6cac25ee537ee9169e5b64fc03c1ee8795d616604d6226b56c8d53524ecfc21c` | importato (tracciamento); invariato |
+| `aau/zs3dmm/zs_summarize.py` | `f19456ad9abea0ba2095cd43a14c341bb9db67e5fd33931ddf060bff344517cd` | importato (tracciamento); invariato |
+| `diffusion-net/src/diffusion_net/__init__.py` | `5849f836a4a95db7a36d432fbea8c35203521249d77af134f8792ff674ac2be4` | clone diffusion-net al commit b1019b0 (tracciamento); nuovo nella tabella |
+| `diffusion-net/src/diffusion_net/geometry.py` | `2663a9665e6d57f49fd56b6ae8075e43b7c5aa74c3b825ac7f28f114c71cf090` | clone diffusion-net al commit b1019b0 (tracciamento); nuovo nella tabella |
+| `diffusion-net/src/diffusion_net/layers.py` | `e593676dc7732ec9aca5adb5a1f1fed5301a901c3ef0e498e74333118ba79f17` | clone diffusion-net al commit b1019b0 (tracciamento); nuovo nella tabella |
+| `diffusion-net/src/diffusion_net/utils.py` | `4d22ce294f67f6dac71aaaa3c3a8da0093728903f71ee0bc416dfa47e43d1099` | clone diffusion-net al commit b1019b0 (tracciamento); nuovo nella tabella |
+| `faceBench/facebench/__init__.py` | `cde107bb77aebf02d40f890d76d6b096e0b33392c89e8bd8ac1ff639595669e8` | importato (tracciamento); invariato |
+| `faceBench/facebench/config.py` | `520fd812731a9ba49379ba5d4d67b4e369e506f35811cfb939fa6fdd1ec0f592` | importato (tracciamento); invariato |
+| `faceBench/facebench/corrector/topology_consistency.py` | `d84476f2764659b5827568cc6f4e746c02b946fc8006c04799027ffeea27c976` | importato (tracciamento); invariato |
+| `faceBench/facebench/corrector/topology_utils.py` | `5217023cd53f7d2b04422a5c490d2f16661ebf69b3302f755ee89c3612bf2fd7` | importato (tracciamento); invariato |
+| `faceBench/facebench/correspondences/chamfer.py` | `2cbe0ab0a70e8f497941e1fd52af8ce254a655c025f37aed1f27bdc860abbea1` | importato (tracciamento); invariato |
+| `faceBench/facebench/correspondences/identity.py` | `67187265334856b131a31b1555836880fef4cf56cb3dcfc0bf0970901433591c` | importato (tracciamento); invariato |
+| `faceBench/facebench/distances/landmarks.py` | `d3333cb9002940d7e6377302746a71554539371fb9713b3803031c9c897e344a` | importato (tracciamento); invariato |
+| `faceBench/facebench/distances/p2p.py` | `d8717476b9658d39ffd87a7b905701b754196c490a2b2de8696927517d7753da` | importato (tracciamento); invariato |
+| `faceBench/facebench/distances/p2tri.py` | `9ee6da144e1b9914c6aae39410720c87c3dce2d5a448ebc62d998fec57ccb9b2` | importato (tracciamento); invariato |
+| `faceBench/facebench/mesh_croppers/point_based_cropper.py` | `c0d2cfeb768e5116c7d8ac1a85adc5a2eaeb47788d5844d3de3d725305e584d0` | importato (tracciamento); invariato |
+| `faceBench/facebench/nonrigid_aligners/landmark_elastic.py` | `e38207afbbba21ae9676381eccf58eaa7d3cfc46f2cd93a258ce716340a704bc` | importato (tracciamento); invariato |
+| `faceBench/facebench/nonrigid_aligners/nonrigid_icp.py` | `1ee2d391a9da17970dde2d48373ebdd2d63c61454db2379ff6e33ea463351682` | importato (tracciamento); invariato |
+| `faceBench/facebench/rigid_aligners/icp.py` | `1b0a429633d496a11d444a45bb243ac9e6c077d37f35694c19d37ad9bc242454` | importato (tracciamento); invariato |
+| `faceBench/facebench/rigid_aligners/landmark_based.py` | `fd2a9141415489cfcd58e7cbd7dc5a7cfc129e8905324a3e482914574f81ae25` | importato (tracciamento); invariato |
+| `faceBench/facebench/utils/pipeline.py` | `985212baaed7763c51fcf261b16e95d565a26e9b2eeea8e802c024e1287b4bfb` | importato (tracciamento); invariato |
+| `faceBench/facebench/utils/utils.py` | `a981a9e871cd671a530abfda330888c9567535b1d3cd5f8b3c09d919b7b4c373` | importato (tracciamento); invariato |
+| `faceBench/facebench/utils/warnings.py` | `6deeb01f2c9d6de66fdfc5e84e6c73a78105bba0d2bf1a22fc3911279237edd5` | importato (tracciamento); invariato |
+| `faceBench/facebench/visualization/correlation.py` | `e8c24f75ef28418e6a1183f51962eda4f964b8b4632f8c5202c6610de04f4544` | importato (tracciamento); invariato |
+| `faceBench/facebench/visualization/heatmap_plain.py` | `9101f316176f9a42125162a5c988941f2cc9558e902f9f9695ae2e8829a39acc` | importato (tracciamento); invariato |
+| `faceBench/facebench/visualization/results_table.py` | `79a253b07e7688356c947c670dce8e21aa94074fc30ec8dc9ac1c2809fb59a0e` | importato (tracciamento); invariato |
+| `faceBench/facebench/visualization/space_heatmap.py` | `f1c10d95d3d3cb33aad8ebb5d96e8f751d27c2295e9b7729645436ad3b5cc398` | importato (tracciamento); invariato |
+| `faceBench/latentVSpipeline/mesh_npz_utils.py` | `abaf9cba9a129d4d4526e98c5a4b7b67dfe4479a73dd079bf07826e9cd4063d8` | importato (tracciamento); invariato |
+| `faceBench/latentVSpipeline/run_facebench_remesh.py` | `c9bca1ae48703b12892064167e0103817b98edf4752bb934b46175626848eaca` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/autoencoder/dataset_gtready.py` | `fd271dcf8a649f5a2c99c88bf9da50ebab443b8028d4ebb6c7ac258622480638` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py` | `7dfb5dce2b75634b2b0a8c7eacfd2069b24de1d079757145f3d12269bb938ad4` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/autoencoder/latent_loss.py` | `78568fd16956449fb0839b564b2d55ab82b934de24b8689f5d336fbeed67dc71` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/autoencoder/path_setup.py` | `7c67b6b36edc3e5e3ee8d8e102a59b580e2b38d9f704aa5f397e783117677811` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/intrinsic_utils.py` | `c1b9254dbd84cc40dac6f141fceb62a7a56644b85bb79d0da7c34a014c630c34` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_rankings.py` | `51a87d6e78c3ea63eb69d35b3e547558b17d1bf87c3ec377df6bffc045a9fcc3` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/perturbated/compare_model_vs_chamfer_topology_breakdown.py` | `71047c56f613bd1257b60758f0f81f32ac40b4fabd297adc97394f3a8c8fab75` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/__init__.py` | `9c7ced11ac713b9a9642ae563e3ad74d4e697c82f241b7881e0fd055b393cad5` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/data_utils.py` | `02fb657182568536d834ee7fef2cea862aca38582debc00d5200a14063d56b61` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/eval_utils.py` | `a26133f7160934be1e8e2a65dfd9b255912632b2f9a107dd9983298e2eaeb4db` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/model_helpers.py` | `497e9c6796e27259c1921ab6ed018a2dba09a4f29bddfe9ed31100db31943c53` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/noise.py` | `7a788155cfd6de5855a7c65d8becec3d61b5eddc19d9872162e25e5d0b70e646` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/paths.py` | `a84e2757c2e91a60cea795e70fbebe445e78accc1c13c809067bf17b0d78da7a` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/posthoc_runner.py` | `31bb97966774610d79e5b829681bcc1f87aa098ae1f33a35d408a05c07a96c31` | importato (tracciamento); invariato |
+| `face_embedding/gt_encdec/remeshing/intrinsic/robustness/train_runner.py` | `7623c0b35a65279e99cfcad04a2e6ffd5969a789afaeb0bd4e00364e644de6a8` | importato (tracciamento); invariato |
+| `v2_work/genflame/flame_model.py` | `226e5d98a00884aa4f47ed930a76f6524d32c2b13dcaef96a1afdfe22de35486` | importato (tracciamento); invariato |
+| `v2_work/genict/mesh_ops.py` | `c5efce43e2c6c2993d946ad18606ee4ecdb590697f4315bbbb91e6881d02c572` | importato (tracciamento); invariato |
+| `v2_work/phase0/measure_distances.py` | `8f448fa335a15e32cd157034bb14232985d966053d8caced6c967167ee5c994f` | importato (tracciamento); invariato |
+| `v2_work/phase0/perceptual_embed.py` | `d91b048631b4c77a919e1471842b0d6dc5db77471e4b74f5f5211e592b36dd4e` | importato (tracciamento); invariato |
+| `v2_work/phase0/render_mesh.py` | `be1c643a67be190193d3453a610bba4375097aa86f7c68ebbc50202d34272fce` | importato (tracciamento); invariato |
 | `v2_work/potential/areanorm_operators.py` | `511d0a52758b91c4948cfbdb7c53ad68854b4e1cec5351f23c779ee15c96008f` | importato (tracciamento); invariato |
-| `v2_work/potential/potential_operators.py` | `caddf7bc244e3f6b2c28145017e8ed2f7e82e351e55372d62834400a92110c87` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/canonical_gt/cgt.py` | `2739f59aaf7954055efcbb39df104c9c4f99ca89af898a63026a7aeec5d3b20e` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/canonical_gt/methods.py` | `dd9fc773ed4ccd4bf1344995ebb12e3351bb3a38552f94cad7ce468692dd91ff` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/canonical_gt/train_fr_sr.py` | `7b488063e3f07bedc3678ccf86f8d36d8d186a29cffb89cd084e4e476531c811` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/mm/__init__.py` | `cd66ae62e1baeaa19a4efef44a93b4daa20301de673409562fc6edd5c05c5bd3` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/mm/loaders.py` | `2c25c0b97573bb7bb9c7773a4652cb8f0c71d793ce89d66a37c4c599a3d330cd` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/mm/model.py` | `b0bb23301914ae8d1c33126d76c801b868e4d7c831489a902175fc0e5cd0c157` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/stream/sources.py` | `9fe85112f7ded28d64d12bfe773a67943b43d4b9288bccdf2fcd955ef809290c` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/trainer/area_v3.py` | `8d50f9b98ba2013f6261a169c6e3e09d2fb399baec59380bb569b69421b9f63e` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/trainer/common.py` | `03b9e5c5dc8a1b47eb883f86b812772314d3443f6f22cc6a5eee301b91ed3d42` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/trainer/data_v3.py` | `2953a2fc34ee6299dd0b21b58ba95cd63be7535c74b174e96f939943707e7ca0` | importato (tracciamento); nuovo nella tabella (v7) |
+| `v2_work/potential/potential_operators.py` | `caddf7bc244e3f6b2c28145017e8ed2f7e82e351e55372d62834400a92110c87` | importato (tracciamento); invariato |
+| `v3_work/canonical_gt/cgt.py` | `2739f59aaf7954055efcbb39df104c9c4f99ca89af898a63026a7aeec5d3b20e` | importato (tracciamento); invariato |
+| `v3_work/canonical_gt/methods.py` | `dd9fc773ed4ccd4bf1344995ebb12e3351bb3a38552f94cad7ce468692dd91ff` | importato (tracciamento); invariato |
+| `v3_work/canonical_gt/train_fr_sr.py` | `7b488063e3f07bedc3678ccf86f8d36d8d186a29cffb89cd084e4e476531c811` | importato (tracciamento); invariato |
+| `v3_work/mm/__init__.py` | `cd66ae62e1baeaa19a4efef44a93b4daa20301de673409562fc6edd5c05c5bd3` | importato (tracciamento); invariato |
+| `v3_work/mm/loaders.py` | `2c25c0b97573bb7bb9c7773a4652cb8f0c71d793ce89d66a37c4c599a3d330cd` | importato (tracciamento); invariato |
+| `v3_work/mm/model.py` | `73cb01e3f4e472261189e1a3f7406a7f8e16e58c29e7ade9badd8cd5ec35fc59` | importato (tracciamento); CAMBIATO dopo il tracciamento da `771fee8` (sha tracciato `b0bb23301914...`), vedi sotto; modificato (v8) |
+| `v3_work/stream/sources.py` | `418faa3833a6db7000f084946016b5a616dba1fa480f7f326edf1fe7e9d05ed1` | importato (tracciamento); CAMBIATO dopo il tracciamento da `771fee8` (sha tracciato `9fe85112f7de...`), vedi sotto; modificato (v8) |
+| `v3_work/trainer/area_v3.py` | `8d50f9b98ba2013f6261a169c6e3e09d2fb399baec59380bb569b69421b9f63e` | importato (tracciamento); invariato |
+| `v3_work/trainer/common.py` | `03b9e5c5dc8a1b47eb883f86b812772314d3443f6f22cc6a5eee301b91ed3d42` | importato (tracciamento); invariato |
+| `v3_work/trainer/data_v3.py` | `2953a2fc34ee6299dd0b21b58ba95cd63be7535c74b174e96f939943707e7ca0` | importato (tracciamento); invariato |
 | `v3_work/trainer/eval_v3.py` | `cf9f9d240bc0105ac94b29209037f5a626c537ed462d0ce3a76a448ac04a6613` | importato (tracciamento); invariato |
-| `v3_work/trainer/factorized_v3.py` | `c072057606889d744e171264c6c722ba7f1fdf61bc633bc938987061201776cd` | importato (tracciamento); nuovo nella tabella (v7) |
+| `v3_work/trainer/factorized_v3.py` | `c072057606889d744e171264c6c722ba7f1fdf61bc633bc938987061201776cd` | importato (tracciamento); invariato |
 | `v3_work/trainer/global_v3.py` | `408ac38d549784469c463215c27ed6253534f2b09e402fbbc50873f7306edfdb` | importato (tracciamento); invariato |
-| `v3_work/trainer/losses_v3.py` | `6598e5e5098b9d1a24d1bb143e1fcaa2008e1b778b952ae60a0341470f14f387` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/trainer/model_v3.py` | `468024b48f58a8df14612d1d3a6be0871e39135ad693cc2e9c3dd53c02e30248` | importato (tracciamento); nuovo nella tabella (v7) |
+| `v3_work/trainer/losses_v3.py` | `6598e5e5098b9d1a24d1bb143e1fcaa2008e1b778b952ae60a0341470f14f387` | importato (tracciamento); invariato |
+| `v3_work/trainer/model_v3.py` | `468024b48f58a8df14612d1d3a6be0871e39135ad693cc2e9c3dd53c02e30248` | importato (tracciamento); invariato |
 | `v3_work/trainer/tools/fact_paired.py` | `cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a` | importato (tracciamento); invariato |
-| `v3_work/unified_gt/domains.py` | `1447b777f48d6df428ddc031336628e7a377fe40399c571325ebb7d8b54b7383` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/unified_gt/eval_methods.py` | `9d27233ec18a0dca758429105d4092d6d543e0f3d6c7579420a9c1272214432e` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/unified_gt/shapes.py` | `3db8dca67eab92510c5a197a9db0a938b6d955effc56df87f5a4c44e11f63aa4` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/unified_gt/train_gt.py` | `c8290adcc639fdf5596f1476f1ce30c65576b807b86906c65b78a2db0d153850` | importato (tracciamento); nuovo nella tabella (v7) |
-| `v3_work/unified_gt/ugt.py` | `2cfbad40a815c8fc81ce4b46b4a13686d0e7f0024e1a86fe335431f946bbb340` | importato (tracciamento); nuovo nella tabella (v7) |
+| `v3_work/unified_gt/domains.py` | `1447b777f48d6df428ddc031336628e7a377fe40399c571325ebb7d8b54b7383` | importato (tracciamento); invariato |
+| `v3_work/unified_gt/eval_methods.py` | `9d27233ec18a0dca758429105d4092d6d543e0f3d6c7579420a9c1272214432e` | importato (tracciamento); invariato |
+| `v3_work/unified_gt/shapes.py` | `3db8dca67eab92510c5a197a9db0a938b6d955effc56df87f5a4c44e11f63aa4` | importato (tracciamento); invariato |
+| `v3_work/unified_gt/train_gt.py` | `c8290adcc639fdf5596f1476f1ce30c65576b807b86906c65b78a2db0d153850` | importato (tracciamento); invariato |
+| `v3_work/unified_gt/ugt.py` | `2cfbad40a815c8fc81ce4b46b4a13686d0e7f0024e1a86fe335431f946bbb340` | importato (tracciamento); invariato |
 | `aau/ava256/ava_calib.py` | `a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897` | lista fissa (non modulo o fuori dal tracciamento); invariato |
 | `aau/ava256/ava_freeze.py` | `520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca` | lista fissa (non modulo o fuori dal tracciamento); invariato |
-| `aau/ava256/conf.sbatch` | `1edfcbc8dd6d35dc2ce78687467f8930c6a563ac9ac683e4fc7e8ef4858c2607` | lista fissa (non modulo o fuori dal tracciamento); modificato (v7) |
-| `aau/ava256/conf_collaudo.py` | `a4b4f9a31e0011c55486cfd357ce38a14941e597c74423598a9fa9b2c31f176e` | lista fissa (non modulo o fuori dal tracciamento); modificato (v7) |
-| `aau/ava256/conf_worktree.sh` | `e20482f996dd9d9b1c234d1b9656df9ac3bcfa085c63ef06e4c4e11e57d926e7` | lista fissa (non modulo o fuori dal tracciamento); nuovo nella tabella (v7) |
-| `aau/ava256/spec/ava256.json` | `36100e6187c3360d86071245ac6e816905a3de479085cd4ed836f811e1809a8f` | lista fissa (non modulo o fuori dal tracciamento); modificato (v7) |
+| `aau/ava256/conf.sbatch` | `1edfcbc8dd6d35dc2ce78687467f8930c6a563ac9ac683e4fc7e8ef4858c2607` | lista fissa (non modulo o fuori dal tracciamento); invariato |
+| `aau/ava256/conf_collaudo.py` | `7200469a37ef90a67022b2a18d2840a876471a201f9974ef305e8ac4c71014fe` | lista fissa (non modulo o fuori dal tracciamento); modificato (v8) |
+| `aau/ava256/conf_worktree.sh` | `e20482f996dd9d9b1c234d1b9656df9ac3bcfa085c63ef06e4c4e11e57d926e7` | lista fissa (non modulo o fuori dal tracciamento); invariato |
+| `aau/ava256/spec/ava256.json` | `36100e6187c3360d86071245ac6e816905a3de479085cd4ed836f811e1809a8f` | lista fissa (non modulo o fuori dal tracciamento); invariato |
 | `aau/ava256/spec/hifi3d_det.json` | `5b12b58f255118c8748ed923edec9cb2e0c03108423be362b0deb47612c760ea` | lista fissa (non modulo o fuori dal tracciamento); invariato |
-| `aau/ava256/spec/hifi3d_full.json` | `d892d0dd3a491ee91a394798c2b71245a974b634865b8ec09c51ff3733c91fcc` | lista fissa (non modulo o fuori dal tracciamento); modificato (v7) |
-| `aau/ava256/spec/hifi3d_trace.json` | `3d3c1a2fb662ef0b125f2157d652e565664cc60f1166f8a8d32982fb573f07b7` | lista fissa (non modulo o fuori dal tracciamento); nuovo nella tabella (v7) |
+| `aau/ava256/spec/hifi3d_full.json` | `d892d0dd3a491ee91a394798c2b71245a974b634865b8ec09c51ff3733c91fcc` | lista fissa (non modulo o fuori dal tracciamento); invariato |
+| `aau/ava256/spec/hifi3d_trace.json` | `3d3c1a2fb662ef0b125f2157d652e565664cc60f1166f8a8d32982fb573f07b7` | lista fissa (non modulo o fuori dal tracciamento); invariato |
 | `aau/zs3dmm/zs_embed.py` | `195b189111fe91cb6ea5b02826e5cede87815bbe7bf8e861d7d91cb5dd3d6cf8` | lista fissa (non modulo o fuori dal tracciamento); invariato |
 
 **ULRSSM (v6)**, fuori dal repo o non codice, controllati da `conf_desc.py` prima del calcolo:
@@ -1136,6 +1170,16 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
   `desc-eval` 782 Spearman e 2.100 delta a 0 sugli stessi ingressi e <= 5,7e-6 sui ricalcolati, righe uguali. I delta
   sono 90 meno della v6 perche' `pair_sr` e `tpl_fr` di ULRSSM sono ora non dichiarate e non entrano nei `vs_nostro`.
 
+**Collaudo v8** (13 ottobre, worktree al commit `8a6e184`, `CONF_FROZEN_COMMIT`):
+- `guard` (job 1074573, nodo `i256-a10-07`): 19 casi su 19 come atteso. Oltre ai 13 della v7: `verify` passa con una
+  copia pulita del clone diffusion-net al posto del link, **fallisce con `geometry.py` modificato** nella copia e ripassa
+  col link originale; `conf_head.resume` salta un braccio con npz intero e sha registrato e si ferma con npz senza
+  json o con sha diverso; `conf_desc.fit_hosts` rifiuta un fit B scritto da un altro nodo.
+- Tracciamento: 131 moduli, nessuno scarto (sopra). Il passo dei percettivi si e' fermato una volta con un segfault della
+  libreria UCX all'avvio (job 1074574, nessuna uscita scritta) ed e' stato rilanciato identico (job 1074990, passa).
+- Collaudi numerici rifatti (job 1074577, 1074578): `eval-full`, `eval-det`, `embed`, `desc`, `desc-eval`, `ulr` passano
+  come nella v7 (le uscite del fit B del collaudo, precedenti alla v8, non hanno `host`: ammesso solo nei collaudi).
+
 - Non collaudati nella v4: GW e percettivi sulle 600 mesh (solo il sottocampione dichiarato); il varifold a piu' shard
   (`--shard k/n`, un solo shard nel collaudo); il ramo "ArcFace non applicabile" (su HIFI3D il frame check sceglie
   `x180`); i passi di `conf_desc.py eval` con descrittivi bucati (su HIFI3D nessun descrittivo ha buchi: passo
@@ -1155,6 +1199,10 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
   riportano **entrambe** le versioni: i numeri del codice congelato e quelli del codice corretto, con il diff, il commit
   e il motivo. **Fa fede la versione congelata** per gli esiti di R1-R7; la corretta e' descrittiva e non cambia nessun
   esito. Lo stesso per un errore nei dati scoperto dopo (si riportano entrambi, fa fede il congelato).
+- **Ripresa della testa di R6 (v8).** Se `head-fit` si interrompe fra i due bracci, si rilancia lo stesso passo:
+  `conf_head.resume` salta il braccio gia' completo solo se il suo `head/<braccio>.npz` e' intero (si legge) e il suo
+  sha256 e' quello registrato nel json d'evidenza (`npz_sha256`, scritto dopo l'npz); un npz senza json, con sha diverso
+  o illeggibile ferma il job e decide il PI (nessun rifit di un braccio completato).
 - **Crash del codice congelato su Ava-256 (v7).** Se un passo del codice congelato si ferma con un errore su Ava-256
   (eccezione, nessun risultato), e' ammessa SOLO una correzione minima, limitata alla riga che fallisce: commit a parte
   sopra il congelato, pubblicato col diff, il motivo e il messaggio d'errore; il passo si rifa' da un worktree a quel
@@ -1209,4 +1257,4 @@ Poi il PI committa questo testo con il suo sha256 e la parola "congelato" nel ti
 Al congelamento (v7): il PI committa il testo, crea il worktree al commit congelato (`conf_worktree.sh`) e da li'
 sottomette tutti i job con `CONF_FROZEN_COMMIT` = quel commit.
 
-**CANDIDATO v7, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
+**CANDIDATO v8, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
