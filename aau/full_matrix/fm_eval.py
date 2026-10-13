@@ -16,7 +16,7 @@ sono finite (una colonna intera NaN sul dominio non entra ed e' dichiarata non a
 stessa maschera): ``nocrop`` (topologie diverse, nessuna crop), ``crop`` (una crop), ``all_cross``, per perturbazione
 P ``con_perturbazione`` (P su un lato, l'altro una topologia diversa senza crop: la scomposizione di ``nocrop``; per P =
 crop e' l'insieme ``crop``), ``coppia_topologie`` (coppia non ordinata), ``stessa_topologia``
-(per P e tutte), ``coppia_ordinata``; le medie ``media_20_ordinate_senza_crop`` e ``media_5_stessa_topologia`` (le
+(per P, ``senza_crop`` e tutte), ``coppia_ordinata``; le medie ``media_20_ordinate_senza_crop`` e ``media_5_stessa_topologia`` (le
 grandezze di topo_pairs_e3, per il controllo). FaMoS TEST: il blocco scan gallery -> scan di ``fact_paired.famos_frame``
 (105 righe), un solo insieme (``nocrop``); crop e perturbazioni non esistono.
 
@@ -29,7 +29,8 @@ Delta (``deltas.csv``): ``vs_nostro`` = braccio - concorrente (positivo = il nos
 riferimento: FR contro factorized s1234/s2345 d_F cal. e d_F non cal. e ctrlfr s1234/s2345; SR contro factorized
 s1234/s2345 d_P e ctrlfr; ``scala_allineamento`` (a - b, ``LADDER``); ``migliore_vs_migliore`` = miglior nostro - miglior
 concorrente fra le letture dichiarate (scelti sul punto: selezione post hoc, descrittiva). Scala: passi principali
-e secondari (``LADDER``: 2b e 3 in mm confusi dalla taglia; con SR i passi 4 e 5 anche contro ICP cs e NICP cs) e il
+e secondari (``LADDER``: 1b = scala per coppia, NoW originale - NoW metrical; 2b e 3 in mm confusi dalla taglia; con SR
+i passi 4 e 5 anche contro ICP cs e NICP cs) e il
 conteggio per famiglia sintetica nel verso "piu' allineamento = peggio". Sensibilita' ai fallimenti del NICP per coppia
 (HIFI3D, FaceScape): maschera senza il NICP e fallimento = distanza massima (``passo`` dedicato).
 
@@ -40,12 +41,20 @@ dominio, ``<dominio>.npz`` (``subjects``, ``topologies``, una o piu' matrici ``D
 elencate; FaMoS: ``subjects`` = view_id, ``topologies`` = ``scan_gallery``) oppure ``<dominio>.csv`` (``subject_a``,
 ``topology_a``, ``subject_b``, ``topology_b`` e una colonna per lettura; la coppia mancante si cerca invertita), e
 ``fm_plugin.json`` (obbligatorio, anche ``{}``; facoltativi ``label``, ``family``, ``readings``: {lettura: {``label``,
-``gt``: ["fr", "sr"]}}). Un
-plug-in finito su tutte le righe della maschera comune entra nello stesso passo; se ha buchi va in un passo a parte sulla
-maschera comune ristretta alle sue righe finite, con i bracci di riferimento sulle stesse righe (``n_righe`` lo dice).
+``gt``: ["fr", "sr"]}}, ``declared``). La maschera comune non dipende dai plug-in. Varianti: ``declared`` true o
+assente (i protocolli coi landmark esatti non lo scrivono) = dichiarata; ``false`` o ``null`` = non dichiarata; la
+``lmk_det`` dei protocolli (landmark del rilevatore) e' non dichiarata ma riportata come colonna aggiuntiva marcata.
+Un plug-in dichiarato finito sulle righe a topologie diverse della maschera (sulla stessa topologia: tutte o nessuna,
+come il NICP per coppia) entra nel passo ``comune``; uno non dichiarato con la stessa copertura va nel passo
+``varianti non dichiarate`` (stesse righe e repliche, solo Spearman e delta ``vs_nostro``; mai nel miglior concorrente
+ne' nella scala); uno con buchi (dichiarato o no) va in un passo ``righe proprie (n righe a topologie diverse)`` per
+insieme di righe finite, con i bracci di riferimento e il protocollo coi landmark esatti sulle stesse righe; le righe
+perse rispetto alla maschera sono in controls.json (``plugins``) e in results.md. Colonne ``declared`` (spearman.csv),
+``declared_a`` / ``declared_b`` (deltas.csv): variante dichiarata (True per i metodi interni); ``dichiarata`` = lettura
+dichiarata per la GT di una variante dichiarata.
 
 Uscite in ``aau/runs/evidence/full_matrix/``: ``spearman.csv``, ``deltas.csv``, ``non_applicabili.csv``,
-``controls.json``, ``results.md``.
+``controls.json``, ``results.md`` (il crop in una sezione descrittiva a parte, "Crop (descrittivo, supplementary)").
 """
 
 from __future__ import annotations
@@ -144,11 +153,15 @@ def post_hoc(col: str, view: str = "") -> bool:
 # (2b e 3 in mm sono confusi dalla taglia: il NICP su template in mm segue la taglia oracolo, il NICP per coppia in mm
 # no; con SR il riferimento corretto e' senza taglia, ICP mm e' secondario). Lato piu' allineato (per il conteggio): b
 # nei passi 1-3 (cs = taglia tolta per mesh; NICP = deformazione; NICP per coppia = deformazione specifica della
-# coppia), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 (ICP: allineamento esplicito; il braccio nessuno).
+# coppia), a nell'1b (NoW originale: scala stimata per coppia nel Procrustes e nell'ICP; NoW metrical: stessa catena
+# senza scala), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 (ICP: allineamento esplicito; il braccio
+# nessuno). L'1b usa i plug-in coi landmark esatti (colonne ``plugin:now_original|mm``, ``plugin:now_metrical|mm``).
 LADDER = []
 _P1 = "1. togliere la taglia (normalizzazione per mesh alla cs_ref): ICP mm - ICP cs"
+_P1B = "1b. togliere la taglia per coppia (scala del Procrustes + ICP): NoW originale - NoW metrical"
 for _g in GTS:
     LADDER += [(_g, "mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", _P1, "principale", "b"),
+               (_g, "plugin:now_original|mm", "plugin:now_metrical|mm", _P1B, "principale", "a"),
                (_g, "cs_rigid_icp_chamfer", "cs_nicp_p2tri", "2. deformazione non rigida per coppia, cs: ICP cs - NICP cs",
                 "principale", "b"),
                (_g, "mm_rigid_icp_chamfer", "mm_nicp_p2tri", "2b. idem in mm: ICP mm - NICP mm (confuso dalla taglia)",
@@ -489,6 +502,38 @@ def groups_of(ta: np.ndarray, tb: np.ndarray, mask: np.ndarray) -> dict:
     return {k: np.flatnonzero(v) for k, v in G.items()}
 
 
+def groups_fm(ta: np.ndarray, tb: np.ndarray, mask: np.ndarray) -> dict:
+    """``groups_of`` + ``stessa_topologia`` ``senza_crop`` (stessa topologia, nessuna crop: l'insieme della tesi
+    principale; ``tutte`` comprende crop - crop). Solo di questa matrice: ``groups_of`` resta quello della catena di
+    Ava-256."""
+    G = groups_of(ta, tb, mask)
+    G[("stessa_topologia", "senza_crop")] = np.flatnonzero((ta == tb) & (ta != "crop") & mask)
+    return G
+
+
+def plugin_kinds(pdirs: list) -> dict:
+    """{nome del plug-in: tipo}: ``dichiarata`` (``declared`` true o assente in fm_plugin.json: i protocolli coi landmark
+    esatti non lo scrivono), ``lmk_det`` (landmark del rilevatore dei protocolli: non dichiarata, riportata come colonna
+    aggiuntiva marcata), ``non dichiarata`` (``declared`` false o null)."""
+    out = {}
+    for name, d in pdirs:
+        dec = json.loads((d / "fm_plugin.json").read_text()).get("declared", True)
+        out[name] = "dichiarata" if dec is True else "lmk_det" if name.endswith("/lmk_det") else "non dichiarata"
+    return out
+
+
+def plugin_name(col: str) -> str:
+    """``plugin:<nome>|<lettura>`` -> ``<nome>``."""
+    return col[len("plugin:"):].split("|")[0]
+
+
+def exact_of(col: str) -> str:
+    """Colonna coi landmark esatti di una variante dei protocolli: ``plugin:now_original/lmk_det|mm`` ->
+    ``plugin:now_original|mm``."""
+    r = col.split("|", 1)[1] if "|" in col else ""
+    return f"plugin:{plugin_name(col).split('/')[0]}" + (f"|{r}" if r else "")
+
+
 # ----------------------------------------------------------------------------------------- repliche
 
 def _rep(k: int) -> np.ndarray:
@@ -722,7 +767,10 @@ def summarize_diffs(d: list) -> dict:
 
 # ---------------------------------------------------------------------------------------------- dominio
 
-def run_view(view: str, n_boot: int, workers: int, pdirs: list, sens: list) -> tuple[list, list, list, dict]:
+UNDECL = "varianti non dichiarate"
+
+
+def run_view(view: str, n_boot: int, workers: int, pdirs: list, sens: list, kinds: dict) -> tuple[list, list, list, dict]:
     t0 = time.time()
     NA, info = [], {}
     if view == "famos":
@@ -794,21 +842,43 @@ def run_view(view: str, n_boot: int, workers: int, pdirs: list, sens: list) -> t
                     "columns_missing_on_same": [c for c in core if c not in core_same] if same.any() else [],
                     "rows_dropped_by_column_cross": {c: int((gok & ~same & ~f).sum()) for c, f in fin.items()
                                                      if (gok & ~same & ~f).any()}}
-    pfull = [c for c in Pd if np.isfinite(cols[c][mask]).all()]
-    ppart = [c for c in Pd if c not in pfull and np.isfinite(cols[c][mask]).any()]
+    # plug-in: la maschera resta quella dei metodi interni; un plug-in la copre se e' finito su tutte le sue righe a
+    # topologie diverse e, sulla stessa topologia, su tutte o su nessuna (come il NICP per coppia)
+    kind = {c: kinds[plugin_name(c)] for c in Pd}
+    mc, ms = mask & ~same, mask & same
+
+    def covers(c):
+        f = np.isfinite(cols[c])
+        return bool(f[mc].all() and (f[ms].all() or not f[ms].any()))
+
+    pfull = [c for c in Pd if kind[c] == "dichiarata" and covers(c)]
+    ufull = [c for c in Pd if kind[c] != "dichiarata" and covers(c)]
+    ppart = [c for c in Pd if c not in pfull + ufull and np.isfinite(cols[c][mask]).any()]
     for c in Pd:
-        if c not in pfull and c not in ppart:
+        if c not in pfull + ufull + ppart:
             NA.append({"dominio": view, "metodo": meta[c][0], "colonna": c, "insieme_righe": "tutti",
                        "motivo": "plug-in senza righe finite nella maschera comune"})
+        elif ms.any() and not np.isfinite(cols[c][ms]).any():
+            NA.append({"dominio": view, "metodo": meta[c][0], "colonna": c, "insieme_righe": "stessa_topologia",
+                       "motivo": "plug-in senza distanze fra soggetti diversi con la stessa topologia"})
+    info["plugins"] = {"kind": {c: kind[c] for c in Pd}, "comune": pfull, UNDECL: ufull,
+                       "rows_lost_cross_in_comune": {c: int((mc & ~np.isfinite(cols[c])).sum()) for c in pfull + ufull},
+                       "missing_on_same": [c for c in pfull + ufull if ms.any() and not np.isfinite(cols[c][ms]).any()],
+                       "righe_proprie": {}}
     if view == "famos":
         groups = {("nocrop", "-"): np.flatnonzero(mask)}
         for s in ("crop", "all_cross", "con_perturbazione", "coppia_topologie", "stessa_topologia"):
             NA.append({"dominio": view, "metodo": "tutti", "colonna": "-", "insieme_righe": s, "motivo": SET_NA["famos"]})
     else:
-        groups = groups_of(*groups_all, mask)
+        groups = groups_fm(*groups_all, mask)
     methods = core + pfull
-    V = replicas({m: cols[m] for m in methods}, gt, sa, sb, counts, groups, methods, workers)
-    S, Dl = records(view, V, list(groups), groups, methods, meta, seed, n_subj)
+    allm = methods + ufull                                # stesse righe e repliche; le non dichiarate in un passo a parte
+    V = replicas({m: cols[m] for m in allm}, gt, sa, sb, counts, groups, allm, workers)
+    S, Dl = records(view, V[..., :len(methods)], list(groups), groups, methods, meta, seed, n_subj)
+    if ufull:
+        s2, d2 = records(view, V, list(groups), groups, allm, meta, seed, n_subj, tag=UNDECL)
+        S += [r for r in s2 if r["colonna"] in ufull]
+        Dl += [r for r in d2 if r["tipo"] == "vs_nostro" and r["colonna_b"] in ufull]
     info["spearman_con_taglia"] = size_confound(cols, core, groups)
     if view == "famos":
         det = info.get("famos_arcface_detector") or {}
@@ -827,20 +897,38 @@ def run_view(view: str, n_boot: int, workers: int, pdirs: list, sens: list) -> t
         if lost.any():                                    # sensibilita': fallimento = distanza massima, righe tutte
             filled = {c: (np.where(np.isfinite(cols[c]), cols[c], np.nanmax(cols[c][gok]) * (1 + 1e-9))
                           if c in NICP else cols[c]) for c in methods}
-            g3 = groups_of(ta, tb, m_nf)
+            g3 = groups_fm(ta, tb, m_nf)
             V3 = replicas(filled, gt, sa, sb, counts, g3, methods, workers)
             s3, d3 = records(view, V3, list(g3), g3, methods, meta, seed, n_subj,
                              tag="sensibilita': NICP fallito = distanza massima")
             S += s3
             Dl += d3
-    for c in ppart:                                       # plug-in con buchi: passo a parte, righe proprie
-        m2 = mask & np.isfinite(cols[c])
-        g2 = {("nocrop", "-"): np.flatnonzero(m2)} if view == "famos" else groups_of(*groups_all, m2)
-        refs = sorted({r for g in GTS for r in REF[g] if r in core})
-        V2 = replicas({m: cols[m] for m in refs + [c]}, gt, sa, sb, counts, g2, refs + [c], workers)
-        s2, d2 = records(view, V2, list(g2), g2, refs + [c], meta, seed, n_subj, tag=f"righe proprie di {c}")
-        S += [r for r in s2 if r["colonna"] == c]
-        Dl += [r for r in d2 if r["tipo"] == "vs_nostro"]
+    pats: dict = {}                                       # plug-in con buchi: un passo per insieme di righe finite
+    for c in ppart:
+        pats.setdefault(np.packbits(mask & np.isfinite(cols[c])).tobytes(), []).append(c)
+    refs = sorted({r for g in GTS for r in REF[g] if r in core})
+    for cs in pats.values():
+        m2 = mask & np.isfinite(cols[cs[0]])
+        tag = f"righe proprie ({int((m2 & ~same).sum())} righe a topologie diverse)"
+        if tag in info["plugins"]["righe_proprie"]:
+            tag = f"{tag[:-1]}, {len(info['plugins']['righe_proprie']) + 1})"
+        exact = [e for e in dict.fromkeys(exact_of(c) for c in cs) if e in pfull and e not in cs]
+        use = refs + exact + cs
+        g2 = {("nocrop", "-"): np.flatnonzero(m2)} if view == "famos" else groups_fm(*groups_all, m2)
+        V2 = replicas({m: cols[m] for m in use}, gt, sa, sb, counts, g2, use, workers)
+        s2, d2 = records(view, V2, list(g2), g2, use, meta, seed, n_subj, tag=tag)
+        S += [r for r in s2 if r["colonna"] in cs + exact]
+        Dl += [r for r in d2 if r["tipo"] == "vs_nostro" and r["colonna_b"] in cs]
+        info["plugins"]["righe_proprie"][tag] = {
+            "columns": cs, "exact_landmarks_same_rows": exact, "rows_cross": int((m2 & ~same).sum()),
+            "rows_same": int((m2 & same).sum()), "rows_lost_cross_vs_mask": int((mc & ~m2).sum()),
+            "rows_lost_same_vs_mask": int((ms & ~m2).sum())}
+    und = {c for c in Pd if kind[c] != "dichiarata"}     # variante dichiarata (fm_plugin.json); i metodi interni si'
+    for r in S:
+        r["declared"] = r["colonna"] not in und
+        r["dichiarata"] = bool(r["dichiarata"]) and r["declared"]
+    for r in Dl:
+        r["declared_a"], r["declared_b"] = r["colonna_a"] not in und, r["colonna_b"] not in und
     info.update(seed=int(seed), n_methods=len(methods), plugins_full=pfull, plugins_partial=ppart,
                 seconds=time.time() - t0)
     print(f"[fm-eval] {view}: {len(methods)} metodi, {int(mask.sum())} righe nella maschera, {len(groups)} insiemi, "
@@ -855,8 +943,9 @@ def f3(r, lo, hi, sign=False) -> str:
     return f"{f.format(r)} [{f.format(lo)}, {f.format(hi)}]"
 
 
-SETS_MD = [("nocrop", "-"), ("crop", "crop"), ("all_cross", "-")] + [("con_perturbazione", t) for t in NOCROP] + \
-    [("stessa_topologia", "tutte")]
+SETS_MD = [("nocrop", "-")] + [("con_perturbazione", t) for t in NOCROP] + [("stessa_topologia", "senza_crop")]
+SETS_CROP = [("crop", "crop"), ("all_cross", "-"), ("stessa_topologia", "crop"), ("stessa_topologia", "tutte")]
+COUNT_MD, COUNT_CROP = (("nocrop", "-"),), (("crop", "crop"), ("all_cross", "-"))
 SENS = "sensibilita': NICP fallito = distanza massima"
 
 
@@ -864,13 +953,13 @@ def sname(s: str, p: str) -> str:
     return s if p in ("-", "crop") and s in ("nocrop", "crop", "all_cross") else f"{s} {p}"
 
 
-def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple) -> list:
+def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple, sets=SETS_MD) -> list:
     B = Dl[(Dl["tipo"] == "migliore_vs_migliore") & (Dl["passo"] == "comune")]
     md = ["| dominio | GT | insieme | righe | miglior nostro | rho | miglior concorrente | rho | delta [IC] |",
           "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for v in views:
         for g in GTS:
-            for s, p in SETS_MD:
+            for s, p in sets:
                 r = B[(B["dominio"] == v) & (B["gt"] == g) & (B["insieme_righe"] == s) & (B["perturbazione"] == p)]
                 if not len(r):
                     continue
@@ -884,21 +973,45 @@ def best_table(S: pd.DataFrame, Dl: pd.DataFrame, views: tuple) -> list:
     return md + [""]
 
 
-def ladder_table(Dl: pd.DataFrame, views: tuple, ruolo: str, passo: str = "comune") -> list:
+def ours_vs_best(Dl: pd.DataFrame, views: tuple, sets) -> list:
+    """Ogni lettura nostra di riferimento (``REF``: d_F cal., d_F non cal., ctrlfr con FR; d_P con SR; due semi) contro
+    il miglior concorrente del punto (quello di ``migliore_vs_migliore``): delta appaiato ``vs_nostro`` e IC."""
+    B = Dl[(Dl["tipo"] == "migliore_vs_migliore") & (Dl["passo"] == "comune")]
+    X = Dl[(Dl["tipo"] == "vs_nostro") & (Dl["passo"] == "comune")]
+    md = ["| dominio | GT | insieme | miglior concorrente | lettura nostra | rho nostro | rho concorrente | delta [IC] |",
+          "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for v in views:
+        for g in GTS:
+            for s, p in sets:
+                b = B[(B["dominio"] == v) & (B["gt"] == g) & (B["insieme_righe"] == s) & (B["perturbazione"] == p)]
+                if not len(b):
+                    continue
+                y = X[(X["dominio"] == v) & (X["gt"] == g) & (X["insieme_righe"] == s) & (X["perturbazione"] == p) &
+                      (X["colonna_b"] == b.iloc[0].colonna_b)]
+                for ref in REF[g]:
+                    r = y[y["colonna_a"] == ref]
+                    if len(r):
+                        r = r.iloc[0]
+                        md.append(f"| {v} | {g.upper()} | {sname(s, p)} | {r.metodo_b} | {r.metodo_a} | {r.rho_a:.3f} | "
+                                  f"{r.rho_b:.3f} | {f3(r.delta, r.ic_lo, r.ic_hi, True)} |")
+    return md + [""]
+
+
+def ladder_table(Dl: pd.DataFrame, views: tuple, ruolo: str, passo: str = "comune", sets=SETS_MD) -> list:
     L = Dl[(Dl["tipo"] == "scala_allineamento") & (Dl["passo"] == passo) & (Dl["ruolo"] == ruolo)]
     md = []
     for g in GTS:
         x = L[L["gt"] == g]
-        sets = [sp for sp in SETS_MD if len(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])])]
-        if x.empty:
+        sets_g = [sp for sp in sets if len(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])])]
+        if x.empty or not sets_g:
             continue
-        md += [f"GT {g.upper()}:", "", "| dominio | passo | " + " | ".join(sname(s, p) for s, p in sets) + " |",
-               "| --- | --- |" + " --- |" * len(sets)]
+        md += [f"GT {g.upper()}:", "", "| dominio | passo | " + " | ".join(sname(s, p) for s, p in sets_g) + " |",
+               "| --- | --- |" + " --- |" * len(sets_g)]
         for v in views:
             y = x[x["dominio"] == v]
             for (st, a, b) in dict.fromkeys(zip(y["confronto"], y["colonna_a"], y["colonna_b"])):
                 cells = []
-                for s, p in sets:
+                for s, p in sets_g:
                     r = y[(y["confronto"] == st) & (y["colonna_a"] == a) & (y["colonna_b"] == b) &
                           (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
                     cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
@@ -908,11 +1021,10 @@ def ladder_table(Dl: pd.DataFrame, views: tuple, ruolo: str, passo: str = "comun
     return md
 
 
-def count_table(Dl: pd.DataFrame) -> list:
-    """Per passo (riga di confronto) e GT, in nocrop, crop, all_cross: famiglie sintetiche con IC appaiato che esclude
+def count_table(Dl: pd.DataFrame, sets=COUNT_MD) -> list:
+    """Per passo (riga di confronto) e GT, negli insiemi ``sets``: famiglie sintetiche con IC appaiato che esclude
     lo 0 nel verso "piu' allineamento = peggio" / nel verso opposto / non risolte."""
     L = Dl[(Dl["tipo"] == "scala_allineamento") & (Dl["passo"] == "comune") & Dl["dominio"].isin(SYNTH)]
-    sets = (("nocrop", "-"), ("crop", "crop"), ("all_cross", "-"))
     md = ["| GT | passo | ruolo | " + " | ".join(f"{s}: peggio / meglio / n.r." for s, _ in sets) + " |",
           "| --- | --- | --- |" + " --- |" * len(sets)]
     for g in GTS:
@@ -942,13 +1054,15 @@ def size_table(ctrl: dict, views: tuple) -> list:
     return md + [""]
 
 
-def domain_tables(S: pd.DataFrame, Dl: pd.DataFrame, v: str) -> list:
+def domain_tables(S: pd.DataFrame, Dl: pd.DataFrame, v: str, sets=SETS_MD, head: str = "") -> list:
     x = S[(S["dominio"] == v) & (S["passo"] == "comune")]
     if x.empty:
         return []
-    vs = [(s, p) for s, p in SETS_MD if len(x[(x["insieme_righe"] == s) & (x["perturbazione"] == p)])]
+    vs = [(s, p) for s, p in sets if len(x[(x["insieme_righe"] == s) & (x["perturbazione"] == p)])]
+    if not vs:
+        return []
     nr = {sp: int(x[(x["insieme_righe"] == sp[0]) & (x["perturbazione"] == sp[1])]["n_righe"].iloc[0]) for sp in vs}
-    md = [f"### {DOMAIN[v]}: Spearman per insieme di righe (seme {int(x['seme'].iloc[0])})", ""]
+    md = [f"### {DOMAIN[v]}{head}: Spearman per insieme di righe (seme {int(x['seme'].iloc[0])})", ""]
     for g in GTS:
         md += [f"GT {g.upper()} (grassetto = lettura dichiarata; * = post hoc):", "",
                "| metodo | " + " | ".join(f"{sname(s, p)} ({nr[(s, p)]})" for s, p in vs) + " |",
@@ -977,32 +1091,35 @@ def domain_tables(S: pd.DataFrame, Dl: pd.DataFrame, v: str) -> list:
             for s, p in vs:
                 r = y[(y["colonna_b"] == c) & (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
                 cells.append(f3(r.iloc[0].delta, r.iloc[0].ic_lo, r.iloc[0].ic_hi, True) if len(r) else "-")
-            md.append(f"| {label(c)} | " + " | ".join(cells) + " |")
+            md.append(f"| {y[y['colonna_b'] == c]['metodo_b'].iloc[0]} | " + " | ".join(cells) + " |")
         md.append("")
     return md
 
 
-def nicp_section(S: pd.DataFrame, Dl: pd.DataFrame, ctrl: dict) -> list:
-    md = ["## Fallimenti del NICP per coppia: selezione delle righe", "",
-          "La maschera comune toglie le righe dove il NICP per coppia (mm o cs) fallisce (matrice singolare). La selezione "
-          "dipende dalla topologia, non dalla GT: le righe perse sono soprattutto quelle con up60k, che quindi pesa meno "
-          "negli insiemi nocrop e all_cross; e il NICP non e' penalizzato per i propri fallimenti. Righe perse per "
-          "topologia (righe con quella topologia su un lato, senza la maschera del NICP):", "",
-          "| dominio | righe perse | " + " | ".join(TOPOS) + " |", "| --- | --- |" + " --- |" * len(TOPOS)]
-    for v in SYNTH:
-        nf = ctrl["views"].get(v, {}).get("nicp_failures")
-        if nf:
-            md.append(f"| {v} | {nf['rows_lost']} | " + " | ".join(
-                f"{b['lost']} / {b['rows_without_nicp_mask']} ({b['lost'] / max(b['rows_without_nicp_mask'], 1):.1%})"
-                for b in (nf["by_topology"][t] for t in TOPOS)) + " |")
-    md += ["", f"Sensibilita' (`passo` = \"{SENS}\" in entrambi i CSV): stesse colonne, maschera senza il NICP (le righe "
-               "perse rientrano per tutti), NICP fallito = distanza massima della colonna sul dominio (il fallimento conta "
-               "come la coppia piu' lontana). Il NICP con e senza la sostituzione e i passi della scala che lo usano:", "",
-           "| dominio | GT | insieme | metodo / passo | maschera comune | fallimento = distanza massima |",
+def nicp_section(S: pd.DataFrame, Dl: pd.DataFrame, ctrl: dict, sets=COUNT_MD, intro: bool = True) -> list:
+    md = []
+    if intro:
+        md += ["## Fallimenti del NICP per coppia: selezione delle righe", "",
+               "La maschera comune toglie le righe dove il NICP per coppia (mm o cs) fallisce (matrice singolare). La "
+               "selezione dipende dalla topologia, non dalla GT: le righe perse sono soprattutto quelle con up60k, che "
+               "quindi pesa meno negli insiemi nocrop e all_cross; e il NICP non e' penalizzato per i propri fallimenti. "
+               "Righe perse per topologia (righe con quella topologia su un lato, senza la maschera del NICP):", "",
+               "| dominio | righe perse | " + " | ".join(TOPOS) + " |", "| --- | --- |" + " --- |" * len(TOPOS)]
+        for v in SYNTH:
+            nf = ctrl["views"].get(v, {}).get("nicp_failures")
+            if nf:
+                md.append(f"| {v} | {nf['rows_lost']} | " + " | ".join(
+                    f"{b['lost']} / {b['rows_without_nicp_mask']} ({b['lost'] / max(b['rows_without_nicp_mask'], 1):.1%})"
+                    for b in (nf["by_topology"][t] for t in TOPOS)) + " |")
+        md += ["", f"Sensibilita' (`passo` = \"{SENS}\" in entrambi i CSV): stesse colonne, maschera senza il NICP (le "
+                   "righe perse rientrano per tutti), NICP fallito = distanza massima della colonna sul dominio (il "
+                   "fallimento conta come la coppia piu' lontana). Il NICP con e senza la sostituzione e i passi della "
+                   "scala che lo usano:", ""]
+    md += ["| dominio | GT | insieme | metodo / passo | maschera comune | fallimento = distanza massima |",
            "| --- | --- | --- | --- | --- | --- |"]
     for v in SYNTH:
         for g in GTS:
-            for s, p in (("nocrop", "-"), ("crop", "crop")):
+            for s, p in sets:
                 for c in NICP:
                     a = [S[(S["dominio"] == v) & (S["gt"] == g) & (S["insieme_righe"] == s) & (S["perturbazione"] == p) &
                            (S["colonna"] == c) & (S["passo"] == ps)] for ps in ("comune", SENS)]
@@ -1020,36 +1137,135 @@ def nicp_section(S: pd.DataFrame, Dl: pd.DataFrame, ctrl: dict) -> list:
     return md + [""]
 
 
+def mask_section(ctrl: dict, views: tuple) -> list:
+    """Maschera comune per dominio, righe tolte dalle colonne interne e righe perse dai plug-in (controls.json)."""
+    md = ["## Maschera comune e righe perse", "",
+          "Una sola maschera per dominio: le righe con GT dove tutte le colonne interne sono finite (sulla stessa "
+          "topologia, quelle definite li'). I plug-in non la cambiano: uno finito su tutte le sue righe a topologie "
+          "diverse (stessa topologia: tutte o nessuna) entra nel passo `comune` (dichiarato) o nel passo `" + UNDECL +
+          "` (stesse righe e repliche); uno con buchi va in un passo `righe proprie (...)` sulle sue righe, e qui si "
+          "dicono le righe che perde rispetto alla maschera. Righe = coppie ordinate di mesh di soggetti diversi.", "",
+          "| dominio | righe con GT | maschera: topologie diverse / stessa | tolte dalle colonne interne (topologie "
+          "diverse) | plug-in nel passo comune / non dichiarati | righe perse dai plug-in di questi due passi | plug-in "
+          "senza stessa topologia | righe proprie: colonne, righe, perse rispetto alla maschera |",
+          "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for v in views:
+        m, p = ctrl["views"].get(v, {}).get("mask"), ctrl["views"].get(v, {}).get("plugins", {})
+        if not m:
+            continue
+        drop = ", ".join(f"{c} {n}" for c, n in m["rows_dropped_by_column_cross"].items()) or "0"
+        lost = sum(p.get("rows_lost_cross_in_comune", {}).values())
+        nos = ", ".join(sorted({plugin_name(c) for c in p.get("missing_on_same", [])})) or "-"
+        own = "; ".join(f"{', '.join(sorted({plugin_name(c) for c in x['columns']}))} ({len(x['columns'])} colonne): "
+                        f"{x['rows_cross']} righe a topologie diverse + {x['rows_same']} stessa, perse "
+                        f"{x['rows_lost_cross_vs_mask']} + {x['rows_lost_same_vs_mask']}"
+                        for x in p.get("righe_proprie", {}).values()) or "-"
+        md.append(f"| {v} | {m['rows_valid_gt']} | {m['rows_mask_cross']} / {m['rows_mask_same']} | {drop} | "
+                  f"{len(p.get('comune', []))} / {len(p.get(UNDECL, []))} | {lost} | {nos} | {own} |")
+    return md + [""]
+
+
+def lmk_section(S: pd.DataFrame, views: tuple, sets) -> list:
+    """Protocolli sulle righe proprie del sottocampione: landmark esatti (dichiarati) contro rilevatore (``lmk_det``,
+    colonna aggiuntiva marcata) e rumore (``lmk_s*``, non dichiarati), stesse righe e repliche."""
+    x = S[S["passo"].astype(str).str.startswith("righe proprie") & S["colonna"].astype(str).str.startswith("plugin:")]
+    md = []
+    for v in views:
+        y = x[x["dominio"] == v]
+        if y.empty:
+            continue
+        conds = sorted({plugin_name(c).split("/")[1] for c in y["colonna"] if "/" in plugin_name(c)},
+                       key=lambda c: (c != "lmk_det", c))
+        bases = [c for c in dict.fromkeys(y["colonna"]) if "/" not in plugin_name(c)]
+        if not bases:
+            continue
+        md += [f"{DOMAIN[v]}:", "", "| GT | insieme | protocollo | righe | landmark esatti (dichiarata) | " +
+               " | ".join("**lmk_det (rilevatore)**" if c == "lmk_det" else c for c in conds) + " |",
+               "| --- | --- | --- | --- | --- |" + " --- |" * len(conds)]
+        for g in GTS:
+            for s, p in sets:
+                z = y[(y["gt"] == g) & (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
+                for b in bases:
+                    e = z[z["colonna"] == b]
+                    if e.empty:
+                        continue
+                    nm, r = plugin_name(b), b.split("|", 1)[1]
+                    cells = [f3(e.iloc[0].rho, e.iloc[0].ic_lo, e.iloc[0].ic_hi)]
+                    for c in conds:
+                        q = z[z["colonna"] == f"plugin:{nm}/{c}|{r}"]
+                        cells.append(f3(q.iloc[0].rho, q.iloc[0].ic_lo, q.iloc[0].ic_hi) if len(q) else "-")
+                    md.append(f"| {g.upper()} | {sname(s, p)} | {nm} | {int(e.iloc[0].n_righe)} | " +
+                              " | ".join(cells) + " |")
+        md.append("")
+    return md
+
+
+def undecl_section(S: pd.DataFrame, views: tuple, sets) -> list:
+    """Varianti non dichiarate (passo ``UNDECL``): Spearman sulle righe della maschera comune, per la GT della lettura
+    (etichetta che finisce con (FR) / (SR); le altre con entrambe)."""
+    x = S[S["passo"] == UNDECL]
+    if x.empty:
+        return []
+    cols = [(v, s, p) for v in views for s, p in sets
+            if len(x[(x["dominio"] == v) & (x["insieme_righe"] == s) & (x["perturbazione"] == p)])]
+    md = []
+    for g in GTS:
+        other = "(SR)" if g == "fr" else "(FR)"
+        y = x[(x["gt"] == g) & ~x["metodo"].astype(str).str.endswith(other)]
+        if y.empty:
+            continue
+        md += [f"GT {g.upper()}:", "", "| metodo | " + " | ".join(f"{v} {sname(s, p)}" for v, s, p in cols) + " |",
+               "| --- |" + " --- |" * len(cols)]
+        for c in dict.fromkeys(y["colonna"]):
+            cells = []
+            for v, s, p in cols:
+                r = y[(y["colonna"] == c) & (y["dominio"] == v) & (y["insieme_righe"] == s) & (y["perturbazione"] == p)]
+                cells.append(f3(r.iloc[0].rho, r.iloc[0].ic_lo, r.iloc[0].ic_hi) if len(r) else "-")
+            md.append(f"| {y[y['colonna'] == c]['metodo'].iloc[0]} | " + " | ".join(cells) + " |")
+        md.append("")
+    return md
+
+
 def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dict) -> None:
     md = ["# Matrice completa e confrontabile: Spearman con FR e SR, delta appaiati", "",
           "Codice `aau/full_matrix/` (`fm_eval.py`, definizioni nel docstring), numeri in questa cartella. Ogni metodo "
           "di un dominio e' valutato sulle STESSE righe (maschera comune: righe con tutte le colonne del dominio finite), "
           "con le STESSE 1000 repliche per soggetto (seme della T1 del dominio, lo stesso per tutti gli insiemi). IC 95% "
-          "percentile. Delta appaiati = differenza replica per replica. FaMoS TEST sta in una sezione descrittiva a "
-          "parte in fondo. Ava-256 non e' toccato.", "",
+          "percentile. Delta appaiati = differenza replica per replica. Plug-in di `competitors_new/`: nel passo "
+          "`comune` solo le varianti dichiarate (GW, percettivi, ULRSSM `faces_xyz`, NoW originale, NoW metrical, REALY "
+          "e Stirling coi landmark esatti); le non dichiarate e i landmark rilevati (`lmk_det`, colonna aggiuntiva "
+          "marcata) in passi e sezioni separati. **Il crop e' fuori dalla tesi principale**: le sezioni principali "
+          "usano solo righe senza crop (nocrop, per perturbazione senza crop, stessa topologia senza crop); crop, "
+          "all_cross e stessa topologia con la crop sono tutti nella sezione \"Crop (descrittivo, supplementary)\". "
+          "FaMoS TEST sta in una sezione descrittiva a parte in fondo. Ava-256 non e' toccato.", "",
           "## File e colonne (nomi stabili)", "",
-          "- `spearman.csv`: `metodo` (etichetta), `colonna` (id stabile), `famiglia`, `nostro`, `dichiarata` (lettura "
-          "dichiarata per quella GT), `post_hoc` (d_F calibrata, varianti A e B dei fit e composizione, template FaMoS "
-          "costruito qui), `dominio`, `gt` (fr, sr), `insieme_righe` (nocrop, crop, all_cross, con_perturbazione, "
+          "- `spearman.csv`: `metodo` (etichetta), `colonna` (id stabile; plug-in `plugin:<metodo>[/<variante>]|"
+          "<lettura>`), `famiglia`, `nostro`, `dichiarata` (lettura dichiarata per quella GT di una variante "
+          "dichiarata), `post_hoc` (d_F calibrata, varianti A e B dei fit e composizione, template FaMoS "
+          "costruito qui), `declared` (variante dichiarata: `declared` di fm_plugin.json; True per i metodi interni), "
+          "`dominio`, `gt` (fr, sr), `insieme_righe` (nocrop, crop, all_cross, con_perturbazione, "
           "coppia_topologie, stessa_topologia, coppia_ordinata, media_20_ordinate_senza_crop, media_5_stessa_topologia), "
-          "`perturbazione` (`-`, una topologia, `a~b` coppia non ordinata, `a>b` ordinata, `tutte`; `con_perturbazione` "
-          "P = P contro le altre topologie SENZA crop, la scomposizione di nocrop; per P = crop coincide con `crop`; "
-          "`stessa_topologia` = soggetti diversi con la stessa topologia, crop - crop compresa), `rho`, `ic_lo`, `ic_hi`, "
-          "`n_righe`, `n_soggetti`, `seme`, `passo` (`comune`; la sensibilita' del NICP; le righe proprie di un plug-in "
-          "con buchi).",
+          "`perturbazione` (`-`, una topologia, `a~b` coppia non ordinata, `a>b` ordinata, `tutte`, `senza_crop`; "
+          "`con_perturbazione` P = P contro le altre topologie SENZA crop, la scomposizione di nocrop; per P = crop "
+          "coincide con `crop`; `stessa_topologia` = soggetti diversi con la stessa topologia, `tutte` con crop - crop, "
+          "`senza_crop` senza), `rho`, `ic_lo`, `ic_hi`, `n_righe`, `n_soggetti`, `seme`, `passo` (`comune`; la "
+          f"sensibilita' del NICP; `{UNDECL}`; `righe proprie (n righe a topologie diverse)` dei plug-in con buchi).",
           "- `deltas.csv`: le stesse chiavi + `tipo` (vs_nostro = braccio - concorrente; scala_allineamento = a - b; "
           "migliore_vs_migliore), `confronto`, `ruolo` (scala: principale o secondario), `piu_allineato` (scala: a o b), "
           "`metodo_a`, `colonna_a`, `post_hoc_a`, `metodo_b`, `colonna_b`, `post_hoc_b`, `rho_a`, `rho_b`, `delta`, "
-          "`ic_lo`, `ic_hi`, `p_le0` (frazione delle repliche con delta <= 0).",
+          "`ic_lo`, `ic_hi`, `p_le0` (frazione delle repliche con delta <= 0), `declared_a`, `declared_b`.",
           "- `non_applicabili.csv`: `dominio`, `metodo`, `colonna`, `insieme_righe`, `motivo` (anche le CAUTELE su celle "
           "calcolate).",
           "- `controls.json`: controlli di riproduzione, maschera e righe tolte per colonna, fallimenti del NICP per "
-          "topologia, Spearman di ogni colonna con la taglia oracolo e stimata (`spearman_con_taglia`), plug-in.", "",
+          "topologia, Spearman di ogni colonna con la taglia oracolo e stimata (`spearman_con_taglia`), plug-in (tipo, "
+          "passo, righe perse: `views.<dominio>.plugins`).", "",
           "Letture dichiarate: nostri FR = d_F cal. (post hoc, emendamento 4), d_F non cal. (preregistrata), ctrlfr; SR = "
           "d_P (ctrlfr non e' un braccio per SR: e' in `spearman.csv` ma non e' un riferimento dei delta SR). Fit 3DMM: "
           "coefficienti (FR e SR), mesh FR con FR, mesh SR con SR, composizione di B con FR (k calibrato solo per B: per "
           "preregistrato e vA la composizione non esiste). Geometrici, percettivi, spettrali, reti e riferimenti: "
-          "entrambe le GT. Tutte le letture sono comunque in `spearman.csv` (`dichiarata` = False).", ""]
+          "entrambe le GT. Plug-in: la GT di `readings` in fm_plugin.json (GW e percettivi: `fr` in mm con FR, `sr` a "
+          "CS_ref con SR; ULRSSM: per coppia e via template, FR e SR; protocolli: `mm` con entrambe). Tutte le letture "
+          "sono comunque in `spearman.csv` (`dichiarata` = False).", ""]
     md += ["## Come aggiungere un concorrente (plug-in)", "",
            "Una cartella `aau/runs/evidence/competitors_new/<metodo>/` (o `<metodo>/<tag>/`) con, per dominio (`hifi3d`, "
            "`facescape`, `faceverse`, `faceverse_neutral`, `famos`), `<dominio>.npz` (`subjects`, `topologies`, matrici "
@@ -1057,49 +1273,91 @@ def write_results(S: pd.DataFrame, Dl: pd.DataFrame, NA: pd.DataFrame, ctrl: dic
            "oppure `<dominio>.csv` / `pairs_<dominio>.csv` (`subject_a`, `topology_a`, `subject_b`, `topology_b`, una "
            "colonna per lettura), e il file di marcatura OBBLIGATORIO `fm_plugin.json` (anche `{}`; le cartelle senza, es. "
            "`pilot/` o `prep/`, si ignorano; facoltativi `label`, `family`, `readings`: {lettura: {`label`, "
-           "`gt`}}; senza, una lettura `fr` / `*_fr` e' dichiarata per FR, `sr` / `*_sr` per SR, le altre per entrambe). "
+           "`gt`}}, `declared` (assente o true = dichiarata; false o null = non dichiarata, passo a parte); senza "
+           "`gt`, una lettura `fr` / `*_fr` e' dichiarata per FR, `sr` / `*_sr` per SR, le altre per entrambe). "
            "Poi solo lo stadio finale: `FM_STEP=eval sbatch --cpus-per-task=64 --mem=192G --time=02:00:00 "
            "aau/full_matrix/fm.sbatch`. Un plug-in finito su tutta la maschera comune entra nello stesso passo e non cambia "
            "le righe degli altri; uno con buchi va in un passo a parte (`passo` = righe proprie), con i bracci di "
            "riferimento sulle sue righe.", ""]
+    md += mask_section(ctrl, VIEWS)
     if len(NA):
         md += ["## Non applicabili e cautele", "", "| dominio | metodo | insieme | motivo |", "| --- | --- | --- | --- |"]
         md += [f"| {r.dominio} | {r.metodo} | {r.insieme_righe} | {r.motivo} |" for r in NA.itertuples()]
         md.append("")
-    md += ["## Miglior nostro contro miglior concorrente (famiglie sintetiche; letture dichiarate, scelti sul punto: "
-           "post hoc)", ""] + best_table(S, Dl, SYNTH)
-    md += ["## Scala dell'allineamento", "",
-           "Delta appaiati a - b (stesse righe, stesse repliche) lungo i gradi di liberta' dell'allineamento. PRINCIPALI: "
-           "1 (togliere la taglia: la modalita' cs scala ogni mesh alla cs_ref del dominio, `blmm.work_coords`; non e' una "
-           "scala per coppia), 2 (ICP cs - NICP cs), 3b (NICP su template cs - NICP per coppia cs), 4 e 5 con FR contro "
-           "ICP mm, con SR contro ICP cs e NICP cs (con SR il riferimento corretto e' senza taglia). SECONDARI: 2b e 3 in "
-           "mm, CONFUSI DALLA TAGLIA (in mm il NICP su template segue la taglia, il NICP per coppia la assorbe: vedi la "
-           "tabella sotto), e 4 e 5 con SR contro ICP mm. 4: fit B con la mesh della GT (FR con FR, SR con SR); 5: nostro "
-           "preregistrato (d_F non cal. con FR, d_P con SR), entrambi i semi.", "",
+    md += ["## Miglior nostro contro miglior concorrente (famiglie sintetiche, senza crop; letture dichiarate di "
+           "varianti dichiarate, scelti sul punto: post hoc)", ""] + best_table(S, Dl, SYNTH)
+    md += ["Ogni lettura nostra di riferimento contro il miglior concorrente della riga sopra (nocrop; delta "
+           "`vs_nostro`, stesse righe e repliche; gli altri insiemi in `deltas.csv`):", ""] + \
+        ours_vs_best(Dl, SYNTH, (("nocrop", "-"),))
+    ladder_intro = [
+        "Delta appaiati a - b (stesse righe, stesse repliche) lungo i gradi di liberta' dell'allineamento. PRINCIPALI: "
+        "1 (togliere la taglia: la modalita' cs scala ogni mesh alla cs_ref del dominio, `blmm.work_coords`; non e' una "
+        "scala per coppia), 1b (togliere la taglia PER COPPIA: NoW originale, Procrustes + ICP con scala stimata per "
+        "coppia, - NoW metrical, la stessa catena senza scala; landmark esatti; lato piu' allineato a), 2 (ICP cs - "
+        "NICP cs), 3b (NICP su template cs - NICP per coppia cs), 4 e 5 con FR contro "
+        "ICP mm, con SR contro ICP cs e NICP cs (con SR il riferimento corretto e' senza taglia). SECONDARI: 2b e 3 in "
+        "mm, CONFUSI DALLA TAGLIA (in mm il NICP su template segue la taglia, il NICP per coppia la assorbe: vedi la "
+        "tabella sotto), e 4 e 5 con SR contro ICP mm. 4: fit B con la mesh della GT (FR con FR, SR con SR); 5: nostro "
+        "preregistrato (d_F non cal. con FR, d_P con SR), entrambi i semi.", ""]
+    md += ["## Scala dell'allineamento (senza crop)", ""] + ladder_intro + [
            "Spearman (punto, righe nocrop della maschera) di ogni colonna della scala con la taglia oracolo / la taglia "
            "stimata (`est_cs`); tutte le colonne e gli insiemi crop e all_cross in `controls.json`, "
            "`spearman_con_taglia`:", ""] + size_table(ctrl, VIEWS)
     md += ["### Confronti principali", ""] + ladder_table(Dl, SYNTH, "principale")
     md += ["### Confronti secondari (2b e 3 confusi dalla taglia; 4 e 5 con SR contro un riferimento con la taglia)", ""] + \
         ladder_table(Dl, SYNTH, "secondario")
-    md += ["## Conteggio", "",
-           "Per ogni passo e GT, in nocrop, crop e all_cross: numero di famiglie sintetiche (HIFI3D, FaceScape, FaceVerse "
-           "con espressioni, FaceVerse neutra) con IC 95% appaiato che esclude lo 0 nel verso \"piu' allineamento = "
-           "peggio\" / nel verso opposto / non risolte. Lato piu' allineato: b nei passi 1-3 (cs: taglia tolta per mesh; "
-           "NICP: deformazione; NICP per coppia: deformazione specifica della coppia contro l'iscrizione su un template "
-           "comune), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 (ICP: allineamento esplicito; il braccio "
-           "non allinea). Le righe 4 e 5 contano ogni modello / seme a parte.", ""] + count_table(Dl)
+    count_intro = ("numero di famiglie sintetiche (HIFI3D, FaceScape, FaceVerse con espressioni, FaceVerse neutra) con "
+                   "IC 95% appaiato che esclude lo 0 nel verso \"piu' allineamento = peggio\" / nel verso opposto / non "
+                   "risolte. Lato piu' allineato: b nei passi 1-3 (cs: taglia tolta per mesh; NICP: deformazione; NICP "
+                   "per coppia: deformazione specifica della coppia contro l'iscrizione su un template comune), a "
+                   "nell'1b (scala stimata per coppia), a nel 4 (fit del modello per mesh contro la rigida), b nel 5 "
+                   "(ICP: allineamento esplicito; il braccio non allinea). Le righe 4 e 5 contano ogni modello / seme a "
+                   "parte.")
+    md += ["## Conteggio", "", f"Per ogni passo e GT, in nocrop: {count_intro}", ""] + count_table(Dl)
     md += nicp_section(S, Dl, ctrl)
-    md += ["## Tabelle per dominio (famiglie sintetiche)", ""]
+    md += ["## Protocolli: landmark esatti e landmark rilevati (lmk_det, colonna aggiuntiva marcata)", "",
+           "NoW originale, NoW metrical, REALY e Stirling: lettura dichiarata coi landmark esatti (passo `comune`). Il "
+           "rilevatore (`lmk_det`, insightface 1k3d68 sui render: la variante che si calcola su Ava-256) e il rumore "
+           "sui landmark (`lmk_s1`-`lmk_s5`, sigma in mm, non dichiarati) esistono solo su un sottocampione di coppie "
+           "(HIFI3D e FaceScape): passo `righe proprie`, con i landmark esatti e i bracci di riferimento sulle stesse "
+           "righe e repliche (le righe perse sono nella tabella della maschera). Spearman (senza crop):", ""] + \
+        lmk_section(S, SYNTH, SETS_MD)
+    md += [f"## Varianti non dichiarate (passo `{UNDECL}`, descrittivo)", "",
+           "Stesse righe della maschera comune e stesse repliche; mai nel miglior concorrente ne' nella scala. GW "
+           "`euclid_256_cgw2` e `euclid_256_cg`, percettivi nelle varianti di render non scelte dal pilota, ULRSSM "
+           "`faces_wks` e `zeroshot_faust`. I delta `vs_nostro` sono in `deltas.csv` con lo stesso `passo`.", ""] + \
+        undecl_section(S, SYNTH, (("nocrop", "-"), ("stessa_topologia", "senza_crop")))
+    md += ["## Tabelle per dominio (famiglie sintetiche, senza crop)", ""]
     for v in SYNTH:
         md += domain_tables(S, Dl, v)
+    md += ["## Crop (descrittivo, supplementary)", "",
+           "Fuori dalla tesi principale (decisione del PI): qui, completi, tutti gli insiemi con la crop: `crop` (una "
+           "crop contro una topologia diversa), `all_cross` (topologie diverse, crop compresa), `stessa_topologia crop` "
+           "(crop - crop) e `stessa_topologia tutte`. Stesse righe della maschera, stesse repliche, stesse colonne delle "
+           "sezioni principali.", "", "### Miglior nostro contro miglior concorrente (crop)", ""] + \
+        best_table(S, Dl, SYNTH, SETS_CROP)
+    md += ["Ogni lettura nostra di riferimento contro il miglior concorrente (crop, all_cross):", ""] + \
+        ours_vs_best(Dl, SYNTH, COUNT_CROP)
+    md += ["### Scala dell'allineamento (crop): confronti principali", ""] + \
+        ladder_table(Dl, SYNTH, "principale", sets=SETS_CROP)
+    md += ["### Scala dell'allineamento (crop): confronti secondari", ""] + \
+        ladder_table(Dl, SYNTH, "secondario", sets=SETS_CROP)
+    md += ["### Conteggio (crop)", "", f"Per ogni passo e GT, in crop e all_cross: {count_intro}", ""] + \
+        count_table(Dl, COUNT_CROP)
+    md += ["### Fallimenti del NICP per coppia (crop)", ""] + nicp_section(S, Dl, ctrl, (("crop", "crop"),), intro=False)
+    md += ["### Protocolli, landmark esatti e rilevati (crop)", ""] + lmk_section(S, SYNTH, COUNT_CROP)
+    md += ["### Varianti non dichiarate (crop)", ""] + undecl_section(S, SYNTH, COUNT_CROP)
+    for v in SYNTH:
+        md += domain_tables(S, Dl, v, SETS_CROP, head=" (crop)")
     md += ["## FaMoS TEST (descrittivo)", "",
            "**Non usare per scegliere il setting di Ava-256** ne' per nessuna selezione: 15 persone, 105 righe (blocco "
            "scan gallery -> scan), IC larghissimi; nessuna crop, nessuna perturbazione. Cautele: ArcFace-render (ritaglio "
            "tarato su pochi render, vedi le cautele sopra), NICP su template con un template costruito qui dalle persone "
            "TRAIN (post hoc).", ""] + best_table(S, Dl, ("famos",))
     md += ["Scala dell'allineamento, FaMoS (tutti i passi, principali e secondari):", ""] + \
-        ladder_table(Dl, ("famos",), "principale") + ladder_table(Dl, ("famos",), "secondario") + domain_tables(S, Dl, "famos")
+        ladder_table(Dl, ("famos",), "principale") + ladder_table(Dl, ("famos",), "secondario") + \
+        domain_tables(S, Dl, "famos") + [f"Varianti non dichiarate, FaMoS (passo `{UNDECL}`):", ""] + \
+        undecl_section(S, ("famos",), (("nocrop", "-"),))
     md += ["## Controlli", "", "```", json.dumps({k: v for k, v in ctrl.items()}, indent=1, default=str), "```", ""]
     (OUT_W / "results.md").write_text("\n".join(md) + "\n")
 
@@ -1135,9 +1393,10 @@ def main() -> None:
     sens = [c for c in bpe2.SENS if any((bp.out_dir(v, c.split("_vbs_")[0]) / "fit_e2_sens.npz").exists()
                                         for v in bpp.VIEW_ORDER)]
     pdirs, pignored = plugin_dirs([Path(x) for x in a.plugins.split(",") if x])
+    kinds = plugin_kinds(pdirs)
     S, Dl, NA, info = [], [], [], {}
     for view in a.views.split(","):
-        s, d, n, info[view] = run_view(view, a.n_boot, a.workers, pdirs, sens)
+        s, d, n, info[view] = run_view(view, a.n_boot, a.workers, pdirs, sens, kinds)
         S += s
         Dl += d
         NA += n
@@ -1147,7 +1406,7 @@ def main() -> None:
     Dl.to_csv(OUT_W / "deltas.csv", index=False)
     NA.to_csv(OUT_W / "non_applicabili.csv", index=False)
     ctrl = {"views": info, "points_vs_sources": point_controls(S), "plugins": [str(d) for _, d in pdirs],
-            "plugin_dirs_ignored_without_fm_plugin_json": pignored}
+            "plugin_kinds": kinds, "plugin_dirs_ignored_without_fm_plugin_json": pignored}
     (OUT_W / "controls.json").write_text(json.dumps(ctrl, indent=1, default=str) + "\n")
     print(json.dumps(ctrl["points_vs_sources"], indent=1), flush=True)
     write_results(S, Dl, NA, ctrl)
