@@ -239,7 +239,18 @@ _SCAL: dict = {}
 
 
 def rel(path: Path) -> str:
-    return str(Path(path).resolve().relative_to(REPO_ROOT)) if Path(path).is_absolute() else str(path)
+    """Percorso risolto relativo alla radice del repo. In un worktree della prova confermativa (Ava-256 v7,
+    ``aau/ava256/conf_worktree.sh``) ``datasets/`` e ``aau/runs/`` sono link al repo principale: il percorso risolto
+    si prende relativo alla radice del repo che li contiene, quindi le chiavi sono le stesse del repo principale."""
+    if not Path(path).is_absolute():
+        return str(path)
+    r = Path(path).resolve()
+    for root in dict.fromkeys((REPO_ROOT, (REPO_ROOT / "datasets").resolve().parent)):
+        try:
+            return str(r.relative_to(root))
+        except ValueError:
+            pass
+    raise ValueError(f"{r}: fuori dal repo {REPO_ROOT}")
 
 
 def scalars_of(view: str) -> dict:

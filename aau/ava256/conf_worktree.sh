@@ -7,10 +7,10 @@
 #
 # Il codice viene SOLO dal commit (checkout pulito, staccato). I dati non tracciati o ignorati del repo principale
 # (datasets/, aau/runs/ con checkpoint, matrici e uscite, venv, diffusion-net, cloni esterni) entrano come link
-# simbolici o bind: aau/runs/ e datasets/ sono fuori dallo sparse-checkout (i loro file tracciati non sono codice) e
-# entrano nel container come bind mount sul worktree (``.conf_binds``, letto da conf.sbatch e passato in AAU_NV: i
-# percorsi restano dentro il worktree, blmm.rel e gli altri relative_to funzionano); ogni altra voce non tracciata o
-# ignorata del repo principale e' un link al suo percorso, mai un file copiato. I moduli
+# simbolici: aau/runs/ e datasets/ sono fuori dallo sparse-checkout (i loro file tracciati non sono codice) e sono link
+# al repo principale (blmm.rel prende i percorsi risolti relativi al repo che contiene datasets/: chiavi uguali al repo
+# principale); ogni altra voce non tracciata o ignorata del repo principale e' un link al suo percorso, mai un file
+# copiato. I moduli
 # Python importati restano controllati uno per uno contro il commit (conf_run.py); conf_common.verify controlla HEAD
 # e che nessun file tracciato sia modificato.
 set -euo pipefail
@@ -23,8 +23,8 @@ cd "$DEST"
 mkdir -p "$(git rev-parse --git-dir)/info"                    # git 2.25: la cartella info del worktree manca
 git sparse-checkout set --no-cone '/*' '!/aau/runs/' '!/datasets/'
 git checkout --detach "$COMMIT"
-mkdir -p aau/runs datasets                                     # punti di mount (vuoti fuori dal container)
-echo "--bind $MAIN/aau/runs:$DEST/aau/runs --bind $MAIN/datasets:$DEST/datasets" > .conf_binds
+ln -s "$MAIN/aau/runs" aau/runs
+ln -s "$MAIN/datasets" datasets
 # voci non tracciate o ignorate del repo principale (cartelle intere o file), fuori da aau/runs e datasets
 git -C "$MAIN" status --porcelain --ignored --untracked-files=normal | sed -n 's/^\(??\|!!\) //p' \
   | grep -v '^aau/runs/\|^datasets/\|__pycache__\|\.pyc$' | while read -r p; do

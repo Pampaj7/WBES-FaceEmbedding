@@ -49,10 +49,7 @@ set -euo pipefail
 export AAU_NV=""
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
-CB=""                                                           # v7: bind del worktree (conf_worktree.sh)
-[[ -f "$WBES_ROOT/.conf_binds" ]] && CB="$(cat "$WBES_ROOT/.conf_binds")"
-export AAU_NV="$CB"
-NV="--nv $CB"
+NV="--nv"
 SPEC="${CONF_SPEC:?CONF_SPEC: spec json}"
 W="${SLURM_CPUS_PER_TASK:-8}"
 NAME=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["name"])' "$SPEC")
@@ -67,7 +64,7 @@ BL=(aau/baselines/run_bl.sh -u)
 GP=(aau/competitors/gw_percettivi/gp_run.sh -u)
 ops() {  # <cartella delle mesh> <cartella degli operatori>: areanorm k_eig 128 in W-1 shard (d3.sbatch), conteggio
   local src="$1" out="$2" i N M pids=()
-  # conteggi e cartelle dentro il container: nel worktree datasets/ e' un bind visibile solo li'
+  # conteggi e cartelle dentro il container (come gli operatori)
   N=$("${REPOPY[@]}" -c 'import glob, os, sys; os.makedirs(sys.argv[2], exist_ok=True); print(len(glob.glob(sys.argv[1] + "/*.npz")))' "$src" "$out" | tail -1)
   for (( i = 0; i < W - 1; i++ )); do
     OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 "${REPOPY[@]}" $CR v2_work/potential/areanorm_operators.py \
