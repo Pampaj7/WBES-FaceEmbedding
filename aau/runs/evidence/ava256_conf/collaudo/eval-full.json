@@ -146,26 +146,6 @@
    "esito": "non confermata"
   },
   {
-   "regola": "R4",
-   "seme": "s1234",
-   "delta": 0.2460545622133788,
-   "ic_lo": 0.1995134551626705,
-   "ic_hi": 0.295163302220974,
-   "k_le0": 0,
-   "non_risolto": NaN,
-   "esito": "confermata"
-  },
-  {
-   "regola": "R4",
-   "seme": "s2345",
-   "delta": 0.1358282113495867,
-   "ic_lo": 0.0883570720410961,
-   "ic_hi": 0.1845472859541921,
-   "k_le0": 0,
-   "non_risolto": NaN,
-   "esito": "confermata"
-  },
-  {
    "regola": "R5a",
    "seme": "s1234",
    "delta": 0.040784099653964,
@@ -241,9 +221,17 @@
   "num": 1e-12,
   "geom_mm": 0.0001,
   "rel": 1e-09,
-  "spearman_geom": 0.0001
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001
  },
- "host": "a256-t4-03.srv.aau.dk",
- "job": "1071672",
- "date": "2026-10-13 10:49:37"
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1072069",
+ "date": "2026-10-13 13:50:00"
 }

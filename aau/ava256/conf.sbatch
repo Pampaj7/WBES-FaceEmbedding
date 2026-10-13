@@ -24,7 +24,9 @@
 #   CONF_SPEC=$S CONF_STEPS="eval" sbatch aau/ava256/conf.sbatch                          (LEGGE LE GT)
 #   v4, embedding e descrittivi fuori da conf_eval (conf_embed.py, conf_desc.py):
 #   CONF_SPEC=$S CONF_STEPS="embed-stage" sbatch aau/ava256/conf.sbatch                   (link e operatori, CPU)
-#   CONF_SPEC=$S CONF_STEPS="embed desc-varifold" sbatch --gres=gpu:l40s:1 --cpus-per-task=16 --mem=96G aau/ava256/conf.sbatch
+#   CONF_SPEC=$S CONF_STEPS="embed" sbatch -p aicentre-a100 --qos=unprivileged --requeue --gres=gpu:a100:1 \
+#       --cpus-per-task=16 --mem=96G aau/ava256/conf.sbatch                 (v5: A100, la classe di GPU dello sviluppo)
+#   CONF_SPEC=$S CONF_STEPS="desc-varifold" sbatch --gres=gpu:l40s:1 --cpus-per-task=16 --mem=64G aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="desc-spectral desc-icp-same desc-arcface desc-gw-prep desc-perc" sbatch aau/ava256/conf.sbatch
 #   CONF_SPEC=$S CONF_STEPS="desc-gw-run:0/4" sbatch --time=24:00:00 aau/ava256/conf.sbatch   (4 job; poi desc-gw-merge)
 #   CONF_SPEC=$S CONF_STEPS="desc-eval" sbatch aau/ava256/conf.sbatch                     (LEGGE LE GT)

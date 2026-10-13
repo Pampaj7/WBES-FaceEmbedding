@@ -529,6 +529,7 @@
  },
  "embed": {
   "ops_root": "datasets/V3_OPS_CACHE/conf/hifi3d_full",
+  "gpu": "A100",
   "sets": {
    "eval_view": {
     "role": "eval",

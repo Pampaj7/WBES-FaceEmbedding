@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Ava-256, valutazione confermativa (PROTOCOL_CONFERMATIVO, sez. 5-8, 9.2): R1-R7 con le righe fallite dei metodi per
-coppia a +inf, Holm con m = 10 per seme del modello, regola "non risolto", lettura dei due semi; accanto, la versione
-mascherata (righe fallite tolte), NoW metrical contro d_F e gli Spearman dei protocolli (descrittivi). Collaudato su
+"""Ava-256, valutazione confermativa (PROTOCOL_CONFERMATIVO, sez. 5-8, 9.2): R1-R7 senza R4 con le righe fallite dei
+metodi per coppia a +inf, Holm con m = 9 per seme del modello, regola "non risolto", lettura dei due semi; accanto, la
+versione mascherata (righe fallite tolte), R4 (gruppo crop, descrittiva dalla v5: fuori dalla famiglia), NoW metrical
+contro d_F e gli Spearman dei protocolli (descrittivi). Collaudato su
 HIFI3D con lo STESSO codice (spec ``aau/ava256/spec/hifi3d_full.json`` e ``hifi3d_det.json``, ``conf_collaudo.py``).
 
     v3_work/unified_gt/run.sh aau/ava256/conf_eval.py --spec <json> --workers 64      (LEGGE LE GT del dominio)
@@ -25,8 +26,9 @@ in ogni gruppo e per ogni colonna (``fm_eval.replicas``: Spearman pesato c_a c_b
 Lettura confermativa: righe del gruppo con TUTTE le colonne PER MESH della famiglia finite (d_F cal., d_P e testa dei
 due semi, NICP su template in mm); una distanza non finita di un metodo PER COPPIA della famiglia (ICP e NICP per coppia
 in mm e cs, NoW originale e metrical) vale +inf (rango massimo, ranghi medi fra le righe fallite). Delta = a - b
-replica per replica; IC 95% percentile; k = repliche con delta <= 0, p = k / 1000. Holm per seme sulle 10 regole
-(``RULES``): p ordinati, si rifiuta H(i) finche' 40 k(i) (m - i + 1) <= n (n = 1000: k (m - i + 1) <= 25); R3a, R3b, R7
+replica per replica; IC 95% percentile; k = repliche con delta <= 0, p = k / 1000. Holm per seme sulle 9 regole
+(``RULES``; v5: R4 in ``DESC_RULES``, stessi delta in ``deltas.csv`` con ``famiglia`` False, nessun test): p ordinati,
+si rifiuta H(i) finche' 40 k(i) (m - i + 1) <= n (n = 1000: k (m - i + 1) <= 25); R3a, R3b, R7
 (senza seme) con lo stesso p in entrambe le famiglie. Una regola non risolta o la R6 con fit non convergente resta nella
 famiglia col suo p. Esiti (sez. 6, 8): confermata = Holm rifiuta e delta > 0 in entrambi i semi (R3a, R3b, R7: in
 entrambe le famiglie); non risolta = regola della sez. 8 (``unresolved``), prevale; non confermata = il resto.
@@ -64,12 +66,13 @@ RULES = (("R1", "factorized_{s}|form_cal", "mm_rigid_icp_chamfer", "fr", "nocrop
          ("R2b", "factorized_{s}|form_cal", "mm_nicp_p2tri", "fr", "nocrop", True),
          ("R3a", "mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", "fr", "nocrop", False),
          ("R3b", "cs_rigid_icp_chamfer", "cs_nicp_p2tri", "fr", "nocrop", False),
-         ("R4", "factorized_{s}|form_cal", "mm_rigid_icp_chamfer", "fr", "crop", True),
          ("R5a", "factorized_{s}|shape", "cs_rigid_icp_chamfer", "sr", "nocrop", True),
          ("R5b", "factorized_{s}|shape", "cs_nicp_p2tri", "sr", "nocrop", True),
          ("R6", "head_{s}|shape", "factorized_{s}|shape", "sr", "nocrop", True),
          ("R7", "now_metrical", "now_original", "fr", "nocrop", False))
-M_HOLM = len(RULES)
+M_HOLM = len(RULES)                                    # v5: 9 (R4 fuori dalla famiglia)
+# v5 (decisione del PI, prima di Ava-256): il gruppo crop e' solo descrittivo; R4 si calcola e si riporta, senza Holm
+DESC_RULES = (("R4", "factorized_{s}|form_cal", "mm_rigid_icp_chamfer", "fr", "crop", True),)
 PER_PAIR = ("mm_rigid_icp_chamfer", "cs_rigid_icp_chamfer", "mm_nicp_p2tri", "cs_nicp_p2tri", "now_original",
             "now_metrical")
 PROTOCOLS = ("now_original", "now_metrical", "realy", "stirling")
@@ -323,8 +326,20 @@ def main() -> None:
                 nota = "fit della testa non convergente (success = False): resta nella famiglia col suo p"
             recs.append({**base, "assente": False, **d, "n_righe": nc[grp], "non_risolto": "; ".join(why), "nota": nota})
             dm = delta(Vm, {m: k for k, m in enumerate(mesh_cols + pair_cols)}, grp, g_, ca, cb)
-            dl += [{"lettura": "confermativa (+inf)", **base, **d, "n_righe": nc[grp], "non_risolto": "; ".join(why)},
-                   {"lettura": "mascherata (descrittiva)", **base, **dm, "n_righe": nm[grp]}]
+            dl += [{"lettura": "confermativa (+inf)", **base, **d, "n_righe": nc[grp], "non_risolto": "; ".join(why),
+                    "famiglia": True},
+                   {"lettura": "mascherata (descrittiva)", **base, **dm, "n_righe": nm[grp], "famiglia": True}]
+    for rule, ra, rb, g_, grp, per_seed in DESC_RULES:              # v5: fuori dalla famiglia, solo delta e IC
+        for sd in (SEEDS if per_seed else ("-",)):
+            ca, cb = ra.format(s=sd), rb.format(s=sd)
+            if ca not in mi or cb not in mi:
+                continue
+            base = {"regola": rule, "seme": sd, "gt": g_, "gruppo": grp, "colonna_a": ca, "colonna_b": cb}
+            why = unresolved(ca, grp, R, X, failed, fb, topos) + unresolved(cb, grp, R, X, failed, fb, topos)
+            dm = delta(Vm, {m: k for k, m in enumerate(mesh_cols + pair_cols)}, grp, g_, ca, cb)
+            dl += [{"lettura": "confermativa (+inf)", **base, **delta(Vc, mi, grp, g_, ca, cb), "n_righe": nc[grp],
+                    "non_risolto": "; ".join(why), "famiglia": False},
+                   {"lettura": "mascherata (descrittiva)", **base, **dm, "n_righe": nm[grp], "famiglia": False}]
     rules = pd.DataFrame(recs)
     for sd in SEEDS:                                                 # Holm per seme
         fam = rules[(rules["seme"] == sd) | (rules["seme"] == "-")]
@@ -404,7 +419,8 @@ def write_results(out: Path, rules: pd.DataFrame, ctrl: dict) -> None:
     L = ["# Prova confermativa: regole R1-R7", "", f"Generato da `aau/ava256/conf_eval.py` (spec `{ctrl['spec']}`). "
          f"Seme delle repliche {ctrl['boot_seed']}, {ctrl['n_boot']} repliche, {ctrl['subjects']} soggetti, righe "
          f"{ctrl['rows']} (lettura confermativa: {ctrl['rows_by_group_confirmatory']}). Lettura confermativa: righe "
-         "fallite dei metodi per coppia = +inf; Holm per seme con m = 10.", "",
+         f"fallite dei metodi per coppia = +inf; Holm per seme con m = {M_HOLM} (R4, gruppo crop: descrittiva, fuori "
+         "dalla famiglia, in `deltas.csv`).", "",
          "| regola | seme | delta [IC 95%] | k (p) | Holm i / soglia / rifiuta | non risolto | esito |",
          "|---|---|---|---|---|---|---|"]
     for r in rules.itertuples():

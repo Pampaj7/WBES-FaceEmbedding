@@ -35,11 +35,11 @@
   "WBES_V3_FACTORIZED_OUT": "full",
   "WBES_EVAL_SCENARIOS": "clean"
  },
- "gpu": "NVIDIA L40S",
+ "gpu": "NVIDIA A100-SXM4-40GB",
  "torch": "2.5.0a0+e000cf0ad9.nv24.10",
- "seconds": 51.858723878860474,
+ "seconds": 69.99805808067322,
  "npz": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/ava256_collaudo/hifi3d_full/embed/eval_view/factorized_s2345/embeddings.npz",
- "host": "a768-l40s-01.srv.aau.dk",
- "job": "1071703",
- "date": "2026-10-13 11:40:54"
+ "host": "nv-ai-04.srv.aau.dk",
+ "job": "1071933",
+ "date": "2026-10-13 13:28:43"
 }

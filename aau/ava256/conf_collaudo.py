@@ -25,7 +25,8 @@ Passi (ognuno scrive ``<evidence>/collaudo/<passo>.json`` con gli scarti misurat
               regione, beta e matrici della variante B (``D_vb_*``) senza crop e col crop.
   head        ``conf_head.py block`` / ``fit`` (K0) dagli json di ``<evidence>/head``.
   v4:
-  embed       ``conf_embed.py`` (operatori rifatti, embedding su L40S) contro gli embedding di sviluppo: ``form_hifi``
+  embed       ``conf_embed.py`` (operatori rifatti; v5: embedding su A100, la classe dello sviluppo, tolleranze
+              ``embed_*_v5``; l'esito v4 su L40S con 1e-4 e' in ``embed_l40s.json``) contro gli embedding di sviluppo: ``form_hifi``
               (600 mesh, factorized s1234 e s2345, C3M e123) e il pool NON valutato di D3 (200 x 5, i due semi): chiavi,
               Z, d_F cal., d_F non cal., d_P su tutte le coppie; Spearman (punto e IC, nocrop / crop / all_cross, GT FR
               e SR) di quelle distanze sulle righe e repliche di ``conf_eval`` col nuovo embedding contro lo stesso con
@@ -71,7 +72,13 @@ TOL = {"exact": 0.0, "num": 1e-12, "geom_mm": 1e-4, "rel": 1e-9, "spearman_geom"
        # desc_rel: autovalori / HKS / WKS e Gram varifold ricalcolati, relativo (fm_varifold.py misura 1,2e-5 fra due
        # device); perc_abs: ArcFace e percettivi ricalcolati (1 - coseno, LPIPS); p_geom: p delle colonne ricalcolate,
        # una replica su 1000; GW e ICP + Chamfer ricalcolati: geom_mm
-       "embed_abs": 1e-4, "desc_rel": 1e-4, "perc_abs": 1e-4, "p_geom": 1e-3}
+       "embed_abs": 1e-4, "desc_rel": 1e-4, "perc_abs": 1e-4, "p_geom": 1e-3,
+       # v5 (decisione del PI), fissate PRIMA del collaudo su A100: la embed_abs della v4 (1e-4) era sotto il rumore di
+       # riproduzione gia' noto in sviluppo (A100 contro A100, operatori ricalcolati: max |dz| 2,8e-4 sul pool di D3,
+       # 5,2e-4 nel K7 di D3); l'esito della v4 su L40S resta registrato (collaudo/embed_l40s.json). Z: 1e-3 (~3,5 volte
+       # 2,8e-4); d_F (cal. e non cal.): 0,1 mm (1e-3 su s = log S, S ~ 100 mm); d_P: 1e-3 (stessa scala di u);
+       # Spearman e IC delle distanze: 1e-3
+       "embed_z_v5": 1e-3, "embed_dF_mm_v5": 0.1, "embed_dP_v5": 1e-3, "embed_spearman_v5": 1e-3}
 N_PAIRS, N_NICP = 1000, 100
 SENS = "sensibilita': NICP fallito = distanza massima"
 
@@ -416,7 +423,8 @@ def embed_check(workers: int) -> None:
                 r["dist_max_abs"] = {k: maxabs(dn[k], dr[k]) for k in ("form_cal", "form", "shape")}
                 r["pairs"] = int(len(i))
             r["pass"] = r["keys_equal_staged"] and r["keys_in_reference"] and r["checkpoint_equal"] and \
-                r["Z_max_abs"] <= TOL["embed_abs"] and max(r["dist_max_abs"].values()) <= TOL["embed_abs"]
+                r["Z_max_abs"] <= TOL["embed_z_v5"] and r["dist_max_abs"]["shape"] <= TOL["embed_dP_v5"] and \
+                max(r["dist_max_abs"]["form_cal"], r["dist_max_abs"]["form"]) <= TOL["embed_dF_mm_v5"]
             ok &= r["pass"]
             rep["sets"][f"{name}|{arm}"] = r
             gj = cc.evidence(s) / "embed" / name / f"{arm}.json"
@@ -456,7 +464,7 @@ def embed_check(workers: int) -> None:
     rep["spearman"] = sp
     rep["spearman_max_abs"] = max(v["max_abs"] for v in sp.values())
     rep["rows_by_group"] = nr
-    rep["pass"] = bool(ok and rep["spearman_max_abs"] <= TOL["spearman_geom"])
+    rep["pass"] = bool(ok and rep["spearman_max_abs"] <= TOL["embed_spearman_v5"])
     finish("embed", rep)
 
 

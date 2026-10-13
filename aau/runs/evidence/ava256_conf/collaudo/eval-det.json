@@ -38,9 +38,17 @@
   "num": 1e-12,
   "geom_mm": 0.0001,
   "rel": 1e-09,
-  "spearman_geom": 0.0001
+  "spearman_geom": 0.0001,
+  "embed_abs": 0.0001,
+  "desc_rel": 0.0001,
+  "perc_abs": 0.0001,
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001
  },
- "host": "a256-t4-03.srv.aau.dk",
- "job": "1071672",
- "date": "2026-10-13 10:50:26"
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1072070",
+ "date": "2026-10-13 13:46:44"
 }

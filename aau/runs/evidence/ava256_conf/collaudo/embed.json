@@ -6,15 +6,15 @@
    "keys_equal_staged": true,
    "keys_in_reference": true,
    "checkpoint_equal": true,
-   "Z_max_abs": 0.0006344914436340332,
+   "Z_max_abs": 0.0003401041030883789,
    "dist_max_abs": {
-    "form_cal": 0.013101815285232021,
-    "form": 0.03445984026968674,
-    "shape": 0.0006882266325213826
+    "form_cal": 0.006004877751490056,
+    "form": 0.012503878259325418,
+    "shape": 0.00024175101236298402
    },
    "pairs": 179700,
-   "pass": false,
-   "gpu": "NVIDIA L40S"
+   "pass": true,
+   "gpu": "NVIDIA A100-SXM4-40GB"
   },
   "eval_view|factorized_s2345": {
    "reference": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizeds2345fulle072_embed/zs_zeroshot/embeddings.npz",
@@ -22,15 +22,15 @@
    "keys_equal_staged": true,
    "keys_in_reference": true,
    "checkpoint_equal": true,
-   "Z_max_abs": 0.0007173120975494385,
+   "Z_max_abs": 0.00030331313610076904,
    "dist_max_abs": {
-    "form_cal": 0.01655437376083313,
-    "form": 0.04024992160403862,
-    "shape": 0.0007012439911572299
+    "form_cal": 0.005619370272262003,
+    "form": 0.010893730741747376,
+    "shape": 0.00019325298313263573
    },
    "pairs": 179700,
-   "pass": false,
-   "gpu": "NVIDIA L40S"
+   "pass": true,
+   "gpu": "NVIDIA A100-SXM4-40GB"
   },
   "eval_view|factorizedc3m_e123": {
    "reference": "aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizedc3mfulle123_embed/zs_zeroshot/embeddings.npz",
@@ -38,15 +38,15 @@
    "keys_equal_staged": true,
    "keys_in_reference": true,
    "checkpoint_equal": true,
-   "Z_max_abs": 0.0011876821517944336,
+   "Z_max_abs": 0.0006070733070373535,
    "dist_max_abs": {
-    "form_cal": 0.01660869228127737,
-    "form": 0.056748720502938,
-    "shape": 0.001078081452699664
+    "form_cal": 0.007397007298656888,
+    "form": 0.025821593643833296,
+    "shape": 0.0004540943511005535
    },
    "pairs": 179700,
-   "pass": false,
-   "gpu": "NVIDIA L40S"
+   "pass": true,
+   "gpu": "NVIDIA A100-SXM4-40GB"
   },
   "calib_view|factorized_s1234": {
    "reference": "aau/runs/evidence/diagnostics/d3/pools/hifi3d/emb/factorized_s1234/embeddings.npz",
@@ -54,15 +54,15 @@
    "keys_equal_staged": true,
    "keys_in_reference": true,
    "checkpoint_equal": true,
-   "Z_max_abs": 0.0006452798843383789,
+   "Z_max_abs": 0.00036591291427612305,
    "dist_max_abs": {
-    "form_cal": 0.015703650303064975,
-    "form": 0.03582945262756354,
-    "shape": 0.0006825361387360895
+    "form_cal": 0.006985945804742322,
+    "form": 0.016276502084599187,
+    "shape": 0.00028879120782257517
    },
    "pairs": 499500,
-   "pass": false,
-   "gpu": "NVIDIA L40S"
+   "pass": true,
+   "gpu": "NVIDIA A100-SXM4-40GB"
   },
   "calib_view|factorized_s2345": {
    "reference": "aau/runs/evidence/diagnostics/d3/pools/hifi3d/emb/factorized_s2345/embeddings.npz",
@@ -70,296 +70,296 @@
    "keys_equal_staged": true,
    "keys_in_reference": true,
    "checkpoint_equal": true,
-   "Z_max_abs": 0.0007674992084503174,
+   "Z_max_abs": 0.00047129392623901367,
    "dist_max_abs": {
-    "form_cal": 0.015383858974806763,
-    "form": 0.035080860165704664,
-    "shape": 0.0007263787981180714
+    "form_cal": 0.007158304254093473,
+    "form": 0.016769512446106916,
+    "shape": 0.00032571717996082716
    },
    "pairs": 499500,
-   "pass": false,
-   "gpu": "NVIDIA L40S"
+   "pass": true,
+   "gpu": "NVIDIA A100-SXM4-40GB"
   }
  },
  "spearman": {
   "nocrop|fr|factorized_s1234|form": {
-   "rho_new": 0.6424801716401545,
+   "rho_new": 0.6425011194513507,
    "rho_dev": 0.6425099504578912,
-   "max_abs": 7.331803329979625e-05
+   "max_abs": 1.8110284657146813e-05
   },
   "nocrop|fr|factorized_s1234|form_cal": {
-   "rho_new": 0.7485454968798834,
+   "rho_new": 0.748534856804225,
    "rho_dev": 0.7485412758849078,
-   "max_abs": 5.045728034658303e-05
+   "max_abs": 6.419080682773526e-06
   },
   "nocrop|fr|factorized_s1234|shape": {
-   "rho_new": 0.42622570934605447,
+   "rho_new": 0.42621423014042004,
    "rho_dev": 0.4262256689259357,
-   "max_abs": 8.2275647915242e-05
+   "max_abs": 1.1438785515682781e-05
   },
   "nocrop|fr|factorized_s2345|form": {
-   "rho_new": 0.6314025165286004,
+   "rho_new": 0.6313508243981683,
    "rho_dev": 0.6313541476242522,
-   "max_abs": 4.836890434811725e-05
+   "max_abs": 1.2080087525734307e-05
   },
   "nocrop|fr|factorized_s2345|form_cal": {
-   "rho_new": 0.7308875731164033,
+   "rho_new": 0.7308389835725982,
    "rho_dev": 0.7308377940548686,
-   "max_abs": 9.491953403872877e-05
+   "max_abs": 7.351848585246401e-06
   },
   "nocrop|fr|factorized_s2345|shape": {
-   "rho_new": 0.41777476651017914,
+   "rho_new": 0.4177701396130146,
    "rho_dev": 0.41776697282217706,
-   "max_abs": 5.432724968845726e-05
+   "max_abs": 1.8287903837621577e-05
   },
   "nocrop|fr|factorizedc3m_e123|form": {
-   "rho_new": 0.528746134260044,
+   "rho_new": 0.5287067506851442,
    "rho_dev": 0.5287023306725009,
-   "max_abs": 0.0001743539448578746
+   "max_abs": 3.901892386659611e-05
   },
   "nocrop|fr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.7483794743969009,
+   "rho_new": 0.7483445191068987,
    "rho_dev": 0.74834121671159,
-   "max_abs": 3.825768531084961e-05
+   "max_abs": 7.74593094554632e-06
   },
   "nocrop|fr|factorizedc3m_e123|shape": {
-   "rho_new": 0.40120607959614524,
+   "rho_new": 0.40117693523093567,
    "rho_dev": 0.4011722561053333,
-   "max_abs": 3.382349081193503e-05
+   "max_abs": 3.992383644979558e-05
   },
   "nocrop|sr|factorized_s1234|form": {
-   "rho_new": 0.5511102735417812,
+   "rho_new": 0.5510844960636297,
    "rho_dev": 0.5510979632272442,
-   "max_abs": 4.238586432248059e-05
+   "max_abs": 2.8256807096560532e-05
   },
   "nocrop|sr|factorized_s1234|form_cal": {
-   "rho_new": 0.31871980383470183,
+   "rho_new": 0.31868541512128024,
    "rho_dev": 0.318691258996082,
-   "max_abs": 2.8544838619803947e-05
+   "max_abs": 1.4085394849316923e-05
   },
   "nocrop|sr|factorized_s1234|shape": {
-   "rho_new": 0.6214904873587905,
+   "rho_new": 0.6215015938531608,
    "rho_dev": 0.6215153286043182,
-   "max_abs": 9.28325743229097e-05
+   "max_abs": 2.513561878958459e-05
   },
   "nocrop|sr|factorized_s2345|form": {
-   "rho_new": 0.539510669287749,
+   "rho_new": 0.5394591162611194,
    "rho_dev": 0.5394625907788805,
-   "max_abs": 8.908705654808724e-05
+   "max_abs": 1.1624165341617143e-05
   },
   "nocrop|sr|factorized_s2345|form_cal": {
-   "rho_new": 0.31255336268064854,
+   "rho_new": 0.3125722704396138,
    "rho_dev": 0.31257050985423235,
-   "max_abs": 1.7450638518878847e-05
+   "max_abs": 1.1242492195584486e-05
   },
   "nocrop|sr|factorized_s2345|shape": {
-   "rho_new": 0.6128088698522874,
+   "rho_new": 0.6127447279543814,
    "rho_dev": 0.6127496854658069,
-   "max_abs": 5.918438648055968e-05
+   "max_abs": 1.5482317890835873e-05
   },
   "nocrop|sr|factorizedc3m_e123|form": {
-   "rho_new": 0.5555716919340614,
+   "rho_new": 0.5555883676749741,
    "rho_dev": 0.5555831191736931,
-   "max_abs": 9.452387320629807e-05
+   "max_abs": 4.2204473686302535e-05
   },
   "nocrop|sr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.29212554066963686,
+   "rho_new": 0.2921537025953117,
    "rho_dev": 0.2921442556767145,
-   "max_abs": 3.588936379606e-05
+   "max_abs": 9.904386926218312e-06
   },
   "nocrop|sr|factorizedc3m_e123|shape": {
-   "rho_new": 0.5951106643549406,
+   "rho_new": 0.5951323502332024,
    "rho_dev": 0.5951248440722052,
-   "max_abs": 0.00013792290034775334
+   "max_abs": 4.2929559074589285e-05
   },
   "crop|fr|factorized_s1234|form": {
-   "rho_new": 0.5629325201993248,
+   "rho_new": 0.5629211637880875,
    "rho_dev": 0.562928140286486,
-   "max_abs": 9.568218499012016e-06
+   "max_abs": 1.40401770856724e-05
   },
   "crop|fr|factorized_s1234|form_cal": {
-   "rho_new": 0.6625215591573178,
+   "rho_new": 0.6624947538286757,
    "rho_dev": 0.662501680055394,
-   "max_abs": 6.629245098654923e-05
+   "max_abs": 9.197359966628404e-06
   },
   "crop|fr|factorized_s1234|shape": {
-   "rho_new": 0.37602347996503926,
+   "rho_new": 0.37603159876174247,
    "rho_dev": 0.37603766044437975,
-   "max_abs": 7.99776366677829e-05
+   "max_abs": 1.0496352347566518e-05
   },
   "crop|fr|factorized_s2345|form": {
-   "rho_new": 0.516281069118147,
+   "rho_new": 0.5162993439468807,
    "rho_dev": 0.5163040972697379,
-   "max_abs": 6.872479658992514e-05
+   "max_abs": 1.2529653724335788e-05
   },
   "crop|fr|factorized_s2345|form_cal": {
-   "rho_new": 0.5523834697138147,
+   "rho_new": 0.5522761083091478,
    "rho_dev": 0.5522753291916019,
-   "max_abs": 0.00016516899619828385
+   "max_abs": 7.58495440567053e-06
   },
   "crop|fr|factorized_s2345|shape": {
-   "rho_new": 0.34735367576301623,
+   "rho_new": 0.34740601477563676,
    "rho_dev": 0.3474081456840295,
-   "max_abs": 9.77025316006297e-05
+   "max_abs": 1.5083841954866006e-05
   },
   "crop|fr|factorizedc3m_e123|form": {
-   "rho_new": 0.4132769177676488,
+   "rho_new": 0.4131125342283817,
    "rho_dev": 0.4131139762700089,
-   "max_abs": 0.0001866057148576794
+   "max_abs": 4.223990418106283e-06
   },
   "crop|fr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.5059735415110383,
+   "rho_new": 0.5058577387224177,
    "rho_dev": 0.5058656844132191,
-   "max_abs": 0.00025599966506606453
+   "max_abs": 1.3257740941075014e-05
   },
   "crop|fr|factorizedc3m_e123|shape": {
-   "rho_new": 0.31701357876509983,
+   "rho_new": 0.316808725663513,
    "rho_dev": 0.3168051515836144,
-   "max_abs": 0.00021374765346066082
+   "max_abs": 1.091312949230705e-05
   },
   "crop|sr|factorized_s1234|form": {
-   "rho_new": 0.48779242810099477,
+   "rho_new": 0.487721898844205,
    "rho_dev": 0.48773172437835166,
-   "max_abs": 0.000195618863185254
+   "max_abs": 2.4768567714106293e-05
   },
   "crop|sr|factorized_s1234|form_cal": {
-   "rho_new": 0.29718063312772974,
+   "rho_new": 0.29709972959327097,
    "rho_dev": 0.2971062029484427,
-   "max_abs": 0.00017200753460874796
+   "max_abs": 8.752344181822691e-06
   },
   "crop|sr|factorized_s1234|shape": {
-   "rho_new": 0.54953804131209,
+   "rho_new": 0.5495083615659964,
    "rho_dev": 0.5495161916050224,
-   "max_abs": 2.1849707067644886e-05
+   "max_abs": 1.4915104409984892e-05
   },
   "crop|sr|factorized_s2345|form": {
-   "rho_new": 0.4439659053185674,
+   "rho_new": 0.44389719008425566,
    "rho_dev": 0.44390168198072266,
-   "max_abs": 0.00010939928701703128
+   "max_abs": 4.491896467007095e-06
   },
   "crop|sr|factorized_s2345|form_cal": {
-   "rho_new": 0.25534376570791184,
+   "rho_new": 0.2552942156896667,
    "rho_dev": 0.2552946132555386,
-   "max_abs": 8.43352888738047e-05
+   "max_abs": 1.0103121829196926e-05
   },
   "crop|sr|factorized_s2345|shape": {
-   "rho_new": 0.5139938889761626,
+   "rho_new": 0.5139526091845649,
    "rho_dev": 0.5139630549517865,
-   "max_abs": 0.000214878718250322
+   "max_abs": 2.1791901901990762e-05
   },
   "crop|sr|factorizedc3m_e123|form": {
-   "rho_new": 0.42052097108706027,
+   "rho_new": 0.4203542080616599,
    "rho_dev": 0.420359517002292,
-   "max_abs": 0.00043114285499923355
+   "max_abs": 1.7078293864103422e-05
   },
   "crop|sr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.22060329619597022,
+   "rho_new": 0.22043034883971518,
    "rho_dev": 0.22043128281987875,
-   "max_abs": 0.0001930056267336333
+   "max_abs": 4.240072671218842e-06
   },
   "crop|sr|factorizedc3m_e123|shape": {
-   "rho_new": 0.46185719139472403,
+   "rho_new": 0.4616945155258826,
    "rho_dev": 0.4616967820929155,
-   "max_abs": 0.00016068780317568532
+   "max_abs": 6.008941864199535e-06
   },
   "all_cross|fr|factorized_s1234|form": {
-   "rho_new": 0.5838032196563336,
+   "rho_new": 0.5838276980352854,
    "rho_dev": 0.5838344759028373,
-   "max_abs": 6.768390470546226e-05
+   "max_abs": 9.072197143300542e-06
   },
   "all_cross|fr|factorized_s1234|form_cal": {
-   "rho_new": 0.7088494375530159,
+   "rho_new": 0.7088445894265557,
    "rho_dev": 0.7088498391454678,
-   "max_abs": 9.497359898191782e-06
+   "max_abs": 5.249718912136991e-06
   },
   "all_cross|fr|factorized_s1234|shape": {
-   "rho_new": 0.38313938721742713,
+   "rho_new": 0.38313964288889035,
    "rho_dev": 0.3831481412457423,
-   "max_abs": 8.059287111839009e-05
+   "max_abs": 1.5676235731731936e-05
   },
   "all_cross|fr|factorized_s2345|form": {
-   "rho_new": 0.5615368922019134,
+   "rho_new": 0.5615434999154508,
    "rho_dev": 0.5615501471405486,
-   "max_abs": 1.3254938635243185e-05
+   "max_abs": 1.5909572656513937e-05
   },
   "all_cross|fr|factorized_s2345|form_cal": {
-   "rho_new": 0.6610646478043266,
+   "rho_new": 0.6610050541246519,
    "rho_dev": 0.6610056852539422,
-   "max_abs": 6.602470118621806e-05
+   "max_abs": 5.007260883593823e-06
   },
   "all_cross|fr|factorized_s2345|shape": {
-   "rho_new": 0.37012285511831094,
+   "rho_new": 0.37016243660433185,
    "rho_dev": 0.3701627122919485,
-   "max_abs": 0.00010759559616008163
+   "max_abs": 6.241462292333466e-06
   },
   "all_cross|fr|factorizedc3m_e123|form": {
-   "rho_new": 0.41834006613264935,
+   "rho_new": 0.41830047517292995,
    "rho_dev": 0.41829579601355116,
-   "max_abs": 4.4270119098188676e-05
+   "max_abs": 6.698709815233794e-06
   },
   "all_cross|fr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.6417684214301369,
+   "rho_new": 0.6417218394609192,
    "rho_dev": 0.6417197961027236,
-   "max_abs": 8.426441256537132e-05
+   "max_abs": 9.090637313580174e-06
   },
   "all_cross|fr|factorizedc3m_e123|shape": {
-   "rho_new": 0.3134139052530514,
+   "rho_new": 0.31337490539834023,
    "rho_dev": 0.31337071462516985,
-   "max_abs": 8.990537233388718e-05
+   "max_abs": 5.084536821298169e-06
   },
   "all_cross|sr|factorized_s1234|form": {
-   "rho_new": 0.5032641509796796,
+   "rho_new": 0.5032413428138395,
    "rho_dev": 0.5032519620002115,
-   "max_abs": 1.34923631535111e-05
+   "max_abs": 4.167154559608921e-05
   },
   "all_cross|sr|factorized_s1234|form_cal": {
-   "rho_new": 0.303755781063776,
+   "rho_new": 0.3037150144633397,
    "rho_dev": 0.3037205135866161,
-   "max_abs": 6.60113337496715e-05
+   "max_abs": 5.4991232764090014e-06
   },
   "all_cross|sr|factorized_s1234|shape": {
-   "rho_new": 0.5567648729293666,
+   "rho_new": 0.5567735576899052,
    "rho_dev": 0.5567837637333511,
-   "max_abs": 8.539052419770377e-05
+   "max_abs": 2.546972546330073e-05
   },
   "all_cross|sr|factorized_s2345|form": {
-   "rho_new": 0.4822227610190052,
+   "rho_new": 0.482201698697839,
    "rho_dev": 0.4822076300887586,
-   "max_abs": 1.5130930246576302e-05
+   "max_abs": 1.9114366185957188e-05
   },
   "all_cross|sr|factorized_s2345|form_cal": {
-   "rho_new": 0.28617180745414955,
+   "rho_new": 0.2861800289066606,
    "rho_dev": 0.28617973084056697,
-   "max_abs": 1.9682081423888498e-05
+   "max_abs": 2.5656931068596123e-06
   },
   "all_cross|sr|factorized_s2345|shape": {
-   "rho_new": 0.5402356597308142,
+   "rho_new": 0.5402242385672482,
    "rho_dev": 0.5402322016804174,
-   "max_abs": 0.00011910069942833168
+   "max_abs": 7.963113169195957e-06
   },
   "all_cross|sr|factorizedc3m_e123|form": {
-   "rho_new": 0.4416660324114362,
+   "rho_new": 0.44166831226251163,
    "rho_dev": 0.44166345314265626,
-   "max_abs": 1.7433111844766813e-05
+   "max_abs": 5.0953478448745315e-06
   },
   "all_cross|sr|factorizedc3m_e123|form_cal": {
-   "rho_new": 0.25167158647569576,
+   "rho_new": 0.2516474751010929,
    "rho_dev": 0.25164030499628076,
-   "max_abs": 3.874632564176972e-05
+   "max_abs": 1.6438863607970422e-05
   },
   "all_cross|sr|factorizedc3m_e123|shape": {
-   "rho_new": 0.4608344830627617,
+   "rho_new": 0.4608499863031595,
    "rho_dev": 0.4608448706033649,
-   "max_abs": 3.53412456973734e-05
+   "max_abs": 8.220058856145407e-06
   }
  },
- "spearman_max_abs": 0.00043114285499923355,
+ "spearman_max_abs": 4.2929559074589285e-05,
  "rows_by_group": {
   "nocrop": 99000,
   "crop": 49500,
   "all_cross": 148500
  },
- "pass": false,
+ "pass": true,
  "tolerances": {
   "exact": 0.0,
   "num": 1e-12,
@@ -369,9 +369,13 @@
   "embed_abs": 0.0001,
   "desc_rel": 0.0001,
   "perc_abs": 0.0001,
-  "p_geom": 0.001
+  "p_geom": 0.001,
+  "embed_z_v5": 0.001,
+  "embed_dF_mm_v5": 0.1,
+  "embed_dP_v5": 0.001,
+  "embed_spearman_v5": 0.001
  },
- "host": "a256-t4-04.srv.aau.dk",
- "job": "1071724",
- "date": "2026-10-13 13:16:03"
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1072069",
+ "date": "2026-10-13 13:50:32"
 }

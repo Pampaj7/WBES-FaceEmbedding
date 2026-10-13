@@ -511,6 +511,7 @@
  },
  "embed": {
   "ops_root": "datasets/V3_OPS_CACHE/conf/ava256",
+  "gpu": "A100",
   "sets": {
    "eval_view": {
     "role": "eval",

@@ -5,7 +5,7 @@ sez. 7.1 e 10), con la pipeline delle viste dev della matrice. Collaudato su HIF
 embed``). Nessun passo legge GT.
 
     aau/run.sh aau/ava256/conf_embed.py stage --spec <json>                       (conf.sbatch, passo embed-stage)
-    AAU_NV=--nv aau/run.sh aau/ava256/conf_embed.py run --spec <json>             (conf.sbatch, passo embed; GPU)
+    AAU_NV=--nv aau/run.sh aau/ava256/conf_embed.py run --spec <json>             (conf.sbatch, passo embed; A100)
 
 Insiemi (``embed.sets`` dello spec): {nome: {dir, subjects ("subjects" = i valutati dello spec, "head" = il blocco di
 R6, ``head.subjects``), labels, scale_table, arms, role}}. Ava-256: ``eval_view`` (200 x 6 topologie: i due semi e C3M
@@ -26,7 +26,8 @@ esegue ``eval_v3.main`` su ``aau/zs3dmm/zs_embed.py`` con gli argomenti di ``d3_
 Rotazione del dominio: ``global_v3.rotations`` legge R_d da ``e12/frames.json`` per NOME del dominio della tabella; un
 dominio assente (Ava-256: ``ava256``, ``ava_scale_table.py``) entra in ``global_v3.EXTRA_FRAMES`` con u e R del frame
 dello spec (= ``frame.json``, sez. 11.8); un dominio presente deve avere esattamente la R dello spec (HIFI3D: uguali).
-GPU obbligatoria (``zs_embed`` ripiegherebbe in silenzio sulla CPU). Uscita ``<work>/embed/<insieme>/<braccio>/``
+GPU obbligatoria (``zs_embed`` ripiegherebbe in silenzio sulla CPU), della classe ``embed.gpu`` dello spec (v5: ``A100``,
+quella degli embedding di sviluppo; il TF32 del container resta attivo come in sviluppo). Uscita ``<work>/embed/<insieme>/<braccio>/``
 ``embeddings.npz`` (formato di zs_embed: ``Z`` = [s, u], ``subjects``, ``topologies``, ``files``, ``checkpoint``) e
 ``<evidence>/embed/<insieme>/<braccio>.json`` (mesh, checkpoint e sha256, tabella e sha256, dominio, origine di R, GPU,
 nodo, job). Spec non di collaudo: le uscite devono essere i percorsi che leggono ``conf_eval.py``, ``conf_head.py`` e
@@ -174,6 +175,8 @@ def step_one(spec: Path, name: str, arm: str) -> None:
     st, a = s["embed"]["sets"][name], arms_of(s)[arm]
     if not torch.cuda.is_available():
         raise SystemExit("embedding senza GPU: zs_embed ripiegherebbe sulla CPU")
+    if s["embed"]["gpu"] not in torch.cuda.get_device_name():               # v5: classe di GPU dello sviluppo
+        raise SystemExit(f"GPU {torch.cuda.get_device_name()}, richiesta {s['embed']['gpu']} (embed.gpu dello spec)")
     ck = cc.rp(a["checkpoint"])
     got = cc.sha256(ck)
     if got != a["checkpoint_sha256"]:

@@ -9,12 +9,13 @@
   },
   "checkpoints": {
    "factorized_s1234": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
-   "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0"
+   "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0",
+   "factorizedc3m_e123": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77"
   },
   "errors": [],
-  "host": "a256-t4-03.srv.aau.dk",
-  "job": "1071672",
-  "date": "2026-10-13 10:47:14"
+  "host": "i256-a10-10.srv.aau.dk",
+  "job": "1072069",
+  "date": "2026-10-13 13:47:16"
  },
  "boot_seed": 990708,
  "n_boot": 1000,
@@ -106,14 +107,13 @@
   "R2b": "confermata",
   "R3a": "confermata",
   "R3b": "non confermata",
-  "R4": "confermata",
   "R5a": "non confermata",
   "R5b": "non confermata",
   "R6": "non calcolata (collaudo)",
   "R7": "confermata"
  },
- "seconds": 131.97862696647644,
- "host": "a256-t4-03.srv.aau.dk",
- "job": "1071672",
- "date": "2026-10-13 10:49:26"
+ "seconds": 160.83141469955444,
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1072069",
+ "date": "2026-10-13 13:49:56"
 }
