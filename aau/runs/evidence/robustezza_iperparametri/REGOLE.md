@@ -118,6 +118,23 @@ Pilota su 32 coppie / 32 mesh A di HIFI3D (job 1074555; tempi e iterazioni solta
 - **Osservazione, nessuna modifica**: le due configurazioni di rigetto dell'ICP si fermano quasi sempre al tetto delle
   30 iterazioni (la soglia ricalcolata a ogni passo non lascia l'RMS fermo entro 1e-6).
 
+## 4c. Emendamento 2 (controlli di riproduzione anticipati, sole distanze, PRIMA di ogni valutazione; nessuna GT letta)
+
+- **ICP**: riproduce la matrice esattamente (HIFI3D e FaceScape: scarto 0 su 7942 e 7916 coppie; FaMoS 9e-14 mm).
+- **NoW metrical, sintetiche**: calcolato su a768-l40s-01 (job 1074638), scarto mediano 2e-9 mm ma 89 coppie su 7942
+  (HIFI3D) e 18 su 7916 (FaceScape) sopra 1e-4 mm, massimo 2,3e-3 mm; Spearman fra le due versioni 0,99999999. Le 12
+  coppie peggiori per vista ricalcolate su a256-t4-04, il tipo di nodo del plug-in della matrice (job 1071153), danno
+  scarto 0,0: la differenza viene dalla CPU (punti piu' vicini di Embree in float32, amplificati dal dogleg), non dal
+  codice. NoW sintetico ricalcolato per intero su a256-t4-04 (tutte le configurazioni, stesse coppie); tolleranza
+  invariata (1e-4 mm). FaMoS: esatto (scarto 0).
+- **NICP per coppia**: la tolleranza 1e-6 mm era stata fissata "come l'ICP" senza considerare che la matrice del NICP in
+  mm e' stata calcolata su nodi diversi (reclami per coppia di topologie: a10-09, a10-10, l4-06, ...) e che il sistema
+  sparso (SuperLU con BLAS, float32) dipende dalla CPU. Sulle parti gia' finite: HIFI3D scarto mediano 0, massimo
+  2,9e-5 mm (918 coppie), FaceScape 2,6e-11 mm; NaN sulle stesse coppie. Tolleranza del NICP portata a 1e-4 mm (quella di
+  NoW), NaN sulle stesse coppie obbligatori. Se il controllo completo la supera, si riporta e si indaga prima di `eval`.
+- Osservazione: su queste parti `cap10` coincide col default su tutte le coppie finite (il primo stadio converge in 2
+  iterazioni).
+
 ## 5. Fuori da questo giro
 
 Letture cs, SR, crop, NoW originale, REALY, Stirling; nessuna griglia sui semi di campionamento; nessun valore senza
