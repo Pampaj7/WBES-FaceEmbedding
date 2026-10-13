@@ -16,8 +16,8 @@ Generato da `aau/ava256/conf_eval.py` (spec `aau/ava256/spec/hifi3d_trace.json`)
 | R5a | s2345 | -0.242 [-0.242, -0.242] | 237 (1.000) | 7 / 0.0083 / no | - | non confermata |
 | R5b | s1234 | -0.107 [-0.107, -0.107] | 237 (1.000) | 8 / 0.0125 / no | - | non confermata |
 | R5b | s2345 | -0.177 [-0.177, -0.177] | 237 (1.000) | 8 / 0.0125 / no | - | non confermata |
-| R6 | s1234 | +0.199 [+0.199, +0.199] | 0 (0.000) | 3 / 0.0036 / si | - | confermata |
-| R6 | s2345 | +0.440 [+0.440, +0.440] | 0 (0.000) | 3 / 0.0036 / si | - | confermata |
+| R6 | s1234 | +0.211 [+0.211, +0.211] | 0 (0.000) | 3 / 0.0036 / si | - | confermata |
+| R6 | s2345 | +0.400 [+0.400, +0.400] | 0 (0.000) | 3 / 0.0036 / si | - | confermata |
 | R7 | - | -0.013 [-0.013, -0.013] | 237 (1.000) | 9 / 0.0250 / no; 9 / 0.0250 / no | - | non confermata |
 
 Delta della versione mascherata, NoW metrical contro d_F (sez. 9.2) e Spearman dei protocolli: `deltas.csv`, `spearman.csv` (descrittivi, non si leggono).

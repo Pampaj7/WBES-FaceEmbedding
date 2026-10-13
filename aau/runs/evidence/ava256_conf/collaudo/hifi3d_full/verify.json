@@ -3,10 +3,17 @@
  "freeze": false,
  "code": {
   "checked": true,
-  "repo": "/home/create.aau.dk/ga41wf/wt_conf_2cea824",
-  "head": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
-  "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+  "repo": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184",
+  "head": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+  "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
   "dirty": []
+ },
+ "external_clones": {
+  "diffusion-net": {
+   "path": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/diffusion-net",
+   "head": "b1019b049597711d10259ce28250f7dfc4335a2b",
+   "dirty": []
+  }
  },
  "detector_weights": {
   "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
@@ -19,9 +26,9 @@
  },
  "errors": [],
  "modules_sha256": {
-  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a"
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d"
  },
- "host": "i256-a10-07.srv.aau.dk",
- "job": "1074450",
- "date": "2026-10-13 17:24:32"
+ "host": "nv-ai-02.srv.aau.dk",
+ "job": "1074577",
+ "date": "2026-10-13 17:43:08"
 }

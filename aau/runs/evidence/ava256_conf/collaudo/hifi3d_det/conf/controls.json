@@ -5,10 +5,17 @@
   "freeze": false,
   "code": {
    "checked": true,
-   "repo": "/home/create.aau.dk/ga41wf/wt_conf_2cea824",
-   "head": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
-   "frozen_commit": "2cea824ddc7602e5f32321fb718ed746d88fd9ff",
+   "repo": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184",
+   "head": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+   "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
    "dirty": []
+  },
+  "external_clones": {
+   "diffusion-net": {
+    "path": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/diffusion-net",
+    "head": "b1019b049597711d10259ce28250f7dfc4335a2b",
+    "dirty": []
+   }
   },
   "detector_weights": {
    "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
@@ -20,12 +27,12 @@
   },
   "errors": [],
   "modules_sha256": {
-   "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+   "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
    "aau/ava256/conf_eval.py": "fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1"
   },
-  "host": "i256-a10-09.srv.aau.dk",
-  "job": "1074451",
-  "date": "2026-10-13 17:24:51"
+  "host": "a768-l40s-03.srv.aau.dk",
+  "job": "1074578",
+  "date": "2026-10-13 17:43:16"
  },
  "boot_seed": 990708,
  "n_boot": 1000,
@@ -95,7 +102,7 @@
   }
  },
  "geo_protocols": {
-  "blmm_root": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/evidence/baselines_mm/hifi3d",
+  "blmm_root": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/evidence/baselines_mm/hifi3d",
   "geo": [
    "cs_nicp_p2tri",
    "cs_nicp_template",
@@ -106,10 +113,10 @@
   ],
   "protocols": {
    "dirs": [
-    "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/now_original/lmk_det",
-    "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/now_metrical/lmk_det",
-    "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/realy/lmk_det",
-    "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/stirling/lmk_det"
+    "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/now_original/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/now_metrical/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/realy/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_det/protocolli/plugin/stirling/lmk_det"
    ],
    "missing": []
   }
@@ -129,16 +136,16 @@
   "R6": "non calcolata (collaudo)",
   "R7": "confermata"
  },
- "seconds": 126.7126452922821,
+ "seconds": 102.9238669872284,
  "modules_sha256": {
-  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
   "aau/ava256/conf_eval.py": "fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1",
-  "aau/ava256/conf_head.py": "0b46f151bbb36f0db02b18e0633517c447fe1548af06a707b6ea62c16a5d3cd3",
+  "aau/ava256/conf_head.py": "4937a7e3ae44d5eabf7e438d7558c22d3218f05467a0e11a4277509e667facfb",
   "aau/ava256/conf_protocols.py": "7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79",
   "aau/baselines/common.py": "725ebe31c86746ade6921547cd4536f823c3f9ecea54828f9cba94c9d4dc8c78",
   "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
   "aau/baselines_mm/blmm_eval.py": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
-  "aau/baselines_param/bp.py": "1b678c51f0169c69ded1523323484058fadf0f2d2ba4ce8cc369863cc4138389",
+  "aau/baselines_param/bp.py": "0f8dd0571593c512a002463736a1e6cca244395cc78d7f6694793f13d572177c",
   "aau/baselines_param/bp_paired.py": "a0bffb67b4de77a7e17933c9ab7a1dd6ec79c3943944998a0f31b4c0fbcb4432",
   "aau/baselines_param/bp_paired_e2.py": "be9c190fa0c22ff7aa09fab8fb5c1c1be9ba4dda17f9cc370e59742579d2b8b4",
   "aau/competitors/comp_summarize.py": "3296bfe723d697e0aa996e9e99187e461eceb741ff866aec27717f22ee5d3e4a",
@@ -174,7 +181,7 @@
   "v3_work/unified_gt/shapes.py": "3db8dca67eab92510c5a197a9db0a938b6d955effc56df87f5a4c44e11f63aa4",
   "v3_work/unified_gt/ugt.py": "2cfbad40a815c8fc81ce4b46b4a13686d0e7f0024e1a86fe335431f946bbb340"
  },
- "host": "i256-a10-09.srv.aau.dk",
- "job": "1074451",
- "date": "2026-10-13 17:26:58"
+ "host": "a768-l40s-03.srv.aau.dk",
+ "job": "1074578",
+ "date": "2026-10-13 17:44:59"
 }

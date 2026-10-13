@@ -50,12 +50,12 @@
     "max": 0.02506317577364431
    }
   },
-  "render_s_per_mesh_median": 158.88405630597845,
-  "render_wall_s": 196.3996822834015,
-  "spec": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_trace/desc/gp_spec.json",
+  "render_s_per_mesh_median": 162.0219730148092,
+  "render_wall_s": 199.79814267158508,
+  "spec": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_trace/desc/gp_spec.json",
   "host": "a512-l4-06.srv.aau.dk",
-  "job": "1073353",
-  "date": "2026-10-13 17:10:38"
+  "job": "1074990",
+  "date": "2026-10-13 18:51:44"
  },
  "variants": {
   "lpips/depth": {
@@ -66,7 +66,7 @@
    },
    "method": "lpips",
    "variant": "depth",
-   "wall_s": 13.548417091369629,
+   "wall_s": 8.579429388046265,
    "check_gram_vs_forward_max_abs": {
     "fr|+0": 2.1222054169545146e-08,
     "fr|-30": 1.910995517384606e-08,
@@ -85,7 +85,7 @@
    },
    "method": "dinov2",
    "variant": "depth",
-   "embed_wall_s": 9.68310546875,
+   "embed_wall_s": 5.987520456314087,
    "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
   },
   "clip/smooth": {
@@ -96,7 +96,7 @@
    },
    "method": "clip",
    "variant": "smooth",
-   "embed_wall_s": 56.72021985054016,
+   "embed_wall_s": 10.173317909240723,
    "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
   },
   "dreamsim/smooth": {
@@ -107,7 +107,7 @@
    },
    "method": "dreamsim",
    "variant": "smooth",
-   "embed_wall_s": 71.99257516860962,
+   "embed_wall_s": 26.689204454421997,
    "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
   }
  }

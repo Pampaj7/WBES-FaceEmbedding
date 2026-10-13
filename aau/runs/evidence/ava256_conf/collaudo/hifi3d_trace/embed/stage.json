@@ -12,8 +12,8 @@
     "remesh",
     "up60k"
    ],
-   "in": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/in",
-   "ops": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/ops"
+   "in": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/datasets/V3_OPS_CACHE/conf/hifi3d_trace/eval_view/ops"
   },
   "calib_view": {
    "meshes": 15,
@@ -25,11 +25,11 @@
     "noisy",
     "up60k"
    ],
-   "in": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/in",
-   "ops": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops"
+   "in": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops"
   }
  },
  "host": "a512-l4-06.srv.aau.dk",
- "job": "1073353",
- "date": "2026-10-13 16:58:18"
+ "job": "1074574",
+ "date": "2026-10-13 18:27:04"
 }

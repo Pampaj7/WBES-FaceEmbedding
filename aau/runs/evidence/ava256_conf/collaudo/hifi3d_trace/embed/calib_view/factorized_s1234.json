@@ -12,7 +12,7 @@
  "scale_table_sha256": "45ea8d4dcca78bb8dba1d0ce78082abc40455b9ea80640ad88c27a20af57b8a6",
  "domain": "hifi3d",
  "rotation_source": "e12/frames.json (uguale allo spec)",
- "ops": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops",
+ "ops": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/datasets/V3_OPS_CACHE/conf/hifi3d_trace/calib_view/ops",
  "args": [
   "--checkpoint_selector",
   "best_by_clean",
@@ -37,12 +37,16 @@
  },
  "gpu": "NVIDIA A100-SXM4-40GB",
  "torch": "2.5.0a0+e000cf0ad9.nv24.10",
- "seconds": 7.131333589553833,
- "npz": "/home/create.aau.dk/ga41wf/wt_conf_2cea824/aau/runs/ava256_collaudo/hifi3d_trace/embed/calib_view/factorized_s1234/embeddings.npz",
+ "seconds": 7.258980751037598,
+ "npz": "/home/create.aau.dk/ga41wf/wt_conf_8a6e184/aau/runs/ava256_collaudo/hifi3d_trace/embed/calib_view/factorized_s1234/embeddings.npz",
  "modules_sha256": {
-  "aau/ava256/conf_common.py": "6327812c36abc97f717c01a8c5e26a921f6dfa8d33bbc3f76c55789e69af237a",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
   "aau/ava256/conf_embed.py": "3173402793193dd244ddca0771b5baeae8788e64a15ab1095d50807898f922e2",
   "aau/diagnostics/diag.py": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+  "diffusion-net/src/diffusion_net/__init__.py": "5849f836a4a95db7a36d432fbea8c35203521249d77af134f8792ff674ac2be4",
+  "diffusion-net/src/diffusion_net/geometry.py": "2663a9665e6d57f49fd56b6ae8075e43b7c5aa74c3b825ac7f28f114c71cf090",
+  "diffusion-net/src/diffusion_net/layers.py": "e593676dc7732ec9aca5adb5a1f1fed5301a901c3ef0e498e74333118ba79f17",
+  "diffusion-net/src/diffusion_net/utils.py": "4d22ce294f67f6dac71aaaa3c3a8da0093728903f71ee0bc416dfa47e43d1099",
   "face_embedding/gt_encdec/autoencoder/dataset_gtready.py": "fd271dcf8a649f5a2c99c88bf9da50ebab443b8028d4ebb6c7ac258622480638",
   "face_embedding/gt_encdec/autoencoder/diffusion_autoencoder.py": "7dfb5dce2b75634b2b0a8c7eacfd2069b24de1d079757145f3d12269bb938ad4",
   "face_embedding/gt_encdec/autoencoder/latent_loss.py": "78568fd16956449fb0839b564b2d55ab82b934de24b8689f5d336fbeed67dc71",
@@ -68,6 +72,6 @@
   "v3_work/trainer/model_v3.py": "468024b48f58a8df14612d1d3a6be0871e39135ad693cc2e9c3dd53c02e30248"
  },
  "host": "nv-ai-04.srv.aau.dk",
- "job": "1073354",
- "date": "2026-10-13 17:14:11"
+ "job": "1074991",
+ "date": "2026-10-13 18:53:31"
 }
