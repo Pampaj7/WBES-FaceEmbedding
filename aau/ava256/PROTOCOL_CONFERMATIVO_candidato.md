@@ -1,8 +1,31 @@
-# Ava-256: protocollo della prova confermativa (CANDIDATO v4, 13 ottobre 2026; NON congelato)
+# Ava-256: protocollo della prova confermativa (CANDIDATO v5, 13 ottobre 2026; NON congelato)
 
-> **CANDIDATO v4, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
+> **CANDIDATO v5, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
 > commit `53b03ac`) completata con le decisioni del PI del 12 ottobre (sez. 5-9, 11-13), piu' l'emendamento sull'uso
 > dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza, salvo le note della v2 nella sez. 2.
+>
+> **Modifiche della v5 rispetto al candidato v4** (sha256 `f0d60531173b3aa9a6eacf12b3357bc9b0e8421220aa7ce249c0e65a200c58d0`,
+> commit `638c591`), decisioni del PI del 13 ottobre:
+> 1. **Embedding su A100** (sez. 7.1, 7 Esecuzione 4): su Ava-256 l'embedding gira sulla classe di GPU degli embedding di
+>    sviluppo, le A100 di `nv-ai-04` (`-p aicentre-a100 --qos=unprivileged --gres=gpu:a100:1`; job breve di
+>    valutazione, ripartibile). E' un vincolo come il nodo del fit B; `conf_embed.py` lo controlla (`embed.gpu` = `A100`
+>    nello spec). Il TF32 del container resta attivo, come in sviluppo.
+> 2. **Tolleranza del collaudo dell'embedding** (sez. 11.2). La tolleranza della v4, 1e-4 su Z e distanze, **era sotto il
+>    rumore di riproduzione gia' noto in sviluppo**: A100 contro A100 con operatori ricalcolati, max |dz| 2,8e-4 (pool di
+>    D3 contro store) e 5,2e-4 (K7 di D3). Nuove tolleranze, dichiarate PRIMA del collaudo su A100: Z 1e-3; d_F (cal. e
+>    non cal.) 0,1 mm; d_P 1e-3; Spearman e IC 1e-3. **L'esito fuori tolleranza su L40S della v4 resta registrato**
+>    (`collaudo/embed_l40s.json`), con la sua tolleranza di allora. Collaudo rifatto su A100: sez. 11.2.
+> 3. **Composizioni delle baseline con k** (sez. 9): non piu' "fissato" ma **non calcolata su Ava-256**: nessun codice
+>    nella catena congelata. Nessun codice nuovo.
+> 4. **Il crop esce dalla parte confermativa** (sez. 5, 6, 8, 13): R4 (d_F cal. contro ICP + Chamfer in mm sul gruppo
+>    `crop`) lascia la famiglia di Holm, che passa da **m = 10 a m = 9** (soglie intere ricalcolate, sez. 6); il gruppo
+>    `crop` e R4 restano calcolati e si riportano completi come descrittivi, e nel supplementary come limite.
+>    **Motivazione**: e' una scelta di ambito del paper, non un esito. Il crop e' fuori dalla tesi principale per una
+>    decisione precedente (11 ottobre: il crop di bordo esce dalla tesi e resta nei limiti). La scelta e' presa PRIMA di
+>    qualunque lettura di Ava-256 ed e' dichiarata con le evidenze di sviluppo gia' qui: col crop NoW metrical sta sopra
+>    la nostra d_F (sez. 9.2: HIFI3D +0.133 [+0.069, +0.203], FaceScape +0.170 [+0.083, +0.260]) e R4 ha l'IC sopra 0 in
+>    entrambi i semi solo su HIFI3D (sez. 8). Codice: `conf_eval.py` (`RULES` senza R4, `DESC_RULES`, m = 9), sha256
+>    nella sez. 11.1; collaudo rifatto (sez. 11.2).
 >
 > **Modifiche della v4 rispetto al candidato v3** (sha256 `955c13b9491af3a129e7d6a9b03e0bbf6aca06f089437eba37a7848ab7175451`,
 > commit `123cb4e`): chiusi i due campi **[in attesa]** di codice della sez. 14 (punti 3 e 4) con lo standard della v3:
@@ -157,7 +180,7 @@ della coppia di soggetti.
 | Gruppo | Ruolo | Topologie | Coppie ordinate | Righe (200 soggetti) |
 |---|---|---|---|---|
 | `nocrop_cross` (senza crop) | **primario** | original, remesh, noisy, down8k, up60k | 20 | 19.900 x 20 = 398.000 |
-| `crop` | secondario | crop contro una delle altre 5 | 10 | 19.900 x 10 = 199.000 |
+| `crop` | **descrittivo** (v5; era secondario) | crop contro una delle altre 5 | 10 | 19.900 x 10 = 199.000 |
 | `all_cross` | secondario | le 6, crop compreso | 30 | 19.900 x 30 = 597.000 |
 
 - **Definizioni = quelle della matrice unificata** (`aau/full_matrix/fm_eval.py:473-477`, `groups_of`, commit
@@ -186,22 +209,24 @@ della coppia di soggetti.
 - **Delta appaiati** a - b sulle stesse righe e repliche. **p = P(delta <= 0)** = frazione delle 1000 repliche con
   delta <= 0 (`p_le0` di fm_eval).
   - Risoluzione 1/1000: il p minimo diverso da 0 e' 0,001; p = 0 si riporta come "< 0,001".
-- **Confronti multipli: Holm**, per seme del modello, sulla famiglia {R1, R2a, R2b, R3a, R3b, R4, R5a, R5b, R6, R7}:
-  **m = 10** ipotesi (v1: 9; v2 aggiunge R7), livello unilaterale 0,025.
+- **Confronti multipli: Holm**, per seme del modello, sulla famiglia {R1, R2a, R2b, R3a, R3b, R5a, R5b, R6, R7}:
+  **m = 9** ipotesi (v1: 9; v2 aggiunge R7: 10; v5 toglie R4, gruppo crop, ora descrittiva), livello unilaterale 0,025.
   - Procedura: p ordinati p(1) <= ... <= p(m); si rifiuta H(i) finche' p(i) <= 0,025 / (m - i + 1); la prima che
     non passa ferma la procedura. A parita' di p l'ordine fra le ipotesi non cambia l'esito.
   - In interi, per evitare l'arrotondamento: con k(i) = numero di repliche su 1000 con delta <= 0, si rifiuta H(i) se
-    **k(i) (m - i + 1) <= 25**. Soglie per m = 10:
+    **k(i) (m - i + 1) <= 25**. Soglie per m = 9 (v5):
 
-    | i | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-    |---|---|---|---|---|---|---|---|---|---|---|
-    | 0,025 / (m - i + 1) | 0,0025 | 0,0028 | 0,0031 | 0,0036 | 0,0042 | 0,0050 | 0,0063 | 0,0083 | 0,0125 | 0,025 |
-    | p massimo (k / 1000) | 0,002 | 0,002 | 0,003 | 0,003 | 0,004 | 0,005 | 0,006 | 0,008 | 0,012 | 0,025 |
+    | i | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+    |---|---|---|---|---|---|---|---|---|---|
+    | m - i + 1 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 |
+    | 0,025 / (m - i + 1) | 0,0028 | 0,0031 | 0,0036 | 0,0042 | 0,0050 | 0,0063 | 0,0083 | 0,0125 | 0,025 |
+    | k massimo (k (m - i + 1) <= 25) | 2 | 3 | 3 | 4 | 5 | 6 | 8 | 12 | 25 |
+    | p massimo (k / 1000) | 0,002 | 0,003 | 0,003 | 0,004 | 0,005 | 0,006 | 0,008 | 0,012 | 0,025 |
 
-  - La soglia piu' severa e' 0,025 / 10 = 0,0025: con la risoluzione di 1/1000 basta p <= 0,002 (al massimo 2 repliche
+  - La soglia piu' severa e' 0,025 / 9 = 0,0028: con la risoluzione di 1/1000 basta p <= 0,002 (al massimo 2 repliche
     su 1000 con delta <= 0), ancora sopra 0,001.
   - **R3a, R3b e R7 non dipendono dal seme** e si calcolano una volta sola: lo stesso p entra in entrambe le famiglie.
-  - **m = 10 fisso (v3).** Ogni famiglia ha sempre le 10 ipotesi. Una regola "non risolta" (sez. 8) e la R6 con un fit
+  - **m fisso (v3; v5: m = 9).** Ogni famiglia ha sempre le 9 ipotesi. Una regola "non risolta" (sez. 8) e la R6 con un fit
     della testa non convergente (`success` = False, sez. 10) **restano nella famiglia col loro p** e occupano il loro
     posto nell'ordinamento: non si tolgono, non si sostituiscono, non cambiano m. Il loro esito resta quello della sez. 8
     (non risolta) o della regola sotto; il fit non convergente si riporta accanto.
@@ -291,7 +316,10 @@ della coppia di soggetti.
      - **Rotazione del dominio**: `global_v3` legge R_d da `e12/frames.json` per nome del dominio; `ava256` non c'e', quindi
        entra in `global_v3.EXTRA_FRAMES` con u e R dello spec (= `frame.json`, controllato dalla sez. 11.8). Un dominio
        gia' presente (HIFI3D nel collaudo) deve avere la stessa R dello spec.
-     - GPU obbligatoria (`zs_embed` ripiegherebbe sulla CPU in silenzio): L40S (`--gres=gpu:l40s:1`), come il collaudo.
+     - GPU obbligatoria (`zs_embed` ripiegherebbe sulla CPU in silenzio). **v5: A100** (`-p aicentre-a100
+       --qos=unprivileged --gres=gpu:a100:1`, nodo `nv-ai-04`), la classe di GPU degli embedding di sviluppo della
+       matrice; vincolo controllato da `conf_embed.py` (`embed.gpu` dello spec); TF32 del container attivo come in
+       sviluppo. La v4 indicava L40S: il collaudo su L40S e' uscito fuori tolleranza (sez. 11.2).
      - Uscite: i percorsi letti da `conf_eval.py`, `conf_head.py` e `conf_desc.py` (`columns.models`,
        `columns.desc_models`, `head.embeddings`; controllato), con un json per insieme e braccio (sha256 di checkpoint e
        tabella, dominio, origine di R, GPU, nodo, job).
@@ -343,7 +371,8 @@ aggancio dei landmark, blocco di R6), frame di `frame.json`, GT, seme 20261011, 
    bp-crop` (`bp_*.py --spec`; preregistrata e vA si calcolano solo come passi intermedi di B: la regione e
    l'inizializzazione; non si leggono), su un nodo `i256-a10` (`--nodelist=i256-a10-08`, dove il collaudo riproduce lo
    sviluppo a scarto 0; sez. 11.2);
-4. embedding (v4, sez. 7.1): `embed-stage` (link, nomi, operatori; CPU), poi `embed` su una L40S (`--gres=gpu:l40s:1`):
+4. embedding (v4, sez. 7.1): `embed-stage` (link, nomi, operatori; CPU), poi `embed` su una A100 (v5: `-p aicentre-a100
+   --qos=unprivileged --requeue --gres=gpu:a100:1`):
    i due semi e C3M e123 sulle 1.200 mesh di `eval_view`, i due semi sulle 280 senza crop di `calib_view`, nei percorsi
    dello spec;
 5. descrittivi (v4, sez. 9, `conf_desc.py`): `desc-spectral`, `desc-icp-same`, `desc-arcface` (su un nodo `i256-a10`,
@@ -368,7 +397,7 @@ di Spearman con IC 95% e p = P(delta <= 0), Holm sulla famiglia.
 | **R2b** | d_F cal. | NICP per coppia in mm | FR | `nocrop_cross` | s1234, s2345 |
 | **R3a** (scoperta A su dati reali: togliere la taglia) | ICP + Chamfer in mm | ICP + Chamfer cs (ogni mesh alla cs_ref) | FR | `nocrop_cross` | nessuno (una volta) |
 | **R3b** (scoperta A: deformazione non rigida per coppia) | ICP + Chamfer cs | NICP per coppia cs | FR | `nocrop_cross` | nessuno (una volta) |
-| **R4** | d_F cal. | ICP + Chamfer in mm | FR | `crop` | s1234, s2345 |
+| R4 (**descrittiva dalla v5**: fuori dalla famiglia di Holm, nessun esito) | d_F cal. | ICP + Chamfer in mm | FR | `crop` | s1234, s2345 |
 | **R5a** | d_P | ICP + Chamfer cs | SR | `nocrop_cross` | s1234, s2345 |
 | **R5b** | d_P | NICP per coppia cs | SR | `nocrop_cross` | s1234, s2345 |
 | **R6** (adattamento few-shot, ex H2) | testa adattata sui 56 (sez. 10) | d_P dello stesso seme | SR | `nocrop_cross` | s1234, s2345 |
@@ -390,7 +419,7 @@ cartella per s2345. Ordine: HIFI3D, FaceScape, FaceVerse con espressioni, FaceVe
   - **+inf**: HIFI3D +0.284 [+0.187, +0.382]; FaceScape +0.038 [+0.018, +0.058]; FaceVerse e neutra = maschera (deltas.csv:8670, 24836).
 - **R3b**: -0.017 [-0.046, +0.012]; +0.069 [+0.043, +0.095]; +0.078 [+0.022, +0.129]; +0.088 [+0.022, +0.148] (results.md:151, 158, 165, 172); conteggio 3 / 0 / 1 su 4 (results.md:277).
   - **+inf**: HIFI3D -0.009 [-0.036, +0.020]; FaceScape **+0.155 [+0.127, +0.180]** (maschera +0.069); FaceVerse e neutra = maschera (deltas.csv:8671, 24837).
-- **R4** (colonna crop): +0.245 [+0.199, +0.294] / +0.135 [+0.088, +0.184]; +0.062 [-0.002, +0.130] / -0.011 [-0.077, +0.054]; -0.019 [-0.083, +0.050] / -0.037 [-0.102, +0.028]; -0.034 [-0.098, +0.035] / -0.044 [-0.101, +0.015] (results.md:469, 678, 880, 1075; deltas.csv:296, 17245, 32646, 40586). IC sopra 0 in entrambi i semi solo su HIFI3D.
+- **R4** (colonna crop; v5: descrittiva, evidenza riportata come motivazione, sez. 6): +0.245 [+0.199, +0.294] / +0.135 [+0.088, +0.184]; +0.062 [-0.002, +0.130] / -0.011 [-0.077, +0.054]; -0.019 [-0.083, +0.050] / -0.037 [-0.102, +0.028]; -0.034 [-0.098, +0.035] / -0.044 [-0.101, +0.015] (results.md:469, 678, 880, 1075; deltas.csv:296, 17245, 32646, 40586). IC sopra 0 in entrambi i semi solo su HIFI3D.
   - **+inf**: HIFI3D +0.246 [+0.200, +0.295] / +0.136 [+0.088, +0.185]; FaceScape +0.070 [+0.003, +0.138] / -0.003 [-0.069, +0.061]; FaceVerse e neutra = maschera (deltas.csv:8754, 8784, 24914, 24941).
 - **R5a**: +0.041 [-0.005, +0.091] / +0.033 [-0.027, +0.088]; +0.269 [+0.217, +0.317] / +0.275 [+0.222, +0.328]; -0.020 [-0.093, +0.055] / +0.007 [-0.065, +0.078]; -0.063 [-0.140, +0.017] / -0.025 [-0.096, +0.051] (results.md:187-188, 198-199, 209-210, 219-220); conteggio 1 / 0 / 3 per seme (results.md:292-293).
   - **+inf**: HIFI3D +0.041 [-0.006, +0.091] / +0.032 [-0.026, +0.087]; FaceScape +0.254 [+0.202, +0.302] / +0.261 [+0.207, +0.314]; FaceVerse e neutra = maschera (deltas.csv:8681, 8709, 24847, 24872).
@@ -452,7 +481,7 @@ per tutti i descrittivi dei protocolli.
 |---|---|---|---|---|
 | Fit B GNM Head e FLAME 2023 Open | variante B (`<modello>_vb_fr`, `_vb_sr`, `_vb_comp` di fm_eval); preregistrata e vA non si calcolano | FR (mesh FR), SR (mesh SR), composizione forma B + taglia B | `aau/baselines_param/bp.py` (`26a6d5d`), emendamenti 1-2; sez. 7.3, sigma = 2,0 | fissato |
 | d_F non calibrata, dei due semi | unica | FR | quella del modello (sez. 7.1) | fissato |
-| Composizioni delle baseline con k | unica | FR | `aau/baselines_mm` (`6c8a747`), `factorized_protocol_emendamento_5.md` | fissato |
+| Composizioni delle baseline con k | unica | FR | `aau/baselines_mm` (`6c8a747`), `factorized_protocol_emendamento_5.md` | **non calcolata su Ava-256** (v5): nessun codice nella catena congelata (`conf_desc.py` non la calcola) |
 | NICP su template cs | unica | SR | `aau/baselines_mm` (`6c8a747`), template dei 56 (sez. 7.2) | fissato |
 | Versione mascherata delle regole (righe fallite tolte) | - | come le regole | `aau/full_matrix/fm_eval.py` (`adc0df5`), maschera comune | fissato |
 | Varifold in mm (massa unitaria) | unica | FR, SR | `aau/baselines_param/bp_varifold.py` (`451b30c`), `aau/full_matrix/fm_varifold.py` (`c7e5299`) | fissato |
@@ -721,23 +750,24 @@ riga di `conf_eval.py` e `conf_head.py`; le versioni del punto 6 sono `conf_comm
 
 ### 11.1 Codice della catena (v3)
 
-Commit del codice e degli esiti del collaudo (sez. 11.2): **`adaac1f`** (v3) e **`fe32e8f`** (v4: embedding e
-descrittivi). sha256 dei byte di ogni script e degli spec (`conf_common.py sha`, `conf_common.SCRIPTS`, v4: due spec di
+Commit del codice e degli esiti del collaudo (sez. 11.2): **`adaac1f`** (v3), **`fe32e8f`** (v4: embedding e
+descrittivi) e **`9675df8`** (v5: embedding su A100 con le tolleranze v5; R4 fuori dalla famiglia in `conf_eval.py`). sha256 dei byte di ogni script e degli spec (`conf_common.py sha`, `conf_common.SCRIPTS`, v4: due spec di
 collaudo compresi); lo strumento non si esegue su Ava-256 con file diversi da questi (regola sui bug, sez. 12). Nella
 v4 sono cambiati `conf_common.py` (sha256 di C3M in `verify`, lista degli script), `conf_collaudo.py` (passi `embed`,
 `desc`, `desc-eval`), `conf.sbatch` (passi `embed-stage`, `embed`, `desc-*`) e i due spec `ava256.json` e
-`hifi3d_full.json` (chiavi `embed`, `desc`, `columns.desc_models`, `columns.desc_plugins`); nessuno script di sviluppo
-e' cambiato:
+`hifi3d_full.json` (chiavi `embed`, `desc`, `columns.desc_models`, `columns.desc_plugins`). Nella v5 sono cambiati
+`conf_eval.py` (R4 in `DESC_RULES`, m = 9), `conf_embed.py` (controllo `embed.gpu`), `conf_collaudo.py` (tolleranze v5),
+`conf.sbatch` e i due spec (`embed.gpu` = `A100`). Nessuno script di sviluppo e' cambiato:
 
 | Script | sha256 | Stato |
 |---|---|---|
 | `aau/ava256/conf_common.py` | `7229230de2b86935165c33daf69ad2d689b82df09b4a21946363cbd4e1cc7b8b` | modificato (v4) |
 | `aau/ava256/conf_protocols.py` | `7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79` | nuovo (v3) |
 | `aau/ava256/conf_head.py` | `9b74992f0264292d50bcb620824d60d0ccdf1eb258e19f07101af038fe3f140d` | nuovo (v3) |
-| `aau/ava256/conf_eval.py` | `8169cc46ee43604807b95ff73c37b2b1d0a1990441b451ba83fdf1cb8afa1b15` | nuovo (v3) |
-| `aau/ava256/conf_collaudo.py` | `3090c3ebefc13359e42a3cccffe3ebe26d25207d00a706bd23f92f43458def46` | modificato (v4) |
-| `aau/ava256/conf.sbatch` | `712f0ec9b6bbb05a7a39d989577a3f24cfc512829ddc8d1bd55b8b90fd70bced` | modificato (v4) |
-| `aau/ava256/spec/ava256.json` | `1b0a7e43d3769925b6c54387c361651ec803ca96daddd23614d8346f48097a07` | modificato (v4) |
+| `aau/ava256/conf_eval.py` | `da7c81e3a9905fda546bf70aba51521c8f0d54178588b6b15f44823efcf5312c` | modificato (v5) |
+| `aau/ava256/conf_collaudo.py` | `daa5f8b234ab7e20d672e53a58d6af7fb36f363150a7e7dd910e39eae77b5681` | modificato (v5) |
+| `aau/ava256/conf.sbatch` | `6b6f6198aad763565a625cc3ce887309878f58f4ab98ddbbc8a2204914cb53b1` | modificato (v5) |
+| `aau/ava256/spec/ava256.json` | `27e5b4cf8908e934c836434d84a001f99f74e8eb69e528544b919718c3b586da` | modificato (v5) |
 | `aau/ava256/ava_freeze.py` | `520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca` | invariato, importato |
 | `aau/ava256/ava_calib.py` | `a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897` | invariato, importato |
 | `aau/competitors/protocolli/pr_common.py` | `deeb13ed5e755ff3f591518f26e08577d3172b873744504711ba858120df84ab` | modificato (v3: `--spec`) |
@@ -760,7 +790,7 @@ e' cambiato:
 | `aau/diagnostics/d3_stats.py` | `573aef82d60feb7722dafa031c2ea268bf64f35dd20efe5b2124d8e322a6fcc9` | invariato, importato |
 | `aau/diagnostics/diag.py` | `399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d` | invariato, importato |
 | `v3_work/trainer/tools/fact_paired.py` | `cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a` | invariato, importato |
-| `aau/ava256/conf_embed.py` | `f5a6791e87ecaf9b7a72032b06360e0818173754f1d281b4e0e83a3f3a8a6817` | nuovo (v4) |
+| `aau/ava256/conf_embed.py` | `d306d294ebbaa253298fd230c937fbbd7159c3cce8d5c07117b8a3654edd8d9a` | modificato (v5) |
 | `aau/ava256/conf_desc.py` | `7687adb0d1a8b90d2e2060799f6730c52cc495d7ff3df30c1fdfe1d57b217f79` | nuovo (v4) |
 | `aau/zs3dmm/zs_embed.py` | `195b189111fe91cb6ea5b02826e5cede87815bbe7bf8e861d7d91cb5dd3d6cf8` | invariato, importato (v4) |
 | `v3_work/trainer/eval_v3.py` | `cf9f9d240bc0105ac94b29209037f5a626c537ed462d0ce3a76a448ac04a6613` | invariato, importato (v4) |
@@ -775,7 +805,7 @@ e' cambiato:
 | `aau/competitors/gw_percettivi/gp_common.py` | `3f58957396ec135dce1c85aca0d5954edf8814d4e3ad5a9c2d6f5a83630f018a` | invariato, importato (v4) |
 | `aau/competitors/gw_percettivi/gp_gw.py` | `d64f04401d25f176dc927894f960e81e936b523c0da581813e0fd90dce2895c4` | invariato, importato (v4) |
 | `aau/competitors/gw_percettivi/gp_percettivi.py` | `dad7542ae75a3babffc6f8166ae59dd4834394123ba90f8abb90d0b3a4933b24` | invariato, importato (v4) |
-| `aau/ava256/spec/hifi3d_full.json` | `57d1c260690c67e8caacd9b626dc89907b2b7fb2a042afb41ab6685266493173` | modificato (v4) |
+| `aau/ava256/spec/hifi3d_full.json` | `a4f14912c00f92159d7bd2e4145c2ce6b2748907a0c7e9b57128efa426022e9b` | modificato (v5) |
 | `aau/ava256/spec/hifi3d_det.json` | `5b12b58f255118c8748ed923edec9cb2e0c03108423be362b0deb47612c760ea` | nuovo (v3) |
 
 ### 11.2 Collaudo su HIFI3D (v3, stesso codice, nessun dato di Ava-256)
@@ -840,8 +870,8 @@ embedding di `form_hifi` (A100, `nv-ai-04`) e del pool NON valutato di D3, le co
 
 Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l40s-01`; 1071731 varifold su L40S
 `a768-l40s-01`; 1071723 spettrali, ICP, ArcFace, GW, percettivi su `i256-a10-09`; 1071724 lettura e confronti su
-`a256-t4-04`; uscite in `aau/runs/evidence/ava256_conf/collaudo/{embed,desc,desc-eval}.json` e
-`collaudo/hifi3d_full/{embed,desc}/`):
+`a256-t4-04`; uscite in `aau/runs/evidence/ava256_conf/collaudo/{embed_l40s,desc,desc-eval}.json` e
+`collaudo/hifi3d_full/{embed_l40s,desc}/`; v5: gli esiti dell'embedding su L40S spostati in `embed_l40s`, invariati):
 
 | Passo | Confronto | Scarto massimo misurato | Tolleranza | Esito |
 |---|---|---|---|---|
@@ -865,8 +895,29 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
   `results_d3.md:471`). Il container NGC ha `TORCH_ALLOW_TF32_CUBLAS_OVERRIDE=1` (moltiplicazioni fp32 in TF32): e' la
   causa probabile dello scarto fra le due GPU, non isolata (misurato l'effetto della GPU, non quello del TF32 da solo).
   La tolleranza di 1e-4 era quindi sotto il rumore di riproduzione del
-  forward gia' noto in sviluppo. **Non si allarga**: l'esito resta "fuori tolleranza" e si registra; su Ava-256
-  l'embedding gira su L40S come qui. Effetto sulle letture del collaudo: Spearman <= 4,3e-4.
+  forward gia' noto in sviluppo. L'esito su L40S resta "fuori tolleranza" e si registra. Effetto sulle letture del
+  collaudo: Spearman <= 4,3e-4. v5: su Ava-256 l'embedding gira su A100, con il collaudo e le tolleranze sotto.
+**Collaudo v5** (13 ottobre, decisioni del PI; uscite in `collaudo/embed.json`, `collaudo/hifi3d_full/embed/`,
+`collaudo/eval-full.json`, `collaudo/eval-det.json`):
+- **Embedding su A100.** Tolleranze v5, dichiarate PRIMA del collaudo (`conf_collaudo.TOL`, `embed_*_v5`): Z 1e-3 (circa
+  3,5 volte il rumore A100 contro A100 di sviluppo, 2,8e-4); d_F (cal. e non cal.) 0,1 mm (1e-3 su s = log S, S ~ 100
+  mm); d_P 1e-3; Spearman e IC 1e-3. La tolleranza della v4 (1e-4) era sotto il rumore noto; l'esito v4 su L40S resta
+  registrato come fuori tolleranza (`collaudo/embed_l40s.json`). Embedding rifatto con gli stessi operatori del collaudo
+  v4 su A100 (`nv-ai-04`, job 1071933; confronto rifatto col codice finale nel job 1072069):
+
+  | Confronto | Scarto massimo misurato | Tolleranza v5 | Esito |
+  |---|---|---|---|
+  | Z, 600 mesh di `form_hifi` (s1234 / s2345 / C3M e123) e 1.000 del pool di D3 (s1234 / s2345) | 3,4e-4 / 3,0e-4 / 6,1e-4; pool 3,7e-4 / 4,7e-4 | 1e-3 | passa |
+  | d_F cal. / d_F non cal. su tutte le coppie | 7,4e-3 / 0,026 mm | 0,1 mm | passa |
+  | d_P su tutte le coppie | 4,5e-4 | 1e-3 | passa |
+  | Spearman e IC (nocrop, crop, all_cross; GT FR e SR) delle 9 distanze | 4,3e-5 | 1e-3 | passa |
+
+- **Valutatore con m = 9** (`conf_eval.py` senza R4 nella famiglia): `eval-full` (72 + 54 Spearman, 14 + 14 delta con
+  R4 descrittiva, 24 Spearman dei protocolli e R7) ed `eval-det` (24 Spearman col rilevatore, 3 delta) rifatti: scarto
+  0, righe uguali (job 1072069, 1072070). Gli esiti delle regole su HIFI3D (`collaudo/hifi3d_full/conf/rules.csv`, 9
+  ipotesi per famiglia) restano solo un controllo del codice.
+- Cancellata dopo il collaudo la cache degli operatori di HIFI3D (`datasets/V3_OPS_CACHE/conf/hifi3d_full`, 16 GB).
+
 - Non collaudati nella v4: GW e percettivi sulle 600 mesh (solo il sottocampione dichiarato); il varifold a piu' shard
   (`--shard k/n`, un solo shard nel collaudo); il ramo "ArcFace non applicabile" (su HIFI3D il frame check sceglie
   `x180`); i passi di `conf_desc.py eval` con descrittivi bucati (su HIFI3D nessun descrittivo ha buchi: passo
@@ -891,7 +942,9 @@ Esiti (job 1071702 operatori su `a256-t4-04`; 1071703 embedding su L40S `a768-l4
 
 ## 13. Cosa NON e' confermativo
 
-- Tutto cio' che non e' R1-R7:
+- Tutto cio' che non e' R1-R7 (R4 esclusa dalla v5):
+  - R4 e l'intero gruppo `crop` (v5: scelta di ambito, il crop e' fuori dalla tesi principale; si riportano completi,
+    con delta e IC di R4 nei due semi, in `conf/deltas.csv` con `famiglia` = False, e nel supplementary come limite);
   - i descrittivi della sez. 9, compreso NoW metrical contro la d_F (sez. 9.2);
   - i gruppi descrittivi;
   - l'altra GT di ogni distanza (anche NoW originale e metrical con GT SR);
@@ -908,11 +961,11 @@ Il protocollo si congela solo quando sono fissati:
 1. ULRSSM: variante dichiarata (`faces_xyz`, `fm_plugin.json` con `declared: true`) e pesi riaddestrati in git
    [in attesa; se non pronti al congelamento, ULRSSM e' escluso];
 2. Hybrid FM: codice, variante dichiarata e commit [in attesa; se non pronto al congelamento, e' escluso];
-3. ~~embedding di Ava-256~~: **fissato nella v4** (`conf_embed.py`, sez. 7.1, 11.1, 11.2); collaudo **fuori
-   tolleranza** e registrato (sez. 11.2), come il fit B su `a512-l4-06` nella v3;
+3. ~~embedding di Ava-256~~: **fissato nella v4** (`conf_embed.py`, sez. 7.1, 11.1, 11.2); collaudo su L40S **fuori
+   tolleranza** e registrato (sez. 11.2); v5: su A100, collaudo rifatto con le tolleranze v5 (sez. 11.2);
 4. ~~descrittivi della sez. 9 fuori da `conf_eval.py`~~: **fissati nella v4** (`conf_desc.py`, sez. 9, 11.1, 11.2).
 
-Fissati nella v2 (non piu' in attesa): R7 e la famiglia di Holm (m = 10); Gromov-Wasserstein e percettivi (varianti
+Fissati nella v2 (non piu' in attesa): R7 e la famiglia di Holm (m = 10; v5: m = 9, senza R4); Gromov-Wasserstein e percettivi (varianti
 dichiarate in `5c9c3e3`); protocolli NoW, NoW metrical, REALY, Stirling (codice in `32c3839`, risultati di sviluppo in
 `c960859`, pipeline del rilevatore in `f47a375`).
 
@@ -928,4 +981,4 @@ congelamento sono esclusi.
 
 Poi il PI committa questo testo con il suo sha256 e la parola "congelato" nel titolo.
 
-**CANDIDATO v4, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
+**CANDIDATO v5, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
