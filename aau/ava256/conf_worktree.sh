@@ -18,6 +18,7 @@ MAIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 [[ -e "$DEST" ]] && { echo "ERRORE: $DEST esiste gia'" >&2; exit 1; }
 git -C "$MAIN" worktree add --detach --no-checkout "$DEST" "$COMMIT"
 cd "$DEST"
+mkdir -p "$(git rev-parse --git-dir)/info"                    # git 2.25: la cartella info del worktree manca
 git sparse-checkout set --no-cone '/*' '!/aau/runs/' '!/datasets/'
 git checkout --detach "$COMMIT"
 ln -s "$MAIN/aau/runs" aau/runs
