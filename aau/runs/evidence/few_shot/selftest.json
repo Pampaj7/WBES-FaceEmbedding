@@ -1,0 +1,199 @@
+{
+ "draws": {
+  "domains": {
+   "hifi3d": {
+    "n": 100,
+    "ks": [
+     5,
+     10,
+     20,
+     50
+    ],
+    "draws": 5,
+    "seed": "SeedSequence([20261127, 0, q]).permutation(100)"
+   },
+   "facescape": {
+    "n": 100,
+    "ks": [
+     5,
+     10,
+     20,
+     50
+    ],
+    "draws": 5,
+    "seed": "SeedSequence([20261127, 1, q]).permutation(100)"
+   },
+   "faceverse": {
+    "n": 100,
+    "ks": [
+     5,
+     10,
+     20,
+     50
+    ],
+    "draws": 5,
+    "seed": "SeedSequence([20261127, 2, q]).permutation(100)"
+   },
+   "faceverse_neutral": {
+    "n": 100,
+    "ks": [
+     5,
+     10,
+     20,
+     50
+    ],
+    "draws": 5,
+    "seed": "SeedSequence([20261127, 3, q]).permutation(100)"
+   },
+   "famos": {
+    "n": 15,
+    "ks": [
+     5,
+     10
+    ],
+    "draws": 5,
+    "seed": "SeedSequence([20261127, 4, q]).permutation(15)"
+   }
+  },
+  "pass": true
+ },
+ "blocks": {
+  "factorized_s1234|hifi3d": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s1234|facescape": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s1234|faceverse": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s1234|faceverse_neutral": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s1234|famos": {
+   "meshes": 150,
+   "subjects": 15,
+   "p": 256,
+   "labels": 10,
+   "k_block_meshes": 50,
+   "k_block_subjects": 5
+  },
+  "factorized_s2345|hifi3d": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s2345|facescape": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s2345|faceverse": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s2345|faceverse_neutral": {
+   "meshes": 500,
+   "subjects": 100,
+   "p": 256,
+   "labels": 5,
+   "k_block_meshes": 25,
+   "k_block_subjects": 5
+  },
+  "factorized_s2345|famos": {
+   "meshes": 150,
+   "subjects": 15,
+   "p": 256,
+   "labels": 10,
+   "k_block_meshes": 50,
+   "k_block_subjects": 5
+  }
+ },
+ "sources": {
+  "hifi3d": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "faceverse",
+   "famos"
+  ],
+  "facescape": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "hifi3d",
+   "faceverse",
+   "famos"
+  ],
+  "faceverse": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "famos"
+  ],
+  "faceverse_neutral": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "famos"
+  ],
+  "famos": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "faceverse"
+  ]
+ },
+ "now_det_files": {
+  "hifi3d": false,
+  "facescape": false,
+  "faceverse": false,
+  "faceverse_neutral": false
+ },
+ "seconds": 5.567377090454102,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1074620",
+ "date": "2026-10-13 17:49:40"
+}
