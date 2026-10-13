@@ -1751,3 +1751,23 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
       A100 di sviluppo, TF32 attivo nel container); sviluppo contro sviluppo dà già 2,8e-4. Registrato, decide il PI.
   - Restano in attesa solo ULRSSM e Hybrid FM: se non sono pronti al congelamento, sono esclusi.
   - Nessuna esecuzione su Ava-256.
+
+## 13 ottobre, sera — training massivo del MODELLO DA RILASCIARE: preparato, provato, lanciato
+
+- **Autorizzato dall'utente.** Modello da rilasciare, separato dai modelli del paper: i checkpoint factorized s1234/s2345 al passo 21096 restano intatti. Run dir `aau/runs/massive_release/main`; piano in PLAN_MASSIVE sez. 23.
+- **Ricetta.** Encoder fattorizzato taglia + forma (ricetta factorized), k 128, 0,72 M parametri. T = 450.000 passi, 40 identità per passo. lr 1e-4, poi 1e-5 dal 90% dei passi; EMA 0.999.
+- **Dati** (preset `release`, 8 domini, passi uguali per dominio):
+  - BFM 2019, ICT, GNM, FLAME 2023 Open;
+  - HIFI3D, FaceVerse con espressioni, FaceScape bilineare con espressioni;
+  - FaMoS TRAIN;
+  - quota d'espressioni 0,5;
+  - 6 discretizzazioni, crop compreso.
+- **Fuori:** Ava-256, FaMoS TEST, FLAME 2020.
+- **Held-out dichiarato** (`aau/massive/heldout.json`), solo monitoraggio: 32 identità per 3DMM col seme riservato 20261013 e 6 persone FaMoS TRAIN tolte dal training; 1.380 viste.
+- **Codice:** commit 771fee8. Le modifiche condivise sono opt-in: a opzione spenta gli shard sono identici byte per byte a HEAD e la run dir è invariata (`test_release.py`, job 1074939).
+- **Smoke:**
+  - 2 A10 (job 1074653): 600 passi, `scontrol requeue` al passo 250, ripresa dal 251 su un altro nodo, passi senza buchi;
+  - 2 L40S (job 1074876): 0,434-0,453 s/passo, 6 viste fresche/s.
+- **Lancio:** job 1075178, 2 × 4 L40S, QoS normal, in coda. Un nodo da 8 L40S con più di 12 CPU per GPU viene rifiutato da Slurm, quindi due nodi da 4.
+- **Licenze** (`aau/massive/LICENZE.md`): il training per ricerca è consentito. I pesi NON sono redistribuibili senza permessi: Basilea, MPI e NJU, più un parere su HIFI3D++ e FaceVerse. La decisione di rilasciarli resta all'utente; non è stato pubblicato nulla.
+- **Sorveglianza:** `python3 aau/massive/status.py`; dettagli in `aau/massive/MONITOR.md`.

@@ -862,7 +862,9 @@ Codice in `aau/massive/` e nei flag opt-in di `v3_work/stream`. A opzione spenta
 4. **Licenze:** vedi `aau/massive/LICENZE.md`. Addestrare per ricerca è consentito per tutte le fonti, con FaceScape condizionato all'accordo firmato da chi ne ha titolo. **I pesi di questo run NON sono redistribuibili** senza i permessi di Basilea, MPI e NJU e un parere su HIFI3D++ e FaceVerse. La decisione di rilasciarli resta all'utente; non è stato pubblicato nulla.
 5. **Risorse:**
    - 8 L40S (`--gres` l40s), QoS normal, mai `unprivileged`. Le altre 4 GPU restano agli esperimenti in corso;
-   - un nodo, 16 CPU per GPU: 64 ai rank e 64 ai produttori;
+   - **2 nodi × 4 L40S**, 16 CPU per GPU: per nodo 32 CPU ai rank e 32 ai produttori, 64 produttori in tutto, lo stesso rapporto (8 per GPU) dello smoke L40S misurato.
+     - Un nodo da 8 non si può chiedere con più di 12 CPU per GPU: da 13 a 16 Slurm risponde "Requested node configuration is not available" (prove del 13 ottobre). Con 12 i produttori scenderebbero a 32.
+     - NCCL fra nodi è provato con 1 + 1 e 2 + 2 GPU; 4 + 4 ha lo stesso numero di GPU per nodo e non è mai stato provato.
    - `--mem-per-gpu=40G`: lo smoke a 2 GPU ha misurato al più 45 GiB col solo anello da 20 GiB;
    - anello in /tmp da 10 GiB per GPU;
    - `--requeue`, checkpoint di ripresa ogni 20 minuti e su SIGTERM, ripresa provata (23.3);
@@ -894,3 +896,11 @@ Vedi `aau/massive/MONITOR.md`. In sintesi:
   - run dir della riga di lancio di smoke_validated_1067645 invariata;
   - divieti attivi;
   - 8 domini release: viste e GT finite, regen.check_shard passa.
+- **Throughput su 2 L40S** (job 1074876, `smoke_l40s/`, stessa riga di lancio, 500 passi, 16 produttori, 8 per GPU come nel run):
+  - 0,434-0,453 s/passo a regime (epoche 2-5);
+  - 6,0-6,4 viste fresche/s;
+  - riuso per epoca 17-23;
+  - GPU fino al 100%, 14 GB.
+
+  A 8 GPU, con 64 produttori, la stima non misurata è di circa 25 viste fresche/s e un riuso di circa 21. Con T = 450.000 fanno 54-57 ore di passi, più avvio e held-out.
+- **Lancio:** job 1075178, 2 × 4 L40S, `--time 3-12:00:00`, in coda (Priority) dal 13 ottobre alle 19:00. Comandi e allarmi in `aau/massive/MONITOR.md`.
