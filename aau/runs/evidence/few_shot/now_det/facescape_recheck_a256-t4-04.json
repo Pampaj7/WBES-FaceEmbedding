@@ -1,0 +1,23 @@
+{
+ "view": "facescape",
+ "pairs": 49,
+ "tol_mm": 0.0001,
+ "methods": {
+  "now_original": {
+   "max_abs_vs_reference_mm": 0.0,
+   "n_vs_reference_gt_tol": 0,
+   "max_abs_vs_full_run_mm": 0.007311327139324142,
+   "n_vs_full_run_gt_tol": 31
+  },
+  "now_metrical": {
+   "max_abs_vs_reference_mm": 0.0,
+   "n_vs_reference_gt_tol": 0,
+   "max_abs_vs_full_run_mm": 0.0023074003741143656,
+   "n_vs_full_run_gt_tol": 18
+  }
+ },
+ "seconds": 64.32626390457153,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1075508",
+ "date": "2026-10-13 19:53:58"
+}

@@ -1,0 +1,2925 @@
+{
+ "K0": {
+  "factorized_s1234": {
+   "c": 0.4159334121204845,
+   "alpha_over_alpha0": 0.039576109301365126,
+   "nit": 257,
+   "success": true,
+   "reference": {
+    "c": 0.4159334121204845,
+    "alpha_over_alpha0": 0.039576109301365126,
+    "nit": 257
+   },
+   "rel_c": 0.0,
+   "rel_alpha": 0.0,
+   "pass": true
+  },
+  "factorized_s2345": {
+   "c": 0.41843835339738,
+   "alpha_over_alpha0": 0.03076603181101636,
+   "nit": 257,
+   "success": true,
+   "reference": {
+    "c": 0.41843835339738,
+    "alpha_over_alpha0": 0.03076603181101636,
+    "nit": 257
+   },
+   "rel_c": 0.0,
+   "rel_alpha": 0.0,
+   "pass": true
+  }
+ },
+ "host": "i256-a10-10.srv.aau.dk",
+ "node_required": "i256-a10-10",
+ "r": 64,
+ "lambda": 1e-06,
+ "dpu": {
+  "factorized_s1234": 0.24411710201003828,
+  "factorized_s2345": 0.24411710201003828
+ },
+ "checkpoints": {
+  "factorized_s1234": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__1f5d4a90/checkpoints/epoch072_ema.pth",
+  "factorized_s2345": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized_s2345/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed2345__4de9be29/checkpoints/epoch072_ema.pth"
+ },
+ "n": 188,
+ "success": 188,
+ "hosts": [
+  "i256-a10-08.srv.aau.dk",
+  "i256-a10-10.srv.aau.dk"
+ ],
+ "nit_min": 203,
+ "nit_max": 309,
+ "seconds_median": 141.02711653709412,
+ "fits": [
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.39958754404468066,
+   "alpha_over_alpha0": 0.06849867644139558,
+   "seconds": 119.1051778793335,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.41939624352452626,
+   "alpha_over_alpha0": 0.07514106814819328,
+   "seconds": 112.71152377128601,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 283,
+   "c": 0.41260262308900986,
+   "alpha_over_alpha0": 0.023583319227374014,
+   "seconds": 114.42992877960205,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 222,
+   "c": 0.4155726258190203,
+   "alpha_over_alpha0": 0.05251564763913737,
+   "seconds": 118.83765459060669,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.39958137665052385,
+   "alpha_over_alpha0": 0.05711982847021759,
+   "seconds": 140.85905838012695,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 264,
+   "c": 0.39952233149913574,
+   "alpha_over_alpha0": 0.05142611347176596,
+   "seconds": 146.4918818473816,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.39961002600265094,
+   "alpha_over_alpha0": 0.0677179859796135,
+   "seconds": 132.51124620437622,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 262,
+   "c": 0.39963541571555844,
+   "alpha_over_alpha0": 0.05407259137817548,
+   "seconds": 145.24634075164795,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 241,
+   "c": 0.3996525680907034,
+   "alpha_over_alpha0": 0.08436926302063495,
+   "seconds": 136.44841933250427,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 256,
+   "c": 0.39955428308537344,
+   "alpha_over_alpha0": 0.04801697909661055,
+   "seconds": 143.88828349113464,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.3996382834569939,
+   "alpha_over_alpha0": 0.07749127121702121,
+   "seconds": 134.37330079078674,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 277,
+   "c": 0.3994762055352917,
+   "alpha_over_alpha0": 0.03486311297183335,
+   "seconds": 150.2432677745819,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 263,
+   "c": 0.3995639624328295,
+   "alpha_over_alpha0": 0.051068509315389074,
+   "seconds": 147.32556629180908,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 291,
+   "c": 0.3995561742035141,
+   "alpha_over_alpha0": 0.03970253634679682,
+   "seconds": 162.39575004577637,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 255,
+   "c": 0.3995863432360209,
+   "alpha_over_alpha0": 0.03942321201478054,
+   "seconds": 144.72120594978333,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 282,
+   "c": 0.39951880220093683,
+   "alpha_over_alpha0": 0.04287441600438408,
+   "seconds": 154.64896368980408,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 203,
+   "c": 0.39983815090651054,
+   "alpha_over_alpha0": 0.07801176196747361,
+   "seconds": 118.59604048728943,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 247,
+   "c": 0.399647012605124,
+   "alpha_over_alpha0": 0.050324520321827396,
+   "seconds": 145.2567961215973,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 280,
+   "c": 0.39969261688720487,
+   "alpha_over_alpha0": 0.03795931043441342,
+   "seconds": 154.6573030948639,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 227,
+   "c": 0.3997629364597329,
+   "alpha_over_alpha0": 0.05585857951375937,
+   "seconds": 150.202862739563,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 210,
+   "c": 0.39961001930201584,
+   "alpha_over_alpha0": 0.07308157331855061,
+   "seconds": 126.05325126647949,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 255,
+   "c": 0.39974994651563234,
+   "alpha_over_alpha0": 0.037438658633424986,
+   "seconds": 159.73693013191223,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.39967415554844543,
+   "alpha_over_alpha0": 0.043758869976781564,
+   "seconds": 156.85990238189697,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "hifi3d",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.39973950199218844,
+   "alpha_over_alpha0": 0.055480645511777456,
+   "seconds": 150.14394807815552,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 264,
+   "c": 0.41933566761842894,
+   "alpha_over_alpha0": 0.047967289339210725,
+   "seconds": 147.14223885536194,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 230,
+   "c": 0.41941169002830725,
+   "alpha_over_alpha0": 0.06267682144623385,
+   "seconds": 132.340238571167,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 249,
+   "c": 0.41939261610166917,
+   "alpha_over_alpha0": 0.05751888207027745,
+   "seconds": 143.40702176094055,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.41935077137807514,
+   "alpha_over_alpha0": 0.05088268421780499,
+   "seconds": 151.5719985961914,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 227,
+   "c": 0.41939321939599145,
+   "alpha_over_alpha0": 0.058498175926325634,
+   "seconds": 129.0345802307129,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 238,
+   "c": 0.419366325848313,
+   "alpha_over_alpha0": 0.05442733531353313,
+   "seconds": 133.90635013580322,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 251,
+   "c": 0.4194072494247888,
+   "alpha_over_alpha0": 0.04717450888813491,
+   "seconds": 141.9064817428589,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.4194742489312424,
+   "alpha_over_alpha0": 0.055162275943237866,
+   "seconds": 137.5402638912201,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4194462313227278,
+   "alpha_over_alpha0": 0.05938473124491008,
+   "seconds": 136.61383175849915,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4194900145057324,
+   "alpha_over_alpha0": 0.06293656920375948,
+   "seconds": 137.91447806358337,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4194001663928556,
+   "alpha_over_alpha0": 0.05012461024575703,
+   "seconds": 135.15563821792603,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.41931709863202216,
+   "alpha_over_alpha0": 0.06779892129273613,
+   "seconds": 129.3670780658722,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 241,
+   "c": 0.41946608787521183,
+   "alpha_over_alpha0": 0.0495140227935631,
+   "seconds": 138.8063268661499,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.41931635673313955,
+   "alpha_over_alpha0": 0.056343837842293125,
+   "seconds": 137.72725796699524,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 231,
+   "c": 0.4195598439850671,
+   "alpha_over_alpha0": 0.07510497012967328,
+   "seconds": 132.52312994003296,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 278,
+   "c": 0.41943182868142204,
+   "alpha_over_alpha0": 0.03396473840441416,
+   "seconds": 172.67895317077637,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 268,
+   "c": 0.4194626903458158,
+   "alpha_over_alpha0": 0.037579224313586825,
+   "seconds": 164.86049246788025,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 236,
+   "c": 0.41951466234048285,
+   "alpha_over_alpha0": 0.04828331380889355,
+   "seconds": 151.0488486289978,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 238,
+   "c": 0.41955781480229115,
+   "alpha_over_alpha0": 0.045846488882991705,
+   "seconds": 148.6626479625702,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "facescape",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 255,
+   "c": 0.4194743891925223,
+   "alpha_over_alpha0": 0.0392761497671395,
+   "seconds": 155.81726241111755,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 257,
+   "c": 0.4124941230714262,
+   "alpha_over_alpha0": 0.03947194921035791,
+   "seconds": 141.936354637146,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 229,
+   "c": 0.4126074409188919,
+   "alpha_over_alpha0": 0.04679962211058012,
+   "seconds": 132.35515594482422,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.4124028034356598,
+   "alpha_over_alpha0": 0.03439352029566304,
+   "seconds": 149.1343584060669,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 205,
+   "c": 0.4126440858989227,
+   "alpha_over_alpha0": 0.08724370211873984,
+   "seconds": 118.61761474609375,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 258,
+   "c": 0.4127390977644936,
+   "alpha_over_alpha0": 0.03769194890695914,
+   "seconds": 144.00048303604126,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 239,
+   "c": 0.412475201085554,
+   "alpha_over_alpha0": 0.04231105245910024,
+   "seconds": 137.06821298599243,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 238,
+   "c": 0.41246079115905304,
+   "alpha_over_alpha0": 0.0414909277929249,
+   "seconds": 138.54913353919983,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 248,
+   "c": 0.41264458543303756,
+   "alpha_over_alpha0": 0.03512811114973937,
+   "seconds": 139.6867127418518,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 245,
+   "c": 0.41260459875684674,
+   "alpha_over_alpha0": 0.035832750389515965,
+   "seconds": 138.4498040676117,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 245,
+   "c": 0.41257179537904126,
+   "alpha_over_alpha0": 0.028248720912521168,
+   "seconds": 137.79963994026184,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 248,
+   "c": 0.41243840586751135,
+   "alpha_over_alpha0": 0.037231467540105034,
+   "seconds": 138.88174533843994,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.4124381244801621,
+   "alpha_over_alpha0": 0.030455908282402556,
+   "seconds": 140.75323247909546,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 236,
+   "c": 0.41253042708525617,
+   "alpha_over_alpha0": 0.03858974165950896,
+   "seconds": 133.6963632106781,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 251,
+   "c": 0.41246494324133287,
+   "alpha_over_alpha0": 0.030157157830371775,
+   "seconds": 145.8909204006195,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.41244437132930856,
+   "alpha_over_alpha0": 0.028351077368120908,
+   "seconds": 144.67947268486023,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 248,
+   "c": 0.4125153056082768,
+   "alpha_over_alpha0": 0.031408010693439944,
+   "seconds": 154.82397627830505,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.4121900899646996,
+   "alpha_over_alpha0": 0.029789957888502853,
+   "seconds": 159.1536829471588,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.412664202846774,
+   "alpha_over_alpha0": 0.037285807248140054,
+   "seconds": 153.25558233261108,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.4126862494516846,
+   "alpha_over_alpha0": 0.03516463239613794,
+   "seconds": 151.39877939224243,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 232,
+   "c": 0.4125186225706514,
+   "alpha_over_alpha0": 0.032790342202968566,
+   "seconds": 135.695814371109,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 275,
+   "c": 0.4124998071033746,
+   "alpha_over_alpha0": 0.03910423184795895,
+   "seconds": 153.06837487220764,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 296,
+   "c": 0.4126863086729899,
+   "alpha_over_alpha0": 0.043276105239009155,
+   "seconds": 161.36940360069275,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 229,
+   "c": 0.4125224648238738,
+   "alpha_over_alpha0": 0.061168739544244614,
+   "seconds": 128.02100014686584,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 282,
+   "c": 0.4126078900366616,
+   "alpha_over_alpha0": 0.039429723502717735,
+   "seconds": 153.58284902572632,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 273,
+   "c": 0.41249468430495645,
+   "alpha_over_alpha0": 0.04996879916105941,
+   "seconds": 152.09218859672546,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 239,
+   "c": 0.4124232227233244,
+   "alpha_over_alpha0": 0.04069444302433096,
+   "seconds": 135.78388595581055,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 226,
+   "c": 0.41253456834210883,
+   "alpha_over_alpha0": 0.054862892391602094,
+   "seconds": 127.5512433052063,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 221,
+   "c": 0.41256854308191804,
+   "alpha_over_alpha0": 0.05458322543162852,
+   "seconds": 124.74337792396545,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 277,
+   "c": 0.41251105764431817,
+   "alpha_over_alpha0": 0.03581164087062247,
+   "seconds": 151.95226001739502,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 280,
+   "c": 0.4125505596056497,
+   "alpha_over_alpha0": 0.027580684585812195,
+   "seconds": 153.48290252685547,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 239,
+   "c": 0.4124072974348931,
+   "alpha_over_alpha0": 0.03692636323917383,
+   "seconds": 141.5575430393219,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 247,
+   "c": 0.41253658346175465,
+   "alpha_over_alpha0": 0.03492296666100441,
+   "seconds": 140.4400224685669,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 218,
+   "c": 0.41271351330002687,
+   "alpha_over_alpha0": 0.06002458693919,
+   "seconds": 127.20846796035767,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.4125739179296871,
+   "alpha_over_alpha0": 0.03699519862519073,
+   "seconds": 138.40333771705627,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 267,
+   "c": 0.41248694697252647,
+   "alpha_over_alpha0": 0.035947060671116235,
+   "seconds": 146.0171890258789,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 246,
+   "c": 0.4123877838470356,
+   "alpha_over_alpha0": 0.03427941056236599,
+   "seconds": 42.15612077713013,
+   "host": "i256-a10-10.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 256,
+   "c": 0.4124075369718853,
+   "alpha_over_alpha0": 0.03232550921963153,
+   "seconds": 153.7760946750641,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 262,
+   "c": 0.4125285358570035,
+   "alpha_over_alpha0": 0.0347969798197384,
+   "seconds": 158.6706404685974,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 225,
+   "c": 0.4122893091592556,
+   "alpha_over_alpha0": 0.0455385545936767,
+   "seconds": 139.39148044586182,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "faceverse_neutral",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 236,
+   "c": 0.41229182917516766,
+   "alpha_over_alpha0": 0.037007686523352144,
+   "seconds": 151.82129406929016,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 256,
+   "c": 0.415447483755363,
+   "alpha_over_alpha0": 0.02910624881004391,
+   "seconds": 174.21244359016418,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 254,
+   "c": 0.4156379349046143,
+   "alpha_over_alpha0": 0.027714002500277328,
+   "seconds": 169.41563653945923,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 226,
+   "c": 0.4155225768241772,
+   "alpha_over_alpha0": 0.032361322776688455,
+   "seconds": 156.32602500915527,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 225,
+   "c": 0.4155884911335526,
+   "alpha_over_alpha0": 0.032996403728945994,
+   "seconds": 157.93864607810974,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 222,
+   "c": 0.4156906494967836,
+   "alpha_over_alpha0": 0.033673267199276144,
+   "seconds": 155.83333277702332,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.41542973259453186,
+   "alpha_over_alpha0": 0.02085497862252797,
+   "seconds": 163.86101245880127,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 232,
+   "c": 0.4153591968782062,
+   "alpha_over_alpha0": 0.020966695312682332,
+   "seconds": 163.17743301391602,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 231,
+   "c": 0.4152445559987187,
+   "alpha_over_alpha0": 0.024524860458891018,
+   "seconds": 161.5711805820465,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 226,
+   "c": 0.4156244446158562,
+   "alpha_over_alpha0": 0.029097406103125525,
+   "seconds": 158.8285677433014,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s1234",
+    "famos",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.4156307918088576,
+   "alpha_over_alpha0": 0.01777630343982254,
+   "seconds": 163.80362224578857,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 254,
+   "c": 0.40199462698629956,
+   "alpha_over_alpha0": 0.04726854635432271,
+   "seconds": 113.84891104698181,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 247,
+   "c": 0.42097714777880685,
+   "alpha_over_alpha0": 0.05060522134018615,
+   "seconds": 99.62924361228943,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 309,
+   "c": 0.4148298157751783,
+   "alpha_over_alpha0": 0.019393498604175358,
+   "seconds": 123.19964694976807,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    0,
+    0
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.41535945948655173,
+   "alpha_over_alpha0": 0.04081120162085924,
+   "seconds": 113.08267450332642,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 0
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 264,
+   "c": 0.4019430639214056,
+   "alpha_over_alpha0": 0.05814259839075698,
+   "seconds": 152.66765761375427,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 247,
+   "c": 0.4020434232225898,
+   "alpha_over_alpha0": 0.06068330572870946,
+   "seconds": 141.71111273765564,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 260,
+   "c": 0.40209156425360487,
+   "alpha_over_alpha0": 0.058847123057480015,
+   "seconds": 145.81719040870667,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.4021725405066844,
+   "alpha_over_alpha0": 0.07885682849022606,
+   "seconds": 126.67819929122925,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 274,
+   "c": 0.4020506126971866,
+   "alpha_over_alpha0": 0.04518189203485779,
+   "seconds": 149.72346186637878,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 260,
+   "c": 0.40211016594082744,
+   "alpha_over_alpha0": 0.03954446765835076,
+   "seconds": 145.66700434684753,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 230,
+   "c": 0.40199905757736243,
+   "alpha_over_alpha0": 0.06463213158709934,
+   "seconds": 130.11334657669067,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 234,
+   "c": 0.40215411917358423,
+   "alpha_over_alpha0": 0.06366825541527515,
+   "seconds": 135.60435795783997,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.4020941478522957,
+   "alpha_over_alpha0": 0.06184725175940464,
+   "seconds": 141.7377758026123,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 284,
+   "c": 0.4021664698033662,
+   "alpha_over_alpha0": 0.04351810501165843,
+   "seconds": 154.17690753936768,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4023223405772855,
+   "alpha_over_alpha0": 0.05180113043799627,
+   "seconds": 136.30701661109924,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 229,
+   "c": 0.40230983684724125,
+   "alpha_over_alpha0": 0.05154357020760726,
+   "seconds": 127.9540650844574,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4022486821413486,
+   "alpha_over_alpha0": 0.048279071665315275,
+   "seconds": 133.943199634552,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 205,
+   "c": 0.4023001139527628,
+   "alpha_over_alpha0": 0.07886416774327769,
+   "seconds": 120.47451877593994,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 259,
+   "c": 0.40221574421820283,
+   "alpha_over_alpha0": 0.04246236866031246,
+   "seconds": 146.1872775554657,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 244,
+   "c": 0.40236166711090277,
+   "alpha_over_alpha0": 0.051733837475182586,
+   "seconds": 154.284677028656,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 219,
+   "c": 0.40217670251305343,
+   "alpha_over_alpha0": 0.04571827478483288,
+   "seconds": 134.8317322731018,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.40229054714974677,
+   "alpha_over_alpha0": 0.04398173385407606,
+   "seconds": 150.07060408592224,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.40231267273102916,
+   "alpha_over_alpha0": 0.053536505849719696,
+   "seconds": 148.17250752449036,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "hifi3d",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 241,
+   "c": 0.40230449167178006,
+   "alpha_over_alpha0": 0.0509884321419405,
+   "seconds": 151.90339827537537,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 237,
+   "c": 0.4209383886070463,
+   "alpha_over_alpha0": 0.052257084997914455,
+   "seconds": 131.67574286460876,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.42112679016062404,
+   "alpha_over_alpha0": 0.05761115830152434,
+   "seconds": 131.5363142490387,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.42106088644434236,
+   "alpha_over_alpha0": 0.07353028523274065,
+   "seconds": 130.29798984527588,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 229,
+   "c": 0.4210878155228272,
+   "alpha_over_alpha0": 0.05160534792710043,
+   "seconds": 125.1892819404602,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 228,
+   "c": 0.42114461357879357,
+   "alpha_over_alpha0": 0.05920253220472742,
+   "seconds": 127.27816939353943,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 230,
+   "c": 0.42099939052746843,
+   "alpha_over_alpha0": 0.0451314219310453,
+   "seconds": 130.3500485420227,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 212,
+   "c": 0.421099165601011,
+   "alpha_over_alpha0": 0.05489795276848306,
+   "seconds": 123.39512395858765,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 245,
+   "c": 0.4208850838042815,
+   "alpha_over_alpha0": 0.040901763184185674,
+   "seconds": 143.14051032066345,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 234,
+   "c": 0.4210629685519933,
+   "alpha_over_alpha0": 0.04448945944332114,
+   "seconds": 137.03368544578552,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.4209492799872144,
+   "alpha_over_alpha0": 0.04674329415787414,
+   "seconds": 137.46726250648499,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 234,
+   "c": 0.4209180717908774,
+   "alpha_over_alpha0": 0.04893688734218548,
+   "seconds": 135.42167830467224,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 257,
+   "c": 0.4210236635688934,
+   "alpha_over_alpha0": 0.036876920361323305,
+   "seconds": 144.31915473937988,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 263,
+   "c": 0.4209457516422234,
+   "alpha_over_alpha0": 0.03547022652465751,
+   "seconds": 148.58927035331726,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 247,
+   "c": 0.4210605117526493,
+   "alpha_over_alpha0": 0.030905469911703794,
+   "seconds": 139.93043184280396,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.42087861724453307,
+   "alpha_over_alpha0": 0.03986618256112339,
+   "seconds": 139.68735551834106,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.4208876720315278,
+   "alpha_over_alpha0": 0.04318526384733975,
+   "seconds": 161.5541627407074,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 250,
+   "c": 0.4207979112746975,
+   "alpha_over_alpha0": 0.03653559472304489,
+   "seconds": 152.3647060394287,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 234,
+   "c": 0.42111627335143353,
+   "alpha_over_alpha0": 0.04904146499156843,
+   "seconds": 152.13421154022217,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 224,
+   "c": 0.42107147061535494,
+   "alpha_over_alpha0": 0.04578837171059019,
+   "seconds": 137.12066674232483,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "facescape",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 255,
+   "c": 0.42095404731015346,
+   "alpha_over_alpha0": 0.04086548325760936,
+   "seconds": 159.30295586585999,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.41493042785015916,
+   "alpha_over_alpha0": 0.024952307246001754,
+   "seconds": 138.62743496894836,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 233,
+   "c": 0.4151258226908818,
+   "alpha_over_alpha0": 0.03965795510538067,
+   "seconds": 127.69485592842102,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 253,
+   "c": 0.41502576230368715,
+   "alpha_over_alpha0": 0.029898871436610554,
+   "seconds": 127.25077438354492,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 285,
+   "c": 0.4149606306759612,
+   "alpha_over_alpha0": 0.027969497168778463,
+   "seconds": 145.49709153175354,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.41519797491802374,
+   "alpha_over_alpha0": 0.026093361743366773,
+   "seconds": 135.53926587104797,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 240,
+   "c": 0.4150354700337865,
+   "alpha_over_alpha0": 0.04100376513312149,
+   "seconds": 134.46680235862732,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 275,
+   "c": 0.41483417984613086,
+   "alpha_over_alpha0": 0.023965911669386285,
+   "seconds": 151.07801055908203,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 269,
+   "c": 0.4151499552277652,
+   "alpha_over_alpha0": 0.030133505914092702,
+   "seconds": 151.92434191703796,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.41502629371041927,
+   "alpha_over_alpha0": 0.0327980252569777,
+   "seconds": 140.3754529953003,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 253,
+   "c": 0.41515895183568224,
+   "alpha_over_alpha0": 0.03021066796198701,
+   "seconds": 147.211083650589,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 216,
+   "c": 0.4152148121056469,
+   "alpha_over_alpha0": 0.04590659841426813,
+   "seconds": 124.71685886383057,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 235,
+   "c": 0.41501519743181015,
+   "alpha_over_alpha0": 0.04153468417897247,
+   "seconds": 137.15714049339294,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 277,
+   "c": 0.4151541859908247,
+   "alpha_over_alpha0": 0.022295602274440343,
+   "seconds": 153.27280259132385,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 254,
+   "c": 0.4150001573634684,
+   "alpha_over_alpha0": 0.03214268130984236,
+   "seconds": 143.404687166214,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.4148628261953242,
+   "alpha_over_alpha0": 0.023142909492922432,
+   "seconds": 144.27865314483643,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.4150381003059212,
+   "alpha_over_alpha0": 0.029223755185604862,
+   "seconds": 133.99484848976135,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 266,
+   "c": 0.4149272988893621,
+   "alpha_over_alpha0": 0.025639701730896174,
+   "seconds": 139.30601286888123,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 263,
+   "c": 0.41503865578054727,
+   "alpha_over_alpha0": 0.025659043934601854,
+   "seconds": 133.54048418998718,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 266,
+   "c": 0.41491377504297366,
+   "alpha_over_alpha0": 0.023936426275037625,
+   "seconds": 134.80243802070618,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 239,
+   "c": 0.4149879389210429,
+   "alpha_over_alpha0": 0.026510977891709905,
+   "seconds": 134.42735958099365,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 273,
+   "c": 0.41498297181795124,
+   "alpha_over_alpha0": 0.042408410059186885,
+   "seconds": 125.99798560142517,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 303,
+   "c": 0.414910325724542,
+   "alpha_over_alpha0": 0.04104444860495723,
+   "seconds": 141.97543454170227,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 284,
+   "c": 0.4148633065136045,
+   "alpha_over_alpha0": 0.031918269144011656,
+   "seconds": 133.29340505599976,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 268,
+   "c": 0.4151557250916816,
+   "alpha_over_alpha0": 0.04524928383723843,
+   "seconds": 129.74282932281494,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 286,
+   "c": 0.4149745854238993,
+   "alpha_over_alpha0": 0.03811711429658976,
+   "seconds": 139.40520095825195,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 257,
+   "c": 0.4150143011871464,
+   "alpha_over_alpha0": 0.03368258865352989,
+   "seconds": 143.68431091308594,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 227,
+   "c": 0.41519523466470615,
+   "alpha_over_alpha0": 0.04479625463180667,
+   "seconds": 131.38302516937256,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 249,
+   "c": 0.4150776926246515,
+   "alpha_over_alpha0": 0.04247424080394885,
+   "seconds": 141.80652785301208,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 219,
+   "c": 0.4149697046879681,
+   "alpha_over_alpha0": 0.043129019612707854,
+   "seconds": 125.22293162345886,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 230,
+   "c": 0.4150463891607343,
+   "alpha_over_alpha0": 0.05522943747003739,
+   "seconds": 128.40689873695374,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    20,
+    0
+   ],
+   "success": true,
+   "nit": 252,
+   "c": 0.41500965256594924,
+   "alpha_over_alpha0": 0.02688684744936258,
+   "seconds": 145.04278373718262,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    20,
+    1
+   ],
+   "success": true,
+   "nit": 264,
+   "c": 0.4151773343742602,
+   "alpha_over_alpha0": 0.023228942306461907,
+   "seconds": 146.56368160247803,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    20,
+    2
+   ],
+   "success": true,
+   "nit": 249,
+   "c": 0.4149627278295139,
+   "alpha_over_alpha0": 0.0325210119870274,
+   "seconds": 140.7351257801056,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    20,
+    3
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.4149739998722521,
+   "alpha_over_alpha0": 0.026242208434575115,
+   "seconds": 147.6489131450653,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    20,
+    4
+   ],
+   "success": true,
+   "nit": 263,
+   "c": 0.41502504004678425,
+   "alpha_over_alpha0": 0.02782974833439672,
+   "seconds": 147.6891384124756,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 20
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    50,
+    0
+   ],
+   "success": true,
+   "nit": 222,
+   "c": 0.41499388339131354,
+   "alpha_over_alpha0": 0.040801158941933674,
+   "seconds": 130.85541558265686,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    50,
+    1
+   ],
+   "success": true,
+   "nit": 236,
+   "c": 0.41486083754307934,
+   "alpha_over_alpha0": 0.03632581347307805,
+   "seconds": 136.40017771720886,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    50,
+    2
+   ],
+   "success": true,
+   "nit": 284,
+   "c": 0.41493226129110405,
+   "alpha_over_alpha0": 0.02471492465361139,
+   "seconds": 156.92402124404907,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    50,
+    3
+   ],
+   "success": true,
+   "nit": 263,
+   "c": 0.41490093719261434,
+   "alpha_over_alpha0": 0.03151826598623043,
+   "seconds": 146.53405594825745,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "faceverse_neutral",
+    50,
+    4
+   ],
+   "success": true,
+   "nit": 214,
+   "c": 0.41500646521365425,
+   "alpha_over_alpha0": 0.046643977576442446,
+   "seconds": 124.5039598941803,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 50
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    5,
+    0
+   ],
+   "success": true,
+   "nit": 259,
+   "c": 0.41540218986697136,
+   "alpha_over_alpha0": 0.02968188157339953,
+   "seconds": 138.09117531776428,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    5,
+    1
+   ],
+   "success": true,
+   "nit": 278,
+   "c": 0.4153764748794667,
+   "alpha_over_alpha0": 0.02678014816655331,
+   "seconds": 141.19517469406128,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    5,
+    2
+   ],
+   "success": true,
+   "nit": 244,
+   "c": 0.4154884589928654,
+   "alpha_over_alpha0": 0.03230412578255666,
+   "seconds": 135.19642400741577,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    5,
+    3
+   ],
+   "success": true,
+   "nit": 242,
+   "c": 0.41540862166911824,
+   "alpha_over_alpha0": 0.034612234109804504,
+   "seconds": 133.5210874080658,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    5,
+    4
+   ],
+   "success": true,
+   "nit": 240,
+   "c": 0.4152515424757411,
+   "alpha_over_alpha0": 0.031242331418219423,
+   "seconds": 127.96642923355103,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 5
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    10,
+    0
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.4152265155501489,
+   "alpha_over_alpha0": 0.021036699818111546,
+   "seconds": 179.6033444404602,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    10,
+    1
+   ],
+   "success": true,
+   "nit": 232,
+   "c": 0.41531190913502397,
+   "alpha_over_alpha0": 0.02281887253590381,
+   "seconds": 161.7800121307373,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    10,
+    2
+   ],
+   "success": true,
+   "nit": 209,
+   "c": 0.41513326197872585,
+   "alpha_over_alpha0": 0.030901386175167557,
+   "seconds": 146.39279055595398,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    10,
+    3
+   ],
+   "success": true,
+   "nit": 265,
+   "c": 0.4153241215246022,
+   "alpha_over_alpha0": 0.02408784490477784,
+   "seconds": 173.3380103111267,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  },
+  {
+   "task": [
+    "factorized_s2345",
+    "famos",
+    10,
+    4
+   ],
+   "success": true,
+   "nit": 243,
+   "c": 0.4151734228662326,
+   "alpha_over_alpha0": 0.01746850176679391,
+   "seconds": 166.0301399230957,
+   "host": "i256-a10-08.srv.aau.dk",
+   "n_target": 10
+  }
+ ],
+ "sources": {
+  "hifi3d": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "faceverse",
+   "famos"
+  ],
+  "facescape": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "hifi3d",
+   "faceverse",
+   "famos"
+  ],
+  "faceverse": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "famos"
+  ],
+  "faceverse_neutral": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "famos"
+  ],
+  "famos": [
+   "bfm",
+   "ict",
+   "gnm",
+   "flame2023_s1",
+   "facescape",
+   "hifi3d",
+   "faceverse"
+  ]
+ },
+ "seconds": 65.95824003219604,
+ "job": "1075738",
+ "date": "2026-10-13 22:58:46"
+}

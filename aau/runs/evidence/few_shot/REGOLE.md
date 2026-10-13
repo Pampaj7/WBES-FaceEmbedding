@@ -168,6 +168,9 @@ Nessun rho, delta o metrica sulle identita' di test e' stato calcolato prima di 
    contro 0,31 s col metrical): i job da 2 h non bastano e si continuano con job ripartibili (le mesh A gia' salvate si
    saltano). Le coppie di una vista FaceVerse possono venire da nodi diversi: il job di ogni mesh A e' registrato nelle
    parti, i job in `now_det/<vista>.json`.
-3. **Nodo del fit (sez. 4)**: i256-a10-10 era occupato da un altro job (fino a 8 h). Il fit gira su **i256-a10-08**,
-   stessa famiglia di nodi (i256-a10). K0 dice se la testa `joint` si riproduce entro 1e-6 su questo nodo; se no si
-   riporta lo scarto e si prosegue, come gia' scritto nella sez. 4.
+3. **Nodo del fit (sez. 4)**: i256-a10-10 era occupato da un altro job. 187 teste su 188 sono state calcolate su
+   **i256-a10-08** (job 1075578, 141 s di mediana); l'ultima (s1234, FaceVerse neutra, k = 50, q = 0) non era finita
+   dopo 90 minuti e il job e' scaduto (in D5 il fit piu' lungo durava 211 s: processo bloccato, non convergenza
+   lenta). Rifatta su **i256-a10-10** (job 1075738): 42 s, `success`. Sullo stesso nodo **K0 passa con scarto relativo
+   0,0** su c e alpha / alpha0 per entrambi i semi. Controllo dei nodi: 3 teste di -08 rifatte su -10 sono identiche
+   bit per bit (W, alpha, c, iterazioni; `heads_refit_check.json`).

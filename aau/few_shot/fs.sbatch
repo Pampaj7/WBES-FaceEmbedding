@@ -18,6 +18,7 @@
 #   FS_STEPS="selftest" sbatch --cpus-per-task=8 --mem=64G --time=00:30:00 fs.sbatch          (nessuna GT di test)
 #   FS_STEPS="fit" sbatch --nodelist=i256-a10-10 fs.sbatch      (teste, nodo di D3 e2 / D5 / R6; ripartibile)
 #   FS_STEPS="eval famos" sbatch --mem=192G fs.sbatch           (LEGGE LE GT di test)
+#   FS_STEPS="fit wait-now eval famos" ...                      (wait-now: aspetta le matrici NoW delle 4 viste)
 set -euo pipefail
 export AAU_NV=""
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
@@ -40,6 +41,11 @@ for tok in $FS_STEPS; do
             UGT_THREADS=1 "${RUN[@]}" $D/fs_now.py run --view "$view" --workers "$W" --shard "${part%/*}" \
                 --nshards "${part#*/}" ${FS_REVERSE:+--reverse} ;;
         now-merge) "${RUN[@]}" $D/fs_now.py merge --view "$view" ;;
+        wait-now)                                   # attesa delle matrici NoW di tutte le viste (job di continuazione)
+            for v in hifi3d facescape faceverse faceverse_neutral; do
+                until [[ -f aau/runs/few_shot/now_det/$v.npz ]]; do sleep 60; done
+                echo "[fs] $v.npz presente $(date +%T)"
+            done ;;
         selftest)  UGT_THREADS=1 "${RUN[@]}" $D/fs_eval.py selftest --workers "$W" ;;
         fit)       UGT_THREADS=1 "${RUN[@]}" $D/fs_head.py fit --workers "$W" ;;
         eval)      UGT_THREADS=1 "${RUN[@]}" $D/fs_eval.py eval --workers "$W" ;;

@@ -1,0 +1,40 @@
+{
+ "checks": {
+  "factorized_s1234|hifi3d|50|0": {
+   "host_ref": "i256-a10-08.srv.aau.dk",
+   "host_new": "i256-a10-10.srv.aau.dk",
+   "nit": [
+    227,
+    227
+   ],
+   "max_abs_W": 0.0,
+   "rel_alpha": 0.0,
+   "rel_c": 0.0
+  },
+  "factorized_s2345|faceverse|5|1": {
+   "host_ref": "i256-a10-08.srv.aau.dk",
+   "host_new": "i256-a10-10.srv.aau.dk",
+   "nit": [
+    233,
+    233
+   ],
+   "max_abs_W": 0.0,
+   "rel_alpha": 0.0,
+   "rel_c": 0.0
+  },
+  "factorized_s1234|famos|10|2": {
+   "host_ref": "i256-a10-08.srv.aau.dk",
+   "host_new": "i256-a10-10.srv.aau.dk",
+   "nit": [
+    231,
+    231
+   ],
+   "max_abs_W": 0.0,
+   "rel_alpha": 0.0,
+   "rel_c": 0.0
+  }
+ },
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1075799",
+ "date": "2026-10-13 23:08:39"
+}
