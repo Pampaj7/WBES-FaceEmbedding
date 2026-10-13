@@ -904,3 +904,21 @@ Vedi `aau/massive/MONITOR.md`. In sintesi:
 
   A 8 GPU, con 64 produttori, la stima non misurata è di circa 25 viste fresche/s e un riuso di circa 21. Con T = 450.000 fanno 54-57 ore di passi, più avvio e held-out.
 - **Lancio:** job 1075178, 2 × 4 L40S, `--time 3-12:00:00`, in coda (Priority) dal 13 ottobre alle 19:00. Comandi e allarmi in `aau/massive/MONITOR.md`.
+
+### 23.4 Cambio di GPU: 3 A100 su nv-ai-04 (decisioni del PI, 13 ottobre sera)
+
+- **Perché:** il job L40S 1075178 aveva la partenza stimata al 16 ottobre, e l'utente preferisce GPU libere subito. Il job L40S è stato cancellato.
+- **Configurazione:**
+  - un solo nodo, nv-ai-04: `-p aicentre-a100 --qos=unprivileged`, `--requeue`;
+  - con un solo nodo il 4 + 4 mai provato non serve;
+  - è l'eccezione autorizzata dall'utente il 9 ottobre per run lunghi secondari ripartibili; il modello da rilasciare non è il run del paper.
+- **3 A100, non 4:** almeno una A100 resta libera per il passo di embedding della valutazione confermativa di Ava-256.
+  - Un primo lancio su 4 A100 (job 1075219, 20 minuti, cancellato) faceva 6-7 s/passo ai passi 50-100, con 4,6 viste fresche/s mentre l'anello si riempiva;
+  - la sua directory è `aborted_a100_4gpu_1075219`, mai usata.
+- **Ripresa:** container, massive.sbatch e flag del trainer sono gli stessi dello smoke con requeue reale (23.3). Non è stato rifatto un test su A100. Su prelazione il trainer salva su SIGTERM, e c'è anche il checkpoint ogni 20 minuti.
+- **CPU:** 32 per GPU, quindi 24 ai rank e 72 ai produttori. Oltre le 32, Slurm rifiuta la richiesta.
+- **Passi e lr:** 3 rank × 5 identità = 15 identità per passo. **T = 330.000**: circa 64 ore se il passo a regime è 0,70 s (il passo sulle A100 misurato dal critic, §22.12), quindi dentro le 60-72 ore. lr 1e-4, poi 1e-5 dal passo 297.000.
+  - In tutto circa 5 M usi d'identità, 2,75 volte il C3M.
+  - **Rischio:** le CPU di nv-ai-04 sono lente per i produttori (§22.12), quindi il riuso sarà molto più alto che sulle L40S (stima del critic: 35-40). Se il s/passo a regime resta sopra 0,9 s il run supera le 72 ore e si torna dal PI.
+- **Directory:** `aau/runs/massive_release/main_a100`. Lancio: `aau/massive/launch.sh a100 3 330000 3-12:00:00`.
+- **Job:** 1075583 su nv-ai-04, partito il 2026-10-13 19:16:18.

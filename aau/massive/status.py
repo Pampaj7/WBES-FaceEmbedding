@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stato e allarmi del run del modello da rilasciare (aau/massive/MONITOR.md). Solo stdlib: gira sul frontend.
 
-    python3 aau/massive/status.py [--out aau/runs/massive_release/main] [--json]
+    python3 aau/massive/status.py [--out aau/runs/massive_release/main_a100] [--json]
 
 Legge ``<out>/steps.jsonl`` (train_v3.step_jsonl), ``<out>/monitor/heldout.jsonl`` (heldout.py watch),
 ``<out>/segments.log``, ``<out>/node*/producers.log``, la coda (squeue) e il disco (getfattr ceph.dir.rbytes su ~).
@@ -53,7 +53,7 @@ def num(x) -> float:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--out", default=str(REPO / "aau/runs/massive_release/main"))
+    ap.add_argument("--out", default=str(REPO / "aau/runs/massive_release/main_a100"))
     ap.add_argument("--stall-min", type=float, default=20.0)
     ap.add_argument("--quota-gb", type=float, default=2199.0)
     ap.add_argument("--json", action="store_true")
