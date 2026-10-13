@@ -41,8 +41,8 @@ class Tracer(importlib.abc.MetaPathFinder):
             return None
         o = getattr(spec, "origin", None) if spec else None
         if o and o.startswith(str(REPO)) and o.endswith(".py"):
-            with open(LOG, "a") as fh:
-                fh.write(str(Path(o).resolve()) + "\n")
+            with open(LOG, "a") as fh:              # percorso NON risolto: conf_common.loaded_modules lo classifica
+                fh.write(str(Path(o).absolute()) + "\n")
         return None
 
 
@@ -50,11 +50,15 @@ def record(script: Path) -> list:
     """Scrive il json dei moduli; ritorna gli scarti dal commit congelato (vuoto se non controllato)."""
     sys.path.insert(0, str(THIS))
     import conf_common as cc
-    mods = cc.loaded_modules()
-    bad = []
+    try:
+        mods, bad = cc.loaded_modules(), []
+    except RuntimeError as exc:                    # v8: modulo sotto il repo che risolve fuori (non un clone elencato)
+        mods, bad = {}, [str(exc)]
     want = os.environ.get("CONF_FROZEN_COMMIT", "")
     if want:
         for f in mods:
+            if f.split("/", 1)[0] in cc.EXTERNAL_CLONES:          # cloni: commit e albero in conf_common.verify
+                continue
             try:
                 ref = cc.git("rev-parse", f"{want}:{f}")
             except RuntimeError:

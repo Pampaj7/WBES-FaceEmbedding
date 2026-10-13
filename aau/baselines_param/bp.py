@@ -629,6 +629,11 @@ def register_spec(path) -> str:
     return name
 
 
+def host() -> str:
+    """Nodo che scrive l'uscita di un fit (Ava-256 v8: il valutatore controlla il nodo obbligato del fit B)."""
+    return os.uname().nodename
+
+
 def atomic_json(path: Path, obj) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")

@@ -151,7 +151,7 @@ def run_crop(name: str, views: list, workers: int) -> None:
         items = [(s, "crop", blmm.mesh_path(view, s, "crop")) for s in blmm.subjects(view)]
         arr = fit_items(view, name, items, fitted_context(view, name, prm), prm, bp.LOOP[name],
                         view not in bp.NEUTRAL_VIEWS, workers, surf=True)
-        blmm.atomic_savez(out, **arr)
+        blmm.atomic_savez(out, **arr, host=bp.host())
         summary("crop", view, name, arr, t0)
 
 

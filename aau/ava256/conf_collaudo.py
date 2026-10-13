@@ -46,7 +46,10 @@ Passi (ognuno scrive ``<evidence>/collaudo/<passo>.json`` con gli scarti misurat
               senza ``CONF_FROZEN_COMMIT`` (prima di leggere qualunque dato); ``conf_run.py`` esce con 3 se un modulo
               importato differisce dal commit; ``host --role bp``, ``conf_head.py fit`` e ``conf_desc.py arcface``
               falliscono sul nodo sbagliato e ``host`` passa sul nodo giusto (spec copia con quel nodo);
-              ``conf_head.guard_overwrite`` e ``check_host`` rifiutano. Esito per caso: atteso, codice d'uscita, passa.
+              ``check_host`` rifiuta. v8: ``verify`` fallisce con una copia del clone diffusion-net con ``geometry.py``
+              modificato al posto del link del worktree, e ripassa col link originale; ripresa di ``conf_head``
+              (``resume``): npz intero con sha registrato -> salta, npz senza json o con sha diverso -> fermo;
+              ``conf_desc.fit_hosts`` rifiuta un fit B di un altro nodo. Esito per caso: atteso, codice d'uscita, passa.
   desc-eval   ``conf_desc.py eval`` (hifi3d_full) contro ``full_matrix`` (mascherata = passo ``comune``, confermativa =
               "NICP fallito = distanza massima"; Spearman con IC e righe, delta ``vs_nostro`` e ``scala_allineamento``,
               in tutti i gruppi della lettura: nocrop, crop, all_cross, per perturbazione, stessa topologia) e contro
@@ -775,11 +778,40 @@ def guard_check(worktree: Path) -> None:
     case("conf_head.py fit sul nodo sbagliato", False, ["aau/ava256/conf_head.py", "fit", "--spec", spec_full])
     case("conf_desc.py arcface sul nodo sbagliato", False, ["aau/ava256/conf_desc.py", "arcface", "--spec", spec_full,
                                                             "--stage", "/tmp/wbes_guard_arc"])
-    code = ("import sys; sys.path.insert(0, 'aau/ava256'); import conf_head as ch; from pathlib import Path; "
-            "p = Path('aau/ava256/conf_head.py')\n"
-            "try:\n ch.guard_overwrite(p, True); print('NON RIFIUTA'); sys.exit(0)\nexcept SystemExit as e:\n"
-            " sys.exit(0 if e.code is None else 1)")
-    case("guard_overwrite con freeze su un file esistente", False, ["-c", code])
+    # v8: clone diffusion-net modificato (copia del clone al posto del link del worktree)
+    link = wt / "diffusion-net"
+    target = link.resolve()
+    tmp = Path(tempfile.mkdtemp(prefix="wbes_guard_dn_", dir=str(Path.home() / "scratch_claude")))
+    copy = tmp / "diffusion-net"
+    subprocess.run(["git", "clone", "-q", "--no-checkout", str(target), str(copy)], check=True)
+    subprocess.run(["git", "-C", str(copy), "checkout", "-q", conf_common.EXTERNAL_CLONES["diffusion-net"]], check=True)
+    geo = copy / "src" / "diffusion_net" / "geometry.py"
+    try:
+        link.unlink()
+        link.symlink_to(copy)
+        case("verify: copia del clone diffusion-net pulita", True, verify, {"CONF_FROZEN_COMMIT": head})
+        geo.write_bytes(geo.read_bytes() + b"# modifica di prova (collaudo guard)\n")
+        case("verify: geometry.py modificato nel clone diffusion-net", False, verify, {"CONF_FROZEN_COMMIT": head})
+    finally:
+        link.unlink()
+        link.symlink_to(target)
+        subprocess.run(["rm", "-rf", str(tmp)])
+    case("verify: link originale al clone", True, verify, {"CONF_FROZEN_COMMIT": head})
+    # v8: ripresa di conf_head (resume) su un npz finto nella cartella temporanea
+    pre = ("import sys, json, tempfile; from pathlib import Path; import numpy as np; sys.path.insert(0, 'aau/ava256'); "
+           "import conf_head as ch, conf_common as cc\nd = Path(tempfile.mkdtemp()); n = d / 'a.npz'; j = d / 'a.json'\n"
+           "np.savez(n, alpha=1.0, W=np.eye(2), r=2, lam=1e-6, alpha0=1.0, nit=1, success=True, loss=0.0, c=0.4, "
+           "dpu=0.2, checkpoint='x', host='h')\n")
+    case("resume: npz intero e sha registrato -> salta", True,
+         ["-c", pre + "j.write_text(json.dumps({'npz_sha256': cc.sha256(n)}))\nsys.exit(0 if ch.resume(n, j, True) else 2)"])
+    case("resume: npz senza json -> fermo", False, ["-c", pre + "ch.resume(n, j, True)"])
+    case("resume: sha diverso -> fermo", False,
+         ["-c", pre + "j.write_text(json.dumps({'npz_sha256': '0' * 64}))\nch.resume(n, j, True)"])
+    case("fit B: uscita da un altro nodo rifiutata", False,
+         ["-c", "import sys, tempfile; from pathlib import Path; import numpy as np; sys.path.insert(0, 'aau/ava256'); "
+                "import conf_desc as cd\nd = Path(tempfile.mkdtemp())\n"
+                "[np.savez(d / f, host='altro-nodo.srv') for f in ('fit.npz', 'fit_e1.npz', 'fit_e2_crop.npz')]\n"
+                "cd.fit_hosts({'nodes': {'bp': 'i256-a10-08'}}, d)"])
     code = ("import sys; sys.path.insert(0, 'aau/ava256'); import conf_head as ch; "
             "ch.check_host({'host': 'altro-nodo.srv'}, 'i256-a10-10')")
     case("check_host di R6 con la testa di un altro nodo", False, ["-c", code])

@@ -90,7 +90,7 @@ def main() -> None:
                 seconds=np.asarray([r[1] for r in res]), failed=np.asarray(failed, dtype="U300"),
                 region_vertices=reg["vertices"], template_sub=ctx["sub"], model_file=ctx["file"],
                 model_sha256=bp.sha256(ctx["file"]), sigma_noise_mm=bp.SIGMA_NOISE_MM, fail_rms_mm=bp.FAIL_RMS_MM,
-                **{f"D_{k}": M for k, M in D.items()})
+                host=bp.host(), **{f"D_{k}": M for k, M in D.items()})
             rms = np.asarray([r[0]["rms"] for r in res])
             print(f"[bp-fit] {view} {name}: {len(items)} mesh in {time.time() - t0:.0f}s, mediana "
                   f"{np.median([r[1] for r in res]):.1f}s/mesh, RMS mediana {np.nanmedian(rms):.2f} mm (max "

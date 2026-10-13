@@ -22,7 +22,10 @@ configurazione, deve riprodurre c e alpha / alpha0 di quella riga entro ``K0_REL
 si prosegue (come K0 di D5). Poi la testa sulle 8 sorgenti + il blocco (pesi EQ: ``d3_head.Problem``, ogni blocco 1/9),
 c della testa con ``calib_c`` sulle SOLE 8 sorgenti (la GT del dominio non entra in nessun c). Nessun rifit: si
 registrano nodo, job, ``success`` e iterazioni. v7: ``fit`` gira SOLO sul nodo ``head.node`` (``conf_common.require_host``) e, con ``freeze``, non sovrascrive un
-``<work>/head/<braccio>.npz`` esistente (una sola testa per seme, sez. 10). Uscite ``<work>/head/<braccio>.npz`` (``alpha``, ``W``, ``r``, ``lam``,
+``<work>/head/<braccio>.npz`` esistente (una sola testa per seme, sez. 10). v8, ripresa dopo un'interruzione fra i
+bracci (``resume``): un braccio con ``head/<braccio>.npz`` intero (si legge con ``load_head``) e il suo sha256 registrato
+nel json d'evidenza (``npz_sha256``, scritto DOPO l'npz) si salta; un npz senza json, con sha diverso o illeggibile
+ferma il job (decisione del PI). Uscite ``<work>/head/<braccio>.npz`` (``alpha``, ``W``, ``r``, ``lam``,
 ``alpha0``, ``nit``, ``success``, ``loss``, ``c``, ``dpu``, ``host``) e ``<evidence>/head/<braccio>.json``.
 """
 from __future__ import annotations
@@ -127,7 +130,9 @@ def step_fit(spec: Path) -> None:
     if s.get("freeze"):
         cc.verify(s)
     for arm in s["head"]["arms"]:
-        guard_overwrite(cc.work(s) / "head" / f"{arm}.npz", bool(s.get("freeze")))
+        if resume(cc.work(s) / "head" / f"{arm}.npz", cc.evidence(s) / "head" / f"{arm}.json", bool(s.get("freeze"))):
+            print(f"[conf-head] {arm}: testa gia' completa (npz intero, sha256 registrato), salto", flush=True)
+            continue
         t0 = time.time()
         info = info_of(arm)
         r, lam = config(arm)
@@ -158,16 +163,26 @@ def step_fit(spec: Path) -> None:
         rep = {"arm": arm, "K0": k0, "r": r, "lambda": lam, "alpha_over_alpha0": head.alpha / head.alpha0,
                "nit": head.nit, "success": head.success, "loss": head.loss, "c": c, "block": block_report(b),
                "sources": [x.name for x in blocks], "host": socket.gethostname(), "seconds": time.time() - t0,
-               "npz": str(out), "modules_sha256": cc.loaded_modules(), **cc.stamp()}
+               "npz": str(out), "npz_sha256": cc.sha256(out), "modules_sha256": cc.loaded_modules(), **cc.stamp()}
         cc.atomic_json(cc.evidence(s) / "head" / f"{arm}.json", rep)
         print(f"[conf-head] {arm}: success {head.success}, nit {head.nit}, c {c:.6f}, K0 {k0['pass']} "
               f"({time.time() - t0:.0f}s)", flush=True)
 
 
-def guard_overwrite(path: Path, freeze: bool) -> None:
-    """Con ``freeze`` una testa gia' scritta non si rifa' (nessun rifit, sez. 10)."""
-    if freeze and path.exists():
-        raise SystemExit(f"{path}: testa gia' presente, con freeze non si sovrascrive (nessun rifit)")
+def resume(npz: Path, evjson: Path, freeze: bool) -> bool:
+    """Con ``freeze``: True = braccio gia' completo (npz intero e sha256 uguale a quello del json), si salta; npz assente
+    = da fare (False); npz senza json, sha diverso o npz illeggibile = SystemExit (nessun rifit, sez. 10 e 12). Senza
+    ``freeze`` (collaudi) si rifa'."""
+    if not freeze or not npz.exists():
+        return False
+    try:
+        load_head(npz)
+    except Exception as exc:  # noqa: BLE001
+        raise SystemExit(f"{npz}: testa illeggibile ({exc}), nessun rifit: decisione del PI")
+    rec = json.loads(evjson.read_text()) if evjson.exists() else {}
+    if rec.get("npz_sha256") != cc.sha256(npz):
+        raise SystemExit(f"{npz}: sha256 non registrato in {evjson} (interruzione fra npz e json?), nessun rifit")
+    return True
 
 
 def check_host(meta: dict, node: str) -> None:

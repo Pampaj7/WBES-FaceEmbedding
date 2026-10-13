@@ -264,7 +264,7 @@ def run_view(view: str, name: str, workers: int, overwrite: bool) -> None:
         seconds=np.asarray([r[1] for r in res]), failed_va=np.asarray(failed["va"], dtype="U300"),
         failed_vb=np.asarray(failed["vb"], dtype="U300"), free_expr=view not in bp.NEUTRAL_VIEWS,
         expr_scale=ctx["expr_scale"], loop=json.dumps(bp.LOOP[name]), loop_inner=bp.LOOP_INNER,
-        model_sha256=bp.sha256(ctx["file"]), **arr)
+        model_sha256=bp.sha256(ctx["file"]), host=bp.host(), **arr)
     s = np.stack([r[0]["surf"] for r in res])
     print(f"[bp-e1] {view} {name}: {time.time() - t0:.0f}s, mediana {np.median([r[1] for r in res]):.1f}s/mesh; "
           f"fallite A {len(failed['va'])}, B {len(failed['vb'])} {(failed['va'] + failed['vb'])[:3]}; NICP scarto max "

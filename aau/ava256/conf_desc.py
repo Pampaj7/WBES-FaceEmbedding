@@ -562,6 +562,21 @@ def need(s: dict, path: Path, what: str, absent: dict) -> bool:
     raise SystemExit(f"{what}: {path} assente")
 
 
+def fit_hosts(s: dict, root: Path) -> dict:
+    """{file del fit B: nodo} da ``fit.npz``, ``fit_e1.npz``, ``fit_e2_crop.npz``: deve essere ``nodes.bp`` (come la testa
+    di R6). Un'uscita senza ``host`` (fit di sviluppo precedenti alla v8) e' ammessa solo nei collaudi."""
+    out = {}
+    for f in ("fit.npz", "fit_e1.npz", "fit_e2_crop.npz"):
+        with np.load(root / f) as z:
+            h = str(z["host"]) if "host" in z.files else None
+        out[f] = h
+        if h is None and s.get("collaudo"):
+            continue
+        if h is None or h.split(".")[0] != s["nodes"]["bp"].split(".")[0]:
+            raise SystemExit(f"{root / f}: fit B dal nodo {h}, obbligato {s['nodes']['bp']}")
+    return out
+
+
 def desc_columns(s: dict, name: str, R: dict, fm) -> tuple[dict, dict, dict, dict]:
     """({colonna: vettore sulle righe}, {colonna: mesh fallite}, meta dei plug-in, controlli) dei descrittivi."""
     import conf_eval as ce
@@ -586,6 +601,8 @@ def desc_columns(s: dict, name: str, R: dict, fm) -> tuple[dict, dict, dict, dic
         root = bp.out_dir(name, m)
         if not need(s, root / "fit_e1.npz", f"{m}_vb", absent):
             continue
+        hosts = fit_hosts(s, root)                                         # v8: nodo obbligato del fit B
+        ctrl[f"{m}_hosts"] = hosts
         ctx = bpe2.fit_context(name, m)
         beta = np.full((len(idx.keys), ctx["k_id"]), np.nan)
         seen = np.zeros(len(idx.keys), bool)

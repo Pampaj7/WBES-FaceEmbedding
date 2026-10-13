@@ -68,6 +68,9 @@ SCRIPTS = ("aau/ava256/conf_common.py", "aau/ava256/conf_protocols.py", "aau/ava
            "aau/competitors/ulrssm/ulr_common.py", "aau/competitors/ulrssm/ulr_eval.py",
            # v7: lancio, worktree e spec del tracciamento (gli altri moduli: conf_common.py modules su quel collaudo)
            "aau/ava256/conf_run.py", "aau/ava256/conf_worktree.sh", "aau/ava256/spec/hifi3d_trace.json")
+# v8: cloni esterni importati dalla catena attraverso un percorso del repo (link nel worktree): commit atteso, albero
+# pulito (``verify``), sha256 dei file importati registrati come ``<clone>/<percorso>`` (``loaded_modules``)
+EXTERNAL_CLONES = {"diffusion-net": "b1019b049597711d10259ce28250f7dfc4335a2b"}
 MANIFESTS = {"aau/ava256/freeze_manifest.json": "e485fb7c44f0638ef3111343ba8741a3febae80be35f8fcdae14ae0839d5f365",
              "aau/ava256/freeze_manifest_supp.json": "c6d2157a145fa29e7a8415dc60aa1bd98e9edfdf2bc38563356cc15f16f3b02e",
              "aau/ava256/calib_manifest.json": "d3657a186525dd32c7e152356047204a2bbfad86fd65a098d9895db91b1a3af7",
@@ -154,6 +157,23 @@ def frozen_code(s: dict) -> dict:
     return rep
 
 
+def external_clones() -> dict:
+    """Commit e albero pulito di ogni clone di ``EXTERNAL_CLONES``; uno scarto -> RuntimeError."""
+    out = {}
+    for name, want in EXTERNAL_CLONES.items():
+        root = (REPO / name).resolve()
+        r = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], capture_output=True, text=True)
+        d = subprocess.run(["git", "-C", str(root), "status", "--porcelain", "--untracked-files=no"],
+                           capture_output=True, text=True)
+        head, dirty = r.stdout.strip(), d.stdout.strip()
+        out[name] = {"path": str(root), "head": head, "dirty": dirty.splitlines()[:20]}
+        if r.returncode or head != want:
+            raise RuntimeError(f"clone {name} ({root}): commit {head or r.stderr.strip()}, atteso {want}")
+        if d.returncode or dirty:
+            raise RuntimeError(f"clone {name} ({root}): file modificati {dirty.splitlines()[:5]}")
+    return out
+
+
 def short_host() -> str:
     return socket.gethostname().split(".")[0]
 
@@ -165,8 +185,11 @@ def require_host(node: str, what: str) -> None:
 
 
 def loaded_modules() -> dict:
-    """{percorso relativo: sha256} dei moduli del repo importati da questo processo e dai figli: il log di
-    ``conf_run.py`` se c'e' (``CONF_IMPORT_LOG``), altrimenti ``sys.modules``."""
+    """{percorso: sha256} dei moduli importati sotto la radice del repo (o del worktree) da questo processo e dai figli:
+    il log di ``conf_run.py`` se c'e' (``CONF_IMPORT_LOG``), piu' ``sys.modules``. v8: un modulo il cui percorso sta
+    sotto la radice ma che RISOLVE fuori (link del worktree) e' un ERRORE, salvo i cloni di ``EXTERNAL_CLONES``
+    (registrati come ``<clone>/<percorso nel clone>``, commit controllato da ``external_clones``) e le librerie
+    installate dei venv (``site-packages``: non codice del progetto, come i pacchetti del container)."""
     log = os.environ.get("CONF_IMPORT_LOG")
     paths = set()
     if log and Path(log).exists():
@@ -174,15 +197,26 @@ def loaded_modules() -> dict:
     for m in list(sys.modules.values()):
         f = getattr(m, "__file__", None)
         if f:
-            paths.add(str(Path(f).resolve()))
-    out = {}
+            paths.add(str(Path(f).absolute()))
+    root, rroot = str(REPO), REPO.resolve()
+    clones = {n: (REPO / n).resolve() for n in EXTERNAL_CLONES}
+    out, bad = {}, []
     for f in sorted(paths):
-        try:
-            rel = str(Path(f).relative_to(REPO.resolve()))
-        except ValueError:
+        if not f.endswith(".py") or not (f == root or f.startswith(root + os.sep)) or not Path(f).exists():
             continue
-        if rel.endswith(".py") and Path(f).exists():
-            out[rel] = sha256(Path(f))
+        if "site-packages" in Path(f).parts or "dist-packages" in Path(f).parts:
+            continue
+        r = Path(f).resolve()
+        if r.is_relative_to(rroot):
+            out[str(r.relative_to(rroot))] = sha256(r)
+            continue
+        name = next((n for n, c in clones.items() if r.is_relative_to(c)), None)
+        if name is None:
+            bad.append(f"{f} -> {r}")
+            continue
+        out[f"{name}/{r.relative_to(clones[name])}"] = sha256(r)
+    if bad:
+        raise RuntimeError(f"moduli sotto il repo che risolvono fuori, non in EXTERNAL_CLONES: {bad[:5]}")
     return out
 
 
@@ -195,6 +229,7 @@ def verify(s: dict) -> dict:
     """Le verifiche della sez. 11 che lo spec richiede; un solo scarto -> RuntimeError. Ritorna il resoconto."""
     err, rep = [], {"spec": s["_path"], "freeze": bool(s.get("freeze"))}
     rep["code"] = frozen_code(s)                                           # v7: commit congelato, albero pulito
+    rep["external_clones"] = external_clones()                             # v8: diffusion-net al suo commit
     det = s.get("detector", {})
     for f, h in det.get("weights_sha256", {}).items():                     # pesi del rilevatore (anche nei collaudi)
         p = Path.home() / ".insightface" / "models" / "buffalo_l" / f
