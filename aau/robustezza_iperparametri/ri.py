@@ -26,7 +26,9 @@ Le implementazioni sono quelle della matrice, importate; qui cambiano solo i par
   ``mm``), poi ``nicp``: il ciclo di ``facebench.nonrigid_icp_align`` (stessi aiutanti privati importati: Delaunay
   sul piano xy, incidenza, sistema ``_spsolve_system``, pesi = distanza < max(2 x media, 1)) con il programma della
   rigidezza come parametro: per stadio (alpha, soglia), arresto per stadio quando ||X - X_prec||_F <= soglia (``fro``)
-  o quando ||X - X_prec||_F / sqrt(numero di elementi) < soglia (``rms``, menpo3d), tetto di iterazioni per stadio,
+  o quando ||X - X_prec||_F / sqrt(numero di elementi) < soglia (``rms``, menpo3d; ``dowhile``: controllo dopo
+  l'iterazione, almeno una per stadio, come menpo3d; senza, controllo in testa come facebench e REALY, che con lo
+  scarto dello stadio precedente puo' saltare uno stadio), tetto di iterazioni per stadio,
   termine dei landmark (righe ``beta D_L``, ``beta U_L`` come menpo3d), normalizzazione di menpo3d (centro della
   sorgente, scala 1 / diagonale del riquadro della sorgente; la deformata torna nelle coordinate di lavoro). Il
   programma di default riproduce ``nonrigid_icp_align`` (alpha = 50 e^(-0,5 d), soglia = 1 x 0,5^d x 6, d = 0, 1, 2).
@@ -129,10 +131,11 @@ GRID = {
                       "REALY utils/NICP.py nICP_without_keypoints con eval.py epsilon = 1.0 (soglia 0,5^d, senza x 6)"),
         "cap10": ({"alpha": _A0, "eps": [1 * (0.5 ** d) * 6 for d in range(3)], "crit": "fro", "cap": 10},
                   "iterazioni", "trimesh 5.1 nricp_amberg: max_iter = 10 per passo (default)"),
-        "menpo3d": ({"alpha": MENPO_ALPHA, "eps": [1e-3] * 8, "crit": "rms", "norm": "menpo"}, "rigidezza",
+        "menpo3d": ({"alpha": MENPO_ALPHA, "eps": [1e-3] * 8, "crit": "rms", "norm": "menpo", "dowhile": True},
+                    "rigidezza",
                     "menpo3d non_rigid_icp: stiffness_weights = [50, 20, 5, 2, 0.8, 0.5, 0.35, 0.2], eps = 1e-3 "
                     "(default; 'empirically found to perform well for well rigidly aligned facial meshes')"),
-        "menpo3d_lmk": ({"alpha": MENPO_ALPHA, "eps": [1e-3] * 8, "crit": "rms", "norm": "menpo",
+        "menpo3d_lmk": ({"alpha": MENPO_ALPHA, "eps": [1e-3] * 8, "crit": "rms", "norm": "menpo", "dowhile": True,
                          "beta": [5, 2, 0.5, 0, 0, 0, 0, 0]}, "landmark",
                         "menpo3d non_rigid_icp con landmark: landmark_weights = [5, 2, 0.5, 0, 0, 0, 0, 0] (default), "
                         "7 landmark NoW rilevati"),
@@ -303,9 +306,12 @@ def nicp(source_points: np.ndarray, target_points: np.ndarray, p: dict, lmk=None
         d = np.linalg.norm(X - cur_X)
         return d / np.sqrt(X.size) if p["crit"] == "rms" else d
 
+    dw = p.get("dowhile", False)
     for st, (cur_alpha, eps) in enumerate(zip(p["alpha"], p["eps"])):
         k = 0
-        while delta(X, cur_X) > eps:
+        while True:
+            if not dw and delta(X, cur_X) <= eps:      # facebench, REALY: controllo in testa (scarto dello stadio prima)
+                break
             if p.get("cap") and k >= p["cap"]:
                 break
             cur_X = X.copy()
@@ -324,6 +330,8 @@ def nicp(source_points: np.ndarray, target_points: np.ndarray, p: dict, lmk=None
             X = fnr._spsolve_system(A, B)
             cur_src = (D @ X).T
             k += 1
+            if dw and delta(X, cur_X) < eps:           # menpo3d: almeno una iterazione per stadio, controllo dopo
+                break
         iters.append(k)
     return cur_src.T / s + c, iters
 

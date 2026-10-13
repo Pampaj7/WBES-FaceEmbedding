@@ -103,6 +103,21 @@ La configurazione di default deve riprodurre, sulle stesse coppie: sintetiche, `
 `now_metrical/lmk_det` (1e-4 mm); FaMoS, `icp|mm` (1e-6 mm) e `now_metrical|mm` (1e-4 mm) di `esterna_famos_id`. Il NICP
 su FaMoS non ha un riferimento (non e' fra i metodi di `esterna_famos_id`). `eval` non parte se un controllo non passa.
 
+## 4b. Emendamento 1 (dopo il pilota dei tempi, PRIMA di ogni valutazione; nessuna GT letta)
+
+Pilota su 32 coppie / 32 mesh A di HIFI3D (job 1074555; tempi e iterazioni soltanto, distanze cancellate):
+
+- **Correzione del codice, configurazione invariata**: menpo3d controlla l'arresto DOPO ogni iterazione e ne fa almeno
+  una per stadio (`non_rigid_icp`: `while True: j += 1; ...; if stop_criterion < eps: break`); la prima versione di
+  `ri.nicp` controllava in testa come facebench, e con lo scarto rimasto dal primo stadio saltava gli altri 7 (iterazioni
+  mediane 5, 0, 0, ...). Ora `dowhile` per `menpo3d` e `menpo3d_lmk`.
+- **Osservazione, nessuna modifica**: nella matrice (facebench) e in REALY il controllo e' in testa: gli stadi 2 e 3
+  partono con lo scarto dello stadio 1 e spesso non iterano (mediane 2, 0, 0 per default; 3, 1, 1 per `eps_realy`). Per
+  questo `cap10` (tetto di 10 per stadio) coincide col default dove il primo stadio converge in meno di 10 iterazioni;
+  resta nella griglia come dichiarata (un valore ragionevole che non cambia nulla e' un dato di robustezza).
+- **Osservazione, nessuna modifica**: le due configurazioni di rigetto dell'ICP si fermano quasi sempre al tetto delle
+  30 iterazioni (la soglia ricalcolata a ogni passo non lascia l'RMS fermo entro 1e-6).
+
 ## 5. Fuori da questo giro
 
 Letture cs, SR, crop, NoW originale, REALY, Stirling; nessuna griglia sui semi di campionamento; nessun valore senza
