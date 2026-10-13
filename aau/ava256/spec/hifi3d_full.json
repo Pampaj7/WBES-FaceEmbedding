@@ -572,7 +572,8 @@
  },
  "desc": {
   "arcface": {
-   "rotation": "x180"
+   "rotation": "x180",
+   "node": "i256-a10-09"
   },
   "gw": {
    "config": "euclid|128|cgw2",
@@ -610,7 +611,14 @@
    "selection": "aau/runs/evidence/competitors_new/ulrssm/selection.json",
    "selection_sha256": "94f6f065083490da4b2067fefb855036b135ea141484c7052ad25ee08d8137ae",
    "commit": "0625cbcbb7cd007893dd665b21ef55b275563472",
-   "gpu": "L40S"
+   "gpu": "L40S",
+   "readings_declared": [
+    "pair_fr",
+    "tpl_sr"
+   ]
   }
+ },
+ "nodes": {
+  "bp": "i256-a10-08"
  }
 }

@@ -283,6 +283,7 @@ def step_arcface(spec: Path, stage: Path, workers: int) -> None:
     sys.path.insert(0, str(AAU / "diagnostics"))
     import g0_teacher as gt
     s, name = setup(spec)
+    cc.require_host(s["desc"]["arcface"]["node"], "ArcFace")          # v7: nodo di G0 e del collaudo
     out = arcface_path(s, name)
     if out.exists():
         print(f"[conf-desc] {out}: gia' presente, salto", flush=True)
@@ -495,6 +496,12 @@ def step_ulr(spec: Path, what: str, shard: str, workers: int, stage: Path | None
         ue.merge(a)
         cc.atomic_json(ev_dir(s) / "ulrssm.json",
                        json.loads((ue.U.OUT / u["variant"] / f"{name}.json").read_text()))
+        # v7: letture dichiarate su Ava-256 = desc.ulrssm.readings_declared (pair_fr, tpl_sr); le altre declared false
+        pj = ue.U.OUT / u["variant"] / "fm_plugin.json"
+        cfg = json.loads(pj.read_text())
+        for r, info in cfg["readings"].items():
+            info["declared"] = r in u["readings_declared"]
+        cc.atomic_json(pj, cfg)
 
 
 # ------------------------------------------------------------------------------------------ lettura: colonne
@@ -620,6 +627,11 @@ def desc_columns(s: dict, name: str, R: dict, fm) -> tuple[dict, dict, dict, dic
     gp = s["columns"]["desc_plugins"]                                       # GW e percettivi
     dirs = [(f"{m}/{v}", cc.rp(gp["root"]) / m / v) for m, v in gp["variants"].items()]
     P, pmeta, missing = fm.plugin_columns(gp.get("view", name), idx.keys, dirs)
+    ud = (s["desc"].get("ulrssm") or {}).get("readings_declared")      # v7: letture non dichiarate di ULRSSM
+    for c in P:
+        if c.startswith("plugin:ulrssm/") and ud is not None and c.split("|", 1)[1] not in ud:
+            lab, fam, _, ours = pmeta[c]
+            pmeta[c] = (f"{lab} (lettura non dichiarata)", fam, (), ours)   # dichiarata = False per entrambe le GT
     for m in missing:
         if not s.get("collaudo"):
             raise SystemExit(f"plug-in {m}: nessun file per la vista")
@@ -774,7 +786,7 @@ def step_eval(spec: Path, workers: int, n_boot: int) -> None:
             "rows_nonfinite_by_column": {c: int((~np.isfinite(v)).sum()) for c, v in X.items()},
             "meshes_failed_by_column": {c: int(v.sum()) for c, v in failed.items()}, "fallback": fb,
             "icp_same": info_same, "desc": info_d, "models": info_m, "geo_protocols": info_g,
-            "seconds": time.time() - t0, **cc.stamp()}
+            "seconds": time.time() - t0, "modules_sha256": cc.loaded_modules(), **cc.stamp()}
     cc.atomic_json(out / "controls.json", ctrl)
     write_results(out, pd.DataFrame(S1 + S2), ctrl)
     print(f"[conf-desc] lettura {name}: {len(S1) + len(S2)} Spearman, {len(D1) + len(D2)} delta, "

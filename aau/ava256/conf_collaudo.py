@@ -40,6 +40,13 @@ Passi (ognuno scrive ``<evidence>/collaudo/<passo>.json`` con gli scarti misurat
   ulr         (v6) ``conf_desc.py ulr-run`` / ``ulr-merge`` (L40S, la classe della valutazione di sviluppo) sul
               sottocampione dichiarato contro ``competitors_new/ulrssm/faces_xyz/hifi3d.npz``: le 4 letture sulle stesse
               coppie, scarto massimo relativo alla mediana di sviluppo (``ulr_rel``), stesse mesh fallite.
+  guard       (v7) i controlli del codice congelato e dei nodi, eseguiti DA un worktree (``--worktree``, creato con
+              ``conf_worktree.sh`` al commit da provare, su un nodo diverso da quelli obbligati): ``verify`` passa sul
+              worktree pulito al suo commit e fallisce con un altro commit, con un file tracciato modificato e su Ava-256
+              senza ``CONF_FROZEN_COMMIT`` (prima di leggere qualunque dato); ``conf_run.py`` esce con 3 se un modulo
+              importato differisce dal commit; ``host --role bp``, ``conf_head.py fit`` e ``conf_desc.py arcface``
+              falliscono sul nodo sbagliato e ``host`` passa sul nodo giusto (spec copia con quel nodo);
+              ``conf_head.guard_overwrite`` e ``check_host`` rifiutano. Esito per caso: atteso, codice d'uscita, passa.
   desc-eval   ``conf_desc.py eval`` (hifi3d_full) contro ``full_matrix`` (mascherata = passo ``comune``, confermativa =
               "NICP fallito = distanza massima"; Spearman con IC e righe, delta ``vs_nostro`` e ``scala_allineamento``,
               in tutti i gruppi della lettura: nocrop, crop, all_cross, per perturbazione, stessa topologia) e contro
@@ -710,16 +717,86 @@ def desc_eval_check() -> None:
     finish("desc-eval", rep)
 
 
+def guard_check(worktree: Path) -> None:
+    """Casi del passo ``guard`` (docstring del modulo), ognuno un processo nuovo nel worktree."""
+    import os
+    import subprocess
+    import tempfile
+    wt = worktree.resolve()
+    head = subprocess.run(["git", "-C", str(wt), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    prev = subprocess.run(["git", "-C", str(wt), "rev-parse", "HEAD~1"], capture_output=True, text=True).stdout.strip()
+    py = [sys.executable]
+    spec_full = "aau/ava256/spec/hifi3d_full.json"
+
+    def run(argv, env=None):
+        e = {k: v for k, v in os.environ.items() if k not in ("CONF_FROZEN_COMMIT", "CONF_IMPORT_LOG", "CONF_SPEC")}
+        e.update(env or {})
+        r = subprocess.run(py + argv, cwd=wt, env=e, capture_output=True, text=True)
+        return r.returncode, (r.stderr or r.stdout).strip().splitlines()[-1:] if (r.stderr or r.stdout) else []
+
+    cases = []
+
+    def case(name, expect_ok, argv, env=None):
+        code, tail = run(argv, env)
+        cases.append({"case": name, "expect_ok": expect_ok, "exit": code, "tail": tail,
+                      "pass": (code == 0) == expect_ok})
+
+    verify = ["aau/ava256/conf_common.py", "verify", "--spec", spec_full]
+    case("verify: worktree pulito al suo commit", True, verify, {"CONF_FROZEN_COMMIT": head})
+    case("verify: commit diverso", False, verify, {"CONF_FROZEN_COMMIT": prev})
+    case("verify: Ava-256 senza CONF_FROZEN_COMMIT (prima di leggere dati)", False,
+         ["aau/ava256/conf_common.py", "verify", "--spec", "aau/ava256/spec/ava256.json"])
+    target = wt / "aau" / "ava256" / "conf_eval.py"
+    orig = target.read_bytes()
+    try:
+        target.write_bytes(orig + b"# modifica di prova (collaudo guard)\n")
+        case("verify: file tracciato modificato", False, verify, {"CONF_FROZEN_COMMIT": head})
+    finally:
+        target.write_bytes(orig)
+    case("verify: di nuovo pulito", True, verify, {"CONF_FROZEN_COMMIT": head})
+    sha = ["aau/ava256/conf_run.py", "aau/ava256/conf_common.py", "sha"]
+    case("conf_run: moduli uguali al commit", True, sha, {"CONF_FROZEN_COMMIT": head})
+    case("conf_run: moduli diversi dal commit (HEAD~1)", False, sha, {"CONF_FROZEN_COMMIT": prev})
+    import conf_common
+    me = conf_common.short_host()
+    case("host --role bp sul nodo sbagliato", False, ["aau/ava256/conf_common.py", "host", "--spec", spec_full,
+                                                      "--role", "bp"])
+    s = json.loads((wt / spec_full).read_text())
+    s["nodes"]["bp"] = me
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, dir=str(Path.home())) as fh:
+        json.dump(s, fh)
+    try:
+        case("host --role bp sul nodo giusto (spec copia)", True, ["aau/ava256/conf_common.py", "host", "--spec",
+                                                                  fh.name, "--role", "bp"])
+    finally:
+        os.unlink(fh.name)
+    case("conf_head.py fit sul nodo sbagliato", False, ["aau/ava256/conf_head.py", "fit", "--spec", spec_full])
+    case("conf_desc.py arcface sul nodo sbagliato", False, ["aau/ava256/conf_desc.py", "arcface", "--spec", spec_full,
+                                                            "--stage", "/tmp/wbes_guard_arc"])
+    code = ("import sys; sys.path.insert(0, 'aau/ava256'); import conf_head as ch; from pathlib import Path; "
+            "p = Path('aau/ava256/conf_head.py')\n"
+            "try:\n ch.guard_overwrite(p, True); print('NON RIFIUTA'); sys.exit(0)\nexcept SystemExit as e:\n"
+            " sys.exit(0 if e.code is None else 1)")
+    case("guard_overwrite con freeze su un file esistente", False, ["-c", code])
+    code = ("import sys; sys.path.insert(0, 'aau/ava256'); import conf_head as ch; "
+            "ch.check_host({'host': 'altro-nodo.srv'}, 'i256-a10-10')")
+    case("check_host di R6 con la testa di un altro nodo", False, ["-c", code])
+    rep_ = {"worktree": str(wt), "head": head, "prev": prev, "node": me, "cases": cases,
+            "pass": all(c["pass"] for c in cases)}
+    finish("guard", rep_)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("step", choices=("export-template", "landmarks", "det", "eval-full", "eval-det", "blmm", "bp", "head",
-                                    "embed", "desc", "desc-eval", "ulr"))
+                                    "embed", "desc", "desc-eval", "ulr", "guard"))
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--worktree", type=Path, default=None)
     a = p.parse_args()
     {"export-template": export_template, "landmarks": landmarks, "det": det, "eval-full": eval_full,
      "eval-det": eval_det, "blmm": lambda: blmm_check(a.workers), "bp": bp_check, "head": head_check,
      "embed": lambda: embed_check(a.workers), "desc": desc_check, "desc-eval": desc_eval_check,
-     "ulr": ulr_check}[a.step]()
+     "ulr": ulr_check, "guard": lambda: guard_check(a.worktree)}[a.step]()
 
 
 if __name__ == "__main__":

@@ -21,7 +21,8 @@ contro lo spec (r = 64, lambda = 1e-6). Controllo K0 (nessun dato del dominio): 
 configurazione, deve riprodurre c e alpha / alpha0 di quella riga entro ``K0_REL`` relativo; se no si riporta lo scarto e
 si prosegue (come K0 di D5). Poi la testa sulle 8 sorgenti + il blocco (pesi EQ: ``d3_head.Problem``, ogni blocco 1/9),
 c della testa con ``calib_c`` sulle SOLE 8 sorgenti (la GT del dominio non entra in nessun c). Nessun rifit: si
-registrano nodo, job, ``success`` e iterazioni. Uscite ``<work>/head/<braccio>.npz`` (``alpha``, ``W``, ``r``, ``lam``,
+registrano nodo, job, ``success`` e iterazioni. v7: ``fit`` gira SOLO sul nodo ``head.node`` (``conf_common.require_host``) e, con ``freeze``, non sovrascrive un
+``<work>/head/<braccio>.npz`` esistente (una sola testa per seme, sez. 10). Uscite ``<work>/head/<braccio>.npz`` (``alpha``, ``W``, ``r``, ``lam``,
 ``alpha0``, ``nit``, ``success``, ``loss``, ``c``, ``dpu``, ``host``) e ``<evidence>/head/<braccio>.json``.
 """
 from __future__ import annotations
@@ -122,9 +123,11 @@ def step_block(spec: Path) -> None:
 
 def step_fit(spec: Path) -> None:
     s = cc.load(spec)
+    cc.require_host(s["head"]["node"], "testa di R6")                  # v7: nodo di D3 e2 e D5 (sez. 10)
     if s.get("freeze"):
         cc.verify(s)
     for arm in s["head"]["arms"]:
+        guard_overwrite(cc.work(s) / "head" / f"{arm}.npz", bool(s.get("freeze")))
         t0 = time.time()
         info = info_of(arm)
         r, lam = config(arm)
@@ -155,10 +158,22 @@ def step_fit(spec: Path) -> None:
         rep = {"arm": arm, "K0": k0, "r": r, "lambda": lam, "alpha_over_alpha0": head.alpha / head.alpha0,
                "nit": head.nit, "success": head.success, "loss": head.loss, "c": c, "block": block_report(b),
                "sources": [x.name for x in blocks], "host": socket.gethostname(), "seconds": time.time() - t0,
-               "npz": str(out), **cc.stamp()}
+               "npz": str(out), "modules_sha256": cc.loaded_modules(), **cc.stamp()}
         cc.atomic_json(cc.evidence(s) / "head" / f"{arm}.json", rep)
         print(f"[conf-head] {arm}: success {head.success}, nit {head.nit}, c {c:.6f}, K0 {k0['pass']} "
               f"({time.time() - t0:.0f}s)", flush=True)
+
+
+def guard_overwrite(path: Path, freeze: bool) -> None:
+    """Con ``freeze`` una testa gia' scritta non si rifa' (nessun rifit, sez. 10)."""
+    if freeze and path.exists():
+        raise SystemExit(f"{path}: testa gia' presente, con freeze non si sovrascrive (nessun rifit)")
+
+
+def check_host(meta: dict, node: str) -> None:
+    """La testa letta dal valutatore deve venire dal nodo ``head.node`` (v7)."""
+    if str(meta["host"]).split(".")[0] != node.split(".")[0]:
+        raise SystemExit(f"testa di R6 calcolata su {meta['host']}, obbligato {node}")
 
 
 def load_head(path: Path) -> tuple[H.Head, float, dict]:

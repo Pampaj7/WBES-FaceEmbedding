@@ -1,0 +1,236 @@
+{
+ "name": "hifi3d_trace",
+ "collaudo": true,
+ "freeze": false,
+ "note": "COLLAUDO v7, tracciamento delle importazioni: TUTTI i passi della catena di Ava-256 dallo STESSO codice su 3 soggetti di HIFI3D (dominio di sviluppo), nodi e GPU dei passi tutti su quelli del job di tracciamento; serve solo a ricavare l'elenco dei moduli della sez. 11.1. Nessun dato di Ava-256.",
+ "dir": "datasets/HIFI3D/eval_view/npz",
+ "subjects": [
+  "id900001",
+  "id900004",
+  "id900018"
+ ],
+ "topologies": [
+  "crop",
+  "down8k",
+  "noisy",
+  "original",
+  "remesh",
+  "up60k"
+ ],
+ "frame": {
+  "u": 9.335964456683786,
+  "R": [
+   [
+    0.9991247115085358,
+    0.01175042767271282,
+    -0.0401464606471579
+   ],
+   [
+    -0.005591458893147643,
+    0.9886384529237231,
+    0.15020900435071874
+   ],
+   [
+    0.04145535478598261,
+    -0.14985305085348238,
+    0.9878388110969683
+   ]
+  ],
+  "t": [
+   -1.4665808667560858,
+   -18.03707312576705,
+   -3.425452725992521
+  ]
+ },
+ "frame_file": "aau/runs/evidence/e12/frames.json",
+ "template": {
+  "dir": "datasets/HIFI3D/eval_view/npz",
+  "subjects": [
+   "id900002",
+   "id900005",
+   "id900016"
+  ]
+ },
+ "ref": "evaluated",
+ "neutral": true,
+ "gt": {
+  "fr": "datasets/CANONICAL_GT/eval/hifi3d_fr.npz",
+  "sr": "datasets/CANONICAL_GT/eval/hifi3d_sr.npz"
+ },
+ "boot_seed": 990708,
+ "detector": {
+  "weights_sha256": {
+   "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+   "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
+  },
+  "versions": {
+   "insightface": "0.7.3",
+   "onnxruntime": "1.23.2"
+  }
+ },
+ "columns": {
+  "dp_per_unit": 0.24411710201003828,
+  "models": {
+   "factorized_s1234": {
+    "checkpoint": "aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__1f5d4a90/checkpoints/epoch072_ema.pth",
+    "checkpoint_sha256": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+    "c": 0.4052667604991996,
+    "embeddings": "aau/runs/ava256_collaudo/hifi3d_trace/embed/eval_view/factorized_s1234/embeddings.npz"
+   },
+   "factorized_s2345": {
+    "checkpoint": "aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized_s2345/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed2345__4de9be29/checkpoints/epoch072_ema.pth",
+    "checkpoint_sha256": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0",
+    "c": 0.40544514090039896,
+    "embeddings": "aau/runs/ava256_collaudo/hifi3d_trace/embed/eval_view/factorized_s2345/embeddings.npz"
+   }
+  },
+  "blmm_root": null,
+  "protocols": {
+   "root": "aau/runs/ava256_collaudo/hifi3d_trace/protocolli/plugin",
+   "variant": "lmk_det",
+   "view": "hifi3d_trace",
+   "fallback": "aau/runs/evidence/ava256_conf/collaudo/hifi3d_trace/protocolli/detprep_hifi3d_trace.json"
+  },
+  "desc_models": {
+   "factorizedc3m_e123": {
+    "checkpoint": "aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth",
+    "checkpoint_sha256": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77",
+    "c": 0.25732677076342675,
+    "embeddings": "aau/runs/ava256_collaudo/hifi3d_trace/embed/eval_view/factorizedc3m_e123/embeddings.npz"
+   }
+  },
+  "desc_plugins": {
+   "root": "aau/runs/ava256_collaudo/hifi3d_trace/desc/gp",
+   "view": "hifi3d_trace",
+   "variants": {
+    "gw": "euclid_128_cgw2",
+    "lpips": "depth",
+    "dinov2": "depth",
+    "clip": "smooth",
+    "dreamsim": "smooth",
+    "ulrssm": "faces_xyz"
+   }
+  },
+  "heads": {
+   "factorized_s1234": "aau/runs/ava256_collaudo/hifi3d_trace/head/factorized_s1234.npz",
+   "factorized_s2345": "aau/runs/ava256_collaudo/hifi3d_trace/head/factorized_s2345.npz"
+  }
+ },
+ "out": {
+  "work": "aau/runs/ava256_collaudo/hifi3d_trace",
+  "evidence": "aau/runs/evidence/ava256_conf/collaudo/hifi3d_trace"
+ },
+ "head": {
+  "arms": [
+   "factorized_s1234",
+   "factorized_s2345"
+  ],
+  "subjects": [
+   "id900000",
+   "id900002",
+   "id900003"
+  ],
+  "embeddings": {
+   "factorized_s1234": "aau/runs/ava256_collaudo/hifi3d_trace/embed/calib_view/factorized_s1234/embeddings.npz",
+   "factorized_s2345": "aau/runs/ava256_collaudo/hifi3d_trace/embed/calib_view/factorized_s2345/embeddings.npz"
+  },
+  "gt_sr": "datasets/CANONICAL_GT/eval/hifi3d_sr.npz",
+  "r": 64,
+  "lambda": 1e-06,
+  "node": "a256-t4-04",
+  "fit_block": true
+ },
+ "embed": {
+  "ops_root": "datasets/V3_OPS_CACHE/conf/hifi3d_trace",
+  "gpu": "A100",
+  "sets": {
+   "eval_view": {
+    "role": "eval",
+    "dir": "datasets/HIFI3D/eval_view/npz",
+    "subjects": "subjects",
+    "labels": [
+     "crop",
+     "down8k",
+     "noisy",
+     "original",
+     "remesh",
+     "up60k"
+    ],
+    "scale_table": "aau/runs/evidence/trainer_v3/factorized/scale_tables/hifi3d_eval.npz",
+    "arms": [
+     "factorized_s1234",
+     "factorized_s2345",
+     "factorizedc3m_e123"
+    ]
+   },
+   "calib_view": {
+    "role": "head",
+    "dir": "datasets/HIFI3D/eval_view/npz",
+    "subjects": "head",
+    "labels": [
+     "original",
+     "remesh",
+     "down8k",
+     "noisy",
+     "up60k"
+    ],
+    "scale_table": "aau/runs/evidence/trainer_v3/factorized/scale_tables/hifi3d_eval.npz",
+    "arms": [
+     "factorized_s1234",
+     "factorized_s2345"
+    ]
+   }
+  }
+ },
+ "desc": {
+  "arcface": {
+   "rotation": "x180",
+   "node": "a256-t4-04"
+  },
+  "gw": {
+   "config": "euclid|128|cgw2",
+   "pilot_choice": "aau/runs/evidence/competitors_new/gw/pilot_choice.json",
+   "pilot_choice_sha256": "0e2b902ace486b981d92b7077715d471d896f58672c4ff9dca5863e56bd71205"
+  },
+  "perc": {
+   "variants": {
+    "lpips": "depth",
+    "dinov2": "depth",
+    "clip": "smooth",
+    "dreamsim": "smooth"
+   },
+   "pilot_choice": "aau/runs/evidence/competitors_new/percettivi/pilot_choice.json",
+   "pilot_choice_sha256": "7ffbee31118237b7973483027f2f042a9c7d04d27b7602fc65bd79cb361d7cc3"
+  },
+  "subsample_subjects": [
+   "id900001",
+   "id900004"
+  ],
+  "ulrssm": {
+   "variant": "faces_xyz",
+   "checkpoint": "aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+   "checkpoint_sha256": "c9c6b674195e7f770c447170eadd78746b3a4efb92e746d408a36ce6320aae6f",
+   "selection": "aau/runs/evidence/competitors_new/ulrssm/selection.json",
+   "selection_sha256": "94f6f065083490da4b2067fefb855036b135ea141484c7052ad25ee08d8137ae",
+   "commit": "0625cbcbb7cd007893dd665b21ef55b275563472",
+   "gpu": "A100",
+   "readings_declared": [
+    "pair_fr",
+    "tpl_sr"
+   ]
+  }
+ },
+ "nodes": {
+  "bp": "a256-t4-04"
+ },
+ "landmarks": {
+  "template": "aau/runs/ava256_collaudo/hifi3d_det/hifi3d_template.npz",
+  "corr": "datasets/UNIFIED_GT/corr/hifi3d.npz",
+  "snap_dir": "datasets/HIFI3D/eval_view/npz",
+  "snap_subjects": [
+   "id900002",
+   "id900005",
+   "id900016"
+  ]
+ }
+}

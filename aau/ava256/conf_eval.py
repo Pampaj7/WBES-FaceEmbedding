@@ -165,6 +165,7 @@ def model_columns(s: dict, R: dict, fp) -> tuple[dict, dict, dict]:
         hp = (s["columns"].get("heads") or {}).get(f"factorized_{sd}")
         if hp:
             h, c, meta = ch.load_head(cc.rp(hp))
+            ch.check_host(meta, s["head"]["node"])                     # v7: R6 solo dal nodo obbligato
             if Path(meta["checkpoint"]).resolve() != ck.resolve() or meta["dpu"] != dpu:
                 raise SystemExit(f"{sd}: testa con checkpoint o dp_per_unit diversi dagli embedding")
             X = Z[:, 1:] * dpu
@@ -408,8 +409,10 @@ def main() -> None:
             "rows_nonfinite_by_column": {c: int((~np.isfinite(v)).sum()) for c, v in X.items()},
             "meshes_failed_by_column": {c: int(v.sum()) for c, v in failed.items()}, "fallback": fb,
             "subsample_pairs": R.get("subsample_pairs"), "models": info_m, "geo_protocols": info_g,
-            "absent_family_columns": absent, "esiti": esiti, "seconds": time.time() - t0, **cc.stamp()}
+            "absent_family_columns": absent, "esiti": esiti, "seconds": time.time() - t0,
+            "modules_sha256": cc.loaded_modules(), **cc.stamp()}
     cc.atomic_json(out / "controls.json", ctrl)
+    cc.atomic_json(out / "modules.json", {"modules_sha256": ctrl["modules_sha256"], "rules": "rules.csv", **cc.stamp()})
     write_results(out, rules, ctrl)
     print(f"[conf-eval] {s['name']}: {json.dumps(esiti)} ({time.time() - t0:.0f}s)", flush=True)
 

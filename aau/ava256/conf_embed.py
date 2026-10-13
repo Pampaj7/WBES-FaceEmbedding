@@ -147,7 +147,8 @@ def step_run(spec: Path, only_set: str | None, only_arm: str | None) -> None:
             if out_path(s, name, arm).exists():
                 print(f"[conf-embed] {out_path(s, name, arm)}: gia' presente, salto", flush=True)
                 continue
-            r = subprocess.run([sys.executable, __file__, "one", "--spec", str(spec), "--set", name, "--arm", arm])
+            r = subprocess.run([sys.executable, str(THIS / "conf_run.py"), __file__, "one", "--spec", str(spec), "--set",
+                                name, "--arm", arm])                 # v7: anche il figlio registra i moduli
             if r.returncode:
                 raise SystemExit(f"{name} {arm}: embedding fallito ({r.returncode})")
 
@@ -207,7 +208,7 @@ def step_one(spec: Path, name: str, arm: str) -> None:
            "checkpoint_sha256": got, "scale_table": st["scale_table"], "scale_table_sha256": cc.sha256(table),
            "domain": dom, "rotation_source": rsrc, "ops": str(root / "ops"), "args": list(ARGS), "env": ENV,
            "gpu": torch.cuda.get_device_name(), "torch": torch.__version__, "seconds": time.time() - t0,
-           "npz": str(out), **cc.stamp()}
+           "npz": str(out), "modules_sha256": cc.loaded_modules(), **cc.stamp()}
     cc.atomic_json(cc.evidence(s) / "embed" / name / f"{arm}.json", rep)
     print(f"[conf-embed] {name} {arm}: Z {tuple(Z.shape)} su {rep['gpu']} in {rep['seconds']:.0f}s -> {out}", flush=True)
 
