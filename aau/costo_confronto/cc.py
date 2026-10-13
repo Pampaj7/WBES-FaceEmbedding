@@ -134,7 +134,7 @@ def write_part(out: Path, step: str, rows: list, checks: dict, extra: dict | Non
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_name(f".{p.name}.{os.getpid()}.tmp")
     tmp.write_text(json.dumps({"step": step, "env": env_info(), "checks": checks, **(extra or {}), "rows": rows},
-                              indent=0) + "\n")
+                              separators=(",", ":")) + "\n")
     os.replace(tmp, p)
     print(f"[cc] {step}: {len(rows)} righe -> {p}; controlli {json.dumps(checks)[:600]}", flush=True)
 
@@ -222,7 +222,7 @@ def geo(a) -> None:
         t0 = time.perf_counter()
         C[k] = blmm.work_coords(VIEW, "mm", S["path"][k], prm)
         rec(rows, a.metric, "mesh", S["topo"][k], item_of(S, k), r, "cpu", caricamento=time.perf_counter() - t0)
-    got, ref = [], []
+    got, ref, failed = [], [], set()
     for r in range(a.reps + 1):
         for pa, pb, typ in S["pairs"]:
             x, y = (pa, pb) if s2i[S["subj"][pa]] < s2i[S["subj"][pb]] else (pb, pa)
@@ -241,10 +241,14 @@ def geo(a) -> None:
                 rec(rows, "icp", "coppia", typ, pair_item(S, x, y), r, "cpu", campionamento=t1 - t0,
                     allineamento_rigido=t2 - t1, distanza=t3 - t2)
             else:
-                X_n = fb.nonrigid_icp_align(X_rig, Ys)
-                t3 = time.perf_counter()
-                corr = fb.chamfer_correspondence(X_n, Ys)
-                d = float(np.mean(fb.p2tri_distance(X_n, Ys, corr)))
+                try:                                                   # come pair_metrics: fallita = NaN
+                    X_n = fb.nonrigid_icp_align(X_rig, Ys)
+                    t3 = time.perf_counter()
+                    corr = fb.chamfer_correspondence(X_n, Ys)
+                    d = float(np.mean(fb.p2tri_distance(X_n, Ys, corr)))
+                except Exception as exc:  # noqa: BLE001  (il tempo speso resta nella riga)
+                    t3, d = time.perf_counter(), np.nan
+                    failed.add(f"{pair_item(S, x, y)}: {type(exc).__name__}: {exc}")
                 t4 = time.perf_counter()
                 rec(rows, "nicp", "coppia", typ, pair_item(S, x, y), r, "cpu", campionamento=t1 - t0,
                     allineamento_rigido=t2 - t1, allineamento_nonrigido=t3 - t2, distanza=t4 - t3)
@@ -255,7 +259,11 @@ def geo(a) -> None:
                     raise SystemExit("soggetti della matrice diversi da blmm.subjects")
                 got.append(d * unit)
                 ref.append(D[s2i[S["subj"][x]], s2i[S["subj"][y]]])
-    checks = {f"{metric}_mm_vs_matrice_blmm": maxdiff(got, ref), "unit_mm": unit}
+    g, f = np.asarray(got), np.asarray(ref)
+    checks = {f"{metric}_mm_vs_matrice_blmm": maxdiff(got, ref), "unit_mm": unit,
+              "nan_qui_e_nella_matrice": int((np.isnan(g) & np.isnan(f)).sum()),
+              "nan_solo_qui": int((np.isnan(g) & ~np.isnan(f)).sum()),
+              "nan_solo_nella_matrice": int((~np.isnan(g) & np.isnan(f)).sum()), "fallite": sorted(failed)}
     write_part(a.out, a.metric, rows, checks)
 
 
@@ -749,9 +757,9 @@ def report(a) -> None:
           "| N | coppie | metodo | CPU (ore-core) | GPU (ore) | a muro, 16 core + 1 GPU | x nostro |",
           "|---|---|---|---|---|---|---|"]
     for r in sc.itertuples():
+        x = f"{r.ratio_vs_nostro:,.2f}" if r.ratio_vs_nostro < 10 else f"{r.ratio_vs_nostro:,.0f}"
         L.append(f"| {r.N:,} | {r.pairs:,} | {r.method} | {r.cpu_core_s / 3600:,.3g} | {r.gpu_s / 3600:,.3g} | "
-                 f"{fmt_h(r.wall_s_16core_1gpu)} | {r.ratio_vs_nostro:,.2f} |" if r.ratio_vs_nostro < 10 else
-                 f"{fmt_h(r.wall_s_16core_1gpu)} | {r.ratio_vs_nostro:,.0f} |")
+                 f"{fmt_h(r.wall_s_16core_1gpu)} | {x} |")
     L += ["", "## Controlli di riproduzione", ""]
     for k, p in parts.items():
         L.append(f"- `{k}`: `{json.dumps(p['checks'])}`")
