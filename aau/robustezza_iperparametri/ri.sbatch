@@ -14,6 +14,7 @@
 #   RI_STEPS="run:hifi3d@icp merge:hifi3d@icp" sbatch ri.sbatch
 #   RI_STEPS="run:famos@now merge:famos@now" sbatch ri.sbatch
 #   RI_LIMIT=64 RI_STEPS="run:hifi3d@nicp" sbatch ri.sbatch            (pilota dei tempi, <WORK>/pilot)
+#   RI_REVERSE=1 RI_STEPS="run:facescape@nicp" sbatch ri.sbatch        (riserva: dalle ultime parti, senza merge)
 #   RI_STEPS="nownode:hifi3d nownode:facescape" sbatch --exclude=<tutti tranne a256-t4-*, a256-a40-*> -c 12 ri.sbatch
 #                                                 (NoW di default sulla CPU della matrice, AMD EPYC 7302: controllo)
 #   RI_STEPS="check:hifi3d check:facescape check:famos eval" sbatch ri.sbatch   (eval LEGGE LE GT di test)
@@ -36,7 +37,8 @@ for tok in $RI_STEPS; do
     case "$step" in
         run)
             if [[ "$meth" == now ]]; then R=("${UG[@]}"); else R=("${O3[@]}"); fi
-            "${R[@]}" $D/ri.py run --view "$view" --method "$meth" --workers "$W" --limit "${RI_LIMIT:-0}" ;;
+            "${R[@]}" $D/ri.py run --view "$view" --method "$meth" --workers "$W" --limit "${RI_LIMIT:-0}" \
+                ${RI_REVERSE:+--reverse} ;;
         merge)   "${UG[@]}" $D/ri.py merge --view "$view" --method "$meth" ;;
         check)   "${UG[@]}" $D/ri.py check --view "$view" ;;
         nownode) "${UG[@]}" $D/ri.py check-now-node --view "$view" --workers "$W" ;;

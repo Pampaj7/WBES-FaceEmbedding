@@ -158,7 +158,7 @@ GRID = {
 LABEL = {"icp": "ICP + Chamfer in mm", "nicp": "NICP per coppia in mm", "now": "NoW metrical (rilevatore)"}
 SEEDS = ("s1234", "s2345")
 READ = {"form": "d_F non cal.", "form_cal": "d_F cal."}
-OURS = {f"nostro_{r}": (READ[r], [(s, f"factorized_{s}|{r}") for s in SEEDS]) for r in READ}
+OURS = {f"nostro_{r}": (f"nostro, {READ[r]}", [(s, f"factorized_{s}|{r}") for s in SEEDS]) for r in READ}
 
 
 def col(m: str, c: str) -> str:
@@ -465,7 +465,7 @@ def partners_of(i: np.ndarray, j: np.ndarray, n: int) -> list:
     return [np.asarray(sorted(x), np.int64) for x in out]
 
 
-def run(vname: str, method: str, workers: int, limit: int) -> None:
+def run(vname: str, method: str, workers: int, limit: int, reverse: bool = False) -> None:
     t0 = time.time()
     V = view_data(vname)
     ck = ckdir_of(vname, method, limit)
@@ -493,6 +493,8 @@ def run(vname: str, method: str, workers: int, limit: int) -> None:
         _ST["todo_pos"] = [list(range(s, min(s + CHUNK, npairs))) for s in range(0, npairs, CHUNK)]
         todo = list(range(len(_ST["todo_pos"])))
         fn = _pair_task
+    if reverse:                                          # job di riserva: dalle ultime parti (pr_noise --reverse)
+        todo = todo[::-1]
     print(f"[ri] run {vname} {method}: {len(V['i'])} coppie, {len(todo)} parti, configurazioni {list(GRID[method])}, "
           f"{time.time() - t0:.0f}s di caricamento", flush=True)
     tl = time.time()
@@ -808,8 +810,8 @@ def measures(R: dict, dom: str, mis: str) -> tuple[list, list, list, list]:
         return float(x[0]), lo, hi
 
     rng_of = {}
-    for m, (lab, cs) in list(G.items()) + [("nostro_4", ("nostro, 4 letture (2 semi x cal./non cal.)",
-                                                          G["nostro_form"][1] + G["nostro_form_cal"][1]))]:
+    all4 = [(f"{s} {READ[r]}", c) for r in READ for s, c in G[f"nostro_{r}"][1]]
+    for m, (lab, cs) in list(G.items()) + [("nostro_4", ("nostro, 4 letture (2 semi x cal./non cal.)", all4))]:
         A = np.stack([R[c] for _, c in cs])                  # (configurazioni, 1 + repliche)
         rg = A.max(0) - A.min(0)
         sd = A.std(0, ddof=1)
@@ -1000,9 +1002,10 @@ def main() -> None:
     p.add_argument("--method", default="", choices=("",) + METHODS)
     p.add_argument("--workers", type=int, default=8)
     p.add_argument("--limit", type=int, default=0, help="run: pilota dei tempi su N coppie / mesh A (<WORK>/pilot)")
+    p.add_argument("--reverse", action="store_true", help="run: dalle ultime parti (job di riserva)")
     a = p.parse_args()
     if a.step == "run":
-        run(a.view, a.method, a.workers, a.limit)
+        run(a.view, a.method, a.workers, a.limit, a.reverse)
     elif a.step == "merge":
         merge(a.view, a.method)
     elif a.step == "check":
