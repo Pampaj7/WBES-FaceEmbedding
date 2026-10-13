@@ -1,0 +1,69 @@
+{
+ "parts": [
+  {
+   "part": "faceverse_neutral_0of2.npz",
+   "job": "1071089",
+   "n_pairs": 89100,
+   "t_prep_s": 438.14017057418823,
+   "t_feat_s": 107.50818848609924,
+   "t_pairs_s": 6047.480048894882,
+   "nan_pairs": 0,
+   "pair_set": "subjects"
+  },
+  {
+   "part": "faceverse_neutral_1of2.npz",
+   "job": "1071092",
+   "n_pairs": 89100,
+   "t_prep_s": 465.43525075912476,
+   "t_feat_s": 106.75734162330627,
+   "t_pairs_s": 8912.016939640045,
+   "nan_pairs": 0,
+   "pair_set": "subjects"
+  }
+ ],
+ "input_type": "wks",
+ "ckpt": "aau/runs/competitors_ulrssm/faces_wks/final.pth",
+ "gpu": "NVIDIA L40S",
+ "template_n": 9022,
+ "template_flipped": false,
+ "cs_ref": 64.20453072953245,
+ "view": "faceverse_neutral",
+ "n_meshes": 600,
+ "n_pairs": 178200,
+ "template": {
+  "rigid_robust_converged": 599,
+  "n": 600,
+  "rigid_robust_iter_max": 100,
+  "centroid_size_mm_median": 53.87921842913941,
+  "rms_to_mu_mm_median": 27.54506633716114
+ },
+ "gt_check": {
+  "fr_max_abs": 3.5666553621638286e-07,
+  "fr_max_rel": 6.662263641735807e-08,
+  "sr_max_abs": 3.990414845778112e-09,
+  "sr_max_rel": 5.2124675302836564e-08
+ },
+ "nan": {
+  "D_pair_fr": 0,
+  "D_pair_sr": 0,
+  "D_tpl_fr": 0,
+  "D_tpl_sr": 0
+ },
+ "failed": [],
+ "mesh_flipped": 0,
+ "seconds": {
+  "prep_per_mesh_median": 16.574065857566893,
+  "feat_per_mesh_median": 0.08064255374483764,
+  "template_map_per_mesh_median": 0.010814016684889793,
+  "pair_median": 0.06432304345071316,
+  "pair_mean": 0.08393166163305446,
+  "pairs_total_h": 4.154617250836195
+ },
+ "vertices": {
+  "median": 27992.5,
+  "max": 73619
+ },
+ "host": "a256-t4-03.srv.aau.dk",
+ "job": "1071102",
+ "date": "2026-10-13 12:45:49"
+}

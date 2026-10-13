@@ -1,0 +1,33 @@
+{
+ "label": "ULRSSM [faces_wks] (non dichiarata)",
+ "family": "corrispondenza densa imparata",
+ "declared": false,
+ "method": "ulrssm",
+ "variant": "faces_wks",
+ "readings": {
+  "pair_fr": {
+   "label": "ULRSSM [faces_wks] (non dichiarata) per coppia, mm (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "pair_sr": {
+   "label": "ULRSSM [faces_wks] (non dichiarata) per coppia, a CS_ref (SR)",
+   "gt": [
+    "sr"
+   ]
+  },
+  "tpl_fr": {
+   "label": "ULRSSM [faces_wks] (non dichiarata) via template, GT FR (FR)",
+   "gt": [
+    "fr"
+   ]
+  },
+  "tpl_sr": {
+   "label": "ULRSSM [faces_wks] (non dichiarata) via template, GT SR (d_P) (SR)",
+   "gt": [
+    "sr"
+   ]
+  }
+ }
+}
