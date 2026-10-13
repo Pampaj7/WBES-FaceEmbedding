@@ -1727,3 +1727,27 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
   chiusura del protocollo: emendamento esplicito sull'uso dei 56 per H2 (la bozza lo vieta alle righe 120 e 167);
   c tarata solo sul sintetico per H1; verify_frozen + verify_frozen_supp + verify_calib nello strumento di
   valutazione.
+
+## 13 ottobre — Ava-256: protocollo confermativo, candidati v2 → v4 (NON congelato)
+
+- **v2** (`014fc70`, sha256 `99bfd256…`): decisioni del PI. R7 confermativa (NoW metrical - NoW originale), Holm con
+  m = 10, landmark dei protocolli dal rilevatore insightface su render frontale, REALY con l'oracolo FLAME, righe fallite
+  dei metodi per coppia = +inf.
+- **Critic sulla v2: BLOCCANTE**, sei punti:
+  1. pipeline di Ava-256 non scritta né collaudata;
+  2. variante `lmk_det` con `declared: false`;
+  3. Holm con regole non risolte;
+  4. effetto del +inf non dichiarato;
+  5. sha256 e versioni mancanti;
+  6. controllo del rilevatore non bloccante, nessuna soglia sui ripieghi.
+- **v3** (`123cb4e`, sha256 `955c13b9…`; codice `adaac1f`): corretti i sei punti. Catena da spec collaudata su HIFI3D
+  con scarto 0, salvo il fit B su `a512-l4-06` (fuori tolleranza, registrato): il fit B gira solo su `i256-a10`.
+- **v4** (`638c591`, sha256 `f0d60531…`; codice `fe32e8f`): chiusi gli ultimi campi di codice in attesa.
+  - Embedding: `conf_embed.py`.
+  - Descrittivi e gruppi descrittivi: `conf_desc.py`.
+  - Collaudo su HIFI3D, tolleranze fissate prima:
+    - descrittivi entro tolleranza; la lettura riproduce `full_matrix` a 0 sugli stessi ingressi in 15 gruppi;
+    - embedding fuori tolleranza: Z fino a 1,2e-3 e Spearman fino a 4,3e-4, contro 1e-4. È la GPU (L40S contro gli
+      A100 di sviluppo, TF32 attivo nel container); sviluppo contro sviluppo dà già 2,8e-4. Registrato, decide il PI.
+  - Restano in attesa solo ULRSSM e Hybrid FM: se non sono pronti al congelamento, sono esclusi.
+  - Nessuna esecuzione su Ava-256.
