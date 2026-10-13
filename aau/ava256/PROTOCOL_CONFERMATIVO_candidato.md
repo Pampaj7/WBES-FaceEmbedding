@@ -1,6 +1,14 @@
-# Ava-256: protocollo della prova confermativa (CANDIDATO v8, 13 ottobre 2026; NON congelato)
+# Ava-256: protocollo della prova confermativa (v9, CONGELATO il 13 ottobre 2026; codice congelato `8a6e184`)
 
-> **CANDIDATO v8, NON CONGELATO.** E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
+> **v9, CONGELATO. Codice congelato: commit `8a6e184d2951d73df7ea55e48296c4df36b92aef`** (`8a6e184`): su Ava-256 si
+> esegue SOLO da un worktree a quel commit, con `CONF_FROZEN_COMMIT=8a6e184d2951d73df7ea55e48296c4df36b92aef`
+> (`aau/ava256/conf_worktree.sh`); impronte e comando in `aau/ava256/FROZEN.md`, tag git `ava256-frozen`.
+>
+> **Modifiche della v9 rispetto al candidato v8** (sha256 `d1364505a97e2d3127557341ecfbc173807d7d6c3ad402b4cbae13fd8564bfee`,
+> commit `68199f0`): solo documento: codice congelato fissato a `8a6e184`, sha di `v3_work/mm/model.py` e
+> `v3_work/stream/sources.py` nella sez. 11.1 a quel commit, tolta la condizione sul "commit da congelare".
+>
+> E' la bozza dell'11 ottobre (`PROTOCOL_CONFERMATIVO_bozza.md`, sha256 `38ce3a5d...`,
 > commit `53b03ac`) completata con le decisioni del PI del 12 ottobre (sez. 5-9, 11-13), piu' l'emendamento sull'uso
 > dei 56 di calibrazione (sez. 10). Il testo delle sez. 1-4 e' quello della bozza, salvo le note della v2 nella sez. 2.
 >
@@ -839,14 +847,10 @@ da un worktree a quel commit).
 
 **v8.** Il tracciamento rifatto al commit `8a6e184` (job 1074574, 1074990, 1074991, 1074992) registra 131 moduli: i
 127 della v7 piu' 4 file del clone diffusion-net (`diffusion-net/src/diffusion_net/{__init__,geometry,layers,utils}.py`,
-commit `b1019b0`), tutti uguali al commit o al clone, nessuno scarto. **Due file cambiati dopo il tracciamento** da un
-altro lavoro (`771fee8`, modello da rilasciare): `v3_work/mm/model.py` (solo la costante `PURPOSES`, con `release`) e
-`v3_work/stream/sources.py` (`MMSource` con un parametro `purpose`, default `train`; `build_sources`, `FamosSource`,
-costanti). Sui percorsi della catena (fit B: `load_model` del modello; ULRSSM: `MMSource("gnm")` senza espressione,
-`purpose` di default) il codice eseguito e' lo stesso; in tabella c'e' lo sha attuale. **Condizione per il
-congelamento**: `git diff 8a6e184 <commit da congelare> -- <file della tabella>` deve toccare solo questi due file;
-altrimenti si rifanno il tracciamento e i collaudi dal worktree del commit da congelare. Su Ava-256 `conf_run.py`
-confronta comunque ogni modulo importato col commit congelato.
+commit `b1019b0`), tutti uguali al commit o al clone, nessuno scarto. v9: tutti gli sha della tabella sono quelli del
+commit congelato `8a6e184` (i commit successivi di altri lavori, es. `771fee8` su `v3_work/mm/model.py` e
+`v3_work/stream/sources.py`, non entrano: su Ava-256 si gira dal worktree a `8a6e184` e `conf_run.py` confronta ogni
+modulo importato con quel commit).
 
 **v7: elenco ricavato dalle importazioni effettive.** I moduli sono quelli registrati da `conf_run.py` in un collaudo
 completo della catena (spec `aau/ava256/spec/hifi3d_trace.json`: tutti i passi di Ava-256 dallo stesso codice su 3
@@ -987,8 +991,8 @@ versione (sez. 11.2):
 | `v3_work/canonical_gt/train_fr_sr.py` | `7b488063e3f07bedc3678ccf86f8d36d8d186a29cffb89cd084e4e476531c811` | importato (tracciamento); invariato |
 | `v3_work/mm/__init__.py` | `cd66ae62e1baeaa19a4efef44a93b4daa20301de673409562fc6edd5c05c5bd3` | importato (tracciamento); invariato |
 | `v3_work/mm/loaders.py` | `2c25c0b97573bb7bb9c7773a4652cb8f0c71d793ce89d66a37c4c599a3d330cd` | importato (tracciamento); invariato |
-| `v3_work/mm/model.py` | `73cb01e3f4e472261189e1a3f7406a7f8e16e58c29e7ade9badd8cd5ec35fc59` | importato (tracciamento); CAMBIATO dopo il tracciamento da `771fee8` (sha tracciato `b0bb23301914...`), vedi sotto; modificato (v8) |
-| `v3_work/stream/sources.py` | `418faa3833a6db7000f084946016b5a616dba1fa480f7f326edf1fe7e9d05ed1` | importato (tracciamento); CAMBIATO dopo il tracciamento da `771fee8` (sha tracciato `9fe85112f7de...`), vedi sotto; modificato (v8) |
+| `v3_work/mm/model.py` | `b0bb23301914ae8d1c33126d76c801b868e4d7c831489a902175fc0e5cd0c157` | importato (tracciamento); sha al commit congelato `8a6e184` (v9) |
+| `v3_work/stream/sources.py` | `9fe85112f7ded28d64d12bfe773a67943b43d4b9288bccdf2fcd955ef809290c` | importato (tracciamento); sha al commit congelato `8a6e184` (v9) |
 | `v3_work/trainer/area_v3.py` | `8d50f9b98ba2013f6261a169c6e3e09d2fb399baec59380bb569b69421b9f63e` | importato (tracciamento); invariato |
 | `v3_work/trainer/common.py` | `03b9e5c5dc8a1b47eb883f86b812772314d3443f6f22cc6a5eee301b91ed3d42` | importato (tracciamento); invariato |
 | `v3_work/trainer/data_v3.py` | `2953a2fc34ee6299dd0b21b58ba95cd63be7535c74b174e96f939943707e7ca0` | importato (tracciamento); invariato |
@@ -1254,7 +1258,7 @@ sez. 11.2); Hybrid FM escluso. **Nessun campo resta in attesa**: il testo e' pro
 
 Poi il PI committa questo testo con il suo sha256 e la parola "congelato" nel titolo.
 
-Al congelamento (v7): il PI committa il testo, crea il worktree al commit congelato (`conf_worktree.sh`) e da li'
-sottomette tutti i job con `CONF_FROZEN_COMMIT` = quel commit.
+Al congelamento (v9): codice `8a6e184`; worktree a quel commit (`conf_worktree.sh`), tutti i job con
+`CONF_FROZEN_COMMIT=8a6e184d2951d73df7ea55e48296c4df36b92aef` (comando in `aau/ava256/FROZEN.md`).
 
-**CANDIDATO v8, NON CONGELATO: NESSUNA VALUTAZIONE SU AVA-256 FINO AL CONGELAMENTO.**
+**v9, CONGELATO: UNA SOLA VALUTAZIONE SU AVA-256, DAL CODICE `8a6e184`.**
