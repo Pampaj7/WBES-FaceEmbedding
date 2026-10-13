@@ -1,0 +1,50 @@
+{
+ "view": "hifi3d",
+ "pairs_unordered": 99000,
+ "methods": {
+  "now_original": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 0.31584699025964413,
+    "median": 0.255084894830361
+   },
+   "check_vs_lmk_det": {
+    "pairs": 7942,
+    "max_abs_mm": 0.03605683298406781,
+    "median_abs_mm": 3.632498746242163e-10,
+    "tol_mm": 0.0001,
+    "pass": false,
+    "lmk_det_finite_not_here": 0
+   }
+  },
+  "now_metrical": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 0.3818304187945664,
+    "median": 0.2881092415191233
+   },
+   "check_vs_lmk_det": {
+    "pairs": 7942,
+    "max_abs_mm": 0.0023336814648078352,
+    "median_abs_mm": 1.8242312105343217e-09,
+    "tol_mm": 0.0001,
+    "pass": false,
+    "lmk_det_finite_not_here": 0
+   }
+  }
+ },
+ "core_hours": 38.76360364552639,
+ "jobs": [
+  "1074549",
+  "1074590"
+ ],
+ "host": "a768-l40s-06.srv.aau.dk",
+ "job": "1074590",
+ "date": "2026-10-13 18:25:09"
+}

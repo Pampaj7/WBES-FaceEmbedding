@@ -1,0 +1,23 @@
+{
+ "view": "hifi3d",
+ "pairs": 125,
+ "tol_mm": 0.0001,
+ "methods": {
+  "now_original": {
+   "max_abs_vs_reference_mm": 0.03605683298406781,
+   "n_vs_reference_gt_tol": 38,
+   "max_abs_vs_full_run_mm": 0.0,
+   "n_vs_full_run_gt_tol": 0
+  },
+  "now_metrical": {
+   "max_abs_vs_reference_mm": 0.0023336814648078352,
+   "n_vs_reference_gt_tol": 89,
+   "max_abs_vs_full_run_mm": 0.0,
+   "n_vs_full_run_gt_tol": 0
+  }
+ },
+ "seconds": 53.8048951625824,
+ "host": "a768-l40s-06.srv.aau.dk",
+ "job": "1074970",
+ "date": "2026-10-13 18:42:08"
+}

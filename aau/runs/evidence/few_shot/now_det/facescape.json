@@ -1,0 +1,49 @@
+{
+ "view": "facescape",
+ "pairs_unordered": 99000,
+ "methods": {
+  "now_original": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 0.47489357231689544,
+    "median": 0.35215117619372904
+   },
+   "check_vs_lmk_det": {
+    "pairs": 7916,
+    "max_abs_mm": 0.007311327139324142,
+    "median_abs_mm": 1.4685419547078027e-10,
+    "tol_mm": 0.0001,
+    "pass": false,
+    "lmk_det_finite_not_here": 0
+   }
+  },
+  "now_metrical": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 0.5245406388821612,
+    "median": 0.3971936840098351
+   },
+   "check_vs_lmk_det": {
+    "pairs": 7916,
+    "max_abs_mm": 0.0023074003741143656,
+    "median_abs_mm": 1.5645063022873273e-10,
+    "tol_mm": 0.0001,
+    "pass": false,
+    "lmk_det_finite_not_here": 0
+   }
+  }
+ },
+ "core_hours": 55.315946647269236,
+ "jobs": [
+  "1074591"
+ ],
+ "host": "a768-l40s-03.srv.aau.dk",
+ "job": "1074591",
+ "date": "2026-10-13 18:43:38"
+}

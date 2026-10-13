@@ -36,6 +36,7 @@ import argparse  # noqa: E402
 import json  # noqa: E402
 import multiprocessing as mp  # noqa: E402
 import time  # noqa: E402
+from pathlib import Path  # noqa: E402
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
@@ -108,8 +109,11 @@ def frame(domain: str, info: dict) -> dict:
     sb = rows["subject_b"].astype(str).map(s2i).to_numpy()
     need = grid_columns() + [f"{arm}|{r}" for arm in fc.ARMS for r in ("shape", "form_cal")]
     fin = {c: np.isfinite(cols[c]) for c in need}
-    mask = np.isfinite(gt["fr"]) & np.isfinite(gt["sr"]) & (sa != sb) & np.all(list(fin.values()), axis=0)
-    k1 = mask & np.isfinite(cols["mm_nicp_p2tri"]) & np.isfinite(cols["cs_nicp_p2tri"])
+    gok = np.isfinite(gt["fr"]) & np.isfinite(gt["sr"]) & (sa != sb)
+    mask = gok & np.all(list(fin.values()), axis=0)
+    # K1: la maschera della matrice (colonne della matrice e NICP per coppia), senza NoW col rilevatore che li' non c'e'
+    k1 = gok & np.all([f for c, f in fin.items() if not c.startswith("now_det:")], axis=0) & \
+        np.isfinite(cols["mm_nicp_p2tri"]) & np.isfinite(cols["cs_nicp_p2tri"])
     return {"cols": cols, "gt": gt, "sa": sa, "sb": sb, "ia": ia, "ib": ib, "Z": {a: z for a, (z, _) in Zs.items()},
             "subjects": subjects, "mask": mask, "k1": k1, "n_nocrop": int(len(rows)),
             "dropped": {c: int((~f).sum()) for c, f in fin.items() if (~f).any()}, "fits_ctrl": fctrl}
@@ -677,7 +681,16 @@ def main() -> None:
     p.add_argument("step", choices=("selftest", "eval", "famos", "results"))
     p.add_argument("--workers", type=int, default=64)
     p.add_argument("--n-boot", type=int, default=fc.N_BOOT)
+    p.add_argument("--domains", default=",".join(fc.DOMAINS), help="collaudo: solo questi domini")
+    p.add_argument("--out", type=Path, default=None, help="collaudo: uscite qui invece che in EVID e WORK")
     a = p.parse_args()
+    fc.DOMAINS = tuple(a.domains.split(","))
+    if a.out is not None:
+        for f in ("heads.json",):                                   # letto da results.md
+            if (fc.EVID / f).exists():
+                a.out.mkdir(parents=True, exist_ok=True)
+                (a.out / f).write_text((fc.EVID / f).read_text())
+        fc.EVID = fc.WORK = a.out
     {"selftest": step_selftest, "eval": step_eval, "famos": step_famos,
      "results": lambda _: write_results()}[a.step](a)
 

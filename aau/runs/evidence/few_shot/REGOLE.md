@@ -147,3 +147,27 @@ dichiarato).
 - Scelta di r e lambda della testa con le k identita' (la configurazione resta quella di R6), variante W di D5, crop.
 - Gli altri concorrenti della matrice (NICP, REALY, ULRSSM, GW, percettivi): la domanda nomina ICP mm, NoW metrical col
   rilevatore e il miglior fit 3DMM vB.
+
+## Emendamento 1 (13 ottobre, sera; PRIMA di qualunque numero sulle identita' di test)
+
+Nessun rho, delta o metrica sulle identita' di test e' stato calcolato prima di questo emendamento.
+
+1. **Controllo di riproduzione di NoW col rilevatore (sez. 5): fallito alla soglia scritta (1e-4 mm), causa la CPU.**
+   - HIFI3D, 7.942 coppie in comune col sottocampione: mediana dello scarto 1,8e-9 mm (metrical) e 3,6e-10 mm
+     (originale); oltre 1e-4 mm 89 coppie (metrical, massimo 2,3e-3 mm = 0,1% relativo) e 38 (originale, massimo
+     0,036 mm su una sola coppia, 1,6% relativo). FaceScape: massimo 2,3e-3 mm (metrical) e 7,3e-3 mm (originale).
+   - Il riferimento (`competitors_new/<metodo>/lmk_det`, job 1071153) e' stato calcolato su a256-t4-04; il run completo
+     su a768-l40s-06 (HIFI3D) e a768-l40s-03 (FaceScape).
+   - Verifica (`fs_now.py recheck`, `now_det/<vista>_recheck_<nodo>.json`): le coppie fuori soglia ricalcolate sul nodo
+     del riferimento riproducono il riferimento con scarto **0,0 mm** (HIFI3D, 125 coppie), e sul nodo del run
+     riproducono il run con scarto **0,0 mm** (HIFI3D 125, FaceScape 49 coppie). La catena e' la stessa;
+     l'ottimizzatore iterativo di NoW da' risultati diversi su CPU diverse, deterministici sulla stessa.
+   - **Decisione**: si usano i valori del run completo. Il criterio di riproduzione diventa: scarto 0 delle coppie fuori
+     soglia ricalcolate sul nodo del riferimento. `merge` registra lo scarto e non si ferma; decide `recheck`.
+2. **FaceVerse costa 4-5 volte HIFI3D per coppia** (mesh di 28.632 vertici contro 9.518; mediana 1,45 s per verso
+   contro 0,31 s col metrical): i job da 2 h non bastano e si continuano con job ripartibili (le mesh A gia' salvate si
+   saltano). Le coppie di una vista FaceVerse possono venire da nodi diversi: il job di ogni mesh A e' registrato nelle
+   parti, i job in `now_det/<vista>.json`.
+3. **Nodo del fit (sez. 4)**: i256-a10-10 era occupato da un altro job (fino a 8 h). Il fit gira su **i256-a10-08**,
+   stessa famiglia di nodi (i256-a10). K0 dice se la testa `joint` si riproduce entro 1e-6 su questo nodo; se no si
+   riporta lo scarto e si prosegue, come gia' scritto nella sez. 4.

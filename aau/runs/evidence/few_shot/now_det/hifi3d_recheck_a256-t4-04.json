@@ -1,0 +1,23 @@
+{
+ "view": "hifi3d",
+ "pairs": 125,
+ "tol_mm": 0.0001,
+ "methods": {
+  "now_original": {
+   "max_abs_vs_reference_mm": 0.0,
+   "n_vs_reference_gt_tol": 0,
+   "max_abs_vs_full_run_mm": 0.03605683298406781,
+   "n_vs_full_run_gt_tol": 38
+  },
+  "now_metrical": {
+   "max_abs_vs_reference_mm": 0.0,
+   "n_vs_reference_gt_tol": 0,
+   "max_abs_vs_full_run_mm": 0.0023336814648078352,
+   "n_vs_full_run_gt_tol": 89
+  }
+ },
+ "seconds": 89.77060317993164,
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1074898",
+ "date": "2026-10-13 18:40:45"
+}

@@ -22,7 +22,8 @@ i due versi (A = i, B = j e A = j, B = i), distanza = media dei due versi (``pr_
 ``NOW_WORK/<vista>.npz`` (``subjects``, ``topologies``, ``paths``, ``D_now_metrical``, ``D_now_original``: simmetriche,
 NaN fuori dalle coppie) e ``EVID/now_det/<vista>.json`` (errori, versi mancanti, secondi, controllo). Controllo (HIFI3D,
 FaceScape): sulle coppie senza crop del sottocampione dell'8% gia' calcolato (``competitors_new/<metodo>/lmk_det``)
-scarto massimo <= ``NOW_TOL_MM``.
+scarto massimo <= ``NOW_TOL_MM``; se no (emendamento 1 di REGOLE.md) ``recheck`` ricalcola le coppie fuori tolleranza
+sul nodo del riferimento (a256-t4-04) e su quello del run: la catena riproduce se li' lo scarto e' 0.
 """
 
 from __future__ import annotations
@@ -170,13 +171,62 @@ def merge(view: str) -> None:
           f"{ {m: (x['pairs_nan'], x.get('check_vs_lmk_det', {}).get('max_abs_mm')) for m, x in info['methods'].items()} }",
           flush=True)
     bad = [m for m, x in info["methods"].items() if not x.get("check_vs_lmk_det", {"pass": True})["pass"]]
-    if bad:
-        raise SystemExit(f"{view}: riproduzione fuori tolleranza per {bad}")
+    if bad:                                           # emendamento 1 di REGOLE.md: decide ``recheck`` sul nodo del riferimento
+        print(f"[fs-now] {view}: scarto dal riferimento oltre {fc.NOW_TOL_MM} mm per {bad}: serve recheck", flush=True)
+
+
+# ------------------------------------------------------------------------------------------ recheck
+
+def _recheck_task(ab: tuple) -> dict:
+    a, b = ab
+    D = _ST["D"]
+    out = {}
+    for x, y in ((a, b), (b, a)):
+        V, F = D["mesh"][x]
+        r = prr.one_pair(pm.Surf(V, F), x, y, METHODS, D)
+        for m in METHODS:
+            out.setdefault(m, []).append(r[m])
+    return {"a": a, "b": b, **{m: float(np.mean(v)) for m, v in out.items()}}
+
+
+def recheck(view: str, workers: int) -> None:
+    """Le coppie fuori ``NOW_TOL_MM`` nel controllo di ``merge``, ricalcolate (i due versi) su QUESTO nodo: se sul tipo
+    di nodo del riferimento (``lmk_det``, job 1071153: a256-t4-04) riproducono il riferimento, lo scarto viene dalla CPU
+    (ottimizzatore iterativo), non dalla catena. ``EVID/now_det/<vista>_recheck_<nodo>.json``."""
+    t0 = time.time()
+    with np.load(fc.NOW_WORK / f"{view}.npz") as z:
+        items = [(str(s), str(t), None) for s, t in zip(z["subjects"], z["topologies"])]
+        Dm = {m: np.asarray(z[f"D_{m}"], np.float64) for m in METHODS}
+    i, j = nocrop_pairs(items)
+    R = {}
+    bad = set()
+    for m in METHODS:
+        with np.load(pc.PLUGIN_ROOT / m / "lmk_det" / f"{view}.npz") as z:
+            R[m] = np.asarray(z["D_mm"], np.float64)
+        ok = np.isfinite(R[m][i, j]) & (np.abs(R[m][i, j] - Dm[m][i, j]) > fc.NOW_TOL_MM)
+        bad |= {(int(a), int(b)) for a, b in zip(i[ok], j[ok])}
+    bad = sorted(bad)
+    _ST.update(D=pn.load_cond(view, "det"))
+    with mp.get_context("fork").Pool(workers) as pool:
+        res = pool.map(_recheck_task, bad, chunksize=1)
+    info = {"view": view, "pairs": len(bad), "tol_mm": fc.NOW_TOL_MM, "methods": {}}
+    for m in METHODS:
+        x = np.asarray([r[m] for r in res])
+        ref = np.asarray([R[m][r["a"], r["b"]] for r in res])
+        run = np.asarray([Dm[m][r["a"], r["b"]] for r in res])
+        info["methods"][m] = {"max_abs_vs_reference_mm": float(np.nanmax(np.abs(x - ref))),
+                              "n_vs_reference_gt_tol": int((np.abs(x - ref) > fc.NOW_TOL_MM).sum()),
+                              "max_abs_vs_full_run_mm": float(np.nanmax(np.abs(x - run))),
+                              "n_vs_full_run_gt_tol": int((np.abs(x - run) > fc.NOW_TOL_MM).sum())}
+    info.update(seconds=time.time() - t0, **fc.stamp())
+    host = info["host"].split(".")[0]
+    fc.atomic_json(fc.EVID / "now_det" / f"{view}_recheck_{host}.json", info)
+    print(f"[fs-now] recheck {view} su {host}: {len(bad)} coppie, {info['methods']}", flush=True)
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("step", choices=("render", "prep", "run", "merge"))
+    p.add_argument("step", choices=("render", "prep", "run", "merge", "recheck"))
     p.add_argument("--view", required=True, choices=fc.DOMAINS)
     p.add_argument("--workers", type=int, default=32)
     p.add_argument("--shard", type=int, default=0)
@@ -189,6 +239,8 @@ def main() -> None:
         prep(a.view, a.workers)
     elif a.step == "run":
         run(a.view, a.workers, a.shard, a.nshards, a.reverse)
+    elif a.step == "recheck":
+        recheck(a.view, a.workers)
     else:
         merge(a.view)
 
