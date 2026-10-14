@@ -28,6 +28,8 @@ held-out (in campione: e' un monitoraggio, non la calibrazione del protocollo); 
 ("sr"), 1 se la scala di u e' quella della GT del training. Medie fra domini in ``mean``.
 ``watch``: valuta ogni ``epoch*_ema.pth`` nuovo sotto ``--runs`` e aggiunge una riga a ``--out`` (jsonl); ``--once``
 una passata sola (fine run). Un checkpoint fallito si registra con ``error`` e non si ritenta.
+``--domains`` (eval, watch): solo le viste di quei domini, es. ``gnm,ict,flame2023`` per il modello a nucleo aperto
+(PLAN_MASSIVE sez. 24): stessi semi e stesse viste del held-out completo, c e medie sui soli domini scelti.
 """
 from __future__ import annotations
 
@@ -159,14 +161,16 @@ def make(a) -> None:
 
 # --- eval ------------------------------------------------------------------------------------------------
 
-def load_heldout(root: Path) -> dict:
-    """Viste dell'held-out: lettori, (seq, g, v), dominio, identita', etichetta, GT per identita'."""
+def load_heldout(root: Path, domains=None) -> dict:
+    """Viste dell'held-out (dei soli ``domains``, se dati): lettori, (seq, g, v), dominio, identita', etichetta, GT."""
     from ring import Ring, ShardReader
     rows, readers, gt = [], {}, {}
     for seq, p in sorted(Ring(root / "ring").seqs().items()):
         rd = ShardReader(p)
         readers[seq] = rd
         for g, hg in enumerate(rd.groups):
+            if domains and hg["domain"] not in domains:
+                continue
             gt[hg["key"]] = {"fr": np.asarray(rd.target(g, "fr"), np.float64),
                              "sr": np.asarray(rd.target(g, "sr"), np.float64), "S": float(hg["S"])}
             for v, m in enumerate(hg["views"]):
@@ -226,7 +230,7 @@ def metrics(Z: np.ndarray, H: dict) -> dict:
     sr = np.stack([H["gt"][k]["sr"] for k in keys])
     # coppie senza crop, identita' diverse, di tutti i domini: la c in campione
     pairs = {}
-    for d in DOMAINS:
+    for d in [d for d in DOMAINS if d in set(dom)]:
         idx = np.flatnonzero(dom == d)
         if len(idx) < 2:
             continue
@@ -274,7 +278,7 @@ def eval_one(ckpt: Path, H: dict, device: str) -> dict:
 
 
 def watch(a) -> None:
-    H = load_heldout(Path(a.heldout))
+    H = load_heldout(Path(a.heldout), [d for d in a.domains.split(",") if d])
     H["root"] = Path(a.heldout)
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -320,11 +324,13 @@ def main() -> None:
     e.add_argument("--heldout", required=True)
     e.add_argument("--ckpt", required=True)
     e.add_argument("--device", default="cuda:0")
+    e.add_argument("--domains", default="", help="solo questi domini (vuoto = tutti)")
     w = sub.add_parser("watch")
     w.add_argument("--heldout", required=True)
     w.add_argument("--runs", required=True, help="directory delle run dir (STREAM_OUT/runs)")
     w.add_argument("--out", required=True)
     w.add_argument("--device", default="cuda:0")
+    w.add_argument("--domains", default="", help="solo questi domini (vuoto = tutti)")
     w.add_argument("--interval", type=float, default=120.0)
     w.add_argument("--once", action="store_true")
     p = sub.add_parser("persons", help="stampa le persone FaMoS held-out (virgole)")
@@ -333,7 +339,7 @@ def main() -> None:
     if a.cmd == "make":
         make(a)
     elif a.cmd == "eval":
-        H = load_heldout(Path(a.heldout))
+        H = load_heldout(Path(a.heldout), [d for d in a.domains.split(",") if d])
         H["root"] = Path(a.heldout)
         print(json.dumps(eval_one(Path(a.ckpt), H, a.device), indent=1))
     elif a.cmd == "watch":

@@ -30,3 +30,16 @@ Fonti già raccolte: `literature/LICENZE_RILASCIO_2026-10-09.md`, `literature/DA
 - Un modello con pesi rilasciabili esiste solo sul nucleo aperto: GNM + ICT Light + FLAME 2023 Open (`STREAM_SOURCES=open_core`). Non è questo run.
 - Il dataset di training resta tracciabile anche quando non è ridistribuibile. Ogni vista usata ha seme, fonte e licenza ereditata nel registro `views_used/` e nello shard (`prov.license`), e `regen.py` rigenera le mesh dai semi per chi ha i modelli. Per BFM 2019, HIFI3D, FaceVerse e FaceScape si rilasciano al più ricetta e semi; per FaMoS nemmeno quelli (`literature/LICENZE_RILASCIO_2026-10-09.md`).
 - Nota sul codice: `sources.LICENSES` scrive ancora per FaMoS "solo ricetta". Il testo non è stato cambiato per non toccare i byte degli shard dei run esistenti. Vale questa tabella: per FaMoS niente ricetta né semi.
+
+## Modello a nucleo aperto (PLAN_MASSIVE sez. 24)
+
+| Fonte | Licenza | Pesi derivati | Fonte della licenza, ricontrollata il 14 ottobre |
+|---|---|---|---|
+| GNM Head | Apache-2.0 | sì, con LICENSE e NOTICE | `~/data/gnm_head/repo/LICENSE` (testo Apache 2.0), `~/data/gnm_head/LICENSE_APACHE-2.0` |
+| ICT-FaceKit | MIT, "Copyright (c) 2020 USC Institute for Creative Technologies" | sì, con l'avviso MIT | `external/ICT-FaceKit/LICENSE` |
+| FLAME 2023 Open | "FLAME2023_Open is available under a Creative Commons Attribution 4.0 International License"; termini su flame.is.tue.mpg.de/modellicense.html (pagina non riletta in sessione); citare il paper FLAME | sì, con attribuzione | `v2_work/genflame/official/FLAME2023Open/FLAME2023_Open Readme.pdf` |
+
+Dipendenze che non sono dati di training, da far vedere all'ufficio legale prima del rilascio:
+- `FLAME_masks.pkl`, cioè gli indici della maschera "face" che ritaglia le viste FLAME. Il readme dice solo "vertex indices for different masks for the publicly available FLAME head model", senza licenza.
+- Lo spazio della GT unificata e di E12: la media di riferimento per l'allineamento rigido, i pesi d'area e le mappe sono costruiti dai template di più 3DMM, FLAME 2020, BFM, FaceScape, HIFI3D e FaceVerse compresi. Ci sono poi le costanti scalari (kappa, unità per dominio) tarate su BFM, ICT e GNM. Sono numeri usati per calcolare i bersagli, non esempi di training.
+

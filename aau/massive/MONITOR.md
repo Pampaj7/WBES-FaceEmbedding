@@ -7,6 +7,8 @@ Progetto in `paper/PLAN_MASSIVE.md`, sezione 23. Licenze in `aau/massive/LICENZE
 | cosa | job | GPU | stato al 13 ottobre |
 |---|---|---|---|
 | run principale | **1075583** (`wbes-massive-release`) | 3 A100, nv-ai-04, `aicentre-a100`, QoS unprivileged (prelazionabile, `--requeue`) | RUNNING dal 2026-10-13 19:16:18; 0,63-0,70 s/passo, fine stimata 16 ottobre fra le 05:00 e le 12:00 |
+| stato del run principale al 14 ottobre, 16:45 | 1075583 | — | **PRELAZIONATO due volte** (13 ottobre 20:54 al passo circa 8.190; 14 ottobre 16:38 al passo circa 110.970), rimesso in coda da solo, ripartenza stimata da Slurm il 16 ottobre alle 08:54; ripresa automatica da `last.pth` (righe `start` del jsonl) |
+| nucleo aperto (PLAN_MASSIVE 24) | — (1078821 cancellato prima di partire) | da decidere | `aau/runs/massive_release/release_open`, `RELEASE_SET=open aau/massive/launch.sh ...` |
 | primo lancio su 4 A100, annullato | 1075219 | 4 A100 | cancellato dopo 20 min (Ava-256 vuole una A100 libera) |
 | run L40S, sostituito | 1075178 | 2 × 4 L40S | cancellato (PLAN_MASSIVE 23.4) |
 | smoke e ripresa (codice) | 1074653 | 2 A10 | COMPLETED, 600/600 passi, ripresa provata |

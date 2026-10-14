@@ -100,7 +100,10 @@ def main() -> None:
 
     # --- coda e nodi
     q = sh(["squeue", "-h", "-u", sh(["whoami"]), "-o", "%i|%j|%T|%M|%L|%N|%R"])
+    mine = {str(r.get("job")) for r in starts if r.get("job")}      # i job di QUESTO run (righe di partenza)
     jobs = [ln.split("|") for ln in q.splitlines() if "wbes-massive-rel" in ln]
+    if mine:
+        jobs = [j for j in jobs if j[0] in mine] or [j for j in jobs if j[2] != "RUNNING"]
     info["jobs"] = [{"id": j[0], "name": j[1], "state": j[2], "elapsed": j[3], "left": j[4], "nodes": j[5],
                      "reason": j[6]} for j in jobs]
     running = [j for j in jobs if j[2] == "RUNNING"]

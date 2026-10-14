@@ -37,7 +37,8 @@
 #   (anche HIFI3D, FaceVerse, FaceScape; FaMoS su FLAME 2023 Open) e --famos-exclude con le persone held-out di
 #   $STREAM_HELDOUT/heldout.json (obbligatorio). STREAM_HELDOUT (directory di aau/massive/heldout.py make): sul
 #   nodo 0 heldout.py watch valuta ogni epoch*_ema.pth nuovo sulla GPU 0 -> $STREAM_OUT/monitor/heldout.jsonl, e a fine
-#   run una passata finale. STREAM_LR_STEPS ("passo:lr,..."): --lr-steps al posto di --lr-constant (decadimento finale).
+#   run una passata finale; STREAM_HELDOUT_DOMAINS (es. gnm,ict,flame2023) restringe l'held-out a quei domini.
+#   STREAM_LR_STEPS ("passo:lr,..."): --lr-steps al posto di --lr-constant (decadimento finale).
 # Log jsonl per passo del rank 0 (train_v3.step_jsonl, WBES_STEP_JSONL), con STREAM_RELEASE=1 o STREAM_STEP_JSONL=1:
 #   $STREAM_OUT/steps.jsonl, ogni STREAM_STEP_JSONL_EVERY passi (10) e a ogni loss non finita; non cambia la run dir.
 # Ripresa, anche del run principale:
@@ -231,7 +232,8 @@ WATCH=()
 if [[ -n "$HOUT" && "$NODE" == 0 ]]; then
   # sorvegliante dell'held-out: GPU 0 del nodo, 2 thread, sulle CPU dei produttori; mai la selezione del checkpoint
   WATCH=("$CODE/aau/massive/heldout.py" watch --heldout "$HOUT" --runs "$STREAM_OUT/runs"
-         --out "$STREAM_OUT/monitor/heldout.jsonl" --device cuda:0)
+         --out "$STREAM_OUT/monitor/heldout.jsonl" --device cuda:0
+         ${STREAM_HELDOUT_DOMAINS:+--domains "$STREAM_HELDOUT_DOMAINS"})
   OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 taskset -c "$PROD_CPUS" "$AAU_DIR/run.sh" "${WATCH[@]}" \
     >> "$E/heldout_watch.log" 2>&1 &
   WPID=$!
