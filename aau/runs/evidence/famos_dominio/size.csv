@@ -1,0 +1,25 @@
+nostro,famiglia,metrica,grandezza,valore,ic_lo,ic_hi,repliche_escluse
+factorized_s1234|form,ICP,AUC,numeratore (con taglia - senza),0.03451033509700174,0.009135912121573747,0.06622778278923251,0
+factorized_s1234|form,ICP,AUC,denominatore (concorrente - nostro),0.06528507936507932,0.024759961498488293,0.10964540664375715,0
+factorized_s1234|form,ICP,AUC,f = quota della taglia,0.5286098360088868,0.1773933999122501,1.089207100375812,0
+factorized_s1234|form,ICP,rank1,numeratore (con taglia - senza),0.033333333333333326,0.0,0.07333333333333336,0
+factorized_s1234|form,ICP,rank1,denominatore (concorrente - nostro),0.09333333333333327,0.046666666666666745,0.1333333333333333,0
+factorized_s1234|form,ICP,rank1,f = quota della taglia,0.3571428571428573,0.0,0.8888888888888883,0
+factorized_s1234|form,NoW,AUC,numeratore (con taglia - senza),0.039657142857142835,0.019270026247987068,0.06245153875525009,0
+factorized_s1234|form,NoW,AUC,denominatore (concorrente - nostro),0.08831957671957669,0.056439736882716106,0.12339033292104723,0
+factorized_s1234|form,NoW,AUC,f = quota della taglia,0.44901871510387953,0.22951298437349368,0.7124169890916809,0
+factorized_s1234|form,NoW,rank1,numeratore (con taglia - senza),0.026666666666666727,0.0,0.06000000000000005,0
+factorized_s1234|form,NoW,rank1,denominatore (concorrente - nostro),0.11333333333333329,0.07333333333333336,0.14666666666666672,0
+factorized_s1234|form,NoW,rank1,f = quota della taglia,0.23529411764705946,0.0,0.5384615384615381,0
+factorized_s2345|form,ICP,AUC,numeratore (con taglia - senza),0.03451033509700174,0.009135912121573747,0.06622778278923251,0
+factorized_s2345|form,ICP,AUC,denominatore (concorrente - nostro),0.08383731922398585,0.039967184429327264,0.13101777014127525,0
+factorized_s2345|form,ICP,AUC,f = quota della taglia,0.4116345252500433,0.13564300692424427,0.7607688492367541,0
+factorized_s2345|form,ICP,rank1,numeratore (con taglia - senza),0.033333333333333326,0.0,0.07333333333333336,0
+factorized_s2345|form,ICP,rank1,denominatore (concorrente - nostro),0.1266666666666667,0.07999999999999996,0.17333333333333334,0
+factorized_s2345|form,ICP,rank1,f = quota della taglia,0.263157894736842,0.0,0.70609243697479,0
+factorized_s2345|form,NoW,AUC,numeratore (con taglia - senza),0.039657142857142835,0.019270026247987068,0.06245153875525009,0
+factorized_s2345|form,NoW,AUC,denominatore (concorrente - nostro),0.10687181657848321,0.07298544864452078,0.14155402942699757,0
+factorized_s2345|form,NoW,AUC,f = quota della taglia,0.37107203869805944,0.187617392114771,0.5812262299615345,0
+factorized_s2345|form,NoW,rank1,numeratore (con taglia - senza),0.026666666666666727,0.0,0.06000000000000005,0
+factorized_s2345|form,NoW,rank1,denominatore (concorrente - nostro),0.14666666666666672,0.09999999999999998,0.19333333333333336,0
+factorized_s2345|form,NoW,rank1,f = quota della taglia,0.18181818181818216,0.0,0.4445833333333333,0

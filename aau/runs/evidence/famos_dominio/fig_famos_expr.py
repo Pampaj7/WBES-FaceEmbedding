@@ -56,8 +56,8 @@ def main() -> None:
         ax.set_xticks(range(len(STRATA)), ticks)
         ax.set_ylabel(ylab)
         ax.grid(axis="y", lw=0.3, alpha=0.5)
-    fig.supxlabel(f"expression intensity, registration vs. neutral (low $\\leq${t1:.1f} mm, high >{t2:.1f} mm;"
-                  " AUC: pair maximum, rank-1: query)", fontsize=6, y=0.02)
+    fig.supxlabel(f"expression intensity, registration vs. neutral (low $\\leq${t1:.1f} mm, high >{t2:.1f} mm)\n"
+                  "AUC: the more expressive scan of the pair; rank-1: the query", fontsize=6, y=0.0)
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=3, bbox_to_anchor=(0.5, 1.0), frameon=False,
                handlelength=1.8, columnspacing=0.8)
