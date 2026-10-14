@@ -149,3 +149,71 @@ costo = N x (media per mesh) + N(N-1)/2 x (media per coppia); per il nostro i co
 - `ops`: a768-l40s-04.srv.aau.dk, job 1072554, senza GPU, core 16, torch 2.5.0a0+e000cf0ad9.nv24.10 (1 thread), 2026-10-13 16:15:29
 - `ours`: a768-l40s-04.srv.aau.dk, job 1072554, NVIDIA L40S, core 16, torch 2.5.0a0+e000cf0ad9.nv24.10 (1 thread), 2026-10-13 16:15:49
 - `ulrssm`: a768-l40s-04.srv.aau.dk, job 1072554, NVIDIA L40S, core 16, torch 2.5.0a0+e000cf0ad9.nv24.10 (1 thread), 2026-10-13 16:27:28
+
+## Operatori su GPU
+
+Il nostro con gli operatori calcolati su GPU invece che su CPU: percorso di E10 (`aau/evidence/e10_gpu_ops/gpu_ops.py`, `compute_batch(method="bk")`: shift-invert con cuDSS + Krylov a blocchi, k 128, opzioni di default, una mesh alla volta), poi lo stesso npz, loader, forward e confronti. Stesso nodo (`a768-l40s-04.srv.aau.dk`), stesso campione (60 mesh cronometrate, 20 per topologia), job 1077960, passi in sequenza senza altri processi. I tempi dei concorrenti e dei confronti fra vettori NON sono rimisurati: sono quelli delle sezioni sopra. Il riordino di cuDSS usa fino a 8 thread host: il tempo `operatori_gpu` e' contato come GPU (a muro, in serie).
+
+Tolleranza fissata prima della misura (`cc.TOL_Z_GPU`): max |Z_GPU - Z_CPU| <= 0.001 sugli embedding [s, u] delle 60 mesh, operatori CPU ricalcolati nello stesso job. Esito: max 3.24e-04 -> ENTRO tolleranza; distanze fra le u (1.770 coppie) max 1.04e-03 (rel. 5.1e-03), distanza minima 0.052; log s max 6.1e-05. Pavimento CPU nello stesso job (operatori CPU ricalcolati contro il collaudo): 5.6e-04; GPU contro il collaudo: 5.8e-04. `bk` convergente in 240/240 chiamate (residuo relativo max 6.4e-07).
+
+### Per mesh, mediana [IQR]
+
+| variante | fase | disp. | original | down8k | up60k | tutte |
+|---|---|---|---|---|---|---|
+| operatori GPU | caricamento | cpu | 3.5 ms [3.4 ms, 3.5 ms] | 1.6 ms [1.6 ms, 1.6 ms] | 8.1 ms [8.0 ms, 8.1 ms] | 3.5 ms [1.6 ms, 8.0 ms] |
+| operatori GPU | operatori_gpu | gpu | 131.1 ms [131.1 ms, 131.2 ms] | 82.5 ms [82.2 ms, 82.6 ms] | 255.4 ms [254.7 ms, 256.8 ms] | 131.1 ms [82.7 ms, 254.7 ms] |
+| operatori GPU | scrittura_operatori | cpu | 10.5 ms [10.5 ms, 10.5 ms] | 4.1 ms [4.1 ms, 4.1 ms] | 26.2 ms [26.2 ms, 26.3 ms] | 10.5 ms [4.1 ms, 26.2 ms] |
+| operatori GPU | tabella_scala | cpu | 1.5 ms [1.5 ms, 1.5 ms] | 554.86 us [552.80 us, 558.87 us] | 3.7 ms [3.6 ms, 3.7 ms] | 1.5 ms [559.13 us, 3.6 ms] |
+| operatori GPU | lettura_operatori | cpu | 33.2 ms [33.1 ms, 33.3 ms] | 13.3 ms [13.3 ms, 13.4 ms] | 86.1 ms [83.0 ms, 88.6 ms] | 33.2 ms [13.4 ms, 82.9 ms] |
+| operatori GPU | trasferimento | gpu | 861.27 us [859.34 us, 868.92 us] | 430.91 us [428.41 us, 434.99 us] | 1.7 ms [1.7 ms, 1.7 ms] | 861.27 us [436.36 us, 1.7 ms] |
+| operatori GPU | forward | gpu | 6.0 ms [6.0 ms, 6.0 ms] | 5.4 ms [5.4 ms, 5.4 ms] | 7.3 ms [7.3 ms, 7.4 ms] | 6.0 ms [5.4 ms, 7.3 ms] |
+| operatori GPU | totale_cpu | cpu | 48.6 ms [48.5 ms, 48.8 ms] | 19.6 ms [19.5 ms, 19.7 ms] | 125.0 ms [121.7 ms, 126.7 ms] | 48.6 ms [19.7 ms, 121.2 ms] |
+| operatori GPU | totale_gpu | gpu | 138.0 ms [138.0 ms, 138.1 ms] | 88.3 ms [88.1 ms, 88.5 ms] | 264.4 ms [263.7 ms, 265.9 ms] | 138.0 ms [88.5 ms, 263.6 ms] |
+| operatori GPU | totale | cpu+gpu | 186.7 ms [186.5 ms, 187.2 ms] | 108.0 ms [107.6 ms, 108.3 ms] | 388.9 ms [386.4 ms, 391.7 ms] | 186.7 ms [108.4 ms, 386.1 ms] |
+| operatori CPU (stesso job, riferimento) | totale_cpu | cpu | 1.44 s [1.44 s, 1.45 s] | 506.6 ms [504.5 ms, 507.6 ms] | 4.63 s [4.62 s, 4.67 s] | 1.44 s [508.0 ms, 4.62 s] |
+| operatori CPU (stesso job, riferimento) | totale_gpu | gpu | 7.1 ms [7.0 ms, 7.1 ms] | 6.1 ms [6.1 ms, 6.1 ms] | 9.3 ms [9.3 ms, 9.4 ms] | 7.1 ms [6.1 ms, 9.3 ms] |
+| operatori CPU (stesso job, riferimento) | totale | cpu+gpu | 1.45 s [1.45 s, 1.45 s] | 512.8 ms [510.7 ms, 513.8 ms] | 4.64 s [4.63 s, 4.67 s] | 1.45 s [514.1 ms, 4.63 s] |
+
+### Per coppia isolata (le due mesh da zero + la coppia)
+
+| metodo | CPU (s-core) | GPU (s) |
+|---|---|---|
+| nostro, operatori GPU | 128.8 ms | 327.7 ms |
+| icp (misura principale) | 47.4 ms | 0.0 ns |
+| nicp (misura principale) | 1.53 s | 0.0 ns |
+| now_det (misura principale) | 1.54 s | 0.0 ns |
+| ulrssm (misura principale) | 5.45 s | 87.3 ms |
+
+### Scalabilita' (ESTRAPOLAZIONE lineare, stesso modello della tabella sopra)
+
+| N | coppie | metodo | CPU (ore-core) | GPU (ore) | a muro, 16 core + 1 GPU | x nostro GPU |
+|---|---|---|---|---|---|---|
+| 100 | 4,950 | nostro, operatori GPU | 0.00179 | 0.00455 | 16.8 s | 1.00 |
+| 100 | 4,950 | nostro, operatori CPU | 0.0615 | 0.000212 | 14.6 s | 0.87 |
+| 100 | 4,950 | icp | 0.0576 | 0 | 13.0 s | 0.77 |
+| 100 | 4,950 | nicp | 2.1 | 0 | 7.9 min | 28 |
+| 100 | 4,950 | now_det | 0.799 | 0 | 3.0 min | 11 |
+| 100 | 4,950 | ulrssm | 0.0757 | 0.018 | 1.4 min | 4.87 |
+| 1,000 | 499,500 | nostro, operatori GPU | 0.018 | 0.0455 | 2.8 min | 1.00 |
+| 1,000 | 499,500 | nostro, operatori CPU | 0.615 | 0.00212 | 2.4 min | 0.87 |
+| 1,000 | 499,500 | icp | 5.81 | 0 | 21.8 min | 7.78 |
+| 1,000 | 499,500 | nicp | 212 | 0 | 13.2 h | 283 |
+| 1,000 | 499,500 | now_det | 79.4 | 0 | 5.0 h | 106 |
+| 1,000 | 499,500 | ulrssm | 0.757 | 1.72 | 1.8 h | 38 |
+| 10,000 | 49,995,000 | nostro, operatori GPU | 0.189 | 0.455 | 28.0 min | 1.00 |
+| 10,000 | 49,995,000 | nostro, operatori CPU | 6.16 | 0.0212 | 24.4 min | 0.87 |
+| 10,000 | 49,995,000 | icp | 581 | 0 | 36.3 h | 78 |
+| 10,000 | 49,995,000 | nicp | 2.12e+04 | 0 | 55.1 giorni | 2,833 |
+| 10,000 | 49,995,000 | now_det | 7.93e+03 | 0 | 20.7 giorni | 1,062 |
+| 10,000 | 49,995,000 | ulrssm | 7.57 | 171 | 7.2 giorni | 368 |
+
+### Punto di pareggio contro ICP + Chamfer mm
+
+N* = 1 + 2 (costo per mesh nostro - ICP) / (costo per coppia ICP - nostro): da N* mesh in su (tutte le coppie) il nostro costa meno. Due modelli di costo: a muro (s-core / 16 + s GPU, come la tabella) e risorse sommate (s-core + s GPU, un solo core).
+
+| variante del nostro | N*, a muro | N*, risorse sommate |
+|---|---|---|
+| operatori GPU | 129.2 | 11.8 |
+| operatori CPU | 112.4 | 106.9 |
+
+Controlli del passo: `{"bk_convergenti": 240, "bk_chiamate": 240, "bk_max_res_rel": 6.436264803115778e-07, "cudss": "nvidia-cudss-cu12 0.8.0.10 (.venv_e10)", "Z_gpu_vs_cpu": {"n": 15420, "nan": 0, "max_abs": 0.00032386183738708496, "max_rel": 2.947899765639084, "equal": 2}, "tolleranza_Z": 0.001, "entro_tolleranza": true, "distanze_u_gpu_vs_cpu": {"n": 1770, "nan": 0, "max_abs": 0.0010443292227144685, "max_rel": 0.005128557069677837, "equal": 0}, "log_s_gpu_vs_cpu": {"n": 60, "nan": 0, "max_abs": 6.103515625e-05, "max_rel": 1.541405864507414e-05, "equal": 0}, "distanza_u_minima_cpu": 0.051889318668378974, "Z_vs_collaudo_L40S": {"n": 15420, "nan": 0, "max_abs": 0.0005760788917541504, "max_rel": 2.756799875481536, "equal": 3}, "Z_vs_sviluppo_A100": {"n": 15420, "nan": 0, "max_abs": 0.0005760788917541504, "max_rel": 2.756799875481536, "equal": 2}}`
