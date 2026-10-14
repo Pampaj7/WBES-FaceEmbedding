@@ -95,6 +95,13 @@ EMB_L40S = REPO / "aau/runs/ava256_collaudo/hifi3d_full/embed/eval_view/factoriz
 EMB_DEV = REPO / ("aau/runs/evidence/trainer_v3/ablations/c3f_eval/form_hifi/data_328f2bfc1a/scale_v3factorizedfulle072_"
                   "embed/zs_zeroshot/embeddings.npz")
 ULR_CKPT = AAU / "runs/competitors_ulrssm/faces_xyz/final.pth"
+E10 = AAU / "evidence" / "e10_gpu_ops"
+# Operatori su GPU (``ours --ops-src gpu``): tolleranza fissata PRIMA della misura sugli embedding [s, u] ottenuti dagli
+# operatori GPU contro quelli dagli operatori CPU, stesso nodo, stesso job, stesso forward: max |dZ| <= TOL_Z_GPU. Base:
+# il pavimento del percorso CPU stesso sulla L40S (operatori CPU ricalcolati contro gli embedding del collaudo: 5,6e-4,
+# job 1072554; il TF32 del forward amplifica le differenze all'ultimo bit degli operatori) e E10 (operatori ``bk`` a
+# 1,4e-6 dalla CPU sugli embedding, forward su CPU); 1e-3 resta sotto 1/90 della distanza minima fra identita' di E10.
+TOL_Z_GPU = 1e-3
 OUT = AAU / "runs" / "evidence" / "costo_confronto"
 METHODS = {"nostro": "nostro (factorized s1234: embedding per mesh, d_F e d_P fra vettori)",
            "icp": "ICP + Chamfer in mm (per coppia)", "nicp": "NICP per coppia in mm",
@@ -423,9 +430,54 @@ def ops(a) -> None:
     write_part(a.out, "ops", rows, ck)
 
 
+def ops_gpu(a, S: dict, out: Path) -> tuple[list, dict]:
+    """Operatori su GPU, percorso di E10: ``gpu_ops.prepare`` (le righe di ``ops_areanorm``: centro e area 1) e
+    ``gpu_ops.compute_batch(method="bk")`` una mesh alla volta (B = 1, latenza), k 128, opzioni di default (bs 16,
+    m = max(4k, k + 256), tol 1e-5, 8 thread host per il riordino di cuDSS), poi l'npz come la pipeline CPU."""
+    import torch
+    sys.path.insert(0, str(E10))
+    sys.path.insert(0, str(TRAINER / "tools"))
+    import build_scale_table as bst
+    import gpu_ops
+    from potential_operators import load_mesh
+    u = float(json.loads(bst.FRAMES.read_text())["domains"][VIEW]["u"])
+    dev = torch.device("cuda")
+    out.mkdir(parents=True, exist_ok=True)
+    rows, conv, res = [], [], []
+    for r in range(a.reps + 1):
+        for k in S["timed"]:
+            p = S["path"][k]
+            torch.cuda.synchronize()
+            t0 = time.perf_counter()
+            m = gpu_ops.prepare(p)
+            t1 = time.perf_counter()
+            st = {}
+            o = gpu_ops.compute_batch([m], 128, "bk", dev, eig_opts={"stats": st})[0]
+            torch.cuda.synchronize()
+            t2 = time.perf_counter()
+            gpu_ops.save_npz(o, out / p.name)
+            t3 = time.perf_counter()
+            V, F = load_mesh(p)                                          # gia' letta in prepare: non cronometrata
+            t4 = time.perf_counter()
+            bst.total_area(V, F) * u ** 2
+            t5 = time.perf_counter()
+            rec(rows, "nostro_gpu", "mesh", S["topo"][k], item_of(S, k), r, "cpu", caricamento=t1 - t0,
+                scrittura_operatori=t3 - t2, tabella_scala=t5 - t4)
+            rec(rows, "nostro_gpu", "mesh", S["topo"][k], item_of(S, k), r, "gpu", operatori_gpu=t2 - t1)
+            conv.append(bool(st.get("converged", False)))
+            res.append(float(st.get("max_res_rel", np.nan)))
+    return rows, {"bk_convergenti": int(sum(conv)), "bk_chiamate": len(conv), "bk_max_res_rel": float(np.nanmax(res)),
+                  "cudss": "nvidia-cudss-cu12 0.8.0.10 (.venv_e10)"}
+
+
 def ours(a) -> None:
     import torch
     torch.set_num_threads(1)
+    gpu = a.ops_src == "gpu"
+    meth, step = ("nostro_gpu", "ours_gpu") if gpu else ("nostro", "ours")
+    S = load_sample(a.out)
+    ops_dir = a.work / ("ops_gpu" if gpu else "ops")
+    rows, ck = ops_gpu(a, S, ops_dir) if gpu else ([], {})
     os.environ.update(WBES_V3_FACTORIZED_OUT="full", WBES_EVAL_SCENARIOS="clean", WBES_V3_SCALE_TABLES=str(SCALE_TABLE))
     sys.path.insert(0, str(TRAINER))
     sys.path.insert(0, str(AAU / "ava256"))
@@ -440,11 +492,10 @@ def ours(a) -> None:
     sys.path.insert(0, str(pert.parent))
     import compare_model_vs_chamfer_topology_breakdown as bd
     base = bd.base
-    S = load_sample(a.out)
     names = a.work / "names.npz"                                        # come conf_embed stage: solo i nomi
     subj = sorted({S["subj"][k] for k in S["timed"]})
     np.savez(names, names=np.asarray(subj), D_orig=np.zeros((len(subj), len(subj))))
-    sys.argv = ["cc", "--model_path", str(CKPT), "--data_dir", str(a.work / "ops"), "--dist_npz", str(names), *ARGS]
+    sys.argv = ["cc", "--model_path", str(CKPT), "--data_dir", str(ops_dir), "--dist_npz", str(names), *ARGS]
     cli = bd.parse_args()
     _, ckpt = base._resolve_run_dir_and_checkpoint(cli.model_path, selector=str(cli.checkpoint_selector))
     margs = base._resolve_runtime_args(cli, base.merge_run_args(ckpt, explicit_config_json=cli.config_json))
@@ -460,7 +511,7 @@ def ours(a) -> None:
     files = [Path(f).name for f in dataset.files]
     if sorted(files) != sorted(by_name):
         raise SystemExit("ours: operatori diversi dalle mesh cronometrate")
-    rows, Z = [], {}
+    Z = {}
     with torch.no_grad():
         for r in range(a.reps + 1):
             for idx, fn in enumerate(files):
@@ -476,17 +527,27 @@ def ours(a) -> None:
                                           add_noise=False)
                 torch.cuda.synchronize()
                 t3 = time.perf_counter()
-                rec(rows, "nostro", "mesh", S["topo"][k], item_of(S, k), r, "cpu", lettura_operatori=t1 - t0)
-                rec(rows, "nostro", "mesh", S["topo"][k], item_of(S, k), r, "gpu", trasferimento=t2 - t1, forward=t3 - t2)
+                rec(rows, meth, "mesh", S["topo"][k], item_of(S, k), r, "cpu", lettura_operatori=t1 - t0)
+                rec(rows, meth, "mesh", S["topo"][k], item_of(S, k), r, "gpu", trasferimento=t2 - t1, forward=t3 - t2)
                 if r == 0:
                     Z[k] = z.squeeze(0).double().cpu().numpy()
-    ck = {}
+    Zs = np.stack([Z[k] for k in S["timed"]])
+    np.savez(a.work / f"Z_{step}.npz", Z=Zs, timed=np.asarray(S["timed"]))
+    if gpu:                                                             # operatori GPU contro CPU, stesso job
+        with np.load(a.work / "Z_ours.npz") as z:
+            Zc = z["Z"]
+        iu, ju = np.triu_indices(len(Zs), 1)
+        du = lambda X: np.linalg.norm(X[iu, 1:] - X[ju, 1:], axis=1)   # noqa: E731  (d_P a meno di dp_per_unit)
+        dz = maxdiff(Zs, Zc)
+        ck.update(Z_gpu_vs_cpu=dz, tolleranza_Z=TOL_Z_GPU, entro_tolleranza=bool(dz["max_abs"] <= TOL_Z_GPU),
+                  distanze_u_gpu_vs_cpu=maxdiff(du(Zs), du(Zc)), log_s_gpu_vs_cpu=maxdiff(Zs[:, 0], Zc[:, 0]),
+                  distanza_u_minima_cpu=float(du(Zc).min()))
     for tag, p in (("Z_vs_collaudo_L40S", EMB_L40S), ("Z_vs_sviluppo_A100", EMB_DEV)):
         with np.load(p, allow_pickle=True) as e:
             pos = {(str(s), str(t)): n for n, (s, t) in enumerate(zip(e["subjects"], e["topologies"]))}
             ref = np.stack([np.asarray(e["Z"][pos[(S["subj"][k], S["topo"][k])]], np.float64) for k in S["timed"]])
         ck[tag] = maxdiff(np.stack([Z[k] for k in S["timed"]]), ref)
-    write_part(a.out, "ours", rows, ck, {"checkpoint": str(ckpt.relative_to(REPO)), "args": list(ARGS)})
+    write_part(a.out, step, rows, ck, {"checkpoint": str(ckpt.relative_to(REPO)), "args": list(ARGS)})
 
 
 def cmp(a) -> None:
@@ -767,8 +828,111 @@ def report(a) -> None:
     for k, e in env.items():
         L.append(f"- `{k}`: {e['host']}, job {e['job']}, {e.get('gpu', 'senza GPU')}, core {e['cores_job']}, "
                  f"torch {e.get('torch', '-')} ({e.get('torch_threads', '-')} thread), {e['date']}")
+    if (a.out / "gpu" / "parts" / "ours_gpu.json").exists():
+        means = {m: {k: mean_of(m, lv, f"totale_{d}") for k, lv, d in (("mc", "mesh", "cpu"), ("mg", "mesh", "gpu"),
+                                                                        ("pc", "coppia", "cpu"), ("pg", "coppia", "gpu"))}
+                 for m in METHODS if m in set(it.method)}
+        L += gpu_section(a.out / "gpu", means, cmp_med, sc)
     (a.out / "results.md").write_text("\n".join(L) + "\n")
     print(f"[cc] report: {a.out / 'results.md'}", flush=True)
+
+
+def gpu_section(gout: Path, means: dict, cmp_med: dict, sc) -> list:
+    """Sezione "Operatori su GPU": il nostro con gli operatori di E10 (``ours --ops-src gpu``, parti in ``gpu/parts``),
+    i concorrenti e i confronti fra vettori RIUSATI dalla misura principale (``means``, ``cmp_med``, ``sc``)."""
+    import pandas as pd
+    parts = {p.stem: json.loads(p.read_text()) for p in sorted((gout / "parts").glob("*.json")) if p.stem != "sample"}
+    df = pd.DataFrame([r for p in parts.values() for r in p["rows"]])
+    df.to_csv(gout / "tempi.csv", index=False)
+    it = per_item(df)
+    tot = it.groupby(["method", "level", "group", "item", "dev"], as_index=False)["s"].sum()
+    tot["phase"] = "totale_" + tot["dev"]
+    tot_all = it.groupby(["method", "level", "group", "item"], as_index=False)["s"].sum()
+    tot_all["phase"], tot_all["dev"] = "totale", "cpu+gpu"
+    allp = pd.concat([it, tot, tot_all], ignore_index=True)
+    syn = []
+    for (m, ph, dev), g in allp.groupby(["method", "phase", "dev"]):
+        for grp, gg in list(g.groupby("group")) + [("tutti", g)]:
+            syn.append({"method": m, "level": "mesh", "phase": ph, "dev": dev, "group": grp, **stats(gg["s"])})
+    syn = pd.DataFrame(syn)
+    syn.to_csv(gout / "sintesi.csv", index=False)
+
+    def cell(m, ph, grp="tutti"):
+        r = syn[(syn.method == m) & (syn.phase == ph) & (syn.group == grp)]
+        return r.iloc[0] if len(r) else None
+
+    ours = {"mc": cell("nostro_gpu", "totale_cpu")["mean"], "mg": cell("nostro_gpu", "totale_gpu")["mean"]}
+    P10 = 10000 * 9999 / 2
+    cmp_pair = cmp_med[10000] / P10                                     # s-core per confronto (misura principale)
+    e = parts["ours_gpu"]["env"]
+    ck = parts["ours_gpu"]["checks"]
+    L = ["", "## Operatori su GPU", "",
+         "Il nostro con gli operatori calcolati su GPU invece che su CPU: percorso di E10 "
+         "(`aau/evidence/e10_gpu_ops/gpu_ops.py`, `compute_batch(method=\"bk\")`: shift-invert con cuDSS + Krylov a "
+         "blocchi, k 128, opzioni di default, una mesh alla volta), poi lo stesso npz, loader, forward e confronti. "
+         f"Stesso nodo (`{e['host']}`), stesso campione (60 mesh cronometrate, 20 per topologia), job {e['job']}, "
+         "passi in sequenza senza altri processi. I tempi dei concorrenti e dei confronti fra vettori NON sono "
+         "rimisurati: sono quelli delle sezioni sopra. Il riordino di cuDSS usa fino a 8 thread host: il tempo "
+         "`operatori_gpu` e' contato come GPU (a muro, in serie).", "",
+         f"Tolleranza fissata prima della misura (`cc.TOL_Z_GPU`): max |Z_GPU - Z_CPU| <= {ck['tolleranza_Z']:g} sugli "
+         f"embedding [s, u] delle 60 mesh, operatori CPU ricalcolati nello stesso job. Esito: max {ck['Z_gpu_vs_cpu']['max_abs']:.2e} "
+         f"-> {'ENTRO' if ck['entro_tolleranza'] else 'FUORI'} tolleranza; distanze fra le u (1.770 coppie) max "
+         f"{ck['distanze_u_gpu_vs_cpu']['max_abs']:.2e} (rel. {ck['distanze_u_gpu_vs_cpu']['max_rel']:.1e}), distanza "
+         f"minima {ck['distanza_u_minima_cpu']:.3f}; log s max {ck['log_s_gpu_vs_cpu']['max_abs']:.1e}. Pavimento CPU nello "
+         f"stesso job (operatori CPU ricalcolati contro il collaudo): {parts['ours']['checks']['Z_vs_collaudo_L40S']['max_abs']:.1e}; "
+         f"GPU contro il collaudo: {ck['Z_vs_collaudo_L40S']['max_abs']:.1e}. `bk` convergente in "
+         f"{ck['bk_convergenti']}/{ck['bk_chiamate']} chiamate (residuo relativo max {ck['bk_max_res_rel']:.1e}).", "",
+         "### Per mesh, mediana [IQR]", "", "| variante | fase | disp. | original | down8k | up60k | tutte |",
+         "|---|---|---|---|---|---|---|"]
+    for m, phs in (("nostro_gpu", ["caricamento", "operatori_gpu", "scrittura_operatori", "tabella_scala",
+                                   "lettura_operatori", "trasferimento", "forward", "totale_cpu", "totale_gpu", "totale"]),
+                   ("nostro", ["totale_cpu", "totale_gpu", "totale"])):
+        for ph in phs:
+            if cell(m, ph) is None:
+                continue
+            cells = [f"{fmt(c['median'])} [{fmt(c['p25'])}, {fmt(c['p75'])}]" if (c := cell(m, ph, g)) is not None
+                     else "-" for g in list(TOPOS) + ["tutti"]]
+            lab = "operatori GPU" if m == "nostro_gpu" else "operatori CPU (stesso job, riferimento)"
+            L.append(f"| {lab} | {ph} | {cell(m, ph)['dev']} | " + " | ".join(cells) + " |")
+    L += ["", "### Per coppia isolata (le due mesh da zero + la coppia)", "", "| metodo | CPU (s-core) | GPU (s) |",
+          "|---|---|---|", f"| nostro, operatori GPU | {fmt(2 * ours['mc'] + cmp_pair)} | {fmt(2 * ours['mg'])} |"]
+    for m, x in means.items():
+        if m != "nostro":
+            L.append(f"| {m} (misura principale) | {fmt(2 * x['mc'] + x['pc'])} | {fmt(2 * x['mg'] + x['pg'])} |")
+
+    def wall(c, g):
+        return c / CORES_REF + g
+
+    rows = []
+    for N in N_CMP:
+        Pn = N * (N - 1) / 2
+        cpu, gp = N * ours["mc"] + cmp_med[N], N * ours["mg"]
+        rows.append((N, int(Pn), "nostro, operatori GPU", cpu, gp, wall(cpu, gp)))
+    L += ["", "### Scalabilita' (ESTRAPOLAZIONE lineare, stesso modello della tabella sopra)", "",
+          "| N | coppie | metodo | CPU (ore-core) | GPU (ore) | a muro, 16 core + 1 GPU | x nostro GPU |",
+          "|---|---|---|---|---|---|---|"]
+    for N, Pn, m, cpu, gp, w in rows:
+        L.append(f"| {N:,} | {Pn:,} | {m} | {cpu / 3600:,.3g} | {gp / 3600:,.3g} | {fmt_h(w)} | 1.00 |")
+        for r in sc[sc.N == N].itertuples():
+            x = r.wall_s_16core_1gpu / w
+            xs = f"{x:,.2f}" if x < 10 else f"{x:,.0f}"
+            lab = "nostro, operatori CPU" if r.method == "nostro" else r.method
+            L.append(f"| {N:,} | {Pn:,} | {lab} | {r.cpu_core_s / 3600:,.3g} | {r.gpu_s / 3600:,.3g} | "
+                     f"{fmt_h(r.wall_s_16core_1gpu)} | {xs} |")
+    # pareggio con ICP: N m_o + P c_o = N m_i + P c_i  ->  N* = 1 + 2 (m_o - m_i) / (c_i - c_o)
+    icp = means["icp"]
+    L += ["", "### Punto di pareggio contro ICP + Chamfer mm", "",
+          "N* = 1 + 2 (costo per mesh nostro - ICP) / (costo per coppia ICP - nostro): da N* mesh in su (tutte le "
+          "coppie) il nostro costa meno. Due modelli di costo: a muro (s-core / 16 + s GPU, come la tabella) e "
+          "risorse sommate (s-core + s GPU, un solo core).", "", "| variante del nostro | N*, a muro | N*, risorse sommate |",
+          "|---|---|---|"]
+    for lab, mc, mg in (("operatori GPU", ours["mc"], ours["mg"]), ("operatori CPU", means["nostro"]["mc"],
+                                                                     means["nostro"]["mg"])):
+        n_w = 1 + 2 * (wall(mc, mg) - wall(icp["mc"], icp["mg"])) / (wall(icp["pc"], icp["pg"]) - wall(cmp_pair, 0))
+        n_r = 1 + 2 * ((mc + mg) - (icp["mc"] + icp["mg"])) / ((icp["pc"] + icp["pg"]) - cmp_pair)
+        L.append(f"| {lab} | {n_w:,.1f} | {n_r:,.1f} |")
+    L += ["", f"Controlli del passo: `{json.dumps(ck)}`"]
+    return L
 
 
 def main() -> None:
@@ -783,6 +947,7 @@ def main() -> None:
     p.add_argument("--n-mesh", type=int, default=N_MESH)
     p.add_argument("--n-cmp", type=lambda s: tuple(int(x) for x in s.split(",")), default=N_CMP)
     p.add_argument("--pool", type=int, default=4, help="ulrssm: processi del giro 0 (escluso)")
+    p.add_argument("--ops-src", choices=("cpu", "gpu"), default="cpu", help="ours: operatori CPU o GPU (E10)")
     a = p.parse_args()
     if a.step not in ("sample", "report", "cmp", "geo") and a.work is None:
         p.error("serve --work")
