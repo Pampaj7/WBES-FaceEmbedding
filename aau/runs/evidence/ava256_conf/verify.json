@@ -1,0 +1,50 @@
+{
+ "spec": "aau/ava256/spec/ava256.json",
+ "freeze": true,
+ "code": {
+  "checked": true,
+  "repo": "/home/create.aau.dk/ga41wf/wt_ava256_frozen",
+  "head": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+  "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+  "dirty": []
+ },
+ "external_clones": {
+  "diffusion-net": {
+   "path": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/diffusion-net",
+   "head": "b1019b049597711d10259ce28250f7dfc4335a2b",
+   "dirty": []
+  }
+ },
+ "detector_weights": {
+  "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+  "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
+ },
+ "checkpoints": {
+  "factorized_s1234": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+  "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0",
+  "factorizedc3m_e123": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77"
+ },
+ "manifests": {
+  "aau/ava256/freeze_manifest.json": "e485fb7c44f0638ef3111343ba8741a3febae80be35f8fcdae14ae0839d5f365",
+  "aau/ava256/freeze_manifest_supp.json": "c6d2157a145fa29e7a8415dc60aa1bd98e9edfdf2bc38563356cc15f16f3b02e",
+  "aau/ava256/calib_manifest.json": "d3657a186525dd32c7e152356047204a2bbfad86fd65a098d9895db91b1a3af7",
+  "aau/ava256/split.json": "08234346a85c84188bcba3ed54debd38b79836e77fd968e591175e5b5457b7ec"
+ },
+ "verify_frozen": "uguali",
+ "verify_frozen_supp": "uguali",
+ "verify_calib": "uguali",
+ "data": {
+  "datasets/AVA256/template.npz": "19a532492a6fcd86981ca8e91e96a273f5b697b6f36f251f322e44eff4363c68",
+  "datasets/AVA256/corr/ava256.npz": "475be926a1577190d8a8787feaa2827687fcf0894e694410f3d90bd01f6ea9e2"
+ },
+ "errors": [],
+ "modules_sha256": {
+  "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+  "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+  "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d"
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1075606",
+ "date": "2026-10-14 01:13:05"
+}

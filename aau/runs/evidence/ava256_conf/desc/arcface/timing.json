@@ -1,0 +1,57 @@
+{
+ "set": "ava256",
+ "n_meshes": 1200,
+ "workers": 32,
+ "yaws": [
+  0.0,
+  -30.0,
+  30.0
+ ],
+ "host": "i256-a10-09.srv.aau.dk",
+ "camera_s": 12.982918500900269,
+ "render_shaded_s": 18.921322107315063,
+ "calibration_s": 159.03217267990112,
+ "render_normals_s": 27.03274154663086,
+ "embed_s": 47.411616563797,
+ "total_s": 265.72659635543823,
+ "K4": {
+  "n": 1200,
+  "max_abs_norm_minus_1": 1.103094218191103e-07,
+  "finite": true
+ },
+ "detector": {
+  "crop": {
+   "n": 600,
+   "n_failed": 357
+  },
+  "down8k": {
+   "n": 600,
+   "n_failed": 5
+  },
+  "noisy": {
+   "n": 600,
+   "n_failed": 600
+  },
+  "original": {
+   "n": 600,
+   "n_failed": 11
+  },
+  "remesh": {
+   "n": 600,
+   "n_failed": 30
+  },
+  "up60k": {
+   "n": 600,
+   "n_failed": 5
+  },
+  "total": {
+   "n": 3600,
+   "n_failed": 1008
+  }
+ },
+ "n_detected_by_yaw": {
+  "-030.00": 879,
+  "+000.00": 845,
+  "+030.00": 868
+ }
+}

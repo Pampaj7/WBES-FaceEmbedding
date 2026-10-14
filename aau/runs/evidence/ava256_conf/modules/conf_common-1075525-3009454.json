@@ -1,0 +1,20 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/ava256/conf_common.py",
+ "argv": [
+  "verify",
+  "--spec",
+  "aau/ava256/spec/ava256.json"
+ ],
+ "modules_sha256": {
+  "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+  "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+  "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_run.py": "53d416b7c9a328a71a6efa25748f233f6a46fbbc8a1db4181f8176f7d707184c"
+ },
+ "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+ "mismatch": [],
+ "host": "a256-t4-04.srv.aau.dk",
+ "job": "1075525",
+ "date": "2026-10-13 20:00:27"
+}

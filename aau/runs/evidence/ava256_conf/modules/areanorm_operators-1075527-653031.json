@@ -1,0 +1,28 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/v2_work/potential/areanorm_operators.py",
+ "argv": [
+  "--input-dir",
+  "datasets/V3_OPS_CACHE/conf/ava256/calib_view/in",
+  "--output-dir",
+  "datasets/V3_OPS_CACHE/conf/ava256/calib_view/ops",
+  "--k-eig",
+  "128",
+  "--shard",
+  "6/63"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_run.py": "53d416b7c9a328a71a6efa25748f233f6a46fbbc8a1db4181f8176f7d707184c",
+  "diffusion-net/src/diffusion_net/__init__.py": "5849f836a4a95db7a36d432fbea8c35203521249d77af134f8792ff674ac2be4",
+  "diffusion-net/src/diffusion_net/geometry.py": "2663a9665e6d57f49fd56b6ae8075e43b7c5aa74c3b825ac7f28f114c71cf090",
+  "diffusion-net/src/diffusion_net/layers.py": "e593676dc7732ec9aca5adb5a1f1fed5301a901c3ef0e498e74333118ba79f17",
+  "diffusion-net/src/diffusion_net/utils.py": "4d22ce294f67f6dac71aaaa3c3a8da0093728903f71ee0bc416dfa47e43d1099",
+  "v2_work/potential/areanorm_operators.py": "511d0a52758b91c4948cfbdb7c53ad68854b4e1cec5351f23c779ee15c96008f",
+  "v2_work/potential/potential_operators.py": "caddf7bc244e3f6b2c28145017e8ed2f7e82e351e55372d62834400a92110c87"
+ },
+ "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+ "mismatch": [],
+ "host": "a768-l40s-01.srv.aau.dk",
+ "job": "1075527",
+ "date": "2026-10-13 19:16:57"
+}

@@ -1,0 +1,114 @@
+{
+ "base": {
+  "view": "ava256",
+  "n_meshes": 1200,
+  "failed": [],
+  "yaws": [
+   0.0,
+   -30.0,
+   30.0
+  ],
+  "size": 512,
+  "camera_half_mm": 131.77816708680328,
+  "cam_k": 1.3,
+  "L_mm": 101.36782083600252,
+  "cs_ref_mm": 66.4436597136125,
+  "device": "cpu",
+  "threads": 64,
+  "workers_render": 64,
+  "rendered_variants": [
+   "depth",
+   "smooth"
+  ],
+  "clipped_meshes": {
+   "fr": 3,
+   "sr": 0
+  },
+  "degenerate_triangle_fraction_by_topology": {
+   "crop": {
+    "median": 0.0,
+    "max": 0.00017913121361397223
+   },
+   "down8k": {
+    "median": 0.041845295703394125,
+    "max": 0.05205314009661836
+   },
+   "noisy": {
+    "median": 0.0,
+    "max": 4.160426027625229e-05
+   },
+   "original": {
+    "median": 0.0,
+    "max": 0.00016641704110500916
+   },
+   "remesh": {
+    "median": 0.0,
+    "max": 0.0
+   },
+   "up60k": {
+    "median": 0.007905520178909834,
+    "max": 0.01070698288492811
+   }
+  },
+  "render_s_per_mesh_median": 693.938209785847,
+  "render_wall_s": 12621.268108129501,
+  "spec": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/desc/gp_spec.json",
+  "host": "i256-a10-09.srv.aau.dk",
+  "job": "1075544",
+  "date": "2026-10-14 00:47:56"
+ },
+ "variants": {
+  "lpips/depth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 3,
+    "sr": 0
+   },
+   "method": "lpips",
+   "variant": "depth",
+   "wall_s": 55.456337451934814,
+   "check_gram_vs_forward_max_abs": {
+    "fr|+0": 4.384930268885867e-08,
+    "fr|-30": 1.930887383316815e-08,
+    "fr|+30": 2.905252449725282e-08,
+    "sr|+0": 1.2951306055386524e-08,
+    "sr|-30": 1.9412143004160498e-08,
+    "sr|+30": 2.0762501939941558e-08
+   },
+   "distance": "media sulle 3 viste della LPIPS 0.1 alex fra i render della stessa vista (Gram)"
+  },
+  "dinov2/depth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 3,
+    "sr": 0
+   },
+   "method": "dinov2",
+   "variant": "depth",
+   "embed_wall_s": 306.63524556159973,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  },
+  "clip/smooth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 3,
+    "sr": 0
+   },
+   "method": "clip",
+   "variant": "smooth",
+   "embed_wall_s": 243.08954501152039,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  },
+  "dreamsim/smooth": {
+   "failed": [],
+   "clipped_meshes": {
+    "fr": 3,
+    "sr": 0
+   },
+   "method": "dreamsim",
+   "variant": "smooth",
+   "embed_wall_s": 405.2668869495392,
+   "distance": "1 - coseno fra embedding mediati sulle viste e rinormalizzati"
+  }
+ }
+}

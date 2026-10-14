@@ -1,0 +1,59 @@
+{
+ "parts": [
+  {
+   "part": "ava256_0of1.npz",
+   "job": "1075551",
+   "n_pairs": 716400,
+   "t_prep_s": 984.0958201885223,
+   "t_feat_s": 95.1664092540741,
+   "t_pairs_s": 12584.17628645897,
+   "nan_pairs": 0,
+   "pair_set": "subjects"
+  }
+ ],
+ "input_type": "xyz",
+ "ckpt": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/competitors_ulrssm/faces_xyz/final.pth",
+ "gpu": "NVIDIA L40S",
+ "template_n": 9022,
+ "template_flipped": false,
+ "cs_ref": 66.4436597136125,
+ "view": "ava256",
+ "n_meshes": 1200,
+ "n_pairs": 716400,
+ "template": {
+  "rigid_robust_converged": 1195,
+  "n": 1200,
+  "rigid_robust_iter_max": 100,
+  "centroid_size_mm_median": 55.76895878684537,
+  "rms_to_mu_mm_median": 8.216777511919476
+ },
+ "gt_check": {
+  "fr_max_abs": 3.5666553621638286e-07,
+  "fr_max_rel": 6.662263641735807e-08,
+  "sr_max_abs": 3.990414845778112e-09,
+  "sr_max_rel": 5.2124675302836564e-08
+ },
+ "nan": {
+  "D_pair_fr": 0,
+  "D_pair_sr": 0,
+  "D_tpl_fr": 0,
+  "D_tpl_sr": 0
+ },
+ "failed": [],
+ "mesh_flipped": 0,
+ "seconds": {
+  "prep_per_mesh_median": 8.827374150045216,
+  "feat_per_mesh_median": 0.035709064453840256,
+  "template_map_per_mesh_median": 0.004584604408591986,
+  "pair_median": 0.012821593787521124,
+  "pair_mean": 0.017560144051538166,
+  "pairs_total_h": 3.494468666256095
+ },
+ "vertices": {
+  "median": 11893.0,
+  "max": 31382
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1075552",
+ "date": "2026-10-13 23:37:31"
+}

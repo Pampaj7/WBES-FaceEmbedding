@@ -1,0 +1,57 @@
+{
+ "arm": "factorized_s2345",
+ "K0": {
+  "c": 0.41843835339738,
+  "alpha_over_alpha0": 0.03076603181101636,
+  "nit": 257,
+  "success": true,
+  "reference": {
+   "c": 0.41843835339738,
+   "alpha_over_alpha0": 0.03076603181101636,
+   "nit": 257
+  },
+  "rel_c": 0.0,
+  "rel_alpha": 0.0,
+  "pass": true
+ },
+ "r": 64,
+ "lambda": 1e-06,
+ "alpha_over_alpha0": 0.029236552518570064,
+ "nit": 244,
+ "success": true,
+ "loss": 0.005470428452586143,
+ "c": 0.418009008346326,
+ "block": {
+  "subjects": 56,
+  "meshes": 280,
+  "pairs": 30800,
+  "p": 256
+ },
+ "sources": [
+  "bfm",
+  "ict",
+  "gnm",
+  "flame2023_s1",
+  "facescape",
+  "hifi3d",
+  "faceverse",
+  "famos"
+ ],
+ "host": "i256-a10-10.srv.aau.dk",
+ "seconds": 75.10448837280273,
+ "npz": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/head/factorized_s2345.npz",
+ "npz_sha256": "e9766b621b1a07982e5f834434e2c2f64ffa78bdc9ad2fd60fbe4f5c006dd95a",
+ "modules_sha256": {
+  "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+  "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+  "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_head.py": "4937a7e3ae44d5eabf7e438d7558c22d3218f05467a0e11a4277509e667facfb",
+  "aau/diagnostics/d3_e2.py": "42b962a432fa9f219cbe754f44c41da11a3b2a3143cb4a5262ff68a4d9c23542",
+  "aau/diagnostics/d3_head.py": "a3161d56513fc5dba6b4cd10e8884ac1f5788f6eb6884bf020b0d7707410754d",
+  "aau/diagnostics/d3_stats.py": "573aef82d60feb7722dafa031c2ea268bf64f35dd20efe5b2124d8e322a6fcc9",
+  "aau/diagnostics/diag.py": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d"
+ },
+ "job": "1075604",
+ "date": "2026-10-13 22:57:30"
+}

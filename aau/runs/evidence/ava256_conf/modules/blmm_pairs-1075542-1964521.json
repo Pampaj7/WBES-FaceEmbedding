@@ -1,0 +1,25 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/baselines_mm/blmm_pairs.py",
+ "argv": [
+  "ava256",
+  "cs",
+  "fast",
+  "--spec",
+  "aau/ava256/spec/ava256.json",
+  "--claim",
+  "--workers",
+  "64"
+ ],
+ "modules_sha256": {
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_run.py": "53d416b7c9a328a71a6efa25748f233f6a46fbbc8a1db4181f8176f7d707184c",
+  "aau/baselines/common.py": "725ebe31c86746ade6921547cd4536f823c3f9ecea54828f9cba94c9d4dc8c78",
+  "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
+  "aau/baselines_mm/blmm_pairs.py": "34bde06d2b454090891700591d0b78a0ea1960bdff67a14c423d06db90c26788"
+ },
+ "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+ "mismatch": [],
+ "host": "nv-ai-02.srv.aau.dk",
+ "job": "1075542",
+ "date": "2026-10-13 19:55:11"
+}

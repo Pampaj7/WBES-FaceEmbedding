@@ -1,0 +1,230 @@
+{
+ "spec": "aau/ava256/spec/ava256.json",
+ "verify": {
+  "spec": "aau/ava256/spec/ava256.json",
+  "freeze": true,
+  "code": {
+   "checked": true,
+   "repo": "/home/create.aau.dk/ga41wf/wt_ava256_frozen",
+   "head": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+   "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+   "dirty": []
+  },
+  "external_clones": {
+   "diffusion-net": {
+    "path": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/diffusion-net",
+    "head": "b1019b049597711d10259ce28250f7dfc4335a2b",
+    "dirty": []
+   }
+  },
+  "detector_weights": {
+   "det_10g.onnx": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91",
+   "1k3d68.onnx": "df5c06b8a0c12e422b2ed8947b8869faa4105387f199c477af038aa01f9a45cc"
+  },
+  "checkpoints": {
+   "factorized_s1234": "317532da3866e3be377bc57e26155c728db5760c61d1bfc23029b80f1a8ac84c",
+   "factorized_s2345": "5489a97e93c9de25b184e69a27f68980ba61429a3ae0ff66030688d6acb690b0",
+   "factorizedc3m_e123": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77"
+  },
+  "manifests": {
+   "aau/ava256/freeze_manifest.json": "e485fb7c44f0638ef3111343ba8741a3febae80be35f8fcdae14ae0839d5f365",
+   "aau/ava256/freeze_manifest_supp.json": "c6d2157a145fa29e7a8415dc60aa1bd98e9edfdf2bc38563356cc15f16f3b02e",
+   "aau/ava256/calib_manifest.json": "d3657a186525dd32c7e152356047204a2bbfad86fd65a098d9895db91b1a3af7",
+   "aau/ava256/split.json": "08234346a85c84188bcba3ed54debd38b79836e77fd968e591175e5b5457b7ec"
+  },
+  "verify_frozen": "uguali",
+  "verify_frozen_supp": "uguali",
+  "verify_calib": "uguali",
+  "data": {
+   "datasets/AVA256/template.npz": "19a532492a6fcd86981ca8e91e96a273f5b697b6f36f251f322e44eff4363c68",
+   "datasets/AVA256/corr/ava256.npz": "475be926a1577190d8a8787feaa2827687fcf0894e694410f3d90bd01f6ea9e2"
+  },
+  "errors": [],
+  "modules_sha256": {
+   "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+   "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+   "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+   "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+   "aau/ava256/conf_eval.py": "fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1"
+  },
+  "host": "a512-l4-06.srv.aau.dk",
+  "job": "1075605",
+  "date": "2026-10-13 23:55:54"
+ },
+ "boot_seed": 20261011,
+ "n_boot": 1000,
+ "subjects": 200,
+ "rows": 597000,
+ "rows_mask_confirmatory": 597000,
+ "rows_mask_masked": 551920,
+ "rows_by_group_confirmatory": {
+  "nocrop": 398000,
+  "crop": 199000,
+  "all_cross": 597000
+ },
+ "rows_by_group_masked": {
+  "nocrop": 361936,
+  "crop": 189984,
+  "all_cross": 551920
+ },
+ "rows_nonfinite_by_column": {
+  "factorized_s1234|form_cal": 0,
+  "factorized_s1234|form": 0,
+  "factorized_s1234|shape": 0,
+  "head_s1234|shape": 0,
+  "head_s1234|form": 0,
+  "factorized_s2345|form_cal": 0,
+  "factorized_s2345|form": 0,
+  "factorized_s2345|shape": 0,
+  "head_s2345|shape": 0,
+  "head_s2345|form": 0,
+  "mm_rigid_icp_chamfer": 0,
+  "mm_nicp_p2tri": 45071,
+  "mm_nicp_template": 0,
+  "cs_rigid_icp_chamfer": 0,
+  "cs_nicp_p2tri": 45067,
+  "cs_nicp_template": 0,
+  "now_original": 0,
+  "now_metrical": 0,
+  "realy": 597000,
+  "stirling": 0
+ },
+ "meshes_failed_by_column": {
+  "factorized_s1234|form_cal": 0,
+  "factorized_s1234|form": 0,
+  "factorized_s1234|shape": 0,
+  "head_s1234|shape": 0,
+  "head_s1234|form": 0,
+  "factorized_s2345|form_cal": 0,
+  "factorized_s2345|form": 0,
+  "factorized_s2345|shape": 0,
+  "head_s2345|shape": 0,
+  "head_s2345|form": 0,
+  "mm_nicp_template": 0,
+  "cs_nicp_template": 0
+ },
+ "fallback": {
+  "crop": 0,
+  "down8k": 0,
+  "noisy": 7,
+  "original": 0,
+  "remesh": 0,
+  "up60k": 0
+ },
+ "subsample_pairs": null,
+ "models": {
+  "s1234": {
+   "embeddings": "aau/runs/ava256_conf/embed/eval_view/factorized_s1234/embeddings.npz",
+   "c": 0.4052667604991996,
+   "dp_per_unit": 0.24411710201003828,
+   "meshes_failed": 0,
+   "head": {
+    "path": "aau/runs/ava256_conf/head/factorized_s1234.npz",
+    "c": 0.4156460936211093,
+    "dpu": 0.24411710201003828,
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__1f5d4a90/checkpoints/epoch072_ema.pth",
+    "host": "i256-a10-10.srv.aau.dk",
+    "success": true,
+    "nit": 249
+   }
+  },
+  "s2345": {
+   "embeddings": "aau/runs/ava256_conf/embed/eval_view/factorized_s2345/embeddings.npz",
+   "c": 0.40544514090039896,
+   "dp_per_unit": 0.24411710201003828,
+   "meshes_failed": 0,
+   "head": {
+    "path": "aau/runs/ava256_conf/head/factorized_s2345.npz",
+    "c": 0.418009008346326,
+    "dpu": 0.24411710201003828,
+    "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f_runs/factorized_s2345/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed2345__4de9be29/checkpoints/epoch072_ema.pth",
+    "host": "i256-a10-10.srv.aau.dk",
+    "success": true,
+    "nit": 244
+   }
+  }
+ },
+ "geo_protocols": {
+  "blmm_root": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/blmm",
+  "geo": [
+   "cs_nicp_p2tri",
+   "cs_nicp_template",
+   "cs_rigid_icp_chamfer",
+   "mm_nicp_p2tri",
+   "mm_nicp_template",
+   "mm_rigid_icp_chamfer"
+  ],
+  "protocols": {
+   "dirs": [
+    "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/protocolli/plugin/now_original/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/protocolli/plugin/now_metrical/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/protocolli/plugin/realy/lmk_det",
+    "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/runs/ava256_conf/protocolli/plugin/stirling/lmk_det"
+   ],
+   "missing": []
+  }
+ },
+ "absent_family_columns": [],
+ "esiti": {
+  "R1": "non confermata",
+  "R2a": "confermata",
+  "R2b": "non risolta",
+  "R3a": "confermata",
+  "R3b": "non risolta",
+  "R5a": "non confermata",
+  "R5b": "non risolta",
+  "R6": "non confermata",
+  "R7": "confermata"
+ },
+ "seconds": 1018.3638870716095,
+ "modules_sha256": {
+  "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+  "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+  "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_eval.py": "fd5be2e4d6d943b51b64188391ffdb821e9571c8313b22dfcb8aee26aba4e3f1",
+  "aau/ava256/conf_head.py": "4937a7e3ae44d5eabf7e438d7558c22d3218f05467a0e11a4277509e667facfb",
+  "aau/ava256/conf_protocols.py": "7f4db409cdf1f8f7486f1ac7de12908fa24c54ab25529b93839ca91e8c257e79",
+  "aau/baselines/common.py": "725ebe31c86746ade6921547cd4536f823c3f9ecea54828f9cba94c9d4dc8c78",
+  "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
+  "aau/baselines_mm/blmm_eval.py": "7d439122deadd5c1502492c15ca463681984a2ca24fb8e2863d372c7fd12cda8",
+  "aau/baselines_param/bp.py": "0f8dd0571593c512a002463736a1e6cca244395cc78d7f6694793f13d572177c",
+  "aau/baselines_param/bp_paired.py": "a0bffb67b4de77a7e17933c9ab7a1dd6ec79c3943944998a0f31b4c0fbcb4432",
+  "aau/baselines_param/bp_paired_e2.py": "be9c190fa0c22ff7aa09fab8fb5c1c1be9ba4dda17f9cc370e59742579d2b8b4",
+  "aau/competitors/comp_summarize.py": "3296bfe723d697e0aa996e9e99187e461eceb741ff866aec27717f22ee5d3e4a",
+  "aau/competitors/protocolli/pr_common.py": "deeb13ed5e755ff3f591518f26e08577d3172b873744504711ba858120df84ab",
+  "aau/competitors/protocolli/pr_metrics.py": "75293276c3a07f7b70b324859527a32f19f43623e64f7d1fd68ab6eb59981eda",
+  "aau/competitors/protocolli/pr_noise.py": "6f16ac05c8cc71298508988062de5ddac85d14ad2d3caad2d127247010fac4c0",
+  "aau/competitors/protocolli/pr_run.py": "dffbae45ada9f2a26628f4e0b4761ea6563fa3b26c9a3ad485993f9530377238",
+  "aau/diagnostics/d3_e2.py": "42b962a432fa9f219cbe754f44c41da11a3b2a3143cb4a5262ff68a4d9c23542",
+  "aau/diagnostics/d3_head.py": "a3161d56513fc5dba6b4cd10e8884ac1f5788f6eb6884bf020b0d7707410754d",
+  "aau/diagnostics/d3_stats.py": "573aef82d60feb7722dafa031c2ea268bf64f35dd20efe5b2124d8e322a6fcc9",
+  "aau/diagnostics/diag.py": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+  "aau/full_matrix/fm_eval.py": "9101b3f9585dc337fd3d67cc5a8bb08146b4d32bd0409c50f52f2ccd21981770",
+  "aau/ict/ict_summarize.py": "9d1d7cf783361e9568ddc621a698b239f3ecffc093ccc52d2b9a848d50ba7776",
+  "aau/indomain/ir_simicp.py": "c853ffbdec5469cff5a677facce6c1a443cda00e1906bb82c556932a85197ffa",
+  "aau/indomain/ir_template.py": "4f9060820f9f4da48ac1bbbeacb5d3d64bd8e6ee06201fca6de561a76f110416",
+  "aau/zs3dmm/dev_fs_summarize.py": "3fbd8e9f419180ced32fcf1762a88e4d5c7829e4e71fff7910c4220bbb25fef1",
+  "aau/zs3dmm/zs_arcface_summarize.py": "6d1b90749696c660a94306e10d31b8c4159cfd2edf1668a31e30041c5e60a191",
+  "aau/zs3dmm/zs_arcface_vs_scale.py": "0a9a680b6d348ef89b5cd57b64668e5316035123ced6662ec7350fa364b8bf78",
+  "aau/zs3dmm/zs_expr_summarize.py": "b543d01b4c8c4c720459cf94b45c65ef13f929884e167cb5974ada4a445325ac",
+  "aau/zs3dmm/zs_stage.py": "6cac25ee537ee9169e5b64fc03c1ee8795d616604d6226b56c8d53524ecfc21c",
+  "aau/zs3dmm/zs_summarize.py": "f19456ad9abea0ba2095cd43a14c341bb9db67e5fd33931ddf060bff344517cd",
+  "face_embedding/gt_encdec/autoencoder/dataset_gtready.py": "fd271dcf8a649f5a2c99c88bf9da50ebab443b8028d4ebb6c7ac258622480638",
+  "face_embedding/gt_encdec/autoencoder/path_setup.py": "7c67b6b36edc3e5e3ee8d8e102a59b580e2b38d9f704aa5f397e783117677811",
+  "face_embedding/gt_encdec/remeshing/intrinsic/intrinsic_utils.py": "c1b9254dbd84cc40dac6f141fceb62a7a56644b85bb79d0da7c34a014c630c34",
+  "face_embedding/gt_encdec/remeshing/intrinsic/robustness/__init__.py": "9c7ced11ac713b9a9642ae563e3ad74d4e697c82f241b7881e0fd055b393cad5",
+  "face_embedding/gt_encdec/remeshing/intrinsic/robustness/data_utils.py": "02fb657182568536d834ee7fef2cea862aca38582debc00d5200a14063d56b61",
+  "face_embedding/gt_encdec/remeshing/intrinsic/robustness/paths.py": "a84e2757c2e91a60cea795e70fbebe445e78accc1c13c809067bf17b0d78da7a",
+  "v3_work/canonical_gt/cgt.py": "2739f59aaf7954055efcbb39df104c9c4f99ca89af898a63026a7aeec5d3b20e",
+  "v3_work/canonical_gt/methods.py": "dd9fc773ed4ccd4bf1344995ebb12e3351bb3a38552f94cad7ce468692dd91ff",
+  "v3_work/trainer/tools/fact_paired.py": "cb37bf32916237077069157d8c3ac79c2838b6a85fcbebdb639b8419b2fe709a",
+  "v3_work/unified_gt/domains.py": "1447b777f48d6df428ddc031336628e7a377fe40399c571325ebb7d8b54b7383",
+  "v3_work/unified_gt/eval_methods.py": "9d27233ec18a0dca758429105d4092d6d543e0f3d6c7579420a9c1272214432e",
+  "v3_work/unified_gt/shapes.py": "3db8dca67eab92510c5a197a9db0a938b6d955effc56df87f5a4c44e11f63aa4",
+  "v3_work/unified_gt/ugt.py": "2cfbad40a815c8fc81ce4b46b4a13686d0e7f0024e1a86fe335431f946bbb340"
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1075605",
+ "date": "2026-10-14 00:12:42"
+}

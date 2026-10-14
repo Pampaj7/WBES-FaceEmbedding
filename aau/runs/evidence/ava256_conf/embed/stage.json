@@ -1,0 +1,35 @@
+{
+ "spec": "aau/ava256/spec/ava256.json",
+ "sets": {
+  "eval_view": {
+   "meshes": 1200,
+   "subjects": 200,
+   "labels": [
+    "crop",
+    "down8k",
+    "noisy",
+    "original",
+    "remesh",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/datasets/V3_OPS_CACHE/conf/ava256/eval_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/datasets/V3_OPS_CACHE/conf/ava256/eval_view/ops"
+  },
+  "calib_view": {
+   "meshes": 280,
+   "subjects": 56,
+   "labels": [
+    "original",
+    "remesh",
+    "down8k",
+    "noisy",
+    "up60k"
+   ],
+   "in": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/datasets/V3_OPS_CACHE/conf/ava256/calib_view/in",
+   "ops": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/datasets/V3_OPS_CACHE/conf/ava256/calib_view/ops"
+  }
+ },
+ "host": "a768-l40s-01.srv.aau.dk",
+ "job": "1075527",
+ "date": "2026-10-13 19:14:04"
+}

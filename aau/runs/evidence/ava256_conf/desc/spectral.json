@@ -1,0 +1,9 @@
+{
+ "meshes": 1200,
+ "components_gt1": 0,
+ "identity_rel_err_max": 1.0880185641326534e-14,
+ "seconds": 163.0909161567688,
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1075544",
+ "date": "2026-10-13 21:07:16"
+}

@@ -1,0 +1,38 @@
+{
+ "script": "/home/create.aau.dk/ga41wf/wt_ava256_frozen/aau/ava256/conf_desc.py",
+ "argv": [
+  "arcface",
+  "--spec",
+  "aau/ava256/spec/ava256.json",
+  "--stage",
+  "/tmp/wbes_conf_arc_1075528",
+  "--workers",
+  "32"
+ ],
+ "modules_sha256": {
+  "aau/ava256/ava_calib.py": "a56bf34b4eaeb37f899bbbfa4e4fd2680af82be5522d92deb66da9dbfa215897",
+  "aau/ava256/ava_common.py": "dfd6067bad6282c80fbda9186249ee2f7ca9d9a28d7408ebc0541f9a25a1f7fa",
+  "aau/ava256/ava_freeze.py": "520c002858619f2be5a2bb735c33a4663555230fc87e7b1ac34bc0c9c2c590ca",
+  "aau/ava256/conf_common.py": "c2b5c2e4f58470543708f2b14fc34a65303df9b9a4ae739f77ee46a67d97e13d",
+  "aau/ava256/conf_desc.py": "5e310928d277cdeff484a7f7a8b704b538adb660711c89295b2bf05efc2a51ef",
+  "aau/ava256/conf_run.py": "53d416b7c9a328a71a6efa25748f233f6a46fbbc8a1db4181f8176f7d707184c",
+  "aau/baselines/arcface_fixed.py": "834e8e21ac8e213eff70695875e7f7e12bfdb08d013a3b592a935670f23d21a3",
+  "aau/baselines_mm/blmm.py": "9c893b2cb3ca150d92cd21844dfeafae105c204ec559e635fb5c8e2800949446",
+  "aau/baselines_param/bp.py": "0f8dd0571593c512a002463736a1e6cca244395cc78d7f6694793f13d572177c",
+  "aau/diagnostics/d3_pools.py": "9dc12cb1297e0bc2dabd5cf82fe1f9725853f41e33a8f10acbd595f55337303b",
+  "aau/diagnostics/diag.py": "399882d0e81b4f1e7458bb0e8bd77777cf42ad8b8847b716d667a2a11f43af4d",
+  "aau/diagnostics/g0_teacher.py": "d50e76ca6452cd38b92d9a0f547da2e7edcb9a678900d02bfb42b5b029144832",
+  "aau/distill/teacher_labels.py": "6b338d5de7d50987ddd08ab5ad3c8a91df0ba6957be64d4c3506f11a8499844d",
+  "aau/multiface/ws3a_common.py": "f85f284010088abf803cf408eaee611a9a5ba3d5e1c8fb3b8958b22b4c733568",
+  "aau/multiface/ws3a_perceptual.py": "99632c31a6b80f654a93c5ce329da069cde6ce36c42e3eabf5904e054e53767f",
+  "aau/multiface/ws3a_render.py": "ea499a94184913b8d7d76648b6f9d4b0e870e56e1eff8907e520834a96b338b6",
+  "aau/zs3dmm/zs_arcface_render.py": "9c59232044085fd4f8e2fae3ee71cdee2ab6f0b335781bd81409348bf90b9857",
+  "v2_work/phase0/perceptual_embed.py": "d91b048631b4c77a919e1471842b0d6dc5db77471e4b74f5f5211e592b36dd4e",
+  "v2_work/phase0/render_mesh.py": "be1c643a67be190193d3453a610bba4375097aa86f7c68ebbc50202d34272fce"
+ },
+ "frozen_commit": "8a6e184d2951d73df7ea55e48296c4df36b92aef",
+ "mismatch": [],
+ "host": "i256-a10-09.srv.aau.dk",
+ "job": "1075528",
+ "date": "2026-10-13 19:59:48"
+}
