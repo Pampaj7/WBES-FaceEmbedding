@@ -1,0 +1,45 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "3ddfa_v2",
+    "num_missing_files": 0,
+    "challenge_stats": {
+      "all": {
+        "median": 1.5918343060746383,
+        "mean": 2.112938697888805,
+        "std": 2.022079730810145,
+        "n_images": 352,
+        "n_distances": 10715009
+      },
+      "multiview_neutral": {
+        "median": 1.5587268468090083,
+        "mean": 2.1065705429164083,
+        "std": 2.103974586166894,
+        "n_images": 108,
+        "n_distances": 3314181
+      },
+      "multiview_expressions": {
+        "median": 1.61776780549148,
+        "mean": 2.100383623263462,
+        "std": 1.9457369536789748,
+        "n_images": 114,
+        "n_distances": 3480276
+      },
+      "multiview_occlusions": {
+        "median": 1.5722969450720836,
+        "mean": 2.079039548966714,
+        "std": 1.9542562056745039,
+        "n_images": 86,
+        "n_distances": 2562565
+      },
+      "selfie": {
+        "median": 1.6491432708467606,
+        "mean": 2.2246254192409833,
+        "std": 2.1293737823742904,
+        "n_images": 44,
+        "n_distances": 1357987
+      }
+    },
+    "code": "external/now_evaluation compute_error.py (7bd1498), MeshViewer stub, metrical_eval=True, predicted_mesh_unit='mm'"
+  }
+}

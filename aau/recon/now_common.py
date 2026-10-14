@@ -122,6 +122,19 @@ def pred_dir(method: str) -> Path:
     return WORK_ROOT / "pred" / method
 
 
+def pred_metrical_dir(method: str) -> Path:
+    """Export per NoW metrical: come ``pred_dir`` ma in mm (``now_export.py --metrical``)."""
+    return WORK_ROOT / "pred_metrical" / method
+
+
+def recon_mm_per_unit(method: str, name: str) -> float | None:
+    """mm per unita' della mesh se il metodo la dichiara (``mm_per_unit`` nel json: 3DDFA-V3), altrimenti None
+    (spazio immagine: la scala metrica non e' osservabile)."""
+    with open(recon_dir(method) / f"{name}.json", encoding="utf-8") as fh:
+        v = json.load(fh).get("mm_per_unit")
+    return None if v is None else float(v)
+
+
 def template_path() -> Path:
     return WORK_ROOT / "template_lmk7.json"
 
@@ -148,6 +161,10 @@ def recon_face_ops_dir(method: str) -> Path:
 
 def official_csv_path(method: str) -> Path:
     return OUT_ROOT / f"now_official_{method}.csv"
+
+
+def metrical_csv_path(method: str) -> Path:
+    return OUT_ROOT / f"now_metrical_{method}.csv"
 
 
 def gt_csv_path(metric: str, method: str) -> Path:
@@ -208,14 +225,15 @@ def load_scan(subject: str):
 
 # ------------------------------------------------------------------------- geometria
 
-def similarity_to(src, dst):
-    """(s, R, t) con dst ~ s * src @ R + t, senza riflessione (fg_metrics.procrustes_transform)."""
+def similarity_to(src, dst, scaling: bool = True):
+    """(s, R, t) con dst ~ s * src @ R + t, senza riflessione (fg_metrics.procrustes_transform);
+    ``scaling=False``: s = 1, trasformazione rigida."""
     import sys
 
     sys.path.insert(0, str(REPO_ROOT / "faceBench" / "latentVSpipeline"))
     import fg_metrics as fg
 
-    return fg.procrustes_transform(src, dst, scaling=True)
+    return fg.procrustes_transform(src, dst, scaling=scaling)
 
 
 def build_template(landmarks: list, n_iter: int = 20):
@@ -245,9 +263,10 @@ def build_template(landmarks: list, n_iter: int = 20):
     return mean
 
 
-def to_canonical(V, lmk, template):
-    """Mesh e landmark nel frame del template, con la similarita' dai SUOI landmark."""
-    s, R, t = similarity_to(lmk, template)
+def to_canonical(V, lmk, template, scaling: bool = True):
+    """Mesh e landmark nel frame del template, con la similarita' dai SUOI landmark (``scaling=False``: solo
+    rotazione e traslazione, la taglia resta quella della mesh)."""
+    s, R, t = similarity_to(lmk, template, scaling)
     return s * V @ R + t, s * lmk @ R + t, s
 
 

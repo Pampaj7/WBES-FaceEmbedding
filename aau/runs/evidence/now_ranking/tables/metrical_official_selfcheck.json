@@ -1,0 +1,16 @@
+[
+  {
+    "image": "FaMoS_180424_03335_TA/multiview_expressions/IMG_0053.jpg",
+    "median_mm": 2.0471126276432334e-07,
+    "mean_mm": 2.2296711484085975e-07,
+    "max_mm": 6.931321123990292e-07,
+    "n_vertices": 29588
+  },
+  {
+    "image": "FaMoS_180426_03336_TA/multiview_expressions/IMG_0134.jpg",
+    "median_mm": 2.004999767288185e-07,
+    "mean_mm": 2.2035082753150809e-07,
+    "max_mm": 6.900796348437025e-07,
+    "n_vertices": 25949
+  }
+]

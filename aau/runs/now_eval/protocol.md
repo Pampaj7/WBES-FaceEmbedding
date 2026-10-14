@@ -159,3 +159,7 @@ Tutte del 7 ottobre 2026.
    come scritto sopra; la versione con MICA (deviazione 1) e' secondaria, perche' il segno
    del latente dipende da MICA. Aggiunta l'analisi di sensibilita' sulla storia di
    tassellazione di MICA (Loop x2 al posto del punto medio) su tutte le 352 immagini.
+6. **14 ottobre: MICA ritirato** (decisione del PI; `NOTA_MICA.md`). MICA usa FLAME 2020,
+   che il progetto non usa: esce da ogni risultato. Riassunto e csv rigenerati sui tre
+   metodi pre-registrati (`now_summarize.py --methods 3ddfa_v2,synergynet,prnet`); le
+   deviazioni 1 e 5 e l'analisi Loop x2 restano solo come storia del protocollo.

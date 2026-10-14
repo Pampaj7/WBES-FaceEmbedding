@@ -17,6 +17,12 @@ Nessuna riga del codice ufficiale e' cambiata.
 
 ``--selfcheck``: la scansione come predizione di se stessa (``pred/scan_selfcheck``,
 scritta da now_export.py): l'errore deve venire ~0.
+
+``--metrical`` (aau/runs/evidence/now_ranking/REGOLE.md, sez. 2): NoW metrical, cioe' lo stesso
+``metric_computation`` con ``metrical_eval=True`` e ``predicted_mesh_unit='mm'`` (Procrustes senza
+scala, ICP rigido; ``scan2mesh_computations_metrical.py``), sugli export di ``now_export.py
+--metrical``; csv ``now_metrical_<metodo>.csv``, distanze ``official/metrical_<metodo>_*``.
+Con ``--selfcheck``: ``pred/scan_selfcheck_metrical`` (scansione spostata senza cambio di scala).
 """
 
 from __future__ import annotations
@@ -43,6 +49,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--methods", type=str, default=",".join(common.METHODS))
     p.add_argument("--nproc", type=int, default=int(os.environ.get("SLURM_CPUS_PER_TASK", "8")))
     p.add_argument("--selfcheck", action="store_true")
+    p.add_argument("--metrical", action="store_true", help="NoW metrical sugli export in mm (pred_metrical)")
     return p.parse_args()
 
 
@@ -57,15 +64,16 @@ def install_meshviewer_stub() -> None:
     sys.modules["psbody.mesh.meshviewer"] = stub
 
 
-def run_official(pred: Path, imgs_list: Path, out: Path, tag: str, nproc: int) -> Path:
+def run_official(pred: Path, imgs_list: Path, out: Path, tag: str, nproc: int, metrical: bool = False) -> Path:
     import compute_error  # dal clone ufficiale
 
     t0 = time.time()
+    extra = {"predicted_mesh_unit": "mm", "metrical_eval": True} if metrical else {}
     compute_error.metric_computation(
         dataset_folder=str(common.NOW_DIR), predicted_mesh_folder=str(pred),
         gt_mesh_folder=str(common.SCANS_DIR), gt_lmk_folder=str(common.SCAN_LMKS_DIR),
         image_set="val", imgs_list=str(imgs_list), challenge="", error_out_path=str(out),
-        method_identifier=tag, nproc=nproc)
+        method_identifier=tag, nproc=nproc, **extra)
     print(f"[now-official] {tag}: {time.time() - t0:.0f}s", flush=True)
     return out / f"{tag}_computed_distances.npy"
 
@@ -81,23 +89,25 @@ def main() -> None:
     install_meshviewer_stub()
     sys.path.insert(0, str(common.NOW_EVAL_REPO))
     out_root = common.WORK_ROOT / "official"
+    pre = "metrical_" if args.metrical else ""
 
     if args.selfcheck:
-        pred = common.WORK_ROOT / "pred" / "scan_selfcheck"
-        res = np.load(run_official(pred, pred / "imagepaths_selfcheck.txt", out_root, "scan_selfcheck",
-                                   args.nproc), allow_pickle=True).item()
+        pred = common.WORK_ROOT / "pred" / f"scan_selfcheck{'_metrical' if args.metrical else ''}"
+        res = np.load(run_official(pred, pred / "imagepaths_selfcheck.txt", out_root, f"{pre}scan_selfcheck",
+                                   args.nproc, args.metrical), allow_pickle=True).item()
         rows = []
         for f, d in zip(res["input_files"], res["computed_distances"]):
             rows.append({"image": str(f), "median_mm": float(np.median(d)), "mean_mm": float(np.mean(d)),
                          "max_mm": float(np.max(d)), "n_vertices": int(len(d))})
             print(f"[now-official] selfcheck {f}: mediana {np.median(d):.4f} mm, media {np.mean(d):.4f} mm, "
                   f"max {np.max(d):.4f} mm su {len(d)} vertici", flush=True)
-        (common.OUT_ROOT / "official_selfcheck.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
+        (common.OUT_ROOT / f"{pre}official_selfcheck.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
         return
 
     by_image = {it.image: it for it in common.load_items()}
     for method in [m.strip() for m in args.methods.split(",") if m.strip()]:
-        res = np.load(run_official(common.pred_dir(method), common.IMAGE_LIST, out_root, method, args.nproc),
+        pred = common.pred_metrical_dir(method) if args.metrical else common.pred_dir(method)
+        res = np.load(run_official(pred, common.IMAGE_LIST, out_root, f"{pre}{method}", args.nproc, args.metrical),
                       allow_pickle=True).item()
         rows, per_challenge = [], {}
         for f, d in zip(res["input_files"], res["computed_distances"]):
@@ -108,11 +118,13 @@ def main() -> None:
             per_challenge.setdefault(it.challenge, []).append(d)
         stats = {"all": summary(res["computed_distances"]),
                  **{c: summary(per_challenge.get(c, [])) for c in common.CHALLENGES}}
-        common.write_rows(common.official_csv_path(method), FIELDS, rows, method=method,
+        csv_path = common.metrical_csv_path(method) if args.metrical else common.official_csv_path(method)
+        common.write_rows(csv_path, FIELDS, rows, method=method,
                           num_missing_files=int(res["num_missing_files"]), challenge_stats=stats,
-                          code="external/now_evaluation compute_error.py (7bd1498), MeshViewer stub")
+                          code="external/now_evaluation compute_error.py (7bd1498), MeshViewer stub"
+                               + (", metrical_eval=True, predicted_mesh_unit='mm'" if args.metrical else ""))
         a = stats["all"]
-        print(f"[now-official] {method}: {a['n_images']} immagini ({res['num_missing_files']} mancanti), "
+        print(f"[now-official] {pre}{method}: {a['n_images']} immagini ({res['num_missing_files']} mancanti), "
               f"mediana {a['median']:.3f} mm, media {a['mean']:.3f} mm, std {a['std']:.3f} mm", flush=True)
 
 

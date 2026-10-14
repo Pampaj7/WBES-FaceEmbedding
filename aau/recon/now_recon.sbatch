@@ -10,10 +10,11 @@
 #SBATCH --time=01:00:00
 #
 # NoW validation: i tre metodi di WS3b (3DDFA_V2, SynergyNet, PRNet) sulle 352 immagini di
-# imagepathsvalidation.txt, piu' MICA se richiesto (venv external/venvs/mica).
+# imagepathsvalidation.txt, piu' MICA, 3DDFA-V3 o HRN se richiesti (venv external/venvs/mica, ddfa3, hrn).
 #
 #   aau/submit.sh recon/now_recon.sbatch
 #   WBES_NOW_METHODS=mica aau/submit.sh recon/now_recon.sbatch
+#   WBES_NOW_METHODS=3ddfa_v3 aau/submit.sh recon/now_recon.sbatch --gres=gpu:l40s:1
 #
 # Dati e mesh stanno FUORI dal repo (licenza NoW: niente redistribuzione):
 #   $WBES_NOW_DIR        estratto degli zip (NoW_Dataset, scans, scans_lmks_onlypp)
@@ -60,6 +61,10 @@ for METHOD in $METHODS; do
         prnet) "$AAU_DIR/recon/run_recon.sh" prnet aau/recon/prnet_run.py \
                    --images "$PENDING" --out "$OUT/$METHOD" ;;
         mica)  "$AAU_DIR/recon/run_recon.sh" mica aau/recon/mica_run.py \
+                   --images "$PENDING" --out "$OUT/$METHOD" ;;
+        3ddfa_v3) "$AAU_DIR/recon/run_recon.sh" ddfa3 aau/recon/tddfa_v3_run.py \
+                   --images "$PENDING" --out "$OUT/$METHOD" --device cuda ;;
+        hrn)   "$AAU_DIR/recon/run_recon.sh" hrn aau/recon/hrn_run.py \
                    --images "$PENDING" --out "$OUT/$METHOD" ;;
         *)     "$AAU_DIR/recon/run_recon.sh" ddfa "aau/recon/${METHOD/3ddfa_v2/tddfa_v2}_run.py" \
                    --images "$PENDING" --out "$OUT/$METHOD" --device cuda ;;

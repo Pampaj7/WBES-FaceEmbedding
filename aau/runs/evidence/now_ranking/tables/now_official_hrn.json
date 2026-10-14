@@ -1,0 +1,45 @@
+{
+  "n_rows": 352,
+  "params": {
+    "method": "hrn",
+    "num_missing_files": 0,
+    "challenge_stats": {
+      "all": {
+        "median": 1.508341705936143,
+        "mean": 2.163593954077191,
+        "std": 2.5568587670369807,
+        "n_images": 352,
+        "n_distances": 10715009
+      },
+      "multiview_neutral": {
+        "median": 1.439274214454071,
+        "mean": 2.0574972842659354,
+        "std": 2.486822136755586,
+        "n_images": 108,
+        "n_distances": 3314181
+      },
+      "multiview_expressions": {
+        "median": 1.5376546410124805,
+        "mean": 2.2172106809974,
+        "std": 2.653382484910418,
+        "n_images": 114,
+        "n_distances": 3480276
+      },
+      "multiview_occlusions": {
+        "median": 1.5290521954778562,
+        "mean": 2.1567299902245356,
+        "std": 2.48103969111887,
+        "n_images": 86,
+        "n_distances": 2562565
+      },
+      "selfie": {
+        "median": 1.5731453812912928,
+        "mean": 2.298066458514177,
+        "std": 2.6035595824037903,
+        "n_images": 44,
+        "n_distances": 1357987
+      }
+    },
+    "code": "external/now_evaluation compute_error.py (7bd1498), MeshViewer stub"
+  }
+}

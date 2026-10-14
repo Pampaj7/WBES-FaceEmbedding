@@ -159,12 +159,16 @@ Tutte del 7 ottobre 2026.
    come scritto sopra; la versione con MICA (deviazione 1) e' secondaria, perche' il segno
    del latente dipende da MICA. Aggiunta l'analisi di sensibilita' sulla storia di
    tassellazione di MICA (Loop x2 al posto del punto medio) su tutte le 352 immagini.
+6. **14 ottobre: MICA ritirato** (decisione del PI; `NOTA_MICA.md`). MICA usa FLAME 2020,
+   che il progetto non usa: esce da ogni risultato. Riassunto e csv rigenerati sui tre
+   metodi pre-registrati (`now_summarize.py --methods 3ddfa_v2,synergynet,prnet`); le
+   deviazioni 1 e 5 e l'analisi Loop x2 restano solo come storia del protocollo.
 
 ---
 
 # Risultati
 
-Metodi: 3ddfa_v2, synergynet, prnet, mica. Insieme comune: 352 immagini su 352 (ricostruite da tutti i metodi e con tutte le metriche), 20 soggetti. CI 95% bootstrap sui soggetti, 1000 repliche, seme 1234.
+Metodi: 3ddfa_v2, synergynet, prnet. Insieme comune: 352 immagini su 352 (ricostruite da tutti i metodi e con tutte le metriche), 20 soggetti. CI 95% bootstrap sui soggetti, 1000 repliche, seme 1234.
 
 ## (a) Errore NoW ufficiale (mm)
 
@@ -188,12 +192,6 @@ Metodi: 3ddfa_v2, synergynet, prnet, mica. Insieme comune: 352 immagini su 352 (
 | prnet | multiview_occlusions | 86 | 1.665 | 2.130 | 1.976 |
 | prnet | selfie | 44 | 1.602 | 2.098 | 1.980 |
 | prnet | tutte (json ufficiale) | 352 | 1.563 | 2.051 | 2.007 |
-| mica | comune | 352 | 0.910 | 1.125 | 0.939 |
-| mica | multiview_neutral | 108 | 0.911 | 1.137 | 0.961 |
-| mica | multiview_expressions | 114 | 0.912 | 1.134 | 0.951 |
-| mica | multiview_occlusions | 86 | 0.892 | 1.092 | 0.898 |
-| mica | selfie | 44 | 0.938 | 1.138 | 0.929 |
-| mica | tutte (json ufficiale) | 352 | 0.910 | 1.125 | 0.939 |
 
 Controllo del codice ufficiale (scansione come predizione di se stessa): FaMoS_180424_03335_TA mediana 0.0002 mm, max 0.0008 mm; FaMoS_180426_03336_TA mediana 0.0002 mm, max 0.0008 mm.
 
@@ -201,14 +199,14 @@ Controllo del codice ufficiale (scansione come predizione di se stessa): FaMoS_1
 
 Punteggio: NoW = mediana ufficiale sull'insieme comune; le altre = media delle distanze per ricostruzione. Piccolo = meglio. `p_first` = frazione di repliche in cui il metodo e' primo.
 
-| metrica | 1. | 2. | 3. | 4. | Kendall tau con NoW (punto; media bootstrap; P(tau=1)) |
-| --- | --- | --- | --- | --- | --- |
-| NoW ufficiale (mm) | mica 0.91 [0.84, 0.99] (1.00) | synergynet 1.35 [1.18, 1.54] (0.00) | 3ddfa_v2 1.39 [1.21, 1.62] (0.00) | prnet 1.56 [1.40, 1.77] (0.00) | - |
-| latente congiunto BFM+ICT | synergynet 1.3101 [1.2255, 1.3904] (0.93) | prnet 1.3524 [1.2684, 1.4360] (0.07) | 3ddfa_v2 1.4238 [1.3403, 1.5121] (0.00) | mica 1.8199 [1.6952, 1.9463] (0.00) | -0.33; -0.41; 0.00 |
-| Chamfer grezza (maxabs) | synergynet 0.0467 [0.0436, 0.0498] (0.93) | mica 0.0482 [0.0446, 0.0526] (0.07) | 3ddfa_v2 0.0490 [0.0455, 0.0528] (0.00) | prnet 0.0502 [0.0473, 0.0532] (0.00) | +0.67; +0.44; 0.05 |
-| ICP + Chamfer (mm) | mica 2.71 [2.62, 2.81] (0.74) | synergynet 2.79 [2.58, 2.99] (0.25) | 3ddfa_v2 2.89 [2.67, 3.13] (0.00) | prnet 3.32 [3.03, 3.69] (0.00) | +1.00; +0.84; 0.61 |
-| ArcFace su normal map | mica 0.5870 [0.5558, 0.6167] (1.00) | 3ddfa_v2 0.7004 [0.6596, 0.7461] (0.00) | synergynet 0.7219 [0.6787, 0.7631] (0.00) | prnet 0.7863 [0.7612, 0.8123] (0.00) | +0.67; +0.72; 0.17 |
-| ArcFace su render ombreggiato (secondaria) | mica 0.5905 [0.5697, 0.6126] (1.00) | 3ddfa_v2 0.7136 [0.6711, 0.7546] (0.00) | synergynet 0.7279 [0.6834, 0.7707] (0.00) | prnet 0.7516 [0.7226, 0.7831] (0.00) | +0.67; +0.70; 0.16 |
+| metrica | 1. | 2. | 3. | Kendall tau con NoW (punto; media bootstrap; P(tau=1)) |
+| --- | --- | --- | --- | --- |
+| NoW ufficiale (mm) | synergynet 1.35 [1.18, 1.54] (0.83) | 3ddfa_v2 1.39 [1.21, 1.62] (0.17) | prnet 1.56 [1.40, 1.77] (0.00) | - |
+| latente congiunto BFM+ICT | synergynet 1.3101 [1.2255, 1.3904] (0.93) | prnet 1.3524 [1.2684, 1.4360] (0.07) | 3ddfa_v2 1.4238 [1.3403, 1.5121] (0.00) | +0.33; +0.19; 0.02 |
+| Chamfer grezza (maxabs) | synergynet 0.0467 [0.0436, 0.0498] (1.00) | 3ddfa_v2 0.0490 [0.0455, 0.0528] (0.00) | prnet 0.0502 [0.0473, 0.0532] (0.00) | +1.00; +0.75; 0.65 |
+| ICP + Chamfer (mm) | synergynet 2.79 [2.58, 2.99] (0.99) | 3ddfa_v2 2.89 [2.67, 3.13] (0.01) | prnet 3.32 [3.03, 3.69] (0.00) | +1.00; +0.89; 0.83 |
+| ArcFace su normal map | 3ddfa_v2 0.7004 [0.6596, 0.7461] (1.00) | synergynet 0.7219 [0.6787, 0.7631] (0.00) | prnet 0.7863 [0.7612, 0.8123] (0.00) | +0.33; +0.45; 0.17 |
+| ArcFace su render ombreggiato (secondaria) | 3ddfa_v2 0.7136 [0.6711, 0.7546] (1.00) | synergynet 0.7279 [0.6834, 0.7707] (0.00) | prnet 0.7516 [0.7226, 0.7831] (0.00) | +0.33; +0.41; 0.16 |
 
 ### PRIMARIA: concordanza con NoW sui 3 metodi pre-registrati
 
@@ -223,28 +221,6 @@ Metodi: 3ddfa_v2, synergynet, prnet (quelli del protocollo). Per immagine: Kenda
 | ArcFace su render ombreggiato (secondaria) | 0.269 [0.173, 0.365] | 0.234 [-0.084, 0.553] | 0.142 | 0.255 | 0.255 |
 
 Delta appaiato pre-registrato latente congiunto BFM+ICT - Chamfer grezza (maxabs): tau_image -0.116 [-0.192, -0.042] (P<=0 1.000); spearman +0.019 [-0.120, +0.156] (P<=0 0.490).
-
-### Secondaria: con MICA (deviazione dal protocollo)
-
-MICA non era fra i metodi pre-registrati: e' stato aggiunto dopo (deviazione 1). Il segno della concordanza del latente dipende da MICA: il latente mette MICA ULTIMO (distanza dalla scansione piu' grande dei 4 metodi) in 280 immagini su 352, NoW in 4; le altre metriche in 96 (Chamfer grezza (maxabs)), 70 (ICP + Chamfer (mm)), 2 (ArcFace su normal map), 6 (ArcFace su render ombreggiato (secondaria)).
-
-| metrica | tau per immagine [CI] | Spearman [CI] | Spearman 3ddfa_v2 | Spearman synergynet | Spearman prnet | Spearman mica |
-| --- | --- | --- | --- | --- | --- | --- |
-| latente congiunto BFM+ICT | -0.236 [-0.355, -0.117] | -0.015 [-0.163, 0.104] | 0.647 | 0.516 | 0.373 | 0.176 |
-| Chamfer grezza (maxabs) | 0.176 [0.041, 0.314] | 0.339 [0.141, 0.494] | 0.449 | 0.487 | 0.424 | 0.103 |
-| ICP + Chamfer (mm) | 0.455 [0.311, 0.584] | 0.743 [0.592, 0.843] | 0.853 | 0.837 | 0.865 | 0.515 |
-| ArcFace su normal map | 0.488 [0.394, 0.578] | 0.409 [0.182, 0.621] | 0.042 | 0.151 | 0.094 | 0.055 |
-| ArcFace su render ombreggiato (secondaria) | 0.479 [0.390, 0.561] | 0.503 [0.294, 0.698] | 0.142 | 0.255 | 0.255 | 0.252 |
-
-Delta appaiato pre-registrato latente congiunto BFM+ICT - Chamfer grezza (maxabs): tau_image -0.412 [-0.541, -0.311] (P<=0 1.000); spearman -0.354 [-0.487, -0.236] (P<=0 1.000).
-
-### Sensibilita': storia di tassellazione di MICA
-
-Il ritaglio FLAME di MICA ha meno triangoli del bersaglio e passa da una suddivisione 1->4 a punto medio (superficie a faccette) prima della decimazione. Variante: due passi di Loop (`igl.loop`, superficie levigata, `--subdivision loop2`), stessa decimazione, tutte le 352 immagini.
-
-- latente di MICA dalla scansione: punto medio 1.820, Loop x2 1.642; penalita' della storia a punto medio +0.178 [+0.097, +0.263] (CI bootstrap sui soggetti). Riferimento, gli altri metodi: 3ddfa_v2 1.424, prnet 1.352, synergynet 1.310.
-- con Loop x2 il latente mette MICA ultimo in 247 immagini su 352 (punto medio: 280).
-- tau per immagine del latente sui 4 metodi con MICA Loop x2: -0.191 [-0.311, -0.070]; Spearman 0.065 [-0.103, 0.195].
 
 ## (d) Identita' fra ricostruzioni
 
@@ -270,11 +246,6 @@ Retrieval: query = ogni ricostruzione, distanza dal soggetto = minimo sulle altr
 | prnet | ICP + Chamfer (mm) | 0.349 [0.267, 0.416] | 0.518 [0.448, 0.577] | 0.595 [0.561, 0.635] | 352 / 61776 |
 | prnet | ArcFace su normal map | 0.372 [0.281, 0.449] | 0.527 [0.446, 0.595] | 0.608 [0.574, 0.644] | 352 / 61776 |
 | prnet | ArcFace su render ombreggiato (secondaria) | 0.344 [0.261, 0.414] | 0.507 [0.430, 0.570] | 0.622 [0.587, 0.660] | 352 / 61776 |
-| mica | latente congiunto BFM+ICT | 0.895 [0.853, 0.931] | 0.934 [0.906, 0.958] | 0.887 [0.839, 0.928] | 352 / 61776 |
-| mica | Chamfer grezza (maxabs) | 0.923 [0.880, 0.958] | 0.954 [0.928, 0.976] | 0.934 [0.905, 0.960] | 352 / 61776 |
-| mica | ICP + Chamfer (mm) | 0.977 [0.959, 0.992] | 0.987 [0.976, 0.995] | 0.971 [0.947, 0.986] | 352 / 61776 |
-| mica | ArcFace su normal map | 0.977 [0.960, 0.992] | 0.987 [0.977, 0.995] | 0.981 [0.968, 0.994] | 352 / 61776 |
-| mica | ArcFace su render ombreggiato (secondaria) | 0.991 [0.981, 1.000] | 0.995 [0.988, 1.000] | 0.983 [0.971, 0.994] | 352 / 61776 |
 
 Delta appaiati latente - baseline:
 
@@ -284,10 +255,6 @@ Delta appaiati latente - baseline:
 | 3ddfa_v2 | ArcFace su render ombreggiato (secondaria) | -0.142 [-0.184, -0.096] (1.000) | -0.137 [-0.165, -0.108] (1.000) | -0.115 [-0.145, -0.089] (1.000) |
 | 3ddfa_v2 | Chamfer grezza (maxabs) | -0.057 [-0.104, -0.011] (0.993) | -0.067 [-0.103, -0.033] (0.999) | -0.025 [-0.041, -0.014] (1.000) |
 | 3ddfa_v2 | ICP + Chamfer (mm) | -0.122 [-0.177, -0.060] (1.000) | -0.133 [-0.174, -0.090] (1.000) | -0.073 [-0.102, -0.049] (1.000) |
-| mica | ArcFace su normal map | -0.082 [-0.114, -0.054] (1.000) | -0.053 [-0.074, -0.035] (1.000) | -0.094 [-0.141, -0.057] (1.000) |
-| mica | ArcFace su render ombreggiato (secondaria) | -0.097 [-0.135, -0.064] (1.000) | -0.061 [-0.087, -0.039] (1.000) | -0.096 [-0.141, -0.059] (1.000) |
-| mica | Chamfer grezza (maxabs) | -0.028 [-0.054, +0.000] (0.985) | -0.020 [-0.036, -0.005] (0.988) | -0.047 [-0.077, -0.023] (1.000) |
-| mica | ICP + Chamfer (mm) | -0.082 [-0.120, -0.054] (1.000) | -0.052 [-0.075, -0.034] (1.000) | -0.084 [-0.119, -0.052] (1.000) |
 | prnet | ArcFace su normal map | -0.182 [-0.246, -0.117] (1.000) | -0.177 [-0.235, -0.116] (1.000) | -0.067 [-0.094, -0.039] (1.000) |
 | prnet | ArcFace su render ombreggiato (secondaria) | -0.153 [-0.225, -0.088] (1.000) | -0.158 [-0.220, -0.098] (1.000) | -0.082 [-0.109, -0.052] (1.000) |
 | prnet | Chamfer grezza (maxabs) | -0.011 [-0.052, +0.034] (0.732) | -0.003 [-0.038, +0.035] (0.567) | -0.012 [-0.025, +0.001] (0.960) |
@@ -316,11 +283,6 @@ Delta appaiati latente - baseline:
 | prnet | ICP + Chamfer (mm) | 0.238 [0.181, 0.295] | 0.408 [0.345, 0.463] | 0.594 [0.561, 0.634] | 244 / 26352 |
 | prnet | ArcFace su normal map | 0.262 [0.187, 0.338] | 0.443 [0.374, 0.507] | 0.610 [0.579, 0.644] | 244 / 26352 |
 | prnet | ArcFace su render ombreggiato (secondaria) | 0.246 [0.170, 0.315] | 0.425 [0.360, 0.485] | 0.618 [0.583, 0.655] | 244 / 26352 |
-| mica | latente congiunto BFM+ICT | 0.816 [0.745, 0.879] | 0.883 [0.838, 0.924] | 0.896 [0.850, 0.934] | 244 / 26352 |
-| mica | Chamfer grezza (maxabs) | 0.869 [0.800, 0.924] | 0.919 [0.874, 0.953] | 0.938 [0.911, 0.962] | 244 / 26352 |
-| mica | ICP + Chamfer (mm) | 0.967 [0.940, 0.988] | 0.980 [0.962, 0.993] | 0.973 [0.953, 0.986] | 244 / 26352 |
-| mica | ArcFace su normal map | 0.943 [0.911, 0.971] | 0.968 [0.949, 0.984] | 0.982 [0.967, 0.994] | 244 / 26352 |
-| mica | ArcFace su render ombreggiato (secondaria) | 0.971 [0.942, 0.992] | 0.984 [0.969, 0.996] | 0.984 [0.972, 0.994] | 244 / 26352 |
 
 Delta appaiati latente - baseline:
 
@@ -330,10 +292,6 @@ Delta appaiati latente - baseline:
 | 3ddfa_v2 | ArcFace su render ombreggiato (secondaria) | -0.082 [-0.158, -0.009] (0.991) | -0.097 [-0.156, -0.041] (1.000) | -0.108 [-0.136, -0.081] (1.000) |
 | 3ddfa_v2 | Chamfer grezza (maxabs) | -0.016 [-0.057, +0.032] (0.810) | -0.044 [-0.076, -0.012] (0.998) | -0.021 [-0.040, -0.006] (1.000) |
 | 3ddfa_v2 | ICP + Chamfer (mm) | -0.115 [-0.179, -0.047] (0.999) | -0.119 [-0.177, -0.065] (1.000) | -0.075 [-0.105, -0.049] (1.000) |
-| mica | ArcFace su normal map | -0.127 [-0.194, -0.062] (1.000) | -0.085 [-0.126, -0.046] (1.000) | -0.086 [-0.132, -0.050] (1.000) |
-| mica | ArcFace su render ombreggiato (secondaria) | -0.156 [-0.225, -0.091] (1.000) | -0.101 [-0.143, -0.062] (1.000) | -0.088 [-0.131, -0.054] (1.000) |
-| mica | Chamfer grezza (maxabs) | -0.053 [-0.100, -0.004] (0.989) | -0.036 [-0.067, -0.004] (0.990) | -0.042 [-0.071, -0.018] (1.000) |
-| mica | ICP + Chamfer (mm) | -0.152 [-0.217, -0.092] (1.000) | -0.097 [-0.136, -0.062] (1.000) | -0.076 [-0.113, -0.047] (1.000) |
 | prnet | ArcFace su normal map | -0.160 [-0.222, -0.093] (1.000) | -0.186 [-0.248, -0.119] (1.000) | -0.071 [-0.094, -0.046] (1.000) |
 | prnet | ArcFace su render ombreggiato (secondaria) | -0.143 [-0.220, -0.072] (1.000) | -0.169 [-0.234, -0.084] (1.000) | -0.079 [-0.104, -0.050] (1.000) |
 | prnet | Chamfer grezza (maxabs) | -0.029 [-0.067, +0.009] (0.944) | -0.032 [-0.071, +0.005] (0.951) | -0.012 [-0.022, -0.000] (0.980) |

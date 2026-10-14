@@ -35,11 +35,15 @@ METHOD_REPO = {
     "3ddfa_v2": EXTERNAL / "3DDFA_V2",
     "synergynet": EXTERNAL / "SynergyNet",
     "prnet": EXTERNAL / "PRNet",
+    "3ddfa_v3": EXTERNAL / "3DDFA-V3",
+    "hrn": EXTERNAL / "HRN",
 }
 METHOD_VENV = {
     "3ddfa_v2": "ddfa",
     "synergynet": "ddfa",
     "prnet": "prnet",
+    "3ddfa_v3": "ddfa3",
+    "hrn": "hrn",
 }
 
 OUT_ROOT = Path(os.environ.get("WBES_RECON_OUT", AAU_DIR / "runs" / "recon"))

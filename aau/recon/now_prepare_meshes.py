@@ -22,6 +22,11 @@ Quattro passi, per ogni mesh (le 20 scansioni e ogni ricostruzione di ogni metod
 4. **Verso dei triangoli**: coerente e verso l'esterno (``orient_outward``), dopo la
    decimazione, quindi senza toccare i vertici.
 
+``--metric`` (aau/runs/evidence/now_ranking/REGOLE.md, sez. 2, d_F metrica): nel passo 1 solo rotazione e
+traslazione (Procrustes SENZA scala sui 7 landmark), quindi la taglia resta quella vera, in mm: le scansioni vanno in
+``scan_face_metric`` (``prep_scan_metric.csv``), le ricostruzioni in ``recon_face/<metodo>_metric``, e solo per i
+metodi che dichiarano le unita' (``mm_per_unit`` nel json, 3DDFA-V3); gli altri sono un errore.  Template riletto.
+
 Uscite (fuori dal repo, ``now_common.WORK_ROOT``): ``template_lmk7.json``,
 ``scan_face/<soggetto>.npz``, ``recon_face/<metodo>/<nome>.npz``.  Nel repo: i controlli
 ``prep_<scan|metodo>.csv`` (scala, raggio del ritaglio, vertici, residuo dei landmark sul
@@ -61,6 +66,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--subdivision", type=str, default="midpoint", choices=("midpoint", "loop2"),
                    help="come si porta sopra il bersaglio un ritaglio con meno triangoli (MICA)")
     p.add_argument("--overwrite", action="store_true")
+    p.add_argument("--recon-only", action="store_true",
+                   help="solo le ricostruzioni, col template e le scan_face gia' scritti (metodi aggiunti dopo)")
+    p.add_argument("--metric", action="store_true", help="allineamento rigido, mm veri (scan_face_metric, <metodo>_metric)")
     return p.parse_args()
 
 
@@ -151,9 +159,9 @@ def patch_quality(V: np.ndarray, F: np.ndarray) -> tuple[float, int]:
     return float((a * (n[:, 2] > 0)).sum() / max(a.sum(), 1e-12)), folds // 2
 
 
-def canonical_patch(V, F, lmk, template, target_faces, subdivision: str = "midpoint"):
+def canonical_patch(V, F, lmk, template, target_faces, subdivision: str = "midpoint", scaling: bool = True):
     """Frame canonico, ritaglio NoW, decimazione; piu' i controlli della riga di prep."""
-    Vc, Lc, scale = common.to_canonical(V, lmk, template)
+    Vc, Lc, scale = common.to_canonical(V, lmk, template, scaling)
     centre, radius = common.now_mask(Lc)
     Vk, Fk = crop_patch(Vc, F, centre, radius)
     Vm, Fm = make_manifold(Vk, Fk)
@@ -184,7 +192,13 @@ def canonical_patch(V, F, lmk, template, target_faces, subdivision: str = "midpo
 def _prep_recon(name: str) -> dict:
     method, template = _STATE["method"], _STATE["template"]
     V, F, lmk = common.load_recon(method, name)
-    Vd, Fd, row = canonical_patch(V, F, lmk, template, _STATE["target_faces"], _STATE["subdivision"])
+    if _STATE["metric"]:
+        mpu = common.recon_mm_per_unit(method, name)
+        if mpu is None:
+            raise RuntimeError(f"{method}/{name}: unita' non dichiarate, niente patch metrica")
+        V, lmk = V * mpu, lmk * mpu
+    Vd, Fd, row = canonical_patch(V, F, lmk, template, _STATE["target_faces"], _STATE["subdivision"],
+                                  scaling=not _STATE["metric"])
     mo.save_variant(Vd, Fd, common.recon_face_dir(_STATE["out_name"]) / f"{name}.npz")
     return {"name": name, **row}
 
@@ -199,6 +213,13 @@ def main() -> None:
         # Variante di sensibilita': solo le ricostruzioni, col template gia' scritto.
         template = np.asarray(json.loads(common.template_path().read_text())["landmarks_mm"])
         prep_recons(args, methods, items, template, suffix=f"_{args.subdivision}")
+        return
+    if args.metric:
+        prep_metric(args, methods, items, subjects)
+        return
+    if args.recon_only:
+        template = np.asarray(json.loads(common.template_path().read_text())["landmarks_mm"])
+        prep_recons(args, methods, items, template)
         return
 
     # --- scansioni e template -------------------------------------------------------
@@ -234,6 +255,29 @@ def main() -> None:
     prep_recons(args, methods, items, template)
 
 
+def prep_metric(args, methods, items, subjects) -> None:
+    """Variante metrica: scansioni e ricostruzioni con le unita' dichiarate, allineamento rigido al template."""
+    template = np.asarray(json.loads(common.template_path().read_text())["landmarks_mm"])
+    out = common.WORK_ROOT / "scan_face_metric"
+    out.mkdir(parents=True, exist_ok=True)
+    if not args.overwrite and all((out / f"{s}.npz").is_file() for s in subjects):
+        print(f"[now-prep] scan_face_metric: {len(subjects)} scansioni gia' presenti, non si riscrivono", flush=True)
+        prep_recons(args, methods, items, template, suffix="_metric")
+        return
+    rows = []
+    for s in subjects:
+        V, F, lmk = common.load_scan(s)
+        Vd, Fd, row = canonical_patch(V, F, lmk, template, args.target_faces, scaling=False)
+        mo.save_variant(Vd, Fd, out / f"{s}.npz")
+        rows.append({"name": s, "subject": s, "challenge": "", **row})
+    common.write_rows(common.OUT_ROOT / "prep_scan_metric.csv", PREP_FIELDS, rows, target_faces=args.target_faces,
+                      template=str(common.template_path()), alignment="rigida (senza scala)")
+    print(f"[now-prep] scan_face_metric: {len(rows)} scansioni, raggio mediano "
+          f"{np.median([r['crop_radius_mm'] for r in rows]):.1f} mm, residuo landmark mediano "
+          f"{np.median([r['lmk_residual_mm'] for r in rows]):.2f} mm", flush=True)
+    prep_recons(args, methods, items, template, suffix="_metric")
+
+
 def prep_recons(args, methods, items, template, suffix: str = "") -> None:
     """Patch delle ricostruzioni di ogni metodo in ``recon_face/<metodo><suffix>``."""
     by_name = {it.name: it for it in items}
@@ -245,14 +289,14 @@ def prep_recons(args, methods, items, template, suffix: str = "") -> None:
         t0 = time.time()
         _STATE.clear()
         _STATE.update(method=method, template=template, target_faces=args.target_faces,
-                      subdivision=args.subdivision, out_name=method + suffix)
+                      subdivision=args.subdivision, out_name=method + suffix, metric=args.metric)
         with mp.get_context("fork").Pool(processes=args.workers) as pool:
             rows = pool.map(_prep_recon, names, chunksize=8)
         rows = [{**r, "subject": by_name[r["name"]].subject,
                  "challenge": by_name[r["name"]].challenge} for r in rows]
         common.write_rows(common.OUT_ROOT / f"prep_{method}{suffix}.csv", PREP_FIELDS, rows,
                           target_faces=args.target_faces, template=str(common.template_path()),
-                          subdivision=args.subdivision)
+                          subdivision=args.subdivision, alignment="rigida (senza scala)" if args.metric else "similarita'")
         med = {k: float(np.median([r[k] for r in rows])) for k in PREP_FIELDS[3:]}
         print(f"[now-prep] {method}{suffix}: {len(rows)} mesh in {time.time() - t0:.0f}s; scala {med['scale_to_mm']:.3f} mm/px, "
               f"raggio mediano {med['crop_radius_mm']:.1f} mm, {med['n_vertices_crop']:.0f} vertici nel ritaglio -> "

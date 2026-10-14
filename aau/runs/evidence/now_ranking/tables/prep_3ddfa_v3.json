@@ -1,0 +1,9 @@
+{
+  "n_rows": 352,
+  "params": {
+    "target_faces": 5215,
+    "template": "/home/create.aau.dk/ga41wf/data/now_eval_work/template_lmk7.json",
+    "subdivision": "midpoint",
+    "alignment": "similarita'"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "methods": [
+    "3ddfa_v2",
+    "synergynet",
+    "prnet",
+    "3ddfa_v3",
+    "hrn"
+  ],
+  "n_images_complete": 352,
+  "missing_per_method": {
+    "3ddfa_v2": 0,
+    "synergynet": 0,
+    "prnet": 0,
+    "3ddfa_v3": 0,
+    "hrn": 0
+  },
+  "per_seed": {
+    "s1234": {
+      "tau": {
+        "set": "tutti",
+        "methods": "3ddfa_v2+synergynet+prnet+3ddfa_v3+hrn",
+        "n_images": 352,
+        "ref": "now",
+        "criterion": "dP_s1234",
+        "tau_image": 0.4301136363636363,
+        "ci_low": 0.342541640522503,
+        "ci_high": 0.5169140828443457
+      },
+      "delta_vs_chamfer_raw": {
+        "criterion": "dP_s1234",
+        "minus": "chamfer_raw",
+        "delta": 0.22443181818181812,
+        "ci_low": 0.06775458895793156,
+        "ci_high": 0.40056922117516636,
+        "p_le0": 0.002
+      },
+      "verdict": "INFORMATIVO POSITIVO"
+    },
+    "s2345": {
+      "tau": {
+        "set": "tutti",
+        "methods": "3ddfa_v2+synergynet+prnet+3ddfa_v3+hrn",
+        "n_images": 352,
+        "ref": "now",
+        "criterion": "dP_s2345",
+        "tau_image": 0.41988636363636367,
+        "ci_low": 0.33229286391517193,
+        "ci_high": 0.5044118270453583
+      },
+      "delta_vs_chamfer_raw": {
+        "criterion": "dP_s2345",
+        "minus": "chamfer_raw",
+        "delta": 0.21420454545454548,
+        "ci_low": 0.05263015261731564,
+        "ci_high": 0.3830675995270003,
+        "p_le0": 0.002
+      },
+      "verdict": "INFORMATIVO POSITIVO"
+    }
+  },
+  "final": "INFORMATIVO POSITIVO",
+  "global_tau": {
+    "now_official": {
+      "now_official": 1.0,
+      "metrical_official": 0.6
+    },
+    "metrical_official": {
+      "now_official": 0.6,
+      "metrical_official": 1.0
+    },
+    "now": {
+      "now_official": 1.0,
+      "metrical_official": 0.6
+    },
+    "metrical": {
+      "now_official": 0.6,
+      "metrical_official": 1.0
+    },
+    "chamfer_raw": {
+      "now_official": 0.2,
+      "metrical_official": -0.2
+    },
+    "icp_chamfer_mm": {
+      "now_official": 0.6,
+      "metrical_official": 0.6
+    },
+    "dP_s1234": {
+      "now_official": 0.4,
+      "metrical_official": 0.8
+    },
+    "dF_s1234": {
+      "now_official": 0.4,
+      "metrical_official": 0.8
+    },
+    "dP_s2345": {
+      "now_official": 0.4,
+      "metrical_official": 0.8
+    },
+    "dF_s2345": {
+      "now_official": 0.4,
+      "metrical_official": 0.8
+    }
+  },
+  "n_bootstrap": 1000,
+  "seed": 1234
+}
