@@ -1771,3 +1771,27 @@ Risultati e lettura corretta dal critic nella voce "2026-10-11 notte" (sotto).
 - **Lancio:** job 1075178, 2 × 4 L40S, QoS normal, in coda. Un nodo da 8 L40S con più di 12 CPU per GPU viene rifiutato da Slurm, quindi due nodi da 4.
 - **Licenze** (`aau/massive/LICENZE.md`): il training per ricerca è consentito. I pesi NON sono redistribuibili senza permessi: Basilea, MPI e NJU, più un parere su HIFI3D++ e FaceVerse. La decisione di rilasciarli resta all'utente; non è stato pubblicato nulla.
 - **Sorveglianza:** `python3 aau/massive/status.py`; dettagli in `aau/massive/MONITOR.md`.
+
+## 14 ottobre — Ava-256: protocollo congelato (v9) e valutazione confermativa unica
+
+- **Congelamento** (13 ottobre, 19:11): documento v9, sha256 `8690afbe…`, commit `067f9c5`, tag `ava256-frozen`;
+  codice `8a6e184`; `aau/ava256/FROZEN.md`. Prima: v5-v8 per i critic (embedding su A100, R4 fuori da Holm con m = 9,
+  ULRSSM descrittivo, Hybrid FM escluso, codice congelato a runtime, nodi nel codice, clone diffusion-net).
+- **Esecuzione**: tutti i job dal worktree a `8a6e184`, verifiche della sez. 11 superate in ogni job, moduli uguali al
+  commit. Nodi: embedding su A100, fit B su `i256-a10-08`, ArcFace su `i256-a10-09`, testa di R6 su `i256-a10-10`
+  (K0 superato), ULRSSM e varifold su L40S, rilevatore su `a256-t4-04` (controllo bloccante a 0 pixel).
+- **Esiti dopo Holm**:
+  - confermate R2a (d_F cal. contro NICP su template in mm, +0.126 / +0.133), R3a (togliere la taglia, +0.119) e R7
+    (NoW metrical contro NoW originale, +0.127);
+  - non confermate R1 (d_F cal. contro ICP mm, +0.017 / +0.023 con IC su 0), R5a (-0.028 / -0.031) e R6 (-0.000 /
+    +0.020);
+  - non risolte R2b, R3b, R5b: il NICP per coppia fallisce sul 9,06% delle righe, oltre il 5%. I delta sono positivi e
+    restano riportati.
+- **Descrittivi**:
+  - NoW metrical contro la nostra d_F: alla pari senza crop, sopra col crop (+0.17 / +0.20), come atteso;
+  - ULRSSM sotto la nostra d_F / d_P (+0.16 / +0.19);
+  - REALY non applicabile (frame 4,74 mm contro 2 mm).
+- **Deviazioni**: `embed` 1075536 caduto per Singularity ("unknown userid") e rilanciato identico; shard dei protocolli
+  su nodi diversi da `a256-t4-04` (vincolo solo per rilevatore e render, scarti attesi sub-mm).
+- Verifier: PASS con due riserve formali. Il rapporto finale va salvato dal PI: il subagente non poteva scrivere file
+  di rapporto.
