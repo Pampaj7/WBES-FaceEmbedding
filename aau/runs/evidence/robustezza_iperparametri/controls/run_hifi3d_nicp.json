@@ -1,0 +1,129 @@
+{
+ "view": "hifi3d",
+ "method": "nicp",
+ "pairs": 7942,
+ "core_hours": 209.7071207400846,
+ "jobs": [
+  "1074639"
+ ],
+ "configs": {
+  "default": {
+   "nan": 62,
+   "errors": 62,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 2.1143005776645323,
+   "seconds_per_pair_median": 4.092663297429681,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    3,
+    1,
+    2
+   ]
+  },
+  "eps_realy": {
+   "nan": 62,
+   "errors": 62,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 1.9453418870268075,
+   "seconds_per_pair_median": 8.327513754134998,
+   "iterations_median": [
+    3.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    5,
+    4,
+    5
+   ]
+  },
+  "cap10": {
+   "nan": 62,
+   "errors": 62,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 2.1143005776645323,
+   "seconds_per_pair_median": 4.086274746339768,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    3,
+    1,
+    2
+   ]
+  },
+  "menpo3d": {
+   "nan": 62,
+   "errors": 62,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 0.003664538852658048,
+   "seconds_per_pair_median": 39.9350803908892,
+   "iterations_median": [
+    5.0,
+    1.0,
+    4.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    10,
+    6,
+    7,
+    6,
+    11,
+    7,
+    1,
+    3
+   ]
+  },
+  "menpo3d_lmk": {
+   "nan": 62,
+   "errors": 62,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 0.0036533550334540274,
+   "seconds_per_pair_median": 41.12393485521898,
+   "iterations_median": [
+    5.0,
+    2.0,
+    3.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    11,
+    6,
+    7,
+    6,
+    11,
+    7,
+    1,
+    3
+   ]
+  }
+ },
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1074639",
+ "date": "2026-10-13 21:37:06"
+}

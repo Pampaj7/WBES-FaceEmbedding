@@ -1,0 +1,37 @@
+{
+ "view": "famos",
+ "pairs": 11175,
+ "checks": {
+  "icp": {
+   "n": 11175,
+   "nan_new": 0,
+   "nan_ref": 0,
+   "nan_same_pairs": true,
+   "max_abs": 9.414691248821327e-14,
+   "median_abs": 4.440892098500626e-15,
+   "equal": 674,
+   "ref": "esterna_famos_id icp",
+   "tol": 1e-06,
+   "ok": true
+  },
+  "now": {
+   "n": 11175,
+   "nan_new": 0,
+   "nan_ref": 0,
+   "nan_same_pairs": true,
+   "max_abs": 0.0,
+   "median_abs": 0.0,
+   "equal": 11175,
+   "ref": "esterna_famos_id now_metrical",
+   "tol": 0.0001,
+   "ok": true
+  },
+  "nicp": {
+   "ref": "nessuno (il NICP per coppia non e' fra i metodi di esterna_famos_id)"
+  }
+ },
+ "ok": true,
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1075822",
+ "date": "2026-10-14 00:05:02"
+}

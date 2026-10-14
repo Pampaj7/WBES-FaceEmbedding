@@ -1,0 +1,77 @@
+{
+ "view": "famos",
+ "method": "now",
+ "pairs": 11175,
+ "core_hours": 3.9427481292061404,
+ "jobs": [
+  "1074638"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.8773697694589035,
+   "seconds_per_pair_median": 0.11568001238629222,
+   "iterations_median": 8.0,
+   "iterations_max": 67
+  },
+  "r12": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.5835539003793127,
+   "seconds_per_pair_median": 0.10190274892374873,
+   "iterations_median": 8.0,
+   "iterations_max": 67
+  },
+  "icp0": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.9726616797949674,
+   "seconds_per_pair_median": 0.011305075604468584,
+   "iterations_median": 0.0,
+   "iterations_max": 0
+  },
+  "e3_0": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.877368211783324,
+   "seconds_per_pair_median": 0.6207019262947142,
+   "iterations_median": 27.0,
+   "iterations_max": 200
+  },
+  "lmk5": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.877158342927457,
+   "seconds_per_pair_median": 0.11550814425572753,
+   "iterations_median": 8.0,
+   "iterations_max": 65
+  },
+  "lmk51": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.8771996171975798,
+   "seconds_per_pair_median": 0.11358322715386748,
+   "iterations_median": 8.0,
+   "iterations_max": 68
+  },
+  "lmk68": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.8775015729112714,
+   "seconds_per_pair_median": 0.11154240276664495,
+   "iterations_median": 8.0,
+   "iterations_max": 66
+  }
+ },
+ "host": "a768-l40s-01.srv.aau.dk",
+ "job": "1074638",
+ "date": "2026-10-13 18:55:06"
+}

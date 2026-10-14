@@ -1,0 +1,51 @@
+dominio,metrica,metodo,etichetta,config,colonna,valore,ic_lo,ic_hi,seme
+famos,rank1,icp,ICP + Chamfer in mm,default,icp@default,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,it10,icp@it10,0.9466666666666667,0.9066666666666666,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,it2000,icp@it2000,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,thr20,icp@thr20,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,thr10,icp@thr10,0.94,0.9,0.9733333333333334,1234
+famos,rank1,icp,ICP + Chamfer in mm,init_id,icp@init_id,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,init_lmk,icp@init_lmk,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,rej_pulli,icp@rej_pulli,0.9533333333333334,0.9266666666666666,0.98,1234
+famos,rank1,icp,ICP + Chamfer in mm,rej_masuda,icp@rej_masuda,0.94,0.9,0.9733333333333334,1234
+famos,rank1,nicp,NICP per coppia in mm,default,nicp@default,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,nicp,NICP per coppia in mm,eps_realy,nicp@eps_realy,0.9466666666666667,0.9133333333333333,0.9733333333333334,1234
+famos,rank1,nicp,NICP per coppia in mm,cap10,nicp@cap10,0.9466666666666667,0.9133333333333333,0.98,1234
+famos,rank1,nicp,NICP per coppia in mm,menpo3d,nicp@menpo3d,0.0,0.0,0.0,1234
+famos,rank1,nicp,NICP per coppia in mm,menpo3d_lmk,nicp@menpo3d_lmk,0.0,0.0,0.0,1234
+famos,rank1,now,NoW metrical (rilevatore),default,now@default,0.9666666666666667,0.94,0.9933333333333333,1234
+famos,rank1,now,NoW metrical (rilevatore),r12,now@r12,0.9333333333333333,0.9,0.9666666666666667,1234
+famos,rank1,now,NoW metrical (rilevatore),icp0,now@icp0,0.84,0.7933333333333333,0.8866666666666667,1234
+famos,rank1,now,NoW metrical (rilevatore),e3_0,now@e3_0,0.9666666666666667,0.94,0.9933333333333333,1234
+famos,rank1,now,NoW metrical (rilevatore),lmk5,now@lmk5,0.9666666666666667,0.94,0.9933333333333333,1234
+famos,rank1,now,NoW metrical (rilevatore),lmk51,now@lmk51,0.9666666666666667,0.94,0.9933333333333333,1234
+famos,rank1,now,NoW metrical (rilevatore),lmk68,now@lmk68,0.9666666666666667,0.94,0.9933333333333333,1234
+famos,rank1,nostro_form,"nostro, d_F non cal.",s1234,factorized_s1234|form,0.8533333333333334,0.8133333333333334,0.9,1234
+famos,rank1,nostro_form,"nostro, d_F non cal.",s2345,factorized_s2345|form,0.82,0.7666666666666667,0.88,1234
+famos,rank1,nostro_form_cal,"nostro, d_F cal.",s1234,factorized_s1234|form_cal,0.8733333333333333,0.8266666666666667,0.9266666666666666,1234
+famos,rank1,nostro_form_cal,"nostro, d_F cal.",s2345,factorized_s2345|form_cal,0.8533333333333334,0.8066666666666666,0.9066666666666666,1234
+famos,mAP,icp,ICP + Chamfer in mm,default,icp@default,0.8223721683327824,0.7725185313105893,0.8731409562255388,1234
+famos,mAP,icp,ICP + Chamfer in mm,it10,icp@it10,0.8245433695034242,0.7728333654388633,0.8788941481714586,1234
+famos,mAP,icp,ICP + Chamfer in mm,it2000,icp@it2000,0.8216592954942112,0.7717456179027818,0.8728155134369544,1234
+famos,mAP,icp,ICP + Chamfer in mm,thr20,icp@thr20,0.8233038695839109,0.7739705028336584,0.8739469865002057,1234
+famos,mAP,icp,ICP + Chamfer in mm,thr10,icp@thr10,0.8250691620750973,0.7757848900735731,0.8767536888324479,1234
+famos,mAP,icp,ICP + Chamfer in mm,init_id,icp@init_id,0.8217976019697182,0.7719851837045033,0.8732868932776031,1234
+famos,mAP,icp,ICP + Chamfer in mm,init_lmk,icp@init_lmk,0.8220824163322513,0.7724037345578257,0.8733214715141212,1234
+famos,mAP,icp,ICP + Chamfer in mm,rej_pulli,icp@rej_pulli,0.83065304961887,0.7814157631860217,0.8818954822329637,1234
+famos,mAP,icp,ICP + Chamfer in mm,rej_masuda,icp@rej_masuda,0.825735911218155,0.775410315093073,0.8774556757785572,1234
+famos,mAP,nicp,NICP per coppia in mm,default,nicp@default,0.7969441719075729,0.7403148607948272,0.854358414375811,1234
+famos,mAP,nicp,NICP per coppia in mm,eps_realy,nicp@eps_realy,0.7857144965569011,0.7262028915558124,0.8459048023397703,1234
+famos,mAP,nicp,NICP per coppia in mm,cap10,nicp@cap10,0.7969441719075729,0.7403148607948272,0.854358414375811,1234
+famos,mAP,nicp,NICP per coppia in mm,menpo3d,nicp@menpo3d,0.09867724648163823,0.08546957030864445,0.1113918308692387,1234
+famos,mAP,nicp,NICP per coppia in mm,menpo3d_lmk,nicp@menpo3d_lmk,0.11056865993765937,0.0943442200390873,0.12753328104040243,1234
+famos,mAP,now,NoW metrical (rilevatore),default,now@default,0.8646791781837552,0.8121080410568876,0.9141486836346309,1234
+famos,mAP,now,NoW metrical (rilevatore),r12,now@r12,0.8023090846123425,0.7468140773781009,0.8551000162085152,1234
+famos,mAP,now,NoW metrical (rilevatore),icp0,now@icp0,0.5994050676995157,0.5119062432491277,0.6889317099858941,1234
+famos,mAP,now,NoW metrical (rilevatore),e3_0,now@e3_0,0.8646501676599769,0.8119676292338902,0.9142439378478809,1234
+famos,mAP,now,NoW metrical (rilevatore),lmk5,now@lmk5,0.8646725407145889,0.8120266449295976,0.914163997149694,1234
+famos,mAP,now,NoW metrical (rilevatore),lmk51,now@lmk51,0.8646432871051252,0.8120323222551177,0.9141131625871787,1234
+famos,mAP,now,NoW metrical (rilevatore),lmk68,now@lmk68,0.8645786732221694,0.8119249630726262,0.9141138912839676,1234
+famos,mAP,nostro_form,"nostro, d_F non cal.",s1234,factorized_s1234|form,0.6644953376932153,0.5995352867483583,0.7391392175579424,1234
+famos,mAP,nostro_form,"nostro, d_F non cal.",s2345,factorized_s2345|form,0.641414440208094,0.5656952051860747,0.7242233506679248,1234
+famos,mAP,nostro_form_cal,"nostro, d_F cal.",s1234,factorized_s1234|form_cal,0.6506689533518215,0.585417985733754,0.7255037657382999,1234
+famos,mAP,nostro_form_cal,"nostro, d_F cal.",s2345,factorized_s2345|form_cal,0.6283779315761364,0.5490418158156088,0.712420268871934,1234

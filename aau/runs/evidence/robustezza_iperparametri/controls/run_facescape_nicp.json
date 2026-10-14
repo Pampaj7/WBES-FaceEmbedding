@@ -1,0 +1,129 @@
+{
+ "view": "facescape",
+ "method": "nicp",
+ "pairs": 7916,
+ "core_hours": 305.17483373004876,
+ "jobs": [
+  "1074640"
+ ],
+ "configs": {
+  "default": {
+   "nan": 828,
+   "errors": 828,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 1.9405243400509375,
+   "seconds_per_pair_median": 6.265862091910094,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    2,
+    1,
+    2
+   ]
+  },
+  "eps_realy": {
+   "nan": 828,
+   "errors": 828,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 1.781735162783578,
+   "seconds_per_pair_median": 13.00719795213081,
+   "iterations_median": [
+    2.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    5,
+    4,
+    8
+   ]
+  },
+  "cap10": {
+   "nan": 828,
+   "errors": 828,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 1.9405243400509375,
+   "seconds_per_pair_median": 6.256133920280263,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    2,
+    1,
+    2
+   ]
+  },
+  "menpo3d": {
+   "nan": 828,
+   "errors": 828,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 0.003625108982798748,
+   "seconds_per_pair_median": 61.98667106125504,
+   "iterations_median": [
+    5.0,
+    1.0,
+    3.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    13,
+    8,
+    7,
+    6,
+    12,
+    7,
+    1,
+    3
+   ]
+  },
+  "menpo3d_lmk": {
+   "nan": 828,
+   "errors": 828,
+   "error_examples": [
+    "RuntimeError: Factor is exactly singular"
+   ],
+   "median_mm": 0.0036125544505513805,
+   "seconds_per_pair_median": 63.476816976908594,
+   "iterations_median": [
+    5.0,
+    2.0,
+    3.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    14,
+    7,
+    7,
+    5,
+    12,
+    7,
+    1,
+    3
+   ]
+  }
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1074640",
+ "date": "2026-10-13 23:29:15"
+}

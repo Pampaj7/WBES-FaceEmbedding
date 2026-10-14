@@ -1,0 +1,103 @@
+{
+ "view": "hifi3d",
+ "method": "icp",
+ "pairs": 7942,
+ "core_hours": 2.100663524402771,
+ "jobs": [
+  "1074638"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7276097431109,
+   "seconds_per_pair_median": 0.06066687754355371,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.762190764529747,
+   "seconds_per_pair_median": 0.02729255659505725,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it2000": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.723335331286255,
+   "seconds_per_pair_median": 0.06448051775805652,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr20": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7276097431109,
+   "seconds_per_pair_median": 0.06064784852787852,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.720972215479631,
+   "seconds_per_pair_median": 0.061667044181376696,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_id": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.735328529823935,
+   "seconds_per_pair_median": 0.06521967146545649,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_lmk": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7223953849323834,
+   "seconds_per_pair_median": 0.05676432396285236,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "rej_pulli": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.730603312494938,
+   "seconds_per_pair_median": 0.30360782775096595,
+   "iterations_median": [
+    30.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  },
+  "rej_masuda": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7189970120632116,
+   "seconds_per_pair_median": 0.2918910577427596,
+   "iterations_median": [
+    30.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  }
+ },
+ "host": "a768-l40s-01.srv.aau.dk",
+ "job": "1074638",
+ "date": "2026-10-13 18:06:44"
+}

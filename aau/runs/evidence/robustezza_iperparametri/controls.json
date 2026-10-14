@@ -1,0 +1,346 @@
+{
+ "hifi3d": {
+  "seed": 990708,
+  "rows_subsample_nocrop": 7942,
+  "rows_mask": 7880,
+  "pairs_subsample_nocrop": 7942,
+  "subjects": 100,
+  "rows_nan_in_subsample_by_column": {
+   "icp@default": 0,
+   "icp@it10": 0,
+   "icp@it2000": 0,
+   "icp@thr20": 0,
+   "icp@thr10": 0,
+   "icp@init_id": 0,
+   "icp@init_lmk": 0,
+   "icp@rej_pulli": 0,
+   "icp@rej_masuda": 0,
+   "nicp@default": 62,
+   "nicp@eps_realy": 62,
+   "nicp@cap10": 62,
+   "nicp@menpo3d": 62,
+   "nicp@menpo3d_lmk": 62,
+   "now@default": 0,
+   "now@r12": 0,
+   "now@icp0": 0,
+   "now@e3_0": 0,
+   "now@lmk5": 0,
+   "now@lmk51": 0,
+   "now@lmk68": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|form_cal": 0,
+   "factorized_s2345|form_cal": 0
+  }
+ },
+ "facescape": {
+  "seed": 796786,
+  "rows_subsample_nocrop": 7916,
+  "rows_mask": 7088,
+  "pairs_subsample_nocrop": 7916,
+  "subjects": 100,
+  "rows_nan_in_subsample_by_column": {
+   "icp@default": 0,
+   "icp@it10": 0,
+   "icp@it2000": 0,
+   "icp@thr20": 0,
+   "icp@thr10": 0,
+   "icp@init_id": 0,
+   "icp@init_lmk": 0,
+   "icp@rej_pulli": 0,
+   "icp@rej_masuda": 0,
+   "nicp@default": 828,
+   "nicp@eps_realy": 828,
+   "nicp@cap10": 828,
+   "nicp@menpo3d": 828,
+   "nicp@menpo3d_lmk": 828,
+   "now@default": 0,
+   "now@r12": 0,
+   "now@icp0": 0,
+   "now@e3_0": 0,
+   "now@lmk5": 0,
+   "now@lmk51": 0,
+   "now@lmk68": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|form_cal": 0,
+   "factorized_s2345|form_cal": 0
+  }
+ },
+ "famos": {
+  "seed": 1234,
+  "scans": 150,
+  "subjects": 15,
+  "pairs": 11175,
+  "non_finite_by_column": {
+   "icp@default": 0,
+   "icp@it10": 0,
+   "icp@it2000": 0,
+   "icp@thr20": 0,
+   "icp@thr10": 0,
+   "icp@init_id": 0,
+   "icp@init_lmk": 0,
+   "icp@rej_pulli": 0,
+   "icp@rej_masuda": 0,
+   "nicp@default": 0,
+   "nicp@eps_realy": 0,
+   "nicp@cap10": 0,
+   "nicp@menpo3d": 0,
+   "nicp@menpo3d_lmk": 0,
+   "now@default": 0,
+   "now@r12": 0,
+   "now@icp0": 0,
+   "now@e3_0": 0,
+   "now@lmk5": 0,
+   "now@lmk51": 0,
+   "now@lmk68": 0,
+   "factorized_s1234|form": 0,
+   "factorized_s2345|form": 0,
+   "factorized_s1234|form_cal": 0,
+   "factorized_s2345|form_cal": 0
+  }
+ },
+ "n_boot": 1000,
+ "wall_s": 146.05793523788452,
+ "grid": {
+  "icp": {
+   "default": {
+    "params": {},
+    "manopola": "-",
+    "fonte": "matrice: blmm.icp modo mm (centro, registration_icp punto-punto, soglia 1000 = infinita, criteri di default di Open3D: 30 iterazioni, 1e-6, 1e-6)"
+   },
+   "it10": {
+    "params": {
+     "max_iter": 10
+    },
+    "manopola": "iterazioni",
+    "fonte": "PCL, Registration: max_iterations_ = 10 (default)"
+   },
+   "it2000": {
+    "params": {
+     "max_iter": 2000
+    },
+    "manopola": "iterazioni",
+    "fonte": "tutorial ICP di Open3D 0.18: ICPConvergenceCriteria(max_iteration=2000)"
+   },
+   "thr20": {
+    "params": {
+     "thr_mm": 20.0
+    },
+    "manopola": "soglia",
+    "fonte": "tutorial ICP di Open3D 0.18: threshold = 0.02 (m)"
+   },
+   "thr10": {
+    "params": {
+     "thr_mm": 10.0
+    },
+    "manopola": "soglia",
+    "fonte": "tutorial colored ICP di Open3D 0.18: voxel_radius = [0.04, 0.02, 0.01] (m), l'ultimo"
+   },
+   "init_id": {
+    "params": {
+     "init": "identity"
+    },
+    "manopola": "inizializzazione",
+    "fonte": "Open3D registration_icp: init = identita' (default), frame canonico senza centrare"
+   },
+   "init_lmk": {
+    "params": {
+     "init": "landmark"
+    },
+    "manopola": "inizializzazione",
+    "fonte": "rigida sui 7 landmark NoW rilevati (Procrustes senza scala, come l'avvio di NoW metrical; facebench icp_align prealign='landmark')"
+   },
+   "rej_pulli": {
+    "params": {
+     "reject": "q90"
+    },
+    "manopola": "rigetto",
+    "fonte": "Pulli 1999 in Rusinkiewicz e Levoy 2001: scarta il 10% delle coppie peggiori"
+   },
+   "rej_masuda": {
+    "params": {
+     "reject": "sigma2.5"
+    },
+    "manopola": "rigetto",
+    "fonte": "Masuda 1996 in Rusinkiewicz e Levoy 2001: scarta oltre 2,5 sigma"
+   }
+  },
+  "nicp": {
+   "default": {
+    "params": {
+     "alpha": [
+      50.0,
+      30.326532985631673,
+      18.39397205857212
+     ],
+     "eps": [
+      6.0,
+      3.0,
+      1.5
+     ],
+     "crit": "fro"
+    },
+    "manopola": "-",
+    "fonte": "matrice: facebench nonrigid_icp_align (alpha 50 e^(-0,5 d), soglia 6 x 0,5^d, 3 stadi, gamma 1)"
+   },
+   "eps_realy": {
+    "params": {
+     "alpha": [
+      50.0,
+      30.326532985631673,
+      18.39397205857212
+     ],
+     "eps": [
+      1.0,
+      0.5,
+      0.25
+     ],
+     "crit": "fro"
+    },
+    "manopola": "iterazioni",
+    "fonte": "REALY utils/NICP.py nICP_without_keypoints con eval.py epsilon = 1.0 (soglia 0,5^d, senza x 6)"
+   },
+   "cap10": {
+    "params": {
+     "alpha": [
+      50.0,
+      30.326532985631673,
+      18.39397205857212
+     ],
+     "eps": [
+      6.0,
+      3.0,
+      1.5
+     ],
+     "crit": "fro",
+     "cap": 10
+    },
+    "manopola": "iterazioni",
+    "fonte": "trimesh 5.1 nricp_amberg: max_iter = 10 per passo (default)"
+   },
+   "menpo3d": {
+    "params": {
+     "alpha": [
+      50,
+      20,
+      5,
+      2,
+      0.8,
+      0.5,
+      0.35,
+      0.2
+     ],
+     "eps": [
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001
+     ],
+     "crit": "rms",
+     "norm": "menpo",
+     "dowhile": true
+    },
+    "manopola": "rigidezza",
+    "fonte": "menpo3d non_rigid_icp: stiffness_weights = [50, 20, 5, 2, 0.8, 0.5, 0.35, 0.2], eps = 1e-3 (default; 'empirically found to perform well for well rigidly aligned facial meshes')"
+   },
+   "menpo3d_lmk": {
+    "params": {
+     "alpha": [
+      50,
+      20,
+      5,
+      2,
+      0.8,
+      0.5,
+      0.35,
+      0.2
+     ],
+     "eps": [
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001,
+      0.001
+     ],
+     "crit": "rms",
+     "norm": "menpo",
+     "dowhile": true,
+     "beta": [
+      5,
+      2,
+      0.5,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "manopola": "landmark",
+    "fonte": "menpo3d non_rigid_icp con landmark: landmark_weights = [5, 2, 0.5, 0, 0, 0, 0, 0] (default), 7 landmark NoW rilevati"
+   }
+  },
+  "now": {
+   "default": {
+    "params": {},
+    "manopola": "-",
+    "fonte": "matrice: plug-in now_metrical/lmk_det (7 landmark NoW, raggio 1,4, dogleg delta_0 0,1, e_3 1e-4, maxiter 200)"
+   },
+   "r12": {
+    "params": {
+     "radius": 1.2
+    },
+    "manopola": "raggio",
+    "fonte": "Stirling/ESRC, fg2018-competition compute_vertices_to_mesh_distances.py:46 (raggio 1,2)"
+   },
+   "icp0": {
+    "params": {
+     "icp": false
+    },
+    "manopola": "iterazioni",
+    "fonte": "Stirling/ESRC (fg2018): solo il Procrustes, nessun ICP"
+   },
+   "e3_0": {
+    "params": {
+     "dogleg": {
+      "e_3": 0.0
+     }
+    },
+    "manopola": "iterazioni",
+    "fonte": "chumpy minimize_dogleg: e_3 = 0 (default; fino a maxiter = 200 o e_1 / e_2)"
+   },
+   "lmk5": {
+    "params": {
+     "lmk": "5"
+    },
+    "manopola": "landmark",
+    "fonte": "5 punti di ArcFace / insightface (centri degli occhi, punta del naso, angoli della bocca), dai 68 rilevati"
+   },
+   "lmk51": {
+    "params": {
+     "lmk": "51"
+    },
+    "manopola": "landmark",
+    "fonte": "51 interni iBUG (300-W, senza il contorno: 17-67)"
+   },
+   "lmk68": {
+    "params": {
+     "lmk": "68"
+    },
+    "manopola": "landmark",
+    "fonte": "68 iBUG (Sagonas et al.)"
+   }
+  }
+ },
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1075822",
+ "date": "2026-10-14 00:07:31"
+}

@@ -1,0 +1,48 @@
+dominio,misura,lettura_nostra,classifica,combinazioni,frazione,default_s1234,classifiche_distinte
+hifi3d,rho_fr,d_F non cal.,now > icp > nostro_form > nicp,425,0.6746031746031746,True,7
+hifi3d,rho_fr,d_F non cal.,icp > nostro_form > now > nicp,91,0.14444444444444443,False,7
+hifi3d,rho_fr,d_F non cal.,icp > now > nostro_form > nicp,45,0.07142857142857142,False,7
+hifi3d,rho_fr,d_F non cal.,icp > nostro_form > nicp > now,34,0.05396825396825397,False,7
+hifi3d,rho_fr,d_F non cal.,now > nostro_form > icp > nicp,25,0.03968253968253968,False,7
+hifi3d,rho_fr,d_F non cal.,nostro_form > icp > now > nicp,8,0.012698412698412698,False,7
+hifi3d,rho_fr,d_F non cal.,nostro_form > icp > nicp > now,2,0.0031746031746031746,False,7
+hifi3d,rho_fr,d_F cal.,nostro_form_cal > now > icp > nicp,450,0.7142857142857143,True,3
+hifi3d,rho_fr,d_F cal.,nostro_form_cal > icp > now > nicp,144,0.22857142857142856,False,3
+hifi3d,rho_fr,d_F cal.,nostro_form_cal > icp > nicp > now,36,0.05714285714285714,False,3
+facescape,rho_fr,d_F non cal.,nostro_form > now > icp > nicp,540,0.8571428571428571,True,3
+facescape,rho_fr,d_F non cal.,nostro_form > icp > nicp > now,54,0.08571428571428572,False,3
+facescape,rho_fr,d_F non cal.,nostro_form > icp > now > nicp,36,0.05714285714285714,False,3
+facescape,rho_fr,d_F cal.,now > nostro_form_cal > icp > nicp,450,0.7142857142857143,True,4
+facescape,rho_fr,d_F cal.,nostro_form_cal > now > icp > nicp,90,0.14285714285714285,False,4
+facescape,rho_fr,d_F cal.,nostro_form_cal > icp > nicp > now,54,0.08571428571428572,False,4
+facescape,rho_fr,d_F cal.,nostro_form_cal > icp > now > nicp,36,0.05714285714285714,False,4
+famos,rank1,d_F non cal.,now > icp > nicp > nostro_form,210,0.3333333333333333,True,9
+famos,rank1,d_F non cal.,now > icp > nostro_form > nicp,180,0.2857142857142857,False,9
+famos,rank1,d_F non cal.,icp > nicp > now > nostro_form,63,0.1,False,9
+famos,rank1,d_F non cal.,now > nicp > icp > nostro_form,60,0.09523809523809523,False,9
+famos,rank1,d_F non cal.,icp > now > nostro_form > nicp,54,0.08571428571428572,False,9
+famos,rank1,d_F non cal.,icp > nicp > nostro_form > now,21,0.03333333333333333,False,9
+famos,rank1,d_F non cal.,icp > nostro_form > now > nicp,18,0.02857142857142857,False,9
+famos,rank1,d_F non cal.,nicp > icp > now > nostro_form,18,0.02857142857142857,False,9
+famos,rank1,d_F non cal.,nicp > icp > nostro_form > now,6,0.009523809523809525,False,9
+famos,rank1,d_F cal.,now > icp > nicp > nostro_form_cal,210,0.3333333333333333,True,9
+famos,rank1,d_F cal.,now > icp > nostro_form_cal > nicp,180,0.2857142857142857,False,9
+famos,rank1,d_F cal.,now > nicp > icp > nostro_form_cal,60,0.09523809523809523,False,9
+famos,rank1,d_F cal.,icp > nicp > now > nostro_form_cal,42,0.06666666666666667,False,9
+famos,rank1,d_F cal.,icp > nicp > nostro_form_cal > now,42,0.06666666666666667,False,9
+famos,rank1,d_F cal.,icp > now > nostro_form_cal > nicp,36,0.05714285714285714,False,9
+famos,rank1,d_F cal.,icp > nostro_form_cal > now > nicp,36,0.05714285714285714,False,9
+famos,rank1,d_F cal.,nicp > icp > now > nostro_form_cal,12,0.01904761904761905,False,9
+famos,rank1,d_F cal.,nicp > icp > nostro_form_cal > now,12,0.01904761904761905,False,9
+famos,mAP,d_F non cal.,now > icp > nicp > nostro_form,270,0.42857142857142855,True,6
+famos,mAP,d_F non cal.,now > icp > nostro_form > nicp,180,0.2857142857142857,False,6
+famos,mAP,d_F non cal.,icp > now > nicp > nostro_form,54,0.08571428571428572,False,6
+famos,mAP,d_F non cal.,icp > nicp > nostro_form > now,54,0.08571428571428572,False,6
+famos,mAP,d_F non cal.,icp > now > nostro_form > nicp,36,0.05714285714285714,False,6
+famos,mAP,d_F non cal.,icp > nostro_form > now > nicp,36,0.05714285714285714,False,6
+famos,mAP,d_F cal.,now > icp > nicp > nostro_form_cal,270,0.42857142857142855,True,6
+famos,mAP,d_F cal.,now > icp > nostro_form_cal > nicp,180,0.2857142857142857,False,6
+famos,mAP,d_F cal.,icp > now > nicp > nostro_form_cal,54,0.08571428571428572,False,6
+famos,mAP,d_F cal.,icp > nicp > nostro_form_cal > now,54,0.08571428571428572,False,6
+famos,mAP,d_F cal.,icp > now > nostro_form_cal > nicp,36,0.05714285714285714,False,6
+famos,mAP,d_F cal.,icp > nostro_form_cal > now > nicp,36,0.05714285714285714,False,6

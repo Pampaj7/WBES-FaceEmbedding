@@ -1,0 +1,146 @@
+{
+ "view": "hifi3d",
+ "pairs": 7942,
+ "checks": {
+  "icp": {
+   "n": 7942,
+   "nan_new": 0,
+   "nan_ref": 0,
+   "nan_same_pairs": true,
+   "max_abs": 0.0,
+   "median_abs": 0.0,
+   "equal": 7942,
+   "ref": "mm_rigid_icp_chamfer",
+   "tol": 1e-06,
+   "ok": true
+  },
+  "nicp": {
+   "n": 7880,
+   "nan_new": 62,
+   "nan_ref": 62,
+   "nan_same_pairs": true,
+   "max_abs": 0.0007402382014323194,
+   "median_abs": 0.0,
+   "equal": 7052,
+   "ref": "mm_nicp_p2tri",
+   "tol": 0.0001,
+   "by_matrix_host": {
+    "a512-l4-06": {
+     "grid_vs_matrix": {
+      "n": 812,
+      "nan_new": 0,
+      "nan_ref": 0,
+      "nan_same_pairs": true,
+      "max_abs": 0.000156213177132436,
+      "median_abs": 3.794742298168785e-13,
+      "equal": 0
+     },
+     "node_check_needed": true,
+     "ok": true,
+     "node_check": {
+      "n": 812,
+      "nan_new": 0,
+      "nan_ref": 0,
+      "nan_same_pairs": true,
+      "max_abs": 0.0,
+      "median_abs": 0.0,
+      "equal": 812
+     }
+    },
+    "a768-l40s-05": {
+     "grid_vs_matrix": {
+      "n": 4732,
+      "nan_new": 62,
+      "nan_ref": 62,
+      "nan_same_pairs": true,
+      "max_abs": 0.0007402382014323194,
+      "median_abs": 0.0,
+      "equal": 4716
+     },
+     "node_check_needed": true,
+     "ok": true,
+     "node_check": {
+      "n": 4732,
+      "nan_new": 62,
+      "nan_ref": 62,
+      "nan_same_pairs": true,
+      "max_abs": 0.0,
+      "median_abs": 0.0,
+      "equal": 4732
+     }
+    },
+    "i256-a10-08": {
+     "grid_vs_matrix": {
+      "n": 777,
+      "nan_new": 0,
+      "nan_ref": 0,
+      "nan_same_pairs": true,
+      "max_abs": 0.0,
+      "median_abs": 0.0,
+      "equal": 777
+     },
+     "node_check_needed": false,
+     "ok": true,
+     "node_check": null
+    },
+    "i256-a10-09": {
+     "grid_vs_matrix": {
+      "n": 793,
+      "nan_new": 0,
+      "nan_ref": 0,
+      "nan_same_pairs": true,
+      "max_abs": 0.0,
+      "median_abs": 0.0,
+      "equal": 793
+     },
+     "node_check_needed": false,
+     "ok": true,
+     "node_check": null
+    },
+    "i256-a10-10": {
+     "grid_vs_matrix": {
+      "n": 766,
+      "nan_new": 0,
+      "nan_ref": 0,
+      "nan_same_pairs": true,
+      "max_abs": 0.0,
+      "median_abs": 0.0,
+      "equal": 766
+     },
+     "node_check_needed": false,
+     "ok": true,
+     "node_check": null
+    }
+   },
+   "ok": true
+  },
+  "now": {
+   "ref": "plugin now_metrical/lmk_det",
+   "tol": 0.0001,
+   "ok": true,
+   "default_on_matrix_node": {
+    "n": 7942,
+    "nan_new": 0,
+    "nan_ref": 0,
+    "nan_same_pairs": true,
+    "max_abs": 0.0,
+    "median_abs": 0.0,
+    "equal": 7942
+   },
+   "node": "a256-a40-04.srv.aau.dk",
+   "grid_vs_matrix": {
+    "n": 7942,
+    "nan_new": 0,
+    "nan_ref": 0,
+    "nan_same_pairs": true,
+    "max_abs": 0.0023336814648078352,
+    "median_abs": 1.8991248573740904e-09,
+    "equal": 0
+   }
+  }
+ },
+ "ok": true,
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1075822",
+ "date": "2026-10-14 00:04:49"
+}

@@ -1,0 +1,119 @@
+{
+ "view": "famos",
+ "method": "nicp",
+ "pairs": 11175,
+ "core_hours": 172.40357761606987,
+ "jobs": [
+  "1074641"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7386791868471163,
+   "seconds_per_pair_median": 2.391217271797359,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    3,
+    2,
+    3
+   ]
+  },
+  "eps_realy": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.5599594604123252,
+   "seconds_per_pair_median": 4.525263688061386,
+   "iterations_median": [
+    3.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    7,
+    6,
+    8
+   ]
+  },
+  "cap10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.7386791868471163,
+   "seconds_per_pair_median": 2.37852841289714,
+   "iterations_median": [
+    2.0,
+    0.0,
+    0.0
+   ],
+   "iterations_max": [
+    3,
+    2,
+    3
+   ]
+  },
+  "menpo3d": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 0.0038771337314891835,
+   "seconds_per_pair_median": 22.171285995282233,
+   "iterations_median": [
+    5.0,
+    1.0,
+    4.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    15,
+    9,
+    11,
+    8,
+    10,
+    7,
+    1,
+    1
+   ]
+  },
+  "menpo3d_lmk": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 0.003888241896880565,
+   "seconds_per_pair_median": 23.319663621485233,
+   "iterations_median": [
+    5.0,
+    3.0,
+    4.0,
+    3.0,
+    3.0,
+    6.0,
+    1.0,
+    1.0
+   ],
+   "iterations_max": [
+    18,
+    10,
+    11,
+    8,
+    10,
+    7,
+    1,
+    1
+   ]
+  }
+ },
+ "host": "i256-a10-10.srv.aau.dk",
+ "job": "1074641",
+ "date": "2026-10-13 21:18:10"
+}
