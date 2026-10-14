@@ -1,0 +1,35 @@
+{
+ "view": "faceverse",
+ "pairs_unordered": 99000,
+ "methods": {
+  "now_original": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 2.323358419082831,
+    "median": 1.370411480544135
+   }
+  },
+  "now_metrical": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 3.3581197467270134,
+    "median": 1.7540757955866866
+   }
+  }
+ },
+ "core_hours": 313.5611509607,
+ "jobs": [
+  "1074626",
+  "1075584",
+  "1076310"
+ ],
+ "host": "a768-l40s-03.srv.aau.dk",
+ "job": "1076310",
+ "date": "2026-10-14 12:52:21"
+}

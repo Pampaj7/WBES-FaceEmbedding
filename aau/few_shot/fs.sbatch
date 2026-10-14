@@ -39,7 +39,7 @@ for tok in $FS_STEPS; do
             "${RUN[@]}" $D/fs_now.py prep --view "$view" --workers "$W" ;;
         now-run)
             UGT_THREADS=1 "${RUN[@]}" $D/fs_now.py run --view "$view" --workers "$W" --shard "${part%/*}" \
-                --nshards "${part#*/}" ${FS_REVERSE:+--reverse} ;;
+                --nshards "${part#*/}" ${FS_REVERSE:+--reverse} ${FS_SPLIT:+--split "$FS_SPLIT"} ;;
         now-merge) "${RUN[@]}" $D/fs_now.py merge --view "$view" ;;
         wait-now)                                   # attesa delle matrici NoW di tutte le viste (job di continuazione)
             for v in hifi3d facescape faceverse faceverse_neutral; do

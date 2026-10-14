@@ -278,10 +278,12 @@ def step_eval(a) -> None:
             r0 = r0.iloc[0]
             p, lo, hi, _ = diag.ci(x)
             dd = max(abs(p - r0.rho), abs(lo - r0.ic_lo), abs(hi - r0.ic_hi))
-            k1[f"{d}|{c}|{g}"] = {"diff": dd, "rows": int(frames[d]["k1"].sum()), "rows_matrix": int(r0.n_righe)}
+            k1[f"{d}|{c}|{g}"] = {"diff": dd, "diff_point": abs(p - r0.rho), "rows": int(frames[d]["k1"].sum()),
+                                  "rows_matrix": int(r0.n_righe)}
             worst = max(worst, dd)
     rows_ok = all(v["rows"] == v["rows_matrix"] for v in k1.values())
-    ctrl["K1"] = {"cells": k1, "max_abs_diff": worst, "rows_equal": rows_ok, "pass": bool(worst <= 1e-9 and rows_ok)}
+    ctrl["K1"] = {"cells": k1, "max_abs_diff": worst, "max_abs_diff_point": max(v["diff_point"] for v in k1.values()),
+                  "rows_equal": rows_ok, "pass": bool(worst <= 1e-9 and rows_ok)}
     print(f"[fs-eval] K1 contro la matrice: {worst:.1e}, righe uguali {rows_ok}", flush=True)
     # ------------------------------------------------------------------ aggregati
     srecs, drecs, sorp = [], [], []
@@ -566,25 +568,31 @@ def write_results() -> None:
          "deviazione standard fra le estrazioni. Nostro adattato = testa di R6 (r = 64, lambda = 1e-6, EQ) con le k "
          "identita' in coda alle 7 sorgenti senza il generatore del dominio; letture d_h con SR, d_F della testa con FR. "
          "Concorrente adattato = configurazione della famiglia scelta sulle stesse k identita'. Delta = nostro - "
-         "concorrente, replica per replica (positivo = il nostro davanti).", ""]
+         "concorrente, replica per replica (positivo = il nostro davanti).", "",
+         "**Riferimento esterno (non parte di queste regole)**: sulla prova confermativa di Ava-256 la R6 (stessa testa, "
+         "adattata sui 56 di calibrazione, delta rho(d_h, SR) - rho(d_P, SR)) NON e' confermata: s1234 -0.000 "
+         "[-0.024, +0.026], s2345 +0.020 [-0.004, +0.046] (`aau/runs/evidence/ava256_conf/conf/results.md:19-20`). "
+         "Qui la domanda e' il confronto coi concorrenti adattati; l'analogo della R6 e' il delta `contro nostro non "
+         "adattato` con GT SR (sorgenti senza il generatore del dominio, k fino a 50).", ""]
     if (fc.EVID / "deltas.csv").exists():
         Sp = pd.read_csv(fc.EVID / "spearman.csv")
         Dl = pd.read_csv(fc.EVID / "deltas.csv")
         So = pd.read_csv(fc.EVID / "sorpasso.csv")
         Ch = pd.read_csv(fc.EVID / "choices.csv")
         ct = json.loads((fc.EVID / "controls.json").read_text())
+        doms = [d for d in fc.DOMAINS if d in set(So["dominio"])]                 # i domini valutati
         L += ["## k di sorpasso", "",
               "Il k minimo della griglia al quale l'IC 95% del delta contro OGNUNA delle tre famiglie adattate sta sopra "
               "lo 0 (sez. 6 delle regole); `entrambi` = il massimo dei due semi, `nessuno` se un seme non sorpassa.", "",
               "| dominio | GT | s1234 (k sopra) | s2345 (k sopra) | entrambi |", "|---|---|---|---|---|"]
-        for d in fc.DOMAINS:
+        for d in doms:
             for g in fc.GTS:
                 x = So[(So["dominio"] == d) & (So["gt"] == g)].set_index("braccio")
                 cell = lambda arm: f"{x.loc[arm, 'k_sorpasso']} ({x.loc[arm, 'sopra_a_k'] if isinstance(x.loc[arm, 'sopra_a_k'], str) else '-'})"  # noqa: E731
                 L.append(f"| {fc.NAMES[d]} | {g.upper()} | {cell('factorized_s1234')} | {cell('factorized_s2345')} | "
                          f"{x.loc['entrambi', 'k_sorpasso']} |")
         L.append("")
-        for d in fc.DOMAINS:
+        for d in doms:
             L += [f"## {fc.NAMES[d]}", ""]
             for g in fc.GTS:
                 L += [f"**GT {g.upper()}: rho sulle identita' di test**", "",

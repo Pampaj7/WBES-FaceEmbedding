@@ -1,0 +1,37 @@
+{
+ "view": "faceverse_neutral",
+ "pairs_unordered": 99000,
+ "methods": {
+  "now_original": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 2.483109182013636,
+    "median": 1.1123375543393195
+   }
+  },
+  "now_metrical": {
+   "ordered_missing": 0,
+   "pairs_nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "seconds_per_ordered_pair": {
+    "mean": 3.3612411569057756,
+    "median": 1.4841022565960884
+   }
+  }
+ },
+ "core_hours": 323.4083945332853,
+ "jobs": [
+  "1074627",
+  "1075807",
+  "1075808",
+  "1076201",
+  "1076309"
+ ],
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1076309",
+ "date": "2026-10-14 13:45:58"
+}

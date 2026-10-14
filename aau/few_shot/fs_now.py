@@ -91,7 +91,38 @@ def _task(a: int) -> int:
     return a
 
 
-def run(view: str, workers: int, shard: int, nshards: int, reverse: bool) -> None:
+def _chunk_task(t: tuple) -> tuple:
+    """Il blocco c di n delle coppie di una mesh A (``--split``): le mesh noisy di FaceVerse col ripiego del rilevatore
+    costano ore ciascuna, in un solo worker non finiscono entro il limite del job."""
+    a, c, n = t
+    ck = _ST["ckdir"] / f"A{a}.c{c}of{n}.npz"
+    if ck.exists():
+        return t
+    t0 = time.perf_counter()
+    D, bs = _ST["D"], _ST["partners"][a][c::n]
+    V, F = D["mesh"][a]
+    surf = pm.Surf(V, F)
+    rows = [prr.one_pair(surf, a, int(b), METHODS, D) for b in bs]
+    fc.atomic_savez(ck, task_s=time.perf_counter() - t0, job=fc.stamp()["job"],
+                    **prr.pack([{"a": a, "b": bs, "rows": rows}]))
+    return t
+
+
+def join_chunks(ck, a: int, n: int) -> bool:
+    """``A<a>.npz`` dai suoi n blocchi (stesse chiavi di ``_task``), poi i blocchi si cancellano."""
+    parts = [ck / f"A{a}.c{c}of{n}.npz" for c in range(n)]
+    if not all(p.exists() for p in parts):
+        return False
+    Z = [dict(np.load(p)) for p in parts]
+    out = {k: np.concatenate([z[k] for z in Z]) for k in Z[0] if k not in ("task_s", "job")}
+    fc.atomic_savez(ck / f"A{a}.npz", task_s=sum(float(z["task_s"]) for z in Z),
+                    job=",".join(sorted({str(z["job"]) for z in Z})), **out)
+    for p in parts:
+        p.unlink()
+    return True
+
+
+def run(view: str, workers: int, shard: int, nshards: int, reverse: bool, split: int = 1) -> None:
     t0 = time.time()
     D = pn.load_cond(view, "det")
     i, j = nocrop_pairs(D["items"])
@@ -105,6 +136,15 @@ def run(view: str, workers: int, shard: int, nshards: int, reverse: bool) -> Non
     print(f"[fs-now] run {view} parte {shard}/{nshards}: {len(i)} coppie, {len(todo)} mesh A da fare, "
           f"{time.time() - t0:.0f}s di caricamento", flush=True)
     tl = time.time()
+    if split > 1:                                     # una mesh A in ``split`` blocchi di coppie, poi ricomposta
+        tasks = [(a, c, split) for a in todo for c in range(split)]
+        with mp.get_context("fork").Pool(workers) as pool:
+            for k, _ in enumerate(pool.imap_unordered(_chunk_task, tasks, chunksize=1)):
+                if (k + 1) % max(1, len(tasks) // 20) == 0:
+                    print(f"[fs-now] run {view}: {k + 1}/{len(tasks)} blocchi, {time.time() - tl:.0f}s", flush=True)
+        done = sum(join_chunks(ck, a, split) for a in todo)
+        print(f"[fs-now] run {view}: {done}/{len(todo)} mesh A ricomposte, {time.time() - t0:.0f}s", flush=True)
+        return
     with mp.get_context("fork").Pool(workers) as pool:
         for k, _ in enumerate(pool.imap_unordered(_task, todo, chunksize=1)):
             if (k + 1) % max(1, len(todo) // 20) == 0:
@@ -232,13 +272,14 @@ def main() -> None:
     p.add_argument("--shard", type=int, default=0)
     p.add_argument("--nshards", type=int, default=1)
     p.add_argument("--reverse", action="store_true", help="run: dalle ultime mesh A (job di riserva)")
+    p.add_argument("--split", type=int, default=1, help="run: coppie di ogni mesh A in tanti blocchi paralleli")
     a = p.parse_args()
     if a.step == "render":
         render(a.view, a.workers)
     elif a.step == "prep":
         prep(a.view, a.workers)
     elif a.step == "run":
-        run(a.view, a.workers, a.shard, a.nshards, a.reverse)
+        run(a.view, a.workers, a.shard, a.nshards, a.reverse, a.split)
     elif a.step == "recheck":
         recheck(a.view, a.workers)
     else:

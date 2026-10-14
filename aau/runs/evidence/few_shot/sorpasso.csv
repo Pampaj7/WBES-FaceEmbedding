@@ -1,0 +1,25 @@
+dominio,gt,braccio,k_sorpasso,sopra_a_k,stabile_dopo
+hifi3d,fr,factorized_s1234,5,5 10 20 50,True
+hifi3d,fr,factorized_s2345,5,5 10 20 50,True
+hifi3d,fr,entrambi,5,,
+hifi3d,sr,factorized_s1234,nessuno,,False
+hifi3d,sr,factorized_s2345,nessuno,,False
+hifi3d,sr,entrambi,nessuno,,
+facescape,fr,factorized_s1234,nessuno,,False
+facescape,fr,factorized_s2345,nessuno,,False
+facescape,fr,entrambi,nessuno,,
+facescape,sr,factorized_s1234,nessuno,,False
+facescape,sr,factorized_s2345,nessuno,,False
+facescape,sr,entrambi,nessuno,,
+faceverse,fr,factorized_s1234,nessuno,,False
+faceverse,fr,factorized_s2345,nessuno,,False
+faceverse,fr,entrambi,nessuno,,
+faceverse,sr,factorized_s1234,nessuno,,False
+faceverse,sr,factorized_s2345,nessuno,,False
+faceverse,sr,entrambi,nessuno,,
+faceverse_neutral,fr,factorized_s1234,nessuno,,False
+faceverse_neutral,fr,factorized_s2345,nessuno,,False
+faceverse_neutral,fr,entrambi,nessuno,,
+faceverse_neutral,sr,factorized_s1234,nessuno,,False
+faceverse_neutral,sr,factorized_s2345,nessuno,,False
+faceverse_neutral,sr,entrambi,nessuno,,
