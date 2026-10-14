@@ -159,3 +159,8 @@ FLAME_masks.pkl
 
 # Codice e pesi di terzi per i competitori (Uni3D, OpenShape) e il loro venv: mai in git.
 /external_models/
+
+# paper e review: solo locali (anonimato CVPR, nessuna fuga)
+paper/
+review*.md
+presentazione/
