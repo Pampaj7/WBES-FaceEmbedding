@@ -200,10 +200,11 @@ File: `cv.csv` (tutte le configurazioni, AUC per fold), `metrics.csv`, `deltas.c
 
 - **Guadagno**: SI', entrambi i semi. AUC 0,830 -> 0,993 [0,983, 0,999] (s1234) e 0,811 -> 0,993 [0,983, 0,999] (s2345);
   delta contro la d_F non cal. +0,163 [+0,111, +0,210] e +0,182 [+0,125, +0,235]; nello strato H +0,275 e +0,306.
-- **Divario chiuso**: SI', e ribaltato, entrambi i semi, contro ICP mm e NoW metrical, sia di default sia nella
+- **Divario chiuso**: SI', e ribaltato, entrambi i semi (ma con le stesse 10 sequenze in calibrazione e al test: vedi
+  "Controlli del critic"), contro ICP mm e NoW metrical, sia di default sia nella
   configurazione scelta su calibrazione (ICP: rej_pulli; NoW: lmk68, numeri identici al default). AUC contro NoW
   metrical +0,075 [+0,040, +0,112] (s1234) e +0,075 [+0,041, +0,110] (s2345); contro ICP mm scelto +0,092 e +0,091;
-  strato H contro NoW metrical +0,135 e +0,135. Rank-1 1,000 e 0,993 (NoW 0,967), EER 0,044 e 0,037 (NoW 0,157).
+  strato H contro NoW metrical +0,135 e +0,135. Rank-1 1,000 e 0,993 (NoW 0,967; EFFETTO TETTO, non e' un argomento), EER 0,044 e 0,037 (NoW 0,157).
 - WCCN da sola: anch'essa sopra entrambi i concorrenti in AUC (0,964 / 0,957). Le varianti con la taglia (c) NON
   aiutano: la validazione incrociata sceglie g = 16, il bordo della griglia (peso della taglia quasi nullo), e
   WCCN + taglia peggiora rispetto a WCCN sola. Il controllo d_F con c riscelto su FaMoS TRAIN (c = 0,707) resta dov'era
@@ -238,3 +239,33 @@ File: `cv.csv` (tutte le configurazioni, AUC per fold), `metrics.csv`, `deltas.c
   modifica a `fcal.py` dopo d6d6cf3.
 - Job: preparazione 1082398 (10 min), latenti 1082402 (V100, 5 min; controllo sulle 150 di test max |dZ| 1,2e-3 e
   1,1e-3 <= 5e-3), griglia 1082403 (array 0-9, 64 core, 2-8 min l'uno, 0 NaN), valutazione 1082444 (4 min).
+
+## Controlli del critic (dopo i risultati; `aau/famos_calib/fcal_checks.py`, job 1082509)
+
+Revisione del critic: RISERVE, nessuna fuga ne' bug; va dichiarato il vantaggio delle stesse 10 sequenze in calibrazione
+e al test. Controlli rifatti nel repo (LDA lam 0,01, k 16, invariata; numeri in `controlli_critic.json`, divisioni in
+`controlli_critic_lso.csv`). Valori s1234 / s2345.
+
+- **Sequenze disgiunte** (tutte le 252 divisioni 5/5: LDA stimata sulle sequenze A di calibrazione, test sulle 75
+  scansioni delle sequenze B): AUC mediana **0,975 / 0,972** (min 0,926 / 0,927). A parita' di campioni, con le
+  sequenze in comune (stima su B): 0,988 / 0,990. **Premio delle sequenze in comune**: mediana +0,014 / +0,019, fino a
+  +0,062 / +0,063 (min -0,010 / -0,006). Sulle stesse 75 scansioni NoW metrical ha AUC mediana 0,922, ICP mm 0,892,
+  d_F non cal. 0,828 / 0,807. LDA con sequenze disgiunte **sopra NoW metrical nel 93% / 88%** delle divisioni (delta
+  mediano +0,048 / +0,045, minimo **-0,034** / -0,033); sopra ICP mm nel 96% / 94% (minimo -0,037 / -0,033).
+- **Bootstrap dei 73 soggetti di calibrazione** (200 repliche, seme 1): AUC di test 0,989 [0,985, 0,993] / 0,989
+  [0,985, 0,992]; nessuna replica a o sotto NoW metrical (0,918).
+- **Etichette permutate** (3): AUC 0,749-0,827 / 0,764-0,775, contro 0,830 / 0,811 della d_F non cal.: senza identita'
+  nessun guadagno.
+- **Quasi duplicati** (spazio LDA, medie per soggetto): vicino piu' prossimo test -> calibrazione minimo 10,7 / 9,7,
+  mediana 12,7 / 11,6; calibrazione -> calibrazione minimo 8,7 / 8,3, mediana 13,3 / 12,8. Nessun soggetto di test e'
+  piu' vicino a uno di calibrazione di quanto lo siano fra loro le persone di calibrazione.
+- **Rank-1 = 1,000 e' un effetto tetto** (15 persone, 10 scansioni ciascuna): non va usato come argomento; la lettura
+  e' sull'AUC.
+
+## Formulazione difendibile
+
+Una proiezione LINEARE (LDA) stimata su 73 identita' FaMoS TRAIN etichettate, con lo stesso sistema di acquisizione e
+le stesse sequenze del test, porta l'AUC di verifica del nostro da 0,830 a 0,993 (s1234; s2345 da 0,811 a 0,993). Con
+sequenze disgiunte fra calibrazione e test l'AUC e' 0,97 in mediana, sopra NoW metrical in circa il 90% delle
+divisioni. E' un **adattamento supervisionato al dominio**, NON un confronto alla pari: ICP e NoW non usano identita'
+etichettate. Post hoc e descrittivo.

@@ -15,13 +15,14 @@
 #   FC_STEP=gpu  sbatch --gres=gpu:l40s:1 -c 8 aau/famos_calib/fcal.sbatch   (latenti [s, u] dei due semi)
 #   FC_STEP=grid sbatch --array=0-9 aau/famos_calib/fcal.sbatch         (fold = id / 2, metodo icp | now = id % 2)
 #   FC_STEP=eval sbatch -c 8 aau/famos_calib/fcal.sbatch                (scelte su calibrazione, metriche di test)
+#   FC_STEP=checks sbatch -c 8 aau/famos_calib/fcal.sbatch              (controlli del critic: fcal_checks.py)
 # Dati e intermedi in datasets/FAMOS/calib (fuori da git).
 set -euo pipefail
 export AAU_NV=""
 source "${WBES_ROOT:-$PWD}/aau/env.sh"
 cd "$WBES_ROOT"
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 UGT_THREADS=1
-STEP="${FC_STEP:?FC_STEP: prep | gpu | grid | eval}"
+STEP="${FC_STEP:?FC_STEP: prep | gpu | grid | eval | checks}"
 W="${SLURM_CPUS_PER_TASK:-8}"
 D=aau/famos_calib
 CAL=datasets/FAMOS/calib
@@ -80,6 +81,7 @@ case "$STEP" in
         if [[ $meth == now ]]; then R=("${UG[@]}"); else R=("${O3[@]}"); fi
         "${R[@]}" $D/fcal.py grid --fold "$fold" --method "$meth" --workers "$W" ;;
     eval) "${UG[@]}" $D/fcal.py eval ;;
+    checks) "${UG[@]}" $D/fcal_checks.py ;;
     *) echo "passo sconosciuto: $STEP" >&2; exit 2 ;;
 esac
 echo "[fcal] OK passo=$STEP in $(( $(date +%s) - t0 ))s $(date +%T)"
