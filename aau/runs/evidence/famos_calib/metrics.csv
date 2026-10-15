@@ -1,0 +1,201 @@
+colonna,metodo,insieme,metrica,valore,ic_lo,ic_hi,repliche_escluse,coppie_non_finite
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",all,rank1,0.9466666666666667,0.9133333333333333,0.98,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",all,mAP,0.8223721683327824,0.7725185313105893,0.8731409562255388,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",all,AUC,0.8949853968253968,0.8582193784820474,0.9319186208265573,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",all,EER,0.17333333333333334,0.12148148148148152,0.22495437189767087,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:M,rank1,0.98,0.94,1.0,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:M,AUC,0.9801667724867725,0.9517284642542239,0.9990081929388517,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:H,rank1,0.86,0.7441860465116279,0.9523809523809523,0,0
+icp|mm,"ICP + Chamfer in mm, default (non cal.)",expr:H,AUC,0.8204800514800514,0.7521638995576733,0.8853005184866154,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",all,rank1,0.9533333333333334,0.9266666666666666,0.98,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",all,mAP,0.83065304961887,0.7814157631860217,0.8818954822329637,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",all,AUC,0.9012228571428571,0.8657557523148148,0.9376850817335145,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",all,EER,0.1703703703703704,0.11703703703703705,0.21781481481481474,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:L,rank1,1.0,1.0,1.0,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:L,AUC,1.0,1.0,1.0,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:M,rank1,0.98,0.94,1.0,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:M,AUC,0.983109417989418,0.9582498255115448,0.9991140374417528,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:H,rank1,0.88,0.7872340425531915,0.9534973166368516,0,0
+icp@cal,"ICP + Chamfer in mm, configurazione scelta su FaMoS TRAIN (rej_pulli)",expr:H,AUC,0.8300697554697555,0.7627839022384917,0.8951314876707032,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",all,rank1,0.9666666666666667,0.94,0.9933333333333333,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",all,mAP,0.8646791781837552,0.8121080410568876,0.9141486836346309,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",all,AUC,0.9180198941798942,0.8794520013055727,0.9545477768355775,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",all,EER,0.15703703703703709,0.10074074074074069,0.20594883040935674,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:M,rank1,1.0,1.0,1.0,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:M,AUC,0.9973032804232804,0.9935832890929958,0.9997018758142766,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:H,rank1,0.9,0.8181818181818182,0.9772727272727273,0,0
+now_metrical|mm,"NoW metrical (rilevatore), default (non cal.)",expr:H,AUC,0.8520815958815959,0.777548678659663,0.9190394533208498,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",all,rank1,0.9666666666666667,0.94,0.9933333333333333,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",all,mAP,0.8645786732221694,0.8119249630726262,0.9141138912839676,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",all,AUC,0.9179892768959436,0.8794155636867542,0.954496009610443,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",all,EER,0.15703703703703709,0.10074074074074069,0.20594093567251465,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:L,rank1,1.0,1.0,1.0,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:L,AUC,1.0,1.0,1.0,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:M,rank1,1.0,1.0,1.0,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:M,AUC,0.997304126984127,0.9935923529502722,0.999701925904439,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:H,rank1,0.9,0.8181818181818182,0.9772727272727273,0,0
+now@cal,"NoW metrical (rilevatore), configurazione scelta su FaMoS TRAIN (lmk68)",expr:H,AUC,0.8520252252252253,0.7774732966338352,0.9190113654323325,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",all,rank1,0.8533333333333334,0.8133333333333334,0.9,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",all,mAP,0.6644953376932153,0.5995352867483583,0.7391392175579424,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",all,AUC,0.8297003174603175,0.7829919999196158,0.8834741107760401,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",all,EER,0.2418095238095238,0.1843783068783069,0.29360984405458085,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:M,rank1,0.92,0.8541666666666666,0.980787037037037,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:M,AUC,0.9615961904761905,0.9222352660562005,0.9900845402266091,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:H,rank1,0.64,0.46511627906976744,0.7647288602941176,0,0
+factorized_s1234|form,"nostro s1234, d_F non cal. (non cal.)",expr:H,AUC,0.7126718146718146,0.6359433422823597,0.7962152173480587,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",all,rank1,0.8733333333333333,0.8266666666666667,0.9266666666666666,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",all,mAP,0.6506689533518215,0.585417985733754,0.7255037657382999,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",all,AUC,0.8158519929453263,0.7602865201534301,0.870116704849179,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",all,EER,0.26485714285714285,0.2103379152348224,0.322962962962963,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:M,rank1,0.92,0.8490258408531584,0.9803921568627451,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:M,AUC,0.9456575661375661,0.8989575972434428,0.9822038409450833,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:H,rank1,0.7,0.5365428247305729,0.8135907093534213,0,0
+factorized_s1234|form_cal,"nostro s1234, d_F cal. (non cal.)",expr:H,AUC,0.697100386100386,0.5936259421115876,0.7880844066192108,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",all,rank1,0.8133333333333334,0.7533333333333333,0.8733333333333333,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",all,mAP,0.635565721200287,0.5619752503016351,0.7157975566688978,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",all,AUC,0.8299839153439154,0.7812332690854119,0.8847182916666667,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",all,EER,0.24148148148148152,0.18709421717171715,0.29430332474226806,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:M,rank1,0.9,0.7948113207547169,0.9796020408163265,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:M,AUC,0.9570742857142858,0.9125018956920272,0.9880041189343968,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:H,rank1,0.54,0.38235294117647056,0.6666666666666666,0,0
+factorized_s1234|shape,"nostro s1234, d_P (non cal.)",expr:H,AUC,0.7159389961389961,0.6393184008195916,0.7971504814208081,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",all,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",all,mAP,0.9288723817076567,0.8929140608707999,0.9560319043688817,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",all,AUC,0.9635252204585538,0.9412649136757647,0.9848170179043839,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",all,EER,0.10447619047619047,0.06502425393380358,0.13900648148148148,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:L,AUC,0.9999988095238095,0.9999889869421725,1.0,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:M,AUC,0.9964431746031746,0.9910618697756913,0.9997758118845297,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn,"nostro s1234, WCCN (u sbiancata), d'",expr:H,AUC,0.9356213642213642,0.8931454672761663,0.9743302949301876,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",all,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",all,mAP,0.9815470109410465,0.9657933348725933,0.9926963930359762,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",all,AUC,0.9928609523809524,0.9830739478965818,0.9993346101605626,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",all,EER,0.043904761904761905,0.011933393070489847,0.07378973684210527,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:M,AUC,0.9990700529100529,0.9966809185343364,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda,"nostro s1234, LDA, d'",expr:H,AUC,0.9875415701415702,0.9684323991263242,0.9988473732500766,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",all,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",all,mAP,0.914248089486503,0.8733517021394852,0.9486358895130549,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",all,AUC,0.949264761904762,0.9199102075764596,0.9782284471403094,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",all,EER,0.12148148148148152,0.07850453514739232,0.16296296296296298,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:L,AUC,0.9999976190476191,0.999977973884345,1.0,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:M,AUC,0.996202328042328,0.9899512971976637,0.9997876502017939,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|wccn_taglia,"nostro s1234, d_F ricomposta: taglia + u WCCN",expr:H,AUC,0.909752380952381,0.8584743972696007,0.9605425852070018,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",all,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",all,mAP,0.9783462671718997,0.9602797712488425,0.9916766407748024,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",all,AUC,0.9908936860670194,0.9795160040936066,0.9988948122952885,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",all,EER,0.05481481481481476,0.016622081320450885,0.08444444444444443,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:M,AUC,0.9988220105820106,0.9958244023323615,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|lda_taglia,"nostro s1234, d_F ricomposta: taglia + u LDA",expr:H,AUC,0.9841034749034749,0.9612046337146409,0.9980437763916816,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,rank1,0.8733333333333333,0.8333333333333334,0.9134999999999999,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,mAP,0.6727434087615642,0.6082881683629336,0.7463228829718357,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,AUC,0.8300577072310406,0.7815496395928091,0.8824525690235691,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,EER,0.24444444444444446,0.1837037037037037,0.2933826953748006,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:M,rank1,0.92,0.8541666666666666,0.980787037037037,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:M,AUC,0.9595847619047619,0.9195650129329194,0.9896200447978736,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:H,rank1,0.7,0.5581395348837209,0.8052262253875158,0,0
+factorized_s1234|form_c,"nostro s1234, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:H,AUC,0.7145469755469755,0.6308110119808404,0.7970601598624051,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",all,rank1,0.82,0.7666666666666667,0.88,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",all,mAP,0.641414440208094,0.5656952051860747,0.7242233506679248,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",all,AUC,0.8111480776014109,0.7580856146215645,0.8692406005445158,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",all,EER,0.2592592592592593,0.20148148148148148,0.31259259259259264,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:M,rank1,0.92,0.85,0.9807783018867924,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:M,AUC,0.9575826455026455,0.9175517837047832,0.9897279518657268,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:H,rank1,0.54,0.33313953488372094,0.7187637061403509,0,0
+factorized_s2345|form,"nostro s2345, d_F non cal. (non cal.)",expr:H,AUC,0.6812671814671815,0.5964600993913938,0.7714472432971395,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",all,rank1,0.8533333333333334,0.8066666666666666,0.9066666666666666,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",all,mAP,0.6283779315761364,0.5490418158156088,0.712420268871934,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",all,AUC,0.8048577072310406,0.7434974863828694,0.8621226352946677,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",all,EER,0.28296296296296297,0.21777777777777774,0.33185185185185184,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:M,rank1,0.9,0.8221666666666666,0.9649122807017544,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:M,AUC,0.9433125925925926,0.8923044558979845,0.98529992026115,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:H,rank1,0.66,0.48778924327704815,0.7931832694763729,0,0
+factorized_s2345|form_cal,"nostro s2345, d_F cal. (non cal.)",expr:H,AUC,0.6784692406692406,0.5632529605699795,0.7768376072361058,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",all,rank1,0.8,0.7533333333333333,0.8466666666666667,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",all,mAP,0.6142101792657124,0.5388842630126035,0.6960061686809279,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",all,AUC,0.8077350264550265,0.7540436394557823,0.8689545536310026,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",all,EER,0.2651851851851852,0.20444444444444443,0.31999999999999995,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:M,rank1,0.9,0.8333333333333334,0.9622641509433962,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:M,AUC,0.9508359788359788,0.9100249776678349,0.9842532856204683,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:H,rank1,0.5,0.34071969696969695,0.6250529661016949,0,0
+factorized_s2345|shape,"nostro s2345, d_P (non cal.)",expr:H,AUC,0.6791433719433719,0.5962237440891491,0.7675978574282495,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",all,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",all,mAP,0.920557029380147,0.8652945495639546,0.9600980324669731,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",all,AUC,0.9569810229276896,0.9294188992433293,0.9807098758417508,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",all,EER,0.11851851851851847,0.07258691756272397,0.157021670606777,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:M,AUC,0.9961227513227513,0.9911230319370434,0.9998627587153884,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn,"nostro s2345, WCCN (u sbiancata), d'",expr:H,AUC,0.9238772200772201,0.8738980587121212,0.9664118358929874,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",all,rank1,0.9933333333333333,0.98,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",all,mAP,0.9778632367463101,0.9551688553614065,0.9947124216349368,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",all,AUC,0.9926731569664903,0.9829792690935395,0.999365278541428,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",all,EER,0.03703703703703709,0.011851851851851891,0.07044784921369102,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:M,AUC,0.9993346031746032,0.9976007663666553,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:H,rank1,0.98,0.9317785412262156,1.0,0,0
+factorized_s2345|lda,"nostro s2345, LDA, d'",expr:H,AUC,0.9870380952380953,0.966852915451895,0.9988508888028895,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",all,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",all,mAP,0.9027121040950716,0.8383631533658537,0.9529966403416394,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",all,AUC,0.9396681481481481,0.9017450845371275,0.9740351322751323,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",all,EER,0.13390476190476192,0.07998724489795915,0.17900716845878129,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:M,AUC,0.9957921693121693,0.9899780855306385,0.9998939222809604,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:H,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|wccn_taglia,"nostro s2345, d_F ricomposta: taglia + u WCCN",expr:H,AUC,0.8924939510939511,0.8221396707845966,0.9529374476238058,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",all,rank1,0.9866666666666667,0.9666666666666667,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",all,mAP,0.9746283919968285,0.9489130121563524,0.9934101959949998,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",all,AUC,0.9908428924162257,0.97942908186652,0.9987605464705297,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",all,EER,0.04342857142857143,0.014814814814814836,0.07840467525195968,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:M,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:M,AUC,0.9991657142857143,0.9969200866557721,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:H,rank1,0.96,0.8935738930419781,1.0,0,0
+factorized_s2345|lda_taglia,"nostro s2345, d_F ricomposta: taglia + u LDA",expr:H,AUC,0.9838018018018018,0.9613954874617904,0.9978974802688606,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,rank1,0.8333333333333334,0.78,0.8934999999999998,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,mAP,0.6507962754651108,0.5739300149281104,0.7310376711021832,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,AUC,0.8134244797178131,0.7578513996181749,0.8693489361056963,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",all,EER,0.2579047619047619,0.202962962962963,0.3155555555555556,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:L,rank1,1.0,1.0,1.0,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:L,AUC,1.0,1.0,1.0,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:M,rank1,0.92,0.85,0.9807783018867924,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:M,AUC,0.9560711111111111,0.9149779743752989,0.9898864766297004,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:H,rank1,0.58,0.36585365853658536,0.75,0,0
+factorized_s2345|form_c,"nostro s2345, controllo: d_F con u non cal., c scelto su FaMoS TRAIN",expr:H,AUC,0.6863392535392535,0.5875228398093949,0.7766073738849552,0,0

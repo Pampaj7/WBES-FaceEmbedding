@@ -1,0 +1,103 @@
+{
+ "view": "famos_calib_f4",
+ "method": "icp",
+ "pairs": 9730,
+ "core_hours": 1.9224023736984883,
+ "jobs": [
+  "1082419"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0623014477384367,
+   "seconds_per_pair_median": 0.04121633665636182,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0729411290051347,
+   "seconds_per_pair_median": 0.02410432044416666,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it2000": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0620870639727036,
+   "seconds_per_pair_median": 0.041341410018503666,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr20": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0620680935599234,
+   "seconds_per_pair_median": 0.04118360090069473,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.053428806720683,
+   "seconds_per_pair_median": 0.04318745597265661,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_id": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0634554123028606,
+   "seconds_per_pair_median": 0.04049278609454632,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_lmk": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0645446756870123,
+   "seconds_per_pair_median": 0.04244891041889787,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "rej_pulli": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0594366128360506,
+   "seconds_per_pair_median": 0.23558292468078434,
+   "iterations_median": [
+    24.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  },
+  "rej_masuda": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.05170472768335,
+   "seconds_per_pair_median": 0.194660319481045,
+   "iterations_median": [
+    20.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  }
+ },
+ "host": "a256-a40-05.srv.aau.dk",
+ "job": "1082419",
+ "date": "2026-10-15 15:30:11"
+}

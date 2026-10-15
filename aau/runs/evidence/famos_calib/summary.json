@@ -1,0 +1,183 @@
+{
+ "calibrazione": {
+  "soggetti": 73,
+  "fold": [
+   15,
+   15,
+   15,
+   14,
+   14
+  ],
+  "mesh": 730,
+  "soggetti_tolti": []
+ },
+ "scelte_nostro": {
+  "factorized_s1234": {
+   "shape": {
+    "params": {},
+    "auc_cv": 0.8156638142527666
+   },
+   "form": {
+    "params": {
+     "c": 1.0
+    },
+    "auc_cv": 0.8220604094036474
+   },
+   "wccn": {
+    "params": {
+     "lam": 0.1
+    },
+    "auc_cv": 0.9770860378704189
+   },
+   "lda": {
+    "params": {
+     "lam": 0.01,
+     "k": 16
+    },
+    "auc_cv": 0.9980094959009245
+   },
+   "wccn_taglia": {
+    "params": {
+     "g": 16.0
+    },
+    "auc_cv": 0.9715317648700506,
+    "base": {
+     "lam": 0.1
+    }
+   },
+   "lda_taglia": {
+    "params": {
+     "g": 16.0
+    },
+    "auc_cv": 0.9976607226001513,
+    "base": {
+     "lam": 0.01,
+     "k": 16
+    }
+   },
+   "form_c": {
+    "params": {
+     "c": 0.7071067811865476
+    },
+    "auc_cv": 0.8228725863906817
+   }
+  },
+  "factorized_s2345": {
+   "shape": {
+    "params": {},
+    "auc_cv": 0.8003180519797664
+   },
+   "form": {
+    "params": {
+     "c": 1.0
+    },
+    "auc_cv": 0.8067354577979339
+   },
+   "wccn": {
+    "params": {
+     "lam": 0.1
+    },
+    "auc_cv": 0.9736918137100993
+   },
+   "lda": {
+    "params": {
+     "lam": 0.01,
+     "k": 16
+    },
+    "auc_cv": 0.9953504265751885
+   },
+   "wccn_taglia": {
+    "params": {
+     "g": 16.0
+    },
+    "auc_cv": 0.9682914251603775,
+    "base": {
+     "lam": 0.1
+    }
+   },
+   "lda_taglia": {
+    "params": {
+     "g": 16.0
+    },
+    "auc_cv": 0.994954875050875,
+    "base": {
+     "lam": 0.01,
+     "k": 16
+    }
+   },
+   "form_c": {
+    "params": {
+     "c": 0.7071067811865476
+    },
+    "auc_cv": 0.8078246389518771
+   }
+  }
+ },
+ "scelte_concorrenti": {
+  "icp": {
+   "config": "rej_pulli",
+   "auc_cv": 0.9421097355272593,
+   "auc_cv_default": 0.9389039376707948
+  },
+  "now": {
+   "config": "lmk68",
+   "auc_cv": 0.9265025073550788,
+   "auc_cv_default": 0.9264146532550341
+  }
+ },
+ "terzili_expr_mm": [
+  0.8617977098666666,
+  3.315187471333333
+ ],
+ "controlli": {
+  "griglia_icp_default_vs_esterna": {
+   "n": 11175,
+   "nan": 0,
+   "max_abs": 9.414691248821327e-14,
+   "median_abs": 4.440892098500626e-15,
+   "p95_abs": 2.3092638912203256e-14,
+   "equal": 674
+  },
+  "griglia_now_default_vs_esterna": {
+   "n": 11175,
+   "nan": 0,
+   "max_abs": 0.0,
+   "median_abs": 0.0,
+   "p95_abs": 0.0,
+   "equal": 11175
+  },
+  "factorized_s1234_form_ricalcolata_vs_esterna": {
+   "n": 11175,
+   "nan": 0,
+   "max_abs": 1.2434497875801753e-14,
+   "median_abs": 0.0,
+   "p95_abs": 3.552713678800501e-15,
+   "equal": 8883
+  },
+  "factorized_s2345_form_ricalcolata_vs_esterna": {
+   "n": 11175,
+   "nan": 0,
+   "max_abs": 1.2434497875801753e-14,
+   "median_abs": 0.0,
+   "p95_abs": 3.552713678800501e-15,
+   "equal": 8100
+  },
+  "metriche_di_base_vs_esterna_max_abs": 2.220446049250313e-16
+ },
+ "controlli_ok": {
+  "embed_factorized_s1234": true,
+  "embed_factorized_s2345": true
+ },
+ "test": {
+  "scansioni": 150,
+  "soggetti": 15,
+  "coppie": 11175,
+  "stessa_persona": 675
+ },
+ "repliche": 1000,
+ "seme": 1234,
+ "seconds": 248.8286952972412,
+ "host": "i256-a10-08.srv.aau.dk",
+ "job": "1082444",
+ "date": "2026-10-15 15:37:45"
+}

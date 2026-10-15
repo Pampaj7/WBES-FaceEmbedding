@@ -1,0 +1,77 @@
+{
+ "view": "famos_calib_f2",
+ "method": "now",
+ "pairs": 11175,
+ "core_hours": 4.222711598366732,
+ "jobs": [
+  "1082416"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.455430619477177,
+   "seconds_per_pair_median": 0.1166889313608408,
+   "iterations_median": 7.0,
+   "iterations_max": 45
+  },
+  "r12": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.2007190771105734,
+   "seconds_per_pair_median": 0.11254539014771581,
+   "iterations_median": 8.0,
+   "iterations_max": 48
+  },
+  "icp0": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.310512127296927,
+   "seconds_per_pair_median": 0.01199665805324912,
+   "iterations_median": 0.0,
+   "iterations_max": 0
+  },
+  "e3_0": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.455454770414117,
+   "seconds_per_pair_median": 0.6099414667114615,
+   "iterations_median": 23.0,
+   "iterations_max": 106
+  },
+  "lmk5": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.4553120096355885,
+   "seconds_per_pair_median": 0.11298201698809862,
+   "iterations_median": 7.0,
+   "iterations_max": 46
+  },
+  "lmk51": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.4557997857798464,
+   "seconds_per_pair_median": 0.11173756886273623,
+   "iterations_median": 7.0,
+   "iterations_max": 47
+  },
+  "lmk68": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 2.455091156422351,
+   "seconds_per_pair_median": 0.11006102012470365,
+   "iterations_median": 7.0,
+   "iterations_max": 50
+  }
+ },
+ "host": "a768-l40s-02.srv.aau.dk",
+ "job": "1082416",
+ "date": "2026-10-15 15:30:33"
+}

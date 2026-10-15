@@ -36,7 +36,8 @@ detect() {  # $1 raw | patch: SH rilevatori in parallelo su blocchi contigui, po
     local q pids=()
     "${UG[@]}" $D/fcal.py det-split --kind "$1" --shards $SH
     for (( q = 0; q < SH; q++ )); do
-        OMP_NUM_THREADS=$(( W / SH )) "${MI[@]}" aau/competitors/protocolli/pr_noise_detect.py --dir "$CAL/$1_det/s$q" \
+        ORT_THREADS=$(( W / SH )) "${MI[@]}" $D/det_threads.py aau/competitors/protocolli/pr_noise_detect.py \
+            --dir "$CAL/$1_det/s$q" \
             > "$CAL/$1_det/s$q.log" 2>&1 & pids+=($!)
     done
     for q in "${pids[@]}"; do wait "$q"; done
@@ -53,10 +54,10 @@ ops() {  # areanorm k_eig 128, come ei.sbatch
     [[ $(find "$1" -name "*.npz" | wc -l) == $(find "$2" -name "*.npz" | wc -l) ]] || { echo "operatori incompleti" >&2; exit 1; }
 }
 case "$STEP" in
-    prep)
-        "${UG[@]}" $D/fcal.py select --workers "$W"
-        "${UG[@]}" $D/fcal.py render-raw --workers "$W"
-        detect raw
+    prep)  # ripartibile: salta selezione, render e rilevazione della registrazione gia' fatti
+        [[ -f $CAL/reg_selected.npz ]] || "${UG[@]}" $D/fcal.py select --workers "$W"
+        [[ -f $CAL/raw_det/cams.npz ]] || "${UG[@]}" $D/fcal.py render-raw --workers "$W"
+        [[ -f $CAL/raw_det/lmk2d.npz ]] || detect raw
         "${UG[@]}" $D/fcal.py patch --workers "$W"
         "${UG[@]}" $D/fcal.py render-patch --workers "$W"
         detect patch

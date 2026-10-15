@@ -1,0 +1,103 @@
+{
+ "view": "famos_calib_f0",
+ "method": "icp",
+ "pairs": 11175,
+ "core_hours": 4.319608269251055,
+ "jobs": [
+  "1082411"
+ ],
+ "configs": {
+  "default": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.080824487032279,
+   "seconds_per_pair_median": 0.07830392476171255,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0906506045021067,
+   "seconds_per_pair_median": 0.04863709397614002,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "it2000": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.079625642800085,
+   "seconds_per_pair_median": 0.07844794495031238,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr20": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.077499898916597,
+   "seconds_per_pair_median": 0.07845612987875938,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "thr10": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.064631534581663,
+   "seconds_per_pair_median": 0.08502612495794892,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_id": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.081837096083872,
+   "seconds_per_pair_median": 0.07413023198023438,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "init_lmk": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.081089988103103,
+   "seconds_per_pair_median": 0.07482467032968998,
+   "iterations_median": null,
+   "iterations_max": null
+  },
+  "rej_pulli": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.0694117790435307,
+   "seconds_per_pair_median": 0.4825535281561315,
+   "iterations_median": [
+    24.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  },
+  "rej_masuda": {
+   "nan": 0,
+   "errors": 0,
+   "error_examples": [],
+   "median_mm": 3.064678485600403,
+   "seconds_per_pair_median": 0.37661023112013936,
+   "iterations_median": [
+    19.0
+   ],
+   "iterations_max": [
+    30
+   ]
+  }
+ },
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1082411",
+ "date": "2026-10-15 15:30:58"
+}

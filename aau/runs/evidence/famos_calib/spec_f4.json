@@ -1,0 +1,231 @@
+{
+ "name": "famos_calib_f4",
+ "set": "calib_f4",
+ "dir": "datasets/FAMOS/calib/npz",
+ "subjects": [
+  "id940018",
+  "id940019",
+  "id940031",
+  "id940033",
+  "id940035",
+  "id940051",
+  "id940055",
+  "id940057",
+  "id940062",
+  "id940067",
+  "id940068",
+  "id940070",
+  "id940074",
+  "id940095"
+ ],
+ "topologies": [
+  "bareteeth",
+  "blow_cheeks",
+  "disgust",
+  "fear",
+  "happiness",
+  "kissing",
+  "mouth_down",
+  "rolling_lips",
+  "surprise",
+  "wrinkle_nose"
+ ],
+ "frames": {
+  "id940018": {
+   "bareteeth": 101,
+   "blow_cheeks": 141,
+   "disgust": 1,
+   "fear": 41,
+   "happiness": 11,
+   "kissing": 71,
+   "mouth_down": 111,
+   "rolling_lips": 153,
+   "surprise": 1,
+   "wrinkle_nose": 31
+  },
+  "id940019": {
+   "bareteeth": 1,
+   "blow_cheeks": 1,
+   "disgust": 11,
+   "fear": 1,
+   "happiness": 41,
+   "kissing": 41,
+   "mouth_down": 122,
+   "rolling_lips": 101,
+   "surprise": 121,
+   "wrinkle_nose": 1
+  },
+  "id940031": {
+   "bareteeth": 1,
+   "blow_cheeks": 191,
+   "disgust": 61,
+   "fear": 31,
+   "happiness": 1,
+   "kissing": 61,
+   "mouth_down": 51,
+   "rolling_lips": 161,
+   "surprise": 41,
+   "wrinkle_nose": 151
+  },
+  "id940033": {
+   "bareteeth": 81,
+   "blow_cheeks": 141,
+   "disgust": 1,
+   "fear": 91,
+   "happiness": 101,
+   "kissing": 1,
+   "mouth_down": 1,
+   "rolling_lips": 1,
+   "surprise": 1,
+   "wrinkle_nose": 1
+  },
+  "id940035": {
+   "bareteeth": 211,
+   "blow_cheeks": 131,
+   "disgust": 81,
+   "fear": 1,
+   "happiness": 151,
+   "kissing": 1,
+   "mouth_down": 261,
+   "rolling_lips": 1,
+   "surprise": 61,
+   "wrinkle_nose": 1
+  },
+  "id940051": {
+   "bareteeth": 51,
+   "blow_cheeks": 71,
+   "disgust": 21,
+   "fear": 71,
+   "happiness": 91,
+   "kissing": 71,
+   "mouth_down": 51,
+   "rolling_lips": 41,
+   "surprise": 71,
+   "wrinkle_nose": 11
+  },
+  "id940055": {
+   "bareteeth": 61,
+   "blow_cheeks": 201,
+   "disgust": 31,
+   "fear": 1,
+   "happiness": 1,
+   "kissing": 51,
+   "mouth_down": 1,
+   "rolling_lips": 1,
+   "surprise": 71,
+   "wrinkle_nose": 31
+  },
+  "id940057": {
+   "bareteeth": 1,
+   "blow_cheeks": 42,
+   "disgust": 41,
+   "fear": 21,
+   "happiness": 51,
+   "kissing": 41,
+   "mouth_down": 151,
+   "rolling_lips": 71,
+   "surprise": 83,
+   "wrinkle_nose": 123
+  },
+  "id940062": {
+   "bareteeth": 61,
+   "blow_cheeks": 151,
+   "disgust": 21,
+   "fear": 61,
+   "happiness": 81,
+   "kissing": 41,
+   "mouth_down": 221,
+   "rolling_lips": 71,
+   "surprise": 231,
+   "wrinkle_nose": 51
+  },
+  "id940067": {
+   "bareteeth": 91,
+   "blow_cheeks": 51,
+   "disgust": 41,
+   "fear": 81,
+   "happiness": 41,
+   "kissing": 1,
+   "mouth_down": 1,
+   "rolling_lips": 31,
+   "surprise": 151,
+   "wrinkle_nose": 111
+  },
+  "id940068": {
+   "bareteeth": 1,
+   "blow_cheeks": 1,
+   "disgust": 111,
+   "fear": 41,
+   "happiness": 11,
+   "kissing": 31,
+   "mouth_down": 91,
+   "rolling_lips": 1,
+   "surprise": 1,
+   "wrinkle_nose": 91
+  },
+  "id940070": {
+   "bareteeth": 81,
+   "blow_cheeks": 121,
+   "disgust": 1,
+   "fear": 111,
+   "happiness": 1,
+   "kissing": 41,
+   "mouth_down": 101,
+   "rolling_lips": 61,
+   "surprise": 11,
+   "wrinkle_nose": 1
+  },
+  "id940074": {
+   "bareteeth": 81,
+   "blow_cheeks": 181,
+   "disgust": 1,
+   "fear": 172,
+   "happiness": 61,
+   "kissing": 61,
+   "mouth_down": 1,
+   "rolling_lips": 1,
+   "surprise": 1,
+   "wrinkle_nose": 1
+  },
+  "id940095": {
+   "bareteeth": 1,
+   "blow_cheeks": 121,
+   "disgust": 41,
+   "fear": 31,
+   "happiness": 41,
+   "kissing": 31,
+   "mouth_down": 151,
+   "rolling_lips": 41,
+   "surprise": 1,
+   "wrinkle_nose": 1
+  }
+ },
+ "frame": {
+  "u": 1.0,
+  "R": [
+   [
+    1.0,
+    0.0,
+    0.0
+   ],
+   [
+    0.0,
+    1.0,
+    0.0
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "t": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "L": 95.04779203688503,
+ "cs_ref": 64.55107311330337,
+ "note": "patch NoW in mm dalle registrazioni FaMoS TRAIN (aau/famos_calib/fcal.py); L e cs_ref = dominio famos della matrice"
+}
