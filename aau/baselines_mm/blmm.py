@@ -70,8 +70,10 @@ N_POINTS = 4096
 SAME_SEED_OFFSET = 1_000_000          # zs_bl_same.SEED_OFFSET
 N_TEMPLATE_SUBJECTS = 100             # ir_template.N_TEMPLATE_SUBJECTS
 SMOOTH_K = 64                         # area_v3.CFG["k"]: autofunzioni del passa-basso delle aree robuste
-# metriche per passo: ``fast`` (Chamfer e ICP), ``nicp`` (NICP per coppia)
-METRICS = {"fast": ("chamfer", "chamfer_pure", "rigid_icp_chamfer"), "nicp": ("nicp_p2tri",)}
+# metriche per passo: ``fast`` (Chamfer e ICP), ``nicp`` (NICP per coppia); ``nicp_corr`` (opzionale, fuori dalla
+# matrice: aau/runs/evidence/nicp_corr/REGOLE.md) = ``nicp`` piu' le letture del NICP usato per le corrispondenze
+METRICS = {"fast": ("chamfer", "chamfer_pure", "rigid_icp_chamfer"), "nicp": ("nicp_p2tri",),
+           "nicp_corr": ("nicp_p2tri", "nicp_corr", "nicp_corr_xy", "nicp_corr_yx", "nicp_p2tri_yx")}
 
 # viste: cartella delle mesh, dominio del frame, set della GT, vista neutra per il template, baseline pubblicate
 VIEWS = {
@@ -313,10 +315,16 @@ def pair_metrics(X: tuple, Y: tuple, seed: int, mode: str, step: str) -> dict:
 
     Stessi passi di ``run_facebench_remesh.run_geometry_pipeline``: campioni coi semi ``seed`` e ``seed + 1``,
     Chamfer simmetrica, ICP del campione di X su quello di Y e p2p media (``rigid_p2p``), NICP sul risultato
-    dell'ICP e p2tri media. Una coppia che fallisce resta NaN, con l'errore."""
+    dell'ICP e p2tri media. Una coppia che fallisce resta NaN, con l'errore.
+
+    ``nicp_corr``: i passi di ``nicp`` (stesse chiamate, stesso ordine: ``nicp_p2tri`` identico), poi il NICP come
+    CORRISPONDENZA (la lettura di REALY, ``utils/eval.py:70-116``): ``nicp_corr_xy`` = media ||X_rig[i] - Ys[corr[i]]||,
+    la mesh rigida NON deformata contro il punto corrispondente; ``nicp_corr_yx`` = lo stesso a ruoli scambiati sugli
+    stessi campioni (ICP e NICP di Ys su Xs), ``nicp_p2tri_yx`` il suo residuo; ``nicp_corr`` = media dei due versi."""
     import facebench as fb
     import run_facebench_remesh as rfr
     out = {m: np.nan for m in METRICS[step]}
+    err_yx = ""
     try:
         Xs = rfr.sample_pts(X[0], N_POINTS, seed)
         Ys = rfr.sample_pts(Y[0], N_POINTS, seed + 1)
@@ -331,7 +339,18 @@ def pair_metrics(X: tuple, Y: tuple, seed: int, mode: str, step: str) -> dict:
             X_nicp = fb.nonrigid_icp_align(X_rig, Ys)
             corr = fb.chamfer_correspondence(X_nicp, Ys)
             out["nicp_p2tri"] = float(np.mean(fb.p2tri_distance(X_nicp, Ys, corr)))
-        out["error"] = ""
+            if step == "nicp_corr":
+                out["nicp_corr_xy"] = float(np.mean(fb.p2p_distance(X_rig, Ys, corr)))
+                try:                                       # il verso inverso fallito lascia NaN solo le sue letture
+                    Y_rig = icp(Ys, Xs, mode)
+                    Y_nicp = fb.nonrigid_icp_align(Y_rig, Xs)
+                    corr = fb.chamfer_correspondence(Y_nicp, Xs)
+                    out["nicp_p2tri_yx"] = float(np.mean(fb.p2tri_distance(Y_nicp, Xs, corr)))
+                    out["nicp_corr_yx"] = float(np.mean(fb.p2p_distance(Y_rig, Xs, corr)))
+                    out["nicp_corr"] = 0.5 * (out["nicp_corr_xy"] + out["nicp_corr_yx"])
+                except Exception as exc:  # noqa: BLE001
+                    err_yx = f"yx {type(exc).__name__}: {exc}"
+        out["error"] = err_yx
     except Exception as exc:  # noqa: BLE001  (come run_geometry_pipeline: la coppia resta NaN)
         out = {m: np.nan for m in METRICS[step]}
         out["error"] = f"{type(exc).__name__}: {exc}"
