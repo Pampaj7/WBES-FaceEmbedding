@@ -1,0 +1,23 @@
+{
+ "view": "facescape",
+ "mode": "mm",
+ "node": "a768-l40s-03",
+ "tol": 1e-06,
+ "by_topo": {
+  "up60k>remesh": {
+   "n": 179,
+   "nan_new": 211,
+   "nan_ref": 211,
+   "nan_same_pairs": true,
+   "max_abs": 2.693787357621602e-06,
+   "median_abs": 0.0,
+   "equal": 178,
+   "pairs": 390,
+   "ok": false
+  }
+ },
+ "seconds": 78.72554135322571,
+ "host": "a768-l40s-03.srv.aau.dk",
+ "job": "1082548",
+ "date": "2026-10-15 16:01:59"
+}

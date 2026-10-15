@@ -1,0 +1,35 @@
+{
+ "view": "hifi3d",
+ "mode": "mm",
+ "pairs": 7942,
+ "core_hours": 31.37348283878631,
+ "jobs": [
+  "1082512"
+ ],
+ "hosts": {
+  "a512-l4-06": 7942
+ },
+ "nan": {
+  "nicp_p2tri": 62,
+  "nicp_corr": 140,
+  "nicp_corr_xy": 62,
+  "nicp_corr_yx": 140,
+  "nicp_p2tri_yx": 140
+ },
+ "errors": 140,
+ "error_examples": [
+  "RuntimeError: Factor is exactly singular",
+  "yx RuntimeError: Factor is exactly singular"
+ ],
+ "median_mm": {
+  "nicp_p2tri": 2.11430057766483,
+  "nicp_corr": 3.0537364067857666,
+  "nicp_corr_xy": 3.004861005699242,
+  "nicp_corr_yx": 3.0152846860600384,
+  "nicp_p2tri_yx": 2.1119196902108746
+ },
+ "seconds_per_pair_median": 13.365869330475107,
+ "host": "a512-l4-06.srv.aau.dk",
+ "job": "1082512",
+ "date": "2026-10-15 16:20:33"
+}

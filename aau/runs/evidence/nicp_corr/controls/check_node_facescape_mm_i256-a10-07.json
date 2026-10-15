@@ -1,0 +1,23 @@
+{
+ "view": "facescape",
+ "mode": "mm",
+ "node": "i256-a10-07",
+ "tol": 1e-06,
+ "by_topo": {
+  "up60k>remesh": {
+   "n": 179,
+   "nan_new": 211,
+   "nan_ref": 211,
+   "nan_same_pairs": true,
+   "max_abs": 0.0,
+   "median_abs": 0.0,
+   "equal": 179,
+   "pairs": 390,
+   "ok": true
+  }
+ },
+ "seconds": 153.90653133392334,
+ "host": "i256-a10-07.srv.aau.dk",
+ "job": "1082547",
+ "date": "2026-10-15 16:03:51"
+}

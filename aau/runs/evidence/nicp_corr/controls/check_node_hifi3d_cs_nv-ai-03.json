@@ -1,0 +1,23 @@
+{
+ "view": "hifi3d",
+ "mode": "cs",
+ "node": "nv-ai-03",
+ "tol": 1e-06,
+ "by_topo": {
+  "original>up60k": {
+   "n": 369,
+   "nan_new": 0,
+   "nan_ref": 0,
+   "nan_same_pairs": true,
+   "max_abs": 5.6104897558029165e-05,
+   "median_abs": 2.531308496145357e-13,
+   "equal": 0,
+   "pairs": 369,
+   "ok": false
+  }
+ },
+ "seconds": 148.198059797287,
+ "host": "nv-ai-03.srv.aau.dk",
+ "job": "1082577",
+ "date": "2026-10-15 16:23:48"
+}

@@ -1,0 +1,35 @@
+{
+ "view": "facescape",
+ "mode": "cs",
+ "pairs": 7916,
+ "core_hours": 9.514728763192995,
+ "jobs": [
+  "1082515"
+ ],
+ "hosts": {
+  "a768-l40s-06": 7916
+ },
+ "nan": {
+  "nicp_p2tri": 828,
+  "nicp_corr": 1623,
+  "nicp_corr_xy": 828,
+  "nicp_corr_yx": 1623,
+  "nicp_p2tri_yx": 1623
+ },
+ "errors": 1623,
+ "error_examples": [
+  "RuntimeError: Factor is exactly singular",
+  "yx RuntimeError: Factor is exactly singular"
+ ],
+ "median_mm": {
+  "nicp_p2tri": 1.9572984704899716,
+  "nicp_corr": 2.577290542259464,
+  "nicp_corr_xy": 2.5642665347852818,
+  "nicp_corr_yx": 2.569966618756697,
+  "nicp_p2tri_yx": 1.9796249695290098
+ },
+ "seconds_per_pair_median": 4.54956368659623,
+ "host": "a768-l40s-06.srv.aau.dk",
+ "job": "1082515",
+ "date": "2026-10-15 15:59:15"
+}

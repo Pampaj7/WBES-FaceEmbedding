@@ -1,0 +1,23 @@
+{
+ "view": "hifi3d",
+ "mode": "cs",
+ "node": "a768-l40s-02",
+ "tol": 1e-06,
+ "by_topo": {
+  "original>up60k": {
+   "n": 369,
+   "nan_new": 0,
+   "nan_ref": 0,
+   "nan_same_pairs": true,
+   "max_abs": 5.6104897558029165e-05,
+   "median_abs": 2.531308496145357e-13,
+   "equal": 0,
+   "pairs": 369,
+   "ok": false
+  }
+ },
+ "seconds": 101.43969702720642,
+ "host": "a768-l40s-02.srv.aau.dk",
+ "job": "1082576",
+ "date": "2026-10-15 16:23:01"
+}
