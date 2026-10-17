@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Modelli massivi: riconoscimento su FaMoS TEST con la catena di ``aau/esterna_famos_id/ei.py`` (importata, invariata).
 
-    aau/run.sh v3_work/trainer/eval_v3.py -- aau/massive_eval/me_famos_id.py embed --model massive_main  (GPU)
+    aau/run.sh v3_work/trainer/eval_v3.py -- aau/massive_eval/me_famos_id.py embed --model massive_main \
+        --checkpoint <pth>                    (GPU; eval_v3 legge --checkpoint per gli agganci del modello, come in ei)
     v3_work/unified_gt/run.sh aau/massive_eval/me_famos_id.py ours
     v3_work/unified_gt/run.sh aau/massive_eval/me_famos_id.py eval
     (me.sbatch, passi famos_id_embed e famos_id_eval)
 
 Qui solo i nomi: ``ei.CKPT`` / ``ei.EMB_REF`` coi checkpoint finali EMA dei due modelli (quelli della calibrazione) e i loro
 latenti della matrice (passo famos di eval_body.sh, controllo dell'embedding sulle 15 scansioni di galleria), ``ei.EVID``
--> ``aau/runs/evidence/massive_eval/famos_id`` (``selection.json`` e ``prep_eval.json`` copiati dall'evidenza di ei,
-servono a ``ei.write_results``). Stesse 150 scansioni, stesse patch e operatori, stesse coppie, stesse 1000 repliche
+-> ``aau/runs/evidence/massive_eval/famos_id`` (``selection.json``, ``spec_eval.json`` e ``prep_eval.json`` copiati
+dall'evidenza di ei: elementi del set e ``ei.write_results``). Stesse 150 scansioni, stesse patch e operatori, stesse coppie, stesse 1000 repliche
 (seme 1234). ``ours``: ``fact_paired.distances`` con la c di ``massive_eval/calib/<modello>.json`` (fissata prima).
 ``eval``: ``ei.evaluate`` con i due modelli come "nostri" e, fra i concorrenti, le tre letture del modello del paper
 (factorized s1234, distanze gia' su disco) accanto a quelli di ei: i delta appaiati massivo - paper e massivo - ICP mm
@@ -54,7 +55,7 @@ def setup() -> None:
     ei.COLUMNS = ei.OURS + ei.COMPETITORS
     ei.EVID = EV / "famos_id"
     ei.EVID.mkdir(parents=True, exist_ok=True)
-    for f in ("selection.json", "prep_eval.json"):
+    for f in ("selection.json", "spec_eval.json", "prep_eval.json"):
         if not (ei.EVID / f).exists():
             shutil.copy2(EVID0 / f, ei.EVID / f)
 
@@ -83,10 +84,11 @@ def main() -> None:
     p.add_argument("step", choices=("embed", "ours", "eval"))
     p.add_argument("--set", default="eval", choices=ei.SETS)
     p.add_argument("--model", default="", choices=("",) + tuple(MASSIVE))
+    p.add_argument("--checkpoint", default="", help="embed: il checkpoint del modello (lo stesso della calibrazione)")
     a = p.parse_args()
     setup()
     if a.step == "embed":
-        ei.embed(argparse.Namespace(set=a.set, model=a.model, checkpoint=str(ei.CKPT[a.model])))
+        ei.embed(argparse.Namespace(set=a.set, model=a.model, checkpoint=a.checkpoint))
     elif a.step == "ours":
         ours(a.set)
     else:

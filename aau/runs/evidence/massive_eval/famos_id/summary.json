@@ -1,0 +1,37 @@
+{
+ "set": "eval",
+ "n_scans": 150,
+ "n_subjects": 15,
+ "n_pairs": 11175,
+ "n_genuine": 675,
+ "n_impostor": 10500,
+ "coppie_non_finite": {
+  "massive_main|form": 0,
+  "massive_main|form_cal": 0,
+  "massive_main|shape": 0,
+  "massive_open|form": 0,
+  "massive_open|form_cal": 0,
+  "massive_open|shape": 0,
+  "factorized_s1234|form": 0,
+  "factorized_s1234|form_cal": 0,
+  "factorized_s1234|shape": 0,
+  "icp|mm": 0,
+  "icp|cs": 0,
+  "now_metrical|mm": 0,
+  "now_original|mm": 0,
+  "ulrssm|pair_fr": 0,
+  "ulrssm|pair_sr": 0,
+  "gw|fr": 0,
+  "gw|sr": 0
+ },
+ "controls_ok": {
+  "embed_massive_main": true,
+  "embed_massive_open": true,
+  "massive_main": null,
+  "massive_open": null
+ },
+ "seconds": 24.685591220855713,
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1091745",
+ "date": "2026-10-17 14:58:10"
+}

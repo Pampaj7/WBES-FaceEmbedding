@@ -1,0 +1,18 @@
+{
+ "gpu": "NVIDIA A10",
+ "Z_finite": true,
+ "Z_galleria_famos_vs_matrice": {
+  "n": 3855,
+  "nan": 0,
+  "max_abs": 1.4901161193847656e-07,
+  "median_abs": 0.0,
+  "p95_abs": 5.960464477539063e-08,
+  "equal": 2617
+ },
+ "tol_Z": 0.005,
+ "ok": true,
+ "checkpoint": "aau/runs/massive_release/release_open/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__de7684b8/checkpoints/epoch230_ema.pth",
+ "host": "i256-a10-06.srv.aau.dk",
+ "job": "1091735",
+ "date": "2026-10-17 14:46:55"
+}

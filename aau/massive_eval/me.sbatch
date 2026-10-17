@@ -19,8 +19,9 @@
 #   ME_STEP=famos_id_embed ME_MODEL=main sbatch --gres=gpu:a10:1 aau/massive_eval/me.sbatch   (dopo dev: latenti di ei)
 #   ME_STEP=famos_id_eval sbatch aau/massive_eval/me.sbatch                                    (distanze e metriche)
 #   ME_STEP=matrix sbatch --cpus-per-task=64 --mem=192G --time=03:00:00 aau/massive_eval/me.sbatch   (LEGGE LE GT)
-#   ME_STEP=ava_embed sbatch -p aicentre-a100 --qos=unprivileged --requeue --gres=gpu:a100:1 aau/massive_eval/me.sbatch
-#       (prima: python3 aau/massive_eval/me_ava.py prep; i due modelli sulle viste di valutazione di Ava-256)
+#   ME_STEP=ava_embed sbatch --gres=gpu:a10:1 --mem=48G aau/massive_eval/me.sbatch
+#       (prima: python3 aau/massive_eval/me_ava.py prep; i due modelli e il controllo C3M e123 sulle viste di
+#       valutazione di Ava-256; GPU della classe embed.gpu dello spec, A10: me_ava.py)
 #   ME_STEP=ava_eval sbatch --cpus-per-task=64 --mem=192G --time=03:00:00 aau/massive_eval/me.sbatch  (LEGGE LE GT)
 # Uscite: aau/runs/evidence/massive_eval/ (json, csv, md) e aau/runs/massive_eval/ (npz, fuori da git).
 set -euo pipefail
@@ -51,7 +52,8 @@ case "$STEP" in
         D=datasets/FAMOS/esterna_id
         OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 WBES_V3_FACTORIZED_OUT=full \
         WBES_V3_SCALE_TABLES="$WBES_ROOT/$D/eval/scale_table.npz:$AAU_RUNS/evidence/trainer_v3/factorized/scale_tables/famos_test.npz" \
-            aau/run.sh -u v3_work/trainer/eval_v3.py -- aau/massive_eval/me_famos_id.py embed --set eval --model "massive_$M" ;;
+            aau/run.sh -u v3_work/trainer/eval_v3.py -- aau/massive_eval/me_famos_id.py embed --set eval --model "massive_$M" \
+                --checkpoint "$CK" ;;
     famos_id_eval)
         export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 UGT_THREADS=1
         v3_work/unified_gt/run.sh -u aau/massive_eval/me_famos_id.py ours --set eval

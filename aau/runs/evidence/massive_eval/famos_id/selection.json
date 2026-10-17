@@ -1,0 +1,385 @@
+{
+ "rule": "sequenze: rng(SEED).choice(sequenze comuni a tutti i 15 soggetti, K_SEQ, senza reinserimento), le stesse per tutti; fotogramma: rng([SEED, numero del soggetto, crc32(sequenza)]) fra le scansioni su disco della sequenza (pool di famos_test_view.py); pilota: rng([SEED, 1]).choice(sequenze comuni non selezionate, N_PILOT_SEQ)",
+ "seed": 20261013,
+ "k_seq": 10,
+ "n_pilot_seq": 2,
+ "subjects": [
+  "FaMoS_subject_079",
+  "FaMoS_subject_080",
+  "FaMoS_subject_081",
+  "FaMoS_subject_082",
+  "FaMoS_subject_083",
+  "FaMoS_subject_084",
+  "FaMoS_subject_085",
+  "FaMoS_subject_086",
+  "FaMoS_subject_087",
+  "FaMoS_subject_088",
+  "FaMoS_subject_089",
+  "FaMoS_subject_090",
+  "FaMoS_subject_091",
+  "FaMoS_subject_092",
+  "FaMoS_subject_093"
+ ],
+ "subjects_excluded": [],
+ "common_sequences": [
+  "anger",
+  "bareteeth",
+  "blow_cheeks",
+  "cheeks_in",
+  "disgust",
+  "eyebrow",
+  "fear",
+  "happiness",
+  "head_rotation_left_right",
+  "high_smile",
+  "jaw",
+  "kissing",
+  "lip_corners_down",
+  "lips_back",
+  "lips_up",
+  "mouth_down",
+  "mouth_extreme",
+  "mouth_middle",
+  "mouth_open",
+  "mouth_up",
+  "rolling_lips",
+  "sadness",
+  "sentence",
+  "smile_closed",
+  "surprise",
+  "wrinkle_nose"
+ ],
+ "sequences_not_common": {
+  "FaMoS_subject_079": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_080": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_081": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_082": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_083": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_084": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_085": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_086": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_087": [
+   "head_rotation_up_down"
+  ],
+  "FaMoS_subject_088": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_089": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_090": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_091": [
+   "mouth_side"
+  ],
+  "FaMoS_subject_092": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ],
+  "FaMoS_subject_093": [
+   "head_rotation_up_down",
+   "mouth_side"
+  ]
+ },
+ "pool_frames_per_sequence": {
+  "2": 403,
+  "3": 15
+ },
+ "eval": {
+  "sequences": [
+   "bareteeth",
+   "blow_cheeks",
+   "disgust",
+   "fear",
+   "happiness",
+   "kissing",
+   "mouth_down",
+   "rolling_lips",
+   "surprise",
+   "wrinkle_nose"
+  ],
+  "frames": {
+   "id940079": {
+    "bareteeth": 103,
+    "blow_cheeks": 10,
+    "disgust": 134,
+    "fear": 126,
+    "happiness": 59,
+    "kissing": 47,
+    "mouth_down": 38,
+    "rolling_lips": 76,
+    "surprise": 32,
+    "wrinkle_nose": 2
+   },
+   "id940080": {
+    "bareteeth": 114,
+    "blow_cheeks": 91,
+    "disgust": 62,
+    "fear": 273,
+    "happiness": 80,
+    "kissing": 71,
+    "mouth_down": 159,
+    "rolling_lips": 229,
+    "surprise": 104,
+    "wrinkle_nose": 21
+   },
+   "id940081": {
+    "bareteeth": 1,
+    "blow_cheeks": 97,
+    "disgust": 56,
+    "fear": 45,
+    "happiness": 14,
+    "kissing": 60,
+    "mouth_down": 175,
+    "rolling_lips": 94,
+    "surprise": 155,
+    "wrinkle_nose": 37
+   },
+   "id940082": {
+    "bareteeth": 138,
+    "blow_cheeks": 6,
+    "disgust": 55,
+    "fear": 126,
+    "happiness": 261,
+    "kissing": 117,
+    "mouth_down": 178,
+    "rolling_lips": 36,
+    "surprise": 59,
+    "wrinkle_nose": 122
+   },
+   "id940083": {
+    "bareteeth": 15,
+    "blow_cheeks": 11,
+    "disgust": 120,
+    "fear": 183,
+    "happiness": 289,
+    "kissing": 28,
+    "mouth_down": 215,
+    "rolling_lips": 130,
+    "surprise": 56,
+    "wrinkle_nose": 20
+   },
+   "id940084": {
+    "bareteeth": 5,
+    "blow_cheeks": 272,
+    "disgust": 21,
+    "fear": 24,
+    "happiness": 108,
+    "kissing": 68,
+    "mouth_down": 80,
+    "rolling_lips": 2,
+    "surprise": 2,
+    "wrinkle_nose": 2
+   },
+   "id940085": {
+    "bareteeth": 79,
+    "blow_cheeks": 2,
+    "disgust": 78,
+    "fear": 5,
+    "happiness": 79,
+    "kissing": 99,
+    "mouth_down": 237,
+    "rolling_lips": 31,
+    "surprise": 103,
+    "wrinkle_nose": 86
+   },
+   "id940086": {
+    "bareteeth": 158,
+    "blow_cheeks": 388,
+    "disgust": 76,
+    "fear": 220,
+    "happiness": 31,
+    "kissing": 155,
+    "mouth_down": 57,
+    "rolling_lips": 247,
+    "surprise": 46,
+    "wrinkle_nose": 87
+   },
+   "id940087": {
+    "bareteeth": 42,
+    "blow_cheeks": 121,
+    "disgust": 42,
+    "fear": 195,
+    "happiness": 54,
+    "kissing": 8,
+    "mouth_down": 182,
+    "rolling_lips": 32,
+    "surprise": 151,
+    "wrinkle_nose": 15
+   },
+   "id940088": {
+    "bareteeth": 44,
+    "blow_cheeks": 1,
+    "disgust": 87,
+    "fear": 166,
+    "happiness": 25,
+    "kissing": 82,
+    "mouth_down": 68,
+    "rolling_lips": 11,
+    "surprise": 99,
+    "wrinkle_nose": 78
+   },
+   "id940089": {
+    "bareteeth": 11,
+    "blow_cheeks": 56,
+    "disgust": 141,
+    "fear": 17,
+    "happiness": 40,
+    "kissing": 79,
+    "mouth_down": 170,
+    "rolling_lips": 24,
+    "surprise": 17,
+    "wrinkle_nose": 125
+   },
+   "id940090": {
+    "bareteeth": 78,
+    "blow_cheeks": 47,
+    "disgust": 61,
+    "fear": 4,
+    "happiness": 36,
+    "kissing": 5,
+    "mouth_down": 2,
+    "rolling_lips": 7,
+    "surprise": 61,
+    "wrinkle_nose": 57
+   },
+   "id940091": {
+    "bareteeth": 142,
+    "blow_cheeks": 219,
+    "disgust": 207,
+    "fear": 146,
+    "happiness": 193,
+    "kissing": 7,
+    "mouth_down": 212,
+    "rolling_lips": 84,
+    "surprise": 9,
+    "wrinkle_nose": 40
+   },
+   "id940092": {
+    "bareteeth": 15,
+    "blow_cheeks": 107,
+    "disgust": 4,
+    "fear": 7,
+    "happiness": 95,
+    "kissing": 30,
+    "mouth_down": 82,
+    "rolling_lips": 3,
+    "surprise": 157,
+    "wrinkle_nose": 14
+   },
+   "id940093": {
+    "bareteeth": 32,
+    "blow_cheeks": 16,
+    "disgust": 41,
+    "fear": 51,
+    "happiness": 4,
+    "kissing": 4,
+    "mouth_down": 107,
+    "rolling_lips": 37,
+    "surprise": 240,
+    "wrinkle_nose": 44
+   }
+  },
+  "n_scans": 150
+ },
+ "pilot": {
+  "sequences": [
+   "cheeks_in",
+   "lips_back"
+  ],
+  "frames": {
+   "id940079": {
+    "cheeks_in": 42,
+    "lips_back": 255
+   },
+   "id940080": {
+    "cheeks_in": 64,
+    "lips_back": 13
+   },
+   "id940081": {
+    "cheeks_in": 67,
+    "lips_back": 168
+   },
+   "id940082": {
+    "cheeks_in": 4,
+    "lips_back": 14
+   },
+   "id940083": {
+    "cheeks_in": 203,
+    "lips_back": 365
+   },
+   "id940084": {
+    "cheeks_in": 86,
+    "lips_back": 3
+   },
+   "id940085": {
+    "cheeks_in": 18,
+    "lips_back": 53
+   },
+   "id940086": {
+    "cheeks_in": 61,
+    "lips_back": 217
+   },
+   "id940087": {
+    "cheeks_in": 49,
+    "lips_back": 48
+   },
+   "id940088": {
+    "cheeks_in": 185,
+    "lips_back": 202
+   },
+   "id940089": {
+    "cheeks_in": 152,
+    "lips_back": 1
+   },
+   "id940090": {
+    "cheeks_in": 49,
+    "lips_back": 135
+   },
+   "id940091": {
+    "cheeks_in": 5,
+    "lips_back": 6
+   },
+   "id940092": {
+    "cheeks_in": 160,
+    "lips_back": 136
+   },
+   "id940093": {
+    "cheeks_in": 40,
+    "lips_back": 250
+   }
+  },
+  "n_scans": 30
+ },
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1072552",
+ "date": "2026-10-13 15:17:29"
+}

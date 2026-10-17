@@ -1,0 +1,195 @@
+{
+ "calibrazione": {
+  "massive_main": {
+   "c": 0.4258494827801095,
+   "c_ls": 0.4618269198111811,
+   "c_con_espressioni": 0.4203405022613156,
+   "c_per_dominio": {
+    "bfm2019": 0.4601187460529022,
+    "ict": 0.3777088637141112,
+    "gnm": 0.4296136822482538,
+    "flame2023": 0.3887877696899959,
+    "hifi3d": 0.48741527031497817,
+    "faceverse": 0.6153629381294381,
+    "facescape": 0.3403869926872741
+   },
+   "fonte": "aau/runs/evidence/massive_eval/calib/main.json",
+   "catena_paper_heldout_C3M": {
+    "c": 0.4044909233924192,
+    "c_ls": 0.4051590269194196,
+    "c_bfm": 0.4155183285462334,
+    "c_ict": 0.3704816853484272,
+    "c_gnm": 0.4253481938586633,
+    "fonte": "aau/runs/evidence/massive_eval/calib_paper/main/calib.json"
+   }
+  },
+  "massive_open": {
+   "c": 0.2685675847166179,
+   "c_ls": 0.2710276182502064,
+   "c_con_espressioni": 0.26656678179339205,
+   "c_per_dominio": {
+    "gnm": 0.2815904511293482,
+    "ict": 0.2572093969869279,
+    "flame2023": 0.26447292529083233
+   },
+   "fonte": "aau/runs/evidence/massive_eval/calib/open.json",
+   "catena_paper_heldout_C3M": {
+    "c": 0.2693927186459929,
+    "c_ls": 0.2713521645043089,
+    "c_bfm": 0.2721349810907311,
+    "c_ict": 0.2549807785941733,
+    "c_gnm": 0.28001201940983395,
+    "fonte": "aau/runs/evidence/massive_eval/calib_paper/open/calib.json"
+   }
+  }
+ },
+ "training": {
+  "massive_main": {
+   "views_by_domain": {
+    "faceverse": 106488,
+    "gnm": 107694,
+    "ict": 106524,
+    "facescape": 106956,
+    "bfm2019": 107634,
+    "flame2023": 108246,
+    "hifi3d": 106764,
+    "famos": 106716
+   },
+   "views": 857027,
+   "fonte_viste": "aau/runs/massive_release/main_a100/node0/producers.json (views_by_domain)",
+   "riga_producer": "[producer] sorgenti in 126s: bfm2019 n_d=199 p=0.125 {'name': 'bfm2019', 'kind': 'mm', 'n_id': 199, 'n_verts_work': 10101, 'n_faces_work': 19999, 'work_topology': 'decimata', 'canonical': 'corrispondenza /home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/STREAM/maps/bfm2019.npz'}; ict n_d=100 p=0.125 {'name': 'ict', 'kind': 'mm', 'n_id': 100, 'n_verts_work': 9409, 'n_faces_work': 18460, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json'}; gnm n_d=170 p=0.125 {'name': 'gnm', 'kind': 'mm', 'n_id': 170, 'n_verts_work': 9022, 'n_faces_work': 17720, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json'}; flame2023 n_d=300 p=0.125 {'name': 'flame2023', 'kind': 'mm', 'n_id': 300, 'n_verts_work': 1787, 'n_faces_work': 3408, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json'}; hifi3d n_d=500 p=0.125 {'name': 'hifi3d', 'kind': 'mm', 'n_id': 500, 'n_verts_work': 9518, 'n_faces_work': 18684, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json', 'purpose': 'release', 'role': 'test', 'bilinear': False, 'unified_outside_patch': 16}; faceverse n_d=150 p=0.125 {'name': 'faceverse', 'kind': 'mm', 'n_id': 150, 'n_verts_work': 10152, 'n_faces_work': 20000, 'work_topology': 'decimata', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json', 'purpose': 'release', 'role': 'test', 'bilinear': False, 'unified_outside_patch': 0}; facescape n_d=300 p=0.125 {'name': 'facescape', 'kind': 'mm', 'n_id': 300, 'n_verts_work': 10172, 'n_faces_work': 20000, 'work_topology': 'decimata', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/code/datasets/UNIFIED_GT/canonical_transforms.json', 'purpose': 'release', 'role': 'dev', 'bilinear': True, 'unified_outside_patch': 0}; famos n_d=74 p=0.125 {'name': 'famos', 'kind': 'famos', 'n_id': 74, 'n_verts_work': 1787, 'n_faces_work': 3408, 'persons': 74, 'template': 'flame2023', 'excluded': ['FaMoS_subject_007', 'FaMoS_subject_019', 'FaMoS_subject_028', 'FaMoS_subject_032', 'FaMoS_subject_042', 'FaMoS_subject_055']}",
+   "fonte_producer": "aau/runs/massive_release/main_a100/node0/producers.log:7"
+  },
+  "massive_open": {
+   "views_by_domain": {
+    "gnm": 324240,
+    "flame2023": 323982,
+    "ict": 324288
+   },
+   "views": 972510,
+   "fonte_viste": "aau/runs/massive_release/release_open/node0/producers.json (views_by_domain)",
+   "riga_producer": "[producer] sorgenti in 7s: gnm n_d=170 p=0.333 {'name': 'gnm', 'kind': 'mm', 'n_id': 170, 'n_verts_work': 9022, 'n_faces_work': 17720, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/release_open/code/datasets/UNIFIED_GT/canonical_transforms.json'}; ict n_d=100 p=0.333 {'name': 'ict', 'kind': 'mm', 'n_id': 100, 'n_verts_work': 9409, 'n_faces_work': 18460, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/release_open/code/datasets/UNIFIED_GT/canonical_transforms.json'}; flame2023 n_d=300 p=0.333 {'name': 'flame2023', 'kind': 'mm', 'n_id': 300, 'n_verts_work': 1787, 'n_faces_work': 3408, 'work_topology': 'patch', 'canonical': 'json:/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/release_open/code/datasets/UNIFIED_GT/canonical_transforms.json'}",
+   "fonte_producer": "aau/runs/massive_release/release_open/node0/producers.log:6"
+  }
+ },
+ "matrice_vs_full_matrix": {
+  "rows_matched": 68844,
+  "rows_ref": 68844,
+  "rows_new_without_ref": 514,
+  "n_righe_diverse": 0,
+  "max_abs_diff_rho": 0.0,
+  "max_abs_diff_ic_lo": 0.0,
+  "max_abs_diff_ic_hi": 0.0
+ },
+ "ava256_vs_ava256_conf_desc": {
+  "rows_matched": 2684,
+  "rows_ref": 2684,
+  "rows_new_without_ref": 0,
+  "n_righe_diverse": 0,
+  "max_abs_diff_rho": 0.0,
+  "max_abs_diff_ic_lo": 0.0,
+  "max_abs_diff_ic_hi": 0.0
+ },
+ "ava256_gpu_c3m_A10_vs_A100": {
+  "rows": 180,
+  "max_abs_diff_rho": 0.0002587752688802958,
+  "max_abs_diff_ic_lo": 0.0004193609603957982,
+  "max_abs_diff_ic_hi": 0.0002927261954995819
+ },
+ "famos_id_vs_esterna_famos_id": {
+  "rows_matched": 44,
+  "max_abs_diff": 0.0
+ },
+ "famos_id_embed": {
+  "embed_massive_main": {
+   "gpu": "NVIDIA A10",
+   "Z_finite": true,
+   "Z_galleria_famos_vs_matrice": {
+    "n": 3855,
+    "nan": 0,
+    "max_abs": 7.539987564086914e-05,
+    "median_abs": 0.0,
+    "p95_abs": 1.6251206398010246e-05,
+    "equal": 2388
+   },
+   "tol_Z": 0.005,
+   "ok": true,
+   "checkpoint": "aau/runs/massive_release/main_a100/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__3153c6aa/checkpoints/epoch330_ema.pth",
+   "host": "i256-a10-06.srv.aau.dk",
+   "job": "1091744",
+   "date": "2026-10-17 14:56:59"
+  },
+  "embed_massive_open": {
+   "gpu": "NVIDIA A10",
+   "Z_finite": true,
+   "Z_galleria_famos_vs_matrice": {
+    "n": 3855,
+    "nan": 0,
+    "max_abs": 1.4901161193847656e-07,
+    "median_abs": 0.0,
+    "p95_abs": 5.960464477539063e-08,
+    "equal": 2617
+   },
+   "tol_Z": 0.005,
+   "ok": true,
+   "checkpoint": "aau/runs/massive_release/release_open/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__de7684b8/checkpoints/epoch230_ema.pth",
+   "host": "i256-a10-06.srv.aau.dk",
+   "job": "1091735",
+   "date": "2026-10-17 14:46:55"
+  }
+ },
+ "contaminazione": {
+  "massive_main": {
+   "hifi3d": {
+    "etichetta": "IN-DOMAIN",
+    "motivo": "generatore 'hifi3d' nel training (106764 viste): stesso 3DMM delle identita' di valutazione; identita' esatte non condivise per costruzione (coefficienti continui, semi del training indipendenti; non verificato coefficiente per coefficiente)"
+   },
+   "facescape": {
+    "etichetta": "IN-DOMAIN",
+    "motivo": "generatore 'facescape' nel training (106956 viste): stesso 3DMM delle identita' di valutazione; identita' esatte non condivise per costruzione (coefficienti continui, semi del training indipendenti; non verificato coefficiente per coefficiente)"
+   },
+   "faceverse": {
+    "etichetta": "IN-DOMAIN",
+    "motivo": "generatore 'faceverse' nel training (106488 viste): stesso 3DMM delle identita' di valutazione; identita' esatte non condivise per costruzione (coefficienti continui, semi del training indipendenti; non verificato coefficiente per coefficiente)"
+   },
+   "faceverse_neutral": {
+    "etichetta": "IN-DOMAIN",
+    "motivo": "generatore 'faceverse' nel training (106488 viste): stesso 3DMM delle identita' di valutazione; identita' esatte non condivise per costruzione (coefficienti continui, semi del training indipendenti; non verificato coefficiente per coefficiente)"
+   },
+   "famos": {
+    "etichetta": "IN-DOMAIN",
+    "motivo": "FaMoS TRAIN nel training (106716 viste; 74 persone, 6 held-out); stesso sistema di cattura e registrazione. Persone di TEST escluse (FamosSource; persone TRAIN e TEST in comune: 0, aau/famos/split.json): nessuna identita' condivisa"
+   },
+   "ava256": {
+    "etichetta": "zero-shot",
+    "motivo": "nessuna sorgente Ava-256 (esclusa sempre, PLAN_MASSIVE sez. 23.1)"
+   }
+  },
+  "massive_open": {
+   "hifi3d": {
+    "etichetta": "zero-shot",
+    "motivo": "generatore del dominio non nel training (fonti: flame2023, gnm, ict)"
+   },
+   "facescape": {
+    "etichetta": "zero-shot",
+    "motivo": "generatore del dominio non nel training (fonti: flame2023, gnm, ict)"
+   },
+   "faceverse": {
+    "etichetta": "zero-shot",
+    "motivo": "generatore del dominio non nel training (fonti: flame2023, gnm, ict)"
+   },
+   "faceverse_neutral": {
+    "etichetta": "zero-shot",
+    "motivo": "generatore del dominio non nel training (fonti: flame2023, gnm, ict)"
+   },
+   "famos": {
+    "etichetta": "vicino",
+    "motivo": "zero-shot per persone e dataset (nessuna vista FaMoS), ma FLAME 2023 Open nel training (323982 viste): FaMoS e' registrato su FLAME (topologia e GT)"
+   },
+   "ava256": {
+    "etichetta": "zero-shot",
+    "motivo": "nessuna sorgente Ava-256 (esclusa sempre, PLAN_MASSIVE sez. 23.1)"
+   }
+  }
+ }
+}

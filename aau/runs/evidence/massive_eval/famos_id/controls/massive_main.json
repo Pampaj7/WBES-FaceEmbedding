@@ -1,0 +1,12 @@
+{
+ "method": "massive_main",
+ "set": "eval",
+ "n_meshes": 150,
+ "n_pairs": 11175,
+ "c": 0.4258494827801095,
+ "checkpoint": "aau/runs/massive_release/main_a100/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__3153c6aa/checkpoints/epoch330_ema.pth",
+ "calibration": "aau/runs/evidence/massive_eval/calib/main.json",
+ "host": "a256-t4-01.srv.aau.dk",
+ "job": "1091745",
+ "date": "2026-10-17 14:57:39"
+}

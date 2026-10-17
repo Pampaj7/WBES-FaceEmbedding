@@ -11,7 +11,9 @@
 valutazione, 6 topologie, GT, seme delle repliche, colonne della prova: tutto invariato) con: ``freeze`` false (non e' la
 prova: nessun ``verify``); ``columns.desc_models`` = C3M e123 (invariato, controllo di riproduzione) + i due modelli
 massivi (checkpoint finale EMA e sha256 di ``massive_eval/calib/<modello>.json``, c di quella calibrazione, fissata
-prima); ``embed.sets`` = solo ``eval_view`` coi due modelli; ``embed.ops_root`` e ``out.work`` / ``out.evidence``
+prima) + ``c3m_e123_a10`` (C3M e123 rifatto qui: controllo della classe di GPU); ``embed.sets`` = solo ``eval_view``
+con questi tre; ``embed.gpu`` = ``A10`` (le A100 della prova sono occupate da job di giorni: deviazione dichiarata,
+misurata dal controllo: C3M e123 su A10 contro le sue colonne su A100); ``embed.ops_root`` e ``out.work`` / ``out.evidence``
 NUOVI: ``datasets/V3_OPS_CACHE/massive_eval_ava`` (link agli operatori della prova e a ``names.npz``, nessun ricalcolo),
 ``aau/runs/massive_eval/ava256`` (link in sola lettura a ``baselines_param``, ``blmm``, ``desc``, ``head``,
 ``protocolli`` della prova; ``embed`` nuovo) e ``aau/runs/evidence/massive_eval/ava256``. Nessuna scrittura sotto
@@ -41,6 +43,8 @@ OPS = "datasets/V3_OPS_CACHE/massive_eval_ava"
 FROZEN_WORK = REPO / "aau/runs/ava256_conf"
 LINKED = ("baselines_param", "blmm", "desc", "head", "protocolli")
 MASSIVE = {"massive_main": "main", "massive_open": "open"}       # colonna -> chiave di me_calib
+C3M, CTRL = "factorizedc3m_e123", "c3m_e123_a10"                  # controllo della classe di GPU
+GPU = "A10"
 
 
 def prep() -> None:
@@ -58,9 +62,12 @@ def prep() -> None:
                                             "c": cb["c_median"],
                                             "embeddings": f"{WORK}/embed/eval_view/{col}/embeddings.npz",
                                             "calibration": str((EV / "calib" / f"{k}.json").relative_to(REPO))}
+    c3m = copy.deepcopy(s["columns"]["desc_models"][C3M])
+    n["columns"]["desc_models"][CTRL] = {**c3m, "embeddings": f"{WORK}/embed/eval_view/{CTRL}/embeddings.npz"}
     st = copy.deepcopy(s["embed"]["sets"]["eval_view"])
-    st["arms"] = list(MASSIVE)
+    st["arms"] = list(MASSIVE) + [CTRL]
     n["embed"]["sets"] = {"eval_view": st}
+    n["embed"]["gpu"] = GPU
     n["embed"]["ops_root"] = OPS
     n["out"] = {"work": WORK, "evidence": str((EV / "ava256").relative_to(REPO))}
     work = REPO / WORK
@@ -93,6 +100,9 @@ def evaluate(workers: int) -> None:
         fm.METHODS[f"{col}|form_cal"] = (f"{lab}, d_F cal.", "nostri", fm.FR, True)
         fm.METHODS[f"{col}|form"] = (f"{lab}, d_F non cal.", "nostri", fm.FR, True)
         fm.METHODS[f"{col}|shape"] = (f"{lab}, d_P", "nostri", fm.SR, True)
+    for k, lab in (("form_cal", "d_F cal."), ("form", "d_F non cal."), ("shape", "d_P")):
+        fm.METHODS[f"{CTRL}|{k}"] = (f"controllo: C3M e123 su A10, {lab}", "nostri", fm.SR if k == "shape" else fm.FR,
+                                     True)
     me_matrix.patch_records(fm)
     conf_desc.step_eval(SPEC, workers, 1000)
 

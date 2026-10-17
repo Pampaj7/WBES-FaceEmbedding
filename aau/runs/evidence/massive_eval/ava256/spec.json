@@ -432,6 +432,12 @@
     "c": 0.2685675847166179,
     "embeddings": "aau/runs/massive_eval/ava256/embed/eval_view/massive_open/embeddings.npz",
     "calibration": "aau/runs/evidence/massive_eval/calib/open.json"
+   },
+   "c3m_e123_a10": {
+    "checkpoint": "aau/runs/evidence/trainer_v3/factorized/c3m/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_sampler-balanced_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_compactcache-true_head-factorized_seed1234__909688e6/checkpoints/epoch123_ema.pth",
+    "checkpoint_sha256": "4ab9ca4531b06b0a199cb9c50f95d9756857663f4fa2078b6f97fee5412a2b77",
+    "c": 0.25732677076342675,
+    "embeddings": "aau/runs/massive_eval/ava256/embed/eval_view/c3m_e123_a10/embeddings.npz"
    }
   },
   "desc_plugins": {
@@ -526,7 +532,7 @@
  },
  "embed": {
   "ops_root": "datasets/V3_OPS_CACHE/massive_eval_ava",
-  "gpu": "A100",
+  "gpu": "A10",
   "sets": {
    "eval_view": {
     "role": "eval",
@@ -543,7 +549,8 @@
     "scale_table": "datasets/AVA256/scale/eval_view.npz",
     "arms": [
      "massive_main",
-     "massive_open"
+     "massive_open",
+     "c3m_e123_a10"
     ]
    }
   }

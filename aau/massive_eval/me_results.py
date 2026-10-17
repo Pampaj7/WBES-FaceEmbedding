@@ -54,7 +54,7 @@ def training(model: str) -> dict:
     run = RUNS / MODELS[model][1]
     pj = json.loads((run / "node0" / "producers.json").read_text())
     log = (run / "node0" / "producers.log").read_text().splitlines()
-    k = next(i for i, x in enumerate(log) if x.startswith("[producer]") and "fonti" in x)
+    k = next(i for i, x in enumerate(log) if x.startswith("[producer] sorgenti"))       # fonti, ruoli, esclusioni
     return {"views_by_domain": pj["views_by_domain"], "views": pj["views"],
             "fonte_viste": f"{rel(run / 'node0' / 'producers.json')} (views_by_domain)",
             "riga_producer": log[k], "fonte_producer": f"{rel(run / 'node0' / 'producers.log')}:{k + 1}"}
@@ -138,8 +138,17 @@ def main() -> None:
                      "seme": int(r["seme"]) if "seme" in r else np.nan,
                      "contaminazione": con[model][dom][0], "fonte": src(path, i)})
 
-    # --- matrice di sviluppo
-    ps, pd_ = OUT / "matrix" / "spearman.csv", OUT / "matrix" / "deltas.csv"
+    # --- matrice di sviluppo: le uscite complete di fm_eval (matrix/, 56 MB, fuori da git: ripetono la matrice completa)
+    # e in git il sottoinsieme dei modelli massivi e dei riferimenti (matrix_massive/), che e' la fonte dei numeri
+    S = pd.read_csv(OUT / "matrix" / "spearman.csv", dtype={"perturbazione": str})
+    D = pd.read_csv(OUT / "matrix" / "deltas.csv", dtype={"perturbazione": str})
+    ps, pd_ = OUT / "matrix_massive" / "spearman.csv", OUT / "matrix_massive" / "deltas.csv"
+    ps.parent.mkdir(parents=True, exist_ok=True)
+    refs = [f"{PAPER}|{r}" for _, r, _ in READS] + [ICP]
+    S = S[S["colonna"].str.startswith("massive_") | S["colonna"].isin(refs)].reset_index(drop=True)
+    S.to_csv(ps, index=False)
+    D[D["tipo"] == "massivo"].reset_index(drop=True).to_csv(pd_, index=False)
+    S_full = pd.read_csv(OUT / "matrix" / "spearman.csv", dtype={"perturbazione": str})
     S = pd.read_csv(ps, dtype={"perturbazione": str})
     D = pd.read_csv(pd_, dtype={"perturbazione": str})
     base = dict(insieme_righe="nocrop", perturbazione="-", passo="comune")
@@ -153,7 +162,7 @@ def main() -> None:
                     add(m, "matrice_dev", dom, gt, "spearman", lab, t, r, i, pd_)
     S0 = pd.read_csv(EV / "full_matrix" / "spearman.csv", dtype={"perturbazione": str})
     ctrl["matrice_vs_full_matrix"] = control_rows(
-        S, S0, ["dominio", "gt", "insieme_righe", "perturbazione", "passo", "colonna"], ("rho", "ic_lo", "ic_hi"), "massive_")
+        S_full, S0, ["dominio", "gt", "insieme_righe", "perturbazione", "passo", "colonna"], ("rho", "ic_lo", "ic_hi"), "massive_")
     # --- Ava-256, descrittivo
     pa, pad = OUT / "ava256" / "desc" / "spearman.csv", OUT / "ava256" / "desc" / "deltas.csv"
     A = pd.read_csv(pa, dtype={"perturbazione": str})
@@ -168,7 +177,13 @@ def main() -> None:
                 add(m, "ava256_descrittivo", "ava256", gt, "spearman", lab, t, r, i, pad)
     A0 = pd.read_csv(EV / "ava256_conf" / "desc" / "spearman.csv", dtype={"perturbazione": str})
     ctrl["ava256_vs_ava256_conf_desc"] = control_rows(
-        A, A0, ["dominio", "gt", "insieme_righe", "perturbazione", "passo", "colonna"], ("rho", "ic_lo", "ic_hi"), "massive_")
+        A[~A["colonna"].str.startswith("c3m_e123_a10")], A0,
+        ["dominio", "gt", "insieme_righe", "perturbazione", "passo", "colonna"], ("rho", "ic_lo", "ic_hi"), "massive_")
+    g = A[A["colonna"].str.startswith("c3m_e123_a10")].assign(colonna=lambda x: x["colonna"].str.replace(
+        "c3m_e123_a10", "factorizedc3m_e123")).merge(A, on=["gt", "insieme_righe", "perturbazione", "passo", "colonna"],
+                                                     suffixes=("", "_a100"))
+    ctrl["ava256_gpu_c3m_A10_vs_A100"] = {"rows": int(len(g)), **{f"max_abs_diff_{v}": float(np.nanmax(np.abs(
+        g[v].to_numpy(float) - g[f"{v}_a100"].to_numpy(float)))) for v in ("rho", "ic_lo", "ic_hi")}}
     # --- FaMoS TEST, riconoscimento
     pf, pfd = OUT / "famos_id" / "metrics.csv", OUT / "famos_id" / "deltas.csv"
     F = pd.read_csv(pf)
@@ -223,8 +238,9 @@ def write_md(R: pd.DataFrame, ctrl: dict, cal: dict, con: dict, tr: dict) -> Non
     L += ["", "Riferimento: modello del paper s1234 c = 0.4053, C3M e123 c = 0.2573 (`factorized_calibration.csv`).", "",
           "## Contaminazione (dalla configurazione del training)", ""]
     for m in MODELS:
-        L.append(f"- **{m}** ({MODELS[m][2]}): `{tr[m]['riga_producer']}` (`{tr[m]['fonte_producer']}`); viste per "
-                 f"fonte in `{tr[m]['fonte_viste']}`.")
+        L.append(f"- **{m}** ({MODELS[m][2]}): fonti " + ", ".join(f"{d} ({n} viste)" for d, n in
+                                                                  tr[m]["views_by_domain"].items())
+                 + f" (`{tr[m]['fonte_viste']}`; ruoli, purpose e persone FaMoS escluse in `{tr[m]['fonte_producer']}`).")
         for d in DOMS + ("ava256",):
             L.append(f"  - {DNAME[d]}: **{con[m][d][0]}**. {con[m][d][1]}.")
     L += ["- Per entrambi (e per i modelli del paper): HIFI3D, FaceVerse e dev FaceScape sono stati usati nella scelta "
@@ -266,7 +282,11 @@ def write_md(R: pd.DataFrame, ctrl: dict, cal: dict, con: dict, tr: dict) -> Non
           f"riferimento {c1['rows_new_without_ref']} (colonne nuove di `celle_mancanti`).",
           f"- Ava-256: {c2['rows_matched']} righe contro `ava256_conf/desc/spearman.csv`; n_righe diversi "
           f"{c2['n_righe_diverse']}; scarto massimo punto {c2['max_abs_diff_rho']:.2e}, IC "
-          f"{max(c2['max_abs_diff_ic_lo'], c2['max_abs_diff_ic_hi']):.2e}.",
+          f"{max(c2['max_abs_diff_ic_lo'], c2['max_abs_diff_ic_hi']):.2e}. Embedding su A10 (le A100 della prova "
+          "erano occupate): C3M e123 rifatto su A10 contro le sue colonne su A100, "
+          f"{ctrl['ava256_gpu_c3m_A10_vs_A100']['rows']} righe, scarto massimo punto "
+          f"{ctrl['ava256_gpu_c3m_A10_vs_A100']['max_abs_diff_rho']:.2e}, IC "
+          f"{max(ctrl['ava256_gpu_c3m_A10_vs_A100']['max_abs_diff_ic_lo'], ctrl['ava256_gpu_c3m_A10_vs_A100']['max_abs_diff_ic_hi']):.2e}.",
           f"- FaMoS riconoscimento: {c3['rows_matched']} righe (paper s1234 e concorrenti) contro "
           f"`esterna_famos_id/metrics.csv`, scarto massimo {c3['max_abs_diff']:.2e}; embedding contro i latenti della "
           "matrice: `" + json.dumps({k: v.get("ok") for k, v in ctrl["famos_id_embed"].items()}) + "`.", "",

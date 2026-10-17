@@ -1,0 +1,211 @@
+{
+ "embeddings": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/faceverse_neutral/embed/data_184ec4171e/scale_v3factorizedmassopenfulle230_flip_embed/zs_zeroshot/embeddings.npz",
+ "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/release_open/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__de7684b8/checkpoints/epoch230_ema.pth",
+ "head": "factorized",
+ "dp_per_unit": 0.24411710201003828,
+ "pairs": "nocrop_cross",
+ "n_subjects": 100,
+ "n_mesh_pairs": 99000,
+ "gts": {
+  "fr": "datasets/CANONICAL_GT/eval/faceverse_fr.npz",
+  "sr": "datasets/CANONICAL_GT/eval/faceverse_sr.npz",
+  "maxabs": "datasets/FACEVERSE_ZS/eval_view/gt_matrix.npz"
+ },
+ "median_model": {
+  "form": 18.434594218389762,
+  "shape": 0.35450638696909176,
+  "size": 0.029042148590087892
+ },
+ "spearman": [
+  {
+   "level": "mesh_pair",
+   "distance": "form",
+   "gt": "fr",
+   "point": 0.17655958042015324,
+   "ci_low": 0.11931262365957719,
+   "ci_high": 0.230597047890926,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "form",
+   "gt": "sr",
+   "point": 0.17888772960154062,
+   "ci_low": 0.12003752152636296,
+   "ci_high": 0.23435715838969398,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "form",
+   "gt": "maxabs",
+   "point": 0.18098588417655825,
+   "ci_low": 0.12322393547099794,
+   "ci_high": 0.22723277246063286,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "shape",
+   "gt": "fr",
+   "point": 0.17318907177980147,
+   "ci_low": 0.11769389316540092,
+   "ci_high": 0.2260082457265418,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "shape",
+   "gt": "sr",
+   "point": 0.18031495650976864,
+   "ci_low": 0.12279684706493689,
+   "ci_high": 0.2350852517933664,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "shape",
+   "gt": "maxabs",
+   "point": 0.18444002072903498,
+   "ci_low": 0.1282013879569334,
+   "ci_high": 0.22925811727407816,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "size",
+   "gt": "fr",
+   "point": 0.02518431697271641,
+   "ci_low": -0.026033243545144538,
+   "ci_high": 0.07755407945110447,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "size",
+   "gt": "sr",
+   "point": 0.00011874241228209667,
+   "ci_low": -0.04213573055833682,
+   "ci_high": 0.04703489994527854,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "mesh_pair",
+   "distance": "size",
+   "gt": "maxabs",
+   "point": 0.04453185523403614,
+   "ci_low": -0.003272129545241331,
+   "ci_high": 0.09173439391673449,
+   "n_subjects": 100,
+   "n_pairs": 99000
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "form",
+   "gt": "fr",
+   "point": 0.34650244857938534,
+   "ci_low": 0.2446290472912735,
+   "ci_high": 0.4420179183377804,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "form",
+   "gt": "sr",
+   "point": 0.3493599418201938,
+   "ci_low": 0.24087450870636418,
+   "ci_high": 0.444194706886918,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "form",
+   "gt": "maxabs",
+   "point": 0.3500455505437057,
+   "ci_low": 0.24123600851424518,
+   "ci_high": 0.43531319354451115,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "shape",
+   "gt": "fr",
+   "point": 0.3487620741768451,
+   "ci_low": 0.24256430397421458,
+   "ci_high": 0.4486258084673366,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "shape",
+   "gt": "sr",
+   "point": 0.3617520169515871,
+   "ci_low": 0.2532501364338997,
+   "ci_high": 0.45739838731505894,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "shape",
+   "gt": "maxabs",
+   "point": 0.3670642285915703,
+   "ci_low": 0.2571183863472848,
+   "ci_high": 0.4538085211431299,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "size",
+   "gt": "fr",
+   "point": 0.05037424899673516,
+   "ci_low": -0.05724977566908681,
+   "ci_high": 0.1562747043865131,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "size",
+   "gt": "sr",
+   "point": -0.002012705774341613,
+   "ci_low": -0.10262313828209907,
+   "ci_high": 0.09501028583768921,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  },
+  {
+   "level": "subject_pair_mean",
+   "distance": "size",
+   "gt": "maxabs",
+   "point": 0.07523621554366178,
+   "ci_low": -0.028022407978371616,
+   "ci_high": 0.17975754941738634,
+   "n_subjects": 100,
+   "n_pairs": 4950
+  }
+ ],
+ "S_mm_subject": {
+  "median": 51.70414049278661,
+  "cv": 0.021906259169530148
+ },
+ "size_accuracy": {
+  "n_subjects": 100,
+  "spearman_s_vs_log_cs": 0.4322832283228323,
+  "err_mean": -0.06501939765011976,
+  "err_median_abs": 0.06301401593298062
+ }
+}
