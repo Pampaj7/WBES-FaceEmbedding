@@ -46,8 +46,12 @@ def control(new: pd.DataFrame, old: pd.DataFrame, key: list, vals: tuple) -> dic
     """Righe con le stesse chiavi: scarto massimo dei valori e righe con n_righe diverso."""
     old = old[old["dominio"].isin(set(new["dominio"]))]
     m = new.merge(old, on=key, suffixes=("", "_full"))
+    gone = old.merge(new[key], on=key, how="left", indicator=True)
+    gone = gone[gone["_merge"] == "left_only"]
     out = {"rows_new": int(len(new)), "rows_full_same_domains": int(len(old)), "rows_matched": int(len(m)),
            "rows_full_not_in_new": int(len(old) - len(m)),
+           "full_not_in_new": sorted({" ".join(str(r[k]) for k in ("dominio", "gt", "colonna", "colonna_a", "colonna_b")
+                                     if k in r) for _, r in gone.iterrows()}),
            "n_righe_diverse": int((m["n_righe"] != m["n_righe_full"]).sum())}
     for v in vals:
         out[f"max_abs_diff_{v}"] = float(np.nanmax(np.abs(m[v].to_numpy(float) - m[f"{v}_full"].to_numpy(float))))
@@ -108,7 +112,13 @@ def main() -> None:
           f"`deltas.csv` (senza `migliore_vs_migliore`, scelto sul punto): {ctrl['deltas']['rows_matched']} righe "
           "confrontate, scarto massimo "
           f"{max(ctrl['deltas'][k] for k in ('max_abs_diff_delta', 'max_abs_diff_ic_lo', 'max_abs_diff_ic_hi')):.2e}. "
-          "Dettagli in `controls.json`.", ""]
+          "Dettagli in `controls.json`.", "",
+          f"Righe della matrice completa assenti dalla rilettura: {', '.join(c['full_not_in_new']) or 'nessuna'}. "
+          "Causa (non legata alle colonne nuove): dal commit 21bfa5e (15 ottobre, dopo la matrice completa) "
+          "`blmm.METRICS` ha il passo `nicp_corr`, che contiene `nicp_p2tri`; `fact_paired.famos_frame` scorre i passi e "
+          "per `nicp_corr` (nessuno shard su FaMoS) sovrascrive `cs_nicp_p2tri` con una matrice tutta NaN, che "
+          "`fm_eval` dichiara non applicabile. La maschera di FaMoS resta 105 righe (la colonna esce intera, non le "
+          "righe), quindi le altre celle, comprese le 4 nuove, non cambiano.", ""]
     (OUT / "results.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 

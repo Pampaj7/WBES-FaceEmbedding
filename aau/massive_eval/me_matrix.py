@@ -8,7 +8,8 @@ Qui solo la registrazione dei due modelli come la riga "10x identities" (C3M): `
 eval_body.sh sotto i tag ``factorizedmassmain`` e ``factorizedmassopen``), ``fact_paired.calibration`` (c di
 ``massive_eval/calib/<modello>.json``, fissata prima), ``fm_eval.METHODS`` (nostri; d_F cal. post hoc come C3M). Il
 resto e' ``fm_eval.main`` (stesse righe, maschera comune, repliche e semi della matrice completa; uscite in
-``massive_eval/matrix``). In piu', da ogni chiamata di ``fm_eval.records`` e sulle STESSE repliche, i delta appaiati
+``massive_eval/matrix``; ``blmm.METRICS`` senza il passo ``nicp_corr``, aggiunto dopo la matrice completa, che su
+FaMoS azzererebbe ``cs_nicp_p2tri``). In piu', da ogni chiamata di ``fm_eval.records`` e sulle STESSE repliche, i delta appaiati
 ``tipo`` = ``massivo``: massivo - modello del paper (factorized s1234, stessa lettura) e massivo - ICP + Chamfer in mm
 (FR: d_F cal. e d_F non cal.; SR: d_P). Le colonne della matrice completa devono uscire identiche (controllo in
 ``me_results.py``).
@@ -40,6 +41,9 @@ PAIRS = {"fr": [(f"{m}|{r}", b) for m in MASSIVE for r in ("form_cal", "form") f
 
 
 def register() -> None:
+    # i passi di blmm come quando e' stata calcolata la matrice completa: ``nicp_corr`` (commit 21bfa5e, dopo) contiene
+    # ``nicp_p2tri`` e in ``fact_paired.famos_frame`` (nessuno shard nicp_corr su FaMoS) azzera ``cs_nicp_p2tri``
+    fm.blmm.METRICS = {k: v for k, v in fm.blmm.METRICS.items() if k != "nicp_corr"}
     cal = {m: json.loads((EV / "calib" / f"{k}.json").read_text()) for m, (k, _, _, _) in MASSIVE.items()}
     fp.MODELS += [(m, v, e) for m, (_, v, e, _) in MASSIVE.items()]
     _calibration = fp.calibration

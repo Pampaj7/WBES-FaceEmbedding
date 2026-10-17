@@ -1,0 +1,66 @@
+dominio,metodo,colonna,insieme_righe,motivo
+faceverse_neutral,plug-in now_metrical/lmk_det,plugin:now_metrical/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_metrical/lmk_s1,plugin:now_metrical/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_metrical/lmk_s2,plugin:now_metrical/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_metrical/lmk_s3,plugin:now_metrical/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_metrical/lmk_s5,plugin:now_metrical/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_original/lmk_det,plugin:now_original/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_original/lmk_s1,plugin:now_original/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_original/lmk_s2,plugin:now_original/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_original/lmk_s3,plugin:now_original/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in now_original/lmk_s5,plugin:now_original/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in realy/lmk_det,plugin:realy/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in realy/lmk_s1,plugin:realy/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in realy/lmk_s2,plugin:realy/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in realy/lmk_s3,plugin:realy/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in realy/lmk_s5,plugin:realy/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in stirling/lmk_det,plugin:stirling/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in stirling/lmk_s1,plugin:stirling/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in stirling/lmk_s2,plugin:stirling/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in stirling/lmk_s3,plugin:stirling/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,plug-in stirling/lmk_s5,plugin:stirling/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+faceverse_neutral,"ArcFace-render, ombreggiato 3 viste (E12)",arcface_shaded,tutti,"render ombreggiato calcolato solo da E12 (HIFI3D, FaceVerse con espressioni)"
+faceverse_neutral,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse_neutral,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+faceverse_neutral,NICP per coppia in mm,mm_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse_neutral,NICP per coppia cs,cs_nicp_p2tri,stessa_topologia,"distanza per coppia mai calcolata fra soggetti diversi con la stessa topologia (NICP per coppia: 2-4 s a coppia, circa 200 ore-core per le 4 viste e i 2 modi; non calcolato)"
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_128_cgw2], mm (FR)",plugin:gw/euclid_128_cgw2|fr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_128_cgw2], a CS_ref (SR)",plugin:gw/euclid_128_cgw2|sr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_256_cg] (non dichiarata), mm (FR)",plugin:gw/euclid_256_cg|fr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_256_cg] (non dichiarata), a CS_ref (SR)",plugin:gw/euclid_256_cg|sr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_256_cgw2] (non dichiarata), mm (FR)",plugin:gw/euclid_256_cgw2|fr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Gromov-Wasserstein (POT) [euclid_256_cgw2] (non dichiarata), a CS_ref (SR)",plugin:gw/euclid_256_cgw2|sr,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"NoW metrical / MICA (Procrustes senza scala + ICP rigido), mm (media dei due versi)",plugin:now_metrical|mm,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"NoW originale (Procrustes + ICP con scala), mm (media dei due versi)",plugin:now_original|mm,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"REALY (gICP con scala + rICP per regione + nICP), mm (media dei due versi)",plugin:realy|mm,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+faceverse_neutral,"Stirling/ESRC (Procrustes con scala, RMSE), mm (media dei due versi)",plugin:stirling|mm,stessa_topologia,plug-in senza distanze fra soggetti diversi con la stessa topologia
+famos,plug-in now_metrical/lmk_det,plugin:now_metrical/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_metrical/lmk_s1,plugin:now_metrical/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_metrical/lmk_s2,plugin:now_metrical/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_metrical/lmk_s3,plugin:now_metrical/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_metrical/lmk_s5,plugin:now_metrical/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_original/lmk_det,plugin:now_original/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_original/lmk_s1,plugin:now_original/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_original/lmk_s2,plugin:now_original/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_original/lmk_s3,plugin:now_original/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in now_original/lmk_s5,plugin:now_original/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in realy/lmk_det,plugin:realy/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in realy/lmk_s1,plugin:realy/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in realy/lmk_s2,plugin:realy/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in realy/lmk_s3,plugin:realy/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in realy/lmk_s5,plugin:realy/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in stirling/lmk_det,plugin:stirling/lmk_det,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in stirling/lmk_s1,plugin:stirling/lmk_s1,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in stirling/lmk_s2,plugin:stirling/lmk_s2,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in stirling/lmk_s3,plugin:stirling/lmk_s3,tutti,nessun file per questo dominio al momento del calcolo
+famos,plug-in stirling/lmk_s5,plugin:stirling/lmk_s5,tutti,nessun file per questo dominio al momento del calcolo
+famos,NICP per coppia cs,cs_nicp_p2tri,tutti,non calcolato per questo dominio
+famos,"ArcFace-render, ombreggiato 3 viste (E12)",arcface_shaded,tutti,"render ombreggiato calcolato solo da E12 (HIFI3D, FaceVerse con espressioni)"
+famos,OpenShape PointBERT,openshape,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+famos,Uni3D-g,uni3d,tutti,OpenShape/Uni3D: solo dove gia' presenti (competitors_hifi3d)
+famos,tutti,-,crop,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,all_cross,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,con_perturbazione,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,coppia_topologie,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,tutti,-,stessa_topologia,"FaMoS TEST: scansioni reali, nessuna crop ne' perturbazione sintetica (solo il blocco scan gallery -> scan)"
+famos,"ArcFace-render, normal map 3 viste (G0)",arcface_normals,nocrop,"CAUTELA (calcolato, non escluso): sulle scansioni parziali il detector trova il volto in 27/45 render ({'-030.00': 11, '+000.00': 11, '+030.00': 5}); il ritaglio a +30 gradi e' tarato su 5 render su 15, fuori dal regime validato in G0"

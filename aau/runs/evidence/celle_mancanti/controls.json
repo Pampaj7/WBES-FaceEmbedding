@@ -1,0 +1,40 @@
+{
+ "spearman": {
+  "rows_new": 11872,
+  "rows_full_same_domains": 11360,
+  "rows_matched": 11358,
+  "rows_full_not_in_new": 2,
+  "full_not_in_new": [
+   "famos fr cs_nicp_p2tri",
+   "famos sr cs_nicp_p2tri"
+  ],
+  "n_righe_diverse": 0,
+  "max_abs_diff_rho": 0.0,
+  "max_abs_diff_ic_lo": 0.0,
+  "max_abs_diff_ic_hi": 0.0
+ },
+ "deltas": {
+  "rows_new": 14610,
+  "rows_full_same_domains": 14294,
+  "rows_matched": 14280,
+  "rows_full_not_in_new": 14,
+  "full_not_in_new": [
+   "famos fr cs_rigid_icp_chamfer cs_nicp_p2tri",
+   "famos fr ctrlfr_s1234|z cs_nicp_p2tri",
+   "famos fr ctrlfr_s2345|z cs_nicp_p2tri",
+   "famos fr factorized_s1234|form cs_nicp_p2tri",
+   "famos fr factorized_s1234|form_cal cs_nicp_p2tri",
+   "famos fr factorized_s2345|form cs_nicp_p2tri",
+   "famos fr factorized_s2345|form_cal cs_nicp_p2tri",
+   "famos sr cs_rigid_icp_chamfer cs_nicp_p2tri",
+   "famos sr factorized_s1234|shape cs_nicp_p2tri",
+   "famos sr factorized_s2345|shape cs_nicp_p2tri",
+   "famos sr flame2023_vb_sr cs_nicp_p2tri",
+   "famos sr gnm_vb_sr cs_nicp_p2tri"
+  ],
+  "n_righe_diverse": 0,
+  "max_abs_diff_delta": 0.0,
+  "max_abs_diff_ic_lo": 0.0,
+  "max_abs_diff_ic_hi": 0.0
+ }
+}

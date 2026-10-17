@@ -1,0 +1,5 @@
+riga_paper,dominio,gt,colonna,metodo,rho,ic_lo,ic_hi,n_righe,n_soggetti,seme,post_hoc,gia_nella_matrice,fonte
+"10x identities, d_F cal.",faceverse_neutral,fr,factorizedc3m_e123|form_cal,"C3M e123, d_F cal.",0.3473757311150364,0.2683035113284086,0.4192554230358311,99000,100,271049,True,False,aau/runs/evidence/celle_mancanti/fm/spearman.csv:10
+"10x identities, d_P",faceverse_neutral,sr,factorizedc3m_e123|shape,"C3M e123, d_P",0.3817958663781675,0.2932308227679085,0.4573152476562444,99000,100,271049,False,False,aau/runs/evidence/celle_mancanti/fm/spearman.csv:77
+"NICP to a template, size-normalized",faceverse_neutral,sr,cs_nicp_template,NICP su template cs,0.1748587027665949,0.0921176974469408,0.2567518666305369,99000,100,271049,False,False,aau/runs/evidence/celle_mancanti/fm/spearman.csv:86
+"NICP to a template, size-normalized",famos,sr,cs_nicp_template,NICP su template cs,0.3788098693759071,0.0872101382057755,0.6471901285191112,105,15,1234,True,False,aau/runs/evidence/celle_mancanti/fm/spearman.csv:11772
