@@ -1,0 +1,26 @@
+{
+ "key": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__3153c6aa/checkpoints/epoch330_ema.pth",
+ "head": "factorized",
+ "checkpoint": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/massive_release/main_a100/runs/v3_mixed_xtopo_xyz_dn_rank0.50_id0.25_z256_w128_b4_bs5_poolmeanmax_noise60_forward-groups_pooling-area_meanmax_inputnorm-global_areaweights-smooth_emadecay-0.999_head-factorized_seed1234__3153c6aa/checkpoints/epoch330_ema.pth",
+ "dp_per_unit": 0.24411710201003828,
+ "n_meshes": 1500,
+ "n_pairs": 297000,
+ "median_dP_gt": 0.0712853841740877,
+ "median_dP_model": 0.17623481777100292,
+ "c_median": 0.4044909233924192,
+ "c_ls": 0.4051590269194196,
+ "c_median_bfm": 0.4155183285462334,
+ "c_median_ict": 0.3704816853484272,
+ "c_median_gnm": 0.4253481938586633,
+ "arm": "factorized",
+ "sha256_checkpoint": "ec68102f4dba02ae4daa587d9efc231d3c0d6da6d38073b0b123f8084d456b26",
+ "embeddings": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/massive_eval/calib_paper/main/embeddings.npz",
+ "sha256_embeddings": "ea159f230943a67ace94fdc01e7380acba7c8dcaee9a5d47891efa29da2349b3",
+ "gt": "/home/create.aau.dk/ga41wf/WBES-FaceEmbedding/aau/runs/evidence/trainer_v3/ablations/c3f/gt_sr.npz",
+ "heldout_subjects": {
+  "bfm": 100,
+  "ict": 100,
+  "gnm": 100
+ },
+ "definition": "fact_calib.calib_one: coppie stesso dominio, soggetti ed etichette diversi; c = mediana(d_P GT-SR) / mediana(d_P modello), c_ls = minimi quadrati senza intercetta"
+}

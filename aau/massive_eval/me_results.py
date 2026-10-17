@@ -188,7 +188,7 @@ def main() -> None:
         F0, on=["colonna", "metrica"], suffixes=("", "_ref"))
     ctrl["famos_id_vs_esterna_famos_id"] = {"rows_matched": int(len(mm)), "max_abs_diff": float(np.nanmax(np.abs(
         mm[["valore", "ic_lo", "ic_hi"]].to_numpy(float) - mm[["valore_ref", "ic_lo_ref", "ic_hi_ref"]].to_numpy(float))))}
-    ctrl["famos_id_embed"] = {p.stem: json.loads(p.read_text()) for p in sorted((OUT / "famos_id" / "controls").glob("*.json"))}
+    ctrl["famos_id_embed"] = {p.stem: json.loads(p.read_text()) for p in sorted((OUT / "famos_id" / "controls").glob("embed_*.json"))}
     # --- uscite
     with open(OUT / "metrics.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]))
