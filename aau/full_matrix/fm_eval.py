@@ -143,10 +143,10 @@ REF = {"fr": ("factorized_s1234|form_cal", "factorized_s2345|form_cal", "factori
 
 def post_hoc(col: str, view: str = "") -> bool:
     """Letture POST HOC: d_F calibrata (emendamento 4), varianti A e B dei fit e la composizione (emendamenti 1 e 2 dei
-    concorrenti parametrici), il template di FaMoS costruito qui; C3M e' preregistrato come descrittivo (le sue d_F
-    non calibrata e d_P non sono post hoc, la d_F calibrata si')."""
+    concorrenti parametrici), i template di FaMoS costruiti qui (mm e cs); C3M e' preregistrato come descrittivo (le
+    sue d_F non calibrata e d_P non sono post hoc, la d_F calibrata si')."""
     return ("|form_cal" in col or "_va_" in col or "_vb_" in col or
-            (view == "famos" and col == "mm_nicp_template"))
+            (view == "famos" and col in ("mm_nicp_template", "cs_nicp_template")))
 
 
 # scala dell'allineamento: (gt, a, b, passo, ruolo, lato piu' allineato); delta = a - b. Ruolo: principale o secondario
@@ -347,7 +347,8 @@ def view_columns(view: str, idx) -> tuple[dict, dict]:
 
 def famos_extra(view: str, keys: list) -> dict:
     """``bp_paired.EXTRA`` per FaMoS (15 x 15 sulle chiavi di fit.npz): NICP per coppia in mm (shard di blmm), NICP su
-    template in mm, spettrali, ArcFace (fm_compute / fm_arcface)."""
+    template in mm e, se calcolato, in cs (``fm_compute.py famos-template --mode cs``), spettrali, ArcFace (fm_compute /
+    fm_arcface)."""
     if view != "famos":
         return {}
     rows = blmm.famos_manifest()
@@ -373,10 +374,14 @@ def famos_extra(view: str, keys: list) -> dict:
         # cs: gia' in fact_paired.famos_frame; qui solo come controllo (``fmchk_``)
         out[("" if mode == "mm" else "fmchk_") + f"{mode}_nicp_p2tri"] = \
             np.asarray([[M[row_of[a], col_of[b]] for b in vid] for a in vid])
-    with np.load(OUT / "famos_template" / "mm_template.npz") as z:
-        pos = {k: i for i, k in enumerate(keys_of(z))}
-        R = np.asarray(z["R"], np.float64)[[pos[k] for k in keys]]
-    out["mm_nicp_template"] = be.irt.template_distances(R, R)
+    for mode in ("mm", "cs"):
+        p = OUT / "famos_template" / f"{mode}_template.npz"
+        if mode == "cs" and not p.exists():
+            continue
+        with np.load(p) as z:
+            pos = {k: i for i, k in enumerate(keys_of(z))}
+            R = np.asarray(z["R"], np.float64)[[pos[k] for k in keys]]
+        out[f"{mode}_nicp_template"] = be.irt.template_distances(R, R)
     with np.load(OUT / "spectral" / "famos.npz") as z:
         pos = {k: i for i, k in enumerate(keys_of(z))}
     out.update(spectral_columns(OUT / "spectral" / "famos.npz", np.asarray([pos[k] for k in keys])))

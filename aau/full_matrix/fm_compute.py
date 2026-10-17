@@ -3,7 +3,7 @@
 
     aau/outlineB/run_o3d.sh aau/full_matrix/fm_compute.py fit-crop --workers 32          (venv open3d)
     aau/run.sh aau/full_matrix/fm_compute.py spectral --workers 32                       (venv del repo)
-    aau/outlineB/run_o3d.sh aau/full_matrix/fm_compute.py famos-template --workers 32    (venv open3d)
+    aau/outlineB/run_o3d.sh aau/full_matrix/fm_compute.py famos-template --workers 32 [--mode cs]   (venv open3d)
     aau/outlineB/run_o3d.sh aau/full_matrix/fm_compute.py icp-same --workers 64          (venv open3d)
     (fm.sbatch, passi fit_crop, spectral, famos_tpl, icp_same)
 
@@ -25,7 +25,12 @@ del dominio, cioe' le 80 persone FaMoS TRAIN: neutra di riferimento sulla masche
 ``d3_famos.work_mesh`` (1.787 vertici non bastano per 4.096 punti), media vertice per vertice, centrata, 4.096 vertici
 ``rng(0)``, nelle coordinate di lavoro del modo ``mm`` (/ L_famos). Iscrizione ``blmm.enroll`` (ICP di similarita' +
 NICP, ritorno al template con la rigida) col seme ``blmm.mesh_seed(view_id, "scan_gallery")`` (quello dei fit di bp).
-Uscita ``full_matrix/famos_template/mm_template.npz`` (formato di blmm_template.py).
+Uscita ``full_matrix/famos_template/mm_template.npz`` (formato di blmm_template.py). ``--mode cs`` (la colonna "NICP su
+template cs" di FaMoS, assente dalla matrice): le stesse persone, viste e semi, nelle coordinate del modo ``cs`` di
+``blmm.build_template`` / ``blmm.work_coords``: ogni neutra suddivisa centrata, / L_famos e scalata a cs_ref / cs (cs di
+``blmm.mesh_scalars`` sulla neutra suddivisa, la definizione degli scalari delle scansioni), media centrata, gli
+stessi 4.096 vertici ``rng(0)``; le scansioni in ``blmm.work_coords("famos", "cs")``; ``blmm.enroll`` modo ``cs``
+(ritorno al template con la rigida, come mm). Uscita ``full_matrix/famos_template/cs_template.npz`` (R x L_famos).
 
 ``icp-same``: ICP + Chamfer per coppia (``blmm.pair_metrics``, passo ``fast``, modi ``mm`` e ``cs``) fra soggetti
 DIVERSI con la STESSA topologia, che blmm_pairs.py non calcola (solo topologie diverse e stesso soggetto): per ogni
@@ -161,7 +166,7 @@ def _enroll(task):
     key, seed = task
     t0 = time.perf_counter()
     try:
-        R = blmm.enroll(_T["X"][key], seed, _T["T"], "mm")
+        R = blmm.enroll(_T["X"][key], seed, _T["T"], _T["mode"])
         sec = time.perf_counter() - t0
         Xs = rfr.sample_pts(_T["X"][key], blmm.N_POINTS, seed)
         Tn = np.asarray(fb.nonrigid_icp_align(ir_simicp.similarity_icp(_T["T"], Xs), Xs), dtype=np.float64)
@@ -172,14 +177,14 @@ def _enroll(task):
                 f"{type(exc).__name__}: {exc}", np.nan, np.nan)
 
 
-def famos_template(workers: int) -> None:
+def famos_template(workers: int, mode: str = "mm") -> None:
     import igl
     sys.path.insert(0, str(AAU / "baselines_param"))
     sys.path.insert(0, str(REPO / "v3_work" / "stream"))
     import bp
     import blmm
     import sources as S
-    out = OUT / "famos_template" / "mm_template.npz"
+    out = OUT / "famos_template" / f"{mode}_template.npz"
     if out.exists():
         print(f"[fm-tpl] {out}: gia' presente, salto", flush=True)
         return
@@ -190,18 +195,21 @@ def famos_template(workers: int) -> None:
     test_ids = {r["subject"] for r in blmm.famos_manifest()}
     if set(src.persons) & set(split["test"]) or set(src.persons) & test_ids:
         raise SystemExit("FaMoS: persone di TEST fra quelle del template")
+    dom = blmm.params()["domains"]["famos"]
+    L = float(dom["L"])
     Vs = []
     for p in src.persons:
         V, F, tag = src.view_mesh(p, np.random.default_rng(0), expr=False)
         if tag != "neutral":
             raise SystemExit(f"{p}: vista {tag}, attesa la neutra")
-        Vu, _ = igl.upsample(np.asarray(V, np.float64), np.asarray(F, np.int64), 1)
+        Vu, Fu = igl.upsample(np.asarray(V, np.float64), np.asarray(F, np.int64), 1)
+        if mode == "cs":                               # blmm.work_coords, modo cs: centro, / L, cs_ref / cs
+            Vu = (Vu - Vu.mean(0)) * (float(dom["cs_ref"]) / blmm.mesh_scalars(Vu, Fu)["cs"])
         Vs.append(Vu)
-    L = float(blmm.params()["domains"]["famos"]["L"])
     mean = np.mean(np.stack(Vs), axis=0) / L
     mean = mean - mean.mean(0)
     T = mean[np.sort(np.random.default_rng(0).choice(len(mean), blmm.N_POINTS, replace=False))]
-    _T.update(T=T, X={(s, t): blmm.work_coords("famos", "mm", q)[0] for s, t, q in items})
+    _T.update(T=T, mode=mode, X={(s, t): blmm.work_coords("famos", mode, q)[0] for s, t, q in items})
     tasks = [((s, t), blmm.mesh_seed(s, t)) for s, t, _ in items]
     with mp.get_context("fork").Pool(min(workers, len(tasks))) as pool:
         res = pool.map(_enroll, tasks, chunksize=1)
@@ -210,9 +218,9 @@ def famos_template(workers: int) -> None:
     blmm.atomic_savez(out, R=np.stack([r[0] for r in res]) * np.float32(L), subjects=np.asarray([s for s, _, _ in items]),
                       topologies=np.asarray([t for _, t, _ in items]), seeds=np.asarray([q for _, q in tasks]),
                       seconds=np.asarray([r[1] for r in res]), failed=np.asarray(failed), T=T * L,
-                      template_subjects=np.asarray(src.persons), n_template_vertices=len(mean), unit_mm=L, mode="mm",
+                      template_subjects=np.asarray(src.persons), n_template_vertices=len(mean), unit_mm=L, mode=mode,
                       resid_to_mesh_mm=resid, rerun_max_abs=float(np.nanmax([r[4] for r in res])))
-    print(f"[fm-tpl] FaMoS: template da {len(src.persons)} persone TRAIN ({len(mean)} vertici), {len(items)} "
+    print(f"[fm-tpl] FaMoS {mode}: template da {len(src.persons)} persone TRAIN ({len(mean)} vertici), {len(items)} "
           f"iscrizioni in {time.time() - t0:.0f}s, fallite {len(failed)}, residuo mediano {np.nanmedian(resid):.2f} mm",
           flush=True)
 
@@ -264,8 +272,12 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("step", choices=("fit-crop", "spectral", "famos-template", "icp-same"))
     p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--mode", default="mm", choices=("mm", "cs"), help="solo famos-template")
     a = p.parse_args()
-    {"fit-crop": fit_crop, "spectral": spectral, "famos-template": famos_template, "icp-same": icp_same}[a.step](a.workers)
+    if a.step == "famos-template":
+        famos_template(a.workers, a.mode)
+    else:
+        {"fit-crop": fit_crop, "spectral": spectral, "icp-same": icp_same}[a.step](a.workers)
 
 
 if __name__ == "__main__":
